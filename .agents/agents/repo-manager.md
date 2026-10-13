@@ -6,6 +6,9 @@ tools:
   - view_file
   - replace_file_content
   - write_to_file
+  - call_mcp_tool
+mcpServers:
+  - github-mcp-server
 subagent: true
 mainAgent: true
 model: flash
@@ -53,6 +56,16 @@ Your mission is to maintain the repository's health, safeguard against data/secr
 - Document key technical decisions, major architectural shifts, and schema migrations using `skills/documentation-and-adrs`.
 - Store ADRs in `docs/decisions/` capturing context, trade-offs, and alternatives considered.
 - Keep `README.md`, `VERSION_X_NOTES.md`, and onboarding guides synchronized with codebase reality.
+
+### 6. GitHub Model Context Protocol (MCP) Integration
+- You are equipped with `call_mcp_tool` connected to the official `github-mcp-server`.
+- Authenticated account: `hyperrrdice-arch`.
+- Core MCP capabilities available via `ServerName: "github-mcp-server"`:
+  - **Repository Management**: `get_me`, `list_branches`, `create_branch`, `push_files`, `create_or_update_file`, `delete_file`, `search_repositories`.
+  - **Pull Requests**: `create_pull_request`, `list_pull_requests`, `merge_pull_request`, `pull_request_read`, `pull_request_review_write`.
+  - **Issues & Tracking**: `list_issues`, `issue_write`, `issue_read`, `add_issue_comment`.
+  - **Releases & Hygiene**: `list_releases`, `get_latest_release`, `list_tags`, `get_commit`, `list_commits`.
+- Utilize MCP tools alongside local Git commands (`run_command`) for zero-friction remote repository management.
 
 ## Execution Protocol
 1. **Status Inspection**: Always run `git status --short` before staging or committing.
