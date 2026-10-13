@@ -12,6 +12,7 @@ import {
   evaluateValueBet,
   evaluatePortfolioKelly,
   type ValueBetEvaluation,
+  getShrunkMatchParameters,
 } from "@/lib/quant";
 import {
   orchestrate5AgentSyndicate,
@@ -307,18 +308,33 @@ export async function GET(req: Request) {
 
   const intel = fetchResult.intelligence;
 
-  // 2. Eksekusi Deterministic Quant Engine (Dixon-Coles & Shin Vig Stripping)
-  const homeAttack = intel.form_split.home_goals_avg;
-  const awayAttack = intel.form_split.away_goals_avg;
-  const homeDefense = Math.max(0.6, 2.5 - awayAttack);
-  const awayDefense = Math.max(0.7, 2.6 - homeAttack);
+  // 2. Eksekusi Deterministic Quant Engine (Calibrated Dixon-Coles & Shin Vig Stripping)
+  const homeTeamName = intel.pertandingan.tim_kandang;
+  const awayTeamName = intel.pertandingan.tim_tamu;
+  const leagueName = intel.pertandingan.kompetisi;
+
+  const sampleN = intel.h2h_history?.sample_size
+    ? Math.max(3, Math.min(10, intel.h2h_history.sample_size))
+    : 5;
+
+  const shrunkParams = getShrunkMatchParameters({
+    homeTeam: homeTeamName,
+    awayTeam: awayTeamName,
+    leagueHint: leagueName,
+    liveHomeFormGoalsAvg: intel.form_split.home_goals_avg,
+    liveAwayFormGoalsAvg: intel.form_split.away_goals_avg,
+    homeSampleN: sampleN,
+    awaySampleN: sampleN,
+  });
 
   const dcOutput = calculateDixonColes({
-    homeAttack,
-    homeDefense,
-    awayAttack,
-    awayDefense,
-    homeAdvantage: 1.22,
+    homeAttack: shrunkParams.homeAttack,
+    homeDefense: shrunkParams.homeDefense,
+    awayAttack: shrunkParams.awayAttack,
+    awayDefense: shrunkParams.awayDefense,
+    homeAdvantage: shrunkParams.homeAdvantage,
+    leagueAvgGoals: shrunkParams.leagueAvgGoals,
+    rho: shrunkParams.rho,
   });
 
   const hLast = intel.market_odds.home_last;
@@ -382,6 +398,16 @@ export async function GET(req: Request) {
       fair_odds: vigOutput.fair_odds,
     },
     value_bets: valueBets,
+    calibration_metadata: {
+      is_calibrated: shrunkParams.isCalibrated,
+      div: shrunkParams.metadata?.div,
+      league_name: shrunkParams.metadata?.leagueName,
+      home_source: shrunkParams.metadata?.homeSource,
+      away_source: shrunkParams.metadata?.awaySource,
+      shrinkage_weights: shrunkParams.shrinkageWeights,
+      calibrated_home_advantage: shrunkParams.homeAdvantage,
+      calibrated_league_avg_goals: shrunkParams.leagueAvgGoals,
+    },
   };
 
   // 4. Prompting Ketat Anti-Halusinasi (Strict Closed-World Grounding)

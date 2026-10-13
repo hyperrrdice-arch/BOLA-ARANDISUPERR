@@ -1,0 +1,4068 @@
+{
+  "version": "2.0-dixon-coles-mle",
+  "compiledAt": "2026-10-13T23:09:11.756Z",
+  "totalLeagues": 16,
+  "totalTeams": 428,
+  "leagues": {
+    "B1": {
+      "div": "B1",
+      "leagueName": "Belgian First Division A",
+      "country": "Belgium",
+      "seasonCount": 4,
+      "totalMatches": 1236,
+      "leagueAvgGoals": 1.443,
+      "homeAdvantage": 1.303,
+      "rho": -0.09,
+      "calibrationDate": "2025-05-25",
+      "teams": {
+        "Standard": {
+          "name": "Standard",
+          "attack": 0.595,
+          "defense": 1.405,
+          "matchesCount": 147,
+          "goalsScored": 162,
+          "goalsConceded": 202,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Genk": {
+          "name": "Genk",
+          "attack": 1.284,
+          "defense": 1.226,
+          "matchesCount": 149,
+          "goalsScored": 272,
+          "goalsConceded": 177,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Oud-Heverlee Leuven": {
+          "name": "Oud-Heverlee Leuven",
+          "attack": 0.764,
+          "defense": 1.649,
+          "matchesCount": 148,
+          "goalsScored": 188,
+          "goalsConceded": 217,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Waregem": {
+          "name": "Waregem",
+          "attack": 1.073,
+          "defense": 2.737,
+          "matchesCount": 68,
+          "goalsScored": 92,
+          "goalsConceded": 147,
+          "lastMatchDate": "2023-04-23"
+        },
+        "Kortrijk": {
+          "name": "Kortrijk",
+          "attack": 0.834,
+          "defense": 2.082,
+          "matchesCount": 140,
+          "goalsScored": 149,
+          "goalsConceded": 239,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Seraing": {
+          "name": "Seraing",
+          "attack": 0.587,
+          "defense": 2.344,
+          "matchesCount": 68,
+          "goalsScored": 58,
+          "goalsConceded": 136,
+          "lastMatchDate": "2023-04-22"
+        },
+        "Oostende": {
+          "name": "Oostende",
+          "attack": 0.775,
+          "defense": 2.569,
+          "matchesCount": 68,
+          "goalsScored": 71,
+          "goalsConceded": 137,
+          "lastMatchDate": "2023-04-23"
+        },
+        "Charleroi": {
+          "name": "Charleroi",
+          "attack": 1.003,
+          "defense": 1.477,
+          "matchesCount": 144,
+          "goalsScored": 192,
+          "goalsConceded": 196,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Mechelen": {
+          "name": "Mechelen",
+          "attack": 1.117,
+          "defense": 1.784,
+          "matchesCount": 148,
+          "goalsScored": 227,
+          "goalsConceded": 233,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Antwerp": {
+          "name": "Antwerp",
+          "attack": 1.1,
+          "defense": 1.394,
+          "matchesCount": 148,
+          "goalsScored": 233,
+          "goalsConceded": 159,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Club Brugge": {
+          "name": "Club Brugge",
+          "attack": 1.709,
+          "defense": 1.12,
+          "matchesCount": 148,
+          "goalsScored": 302,
+          "goalsConceded": 150,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Eupen": {
+          "name": "Eupen",
+          "attack": 0.585,
+          "defense": 2.25,
+          "matchesCount": 104,
+          "goalsScored": 106,
+          "goalsConceded": 202,
+          "lastMatchDate": "2024-05-11"
+        },
+        "Anderlecht": {
+          "name": "Anderlecht",
+          "attack": 1.238,
+          "defense": 1.17,
+          "matchesCount": 148,
+          "goalsScored": 253,
+          "goalsConceded": 164,
+          "lastMatchDate": "2025-05-25"
+        },
+        "St. Gilloise": {
+          "name": "St. Gilloise",
+          "attack": 1.505,
+          "defense": 0.851,
+          "matchesCount": 148,
+          "goalsScored": 299,
+          "goalsConceded": 139,
+          "lastMatchDate": "2025-05-25"
+        },
+        "St Truiden": {
+          "name": "St Truiden",
+          "attack": 1.002,
+          "defense": 2.083,
+          "matchesCount": 144,
+          "goalsScored": 178,
+          "goalsConceded": 207,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Gent": {
+          "name": "Gent",
+          "attack": 1.047,
+          "defense": 1.828,
+          "matchesCount": 149,
+          "goalsScored": 246,
+          "goalsConceded": 181,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Beerschot VA": {
+          "name": "Beerschot VA",
+          "attack": 0.781,
+          "defense": 2.216,
+          "matchesCount": 70,
+          "goalsScored": 69,
+          "goalsConceded": 146,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Cercle Brugge": {
+          "name": "Cercle Brugge",
+          "attack": 0.898,
+          "defense": 1.756,
+          "matchesCount": 144,
+          "goalsScored": 195,
+          "goalsConceded": 196,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Westerlo": {
+          "name": "Westerlo",
+          "attack": 1.243,
+          "defense": 2.07,
+          "matchesCount": 113,
+          "goalsScored": 184,
+          "goalsConceded": 192,
+          "lastMatchDate": "2025-05-24"
+        },
+        "RWD Molenbeek": {
+          "name": "RWD Molenbeek",
+          "attack": 0.802,
+          "defense": 2.648,
+          "matchesCount": 36,
+          "goalsScored": 39,
+          "goalsConceded": 76,
+          "lastMatchDate": "2024-05-11"
+        },
+        "Dender": {
+          "name": "Dender",
+          "attack": 1.06,
+          "defense": 2.265,
+          "matchesCount": 40,
+          "goalsScored": 53,
+          "goalsConceded": 72,
+          "lastMatchDate": "2025-05-24"
+        }
+      }
+    },
+    "D1": {
+      "div": "D1",
+      "leagueName": "German Bundesliga",
+      "country": "Germany",
+      "seasonCount": 4,
+      "totalMatches": 1224,
+      "leagueAvgGoals": 1.58,
+      "homeAdvantage": 1.128,
+      "rho": -0.11,
+      "calibrationDate": "2025-05-17",
+      "teams": {
+        "Borussia Monchengladbach": {
+          "name": "Borussia Monchengladbach",
+          "attack": 1.133,
+          "defense": 2.392,
+          "matchesCount": 136,
+          "goalsScored": 217,
+          "goalsConceded": 240,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Bayern Munich": {
+          "name": "Bayern Munich",
+          "attack": 1.93,
+          "defense": 1.516,
+          "matchesCount": 136,
+          "goalsScored": 382,
+          "goalsConceded": 152,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC Augsburg": {
+          "name": "FC Augsburg",
+          "attack": 0.754,
+          "defense": 2.017,
+          "matchesCount": 136,
+          "goalsScored": 166,
+          "goalsConceded": 230,
+          "lastMatchDate": "2025-05-17"
+        },
+        "TSG 1899 Hoffenheim": {
+          "name": "TSG 1899 Hoffenheim",
+          "attack": 1.077,
+          "defense": 2.666,
+          "matchesCount": 136,
+          "goalsScored": 218,
+          "goalsConceded": 251,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Bielefeld": {
+          "name": "Bielefeld",
+          "attack": 0.6,
+          "defense": 1.956,
+          "matchesCount": 34,
+          "goalsScored": 27,
+          "goalsConceded": 53,
+          "lastMatchDate": "2022-05-14"
+        },
+        "SC Freiburg": {
+          "name": "SC Freiburg",
+          "attack": 1.001,
+          "defense": 2.129,
+          "matchesCount": 136,
+          "goalsScored": 203,
+          "goalsConceded": 201,
+          "lastMatchDate": "2025-05-17"
+        },
+        "VfB Stuttgart": {
+          "name": "VfB Stuttgart",
+          "attack": 1.354,
+          "defense": 2.005,
+          "matchesCount": 136,
+          "goalsScored": 228,
+          "goalsConceded": 208,
+          "lastMatchDate": "2025-05-17"
+        },
+        "SpVgg Greuther Furth": {
+          "name": "SpVgg Greuther Furth",
+          "attack": 0.634,
+          "defense": 2.667,
+          "matchesCount": 34,
+          "goalsScored": 28,
+          "goalsConceded": 82,
+          "lastMatchDate": "2022-05-14"
+        },
+        "1. FC Union Berlin": {
+          "name": "1. FC Union Berlin",
+          "attack": 0.76,
+          "defense": 2.082,
+          "matchesCount": 136,
+          "goalsScored": 169,
+          "goalsConceded": 191,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Bayer Leverkusen": {
+          "name": "Bayer Leverkusen",
+          "attack": 1.484,
+          "defense": 1.592,
+          "matchesCount": 136,
+          "goalsScored": 298,
+          "goalsConceded": 163,
+          "lastMatchDate": "2025-05-17"
+        },
+        "VfL Wolfsburg": {
+          "name": "VfL Wolfsburg",
+          "attack": 1.017,
+          "defense": 2.124,
+          "matchesCount": 136,
+          "goalsScored": 197,
+          "goalsConceded": 212,
+          "lastMatchDate": "2025-05-17"
+        },
+        "VfL Bochum": {
+          "name": "VfL Bochum",
+          "attack": 0.755,
+          "defense": 2.634,
+          "matchesCount": 136,
+          "goalsScored": 153,
+          "goalsConceded": 265,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Borussia Dortmund": {
+          "name": "Borussia Dortmund",
+          "attack": 1.524,
+          "defense": 1.922,
+          "matchesCount": 136,
+          "goalsScored": 307,
+          "goalsConceded": 190,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Ein Frankfurt": {
+          "name": "Ein Frankfurt",
+          "attack": 1.277,
+          "defense": 1.9,
+          "matchesCount": 136,
+          "goalsScored": 222,
+          "goalsConceded": 197,
+          "lastMatchDate": "2025-05-17"
+        },
+        "1. FSV Mainz 05": {
+          "name": "1. FSV Mainz 05",
+          "attack": 1.066,
+          "defense": 1.771,
+          "matchesCount": 136,
+          "goalsScored": 198,
+          "goalsConceded": 194,
+          "lastMatchDate": "2025-05-17"
+        },
+        "RB Leipzig": {
+          "name": "RB Leipzig",
+          "attack": 1.184,
+          "defense": 1.868,
+          "matchesCount": 136,
+          "goalsScored": 266,
+          "goalsConceded": 165,
+          "lastMatchDate": "2025-05-17"
+        },
+        "1. FC Koln": {
+          "name": "1. FC Koln",
+          "attack": 0.708,
+          "defense": 2.287,
+          "matchesCount": 102,
+          "goalsScored": 129,
+          "goalsConceded": 163,
+          "lastMatchDate": "2024-05-18"
+        },
+        "Hertha BSC": {
+          "name": "Hertha BSC",
+          "attack": 0.864,
+          "defense": 2.759,
+          "matchesCount": 68,
+          "goalsScored": 79,
+          "goalsConceded": 140,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Werder Bremen": {
+          "name": "Werder Bremen",
+          "attack": 1.082,
+          "defense": 2.166,
+          "matchesCount": 102,
+          "goalsScored": 153,
+          "goalsConceded": 175,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Schalke 04": {
+          "name": "Schalke 04",
+          "attack": 0.798,
+          "defense": 2.675,
+          "matchesCount": 34,
+          "goalsScored": 35,
+          "goalsConceded": 71,
+          "lastMatchDate": "2023-05-27"
+        },
+        "1. FC Heidenheim": {
+          "name": "1. FC Heidenheim",
+          "attack": 0.798,
+          "defense": 2.357,
+          "matchesCount": 68,
+          "goalsScored": 87,
+          "goalsConceded": 119,
+          "lastMatchDate": "2025-05-17"
+        },
+        "SV Darmstadt 98": {
+          "name": "SV Darmstadt 98",
+          "attack": 0.559,
+          "defense": 3.36,
+          "matchesCount": 34,
+          "goalsScored": 30,
+          "goalsConceded": 86,
+          "lastMatchDate": "2024-05-18"
+        },
+        "Holstein Kiel": {
+          "name": "Holstein Kiel",
+          "attack": 1.062,
+          "defense": 3.072,
+          "matchesCount": 34,
+          "goalsScored": 49,
+          "goalsConceded": 80,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC St. Pauli": {
+          "name": "FC St. Pauli",
+          "attack": 0.579,
+          "defense": 1.562,
+          "matchesCount": 34,
+          "goalsScored": 28,
+          "goalsConceded": 41,
+          "lastMatchDate": "2025-05-17"
+        }
+      }
+    },
+    "D2": {
+      "div": "D2",
+      "leagueName": "German 2. Bundesliga",
+      "country": "Germany",
+      "seasonCount": 4,
+      "totalMatches": 1224,
+      "leagueAvgGoals": 1.497,
+      "homeAdvantage": 1.224,
+      "rho": -0.11,
+      "calibrationDate": "2025-05-18",
+      "teams": {
+        "Schalke 04": {
+          "name": "Schalke 04",
+          "attack": 1.034,
+          "defense": 2.227,
+          "matchesCount": 102,
+          "goalsScored": 177,
+          "goalsConceded": 166,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Hamburger SV": {
+          "name": "Hamburger SV",
+          "attack": 1.548,
+          "defense": 1.696,
+          "matchesCount": 136,
+          "goalsScored": 279,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-18"
+        },
+        "SV Darmstadt 98": {
+          "name": "SV Darmstadt 98",
+          "attack": 1.11,
+          "defense": 1.969,
+          "matchesCount": 102,
+          "goalsScored": 177,
+          "goalsConceded": 134,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Jahn Regensburg": {
+          "name": "Jahn Regensburg",
+          "attack": 0.555,
+          "defense": 2.463,
+          "matchesCount": 102,
+          "goalsScored": 107,
+          "goalsConceded": 180,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Dresden": {
+          "name": "Dresden",
+          "attack": 0.689,
+          "defense": 1.597,
+          "matchesCount": 34,
+          "goalsScored": 33,
+          "goalsConceded": 46,
+          "lastMatchDate": "2022-05-15"
+        },
+        "Ingolstadt": {
+          "name": "Ingolstadt",
+          "attack": 0.699,
+          "defense": 2.092,
+          "matchesCount": 34,
+          "goalsScored": 30,
+          "goalsConceded": 65,
+          "lastMatchDate": "2022-05-15"
+        },
+        "Hansa Rostock": {
+          "name": "Hansa Rostock",
+          "attack": 0.621,
+          "defense": 2.012,
+          "matchesCount": 102,
+          "goalsScored": 103,
+          "goalsConceded": 157,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Karlsruher SC": {
+          "name": "Karlsruher SC",
+          "attack": 1.199,
+          "defense": 1.921,
+          "matchesCount": 136,
+          "goalsScored": 235,
+          "goalsConceded": 211,
+          "lastMatchDate": "2025-05-18"
+        },
+        "1. FC Heidenheim": {
+          "name": "1. FC Heidenheim",
+          "attack": 1.257,
+          "defense": 1.417,
+          "matchesCount": 68,
+          "goalsScored": 110,
+          "goalsConceded": 81,
+          "lastMatchDate": "2023-05-28"
+        },
+        "SC Paderborn 07": {
+          "name": "SC Paderborn 07",
+          "attack": 1.147,
+          "defense": 1.795,
+          "matchesCount": 136,
+          "goalsScored": 234,
+          "goalsConceded": 188,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Werder Bremen": {
+          "name": "Werder Bremen",
+          "attack": 1.313,
+          "defense": 1.484,
+          "matchesCount": 34,
+          "goalsScored": 65,
+          "goalsConceded": 43,
+          "lastMatchDate": "2022-05-15"
+        },
+        "Hannover 96": {
+          "name": "Hannover 96",
+          "attack": 0.901,
+          "defense": 1.49,
+          "matchesCount": 136,
+          "goalsScored": 185,
+          "goalsConceded": 184,
+          "lastMatchDate": "2025-05-18"
+        },
+        "1. FC Nurnberg": {
+          "name": "1. FC Nurnberg",
+          "attack": 1.137,
+          "defense": 2.17,
+          "matchesCount": 136,
+          "goalsScored": 184,
+          "goalsConceded": 219,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Erzgebirge Aue": {
+          "name": "Erzgebirge Aue",
+          "attack": 0.751,
+          "defense": 2.496,
+          "matchesCount": 34,
+          "goalsScored": 32,
+          "goalsConceded": 72,
+          "lastMatchDate": "2022-05-15"
+        },
+        "Sandhausen": {
+          "name": "Sandhausen",
+          "attack": 0.748,
+          "defense": 2.198,
+          "matchesCount": 68,
+          "goalsScored": 77,
+          "goalsConceded": 117,
+          "lastMatchDate": "2023-05-28"
+        },
+        "Fortuna Dusseldorf": {
+          "name": "Fortuna Dusseldorf",
+          "attack": 1.247,
+          "defense": 1.916,
+          "matchesCount": 136,
+          "goalsScored": 234,
+          "goalsConceded": 177,
+          "lastMatchDate": "2025-05-18"
+        },
+        "FC St. Pauli": {
+          "name": "FC St. Pauli",
+          "attack": 1.234,
+          "defense": 1.442,
+          "matchesCount": 102,
+          "goalsScored": 178,
+          "goalsConceded": 121,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Holstein Kiel": {
+          "name": "Holstein Kiel",
+          "attack": 1.281,
+          "defense": 1.58,
+          "matchesCount": 102,
+          "goalsScored": 169,
+          "goalsConceded": 154,
+          "lastMatchDate": "2024-05-19"
+        },
+        "1. FC Kaiserslautern": {
+          "name": "1. FC Kaiserslautern",
+          "attack": 1.134,
+          "defense": 2.138,
+          "matchesCount": 102,
+          "goalsScored": 162,
+          "goalsConceded": 167,
+          "lastMatchDate": "2025-05-18"
+        },
+        "SpVgg Greuther Furth": {
+          "name": "SpVgg Greuther Furth",
+          "attack": 0.925,
+          "defense": 2.045,
+          "matchesCount": 102,
+          "goalsScored": 142,
+          "goalsConceded": 158,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Bielefeld": {
+          "name": "Bielefeld",
+          "attack": 1.063,
+          "defense": 2.279,
+          "matchesCount": 34,
+          "goalsScored": 50,
+          "goalsConceded": 62,
+          "lastMatchDate": "2023-05-28"
+        },
+        "1. FC Magdeburg": {
+          "name": "1. FC Magdeburg",
+          "attack": 1.203,
+          "defense": 2.025,
+          "matchesCount": 102,
+          "goalsScored": 158,
+          "goalsConceded": 161,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Eintracht Braunschweig": {
+          "name": "Eintracht Braunschweig",
+          "attack": 0.831,
+          "defense": 2.238,
+          "matchesCount": 102,
+          "goalsScored": 117,
+          "goalsConceded": 176,
+          "lastMatchDate": "2025-05-18"
+        },
+        "SV Elversberg": {
+          "name": "SV Elversberg",
+          "attack": 1.256,
+          "defense": 1.559,
+          "matchesCount": 68,
+          "goalsScored": 113,
+          "goalsConceded": 100,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Osnabruck": {
+          "name": "Osnabruck",
+          "attack": 0.642,
+          "defense": 2.428,
+          "matchesCount": 34,
+          "goalsScored": 31,
+          "goalsConceded": 69,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Wehen": {
+          "name": "Wehen",
+          "attack": 0.726,
+          "defense": 1.939,
+          "matchesCount": 34,
+          "goalsScored": 36,
+          "goalsConceded": 50,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Hertha BSC": {
+          "name": "Hertha BSC",
+          "attack": 1.089,
+          "defense": 1.961,
+          "matchesCount": 68,
+          "goalsScored": 118,
+          "goalsConceded": 110,
+          "lastMatchDate": "2025-05-18"
+        },
+        "1. FC Koln": {
+          "name": "1. FC Koln",
+          "attack": 1.031,
+          "defense": 1.323,
+          "matchesCount": 34,
+          "goalsScored": 53,
+          "goalsConceded": 38,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Preußen Munster": {
+          "name": "Preußen Munster",
+          "attack": 0.855,
+          "defense": 1.511,
+          "matchesCount": 34,
+          "goalsScored": 40,
+          "goalsConceded": 43,
+          "lastMatchDate": "2025-05-18"
+        },
+        "SSV Ulm 1846": {
+          "name": "SSV Ulm 1846",
+          "attack": 0.772,
+          "defense": 1.872,
+          "matchesCount": 34,
+          "goalsScored": 36,
+          "goalsConceded": 48,
+          "lastMatchDate": "2025-05-18"
+        }
+      }
+    },
+    "E0": {
+      "div": "E0",
+      "leagueName": "English Premier League",
+      "country": "England",
+      "seasonCount": 4,
+      "totalMatches": 1520,
+      "leagueAvgGoals": 1.486,
+      "homeAdvantage": 1.122,
+      "rho": 0,
+      "calibrationDate": "2025-05-25",
+      "teams": {
+        "Brentford": {
+          "name": "Brentford",
+          "attack": 1.198,
+          "defense": 1.921,
+          "matchesCount": 152,
+          "goalsScored": 228,
+          "goalsConceded": 224,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Arsenal": {
+          "name": "Arsenal",
+          "attack": 1.38,
+          "defense": 1.175,
+          "matchesCount": 152,
+          "goalsScored": 309,
+          "goalsConceded": 154,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Manchester United": {
+          "name": "Manchester United",
+          "attack": 0.917,
+          "defense": 1.859,
+          "matchesCount": 152,
+          "goalsScored": 216,
+          "goalsConceded": 212,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Leeds United": {
+          "name": "Leeds United",
+          "attack": 0.888,
+          "defense": 2.7,
+          "matchesCount": 76,
+          "goalsScored": 90,
+          "goalsConceded": 157,
+          "lastMatchDate": "2023-05-28"
+        },
+        "Burnley": {
+          "name": "Burnley",
+          "attack": 0.798,
+          "defense": 2.446,
+          "matchesCount": 76,
+          "goalsScored": 75,
+          "goalsConceded": 131,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Brighton & Hove Albion": {
+          "name": "Brighton & Hove Albion",
+          "attack": 1.224,
+          "defense": 2.05,
+          "matchesCount": 152,
+          "goalsScored": 235,
+          "goalsConceded": 218,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Chelsea": {
+          "name": "Chelsea",
+          "attack": 1.191,
+          "defense": 1.58,
+          "matchesCount": 152,
+          "goalsScored": 255,
+          "goalsConceded": 186,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Crystal Palace": {
+          "name": "Crystal Palace",
+          "attack": 1.052,
+          "defense": 1.767,
+          "matchesCount": 152,
+          "goalsScored": 198,
+          "goalsConceded": 204,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Everton": {
+          "name": "Everton",
+          "attack": 0.802,
+          "defense": 1.476,
+          "matchesCount": 152,
+          "goalsScored": 159,
+          "goalsConceded": 218,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Southampton": {
+          "name": "Southampton",
+          "attack": 0.53,
+          "defense": 2.828,
+          "matchesCount": 114,
+          "goalsScored": 105,
+          "goalsConceded": 226,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Leicester City": {
+          "name": "Leicester City",
+          "attack": 0.635,
+          "defense": 2.592,
+          "matchesCount": 114,
+          "goalsScored": 146,
+          "goalsConceded": 207,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Wolverhampton Wanderers": {
+          "name": "Wolverhampton Wanderers",
+          "attack": 0.971,
+          "defense": 2.183,
+          "matchesCount": 152,
+          "goalsScored": 173,
+          "goalsConceded": 235,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Watford": {
+          "name": "Watford",
+          "attack": 0.626,
+          "defense": 2.44,
+          "matchesCount": 38,
+          "goalsScored": 34,
+          "goalsConceded": 77,
+          "lastMatchDate": "2022-05-22"
+        },
+        "Aston Villa": {
+          "name": "Aston Villa",
+          "attack": 1.155,
+          "defense": 1.73,
+          "matchesCount": 152,
+          "goalsScored": 237,
+          "goalsConceded": 212,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Norwich City": {
+          "name": "Norwich City",
+          "attack": 0.498,
+          "defense": 2.607,
+          "matchesCount": 38,
+          "goalsScored": 23,
+          "goalsConceded": 84,
+          "lastMatchDate": "2022-05-22"
+        },
+        "Liverpool": {
+          "name": "Liverpool",
+          "attack": 1.595,
+          "defense": 1.545,
+          "matchesCount": 152,
+          "goalsScored": 341,
+          "goalsConceded": 155,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Newcastle United": {
+          "name": "Newcastle United",
+          "attack": 1.38,
+          "defense": 1.719,
+          "matchesCount": 152,
+          "goalsScored": 265,
+          "goalsConceded": 204,
+          "lastMatchDate": "2025-05-25"
+        },
+        "West Ham United": {
+          "name": "West Ham United",
+          "attack": 0.934,
+          "defense": 2.145,
+          "matchesCount": 152,
+          "goalsScored": 208,
+          "goalsConceded": 242,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Tottenham Hotspur": {
+          "name": "Tottenham Hotspur",
+          "attack": 1.192,
+          "defense": 2.315,
+          "matchesCount": 152,
+          "goalsScored": 277,
+          "goalsConceded": 229,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Manchester City": {
+          "name": "Manchester City",
+          "attack": 1.467,
+          "defense": 1.344,
+          "matchesCount": 152,
+          "goalsScored": 361,
+          "goalsConceded": 137,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Fulham": {
+          "name": "Fulham",
+          "attack": 1.034,
+          "defense": 1.908,
+          "matchesCount": 114,
+          "goalsScored": 164,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Bournemouth": {
+          "name": "Bournemouth",
+          "attack": 1.041,
+          "defense": 1.739,
+          "matchesCount": 114,
+          "goalsScored": 149,
+          "goalsConceded": 184,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Nottingham Forest": {
+          "name": "Nottingham Forest",
+          "attack": 1.05,
+          "defense": 1.798,
+          "matchesCount": 114,
+          "goalsScored": 145,
+          "goalsConceded": 181,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Luton Town": {
+          "name": "Luton Town",
+          "attack": 1.036,
+          "defense": 2.905,
+          "matchesCount": 38,
+          "goalsScored": 52,
+          "goalsConceded": 85,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Sheffield United": {
+          "name": "Sheffield United",
+          "attack": 0.705,
+          "defense": 3.439,
+          "matchesCount": 38,
+          "goalsScored": 35,
+          "goalsConceded": 104,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Ipswich Town": {
+          "name": "Ipswich Town",
+          "attack": 0.701,
+          "defense": 2.845,
+          "matchesCount": 38,
+          "goalsScored": 36,
+          "goalsConceded": 82,
+          "lastMatchDate": "2025-05-25"
+        }
+      }
+    },
+    "E1": {
+      "div": "E1",
+      "leagueName": "English Championship",
+      "country": "England",
+      "seasonCount": 4,
+      "totalMatches": 2208,
+      "leagueAvgGoals": 1.259,
+      "homeAdvantage": 1.355,
+      "rho": 0.02,
+      "calibrationDate": "2025-05-03",
+      "teams": {
+        "Bournemouth": {
+          "name": "Bournemouth",
+          "attack": 1.199,
+          "defense": 0.967,
+          "matchesCount": 46,
+          "goalsScored": 74,
+          "goalsConceded": 39,
+          "lastMatchDate": "2022-05-07"
+        },
+        "West Bromwich Albion": {
+          "name": "West Bromwich Albion",
+          "attack": 1.022,
+          "defense": 1.189,
+          "matchesCount": 184,
+          "goalsScored": 238,
+          "goalsConceded": 192,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Blackburn Rovers": {
+          "name": "Blackburn Rovers",
+          "attack": 0.916,
+          "defense": 1.256,
+          "matchesCount": 184,
+          "goalsScored": 224,
+          "goalsConceded": 226,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Swansea City": {
+          "name": "Swansea City",
+          "attack": 0.948,
+          "defense": 1.384,
+          "matchesCount": 184,
+          "goalsScored": 236,
+          "goalsConceded": 253,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Bristol City": {
+          "name": "Bristol City",
+          "attack": 0.997,
+          "defense": 1.293,
+          "matchesCount": 184,
+          "goalsScored": 229,
+          "goalsConceded": 239,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Blackpool": {
+          "name": "Blackpool",
+          "attack": 0.84,
+          "defense": 1.746,
+          "matchesCount": 92,
+          "goalsScored": 102,
+          "goalsConceded": 130,
+          "lastMatchDate": "2023-05-08"
+        },
+        "Cardiff City": {
+          "name": "Cardiff City",
+          "attack": 0.845,
+          "defense": 1.69,
+          "matchesCount": 184,
+          "goalsScored": 192,
+          "goalsConceded": 269,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Barnsley": {
+          "name": "Barnsley",
+          "attack": 0.606,
+          "defense": 1.723,
+          "matchesCount": 46,
+          "goalsScored": 33,
+          "goalsConceded": 73,
+          "lastMatchDate": "2022-05-07"
+        },
+        "Derby County": {
+          "name": "Derby County",
+          "attack": 0.816,
+          "defense": 1.261,
+          "matchesCount": 92,
+          "goalsScored": 93,
+          "goalsConceded": 109,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Huddersfield": {
+          "name": "Huddersfield",
+          "attack": 0.826,
+          "defense": 1.683,
+          "matchesCount": 138,
+          "goalsScored": 159,
+          "goalsConceded": 186,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Luton Town": {
+          "name": "Luton Town",
+          "attack": 0.819,
+          "defense": 1.52,
+          "matchesCount": 138,
+          "goalsScored": 165,
+          "goalsConceded": 163,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Peterboro": {
+          "name": "Peterboro",
+          "attack": 0.789,
+          "defense": 1.926,
+          "matchesCount": 46,
+          "goalsScored": 43,
+          "goalsConceded": 87,
+          "lastMatchDate": "2022-05-07"
+        },
+        "Preston North End": {
+          "name": "Preston North End",
+          "attack": 0.855,
+          "defense": 1.429,
+          "matchesCount": 184,
+          "goalsScored": 201,
+          "goalsConceded": 241,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Hull City": {
+          "name": "Hull City",
+          "attack": 0.83,
+          "defense": 1.262,
+          "matchesCount": 184,
+          "goalsScored": 204,
+          "goalsConceded": 229,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Queens Park Rangers": {
+          "name": "Queens Park Rangers",
+          "attack": 0.912,
+          "defense": 1.465,
+          "matchesCount": 184,
+          "goalsScored": 204,
+          "goalsConceded": 251,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Millwall": {
+          "name": "Millwall",
+          "attack": 0.812,
+          "defense": 1.18,
+          "matchesCount": 184,
+          "goalsScored": 202,
+          "goalsConceded": 199,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Stoke City": {
+          "name": "Stoke City",
+          "attack": 0.809,
+          "defense": 1.431,
+          "matchesCount": 184,
+          "goalsScored": 206,
+          "goalsConceded": 228,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Reading": {
+          "name": "Reading",
+          "attack": 0.784,
+          "defense": 1.795,
+          "matchesCount": 92,
+          "goalsScored": 100,
+          "goalsConceded": 155,
+          "lastMatchDate": "2023-05-08"
+        },
+        "Sheffield United": {
+          "name": "Sheffield United",
+          "attack": 1.086,
+          "defense": 0.916,
+          "matchesCount": 138,
+          "goalsScored": 199,
+          "goalsConceded": 120,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Birmingham": {
+          "name": "Birmingham",
+          "attack": 0.8,
+          "defense": 1.48,
+          "matchesCount": 138,
+          "goalsScored": 147,
+          "goalsConceded": 198,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Fulham": {
+          "name": "Fulham",
+          "attack": 1.654,
+          "defense": 1.103,
+          "matchesCount": 46,
+          "goalsScored": 106,
+          "goalsConceded": 43,
+          "lastMatchDate": "2022-05-07"
+        },
+        "Middlesbrough": {
+          "name": "Middlesbrough",
+          "attack": 1.117,
+          "defense": 1.333,
+          "matchesCount": 184,
+          "goalsScored": 278,
+          "goalsConceded": 224,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Coventry City": {
+          "name": "Coventry City",
+          "attack": 1.131,
+          "defense": 1.357,
+          "matchesCount": 184,
+          "goalsScored": 252,
+          "goalsConceded": 222,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Nottingham Forest": {
+          "name": "Nottingham Forest",
+          "attack": 1.248,
+          "defense": 0.904,
+          "matchesCount": 46,
+          "goalsScored": 73,
+          "goalsConceded": 40,
+          "lastMatchDate": "2022-05-07"
+        },
+        "Burnley": {
+          "name": "Burnley",
+          "attack": 1.251,
+          "defense": 0.426,
+          "matchesCount": 92,
+          "goalsScored": 156,
+          "goalsConceded": 51,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Norwich City": {
+          "name": "Norwich City",
+          "attack": 1.223,
+          "defense": 1.592,
+          "matchesCount": 138,
+          "goalsScored": 207,
+          "goalsConceded": 186,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Rotherham": {
+          "name": "Rotherham",
+          "attack": 0.651,
+          "defense": 1.883,
+          "matchesCount": 92,
+          "goalsScored": 86,
+          "goalsConceded": 149,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Wigan": {
+          "name": "Wigan",
+          "attack": 0.611,
+          "defense": 1.531,
+          "matchesCount": 46,
+          "goalsScored": 38,
+          "goalsConceded": 65,
+          "lastMatchDate": "2023-05-08"
+        },
+        "Sunderland": {
+          "name": "Sunderland",
+          "attack": 0.896,
+          "defense": 1.132,
+          "matchesCount": 138,
+          "goalsScored": 178,
+          "goalsConceded": 153,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Watford": {
+          "name": "Watford",
+          "attack": 0.89,
+          "defense": 1.402,
+          "matchesCount": 138,
+          "goalsScored": 170,
+          "goalsConceded": 175,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Sheffield Weds": {
+          "name": "Sheffield Weds",
+          "attack": 0.986,
+          "defense": 1.579,
+          "matchesCount": 92,
+          "goalsScored": 104,
+          "goalsConceded": 137,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Southampton": {
+          "name": "Southampton",
+          "attack": 1.457,
+          "defense": 1.465,
+          "matchesCount": 46,
+          "goalsScored": 87,
+          "goalsConceded": 63,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Plymouth Argyle": {
+          "name": "Plymouth Argyle",
+          "attack": 0.936,
+          "defense": 1.916,
+          "matchesCount": 92,
+          "goalsScored": 110,
+          "goalsConceded": 158,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Leicester City": {
+          "name": "Leicester City",
+          "attack": 1.445,
+          "defense": 1.001,
+          "matchesCount": 46,
+          "goalsScored": 89,
+          "goalsConceded": 41,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Leeds United": {
+          "name": "Leeds United",
+          "attack": 1.594,
+          "defense": 0.796,
+          "matchesCount": 92,
+          "goalsScored": 176,
+          "goalsConceded": 73,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Ipswich Town": {
+          "name": "Ipswich Town",
+          "attack": 1.508,
+          "defense": 1.307,
+          "matchesCount": 46,
+          "goalsScored": 92,
+          "goalsConceded": 57,
+          "lastMatchDate": "2024-05-04"
+        },
+        "Portsmouth": {
+          "name": "Portsmouth",
+          "attack": 1.034,
+          "defense": 1.617,
+          "matchesCount": 46,
+          "goalsScored": 58,
+          "goalsConceded": 71,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Oxford United": {
+          "name": "Oxford United",
+          "attack": 0.857,
+          "defense": 1.496,
+          "matchesCount": 46,
+          "goalsScored": 49,
+          "goalsConceded": 65,
+          "lastMatchDate": "2025-05-03"
+        }
+      }
+    },
+    "F1": {
+      "div": "F1",
+      "leagueName": "French Ligue 1",
+      "country": "France",
+      "seasonCount": 4,
+      "totalMatches": 1372,
+      "leagueAvgGoals": 1.411,
+      "homeAdvantage": 1.169,
+      "rho": -0.07,
+      "calibrationDate": "2025-05-17",
+      "teams": {
+        "AS Monaco": {
+          "name": "AS Monaco",
+          "attack": 1.378,
+          "defense": 1.536,
+          "matchesCount": 144,
+          "goalsScored": 266,
+          "goalsConceded": 181,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC Nantes": {
+          "name": "FC Nantes",
+          "attack": 0.786,
+          "defense": 1.8,
+          "matchesCount": 144,
+          "goalsScored": 161,
+          "goalsConceded": 210,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Olympique Lyonnais": {
+          "name": "Olympique Lyonnais",
+          "attack": 1.379,
+          "defense": 1.724,
+          "matchesCount": 144,
+          "goalsScored": 245,
+          "goalsConceded": 199,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Stade Brestois 29": {
+          "name": "Stade Brestois 29",
+          "attack": 1.13,
+          "defense": 1.933,
+          "matchesCount": 144,
+          "goalsScored": 198,
+          "goalsConceded": 204,
+          "lastMatchDate": "2025-05-17"
+        },
+        "ESTAC Troyes": {
+          "name": "ESTAC Troyes",
+          "attack": 0.777,
+          "defense": 2.378,
+          "matchesCount": 76,
+          "goalsScored": 82,
+          "goalsConceded": 134,
+          "lastMatchDate": "2023-06-03"
+        },
+        "Paris Saint-Germain": {
+          "name": "Paris Saint-Germain",
+          "attack": 1.856,
+          "defense": 1.358,
+          "matchesCount": 144,
+          "goalsScored": 352,
+          "goalsConceded": 144,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Stade Rennais": {
+          "name": "Stade Rennais",
+          "attack": 1.175,
+          "defense": 1.747,
+          "matchesCount": 144,
+          "goalsScored": 255,
+          "goalsConceded": 175,
+          "lastMatchDate": "2025-05-17"
+        },
+        "RC Lens": {
+          "name": "RC Lens",
+          "attack": 0.964,
+          "defense": 1.398,
+          "matchesCount": 144,
+          "goalsScored": 217,
+          "goalsConceded": 153,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Girondins de Bordeaux": {
+          "name": "Girondins de Bordeaux",
+          "attack": 0.965,
+          "defense": 2.645,
+          "matchesCount": 38,
+          "goalsScored": 52,
+          "goalsConceded": 91,
+          "lastMatchDate": "2022-05-21"
+        },
+        "Clermont Foot": {
+          "name": "Clermont Foot",
+          "attack": 0.663,
+          "defense": 2.035,
+          "matchesCount": 110,
+          "goalsScored": 109,
+          "goalsConceded": 178,
+          "lastMatchDate": "2024-05-19"
+        },
+        "OGC Nice": {
+          "name": "OGC Nice",
+          "attack": 1.274,
+          "defense": 1.383,
+          "matchesCount": 144,
+          "goalsScored": 206,
+          "goalsConceded": 143,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Stade de Reims": {
+          "name": "Stade de Reims",
+          "attack": 0.695,
+          "defense": 1.599,
+          "matchesCount": 144,
+          "goalsScored": 163,
+          "goalsConceded": 183,
+          "lastMatchDate": "2025-05-17"
+        },
+        "AS Saint-Etienne": {
+          "name": "AS Saint-Etienne",
+          "attack": 0.939,
+          "defense": 2.688,
+          "matchesCount": 72,
+          "goalsScored": 81,
+          "goalsConceded": 154,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC Lorient": {
+          "name": "FC Lorient",
+          "attack": 0.923,
+          "defense": 2.183,
+          "matchesCount": 110,
+          "goalsScored": 130,
+          "goalsConceded": 182,
+          "lastMatchDate": "2024-05-19"
+        },
+        "RC Strasbourg": {
+          "name": "RC Strasbourg",
+          "attack": 1.107,
+          "defense": 1.562,
+          "matchesCount": 144,
+          "goalsScored": 205,
+          "goalsConceded": 196,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Angers SCO": {
+          "name": "Angers SCO",
+          "attack": 0.674,
+          "defense": 1.856,
+          "matchesCount": 110,
+          "goalsScored": 109,
+          "goalsConceded": 189,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC Metz": {
+          "name": "FC Metz",
+          "attack": 0.783,
+          "defense": 2.083,
+          "matchesCount": 72,
+          "goalsScored": 70,
+          "goalsConceded": 127,
+          "lastMatchDate": "2024-05-19"
+        },
+        "LOSC Lille": {
+          "name": "LOSC Lille",
+          "attack": 1.108,
+          "defense": 1.302,
+          "matchesCount": 144,
+          "goalsScored": 217,
+          "goalsConceded": 162,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Montpellier HSC": {
+          "name": "Montpellier HSC",
+          "attack": 0.613,
+          "defense": 2.43,
+          "matchesCount": 144,
+          "goalsScored": 180,
+          "goalsConceded": 250,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Olympique de Marseille": {
+          "name": "Olympique de Marseille",
+          "attack": 1.478,
+          "defense": 1.694,
+          "matchesCount": 144,
+          "goalsScored": 256,
+          "goalsConceded": 166,
+          "lastMatchDate": "2025-05-17"
+        },
+        "AC Ajaccio": {
+          "name": "AC Ajaccio",
+          "attack": 0.418,
+          "defense": 2.424,
+          "matchesCount": 38,
+          "goalsScored": 23,
+          "goalsConceded": 74,
+          "lastMatchDate": "2023-06-03"
+        },
+        "Toulouse FC": {
+          "name": "Toulouse FC",
+          "attack": 0.98,
+          "defense": 1.598,
+          "matchesCount": 106,
+          "goalsScored": 137,
+          "goalsConceded": 146,
+          "lastMatchDate": "2025-05-17"
+        },
+        "AJ Auxerre": {
+          "name": "AJ Auxerre",
+          "attack": 1.012,
+          "defense": 1.76,
+          "matchesCount": 72,
+          "goalsScored": 83,
+          "goalsConceded": 114,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Le Havre AC": {
+          "name": "Le Havre AC",
+          "attack": 0.921,
+          "defense": 2.306,
+          "matchesCount": 68,
+          "goalsScored": 74,
+          "goalsConceded": 116,
+          "lastMatchDate": "2025-05-17"
+        }
+      }
+    },
+    "F2": {
+      "div": "F2",
+      "leagueName": "French Ligue 2",
+      "country": "France",
+      "seasonCount": 4,
+      "totalMatches": 1445,
+      "leagueAvgGoals": 1.213,
+      "homeAdvantage": 1.341,
+      "rho": 0.02,
+      "calibrationDate": "2025-05-10",
+      "teams": {
+        "SC Bastia": {
+          "name": "SC Bastia",
+          "attack": 1.018,
+          "defense": 1.22,
+          "matchesCount": 148,
+          "goalsScored": 177,
+          "goalsConceded": 166,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Nimes": {
+          "name": "Nimes",
+          "attack": 0.963,
+          "defense": 1.69,
+          "matchesCount": 76,
+          "goalsScored": 88,
+          "goalsConceded": 113,
+          "lastMatchDate": "2023-06-02"
+        },
+        "Amiens SC": {
+          "name": "Amiens SC",
+          "attack": 0.852,
+          "defense": 1.41,
+          "matchesCount": 148,
+          "goalsScored": 157,
+          "goalsConceded": 179,
+          "lastMatchDate": "2025-05-10"
+        },
+        "AJ Auxerre": {
+          "name": "AJ Auxerre",
+          "attack": 1.427,
+          "defense": 0.983,
+          "matchesCount": 76,
+          "goalsScored": 133,
+          "goalsConceded": 75,
+          "lastMatchDate": "2024-05-17"
+        },
+        "SM Caen": {
+          "name": "SM Caen",
+          "attack": 0.817,
+          "defense": 1.628,
+          "matchesCount": 148,
+          "goalsScored": 185,
+          "goalsConceded": 188,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Rodez AF": {
+          "name": "Rodez AF",
+          "attack": 1.248,
+          "defense": 1.543,
+          "matchesCount": 148,
+          "goalsScored": 189,
+          "goalsConceded": 191,
+          "lastMatchDate": "2025-05-10"
+        },
+        "US Dunkerque": {
+          "name": "US Dunkerque",
+          "attack": 0.959,
+          "defense": 1.225,
+          "matchesCount": 110,
+          "goalsScored": 111,
+          "goalsConceded": 145,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Quevilly Rouen": {
+          "name": "Quevilly Rouen",
+          "attack": 1.054,
+          "defense": 1.488,
+          "matchesCount": 114,
+          "goalsScored": 131,
+          "goalsConceded": 154,
+          "lastMatchDate": "2024-05-17"
+        },
+        "Grenoble Foot 38": {
+          "name": "Grenoble Foot 38",
+          "attack": 0.944,
+          "defense": 1.344,
+          "matchesCount": 148,
+          "goalsScored": 151,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Paris FC": {
+          "name": "Paris FC",
+          "attack": 1.184,
+          "defense": 1.063,
+          "matchesCount": 148,
+          "goalsScored": 203,
+          "goalsConceded": 153,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Le Havre AC": {
+          "name": "Le Havre AC",
+          "attack": 0.822,
+          "defense": 0.706,
+          "matchesCount": 76,
+          "goalsScored": 84,
+          "goalsConceded": 60,
+          "lastMatchDate": "2023-06-02"
+        },
+        "EA Guingamp": {
+          "name": "EA Guingamp",
+          "attack": 1.194,
+          "defense": 1.332,
+          "matchesCount": 148,
+          "goalsScored": 204,
+          "goalsConceded": 179,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Pau FC": {
+          "name": "Pau FC",
+          "attack": 0.987,
+          "defense": 1.675,
+          "matchesCount": 148,
+          "goalsScored": 180,
+          "goalsConceded": 211,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Nancy": {
+          "name": "Nancy",
+          "attack": 0.721,
+          "defense": 1.772,
+          "matchesCount": 38,
+          "goalsScored": 32,
+          "goalsConceded": 69,
+          "lastMatchDate": "2022-05-14"
+        },
+        "Toulouse FC": {
+          "name": "Toulouse FC",
+          "attack": 1.532,
+          "defense": 0.942,
+          "matchesCount": 38,
+          "goalsScored": 82,
+          "goalsConceded": 33,
+          "lastMatchDate": "2022-05-14"
+        },
+        "AC Ajaccio": {
+          "name": "AC Ajaccio",
+          "attack": 0.708,
+          "defense": 1.275,
+          "matchesCount": 110,
+          "goalsScored": 104,
+          "goalsConceded": 107,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Valenciennes": {
+          "name": "Valenciennes",
+          "attack": 0.641,
+          "defense": 1.485,
+          "matchesCount": 113,
+          "goalsScored": 101,
+          "goalsConceded": 150,
+          "lastMatchDate": "2024-05-17"
+        },
+        "Niort": {
+          "name": "Niort",
+          "attack": 0.761,
+          "defense": 1.684,
+          "matchesCount": 76,
+          "goalsScored": 74,
+          "goalsConceded": 109,
+          "lastMatchDate": "2023-06-02"
+        },
+        "Dijon": {
+          "name": "Dijon",
+          "attack": 0.857,
+          "defense": 1.195,
+          "matchesCount": 76,
+          "goalsScored": 86,
+          "goalsConceded": 96,
+          "lastMatchDate": "2023-06-02"
+        },
+        "Sochaux": {
+          "name": "Sochaux",
+          "attack": 1.022,
+          "defense": 1.172,
+          "matchesCount": 76,
+          "goalsScored": 101,
+          "goalsConceded": 75,
+          "lastMatchDate": "2023-06-02"
+        },
+        "AS Saint-Etienne": {
+          "name": "AS Saint-Etienne",
+          "attack": 1.092,
+          "defense": 0.979,
+          "matchesCount": 76,
+          "goalsScored": 111,
+          "goalsConceded": 88,
+          "lastMatchDate": "2024-05-17"
+        },
+        "FC Annecy": {
+          "name": "FC Annecy",
+          "attack": 0.953,
+          "defense": 1.327,
+          "matchesCount": 110,
+          "goalsScored": 130,
+          "goalsConceded": 144,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Stade Lavallois": {
+          "name": "Stade Lavallois",
+          "attack": 0.925,
+          "defense": 1.243,
+          "matchesCount": 110,
+          "goalsScored": 128,
+          "goalsConceded": 139,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Girondins de Bordeaux": {
+          "name": "Girondins de Bordeaux",
+          "attack": 1.094,
+          "defense": 1.308,
+          "matchesCount": 76,
+          "goalsScored": 101,
+          "goalsConceded": 80,
+          "lastMatchDate": "2024-05-17"
+        },
+        "FC Metz": {
+          "name": "FC Metz",
+          "attack": 1.504,
+          "defense": 1.139,
+          "matchesCount": 72,
+          "goalsScored": 125,
+          "goalsConceded": 67,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Concarneau": {
+          "name": "Concarneau",
+          "attack": 0.841,
+          "defense": 1.606,
+          "matchesCount": 38,
+          "goalsScored": 39,
+          "goalsConceded": 57,
+          "lastMatchDate": "2024-05-17"
+        },
+        "ESTAC Troyes": {
+          "name": "ESTAC Troyes",
+          "attack": 0.853,
+          "defense": 1.057,
+          "matchesCount": 71,
+          "goalsScored": 78,
+          "goalsConceded": 83,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Angers SCO": {
+          "name": "Angers SCO",
+          "attack": 1.125,
+          "defense": 1.207,
+          "matchesCount": 38,
+          "goalsScored": 56,
+          "goalsConceded": 42,
+          "lastMatchDate": "2024-05-17"
+        },
+        "Red Star FC": {
+          "name": "Red Star FC",
+          "attack": 0.863,
+          "defense": 1.465,
+          "matchesCount": 34,
+          "goalsScored": 37,
+          "goalsConceded": 51,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Clermont Foot": {
+          "name": "Clermont Foot",
+          "attack": 0.7,
+          "defense": 1.415,
+          "matchesCount": 34,
+          "goalsScored": 30,
+          "goalsConceded": 46,
+          "lastMatchDate": "2025-05-10"
+        },
+        "FC Martigues": {
+          "name": "FC Martigues",
+          "attack": 0.738,
+          "defense": 1.593,
+          "matchesCount": 34,
+          "goalsScored": 29,
+          "goalsConceded": 56,
+          "lastMatchDate": "2025-05-10"
+        },
+        "FC Lorient": {
+          "name": "FC Lorient",
+          "attack": 1.602,
+          "defense": 0.969,
+          "matchesCount": 34,
+          "goalsScored": 68,
+          "goalsConceded": 31,
+          "lastMatchDate": "2025-05-10"
+        }
+      }
+    },
+    "G1": {
+      "div": "G1",
+      "leagueName": "Greek Super League",
+      "country": "Greece",
+      "seasonCount": 4,
+      "totalMatches": 953,
+      "leagueAvgGoals": 1.266,
+      "homeAdvantage": 1.166,
+      "rho": -0.01,
+      "calibrationDate": "2025-05-18",
+      "teams": {
+        "Panetolikos": {
+          "name": "Panetolikos",
+          "attack": 0.67,
+          "defense": 1.206,
+          "matchesCount": 134,
+          "goalsScored": 128,
+          "goalsConceded": 181,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Asteras Tripolis": {
+          "name": "Asteras Tripolis",
+          "attack": 0.9,
+          "defense": 1.541,
+          "matchesCount": 131,
+          "goalsScored": 131,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Panathinaikos": {
+          "name": "Panathinaikos",
+          "attack": 1.368,
+          "defense": 1.04,
+          "matchesCount": 140,
+          "goalsScored": 223,
+          "goalsConceded": 111,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Apollon": {
+          "name": "Apollon",
+          "attack": 0.5,
+          "defense": 1.809,
+          "matchesCount": 33,
+          "goalsScored": 16,
+          "goalsConceded": 57,
+          "lastMatchDate": "2022-05-15"
+        },
+        "Volos NFC": {
+          "name": "Volos NFC",
+          "attack": 0.832,
+          "defense": 1.643,
+          "matchesCount": 137,
+          "goalsScored": 152,
+          "goalsConceded": 218,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Lamia": {
+          "name": "Lamia",
+          "attack": 0.625,
+          "defense": 2.096,
+          "matchesCount": 137,
+          "goalsScored": 111,
+          "goalsConceded": 237,
+          "lastMatchDate": "2025-05-18"
+        },
+        "PAOK": {
+          "name": "PAOK",
+          "attack": 1.806,
+          "defense": 1.182,
+          "matchesCount": 140,
+          "goalsScored": 264,
+          "goalsConceded": 136,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Giannina": {
+          "name": "Giannina",
+          "attack": 0.813,
+          "defense": 1.995,
+          "matchesCount": 102,
+          "goalsScored": 100,
+          "goalsConceded": 154,
+          "lastMatchDate": "2024-05-11"
+        },
+        "AEK Athens": {
+          "name": "AEK Athens",
+          "attack": 1.439,
+          "defense": 0.944,
+          "matchesCount": 140,
+          "goalsScored": 253,
+          "goalsConceded": 122,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Ionikos": {
+          "name": "Ionikos",
+          "attack": 0.755,
+          "defense": 1.633,
+          "matchesCount": 66,
+          "goalsScored": 68,
+          "goalsConceded": 93,
+          "lastMatchDate": "2023-05-13"
+        },
+        "Olympiacos": {
+          "name": "Olympiacos",
+          "attack": 1.649,
+          "defense": 0.78,
+          "matchesCount": 140,
+          "goalsScored": 268,
+          "goalsConceded": 108,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Atromitos": {
+          "name": "Atromitos",
+          "attack": 0.934,
+          "defense": 1.33,
+          "matchesCount": 131,
+          "goalsScored": 142,
+          "goalsConceded": 178,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Aris": {
+          "name": "Aris",
+          "attack": 1.132,
+          "defense": 1.138,
+          "matchesCount": 140,
+          "goalsScored": 187,
+          "goalsConceded": 145,
+          "lastMatchDate": "2025-05-10"
+        },
+        "OFI Crete": {
+          "name": "OFI Crete",
+          "attack": 0.971,
+          "defense": 1.612,
+          "matchesCount": 131,
+          "goalsScored": 153,
+          "goalsConceded": 183,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Levadeiakos": {
+          "name": "Levadeiakos",
+          "attack": 1.085,
+          "defense": 1.348,
+          "matchesCount": 68,
+          "goalsScored": 72,
+          "goalsConceded": 89,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Kifisia": {
+          "name": "Kifisia",
+          "attack": 0.853,
+          "defense": 2.312,
+          "matchesCount": 33,
+          "goalsScored": 35,
+          "goalsConceded": 68,
+          "lastMatchDate": "2024-05-11"
+        },
+        "Panserraikos": {
+          "name": "Panserraikos",
+          "attack": 0.887,
+          "defense": 1.937,
+          "matchesCount": 68,
+          "goalsScored": 77,
+          "goalsConceded": 113,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Athens Kallithea": {
+          "name": "Athens Kallithea",
+          "attack": 0.78,
+          "defense": 1.709,
+          "matchesCount": 35,
+          "goalsScored": 33,
+          "goalsConceded": 52,
+          "lastMatchDate": "2025-05-18"
+        }
+      }
+    },
+    "I1": {
+      "div": "I1",
+      "leagueName": "Italian Serie A",
+      "country": "Italy",
+      "seasonCount": 4,
+      "totalMatches": 1520,
+      "leagueAvgGoals": 1.325,
+      "homeAdvantage": 1.121,
+      "rho": -0.08,
+      "calibrationDate": "2025-05-25",
+      "teams": {
+        "Inter Milan": {
+          "name": "Inter Milan",
+          "attack": 1.668,
+          "defense": 1.03,
+          "matchesCount": 152,
+          "goalsScored": 323,
+          "goalsConceded": 131,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Genoa CFC": {
+          "name": "Genoa CFC",
+          "attack": 0.885,
+          "defense": 1.428,
+          "matchesCount": 114,
+          "goalsScored": 109,
+          "goalsConceded": 154,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Hellas Verona": {
+          "name": "Hellas Verona",
+          "attack": 0.732,
+          "defense": 1.787,
+          "matchesCount": 152,
+          "goalsScored": 168,
+          "goalsConceded": 235,
+          "lastMatchDate": "2025-05-25"
+        },
+        "US Sassuolo": {
+          "name": "US Sassuolo",
+          "attack": 0.934,
+          "defense": 2.263,
+          "matchesCount": 114,
+          "goalsScored": 154,
+          "goalsConceded": 202,
+          "lastMatchDate": "2024-05-26"
+        },
+        "Empoli FC": {
+          "name": "Empoli FC",
+          "attack": 0.741,
+          "defense": 1.815,
+          "matchesCount": 152,
+          "goalsScored": 149,
+          "goalsConceded": 232,
+          "lastMatchDate": "2025-05-25"
+        },
+        "SS Lazio": {
+          "name": "SS Lazio",
+          "attack": 1.239,
+          "defense": 1.405,
+          "matchesCount": 152,
+          "goalsScored": 247,
+          "goalsConceded": 176,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Torino FC": {
+          "name": "Torino FC",
+          "attack": 0.809,
+          "defense": 1.306,
+          "matchesCount": 152,
+          "goalsScored": 163,
+          "goalsConceded": 163,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Atalanta BC": {
+          "name": "Atalanta BC",
+          "attack": 1.615,
+          "defense": 1.222,
+          "matchesCount": 152,
+          "goalsScored": 281,
+          "goalsConceded": 175,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Bologna FC": {
+          "name": "Bologna FC",
+          "attack": 1.234,
+          "defense": 1.385,
+          "matchesCount": 152,
+          "goalsScored": 208,
+          "goalsConceded": 183,
+          "lastMatchDate": "2025-05-24"
+        },
+        "US Salernitana": {
+          "name": "US Salernitana",
+          "attack": 0.787,
+          "defense": 2.36,
+          "matchesCount": 114,
+          "goalsScored": 113,
+          "goalsConceded": 221,
+          "lastMatchDate": "2024-05-25"
+        },
+        "Udinese Calcio": {
+          "name": "Udinese Calcio",
+          "attack": 0.868,
+          "defense": 1.706,
+          "matchesCount": 152,
+          "goalsScored": 186,
+          "goalsConceded": 215,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Juventus": {
+          "name": "Juventus",
+          "attack": 1.203,
+          "defense": 1.123,
+          "matchesCount": 152,
+          "goalsScored": 225,
+          "goalsConceded": 136,
+          "lastMatchDate": "2025-05-25"
+        },
+        "SSC Napoli": {
+          "name": "SSC Napoli",
+          "attack": 1.247,
+          "defense": 0.984,
+          "matchesCount": 152,
+          "goalsScored": 265,
+          "goalsConceded": 134,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Venezia FC": {
+          "name": "Venezia FC",
+          "attack": 0.724,
+          "defense": 1.691,
+          "matchesCount": 76,
+          "goalsScored": 66,
+          "goalsConceded": 125,
+          "lastMatchDate": "2025-05-25"
+        },
+        "AS Roma": {
+          "name": "AS Roma",
+          "attack": 1.264,
+          "defense": 1.088,
+          "matchesCount": 152,
+          "goalsScored": 230,
+          "goalsConceded": 162,
+          "lastMatchDate": "2025-05-25"
+        },
+        "ACF Fiorentina": {
+          "name": "ACF Fiorentina",
+          "attack": 1.305,
+          "defense": 1.36,
+          "matchesCount": 152,
+          "goalsScored": 233,
+          "goalsConceded": 181,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Cagliari Calcio": {
+          "name": "Cagliari Calcio",
+          "attack": 0.927,
+          "defense": 1.775,
+          "matchesCount": 114,
+          "goalsScored": 116,
+          "goalsConceded": 192,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Spezia Calcio": {
+          "name": "Spezia Calcio",
+          "attack": 0.687,
+          "defense": 1.955,
+          "matchesCount": 76,
+          "goalsScored": 72,
+          "goalsConceded": 133,
+          "lastMatchDate": "2023-06-04"
+        },
+        "UC Sampdoria": {
+          "name": "UC Sampdoria",
+          "attack": 0.635,
+          "defense": 2.182,
+          "matchesCount": 76,
+          "goalsScored": 70,
+          "goalsConceded": 134,
+          "lastMatchDate": "2023-06-04"
+        },
+        "AC Milan": {
+          "name": "AC Milan",
+          "attack": 1.415,
+          "defense": 1.409,
+          "matchesCount": 152,
+          "goalsScored": 270,
+          "goalsConceded": 166,
+          "lastMatchDate": "2025-05-24"
+        },
+        "US Lecce": {
+          "name": "US Lecce",
+          "attack": 0.631,
+          "defense": 1.65,
+          "matchesCount": 114,
+          "goalsScored": 92,
+          "goalsConceded": 158,
+          "lastMatchDate": "2025-05-25"
+        },
+        "AC Monza": {
+          "name": "AC Monza",
+          "attack": 0.68,
+          "defense": 2.065,
+          "matchesCount": 114,
+          "goalsScored": 115,
+          "goalsConceded": 172,
+          "lastMatchDate": "2025-05-24"
+        },
+        "US Cremonese": {
+          "name": "US Cremonese",
+          "attack": 0.8,
+          "defense": 2.146,
+          "matchesCount": 38,
+          "goalsScored": 36,
+          "goalsConceded": 69,
+          "lastMatchDate": "2023-06-03"
+        },
+        "Frosinone Calcio": {
+          "name": "Frosinone Calcio",
+          "attack": 0.884,
+          "defense": 2.091,
+          "matchesCount": 38,
+          "goalsScored": 44,
+          "goalsConceded": 69,
+          "lastMatchDate": "2024-05-26"
+        },
+        "Parma Calcio": {
+          "name": "Parma Calcio",
+          "attack": 0.966,
+          "defense": 1.681,
+          "matchesCount": 38,
+          "goalsScored": 44,
+          "goalsConceded": 58,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Como 1907": {
+          "name": "Como 1907",
+          "attack": 1.121,
+          "defense": 1.491,
+          "matchesCount": 38,
+          "goalsScored": 49,
+          "goalsConceded": 52,
+          "lastMatchDate": "2025-05-23"
+        }
+      }
+    },
+    "I2": {
+      "div": "I2",
+      "leagueName": "Italian Serie B",
+      "country": "Italy",
+      "seasonCount": 4,
+      "totalMatches": 1520,
+      "leagueAvgGoals": 1.226,
+      "homeAdvantage": 1.21,
+      "rho": -0.11,
+      "calibrationDate": "2025-05-13",
+      "teams": {
+        "Frosinone Calcio": {
+          "name": "Frosinone Calcio",
+          "attack": 0.887,
+          "defense": 1.335,
+          "matchesCount": 114,
+          "goalsScored": 158,
+          "goalsConceded": 121,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Parma Calcio": {
+          "name": "Parma Calcio",
+          "attack": 1.229,
+          "defense": 1.044,
+          "matchesCount": 114,
+          "goalsScored": 162,
+          "goalsConceded": 117,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Pordenone": {
+          "name": "Pordenone",
+          "attack": 0.685,
+          "defense": 1.9,
+          "matchesCount": 38,
+          "goalsScored": 29,
+          "goalsConceded": 71,
+          "lastMatchDate": "2022-05-06"
+        },
+        "Perugia": {
+          "name": "Perugia",
+          "attack": 0.908,
+          "defense": 1.408,
+          "matchesCount": 76,
+          "goalsScored": 80,
+          "goalsConceded": 84,
+          "lastMatchDate": "2023-05-19"
+        },
+        "AS Cittadella": {
+          "name": "AS Cittadella",
+          "attack": 0.709,
+          "defense": 1.487,
+          "matchesCount": 152,
+          "goalsScored": 143,
+          "goalsConceded": 182,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Vicenza": {
+          "name": "Vicenza",
+          "attack": 0.849,
+          "defense": 1.548,
+          "matchesCount": 38,
+          "goalsScored": 38,
+          "goalsConceded": 59,
+          "lastMatchDate": "2022-05-06"
+        },
+        "Reggina": {
+          "name": "Reggina",
+          "attack": 0.927,
+          "defense": 1.398,
+          "matchesCount": 76,
+          "goalsScored": 80,
+          "goalsConceded": 94,
+          "lastMatchDate": "2023-05-19"
+        },
+        "AC Monza": {
+          "name": "AC Monza",
+          "attack": 1.256,
+          "defense": 1.158,
+          "matchesCount": 38,
+          "goalsScored": 60,
+          "goalsConceded": 38,
+          "lastMatchDate": "2022-05-06"
+        },
+        "Ternana": {
+          "name": "Ternana",
+          "attack": 0.893,
+          "defense": 1.448,
+          "matchesCount": 114,
+          "goalsScored": 138,
+          "goalsConceded": 163,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Brescia Calcio": {
+          "name": "Brescia Calcio",
+          "attack": 0.89,
+          "defense": 1.327,
+          "matchesCount": 152,
+          "goalsScored": 177,
+          "goalsConceded": 180,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Ascoli": {
+          "name": "Ascoli",
+          "attack": 0.813,
+          "defense": 1.176,
+          "matchesCount": 114,
+          "goalsScored": 130,
+          "goalsConceded": 131,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Cosenza Calcio": {
+          "name": "Cosenza Calcio",
+          "attack": 0.75,
+          "defense": 1.595,
+          "matchesCount": 152,
+          "goalsScored": 145,
+          "goalsConceded": 210,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Benevento": {
+          "name": "Benevento",
+          "attack": 0.883,
+          "defense": 1.438,
+          "matchesCount": 76,
+          "goalsScored": 95,
+          "goalsConceded": 88,
+          "lastMatchDate": "2023-05-19"
+        },
+        "Alessandria": {
+          "name": "Alessandria",
+          "attack": 0.797,
+          "defense": 1.607,
+          "matchesCount": 38,
+          "goalsScored": 37,
+          "goalsConceded": 59,
+          "lastMatchDate": "2022-05-06"
+        },
+        "US Cremonese": {
+          "name": "US Cremonese",
+          "attack": 1.296,
+          "defense": 1.238,
+          "matchesCount": 114,
+          "goalsScored": 169,
+          "goalsConceded": 115,
+          "lastMatchDate": "2025-05-13"
+        },
+        "US Lecce": {
+          "name": "US Lecce",
+          "attack": 1.165,
+          "defense": 0.944,
+          "matchesCount": 38,
+          "goalsScored": 59,
+          "goalsConceded": 31,
+          "lastMatchDate": "2022-05-06"
+        },
+        "Crotone": {
+          "name": "Crotone",
+          "attack": 0.9,
+          "defense": 1.652,
+          "matchesCount": 38,
+          "goalsScored": 41,
+          "goalsConceded": 61,
+          "lastMatchDate": "2022-05-06"
+        },
+        "Como 1907": {
+          "name": "Como 1907",
+          "attack": 1.187,
+          "defense": 1.214,
+          "matchesCount": 114,
+          "goalsScored": 154,
+          "goalsConceded": 142,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Pisa SC": {
+          "name": "Pisa SC",
+          "attack": 1.254,
+          "defense": 1.221,
+          "matchesCount": 152,
+          "goalsScored": 209,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Spal": {
+          "name": "Spal",
+          "attack": 0.913,
+          "defense": 1.481,
+          "matchesCount": 76,
+          "goalsScored": 87,
+          "goalsConceded": 105,
+          "lastMatchDate": "2023-05-19"
+        },
+        "SSC Bari": {
+          "name": "SSC Bari",
+          "attack": 0.867,
+          "defense": 1.241,
+          "matchesCount": 114,
+          "goalsScored": 137,
+          "goalsConceded": 126,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Cagliari Calcio": {
+          "name": "Cagliari Calcio",
+          "attack": 1.138,
+          "defense": 0.919,
+          "matchesCount": 38,
+          "goalsScored": 50,
+          "goalsConceded": 34,
+          "lastMatchDate": "2023-05-19"
+        },
+        "Palermo FC": {
+          "name": "Palermo FC",
+          "attack": 1.211,
+          "defense": 1.398,
+          "matchesCount": 114,
+          "goalsScored": 162,
+          "goalsConceded": 145,
+          "lastMatchDate": "2025-05-13"
+        },
+        "FC Sudtirol": {
+          "name": "FC Sudtirol",
+          "attack": 1.07,
+          "defense": 1.507,
+          "matchesCount": 114,
+          "goalsScored": 134,
+          "goalsConceded": 139,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Modena FC": {
+          "name": "Modena FC",
+          "attack": 0.993,
+          "defense": 1.464,
+          "matchesCount": 114,
+          "goalsScored": 136,
+          "goalsConceded": 150,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Venezia FC": {
+          "name": "Venezia FC",
+          "attack": 1.396,
+          "defense": 1.399,
+          "matchesCount": 76,
+          "goalsScored": 120,
+          "goalsConceded": 96,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Genoa CFC": {
+          "name": "Genoa CFC",
+          "attack": 1.215,
+          "defense": 0.874,
+          "matchesCount": 38,
+          "goalsScored": 53,
+          "goalsConceded": 28,
+          "lastMatchDate": "2023-05-19"
+        },
+        "US Catanzaro": {
+          "name": "US Catanzaro",
+          "attack": 1.149,
+          "defense": 1.389,
+          "matchesCount": 76,
+          "goalsScored": 110,
+          "goalsConceded": 95,
+          "lastMatchDate": "2025-05-13"
+        },
+        "UC Sampdoria": {
+          "name": "UC Sampdoria",
+          "attack": 0.845,
+          "defense": 1.338,
+          "matchesCount": 76,
+          "goalsScored": 91,
+          "goalsConceded": 99,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Spezia Calcio": {
+          "name": "Spezia Calcio",
+          "attack": 1.151,
+          "defense": 1.124,
+          "matchesCount": 76,
+          "goalsScored": 95,
+          "goalsConceded": 82,
+          "lastMatchDate": "2025-05-13"
+        },
+        "AC Reggiana": {
+          "name": "AC Reggiana",
+          "attack": 0.913,
+          "defense": 1.51,
+          "matchesCount": 76,
+          "goalsScored": 80,
+          "goalsConceded": 97,
+          "lastMatchDate": "2025-05-13"
+        },
+        "FeralpiSalo": {
+          "name": "FeralpiSalo",
+          "attack": 0.989,
+          "defense": 1.843,
+          "matchesCount": 38,
+          "goalsScored": 44,
+          "goalsConceded": 65,
+          "lastMatchDate": "2024-05-10"
+        },
+        "Lecco": {
+          "name": "Lecco",
+          "attack": 0.726,
+          "defense": 2.141,
+          "matchesCount": 38,
+          "goalsScored": 35,
+          "goalsConceded": 74,
+          "lastMatchDate": "2024-05-10"
+        },
+        "SS Juve Stabia": {
+          "name": "SS Juve Stabia",
+          "attack": 0.88,
+          "defense": 1.155,
+          "matchesCount": 38,
+          "goalsScored": 42,
+          "goalsConceded": 41,
+          "lastMatchDate": "2025-05-13"
+        },
+        "US Salernitana": {
+          "name": "US Salernitana",
+          "attack": 0.793,
+          "defense": 1.284,
+          "matchesCount": 38,
+          "goalsScored": 37,
+          "goalsConceded": 47,
+          "lastMatchDate": "2025-05-13"
+        },
+        "US Sassuolo": {
+          "name": "US Sassuolo",
+          "attack": 1.626,
+          "defense": 1.152,
+          "matchesCount": 38,
+          "goalsScored": 78,
+          "goalsConceded": 38,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Cesena FC": {
+          "name": "Cesena FC",
+          "attack": 0.927,
+          "defense": 1.309,
+          "matchesCount": 38,
+          "goalsScored": 46,
+          "goalsConceded": 47,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Carrarese Calcio": {
+          "name": "Carrarese Calcio",
+          "attack": 0.867,
+          "defense": 1.425,
+          "matchesCount": 38,
+          "goalsScored": 39,
+          "goalsConceded": 49,
+          "lastMatchDate": "2025-05-13"
+        },
+        "Mantova 1911": {
+          "name": "Mantova 1911",
+          "attack": 1.053,
+          "defense": 1.637,
+          "matchesCount": 38,
+          "goalsScored": 47,
+          "goalsConceded": 56,
+          "lastMatchDate": "2025-05-13"
+        }
+      }
+    },
+    "N1": {
+      "div": "N1",
+      "leagueName": "Dutch Eredivisie",
+      "country": "Netherlands",
+      "seasonCount": 4,
+      "totalMatches": 1224,
+      "leagueAvgGoals": 1.518,
+      "homeAdvantage": 1.289,
+      "rho": -0.09,
+      "calibrationDate": "2025-05-18",
+      "teams": {
+        "Go Ahead Eagles": {
+          "name": "Go Ahead Eagles",
+          "attack": 1.102,
+          "defense": 1.961,
+          "matchesCount": 136,
+          "goalsScored": 187,
+          "goalsConceded": 208,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Heerenveen": {
+          "name": "Heerenveen",
+          "attack": 0.939,
+          "defense": 2.096,
+          "matchesCount": 136,
+          "goalsScored": 176,
+          "goalsConceded": 227,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Waalwijk": {
+          "name": "Waalwijk",
+          "attack": 0.956,
+          "defense": 2.478,
+          "matchesCount": 136,
+          "goalsScored": 172,
+          "goalsConceded": 245,
+          "lastMatchDate": "2025-05-18"
+        },
+        "AZ Alkmaar": {
+          "name": "AZ Alkmaar",
+          "attack": 1.235,
+          "defense": 1.424,
+          "matchesCount": 136,
+          "goalsScored": 260,
+          "goalsConceded": 155,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Heracles": {
+          "name": "Heracles",
+          "attack": 0.887,
+          "defense": 2.332,
+          "matchesCount": 102,
+          "goalsScored": 116,
+          "goalsConceded": 186,
+          "lastMatchDate": "2025-05-18"
+        },
+        "PSV Eindhoven": {
+          "name": "PSV Eindhoven",
+          "attack": 2.084,
+          "defense": 1.423,
+          "matchesCount": 136,
+          "goalsScored": 389,
+          "goalsConceded": 142,
+          "lastMatchDate": "2025-05-18"
+        },
+        "For Sittard": {
+          "name": "For Sittard",
+          "attack": 0.732,
+          "defense": 1.928,
+          "matchesCount": 136,
+          "goalsScored": 149,
+          "goalsConceded": 239,
+          "lastMatchDate": "2025-05-18"
+        },
+        "FC Twente": {
+          "name": "FC Twente",
+          "attack": 1.293,
+          "defense": 1.705,
+          "matchesCount": 136,
+          "goalsScored": 252,
+          "goalsConceded": 149,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Ajax": {
+          "name": "Ajax",
+          "attack": 1.393,
+          "defense": 1.447,
+          "matchesCount": 136,
+          "goalsScored": 325,
+          "goalsConceded": 150,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Nijmegen": {
+          "name": "Nijmegen",
+          "attack": 1.138,
+          "defense": 1.71,
+          "matchesCount": 136,
+          "goalsScored": 199,
+          "goalsConceded": 194,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Cambuur": {
+          "name": "Cambuur",
+          "attack": 0.671,
+          "defense": 2.505,
+          "matchesCount": 68,
+          "goalsScored": 79,
+          "goalsConceded": 139,
+          "lastMatchDate": "2023-05-28"
+        },
+        "Groningen": {
+          "name": "Groningen",
+          "attack": 0.882,
+          "defense": 2.013,
+          "matchesCount": 102,
+          "goalsScored": 112,
+          "goalsConceded": 183,
+          "lastMatchDate": "2025-05-18"
+        },
+        "FC Utrecht": {
+          "name": "FC Utrecht",
+          "attack": 1.218,
+          "defense": 1.617,
+          "matchesCount": 136,
+          "goalsScored": 217,
+          "goalsConceded": 188,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Sparta Rotterdam": {
+          "name": "Sparta Rotterdam",
+          "attack": 0.931,
+          "defense": 1.537,
+          "matchesCount": 136,
+          "goalsScored": 180,
+          "goalsConceded": 176,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Zwolle": {
+          "name": "Zwolle",
+          "attack": 0.932,
+          "defense": 1.974,
+          "matchesCount": 102,
+          "goalsScored": 114,
+          "goalsConceded": 170,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Vitesse": {
+          "name": "Vitesse",
+          "attack": 0.734,
+          "defense": 2.365,
+          "matchesCount": 102,
+          "goalsScored": 117,
+          "goalsConceded": 175,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Willem II": {
+          "name": "Willem II",
+          "attack": 0.679,
+          "defense": 2.145,
+          "matchesCount": 68,
+          "goalsScored": 66,
+          "goalsConceded": 113,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Feyenoord": {
+          "name": "Feyenoord",
+          "attack": 1.608,
+          "defense": 1.29,
+          "matchesCount": 136,
+          "goalsScored": 325,
+          "goalsConceded": 128,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Excelsior": {
+          "name": "Excelsior",
+          "attack": 0.901,
+          "defense": 2.554,
+          "matchesCount": 68,
+          "goalsScored": 82,
+          "goalsConceded": 144,
+          "lastMatchDate": "2024-05-19"
+        },
+        "FC Emmen": {
+          "name": "FC Emmen",
+          "attack": 0.707,
+          "defense": 2.298,
+          "matchesCount": 34,
+          "goalsScored": 33,
+          "goalsConceded": 65,
+          "lastMatchDate": "2023-05-28"
+        },
+        "Volendam": {
+          "name": "Volendam",
+          "attack": 0.739,
+          "defense": 3.019,
+          "matchesCount": 68,
+          "goalsScored": 76,
+          "goalsConceded": 159,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Almere City": {
+          "name": "Almere City",
+          "attack": 0.551,
+          "defense": 2.129,
+          "matchesCount": 68,
+          "goalsScored": 56,
+          "goalsConceded": 123,
+          "lastMatchDate": "2025-05-18"
+        },
+        "NAC Breda": {
+          "name": "NAC Breda",
+          "attack": 0.686,
+          "defense": 2.082,
+          "matchesCount": 34,
+          "goalsScored": 34,
+          "goalsConceded": 58,
+          "lastMatchDate": "2025-05-18"
+        }
+      }
+    },
+    "P1": {
+      "div": "P1",
+      "leagueName": "Portuguese Primeira Liga",
+      "country": "Portugal",
+      "seasonCount": 4,
+      "totalMatches": 1224,
+      "leagueAvgGoals": 1.321,
+      "homeAdvantage": 1.208,
+      "rho": 0.01,
+      "calibrationDate": "2025-05-17",
+      "teams": {
+        "Sp Lisbon": {
+          "name": "Sp Lisbon",
+          "attack": 2.056,
+          "defense": 0.939,
+          "matchesCount": 136,
+          "goalsScored": 328,
+          "goalsConceded": 111,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Vizela": {
+          "name": "Vizela",
+          "attack": 0.863,
+          "defense": 1.956,
+          "matchesCount": 102,
+          "goalsScored": 107,
+          "goalsConceded": 162,
+          "lastMatchDate": "2024-05-18"
+        },
+        "Arouca": {
+          "name": "Arouca",
+          "attack": 0.994,
+          "defense": 1.528,
+          "matchesCount": 136,
+          "goalsScored": 155,
+          "goalsConceded": 190,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Estoril": {
+          "name": "Estoril",
+          "attack": 1.22,
+          "defense": 1.728,
+          "matchesCount": 136,
+          "goalsScored": 166,
+          "goalsConceded": 203,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Moreirense": {
+          "name": "Moreirense",
+          "attack": 0.969,
+          "defense": 1.516,
+          "matchesCount": 102,
+          "goalsScored": 111,
+          "goalsConceded": 136,
+          "lastMatchDate": "2025-05-17"
+        },
+        "SL Benfica": {
+          "name": "SL Benfica",
+          "attack": 1.984,
+          "defense": 0.951,
+          "matchesCount": 136,
+          "goalsScored": 321,
+          "goalsConceded": 106,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Maritimo": {
+          "name": "Maritimo",
+          "attack": 0.852,
+          "defense": 1.78,
+          "matchesCount": 68,
+          "goalsScored": 71,
+          "goalsConceded": 107,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Sp Braga": {
+          "name": "Sp Braga",
+          "attack": 1.397,
+          "defense": 1.1,
+          "matchesCount": 136,
+          "goalsScored": 253,
+          "goalsConceded": 141,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Guimaraes": {
+          "name": "Guimaraes",
+          "attack": 1.146,
+          "defense": 1.221,
+          "matchesCount": 136,
+          "goalsScored": 183,
+          "goalsConceded": 155,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Portimonense": {
+          "name": "Portimonense",
+          "attack": 0.88,
+          "defense": 2.075,
+          "matchesCount": 102,
+          "goalsScored": 95,
+          "goalsConceded": 165,
+          "lastMatchDate": "2024-05-18"
+        },
+        "Tondela": {
+          "name": "Tondela",
+          "attack": 0.95,
+          "defense": 1.955,
+          "matchesCount": 34,
+          "goalsScored": 41,
+          "goalsConceded": 67,
+          "lastMatchDate": "2022-05-14"
+        },
+        "Santa Clara": {
+          "name": "Santa Clara",
+          "attack": 0.846,
+          "defense": 1.085,
+          "matchesCount": 102,
+          "goalsScored": 100,
+          "goalsConceded": 144,
+          "lastMatchDate": "2025-05-17"
+        },
+        "FC Porto": {
+          "name": "FC Porto",
+          "attack": 1.505,
+          "defense": 1.016,
+          "matchesCount": 136,
+          "goalsScored": 287,
+          "goalsConceded": 101,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Belenenses": {
+          "name": "Belenenses",
+          "attack": 0.63,
+          "defense": 1.57,
+          "matchesCount": 34,
+          "goalsScored": 23,
+          "goalsConceded": 55,
+          "lastMatchDate": "2022-05-14"
+        },
+        "Pacos Ferreira": {
+          "name": "Pacos Ferreira",
+          "attack": 0.677,
+          "defense": 1.789,
+          "matchesCount": 68,
+          "goalsScored": 55,
+          "goalsConceded": 106,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Famalicao": {
+          "name": "Famalicao",
+          "attack": 1.065,
+          "defense": 1.338,
+          "matchesCount": 136,
+          "goalsScored": 165,
+          "goalsConceded": 178,
+          "lastMatchDate": "2025-05-16"
+        },
+        "Gil Vicente": {
+          "name": "Gil Vicente",
+          "attack": 0.827,
+          "defense": 1.464,
+          "matchesCount": 136,
+          "goalsScored": 155,
+          "goalsConceded": 182,
+          "lastMatchDate": "2025-05-16"
+        },
+        "Boavista": {
+          "name": "Boavista",
+          "attack": 0.705,
+          "defense": 1.953,
+          "matchesCount": 136,
+          "goalsScored": 145,
+          "goalsConceded": 227,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Rio Ave": {
+          "name": "Rio Ave",
+          "attack": 0.976,
+          "defense": 1.677,
+          "matchesCount": 102,
+          "goalsScored": 113,
+          "goalsConceded": 141,
+          "lastMatchDate": "2025-05-16"
+        },
+        "Casa Pia": {
+          "name": "Casa Pia",
+          "attack": 0.944,
+          "defense": 1.475,
+          "matchesCount": 102,
+          "goalsScored": 108,
+          "goalsConceded": 134,
+          "lastMatchDate": "2025-05-16"
+        },
+        "Chaves": {
+          "name": "Chaves",
+          "attack": 0.734,
+          "defense": 1.936,
+          "matchesCount": 68,
+          "goalsScored": 66,
+          "goalsConceded": 112,
+          "lastMatchDate": "2024-05-18"
+        },
+        "Farense": {
+          "name": "Farense",
+          "attack": 0.754,
+          "defense": 1.493,
+          "matchesCount": 68,
+          "goalsScored": 71,
+          "goalsConceded": 97,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Estrela": {
+          "name": "Estrela",
+          "attack": 0.595,
+          "defense": 1.605,
+          "matchesCount": 68,
+          "goalsScored": 57,
+          "goalsConceded": 103,
+          "lastMatchDate": "2025-05-17"
+        },
+        "AVS": {
+          "name": "AVS",
+          "attack": 0.606,
+          "defense": 2.01,
+          "matchesCount": 34,
+          "goalsScored": 25,
+          "goalsConceded": 60,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Nacional": {
+          "name": "Nacional",
+          "attack": 0.827,
+          "defense": 1.645,
+          "matchesCount": 34,
+          "goalsScored": 32,
+          "goalsConceded": 50,
+          "lastMatchDate": "2025-05-17"
+        }
+      }
+    },
+    "SC0": {
+      "div": "SC0",
+      "leagueName": "Scottish Premiership",
+      "country": "Scotland",
+      "seasonCount": 4,
+      "totalMatches": 912,
+      "leagueAvgGoals": 1.391,
+      "homeAdvantage": 1.311,
+      "rho": 0.02,
+      "calibrationDate": "2025-05-18",
+      "teams": {
+        "Rangers": {
+          "name": "Rangers",
+          "attack": 1.562,
+          "defense": 1.318,
+          "matchesCount": 152,
+          "goalsScored": 340,
+          "goalsConceded": 141,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Livingston": {
+          "name": "Livingston",
+          "attack": 0.594,
+          "defense": 2.176,
+          "matchesCount": 114,
+          "goalsScored": 106,
+          "goalsConceded": 176,
+          "lastMatchDate": "2024-05-19"
+        },
+        "Dundee": {
+          "name": "Dundee",
+          "attack": 1.024,
+          "defense": 2.354,
+          "matchesCount": 114,
+          "goalsScored": 140,
+          "goalsConceded": 209,
+          "lastMatchDate": "2025-05-18"
+        },
+        "St Mirren": {
+          "name": "St Mirren",
+          "attack": 0.979,
+          "defense": 1.675,
+          "matchesCount": 152,
+          "goalsScored": 175,
+          "goalsConceded": 223,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Ross County": {
+          "name": "Ross County",
+          "attack": 0.696,
+          "defense": 2.031,
+          "matchesCount": 152,
+          "goalsScored": 159,
+          "goalsConceded": 253,
+          "lastMatchDate": "2025-05-18"
+        },
+        "St Johnstone": {
+          "name": "St Johnstone",
+          "attack": 0.638,
+          "defense": 1.945,
+          "matchesCount": 152,
+          "goalsScored": 132,
+          "goalsConceded": 232,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Hearts": {
+          "name": "Hearts",
+          "attack": 0.982,
+          "defense": 1.401,
+          "matchesCount": 152,
+          "goalsScored": 223,
+          "goalsConceded": 190,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Celtic": {
+          "name": "Celtic",
+          "attack": 1.963,
+          "defense": 0.98,
+          "matchesCount": 152,
+          "goalsScored": 413,
+          "goalsConceded": 112,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Aberdeen": {
+          "name": "Aberdeen",
+          "attack": 0.866,
+          "defense": 1.795,
+          "matchesCount": 152,
+          "goalsScored": 193,
+          "goalsConceded": 219,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Dundee United": {
+          "name": "Dundee United",
+          "attack": 0.803,
+          "defense": 1.705,
+          "matchesCount": 114,
+          "goalsScored": 122,
+          "goalsConceded": 168,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Motherwell": {
+          "name": "Motherwell",
+          "attack": 0.904,
+          "defense": 1.95,
+          "matchesCount": 152,
+          "goalsScored": 197,
+          "goalsConceded": 234,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Hibernian": {
+          "name": "Hibernian",
+          "attack": 1.155,
+          "defense": 1.542,
+          "matchesCount": 152,
+          "goalsScored": 209,
+          "goalsConceded": 210,
+          "lastMatchDate": "2025-05-17"
+        },
+        "Kilmarnock": {
+          "name": "Kilmarnock",
+          "attack": 0.832,
+          "defense": 1.83,
+          "matchesCount": 114,
+          "goalsScored": 128,
+          "goalsConceded": 170,
+          "lastMatchDate": "2025-05-18"
+        }
+      }
+    },
+    "SP1": {
+      "div": "SP1",
+      "leagueName": "Spanish La Liga",
+      "country": "Spain",
+      "seasonCount": 4,
+      "totalMatches": 1520,
+      "leagueAvgGoals": 1.285,
+      "homeAdvantage": 1.251,
+      "rho": 0.02,
+      "calibrationDate": "2025-05-25",
+      "teams": {
+        "Valencia CF": {
+          "name": "Valencia CF",
+          "attack": 0.925,
+          "defense": 1.444,
+          "matchesCount": 152,
+          "goalsScored": 174,
+          "goalsConceded": 197,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Getafe CF": {
+          "name": "Getafe CF",
+          "attack": 0.752,
+          "defense": 1.293,
+          "matchesCount": 152,
+          "goalsScored": 143,
+          "goalsConceded": 179,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Cadiz CF": {
+          "name": "Cadiz CF",
+          "attack": 0.566,
+          "defense": 1.544,
+          "matchesCount": 114,
+          "goalsScored": 91,
+          "goalsConceded": 159,
+          "lastMatchDate": "2024-05-25"
+        },
+        "Levante UD": {
+          "name": "Levante UD",
+          "attack": 1.177,
+          "defense": 2.015,
+          "matchesCount": 38,
+          "goalsScored": 51,
+          "goalsConceded": 76,
+          "lastMatchDate": "2022-05-20"
+        },
+        "RCD Mallorca": {
+          "name": "RCD Mallorca",
+          "attack": 0.713,
+          "defense": 1.257,
+          "matchesCount": 152,
+          "goalsScored": 141,
+          "goalsConceded": 194,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Real Betis": {
+          "name": "Real Betis",
+          "attack": 1.198,
+          "defense": 1.449,
+          "matchesCount": 152,
+          "goalsScored": 213,
+          "goalsConceded": 176,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Deportivo Alaves": {
+          "name": "Deportivo Alaves",
+          "attack": 0.748,
+          "defense": 1.264,
+          "matchesCount": 114,
+          "goalsScored": 105,
+          "goalsConceded": 159,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Real Madrid": {
+          "name": "Real Madrid",
+          "attack": 1.64,
+          "defense": 1.077,
+          "matchesCount": 152,
+          "goalsScored": 320,
+          "goalsConceded": 131,
+          "lastMatchDate": "2025-05-24"
+        },
+        "CA Osasuna": {
+          "name": "CA Osasuna",
+          "attack": 0.993,
+          "defense": 1.462,
+          "matchesCount": 152,
+          "goalsScored": 167,
+          "goalsConceded": 201,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Espanyol": {
+          "name": "Espanyol",
+          "attack": 0.883,
+          "defense": 1.441,
+          "matchesCount": 114,
+          "goalsScored": 132,
+          "goalsConceded": 173,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Celta Vigo": {
+          "name": "Celta Vigo",
+          "attack": 1.187,
+          "defense": 1.614,
+          "matchesCount": 152,
+          "goalsScored": 191,
+          "goalsConceded": 210,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Atletico Madrid": {
+          "name": "Atletico Madrid",
+          "attack": 1.435,
+          "defense": 1.017,
+          "matchesCount": 152,
+          "goalsScored": 273,
+          "goalsConceded": 149,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Barcelona": {
+          "name": "Barcelona",
+          "attack": 1.93,
+          "defense": 1.18,
+          "matchesCount": 152,
+          "goalsScored": 319,
+          "goalsConceded": 141,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Real Sociedad": {
+          "name": "Real Sociedad",
+          "attack": 0.812,
+          "defense": 1.32,
+          "matchesCount": 152,
+          "goalsScored": 177,
+          "goalsConceded": 157,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Sevilla FC": {
+          "name": "Sevilla FC",
+          "attack": 0.924,
+          "defense": 1.57,
+          "matchesCount": 152,
+          "goalsScored": 190,
+          "goalsConceded": 193,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Rayo Vallecano": {
+          "name": "Rayo Vallecano",
+          "attack": 0.788,
+          "defense": 1.336,
+          "matchesCount": 152,
+          "goalsScored": 154,
+          "goalsConceded": 196,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Villarreal CF": {
+          "name": "Villarreal CF",
+          "attack": 1.474,
+          "defense": 1.497,
+          "matchesCount": 152,
+          "goalsScored": 258,
+          "goalsConceded": 193,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Granada CF": {
+          "name": "Granada CF",
+          "attack": 0.783,
+          "defense": 2.221,
+          "matchesCount": 76,
+          "goalsScored": 82,
+          "goalsConceded": 140,
+          "lastMatchDate": "2024-05-24"
+        },
+        "Elche CF": {
+          "name": "Elche CF",
+          "attack": 0.703,
+          "defense": 1.698,
+          "matchesCount": 76,
+          "goalsScored": 70,
+          "goalsConceded": 119,
+          "lastMatchDate": "2023-06-04"
+        },
+        "Athletic Club": {
+          "name": "Athletic Club",
+          "attack": 1.077,
+          "defense": 0.874,
+          "matchesCount": 152,
+          "goalsScored": 205,
+          "goalsConceded": 145,
+          "lastMatchDate": "2025-05-25"
+        },
+        "Real Valladolid": {
+          "name": "Real Valladolid",
+          "attack": 0.583,
+          "defense": 2.574,
+          "matchesCount": 76,
+          "goalsScored": 59,
+          "goalsConceded": 153,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Girona FC": {
+          "name": "Girona FC",
+          "attack": 1.083,
+          "defense": 1.699,
+          "matchesCount": 114,
+          "goalsScored": 187,
+          "goalsConceded": 161,
+          "lastMatchDate": "2025-05-25"
+        },
+        "UD Almeria": {
+          "name": "UD Almeria",
+          "attack": 1.002,
+          "defense": 2.021,
+          "matchesCount": 76,
+          "goalsScored": 92,
+          "goalsConceded": 140,
+          "lastMatchDate": "2024-05-25"
+        },
+        "UD Las Palmas": {
+          "name": "UD Las Palmas",
+          "attack": 0.766,
+          "defense": 1.674,
+          "matchesCount": 76,
+          "goalsScored": 73,
+          "goalsConceded": 108,
+          "lastMatchDate": "2025-05-24"
+        },
+        "CD Leganes": {
+          "name": "CD Leganes",
+          "attack": 0.86,
+          "defense": 1.601,
+          "matchesCount": 38,
+          "goalsScored": 39,
+          "goalsConceded": 56,
+          "lastMatchDate": "2025-05-24"
+        }
+      }
+    },
+    "SP2": {
+      "div": "SP2",
+      "leagueName": "Spanish Segunda Division",
+      "country": "Spain",
+      "seasonCount": 4,
+      "totalMatches": 1848,
+      "leagueAvgGoals": 1.153,
+      "homeAdvantage": 1.396,
+      "rho": -0.01,
+      "calibrationDate": "2025-06-01",
+      "teams": {
+        "SD Huesca": {
+          "name": "SD Huesca",
+          "attack": 1.056,
+          "defense": 1.077,
+          "matchesCount": 168,
+          "goalsScored": 179,
+          "goalsConceded": 162,
+          "lastMatchDate": "2025-06-01"
+        },
+        "SD Eibar": {
+          "name": "SD Eibar",
+          "attack": 1.027,
+          "defense": 0.91,
+          "matchesCount": 168,
+          "goalsScored": 222,
+          "goalsConceded": 170,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Real Zaragoza": {
+          "name": "Real Zaragoza",
+          "attack": 1.027,
+          "defense": 1.327,
+          "matchesCount": 168,
+          "goalsScored": 177,
+          "goalsConceded": 190,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Ibiza": {
+          "name": "Ibiza",
+          "attack": 0.798,
+          "defense": 1.51,
+          "matchesCount": 84,
+          "goalsScored": 86,
+          "goalsConceded": 125,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Sociedad B": {
+          "name": "Sociedad B",
+          "attack": 0.934,
+          "defense": 1.455,
+          "matchesCount": 42,
+          "goalsScored": 43,
+          "goalsConceded": 61,
+          "lastMatchDate": "2022-05-27"
+        },
+        "CD Leganes": {
+          "name": "CD Leganes",
+          "attack": 1.026,
+          "defense": 0.766,
+          "matchesCount": 126,
+          "goalsScored": 143,
+          "goalsConceded": 120,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Girona FC": {
+          "name": "Girona FC",
+          "attack": 1.116,
+          "defense": 0.973,
+          "matchesCount": 42,
+          "goalsScored": 57,
+          "goalsConceded": 42,
+          "lastMatchDate": "2022-05-29"
+        },
+        "Amorebieta": {
+          "name": "Amorebieta",
+          "attack": 0.786,
+          "defense": 1.214,
+          "matchesCount": 84,
+          "goalsScored": 81,
+          "goalsConceded": 116,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Ponferradina": {
+          "name": "Ponferradina",
+          "attack": 0.935,
+          "defense": 1.256,
+          "matchesCount": 84,
+          "goalsScored": 97,
+          "goalsConceded": 108,
+          "lastMatchDate": "2023-05-28"
+        },
+        "Alcorcon": {
+          "name": "Alcorcon",
+          "attack": 0.663,
+          "defense": 1.184,
+          "matchesCount": 84,
+          "goalsScored": 69,
+          "goalsConceded": 124,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Sporting Gijon": {
+          "name": "Sporting Gijon",
+          "attack": 1.119,
+          "defense": 1.192,
+          "matchesCount": 168,
+          "goalsScored": 194,
+          "goalsConceded": 192,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Burgos CF": {
+          "name": "Burgos CF",
+          "attack": 0.886,
+          "defense": 1.084,
+          "matchesCount": 168,
+          "goalsScored": 167,
+          "goalsConceded": 178,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Real Oviedo": {
+          "name": "Real Oviedo",
+          "attack": 1.098,
+          "defense": 0.866,
+          "matchesCount": 168,
+          "goalsScored": 202,
+          "goalsConceded": 157,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Lugo": {
+          "name": "Lugo",
+          "attack": 0.614,
+          "defense": 1.297,
+          "matchesCount": 84,
+          "goalsScored": 73,
+          "goalsConceded": 109,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Fuenlabrada": {
+          "name": "Fuenlabrada",
+          "attack": 0.87,
+          "defense": 1.602,
+          "matchesCount": 42,
+          "goalsScored": 39,
+          "goalsConceded": 65,
+          "lastMatchDate": "2022-05-27"
+        },
+        "CD Tenerife": {
+          "name": "CD Tenerife",
+          "attack": 0.719,
+          "defense": 1.063,
+          "matchesCount": 168,
+          "goalsScored": 168,
+          "goalsConceded": 170,
+          "lastMatchDate": "2025-06-01"
+        },
+        "UD Las Palmas": {
+          "name": "UD Las Palmas",
+          "attack": 1.028,
+          "defense": 0.807,
+          "matchesCount": 84,
+          "goalsScored": 106,
+          "goalsConceded": 76,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Real Valladolid": {
+          "name": "Real Valladolid",
+          "attack": 1.094,
+          "defense": 0.831,
+          "matchesCount": 84,
+          "goalsScored": 122,
+          "goalsConceded": 79,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Malaga CF": {
+          "name": "Malaga CF",
+          "attack": 0.823,
+          "defense": 1.012,
+          "matchesCount": 126,
+          "goalsScored": 115,
+          "goalsConceded": 147,
+          "lastMatchDate": "2025-05-31"
+        },
+        "CD Mirandes": {
+          "name": "CD Mirandes",
+          "attack": 1.158,
+          "defense": 1.005,
+          "matchesCount": 168,
+          "goalsScored": 212,
+          "goalsConceded": 211,
+          "lastMatchDate": "2025-06-01"
+        },
+        "FC Cartagena": {
+          "name": "FC Cartagena",
+          "attack": 0.747,
+          "defense": 1.545,
+          "matchesCount": 168,
+          "goalsScored": 180,
+          "goalsConceded": 235,
+          "lastMatchDate": "2025-06-01"
+        },
+        "UD Almeria": {
+          "name": "UD Almeria",
+          "attack": 1.406,
+          "defense": 1.152,
+          "matchesCount": 84,
+          "goalsScored": 140,
+          "goalsConceded": 90,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Levante UD": {
+          "name": "Levante UD",
+          "attack": 1.289,
+          "defense": 0.917,
+          "matchesCount": 126,
+          "goalsScored": 164,
+          "goalsConceded": 117,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Deportivo Alaves": {
+          "name": "Deportivo Alaves",
+          "attack": 0.928,
+          "defense": 0.749,
+          "matchesCount": 42,
+          "goalsScored": 47,
+          "goalsConceded": 33,
+          "lastMatchDate": "2023-05-27"
+        },
+        "Santander": {
+          "name": "Santander",
+          "attack": 1.272,
+          "defense": 1.17,
+          "matchesCount": 126,
+          "goalsScored": 167,
+          "goalsConceded": 146,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Villarreal B": {
+          "name": "Villarreal B",
+          "attack": 0.883,
+          "defense": 1.403,
+          "matchesCount": 84,
+          "goalsScored": 90,
+          "goalsConceded": 117,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Granada CF": {
+          "name": "Granada CF",
+          "attack": 1.278,
+          "defense": 1.137,
+          "matchesCount": 84,
+          "goalsScored": 120,
+          "goalsConceded": 84,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Andorra": {
+          "name": "Andorra",
+          "attack": 0.734,
+          "defense": 1.146,
+          "matchesCount": 84,
+          "goalsScored": 80,
+          "goalsConceded": 90,
+          "lastMatchDate": "2024-06-02"
+        },
+        "Albacete Balompie": {
+          "name": "Albacete Balompie",
+          "attack": 1.14,
+          "defense": 1.226,
+          "matchesCount": 126,
+          "goalsScored": 165,
+          "goalsConceded": 160,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Elche CF": {
+          "name": "Elche CF",
+          "attack": 1.148,
+          "defense": 0.823,
+          "matchesCount": 84,
+          "goalsScored": 102,
+          "goalsConceded": 80,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Ferrol": {
+          "name": "Ferrol",
+          "attack": 0.538,
+          "defense": 1.343,
+          "matchesCount": 84,
+          "goalsScored": 71,
+          "goalsConceded": 116,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Espanyol": {
+          "name": "Espanyol",
+          "attack": 1.143,
+          "defense": 0.883,
+          "matchesCount": 42,
+          "goalsScored": 59,
+          "goalsConceded": 40,
+          "lastMatchDate": "2024-06-02"
+        },
+        "CD Eldense": {
+          "name": "CD Eldense",
+          "attack": 0.899,
+          "defense": 1.358,
+          "matchesCount": 84,
+          "goalsScored": 90,
+          "goalsConceded": 119,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Cordoba CF": {
+          "name": "Cordoba CF",
+          "attack": 1.222,
+          "defense": 1.383,
+          "matchesCount": 42,
+          "goalsScored": 59,
+          "goalsConceded": 63,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Cadiz CF": {
+          "name": "Cadiz CF",
+          "attack": 1.124,
+          "defense": 1.106,
+          "matchesCount": 42,
+          "goalsScored": 55,
+          "goalsConceded": 53,
+          "lastMatchDate": "2025-06-01"
+        },
+        "CD Castellon": {
+          "name": "CD Castellon",
+          "attack": 1.352,
+          "defense": 1.409,
+          "matchesCount": 42,
+          "goalsScored": 65,
+          "goalsConceded": 63,
+          "lastMatchDate": "2025-05-30"
+        },
+        "La Coruna": {
+          "name": "La Coruna",
+          "attack": 1.119,
+          "defense": 1.207,
+          "matchesCount": 42,
+          "goalsScored": 56,
+          "goalsConceded": 54,
+          "lastMatchDate": "2025-06-01"
+        }
+      }
+    },
+    "T1": {
+      "div": "T1",
+      "leagueName": "Turkish Super Lig",
+      "country": "Turkey",
+      "seasonCount": 4,
+      "totalMatches": 1444,
+      "leagueAvgGoals": 1.445,
+      "homeAdvantage": 1.31,
+      "rho": -0.06,
+      "calibrationDate": "2025-06-01",
+      "teams": {
+        "Besiktas": {
+          "name": "Besiktas",
+          "attack": 1.178,
+          "defense": 1.221,
+          "matchesCount": 148,
+          "goalsScored": 245,
+          "goalsConceded": 167,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Rizespor": {
+          "name": "Rizespor",
+          "attack": 1.129,
+          "defense": 1.86,
+          "matchesCount": 112,
+          "goalsScored": 144,
+          "goalsConceded": 187,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Karagumruk": {
+          "name": "Karagumruk",
+          "attack": 1.081,
+          "defense": 1.763,
+          "matchesCount": 112,
+          "goalsScored": 171,
+          "goalsConceded": 167,
+          "lastMatchDate": "2024-05-25"
+        },
+        "Gaziantep": {
+          "name": "Gaziantep",
+          "attack": 0.887,
+          "defense": 1.672,
+          "matchesCount": 148,
+          "goalsScored": 174,
+          "goalsConceded": 235,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Altay": {
+          "name": "Altay",
+          "attack": 0.728,
+          "defense": 1.599,
+          "matchesCount": 38,
+          "goalsScored": 39,
+          "goalsConceded": 57,
+          "lastMatchDate": "2022-05-21"
+        },
+        "Kayserispor": {
+          "name": "Kayserispor",
+          "attack": 0.952,
+          "defense": 1.773,
+          "matchesCount": 148,
+          "goalsScored": 198,
+          "goalsConceded": 236,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Hatayspor": {
+          "name": "Hatayspor",
+          "attack": 0.995,
+          "defense": 2.317,
+          "matchesCount": 148,
+          "goalsScored": 167,
+          "goalsConceded": 269,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Kasimpasa": {
+          "name": "Kasimpasa",
+          "attack": 1.278,
+          "defense": 2.017,
+          "matchesCount": 148,
+          "goalsScored": 236,
+          "goalsConceded": 246,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Buyuksehyr": {
+          "name": "Buyuksehyr",
+          "attack": 1.201,
+          "defense": 1.704,
+          "matchesCount": 148,
+          "goalsScored": 227,
+          "goalsConceded": 172,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Alanyaspor": {
+          "name": "Alanyaspor",
+          "attack": 0.978,
+          "defense": 1.633,
+          "matchesCount": 148,
+          "goalsScored": 217,
+          "goalsConceded": 228,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Ad. Demirspor": {
+          "name": "Ad. Demirspor",
+          "attack": 0.853,
+          "defense": 2.735,
+          "matchesCount": 148,
+          "goalsScored": 224,
+          "goalsConceded": 245,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Fenerbahce": {
+          "name": "Fenerbahce",
+          "attack": 1.811,
+          "defense": 1.314,
+          "matchesCount": 148,
+          "goalsScored": 349,
+          "goalsConceded": 150,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Antalyaspor": {
+          "name": "Antalyaspor",
+          "attack": 0.755,
+          "defense": 1.819,
+          "matchesCount": 148,
+          "goalsScored": 181,
+          "goalsConceded": 213,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Goztep": {
+          "name": "Goztep",
+          "attack": 1.164,
+          "defense": 1.676,
+          "matchesCount": 74,
+          "goalsScored": 99,
+          "goalsConceded": 127,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Sivasspor": {
+          "name": "Sivasspor",
+          "attack": 0.909,
+          "defense": 1.845,
+          "matchesCount": 148,
+          "goalsScored": 189,
+          "goalsConceded": 218,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Konyaspor": {
+          "name": "Konyaspor",
+          "attack": 0.902,
+          "defense": 1.541,
+          "matchesCount": 148,
+          "goalsScored": 200,
+          "goalsConceded": 189,
+          "lastMatchDate": "2025-05-31"
+        },
+        "Yeni Malatyaspor": {
+          "name": "Yeni Malatyaspor",
+          "attack": 0.547,
+          "defense": 1.987,
+          "matchesCount": 38,
+          "goalsScored": 27,
+          "goalsConceded": 71,
+          "lastMatchDate": "2022-05-21"
+        },
+        "Trabzonspor": {
+          "name": "Trabzonspor",
+          "attack": 1.243,
+          "defense": 1.515,
+          "matchesCount": 148,
+          "goalsScored": 260,
+          "goalsConceded": 185,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Giresunspor": {
+          "name": "Giresunspor",
+          "attack": 0.872,
+          "defense": 1.832,
+          "matchesCount": 74,
+          "goalsScored": 83,
+          "goalsConceded": 107,
+          "lastMatchDate": "2023-06-07"
+        },
+        "Galatasaray": {
+          "name": "Galatasaray",
+          "attack": 1.787,
+          "defense": 0.933,
+          "matchesCount": 148,
+          "goalsScored": 317,
+          "goalsConceded": 137,
+          "lastMatchDate": "2025-05-30"
+        },
+        "Istanbulspor": {
+          "name": "Istanbulspor",
+          "attack": 0.613,
+          "defense": 2.397,
+          "matchesCount": 74,
+          "goalsScored": 74,
+          "goalsConceded": 143,
+          "lastMatchDate": "2024-05-26"
+        },
+        "Ankaragucu": {
+          "name": "Ankaragucu",
+          "attack": 0.842,
+          "defense": 1.648,
+          "matchesCount": 74,
+          "goalsScored": 89,
+          "goalsConceded": 105,
+          "lastMatchDate": "2024-05-26"
+        },
+        "Umraniyespor": {
+          "name": "Umraniyespor",
+          "attack": 0.941,
+          "defense": 2.057,
+          "matchesCount": 36,
+          "goalsScored": 47,
+          "goalsConceded": 64,
+          "lastMatchDate": "2023-06-07"
+        },
+        "Pendikspor": {
+          "name": "Pendikspor",
+          "attack": 0.784,
+          "defense": 2.14,
+          "matchesCount": 38,
+          "goalsScored": 42,
+          "goalsConceded": 73,
+          "lastMatchDate": "2024-05-26"
+        },
+        "Samsunspor": {
+          "name": "Samsunspor",
+          "attack": 1.013,
+          "defense": 1.395,
+          "matchesCount": 74,
+          "goalsScored": 97,
+          "goalsConceded": 93,
+          "lastMatchDate": "2025-06-01"
+        },
+        "Eyupspor": {
+          "name": "Eyupspor",
+          "attack": 1.033,
+          "defense": 1.615,
+          "matchesCount": 36,
+          "goalsScored": 52,
+          "goalsConceded": 47,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Bodrumspor": {
+          "name": "Bodrumspor",
+          "attack": 0.526,
+          "defense": 1.323,
+          "matchesCount": 36,
+          "goalsScored": 26,
+          "goalsConceded": 43,
+          "lastMatchDate": "2025-06-01"
+        }
+      }
+    }
+  }
+}

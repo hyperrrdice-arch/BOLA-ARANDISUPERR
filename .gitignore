@@ -46,3 +46,9 @@ backup/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local sqlite master & raw historical datasets (preserve compiled ratings)
+data/football_master.db*
+data/historical/raw/
+!data/historical/README.md
+!data/calibrated_ratings.json

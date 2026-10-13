@@ -1,0 +1,298 @@
+/**
+ * Modul Normalisasi & Resolusi Nama Klub Sepak Bola (Entity Resolution)
+ * Menyelaraskan nama klub dari berbagai format sumber (Football-Data.co.uk, TheStatsAPI, 1xBet, dll.)
+ */
+
+// Kamus alias nama klub untuk Top 5 Liga Eropa, Kasta Kedua, & Klub Top Kontinental
+export const TEAM_NAME_ALIASES: Record<string, string> = {
+  // English Premier League & Championship
+  "man united": "Manchester United",
+  "manchester utd": "Manchester United",
+  "man utd": "Manchester United",
+  "man city": "Manchester City",
+  "manchester c": "Manchester City",
+  "nott'm forest": "Nottingham Forest",
+  "nottingham": "Nottingham Forest",
+  "spurs": "Tottenham Hotspur",
+  "tottenham": "Tottenham Hotspur",
+  "wolves": "Wolverhampton Wanderers",
+  "wolverhampton": "Wolverhampton Wanderers",
+  "newcastle": "Newcastle United",
+  "west ham": "West Ham United",
+  "brighton": "Brighton & Hove Albion",
+  "brighton and hove albion": "Brighton & Hove Albion",
+  "leicester": "Leicester City",
+  "ipswich": "Ipswich Town",
+  "sheffield utd": "Sheffield United",
+  "sheffield united": "Sheffield United",
+  "sheff utd": "Sheffield United",
+  "sheffield wed": "Sheffield Wednesday",
+  "luton": "Luton Town",
+  "leeds": "Leeds United",
+  "norwich": "Norwich City",
+  "west brom": "West Bromwich Albion",
+  "wba": "West Bromwich Albion",
+  "qpr": "Queens Park Rangers",
+  "preston": "Preston North End",
+  "blackburn": "Blackburn Rovers",
+  "cardiff": "Cardiff City",
+  "coventry": "Coventry City",
+  "plymouth": "Plymouth Argyle",
+  "oxford": "Oxford United",
+  "derby": "Derby County",
+  "hull": "Hull City",
+  "stoke": "Stoke City",
+  "swansea": "Swansea City",
+  "watford": "Watford",
+  "bristol city": "Bristol City",
+  "middlesbrough": "Middlesbrough",
+  "millwall": "Millwall",
+  "portsmouth": "Portsmouth",
+  "sunderland": "Sunderland",
+
+  // Spanish La Liga & Segunda
+  "ath madrid": "Atletico Madrid",
+  "atletico": "Atletico Madrid",
+  "atl madrid": "Atletico Madrid",
+  "ath bilbao": "Athletic Club",
+  "athletic bilbao": "Athletic Club",
+  "celta": "Celta Vigo",
+  "celta de vigo": "Celta Vigo",
+  "betis": "Real Betis",
+  "sociedad": "Real Sociedad",
+  "vallecano": "Rayo Vallecano",
+  "rayo": "Rayo Vallecano",
+  "espanol": "Espanyol",
+  "alaves": "Deportivo Alaves",
+  "valladolid": "Real Valladolid",
+  "leganes": "CD Leganes",
+  "las palmas": "UD Las Palmas",
+  "mallorca": "RCD Mallorca",
+  "osasuna": "CA Osasuna",
+  "sevilla": "Sevilla FC",
+  "valencia": "Valencia CF",
+  "villarreal": "Villarreal CF",
+  "girona": "Girona FC",
+  "getafe": "Getafe CF",
+  "sp gijon": "Sporting Gijon",
+  "racing santander": "Racing de Santander",
+  "oviedo": "Real Oviedo",
+  "zaragoza": "Real Zaragoza",
+  "levante": "Levante UD",
+  "elche": "Elche CF",
+  "eibar": "SD Eibar",
+  "almeria": "UD Almeria",
+  "granada": "Granada CF",
+  "cadiz": "Cadiz CF",
+  "tenerife": "CD Tenerife",
+  "huesca": "SD Huesca",
+  "cartagena": "FC Cartagena",
+  "burgos": "Burgos CF",
+  "albacete": "Albacete Balompie",
+  "racing ferrol": "Racing de Ferrol",
+  "mirandes": "CD Mirandes",
+  "castellon": "CD Castellon",
+  "cordoba": "Cordoba CF",
+  "malaga": "Malaga CF",
+  "eldense": "CD Eldense",
+
+  // Italian Serie A & Serie B
+  "inter": "Inter Milan",
+  "internazionale": "Inter Milan",
+  "milan": "AC Milan",
+  "ac milan": "AC Milan",
+  "juve": "Juventus",
+  "roma": "AS Roma",
+  "lazio": "SS Lazio",
+  "napoli": "SSC Napoli",
+  "atalanta": "Atalanta BC",
+  "fiorentina": "ACF Fiorentina",
+  "bologna": "Bologna FC",
+  "torino": "Torino FC",
+  "verona": "Hellas Verona",
+  "hellas verona": "Hellas Verona",
+  "udinese": "Udinese Calcio",
+  "cagliari": "Cagliari Calcio",
+  "genoa": "Genoa CFC",
+  "empoli": "Empoli FC",
+  "lecce": "US Lecce",
+  "monza": "AC Monza",
+  "parma": "Parma Calcio",
+  "como": "Como 1907",
+  "venezia": "Venezia FC",
+  "sassuolo": "US Sassuolo",
+  "frosinone": "Frosinone Calcio",
+  "salernitana": "US Salernitana",
+  "spezia": "Spezia Calcio",
+  "cremonese": "US Cremonese",
+  "sampdoria": "UC Sampdoria",
+  "palermo": "Palermo FC",
+  "bari": "SSC Bari",
+  "brescia": "Brescia Calcio",
+  "catanzaro": "US Catanzaro",
+  "cesena": "Cesena FC",
+  "cittadella": "AS Cittadella",
+  "cosenza": "Cosenza Calcio",
+  "juve stabia": "SS Juve Stabia",
+  "mantova": "Mantova 1911",
+  "modena": "Modena FC",
+  "pisa": "Pisa SC",
+  "reggiana": "AC Reggiana",
+  "sudtirol": "FC Sudtirol",
+  "carrarese": "Carrarese Calcio",
+
+  // German Bundesliga & 2. Bundesliga
+  "bayern munich": "Bayern Munich",
+  "bayern munchen": "Bayern Munich",
+  "fc bayern": "Bayern Munich",
+  "dortmund": "Borussia Dortmund",
+  "bvb": "Borussia Dortmund",
+  "leverkusen": "Bayer Leverkusen",
+  "bayer 04": "Bayer Leverkusen",
+  "leipzig": "RB Leipzig",
+  "rb leipzig": "RB Leipzig",
+  "m'gladbach": "Borussia Monchengladbach",
+  "monchengladbach": "Borussia Monchengladbach",
+  "frankfurt": "Eintracht Frankfurt",
+  "eintracht": "Eintracht Frankfurt",
+  "stuttgart": "VfB Stuttgart",
+  "wolfsburg": "VfL Wolfsburg",
+  "freiburg": "SC Freiburg",
+  "mainz": "1. FSV Mainz 05",
+  "mainz 05": "1. FSV Mainz 05",
+  "augsburg": "FC Augsburg",
+  "bremen": "Werder Bremen",
+  "werder": "Werder Bremen",
+  "union berlin": "1. FC Union Berlin",
+  "bochum": "VfL Bochum",
+  "hoffenheim": "TSG 1899 Hoffenheim",
+  "heidenheim": "1. FC Heidenheim",
+  "st pauli": "FC St. Pauli",
+  "holstein kiel": "Holstein Kiel",
+  "kiel": "Holstein Kiel",
+  "koln": "1. FC Koln",
+  "cologne": "1. FC Koln",
+  "darmstadt": "SV Darmstadt 98",
+  "schalke": "FC Schalke 04",
+  "hertha": "Hertha BSC",
+  "hamburg": "Hamburger SV",
+  "hsv": "Hamburger SV",
+  "hannover": "Hannover 96",
+  "dusseldorf": "Fortuna Dusseldorf",
+  "fortuna dusseldorf": "Fortuna Dusseldorf",
+  "kaiserslautern": "1. FC Kaiserslautern",
+  "karlsruhe": "Karlsruher SC",
+  "nurnberg": "1. FC Nurnberg",
+  "paderborn": "SC Paderborn 07",
+  "furth": "SpVgg Greuther Furth",
+  "greuther furth": "SpVgg Greuther Furth",
+  "magdeburg": "1. FC Magdeburg",
+  "elversberg": "SV Elversberg",
+  "braunschweig": "Eintracht Braunschweig",
+  "munster": "Preussen Munster",
+  "regensburg": "Jahn Regensburg",
+  "ulm": "SSV Ulm 1846",
+
+  // French Ligue 1 & Ligue 2
+  "paris sg": "Paris Saint-Germain",
+  "psg": "Paris Saint-Germain",
+  "marseille": "Olympique de Marseille",
+  "lyon": "Olympique Lyonnais",
+  "monaco": "AS Monaco",
+  "lille": "LOSC Lille",
+  "rennes": "Stade Rennais",
+  "nice": "OGC Nice",
+  "lens": "RC Lens",
+  "strasbourg": "RC Strasbourg",
+  "toulouse": "Toulouse FC",
+  "reims": "Stade de Reims",
+  "nantes": "FC Nantes",
+  "montpellier": "Montpellier HSC",
+  "brest": "Stade Brestois 29",
+  "le havre": "Le Havre AC",
+  "auxerre": "AJ Auxerre",
+  "angers": "Angers SCO",
+  "st etienne": "AS Saint-Etienne",
+  "saint-etienne": "AS Saint-Etienne",
+  "metz": "FC Metz",
+  "lorient": "FC Lorient",
+  "clermont": "Clermont Foot",
+  "bordeaux": "Girondins de Bordeaux",
+  "paris fc": "Paris FC",
+  "caen": "SM Caen",
+  "guingamp": "EA Guingamp",
+  "ajaccio": "AC Ajaccio",
+  "bastia": "SC Bastia",
+  "rodez": "Rodez AF",
+  "pau": "Pau FC",
+  "amiens": "Amiens SC",
+  "grenoble": "Grenoble Foot 38",
+  "laval": "Stade Lavallois",
+  "dunkerque": "US Dunkerque",
+  "annecy": "FC Annecy",
+  "troyes": "ESTAC Troyes",
+  "red star": "Red Star FC",
+  "martigues": "FC Martigues",
+
+  // Dutch Eredivisie & Portuguese Primeira Liga
+  "ajax": "Ajax",
+  "psv": "PSV Eindhoven",
+  "feyenoord": "Feyenoord",
+  "az": "AZ Alkmaar",
+  "twente": "FC Twente",
+  "utrecht": "FC Utrecht",
+  "benfica": "SL Benfica",
+  "porto": "FC Porto",
+  "sporting lisbon": "Sporting CP",
+  "sporting cp": "Sporting CP",
+  "braga": "SC Braga",
+  "celtic": "Celtic",
+  "rangers": "Rangers",
+  "galatasaray": "Galatasaray",
+  "fenerbahce": "Fenerbahce",
+  "besiktas": "Besiktas",
+  "olympiakos": "Olympiacos",
+  "panathinaikos": "Panathinaikos",
+  "aek": "AEK Athens",
+  "paok": "PAOK",
+};
+
+/**
+ * Membersihkan karakter non-ASCII, aksen, dan tanda petik ganda
+ */
+export function sanitizeString(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Hapus aksen (München -> Munchen)
+    .replace(/['’`]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Menormalkan nama tim ke nama standar kanonikal
+ */
+export function normalizeTeamName(rawName: string): string {
+  if (!rawName) return "";
+
+  const clean = sanitizeString(rawName);
+  const lower = clean.toLowerCase();
+
+  // 1. Cek langsung di kamus alias
+  if (TEAM_NAME_ALIASES[lower]) {
+    return TEAM_NAME_ALIASES[lower];
+  }
+
+  // 2. Cek variasi tanpa prefix/suffix "FC", "CF", "AC", "AS", "SC", "SV", "CD", "UD"
+  const stripped = lower
+    .replace(/\b(fc|cf|ac|as|sc|sv|cd|ud|rc|vfb|vfl|ssc|rcd|spvgg|ogc|losc|aj)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (TEAM_NAME_ALIASES[stripped]) {
+    return TEAM_NAME_ALIASES[stripped];
+  }
+
+  // 3. Fallback: Kembalikan nama yang sudah di-sanitize dengan title case
+  return clean;
+}

@@ -1,41 +1,34 @@
-# Implementation Plan: 2026 Historical Dataset Ingestion & Quant Model Calibration
+# Implementation Plan: Dual-Layer SQLite Relational Database & Dixon-Coles Calibration
 
-## Overview
-Mengintegrasikan dataset pertandingan pihak ketiga sepanjang tahun 2026 ke dalam penyimpanan lokal (`data/datasets/`) untuk mengalibrasi model kuantitatif Dixon-Coles, mengeliminasi varians sampel kecil, dan meningkatkan akurasi estimasi probabilitas serta formula Kelly.
-
----
-
-## Architecture Decisions
-1. **Local Storage Strategy**: Format JSON terstruktur di `data/datasets/matches_2026.json` (ringan, portable, latensi baca < 2ms, zero dependency database).
-2. **Entity Resolution (Team Normalizer)**: Modul pemetaan deterministik untuk menyelaraskan nama tim dari berbagai sumber data pihak ketiga ke penamaan resmi TheStatsAPI & 1xBet.
-3. **Temporal Integrity (Zero Lookahead Bias)**: Setiap kalkulasi metrik historis dibatasi secara ketat pada laga sebelum tanggal kick-off pertandingan yang diuji (`date < match_date`).
-4. **Exponential Time Decay & Empirical Bayes**: Menerapkan bobot peluruhan waktu Dixon-Coles ($\xi = 0.0035$) dan penyusutan James-Stein menuju baseline rata-rata liga untuk meredam noise.
-5. **Seamless Pipeline Fallback**: Jika data lokal tidak tersedia untuk tim/liga tertentu, sistem secara otomatis fallback ke scraping live TheStatsAPI.
+## Architectural Overview
+Integrasi penyimpanan data relasional dua lapis (Dual-Layer Architecture):
+1. **Penyimpanan Master Lokal / VPS**: Menggunakan SQLite lokal (`node:sqlite`) di `data/football_master.db` untuk menyimpan riwayat pertandingan 3 musim terakhir dari 10 divisi (Top 5 Liga Eropa + 5 Kasta Kedua). Engine komputasi MLE Dixon-Coles dijalankan secara offline di layer ini.
+2. **Runtime Matrix (Edge & Vercel Ready)**: Menghasilkan matriks parameter terkompilasi `data/calibrated_ratings.json` (~80-120 KB). File ini dimuat ke memori oleh Next.js serverless functions di Vercel dalam waktu <0.05 ms tanpa latensi jaringan dan tanpa koneksi database eksternal.
+3. **Empirical Bayes Shrinkage**: Memadukan data form live TheStatsAPI ($N=5-10$) dengan baseline historis terkalibrasi via formula James-Stein ($w_i = \frac{n_i}{n_i + 16}$).
 
 ---
 
-## Task List
+## Scope & Target Divisions
+- **Inggris**: Premier League (`E0`), EFL Championship (`E1`)
+- **Spanyol**: La Liga (`SP1`), Segunda División (`SP2`)
+- **Italia**: Serie A (`I1`), Serie B (`I2`)
+- **Jerman**: Bundesliga (`D1`), 2. Bundesliga (`D2`)
+- **Prancis**: Ligue 1 (`F1`), Ligue 2 (`F2`)
+- Total sampel data: ~8.000 - 10.000 pertandingan historis (3 musim terakhir).
 
-### Phase 1: Storage Layer & Dataset Importer
-- [ ] Task 1: Buat direktori `data/datasets/` dan skema Zod untuk `HistoricalMatchRecord`
-- [ ] Task 2: Buat CLI importer script `scripts/import-2026-dataset.ts` untuk mengonversi data pihak ketiga (CSV/JSON) ke skema lokal terverifikasi
+---
 
-### Checkpoint: Storage & Importer
-- [ ] Dataset lokal tervalidasi dan dapat diimpor tanpa error skema.
+## Vertical Slices
 
-### Phase 2: Historical Rating Engine & Normalizer
-- [ ] Task 3: Buat `lib/quant/team-normalizer.ts` untuk memetakan alias nama tim
-- [ ] Task 4: Buat `lib/quant/historical-store.ts` dengan time-decay weighting dan filter anti-lookahead
-- [ ] Task 5: Upgrade `lib/quant/dixon-coles.ts` untuk mendukung Empirical Bayes Shrinkage
+### Slice 1: Database Schema & Hybrid Ingestion Pipeline
+- **Task 1**: SQLite Master Schema & Database Client (`lib/db/sqlite-master.ts`)
+- **Task 2**: Team Name Resolution Engine (`lib/quant/team-normalizer.ts`)
+- **Task 3**: Historical Dataset Downloader & Ingestion Script (`scripts/download-historical-data.mjs` & `scripts/ingest-historical-data.ts`)
 
-### Checkpoint: Quant Engine Calibration
-- [ ] Uji unit dan benchmark error margin menunjukkan penurunan SE dari 0.707 ke < 0.250.
-- [ ] Tidak ada regresi formula Poisson atau batas Kelly.
+### Slice 2: Dixon-Coles MLE Calibration & Ratings Matrix Builder
+- **Task 4**: Dixon-Coles Bivariate Poisson MLE Calibration Engine (`scripts/calibrate-ratings.ts`)
+- **Task 5**: Runtime Ratings Loader with Empirical Bayes Shrinkage (`lib/quant/ratings-loader.ts`)
 
-### Phase 3: Pipeline & UI Integration
-- [ ] Task 6: Hubungkan `historical-store.ts` ke `lib/stats-validator.ts` dan `app/api/agent/route.tsx`
-- [ ] Task 7: Uji end-to-end analisis pertandingan dengan data historis lokal terkalibrasi
-
-### Checkpoint: Final Verification
-- [ ] Semua pengujian otomatis lulus (`npx.cmd tsc --noEmit`).
-- [ ] Analisis live menampilkan metrik historis yang akurat dan stabil.
+### Slice 3: Agent Integration, Diagnostics & Verification
+- **Task 6**: Live Agent Pipeline Integration (`app/api/agent/route.tsx`)
+- **Task 7**: Comprehensive Typecheck, Diagnostics & Git Sync via `repo-manager`
