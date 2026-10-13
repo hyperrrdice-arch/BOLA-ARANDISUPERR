@@ -40,3 +40,17 @@ const betLow = evaluateValueBet(noisyLow.prob_home_win, 1.85, "1X2", "Home");
 console.log("Kelly Stake Base (P=" + baseline.prob_home_win + "): EV=" + betBase.ev_percentage + ", Quarter Kelly=" + betBase.recommended_stake_percentage + "%");
 console.log("Kelly Stake High (P=" + noisyHigh.prob_home_win + "): EV=" + betHigh.ev_percentage + ", Quarter Kelly=" + betHigh.recommended_stake_percentage + "%");
 console.log("Kelly Stake Low  (P=" + noisyLow.prob_home_win + "): EV=" + betLow.ev_percentage + ", Quarter Kelly=" + betLow.recommended_stake_percentage + "%");
+
+console.log("\n=== 2. ASIAN HANDICAP -1.0 VERIFICATION ===");
+const ah1 = baseline.asian_handicap.ah_minus_1_0;
+console.log("AH -1.0 Home Cover:", ah1.home_cover);
+console.log("AH -1.0 Push Prob:", ah1.push_prob);
+console.log("AH -1.0 Away Cover:", ah1.away_cover);
+console.log("AH -1.0 Fair Odds Home:", ah1.fair_odds_home);
+console.log("AH -1.0 Fair Odds Away:", ah1.fair_odds_away);
+
+// Mathematical invariant check:
+// In conditional space, (1 / fair_odds_home) + (1 / fair_odds_away) should equal ~1.0
+const impliedSum = (1 / ah1.fair_odds_home) + (1 / ah1.fair_odds_away);
+console.log("Implied Probability Sum (should be ~1.00):", impliedSum.toFixed(4));
+console.log("Condition:", Math.abs(impliedSum - 1.0) < 0.02 ? "PASS (Zero Arbitrage Risk)" : "FAIL");

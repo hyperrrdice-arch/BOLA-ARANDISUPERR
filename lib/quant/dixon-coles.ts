@@ -9,9 +9,10 @@ export interface DixonColesInput {
   homeDefense: number; // e.g. xGA per match or goals conceded per game (~0.8 - 2.2)
   awayAttack: number; // e.g. xG per match
   awayDefense: number; // e.g. xGA per match
-  homeAdvantage?: number; // Home ground multiplier (default 1.20)
+  homeAdvantage?: number; // Home ground multiplier (default 1.15)
+  leagueAvgGoals?: number; // League average goals per team per match (default 1.35)
   rho?: number; // Low-score correlation parameter tau (standard: -0.13)
-  maxGoals?: number; // Matrix dimension limit (default 7 goals per side)
+  maxGoals?: number; // Matrix dimension limit (default 10 goals per side)
 }
 
 export interface ScorelineProbability {
@@ -38,6 +39,8 @@ export interface AsianHandicapLines {
     home_cover: number;
     push_prob: number;
     away_cover: number;
+    home_prob?: number;
+    away_prob?: number;
     fair_odds_home: number;
     fair_odds_away: number;
   };
@@ -83,8 +86,10 @@ export interface DixonColesResult {
   score_matrix: number[][]; // [home][away]
 }
 
-// Factorial helper with memoization
-const FACTORIAL_CACHE: number[] = [1, 1, 2, 6, 24, 120, 720, 5040, 40320];
+// Factorial helper with memoization up to 12!
+const FACTORIAL_CACHE: number[] = [
+  1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600,
+];
 function factorial(n: number): number {
   if (n <= 1) return 1;
   if (FACTORIAL_CACHE[n] !== undefined) return FACTORIAL_CACHE[n];
@@ -122,16 +127,21 @@ function tauAdjustment(x: number, y: number, lambda: number, mu: number, rho: nu
 /**
  * Compute Dixon-Coles Bivariate Goal Expectancy and Full Market Probabilities
  */
-export function calculateDixonColes(input: DixonColesInput): DixonColesResult {
-  const homeAdvantage = input.homeAdvantage ?? 1.2;
+export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: number }): DixonColesResult {
+  const homeAdvantage = input.homeAdvantage ?? 1.15; // Standar modern Eropa ~1.12 - 1.18
+  const leagueAvg = input.leagueAvgGoals ?? 1.35; // Rata-rata gol per tim per laga di liga
   const rho = input.rho ?? -0.13;
-  const maxGoals = input.maxGoals ?? 7;
+  const maxGoals = input.maxGoals ?? 10; // Naikkan ke 10 agar tail probability tidak terpotong
 
-  // Calculate expected goals (lambda and mu)
-  // lambda = Home Attack * Away Defense Weakness * Home Advantage
-  // mu = Away Attack * Home Defense Weakness
-  const rawLambda = Math.max(0.2, (input.homeAttack || 1.3) * (input.awayDefense || 1.2) * (homeAdvantage / 1.2));
-  const rawMu = Math.max(0.2, (input.awayAttack || 1.1) * (input.homeDefense || 1.1));
+  // Normalisasi terhadap rata-rata liga & terapkan Home Advantage yang sebenarnya
+  const rawLambda = Math.max(
+    0.2,
+    ((input.homeAttack || 1.35) * (input.awayDefense || 1.35) / leagueAvg) * homeAdvantage
+  );
+  const rawMu = Math.max(
+    0.2,
+    ((input.awayAttack || 1.35) * (input.homeDefense || 1.35)) / leagueAvg
+  );
 
   const lambda = Math.round(rawLambda * 1000) / 1000;
   const mu = Math.round(rawMu * 1000) / 1000;
@@ -215,6 +225,11 @@ export function calculateDixonColes(input: DixonColesInput): DixonColesResult {
   const dnbHomeProb = dnbDenominator > 0 ? homeWinProb / dnbDenominator : 0.5;
   const dnbAwayProb = dnbDenominator > 0 ? awayWinProb / dnbDenominator : 0.5;
 
+  // Asian Handicap -1.0 (Conditional on non-push)
+  const ah1Denominator = ahMinus1HomeCover + ahMinus1AwayCover;
+  const ah1HomeConditionalProb = ah1Denominator > 0 ? ahMinus1HomeCover / ah1Denominator : 0.5;
+  const ah1AwayConditionalProb = ah1Denominator > 0 ? ahMinus1AwayCover / ah1Denominator : 0.5;
+
   return {
     lambda,
     mu,
@@ -262,8 +277,10 @@ export function calculateDixonColes(input: DixonColesInput): DixonColesResult {
         home_cover: roundPct(ahMinus1HomeCover),
         push_prob: roundPct(ahMinus1Push),
         away_cover: roundPct(ahMinus1AwayCover),
-        fair_odds_home: toOdds(ahMinus1HomeCover),
-        fair_odds_away: toOdds(ahMinus1AwayCover),
+        home_prob: roundPct(ah1HomeConditionalProb),
+        away_prob: roundPct(ah1AwayConditionalProb),
+        fair_odds_home: toOdds(ah1HomeConditionalProb), // Sudah memperhitungkan Push (uang kembali)
+        fair_odds_away: toOdds(ah1AwayConditionalProb),
       },
     },
     clean_sheet: {
