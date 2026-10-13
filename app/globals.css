@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0d1117;
+  --foreground: #e6edf3;
+  --surface: #161b22;
+  --surface-hover: #1c232d;
+  --surface-active: #222a36;
+  --border-subtle: #2d3748;
+  --border-strong: #3b4554;
+  --text-primary: #f0f6fc;
+  --text-body: #cbd5e1;
+  --text-muted: #8b949e;
+  --text-faint: #64748b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================================================= */
+/* FLAT SOLID BADGE & TAG TOKENS (MATTE, NO NEON, NO GLOW)                   */
+/* ========================================================================= */
+
+.flat-tag-green {
+  background-color: #132b1e;
+  color: #22c55e;
+  border: 1px solid #1e4a32;
+}
+
+.flat-tag-blue {
+  background-color: #13253b;
+  color: #38bdf8;
+  border: 1px solid #1e3e60;
+}
+
+.flat-tag-slate {
+  background-color: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+.flat-tag-amber {
+  background-color: #2e2111;
+  color: #fbbf24;
+  border: 1px solid #4d371d;
+}
+
+.flat-tag-red {
+  background-color: #331718;
+  color: #f87171;
+  border: 1px solid #542022;
+}
+
+.flat-tag-purple {
+  background-color: #201c38;
+  color: #818cf8;
+  border: 1px solid #383162;
+}
+
+/* ========================================================================= */
+/* FLAT CARDS & PANELS                                                       */
+/* ========================================================================= */
+
+.flat-card {
+  background-color: #161b22;
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.flat-card:hover {
+  background-color: #1c232d;
+  border-color: #3f4d62;
+}
+
+.flat-card-static {
+  background-color: #161b22;
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+}
+
+.flat-callout {
+  background-color: #161b22;
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+/* Flat Turf Background for Tactical Pitch */
+.pitch-turf {
+  background-color: #122418;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #122418 0px,
+    #122418 40px,
+    #0f1f14 40px,
+    #0f1f14 80px
+  );
+  border: 1px solid #23422d;
+}
+
+/* Flat Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3748;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f4d62;
+}

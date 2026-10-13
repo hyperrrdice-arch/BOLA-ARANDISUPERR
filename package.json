@@ -1,0 +1,33 @@
+{
+  "name": "football-agent",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "backup:v1.1": "node scripts/create_backup_v1_1.js",
+    "restore:v1.1": "node scripts/restore_v1_1.js",
+    "restore:v1": "node scripts/restore_v1.js"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^4.0.93",
+    "@ai-sdk/openai": "^4.0.91",
+    "ai": "^7.0.137",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^14.2.35",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
