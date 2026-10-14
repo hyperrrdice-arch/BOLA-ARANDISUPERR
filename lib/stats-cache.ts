@@ -105,26 +105,29 @@ export async function cachedStatsGet<T = any>(
 
   const data = await res.json();
 
+  const safeTtl = Math.max(1000, Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 30 * 60 * 1000);
+
   // 3. Simpan di Memory Cache jika fetch berhasil
   memoryStore.set(key, {
     data,
     cachedAt: now,
-    expiry: now + ttlMs,
+    expiry: now + safeTtl,
     path,
   });
 
   // Pembersihan pasif jika cache melebihi 1000 entri
   if (memoryStore.size > 1000) {
-    pruneExpiredCache();
+    pruneExpiredCache(1000);
   }
 
   return data as T;
 }
 
 /**
- * Hapus cache yang sudah expired untuk menjaga ukuran RAM
+ * Hapus cache yang sudah expired untuk menjaga ukuran RAM,
+ * serta lakukan eviksi FIFO jika melebihi batas ukuran maksimal.
  */
-export function pruneExpiredCache(): number {
+export function pruneExpiredCache(maxLimit: number = 1000): number {
   const now = Date.now();
   let deletedCount = 0;
   for (const [key, item] of memoryStore.entries()) {
@@ -133,6 +136,19 @@ export function pruneExpiredCache(): number {
       deletedCount += 1;
     }
   }
+
+  // FIFO eviction jika masih melebihi batas maksimal RAM store
+  if (memoryStore.size > maxLimit) {
+    const excess = memoryStore.size - maxLimit;
+    let count = 0;
+    for (const key of memoryStore.keys()) {
+      if (count >= excess) break;
+      memoryStore.delete(key);
+      count += 1;
+      deletedCount += 1;
+    }
+  }
+
   return deletedCount;
 }
 

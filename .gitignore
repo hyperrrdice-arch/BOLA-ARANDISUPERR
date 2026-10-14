@@ -52,3 +52,4 @@ data/football_master.db*
 data/historical/raw/
 !data/historical/README.md
 !data/calibrated_ratings.json
+data/sample_*.json

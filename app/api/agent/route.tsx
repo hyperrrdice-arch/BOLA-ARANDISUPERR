@@ -158,10 +158,13 @@ const AnalysisSchema = z.object({
       expected_total_goals: z.number(),
       top_scorelines: z.array(
         z.object({
-          score: z.string(),
-          probability: z.number(),
-          percentage: z.string(),
-        })
+          homeGoals: z.number().optional(),
+          awayGoals: z.number().optional(),
+          prob: z.number().optional(),
+          score: z.string().optional(),
+          probability: z.number().optional(),
+          percentage: z.string().optional(),
+        }).passthrough()
       ),
       asian_handicap: z.any().optional(),
       clean_sheet: z.any().optional(),
@@ -688,12 +691,16 @@ export async function GET(req: Request) {
 }
 
 function extractJSON(rawText: string) {
-  const match = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  const target = match ? match[1] : rawText;
-  const start = target.indexOf("{");
-  const end = target.lastIndexOf("}");
-  if (start !== -1 && end !== -1 && end > start) {
-    return JSON.parse(target.slice(start, end + 1));
+  try {
+    const match = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    const target = match ? match[1] : rawText;
+    const start = target.indexOf("{");
+    const end = target.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      return JSON.parse(target.slice(start, end + 1));
+    }
+    return JSON.parse(target);
+  } catch {
+    return {};
   }
-  return JSON.parse(target);
 }

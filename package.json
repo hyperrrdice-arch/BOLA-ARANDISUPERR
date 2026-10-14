@@ -1,12 +1,14 @@
 {
   "name": "football-agent",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "backup:v1.2": "node scripts/create_backup_v1_2.js",
+    "restore:v1.2": "node scripts/restore_v1_2.js",
     "backup:v1.1": "node scripts/create_backup_v1_1.js",
     "restore:v1.1": "node scripts/restore_v1_1.js",
     "restore:v1": "node scripts/restore_v1.js"

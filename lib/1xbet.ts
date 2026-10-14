@@ -40,8 +40,8 @@ async function fetch1xBetRaw(endpoint: string): Promise<any> {
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`1xBet API HTTP ${res.status}: ${text}`);
+    const text = await res.text().catch(() => "");
+    throw new Error(`1xBet API HTTP ${res.status}: ${text.slice(0, 150)}`);
   }
 
   return await res.json();
@@ -108,12 +108,16 @@ export async function get1xBetMatchesInLeague(leagueId: number): Promise<Match1x
 }
 
 // Helper: Normalize team name for fuzzy matching
-function cleanName(n: string): string {
-  return n
+function cleanName(n?: string): string {
+  if (!n || typeof n !== "string") return "";
+  const stripped = n
     .toLowerCase()
     .replace(/\b(fc|cf|sc|ac|rc|united|city|club|de|la|el|real|atletico|sporting)\b/gi, "")
     .replace(/[^a-z0-9]/gi, "")
     .trim();
+  // Jika penghapusan kata umum menyisakan terlalu sedikit karakter (< 3), gunakan nama asli yang dibersihkan
+  if (stripped.length >= 3) return stripped;
+  return n.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
 }
 
 // 3. Search / Match TheStatsAPI match to 1xBet
@@ -129,6 +133,11 @@ export async function find1xBetMatch(
   const normHome = cleanName(homeTeam);
   const normAway = cleanName(awayTeam);
 
+  // Jika nama tim tidak valid (< 2 karakter), tolak pencarian untuk mencegah false positive
+  if (!normHome || !normAway || normHome.length < 2 || normAway.length < 2) {
+    return null;
+  }
+
   // Jika directLeagueId terdeteksi dari standarisasi liga, prioritaskan liga tersebut langsung
   let candidateLeagues: League1xBet[] = [];
   if (directLeagueId) {
@@ -141,11 +150,14 @@ export async function find1xBetMatch(
   // Filter leagues by competition hint if available dan belum ditemukan direct
   if (candidateLeagues.length === 0 && competitionHint) {
     const hintClean = cleanName(competitionHint);
-    const matched = leagues.filter(
-      (l) => cleanName(l.league_name).includes(hintClean) || hintClean.includes(cleanName(l.league_name))
-    );
-    if (matched.length > 0) {
-      candidateLeagues = matched;
+    if (hintClean.length >= 3) {
+      const matched = leagues.filter((l) => {
+        const cleanL = cleanName(l.league_name);
+        return cleanL.length >= 3 && (cleanL.includes(hintClean) || hintClean.includes(cleanL));
+      });
+      if (matched.length > 0) {
+        candidateLeagues = matched;
+      }
     }
   }
 
@@ -160,6 +172,8 @@ export async function find1xBetMatch(
       for (const m of matches) {
         const mHome = cleanName(m.home_team || "");
         const mAway = cleanName(m.away_team || "");
+
+        if (!mHome || !mAway || mHome.length < 2 || mAway.length < 2) continue;
 
         const homeMatch = mHome.includes(normHome) || normHome.includes(mHome);
         const awayMatch = mAway.includes(normAway) || normAway.includes(mAway);

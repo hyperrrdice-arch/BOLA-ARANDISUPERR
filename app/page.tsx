@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { AlertCircleIcon } from "@/components/icons";
+import {
+  AlertCircleIcon,
+  ActivityIcon,
+  CpuIcon,
+  PitchIcon,
+  BarChart3Icon,
+  CoinsIcon,
+  ScaleIcon,
+} from "@/components/icons";
 import {
   MatchItem,
   Analisis,
@@ -11,7 +19,9 @@ import {
 import { FilterToolbar } from "@/components/dashboard/FilterToolbar";
 import { MatchCatalogView } from "@/components/dashboard/MatchCatalogView";
 import { MatchHeaderCard } from "@/components/dashboard/MatchHeaderCard";
+import { MatchTickerStrip } from "@/components/dashboard/MatchTickerStrip";
 import { DataIntegrityShield } from "@/components/dashboard/DataIntegrityShield";
+import { OddsDislocationBar } from "@/components/dashboard/OddsDislocationBar";
 import { TacticalPitchCard } from "@/components/dashboard/TacticalPitchCard";
 import { QuantEngineCard } from "@/components/dashboard/QuantEngineCard";
 import { KellyMatrixCard } from "@/components/dashboard/KellyMatrixCard";
@@ -38,8 +48,8 @@ export default function Home() {
   const [data, setData] = useState<Analisis | null>(null);
   const [modelUsed, setModelUsed] = useState<string>("");
 
-  // Tab State: 'overview' | 'tactics' | 'stats' | 'odds'
-  const [activeTab, setActiveTab] = useState<"overview" | "tactics" | "stats" | "odds">("overview");
+  // Workspace Mode: 'bento' (Tri-Panel Cockpit) | 'tactics' | 'stats' | 'odds'
+  const [activeTab, setActiveTab] = useState<"bento" | "tactics" | "stats" | "odds">("bento");
 
   // 1xBet State
   const [bettingLoading, setBettingLoading] = useState<boolean>(false);
@@ -98,7 +108,7 @@ export default function Home() {
     setAgentError(null);
     setData(null);
     setModelUsed("");
-    setActiveTab("overview");
+    setActiveTab("bento");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -187,36 +197,44 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0d1117] text-[#cbd5e1]">
-      {/* FLAT TOP COMMAND HEADER */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#2d3748] bg-[#161b22]/95 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-13 flex items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-2 truncate">
-            <span className="text-base">⚽</span>
-            <span className="font-bold text-[#f0f6fc] tracking-tight">
-              Football Agent Quant Terminal
+    <main className="min-h-screen bg-[#080a0e] text-[#cbd5e1] flex flex-col">
+      {/* HIGH-DENSITY TERMINAL HEADER */}
+      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#0a0d13]/95 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-center gap-2.5 truncate">
+            <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse shrink-0" />
+            <span className="font-extrabold text-[#f8fafc] tracking-tight text-xs uppercase">
+              Football-Agent Quant Terminal
             </span>
-            <span className="text-[#475569] hidden sm:inline">/</span>
-            <span className="text-[#8b949e] font-mono hidden sm:inline">
-              Deterministic Intelligence v1.1
+            <span className="text-white/[0.2] hidden sm:inline">/</span>
+            <span className="text-[#64748b] text-[11px] hidden sm:inline">
+              Deterministic Intelligence v1.2
             </span>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono flat-tag-green">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] flat-tag-green font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
               TheStatsAPI Live
             </span>
-            <span className="text-[#475569] hidden sm:inline">|</span>
-            <span className="text-[11px] font-mono text-[#8b949e] hidden sm:inline">
-              Asia/Jakarta (WIB)
+            <span className="text-white/[0.2] hidden sm:inline">|</span>
+            <span className="text-[11px] text-[#94a3b8] tabular-nums hidden sm:inline">
+              WIB (UTC+7)
             </span>
           </div>
         </div>
+
+        {/* HORIZONTAL MATCH TICKER STRIP */}
+        <MatchTickerStrip
+          matches={filteredMatches}
+          selectedMatchId={selectedMatch?.id ?? null}
+          onSelectMatch={runAnalysis}
+          loading={loadingMatches}
+        />
       </header>
 
       {/* WORKSPACE MAIN CONTAINER */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 space-y-6 flex-1">
         {/* TAMPILAN 1: KATALOG PERTANDINGAN */}
         {!selectedMatch && (
           <div className="space-y-6">
@@ -247,7 +265,7 @@ export default function Home() {
 
         {/* TAMPILAN 2: LAPORAN ANALISIS LAGA */}
         {selectedMatch && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <MatchHeaderCard
               data={
                 data || {
@@ -314,14 +332,14 @@ export default function Home() {
 
             {/* ANALYZING STATE */}
             {analyzing && (
-              <div className="flat-card-static p-6 sm:p-8 space-y-4">
+              <div className="doppel-shell p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-[#2d3748] border-t-[#22c55e] rounded-full animate-spin shrink-0" />
+                  <div className="w-5 h-5 border-2 border-white/[0.1] border-t-[#10b981] rounded-full animate-spin shrink-0" />
                   <div>
-                    <h2 className="text-sm font-bold text-[#f0f6fc]">
-                      Memproses Analisis AI Fusion...
+                    <h2 className="text-sm font-bold text-[#f8fafc] font-mono uppercase tracking-wider">
+                      Memproses Penalaran AI Multi-Model...
                     </h2>
-                    <p className="text-xs text-[#8b949e] font-mono mt-0.5">
+                    <p className="text-xs text-[#94a3b8] font-mono mt-0.5">
                       {selectedMatch.home_team.name} vs {selectedMatch.away_team.name}
                     </p>
                   </div>
@@ -329,12 +347,12 @@ export default function Home() {
 
                 <div className="space-y-2 text-xs font-mono text-[#cbd5e1] pl-8">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#22c55e]">✓</span>
+                    <span className="text-[#10b981]">✓</span>
                     <span>Fase 1: Telemetri deterministik ditarik dari TheStatsAPI (H2H, Form, Lineup, Odds)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#fbbf24]">
+                  <div className="flex items-center gap-2 text-[#f59e0b]">
                     <span>⚡</span>
-                    <span>Fase 2: Gemini 3.8 Flash mengevaluasi taktik, xG, dan sintesis keputusan kuantitatif...</span>
+                    <span>Fase 2: Gemini 3.8 Flash mengevaluasi taktik, Dixon-Coles xG, dan konsensus mahkamah arbitrase...</span>
                   </div>
                 </div>
               </div>
@@ -342,15 +360,15 @@ export default function Home() {
 
             {/* ERROR STATE */}
             {agentError && (
-              <div className="flat-callout border-[#542022] bg-[#241315] text-[#f87171]">
+              <div className="p-4 rounded-lg border border-[#5b1322] bg-[#2a0a11] text-[#f43f5e] text-xs">
                 <div className="flex items-start gap-2.5">
                   <AlertCircleIcon size={16} className="shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-xs text-[#f87171]">Analisis Gagal Diproses</h3>
+                    <h3 className="font-semibold text-xs text-[#f43f5e]">Analisis Gagal Diproses</h3>
                     <p className="text-[11px] text-[#fca5a5] mt-0.5">{agentError}</p>
                     <button
                       onClick={() => runAnalysis(selectedMatch)}
-                      className="mt-2.5 px-3 py-1 rounded bg-[#381e20] hover:bg-[#4a282b] text-xs font-medium text-white transition-colors"
+                      className="mt-2.5 px-3 py-1 rounded bg-[#3b1219] hover:bg-[#4f1821] text-xs font-medium text-white transition-colors cursor-pointer"
                     >
                       Ulangi Analisis
                     </button>
@@ -361,91 +379,134 @@ export default function Home() {
 
             {/* REPORT VIEW WHEN DATA READY */}
             {data && (
-              <div className="space-y-6">
+              <div className="space-y-5">
+                {/* 1. Closed-world Grounding Audit Shield */}
                 <DataIntegrityShield data={data} />
 
-                {/* TAB SWITCHER */}
-                <div className="flex items-center gap-1.5 border-b border-[#2d3748] pb-1.5 overflow-x-auto text-xs">
+                {/* 2. Unified Odds Dislocation Bar */}
+                <OddsDislocationBar
+                  bursaPasar={data.bursa_pasar}
+                  quantData={data.quant_engine}
+                  impliedProb={data.probabilitas_pasar}
+                  bettingResult={bettingResult}
+                  homeTeam={data.pertandingan.tim_kandang}
+                  awayTeam={data.pertandingan.tim_tamu}
+                  onTriggerScan={() => trigger1xBetAnalysis()}
+                  bettingLoading={bettingLoading}
+                />
+
+                {/* WORKSPACE VIEW MODE SWITCHER */}
+                <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2 overflow-x-auto text-xs font-mono">
                   {[
-                    { key: "overview", label: "Ringkasan & Prediksi", icon: "📋" },
-                    { key: "tactics", label: "Taktik & Lapangan 2D", icon: "⚽" },
-                    { key: "stats", label: "Statistik & Form", icon: "📊" },
-                    { key: "odds", label: "Bursa Pasar & Odds", icon: "💰" },
-                  ].map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => setActiveTab(tab.key as any)}
-                      className={`px-3.5 py-2 rounded-md font-medium transition-colors shrink-0 flex items-center gap-2 ${
-                        activeTab === tab.key
-                          ? "bg-[#2563eb] text-white"
-                          : "text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#161b22]"
-                      }`}
-                    >
-                      <span>{tab.icon}</span>
-                      <span>{tab.label}</span>
-                    </button>
-                  ))}
+                    { key: "bento", label: "Tri-Panel Bento Cockpit", icon: ActivityIcon },
+                    { key: "tactics", label: "2D Tactical Pitch & Lineup", icon: PitchIcon },
+                    { key: "stats", label: "Statistik Mendalam & npxG", icon: BarChart3Icon },
+                    { key: "odds", label: "1xBet Deep Scanner & Orderbook", icon: CoinsIcon },
+                  ].map((tab) => {
+                    const IconComponent = tab.icon;
+                    const isActive = activeTab === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        onClick={() => setActiveTab(tab.key as any)}
+                        className={`px-3.5 py-1.5 rounded-md font-medium transition-all shrink-0 flex items-center gap-2 cursor-pointer ${
+                          isActive
+                            ? "bg-[#14231b] text-[#10b981] border border-[#134e3a] font-bold shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+                            : "text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#0f131a] border border-transparent"
+                        }`}
+                      >
+                        <IconComponent size={13} />
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* TAB 1: RINGKASAN & PREDIKSI */}
-                {activeTab === "overview" && (
-                  <div className="space-y-5">
-                    {/* Implied Prob & Dixon-Coles Quant Engine */}
-                    {data.quant_engine && (
-                      <QuantEngineCard
-                        quantData={data.quant_engine}
-                        impliedProb={data.probabilitas_pasar}
+                {/* MODE 1: TRI-PANEL BENTO COCKPIT (THE FLAGSHIP UNIFIED VIEW) */}
+                {activeTab === "bento" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    {/* PANEL KIRI (COL-SPAN-4): QUANT MATHEMATICAL ENGINE */}
+                    <div className="lg:col-span-4 space-y-4">
+                      {data.quant_engine && (
+                        <QuantEngineCard
+                          quantData={data.quant_engine}
+                          impliedProb={data.probabilitas_pasar}
+                          homeTeam={data.pertandingan.tim_kandang}
+                          awayTeam={data.pertandingan.tim_tamu}
+                        />
+                      )}
+                      <StatsAndSplitsCard data={data} />
+                    </div>
+
+                    {/* PANEL TENGAH (COL-SPAN-5): 5-AGENT SYNDICATE DEBATE & VERDICT */}
+                    <div className="lg:col-span-5 space-y-4">
+                      {data.syndicate_debate && (
+                        <SyndicateDebateCard
+                          syndicateData={data.syndicate_debate}
+                          judgeConsensus={data.prediksi.konsensus_panel}
+                        />
+                      )}
+
+                      {/* Tactical Narrative Callout */}
+                      <div className="doppel-shell">
+                        <div className="doppel-core space-y-2">
+                          <div className="flex items-center gap-2">
+                            <ActivityIcon size={14} className="text-[#10b981]" />
+                            <h4 className="text-xs font-bold text-[#f8fafc] font-mono uppercase tracking-wider">
+                              Ulasan Komprehensif Prediksi Taktis
+                            </h4>
+                          </div>
+                          <p className="text-xs text-[#cbd5e1] leading-relaxed">
+                            {data.prediksi.alasan}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Key Drivers Checklist */}
+                      {data.faktor_kunci?.length > 0 && (
+                        <div className="doppel-shell">
+                          <div className="doppel-core space-y-2.5">
+                            <h4 className="text-xs font-bold text-[#f8fafc] font-mono uppercase tracking-wider">
+                              Faktor Kunci Penentu Laga (Key Drivers)
+                            </h4>
+                            <div className="space-y-1.5">
+                              {data.faktor_kunci.map((f, i) => (
+                                <div key={`factor-${i}-${f.slice(0, 15)}`} className="flex items-start gap-2 text-xs text-[#cbd5e1]">
+                                  <span className="text-[#10b981] font-mono font-bold shrink-0">✓</span>
+                                  <span className="leading-relaxed">{f}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* PANEL KANAN (COL-SPAN-3): PORTFOLIO KELLY & 1XBET SCANNER */}
+                    <div className="lg:col-span-3 space-y-4">
+                      {data.quant_engine?.value_bets && (
+                        <KellyMatrixCard valueBets={data.quant_engine.value_bets} />
+                      )}
+
+                      <MarketOddsOverviewCard bursaPasar={data.bursa_pasar} />
+
+                      <BettingScannerCard
+                        loading={bettingLoading}
+                        error={bettingError}
+                        result={bettingResult}
+                        manualId={manual1xBetId}
+                        showManualInput={showManualInput}
+                        onManualIdChange={setManual1xBetId}
+                        onToggleManualInput={() => setShowManualInput(!showManualInput)}
+                        onTriggerScan={trigger1xBetAnalysis}
                         homeTeam={data.pertandingan.tim_kandang}
                         awayTeam={data.pertandingan.tim_tamu}
                       />
-                    )}
-
-                    {/* Kelly Staking Matrix */}
-                    {data.quant_engine?.value_bets && (
-                      <KellyMatrixCard valueBets={data.quant_engine.value_bets} />
-                    )}
-
-                    {/* Syndicate Debate & Dual Judges */}
-                    {data.syndicate_debate && (
-                      <SyndicateDebateCard
-                        syndicateData={data.syndicate_debate}
-                        judgeConsensus={data.prediksi.konsensus_panel}
-                      />
-                    )}
-
-                    {/* Tactical Narrative Callout */}
-                    <div className="flat-callout flex items-start gap-3">
-                      <span className="text-lg shrink-0 mt-0.5">💡</span>
-                      <div className="space-y-1">
-                        <h4 className="text-xs font-bold text-[#f0f6fc]">
-                          Ulasan Komprehensif Prediksi Taktis
-                        </h4>
-                        <p className="text-xs text-[#cbd5e1] leading-relaxed">
-                          {data.prediksi.alasan}
-                        </p>
-                      </div>
                     </div>
-
-                    {/* Key Drivers Checklist */}
-                    {data.faktor_kunci?.length > 0 && (
-                      <div className="flat-card-static p-4 space-y-3">
-                        <h4 className="text-xs font-bold text-[#f0f6fc]">
-                          Faktor Kunci Penentu Laga (Key Drivers)
-                        </h4>
-                        <div className="space-y-2">
-                          {data.faktor_kunci.map((f, i) => (
-                            <div key={i} className="flex items-start gap-2.5 text-xs text-[#cbd5e1]">
-                              <span className="text-[#22c55e] font-mono shrink-0 font-bold">☑</span>
-                              <span className="leading-relaxed">{f}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
 
-                {/* TAB 2: TAKTIK & LAPANGAN 2D */}
+                {/* MODE 2: DEDICATED TACTICAL PITCH 2D */}
                 {activeTab === "tactics" && (
                   <TacticalPitchCard
                     homeName={data.pertandingan.tim_kandang}
@@ -459,12 +520,12 @@ export default function Home() {
                   />
                 )}
 
-                {/* TAB 3: STATISTIK & FORM */}
+                {/* MODE 3: STATISTIK & FORM */}
                 {activeTab === "stats" && (
                   <StatsAndSplitsCard data={data} />
                 )}
 
-                {/* TAB 4: BURSA PASAR & ODDS */}
+                {/* MODE 4: BURSA PASAR & ODDS DEEP DIVE */}
                 {activeTab === "odds" && (
                   <div className="space-y-5">
                     <MarketOddsOverviewCard bursaPasar={data.bursa_pasar} />

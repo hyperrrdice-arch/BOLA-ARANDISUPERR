@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { RefreshCwIcon, AlertCircleIcon } from "@/components/icons";
+import { RefreshCwIcon, AlertCircleIcon, ScaleIcon, TrendingUpIcon } from "@/components/icons";
 
 interface BettingScannerCardProps {
   loading: boolean;
@@ -29,50 +29,51 @@ export function BettingScannerCard({
   awayTeam,
 }: BettingScannerCardProps) {
   return (
-    <div className="flat-card-static p-4 sm:p-5 space-y-4">
-      {/* Scanner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2d3748]">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-base">🎲</span>
-            <h4 className="text-xs sm:text-sm font-bold text-[#f0f6fc]">
-              1xBet Market Scanner &amp; Dual-Model AI Intelligence
-            </h4>
+    <div className="doppel-shell">
+      <div className="doppel-core space-y-4">
+        {/* Scanner Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
+          <div>
+            <div className="flex items-center gap-2">
+              <TrendingUpIcon size={15} className="text-[#10b981]" />
+              <h4 className="text-xs sm:text-sm font-bold text-[#f8fafc] font-mono tracking-tight uppercase">
+                1xBet Market Scanner &amp; Dual-Model AI Intelligence
+              </h4>
+            </div>
+            <p className="text-xs text-[#94a3b8] mt-1 leading-relaxed max-w-2xl font-mono">
+              Pindai 500+ baris data bursa taruhan 1xBet RapidAPI dianalisis bersama model quant{" "}
+              <span className="text-[#06b6d4] font-medium">oc/muse-spark-1.3-contributor-free</span> &amp; Gemini 3.8.
+            </p>
           </div>
-          <p className="text-xs text-[#8b949e] mt-1 leading-relaxed max-w-2xl">
-            Pindai 500+ baris data bursa taruhan 1xBet RapidAPI dianalisis bersama model quant{" "}
-            <span className="text-[#38bdf8] font-mono font-medium">oc/muse-spark-1.3-contributor-free</span> &amp; Gemini 3.8.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => onTriggerScan()}
-            disabled={loading}
-            className="px-3 py-1.5 rounded-md bg-[#16a34a] hover:bg-[#15803d] text-xs font-semibold text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <RefreshCwIcon size={12} className="animate-spin" />
-                <span>Scanning 500+ Baris...</span>
-              </>
-            ) : (
-              <>
-                <span>🎲</span>
-                <span>Scan Pasar 1xBet &amp; Analisis AI</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onTriggerScan()}
+              disabled={loading}
+              className="px-3 py-1.5 rounded-md bg-[#10b981] hover:bg-[#059669] text-xs font-semibold text-white transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-[0_2px_10px_rgba(16,185,129,0.2)]"
+            >
+              {loading ? (
+                <>
+                  <RefreshCwIcon size={12} className="animate-spin" />
+                  <span>Scanning 500+ Baris...</span>
+                </>
+              ) : (
+                <>
+                  <TrendingUpIcon size={12} />
+                  <span>Scan Pasar 1xBet &amp; Analisis AI</span>
+                </>
+              )}
+            </button>
 
-          <button
-            onClick={onToggleManualInput}
-            className="px-2.5 py-1.5 rounded-md bg-[#0d1117] hover:bg-[#21262d] text-xs text-[#8b949e] hover:text-[#f0f6fc] border border-[#2d3748] transition-colors"
-            title="Atur ID Laga 1xBet Manual"
-          >
-            ⚙️ Manual ID
-          </button>
+            <button
+              onClick={onToggleManualInput}
+              className="px-2.5 py-1.5 rounded-md bg-[#0f131a] hover:bg-[#141a24] text-xs font-mono text-[#94a3b8] hover:text-[#f8fafc] border border-white/[0.08] transition-colors cursor-pointer"
+              title="Atur ID Laga 1xBet Manual"
+            >
+              Manual ID
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* Manual Match ID Input Toggle */}
       {showManualInput && (
@@ -143,17 +144,15 @@ export function BettingScannerCard({
           {/* Consensus Summary Box */}
           {result.consensus && (
             <div
-              className={`p-3.5 rounded-md text-xs flex items-start gap-2.5 border ${
+              className={`p-3.5 rounded-lg text-xs flex items-start gap-2.5 border ${
                 result.consensus.agreed
-                  ? "border-[#1e4a32] bg-[#101f16]"
-                  : "border-[#2d3748] bg-[#0d1117]"
+                  ? "border-[#134e3a] bg-[#06281e]"
+                  : "border-white/[0.08] bg-[#0f131a]"
               }`}
             >
-              <span className="text-base shrink-0 mt-0.5">
-                {result.consensus.agreed ? "🤝" : "⚖️"}
-              </span>
+              <ScaleIcon size={16} className={`shrink-0 mt-0.5 ${result.consensus.agreed ? "text-[#10b981]" : "text-[#818cf8]"}`} />
               <div className="space-y-0.5">
-                <h5 className="font-bold text-[#f0f6fc]">
+                <h5 className="font-bold text-[#f8fafc] font-mono uppercase tracking-wider text-[11px]">
                   Sintesis Konsensus Dual-Model
                 </h5>
                 <p className="text-xs text-[#cbd5e1] leading-relaxed">
@@ -414,6 +413,7 @@ export function BettingScannerCard({
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

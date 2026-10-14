@@ -128,19 +128,23 @@ function tauAdjustment(x: number, y: number, lambda: number, mu: number, rho: nu
  * Compute Dixon-Coles Bivariate Goal Expectancy and Full Market Probabilities
  */
 export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: number }): DixonColesResult {
-  const homeAdvantage = input.homeAdvantage ?? 1.15; // Standar modern Eropa ~1.12 - 1.18
-  const leagueAvg = input.leagueAvgGoals ?? 1.35; // Rata-rata gol per tim per laga di liga
-  const rho = input.rho ?? -0.13;
-  const maxGoals = input.maxGoals ?? 10; // Naikkan ke 10 agar tail probability tidak terpotong
+  const safeHomeAdv = Number.isFinite(input.homeAdvantage) && (input.homeAdvantage as number) > 0 ? (input.homeAdvantage as number) : 1.15;
+  const safeLeagueAvg = Number.isFinite(input.leagueAvgGoals) && (input.leagueAvgGoals as number) > 0 ? (input.leagueAvgGoals as number) : 1.35;
+  const safeHomeAtk = Number.isFinite(input.homeAttack) && input.homeAttack > 0 ? input.homeAttack : 1.35;
+  const safeAwayDef = Number.isFinite(input.awayDefense) && input.awayDefense > 0 ? input.awayDefense : 1.35;
+  const safeAwayAtk = Number.isFinite(input.awayAttack) && input.awayAttack > 0 ? input.awayAttack : 1.15;
+  const safeHomeDef = Number.isFinite(input.homeDefense) && input.homeDefense > 0 ? input.homeDefense : 1.35;
+  const rho = Number.isFinite(input.rho) ? (input.rho as number) : -0.13;
+  const maxGoals = Math.min(10, Math.max(5, Number.isFinite(input.maxGoals) ? (input.maxGoals as number) : 10));
 
   // Normalisasi terhadap rata-rata liga & terapkan Home Advantage yang sebenarnya
   const rawLambda = Math.max(
     0.2,
-    ((input.homeAttack || 1.35) * (input.awayDefense || 1.35) / leagueAvg) * homeAdvantage
+    ((safeHomeAtk * safeAwayDef) / safeLeagueAvg) * safeHomeAdv
   );
   const rawMu = Math.max(
     0.2,
-    ((input.awayAttack || 1.35) * (input.homeDefense || 1.35)) / leagueAvg
+    ((safeAwayAtk * safeHomeDef) / safeLeagueAvg)
   );
 
   const lambda = Math.round(rawLambda * 1000) / 1000;
@@ -161,6 +165,9 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
       sumProb += pXY;
     }
   }
+
+  // Guard sumProb agar tidak membagi dengan nol
+  const safeSumProb = sumProb > 0 ? sumProb : 1;
 
   // Normalize matrix so probabilities sum exactly to 1.0
   const scorelines: ScorelineProbability[] = [];
@@ -184,7 +191,7 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
 
   for (let x = 0; x <= maxGoals; x++) {
     for (let y = 0; y <= maxGoals; y++) {
-      const normalizedProb = matrix[x][y] / sumProb;
+      const normalizedProb = matrix[x][y] / safeSumProb;
       matrix[x][y] = normalizedProb;
 
       scorelines.push({ homeGoals: x, awayGoals: y, prob: normalizedProb });

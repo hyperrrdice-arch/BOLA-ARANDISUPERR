@@ -1,120 +1,152 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0d1117;
-  --foreground: #e6edf3;
-  --surface: #161b22;
-  --surface-hover: #1c232d;
-  --surface-active: #222a36;
-  --border-subtle: #2d3748;
-  --border-strong: #3b4554;
-  --text-primary: #f0f6fc;
+  --background: #080a0e;
+  --foreground: #f8fafc;
+  --terminal-surface: #0f131a;
+  --terminal-surface-hover: #141a24;
+  --terminal-well: #0a0c12;
+  --terminal-border: rgba(255, 255, 255, 0.08);
+  --terminal-border-strong: rgba(255, 255, 255, 0.16);
+
+  --surface: #0f131a;
+  --surface-hover: #141a24;
+  --surface-active: #1c232f;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text-primary: #f8fafc;
   --text-body: #cbd5e1;
-  --text-muted: #8b949e;
+  --text-muted: #94a3b8;
   --text-faint: #64748b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ========================================================================= */
-/* FLAT SOLID BADGE & TAG TOKENS (MATTE, NO NEON, NO GLOW)                   */
-/* ========================================================================= */
-
-.flat-tag-green {
-  background-color: #132b1e;
-  color: #22c55e;
-  border: 1px solid #1e4a32;
-}
-
-.flat-tag-blue {
-  background-color: #13253b;
-  color: #38bdf8;
-  border: 1px solid #1e3e60;
-}
-
-.flat-tag-slate {
-  background-color: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
-}
-
-.flat-tag-amber {
-  background-color: #2e2111;
-  color: #fbbf24;
-  border: 1px solid #4d371d;
-}
-
-.flat-tag-red {
-  background-color: #331718;
-  color: #f87171;
-  border: 1px solid #542022;
-}
-
-.flat-tag-purple {
-  background-color: #201c38;
-  color: #818cf8;
-  border: 1px solid #383162;
+/* Tabular figures for numbers to eliminate layout jitter */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ========================================================================= */
-/* FLAT CARDS & PANELS                                                       */
+/* DOPPELRAND ARCHITECTURE (DOUBLE-BEZEL MACHINED HARDWARE CONTAINERS)       */
 /* ========================================================================= */
 
+.doppel-shell {
+  background-color: #0f131a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.doppel-shell:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.doppel-core {
+  background-color: #0a0c12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: calc(12px - 6px);
+  padding: 16px;
+}
+
+/* Standard flat cards maintained for backward compatibility */
 .flat-card {
-  background-color: #161b22;
-  border: 1px solid #2d3748;
+  background-color: #0f131a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 
 .flat-card:hover {
-  background-color: #1c232d;
-  border-color: #3f4d62;
+  background-color: #141a24;
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .flat-card-static {
-  background-color: #161b22;
-  border: 1px solid #2d3748;
+  background-color: #0f131a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
 }
 
 .flat-callout {
-  background-color: #161b22;
-  border: 1px solid #2d3748;
+  background-color: #0f131a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   padding: 14px 16px;
 }
 
+/* ========================================================================= */
+/* CALIBRATED TELEMETRY TAG TOKENS (MATTE, HIGH CONTRAST, ZERO SLOP)         */
+/* ========================================================================= */
+
+.flat-tag-green {
+  background-color: #06281e;
+  color: #10b981;
+  border: 1px solid #134e3a;
+}
+
+.flat-tag-blue {
+  background-color: #07242c;
+  color: #06b6d4;
+  border: 1px solid #0e4c5b;
+}
+
+.flat-tag-slate {
+  background-color: #111622;
+  color: #94a3b8;
+  border: 1px solid #1e293b;
+}
+
+.flat-tag-amber {
+  background-color: #261a06;
+  color: #f59e0b;
+  border: 1px solid #5c3d0b;
+}
+
+.flat-tag-red {
+  background-color: #2a0a11;
+  color: #f43f5e;
+  border: 1px solid #5b1322;
+}
+
+.flat-tag-purple {
+  background-color: #14142b;
+  color: #818cf8;
+  border: 1px solid #312e81;
+}
+
 /* Flat Turf Background for Tactical Pitch */
 .pitch-turf {
-  background-color: #122418;
+  background-color: #0d1a12;
   background-image: repeating-linear-gradient(
     90deg,
-    #122418 0px,
-    #122418 40px,
-    #0f1f14 40px,
-    #0f1f14 80px
+    #0d1a12 0px,
+    #0d1a12 40px,
+    #0b160f 40px,
+    #0b160f 80px
   );
-  border: 1px solid #23422d;
+  border: 1px solid #1a3324;
 }
 
 /* Flat Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -122,10 +154,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2d3748;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f4d62;
+  background: rgba(255, 255, 255, 0.22);
 }

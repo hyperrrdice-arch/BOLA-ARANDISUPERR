@@ -436,7 +436,14 @@ export function validateAndSanitizeMatchData(raw: {
   const totalGoals = bookmaker?.markets?.total_goals;
   const o25 = parseFloat(totalGoals?.over_2_5?.last_seen);
 
-  const hasOdds = Boolean(hLast && dLast && aLast);
+  const hasOdds =
+    Number.isFinite(hLast) &&
+    Number.isFinite(dLast) &&
+    Number.isFinite(aLast) &&
+    hLast > 1.0 &&
+    dLast > 1.0 &&
+    aLast > 1.0;
+
   if (!hasOdds) {
     missingData.push("Odds pasar 1X2 resmi bet365/pinnacle belum tersedia");
   }
@@ -446,7 +453,7 @@ export function validateAndSanitizeMatchData(raw: {
     home_last: hasOdds ? hLast : null,
     draw_last: hasOdds ? dLast : null,
     away_last: hasOdds ? aLast : null,
-    total_goals_over_2_5: !isNaN(o25) ? o25 : null,
+    total_goals_over_2_5: Number.isFinite(o25) && o25 > 1.0 ? o25 : null,
   };
 
   let venueString = "Stadion Utama";

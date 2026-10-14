@@ -37,11 +37,17 @@ export function evaluateValueBet(
   kellyFraction: number = 0.25,
   maxStakeCap: number = 4.0
 ): ValueBetEvaluation {
-  if (modelProbability <= 0 || bookmakerOdds <= 1.0) {
+  if (
+    !Number.isFinite(modelProbability) ||
+    !Number.isFinite(bookmakerOdds) ||
+    modelProbability <= 0 ||
+    modelProbability > 1.0 ||
+    bookmakerOdds <= 1.0
+  ) {
     return {
       market_name: marketName,
       selection,
-      bookmaker_odds: bookmakerOdds,
+      bookmaker_odds: Number.isFinite(bookmakerOdds) && bookmakerOdds > 0 ? bookmakerOdds : 1.0,
       model_probability: 0,
       fair_odds: 999,
       expected_value: -1,
@@ -63,14 +69,16 @@ export function evaluateValueBet(
 
   // 2. Kelly Criterion: f* = (P * O - 1) / (O - 1) = EV / (O - 1)
   const b = bookmakerOdds - 1;
-  const fullKelly = isPositive ? Math.max(0, ev / b) : 0;
-  const quarterKelly = fullKelly * kellyFraction;
+  const fullKelly = isPositive && b > 0 ? Math.max(0, ev / b) : 0;
+  const safeFraction = Number.isFinite(kellyFraction) && kellyFraction > 0 ? kellyFraction : 0.25;
+  const quarterKelly = fullKelly * safeFraction;
 
   // Convert to percentage (e.g. 0.024 -> 2.4%) and cap
   const fullKellyPct = Math.round(fullKelly * 1000) / 10;
   const quarterKellyPct = Math.round(quarterKelly * 1000) / 10;
+  const safeCap = Number.isFinite(maxStakeCap) && maxStakeCap > 0 ? maxStakeCap : 4.0;
   const recommendedStake = isPositive
-    ? Math.min(quarterKellyPct, maxStakeCap)
+    ? Math.min(quarterKellyPct, safeCap)
     : 0;
 
   // 3. Edge Rating
@@ -114,22 +122,30 @@ export function evaluatePortfolioKelly(
   bets: ValueBetEvaluation[],
   matchBankrollCap: number = 5.0
 ): ValueBetEvaluation[] {
+  const safeCap = Number.isFinite(matchBankrollCap) && matchBankrollCap > 0 ? matchBankrollCap : 5.0;
   const positiveBets = bets.filter((b) => b.is_positive_ev && b.recommended_stake_percentage > 0);
   const totalRecommended = positiveBets.reduce((acc, b) => acc + b.recommended_stake_percentage, 0);
 
-  if (totalRecommended <= matchBankrollCap) {
+  if (totalRecommended <= safeCap || totalRecommended <= 0) {
     return bets;
   }
 
-  // Scale down proportionally
-  const scale = matchBankrollCap / totalRecommended;
+  // Scale down proportionally with strict cap enforcement
+  const scale = safeCap / totalRecommended;
+  let allocatedSoFar = 0;
+
   return bets.map((b) => {
     if (!b.is_positive_ev || b.recommended_stake_percentage === 0) return b;
-    const scaledStake = Math.round(b.recommended_stake_percentage * scale * 10) / 10;
+    // Gunakan Math.floor untuk konservatisme modal agar tidak over-exposed akibat pembulatan ke atas
+    const rawScaled = Math.floor(b.recommended_stake_percentage * scale * 10) / 10;
+    const remainingCap = Math.max(0, Math.round((safeCap - allocatedSoFar) * 10) / 10);
+    const scaledStake = Number(Math.min(rawScaled, remainingCap).toFixed(1));
+    allocatedSoFar = Number((allocatedSoFar + scaledStake).toFixed(1));
+
     return {
       ...b,
       recommended_stake_percentage: scaledStake,
-      rationale: `${b.rationale} (Alokasi disesuaikan portofolio: ${scaledStake}% dari pagu maksimal ${matchBankrollCap}%).`,
+      rationale: `${b.rationale} (Alokasi disesuaikan portofolio: ${scaledStake}% dari pagu maksimal ${safeCap}%).`,
     };
   });
 }

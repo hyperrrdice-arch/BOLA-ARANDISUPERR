@@ -233,46 +233,59 @@ export function getShrunkMatchParameters(options: {
   if (!homeResolved && !awayResolved) {
     return {
       ...defaultFallback,
-      homeAdvantage: league.homeAdvantage,
-      leagueAvgGoals: league.leagueAvgGoals,
-      rho: league.rho,
+      homeAdvantage: Number.isFinite(league.homeAdvantage) && league.homeAdvantage > 0 ? league.homeAdvantage : 1.15,
+      leagueAvgGoals: Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : 1.35,
+      rho: Number.isFinite(league.rho) ? league.rho : -0.04,
     };
   }
 
   // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa)
   // kappa = 16 (standar sindikat kuantitatif untuk prior half-season)
   const KAPPA = 16;
-  const nHome = Math.max(0, options.homeSampleN ?? 5);
-  const nAway = Math.max(0, options.awaySampleN ?? 5);
+  const nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
+  const nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
 
-  const wHome = nHome / (nHome + KAPPA);
-  const wAway = nAway / (nAway + KAPPA);
+  const wHome = (nHome + KAPPA) > 0 ? nHome / (nHome + KAPPA) : 0;
+  const wAway = (nAway + KAPPA) > 0 ? nAway / (nAway + KAPPA) : 0;
 
-  // Estimasi Live Attack
-  const liveHomeAttack = (options.liveHomeFormGoalsAvg ?? 1.35) / league.leagueAvgGoals;
-  const liveAwayAttack = (options.liveAwayFormGoalsAvg ?? 1.15) / league.leagueAvgGoals;
+  const safeLeagueAvg = Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : 1.35;
+
+  // Estimasi Live Attack dengan proteksi division by zero & NaN
+  const rawHomeGoals = Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0
+    ? (options.liveHomeFormGoalsAvg as number)
+    : 1.35;
+  const rawAwayGoals = Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0
+    ? (options.liveAwayFormGoalsAvg as number)
+    : 1.15;
+
+  const liveHomeAttack = rawHomeGoals / safeLeagueAvg;
+  const liveAwayAttack = rawAwayGoals / safeLeagueAvg;
 
   // Baseline Histori
-  const histHomeAttack = homeResolved ? homeResolved.rating.attack : 1.0;
-  const histHomeDefense = homeResolved ? homeResolved.rating.defense : 1.0;
-  const histAwayAttack = awayResolved ? awayResolved.rating.attack : 1.0;
-  const histAwayDefense = awayResolved ? awayResolved.rating.defense : 1.0;
+  const histHomeAttack = homeResolved && Number.isFinite(homeResolved.rating.attack) ? homeResolved.rating.attack : 1.0;
+  const histHomeDefense = homeResolved && Number.isFinite(homeResolved.rating.defense) ? homeResolved.rating.defense : 1.0;
+  const histAwayAttack = awayResolved && Number.isFinite(awayResolved.rating.attack) ? awayResolved.rating.attack : 1.0;
+  const histAwayDefense = awayResolved && Number.isFinite(awayResolved.rating.defense) ? awayResolved.rating.defense : 1.0;
 
   // James-Stein Shrinkage Blend
-  const finalHomeAttack = Number((wHome * liveHomeAttack + (1 - wHome) * histHomeAttack).toFixed(3));
-  const finalHomeDefense = Number((wHome * Math.max(0.6, 2.5 - liveAwayAttack) + (1 - wHome) * histHomeDefense).toFixed(3));
+  const calcHomeAttack = wHome * liveHomeAttack + (1 - wHome) * histHomeAttack;
+  const calcHomeDefense = wHome * Math.max(0.6, 2.5 - liveAwayAttack) + (1 - wHome) * histHomeDefense;
+  const calcAwayAttack = wAway * liveAwayAttack + (1 - wAway) * histAwayAttack;
+  const calcAwayDefense = wAway * Math.max(0.7, 2.6 - liveHomeAttack) + (1 - wAway) * histAwayDefense;
 
-  const finalAwayAttack = Number((wAway * liveAwayAttack + (1 - wAway) * histAwayAttack).toFixed(3));
-  const finalAwayDefense = Number((wAway * Math.max(0.7, 2.6 - liveHomeAttack) + (1 - wAway) * histAwayDefense).toFixed(3));
+  const finalHomeAttack = Number.isFinite(calcHomeAttack) ? Number(calcHomeAttack.toFixed(3)) : 1.35;
+  const finalHomeDefense = Number.isFinite(calcHomeDefense) ? Number(calcHomeDefense.toFixed(3)) : 1.15;
+  const finalAwayAttack = Number.isFinite(calcAwayAttack) ? Number(calcAwayAttack.toFixed(3)) : 1.15;
+  const finalAwayDefense = Number.isFinite(calcAwayDefense) ? Number(calcAwayDefense.toFixed(3)) : 1.25;
 
   return {
     homeAttack: Math.max(0.5, finalHomeAttack),
     homeDefense: Math.max(0.5, finalHomeDefense),
     awayAttack: Math.max(0.4, finalAwayAttack),
     awayDefense: Math.max(0.5, finalAwayDefense),
-    homeAdvantage: league.homeAdvantage,
-    leagueAvgGoals: league.leagueAvgGoals,
-    rho: league.rho,
+    homeAdvantage: Number.isFinite(league.homeAdvantage) && league.homeAdvantage > 0 ? league.homeAdvantage : 1.15,
+    leagueAvgGoals: safeLeagueAvg,
+    rho: Number.isFinite(league.rho) ? league.rho : -0.04,
     shrinkageWeights: {
       home: Number(wHome.toFixed(3)),
       away: Number(wAway.toFixed(3)),

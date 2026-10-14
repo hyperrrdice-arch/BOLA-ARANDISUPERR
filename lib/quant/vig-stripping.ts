@@ -25,17 +25,33 @@ export interface TwoWayVigResult {
  * Proportional (Multiplicative) Margin Removal
  */
 export function stripVigProportional(home: number, draw: number, away: number): VigStrippingResult {
+  if (
+    !Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away) ||
+    home <= 1.0 || draw <= 1.0 || away <= 1.0
+  ) {
+    return {
+      raw_odds: { home: Math.max(1.01, home || 3.0), draw: Math.max(1.01, draw || 3.0), away: Math.max(1.01, away || 3.0) },
+      implied_prob_raw: { home: 0.3333, draw: 0.3333, away: 0.3333 },
+      overround: 1.0,
+      margin_percentage: 0.0,
+      fair_prob: { home: 0.3333, draw: 0.3334, away: 0.3333 },
+      fair_odds: { home: 3.0, draw: 3.0, away: 3.0 },
+      method_used: "proportional",
+    };
+  }
+
   const invH = 1 / home;
   const invD = 1 / draw;
   const invA = 1 / away;
   const sumInv = invH + invD + invA;
+  const safeSumInv = sumInv > 0 ? sumInv : 1.0;
 
-  const fairH = invH / sumInv;
-  const fairD = invD / sumInv;
-  const fairA = invA / sumInv;
+  const fairH = invH / safeSumInv;
+  const fairD = invD / safeSumInv;
+  const fairA = invA / safeSumInv;
 
   const round4 = (n: number) => Math.round(n * 10000) / 10000;
-  const toOdds = (p: number) => Math.round((1 / p) * 100) / 100;
+  const toOdds = (p: number) => (p > 0.0001 ? Math.round((1 / p) * 100) / 100 : 999);
 
   return {
     raw_odds: { home, draw, away },
@@ -44,8 +60,8 @@ export function stripVigProportional(home: number, draw: number, away: number): 
       draw: round4(invD),
       away: round4(invA),
     },
-    overround: round4(sumInv),
-    margin_percentage: Math.round((sumInv - 1) * 1000) / 10,
+    overround: round4(safeSumInv),
+    margin_percentage: Math.round((safeSumInv - 1) * 1000) / 10,
     fair_prob: {
       home: round4(fairH),
       draw: round4(fairD),
@@ -66,8 +82,11 @@ export function stripVigProportional(home: number, draw: number, away: number): 
  * Solves for z via bisection search such that sum(p_i(z)) = 1.0.
  */
 export function stripVigShin(home: number, draw: number, away: number): VigStrippingResult {
-  // If invalid odds, fallback to proportional
-  if (home <= 1 || draw <= 1 || away <= 1) {
+  // If invalid odds or non-finite, fallback to proportional
+  if (
+    !Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away) ||
+    home <= 1.0 || draw <= 1.0 || away <= 1.0
+  ) {
     return stripVigProportional(home, draw, away);
   }
 
@@ -75,7 +94,7 @@ export function stripVigShin(home: number, draw: number, away: number): VigStrip
   const sumP = p[0] + p[1] + p[2];
 
   // If already fair or inverted, return proportional
-  if (sumP <= 1.0001) {
+  if (sumP <= 1.0001 || !Number.isFinite(sumP)) {
     return stripVigProportional(home, draw, away);
   }
 
@@ -115,14 +134,15 @@ export function stripVigShin(home: number, draw: number, away: number): VigStrip
 
   const finalProbs = calcShinProbs(z);
   const sumFinal = finalProbs[0] + finalProbs[1] + finalProbs[2];
+  const safeSumFinal = sumFinal > 0 && Number.isFinite(sumFinal) ? sumFinal : 1.0;
 
   // Normalize final result
-  const fairH = finalProbs[0] / sumFinal;
-  const fairD = finalProbs[1] / sumFinal;
-  const fairA = finalProbs[2] / sumFinal;
+  const fairH = finalProbs[0] / safeSumFinal;
+  const fairD = finalProbs[1] / safeSumFinal;
+  const fairA = finalProbs[2] / safeSumFinal;
 
   const round4 = (n: number) => Math.round(n * 10000) / 10000;
-  const toOdds = (prob: number) => Math.round((1 / prob) * 100) / 100;
+  const toOdds = (prob: number) => (prob > 0.0001 ? Math.round((1 / prob) * 100) / 100 : 999);
 
   return {
     raw_odds: { home, draw, away },
@@ -151,19 +171,29 @@ export function stripVigShin(home: number, draw: number, away: number): VigStrip
  * Vig Stripping for Two-Way Markets (e.g. Over/Under, BTTS, Asian Handicap)
  */
 export function stripVigTwoWay(oddA: number, oddB: number): TwoWayVigResult {
+  if (!Number.isFinite(oddA) || !Number.isFinite(oddB) || oddA <= 1.0 || oddB <= 1.0) {
+    return {
+      overround: 1.0,
+      margin_percentage: 0.0,
+      fair_prob: { optionA: 0.5, optionB: 0.5 },
+      fair_odds: { optionA: 2.0, optionB: 2.0 },
+    };
+  }
+
   const invA = 1 / oddA;
   const invB = 1 / oddB;
   const sumInv = invA + invB;
+  const safeSumInv = sumInv > 0 ? sumInv : 1.0;
 
-  const fairA = invA / sumInv;
-  const fairB = invB / sumInv;
+  const fairA = invA / safeSumInv;
+  const fairB = invB / safeSumInv;
 
   const round4 = (n: number) => Math.round(n * 10000) / 10000;
-  const toOdds = (p: number) => Math.round((1 / p) * 100) / 100;
+  const toOdds = (p: number) => (p > 0.0001 ? Math.round((1 / p) * 100) / 100 : 999);
 
   return {
-    overround: round4(sumInv),
-    margin_percentage: Math.round((sumInv - 1) * 1000) / 10,
+    overround: round4(safeSumInv),
+    margin_percentage: Math.round((safeSumInv - 1) * 1000) / 10,
     fair_prob: {
       optionA: round4(fairA),
       optionB: round4(fairB),

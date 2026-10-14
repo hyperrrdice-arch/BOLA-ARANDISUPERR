@@ -111,8 +111,6 @@ async function call9RouterDirect(
         signal: controller.signal,
       });
 
-      clearTimeout(timer);
-
       if (!res.ok) {
         const errText = await res.text();
         throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
@@ -160,9 +158,8 @@ async function call9RouterDirect(
       }
 
       return extracted.trim();
-    } catch (err) {
+    } finally {
       clearTimeout(timer);
-      throw err;
     }
   };
 
@@ -211,16 +208,51 @@ export async function orchestrate5AgentSyndicate(params: {
 }): Promise<SyndicateDebateResult> {
   const { matchSummary, intel, quantPackage } = params;
 
+  // Format evaluasi Value Bet (+EV) & Kelly untuk diinjeksi ke prompt LLM
+  const valueBetsSummary = Array.isArray(quantPackage?.value_bets)
+    ? quantPackage.value_bets
+        .map(
+          (b: any) =>
+            `- [${b.market_name}] ${b.selection}: Odds Pasar=${b.bookmaker_odds} vs Fair Model=${b.fair_odds} | EV=${b.ev_percentage} | Sizing Kelly=${b.recommended_stake_percentage}%`
+        )
+        .join("\n")
+    : "Evaluasi value bet belum terkompilasi";
+
+  const marketOddsStr = intel.market_odds?.is_available || intel.market_odds?.home_last
+    ? `Bursa Live (${intel.market_odds.bookmaker || "Pasar"}): Home=${intel.market_odds.home_last} | Draw=${intel.market_odds.draw_last} | Away=${intel.market_odds.away_last} | O2.5=${intel.market_odds.total_goals_over_2_5 || "N/A"}`
+    : "Bursa odds pasar belum tersedia";
+
+  const shinStr = quantPackage?.shin_vig
+    ? `Shin Vig-Stripping: Fair Home=${quantPackage.shin_vig.fair_odds?.home} | Draw=${quantPackage.shin_vig.fair_odds?.draw} | Away=${quantPackage.shin_vig.fair_odds?.away} (Margin Bandar: ${quantPackage.shin_vig.margin_percentage?.toFixed(1)}%)`
+    : "";
+
+  const dc = quantPackage?.dixon_coles;
+  const homeXG = dc?.lambda_home_xg ?? 1.35;
+  const awayXG = dc?.mu_away_xg ?? 1.15;
+  const homeProb = Math.round((dc?.prob_home_win ?? 0.45) * 100);
+  const drawProb = Math.round((dc?.prob_draw ?? 0.27) * 100);
+  const awayProb = Math.round((dc?.prob_away_win ?? 0.28) * 100);
+  const fairHome = dc?.fair_odds?.home ?? 2.2;
+  const fairDraw = dc?.fair_odds?.draw ?? 3.4;
+  const fairAway = dc?.fair_odds?.away ?? 3.5;
+  const over25Prob = Math.round((dc?.over_2_5_prob ?? 0.52) * 100);
+  const bttsProb = Math.round((dc?.btts_yes_prob ?? 0.50) * 100);
+  const dnbHomeProb = Math.round((dc?.asian_handicap?.ah_0_0_dnb?.home_prob ?? 0.5) * 100);
+  const dnbFair = dc?.asian_handicap?.ah_0_0_dnb?.fair_odds_home ?? 2.0;
+
   const matchContext =
     `Pertandingan: ${intel.pertandingan.tim_kandang} vs ${intel.pertandingan.tim_tamu} (${intel.pertandingan.kompetisi})\n` +
     `Waktu: ${intel.pertandingan.waktu} | Venue: ${intel.pertandingan.venue}\n` +
-    `Dixon-Coles xG: Home=${quantPackage.dixon_coles.lambda_home_xg} vs Away=${quantPackage.dixon_coles.mu_away_xg}\n` +
-    `True 1X2 Probs: Home=${Math.round(quantPackage.dixon_coles.prob_home_win * 100)}% | Draw=${Math.round(quantPackage.dixon_coles.prob_draw * 100)}% | Away=${Math.round(quantPackage.dixon_coles.prob_away_win * 100)}%\n` +
-    `Fair 1X2 Odds: Home=${quantPackage.dixon_coles.fair_odds.home} | Draw=${quantPackage.dixon_coles.fair_odds.draw} | Away=${quantPackage.dixon_coles.fair_odds.away}\n` +
-    `Over 2.5 Prob: ${Math.round(quantPackage.dixon_coles.over_2_5_prob * 100)}% | BTTS Yes: ${Math.round(quantPackage.dixon_coles.btts_yes_prob * 100)}%\n` +
-    `Asian Handicap DNB: Home ${(quantPackage.dixon_coles.asian_handicap?.ah_0_0_dnb?.home_prob * 100 || 50).toFixed(0)}% (Fair: ${quantPackage.dixon_coles.asian_handicap?.ah_0_0_dnb?.fair_odds_home || 2.0})\n` +
+    `${marketOddsStr}\n` +
+    (shinStr ? `${shinStr}\n` : "") +
+    `Dixon-Coles xG: Home=${homeXG} vs Away=${awayXG}\n` +
+    `True 1X2 Probs: Home=${homeProb}% | Draw=${drawProb}% | Away=${awayProb}%\n` +
+    `Fair 1X2 Odds: Home=${fairHome} | Draw=${fairDraw} | Away=${fairAway}\n` +
+    `Over 2.5 Prob: ${over25Prob}% | BTTS Yes: ${bttsProb}%\n` +
+    `Asian Handicap DNB: Home ${dnbHomeProb}% (Fair: ${dnbFair})\n` +
     `Status Lineup: ${intel.lineups.status_label}\n` +
-    `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}`;
+    `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n\n` +
+    `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [max_tokens: 4000, 30s limit]...`);
   const t0 = Date.now();
@@ -255,42 +287,47 @@ export async function orchestrate5AgentSyndicate(params: {
 
   console.log(`[Syndicate] Stage 1 selesai dalam ${Date.now() - t0}ms.`);
 
+  const isErrText = (t?: string) => !t || t.includes("mengalami kendala respon") || t.length < 20;
+
+  const defaultBullThesis = "Peluang ofensif menguntungkan tuan rumah dengan momentum xG yang solid.";
   const bullParsed = safeExtractJSON<Partial<BullCase>>(bullRaw.text, {
-    thesis: bullRaw.text || "Peluang ofensif menguntungkan tuan rumah dengan proyeksi gol kuat.",
+    thesis: isErrText(bullRaw.text) ? defaultBullThesis : bullRaw.text,
     key_drivers: ["Momentum xG ofensif di atas rata-rata liga", "Efisiensi ruang tembak lini depan"],
     tactical_edge: "Keunggulan duel sayap dan transisi cepat",
   });
 
+  const defaultNeutralThesis = "Distribusi statistik menunjukkan ekuilibrium harga pasar yang proporsional.";
   const neutralParsed = safeExtractJSON<Partial<NeutralCase>>(neutralRaw.text, {
-    thesis: neutralRaw.text || "Distribusi statistik menunjukkan ekuilibrium harga pasar yang proporsional.",
+    thesis: isErrText(neutralRaw.text) ? defaultNeutralThesis : neutralRaw.text,
     empirical_drivers: ["Keseimbangan probabilitas wajar Poisson", "Regresi performa kandang vs tandang"],
     equilibrium_assessment: "Margin selisih xG tipis mengindikasikan pertandingan ketat berimbang",
   });
 
+  const defaultBearThesis = "Waspadai kerapuhan pertahanan transisi dan odds pasar yang overvalued.";
   const bearParsed = safeExtractJSON<Partial<BearCase>>(bearRaw.text, {
-    thesis: bearRaw.text || "Waspadai kerapuhan pertahanan transisi dan odds pasar yang overvalued.",
+    thesis: isErrText(bearRaw.text) ? defaultBearThesis : bearRaw.text,
     trap_warnings: ["Harga bandar terlalu pendek untuk tim favorit", "Risiko kebobolan dari serangan balik cepat"],
     vulnerability_audit: "Konsesi xGA tinggi pada 20 menit akhir laga",
   });
 
   const bullCase: BullCase = {
     model: bullRaw.modelUsed,
-    thesis: bullParsed.thesis || "Tesis ofensif aktif.",
-    key_drivers: Array.isArray(bullParsed.key_drivers) ? bullParsed.key_drivers : ["Momentum serang aktif"],
+    thesis: isErrText(bullParsed.thesis) ? defaultBullThesis : (bullParsed.thesis as string),
+    key_drivers: Array.isArray(bullParsed.key_drivers) && bullParsed.key_drivers.length > 0 ? bullParsed.key_drivers : ["Momentum serang aktif"],
     tactical_edge: bullParsed.tactical_edge || "Keunggulan taktis terkonfirmasi.",
   };
 
   const neutralCase: NeutralCase = {
     model: neutralRaw.modelUsed,
-    thesis: neutralParsed.thesis || "Tesis netral ekuilibrium.",
-    empirical_drivers: Array.isArray(neutralParsed.empirical_drivers) ? neutralParsed.empirical_drivers : ["Empirical balance"],
+    thesis: isErrText(neutralParsed.thesis) ? defaultNeutralThesis : (neutralParsed.thesis as string),
+    empirical_drivers: Array.isArray(neutralParsed.empirical_drivers) && neutralParsed.empirical_drivers.length > 0 ? neutralParsed.empirical_drivers : ["Empirical balance"],
     equilibrium_assessment: neutralParsed.equilibrium_assessment || "Keseimbangan pasar wajar.",
   };
 
   const bearCase: BearCase = {
     model: bearRaw.modelUsed,
-    thesis: bearParsed.thesis || "Tesis skeptis risiko defensif.",
-    trap_warnings: Array.isArray(bearParsed.trap_warnings) ? bearParsed.trap_warnings : ["Waspada volatilitas odds"],
+    thesis: isErrText(bearParsed.thesis) ? defaultBearThesis : (bearParsed.thesis as string),
+    trap_warnings: Array.isArray(bearParsed.trap_warnings) && bearParsed.trap_warnings.length > 0 ? bearParsed.trap_warnings : ["Waspada volatilitas odds"],
     vulnerability_audit: bearParsed.vulnerability_audit || "Audit risiko terkonfirmasi.",
   };
 
@@ -326,17 +363,19 @@ export async function orchestrate5AgentSyndicate(params: {
 
   console.log(`[Syndicate] Stage 2 selesai dalam ${Date.now() - t1}ms.`);
 
+  const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
+
   const j1Parsed = safeExtractJSON<Partial<SingleJudgement>>(j1Raw.text, {
-    verdict_summary: j1Raw.text || "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol.",
+    verdict_summary: isErrText(j1Raw.text) ? "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol." : j1Raw.text,
     confidence_tier: "B_MODERATE",
-    recommended_market: quantPackage.dixon_coles.over_2_5_prob > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0",
+    recommended_market: defaultRecommendedMarket,
     key_reasoning: "Peluang quant terkonfirmasi dengan deviasi harga bandar yang positif.",
   });
 
   const j2Parsed = safeExtractJSON<Partial<SingleJudgement>>(j2Raw.text, {
-    verdict_summary: j2Raw.text || "Menyetujui evaluasi risiko: hindari taruhan langsung 1X2 dan prioritaskan perlindungan modal pada garis handicap atau total gol.",
+    verdict_summary: isErrText(j2Raw.text) ? "Menyetujui evaluasi risiko: hindari taruhan langsung 1X2 dan prioritaskan perlindungan modal pada garis handicap atau total gol." : j2Raw.text,
     confidence_tier: "B_MODERATE",
-    recommended_market: j1Parsed.recommended_market || "Over 2.5 Goals",
+    recommended_market: j1Parsed.recommended_market || defaultRecommendedMarket,
     alternative_perspective: "Pendekatan independen mengonfirmasi probabilitas selisih gol tipis.",
   });
 

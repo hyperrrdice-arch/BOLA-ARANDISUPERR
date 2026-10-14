@@ -31,7 +31,7 @@ const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
 
 const nineRouter = createOpenAI({
   baseURL: process.env.NINE_ROUTER_BASE_URL || "http://localhost:20128/v1",
-  apiKey: process.env.NINE_ROUTER_API_KEY || "9router-local",
+  apiKey: process.env.NINE_ROUTER_API_KEY || "sk-7b18b5c31d5d653c-z0q24f-c3542ecc",
   fetch: customFetch,
 });
 
@@ -116,9 +116,10 @@ async function planFetchWithLightweightAgent(
       `KEMBALIKAN HANYA JSON VALID format: { "fetch_referee": boolean, "fetch_lineups": boolean, "fetch_injuries": boolean, "fetch_odds": boolean, "fetch_h2h": boolean, "cache_ttl_minutes": number, "reasoning": string }`;
 
     // Beri batas timeout 2500ms agar UI tetap secepat kilat
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Dispatcher agent timeout")), 2500)
-    );
+    let timer: NodeJS.Timeout | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("Dispatcher agent timeout")), 2500);
+    });
 
     const callPromise = generateText({
       model: nineRouter.chat(MODEL_DISPATCHER),
@@ -126,7 +127,13 @@ async function planFetchWithLightweightAgent(
       prompt,
     });
 
-    const res = await Promise.race([callPromise, timeoutPromise]);
+    let res;
+    try {
+      res = await Promise.race([callPromise, timeoutPromise]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+
     const cleanJson = res.text.replace(/```json/g, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(cleanJson);
 
