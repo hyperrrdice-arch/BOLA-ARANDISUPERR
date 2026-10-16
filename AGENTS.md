@@ -41,6 +41,7 @@ Before the final response, run one reporting pass. If candidates remain, from th
    - **Medium Thinking** (`flash`): External API schema mapping (`api-schema-explorer`), and Git/GitHub release operations (`repo-manager`).
    - **Low / Fast Thinking** (`flash`): Zod schema sanitization, API ingestion, rapid typechecks (`tsc`), and non-blocking test runners.
 5. **Frontend Multi-Style Flexibility**: Do not constrain frontend designs to Notion UI. Actively support diverse styles: modern sports analytics (SofaScore/FlashScore), high-density quantitative terminals (Bloomberg dark mode), sleek glassmorphism, and clean SaaS dashboards.
+6. **Context Window Hygiene & Isolation**: Subagents exist specifically to absorb heavy operations (reading massive files like `page.tsx` >110KB, large raw API payloads, terminal compiler traces, and iterative debugging loops) inside their own isolated context windows. The Lead Orchestrator MUST actively offload context-heavy sweeps to subagents to keep the primary conversation thread clean, fast, and unpolluted. Subagents report back only high-signal, concise summaries.
 
 <!-- END:subagent-and-model-rules -->
 
