@@ -24,9 +24,9 @@ const nineRouter = createOpenAI({
   fetch: customFetch,
 });
 
-const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "ag/gemini-3.8-flash";
-const MODEL_A = process.env.BETTING_MODEL_A || "ag/gemini-3.8-flash";
-const MODEL_B = process.env.BETTING_MODEL_B || "ag/gemini-3.8-flash-high";
+const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "bai/glm-5.3-flash";
+const MODEL_A = process.env.BETTING_MODEL_A || "bai/qwen3.8-27b";
+const MODEL_B = process.env.BETTING_MODEL_B || "bai/deepseek-v4.1-flash";
 
 // Helper regex to extract JSON
 function extractJSON(text: string): any {
@@ -232,6 +232,8 @@ export async function POST(req: Request) {
       match_name: matchMetaName,
       total_markets_scanned: markets.length,
       sample_markets: markets.slice(0, 12),
+      markets: markets,
+      all_markets: markets,
       model_a: {
         model_name: MODEL_A,
         result: resultA,
@@ -253,3 +255,53 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const matchId = searchParams.get("match_id");
+    const homeTeam = searchParams.get("home");
+    const awayTeam = searchParams.get("away");
+    const competition = searchParams.get("competition") || undefined;
+    const leagueId = searchParams.get("league_id") ? Number(searchParams.get("league_id")) : undefined;
+
+    let targetMatchId = matchId;
+    let matchMetaName = `${homeTeam || "Home"} vs ${awayTeam || "Away"}`;
+
+    if (!targetMatchId) {
+      if (!homeTeam || !awayTeam) {
+        return Response.json(
+          { error: "Parameter match_id atau home & away wajib diisi." },
+          { status: 400 }
+        );
+      }
+      const found = await find1xBetMatch(homeTeam, awayTeam, competition, leagueId);
+      if (!found) {
+        return Response.json({
+          status: "not_found",
+          message: `Pertandingan ${homeTeam} vs ${awayTeam} belum ditemukan di 1xBet. Silakan masukkan 1xBet Match ID secara manual.`,
+          markets: [],
+        });
+      }
+      targetMatchId = String(found.match.id);
+      matchMetaName = `${found.match.home_team} vs ${found.match.away_team}`;
+    }
+
+    const markets = await get1xBetMarketsV2(targetMatchId);
+    return Response.json({
+      status: "success",
+      match_id_1xbet: targetMatchId,
+      match_name: matchMetaName,
+      total_markets_scanned: markets?.length || 0,
+      markets: markets || [],
+      all_markets: markets || [],
+    });
+  } catch (err) {
+    console.error("[api/betting GET] Server error:", err);
+    return Response.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
+}
+

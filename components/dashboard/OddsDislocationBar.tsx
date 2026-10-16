@@ -158,147 +158,145 @@ export function OddsDislocationBar({
   ], [homeTeam, awayTeam, modelFair, benchmarkOdds, oneXBetOdds, quantData]);
 
   return (
-    <div className="doppel-shell w-full">
-      <div className="doppel-core space-y-4">
-        {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.06]">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#06b6d4]" />
-              <h3 className="text-xs sm:text-sm font-bold text-[#f8fafc] tracking-tight uppercase font-mono">
-                Unified Odds Dislocation &amp; Market Efficiency Monitor
-              </h3>
-            </div>
-            <p className="text-[11px] text-[#94a3b8]">
-              Perbandingan bursa live vs model matematika deterministik untuk mendeteksi anomali harga (+EV).
-            </p>
+    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-5 text-[#0a0a0a]">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e5e5]">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#0a0a0a]" />
+            <h3 className="text-xs sm:text-sm font-bold text-[#0a0a0a] tracking-tight uppercase font-mono">
+              Unified Odds Dislocation &amp; Market Efficiency Monitor
+            </h3>
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {onTriggerScan && (
-              <button
-                onClick={onTriggerScan}
-                disabled={bettingLoading}
-                className="px-3 py-1.5 rounded-md bg-[#10b981] hover:bg-[#059669] text-white text-xs font-semibold font-mono flex items-center gap-1.5 transition-all shadow-[0_2px_10px_rgba(16,185,129,0.2)] disabled:opacity-50 cursor-pointer"
-              >
-                {bettingLoading ? (
-                  <>
-                    <RefreshCwIcon size={12} className="animate-spin" />
-                    <span>Sinkronisasi 1xBet...</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowUpRightIcon size={12} />
-                    <span>{oneXBetOdds ? "Refresh 1xBet Feed" : "Scan 1xBet Live Feed"}</span>
-                  </>
-                )}
-              </button>
-            )}
-          </div>
+          <p className="text-[11px] text-[#737373]">
+            Perbandingan bursa live vs model matematika deterministik untuk mendeteksi anomali harga (+EV).
+          </p>
         </div>
 
-        {/* Odds Comparison Tri-Panel */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {outcomes.map((item) => {
-            const activeOdds = item.oneX || item.bench;
-            const delta = calculateDislocation(activeOdds, item.fair);
-            const isPositive = delta !== null && delta > 0;
-            const isSignificant = delta !== null && delta >= 3.0;
+        <div className="flex items-center gap-2 shrink-0">
+          {onTriggerScan && (
+            <button
+              onClick={onTriggerScan}
+              disabled={bettingLoading}
+              className="px-3.5 py-2 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-semibold font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            >
+              {bettingLoading ? (
+                <>
+                  <RefreshCwIcon size={12} className="animate-spin" />
+                  <span>Sinkronisasi 1xBet...</span>
+                </>
+              ) : (
+                <>
+                  <ArrowUpRightIcon size={12} />
+                  <span>{oneXBetOdds ? "Refresh 1xBet Feed" : "Scan 1xBet Live Feed"}</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
 
-            return (
-              <div
-                key={item.key}
-                className={`p-3.5 rounded-lg border transition-all ${
-                  isSignificant
-                    ? "bg-[#06281e] border-[#134e3a] shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                    : "bg-[#0f131a] border-white/[0.06]"
-                }`}
-              >
-                {/* Outcome Header */}
-                <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
-                  <div>
-                    <span className="text-[10px] font-mono text-[#94a3b8] uppercase block">
-                      {item.label}
+      {/* Odds Comparison Tri-Panel */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {outcomes.map((item) => {
+          const activeOdds = item.oneX || item.bench;
+          const delta = calculateDislocation(activeOdds, item.fair);
+          const isPositive = delta !== null && delta > 0;
+          const isSignificant = delta !== null && delta >= 3.0;
+
+          return (
+            <div
+              key={item.key}
+              className={`p-4 rounded-[18px] border transition-colors ${
+                isSignificant
+                  ? "bg-[#fafafa] border-[#0a0a0a]/30 shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+                  : "bg-[#fafafa] border-[#e5e5e5]"
+              }`}
+            >
+              {/* Outcome Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-[#e5e5e5]">
+                <div>
+                  <span className="text-[10px] font-mono text-[#737373] uppercase block">
+                    {item.label}
+                  </span>
+                  <strong className="text-xs text-[#0a0a0a] truncate block max-w-[150px]">
+                    {item.team}
+                  </strong>
+                </div>
+
+                {item.prob !== undefined && (
+                  <div className="text-right">
+                    <span className="text-[10px] font-mono text-[#737373] block">True Win %</span>
+                    <span className="text-xs font-mono font-bold text-[#0a0a0a] tabular-nums">
+                      {(item.prob * 100).toFixed(1)}%
                     </span>
-                    <strong className="text-xs text-[#f8fafc] truncate block max-w-[150px]">
-                      {item.team}
-                    </strong>
                   </div>
+                )}
+              </div>
 
-                  {item.prob !== undefined && (
-                    <div className="text-right">
-                      <span className="text-[10px] font-mono text-[#64748b] block">True Win %</span>
-                      <span className="text-xs font-mono font-bold text-[#06b6d4] tabular-nums">
-                        {(item.prob * 100).toFixed(1)}%
-                      </span>
-                    </div>
+              {/* 3 Price Lines Comparison */}
+              <div className="space-y-1.5 pt-2.5 text-xs font-mono tabular-nums">
+                {/* Line 1: Dixon-Coles Fair Odds */}
+                <div className="flex items-center justify-between text-[#0a0a0a]">
+                  <span className="text-[11px] text-[#737373]">Dixon-Coles Fair:</span>
+                  <strong className="text-[#0a0a0a]">
+                    {item.fair !== undefined ? item.fair.toFixed(2) : "-"}
+                  </strong>
+                </div>
+
+                {/* Line 2: Benchmark Consensus */}
+                <div className="flex items-center justify-between text-[#0a0a0a]">
+                  <span className="text-[11px] text-[#737373]">TheStatsAPI (Bet365):</span>
+                  <span className="text-[#0a0a0a] font-medium">
+                    {item.bench !== undefined ? item.bench.toFixed(2) : "-"}
+                  </span>
+                </div>
+
+                {/* Line 3: 1xBet Live Odds */}
+                <div className="flex items-center justify-between text-[#0a0a0a]">
+                  <span className="text-[11px] text-[#737373]">1xBet Live Market:</span>
+                  <span className={item.oneX ? "text-[#0a0a0a] font-bold" : "text-[#a3a3a3]"}>
+                    {item.oneX !== undefined ? item.oneX.toFixed(2) : "(Belum Scan)"}
+                  </span>
+                </div>
+
+                {/* Dislocation Delta Metric */}
+                <div className="pt-2 border-t border-[#e5e5e5] flex items-center justify-between">
+                  <span className="text-[10px] text-[#737373] uppercase">Dislocation Delta:</span>
+                  {delta !== null ? (
+                    <span
+                      className={`px-2 py-0.5 rounded-[18px] text-[10px] font-bold font-mono ${
+                        isPositive
+                          ? "bg-[#0a0a0a] text-white border border-[#0a0a0a]"
+                          : "bg-[#fef2f2] text-[#e7000b] border border-[#fecaca]"
+                      }`}
+                    >
+                      {isPositive ? `+${delta.toFixed(1)}% Edge` : `${delta.toFixed(1)}% Disadv`}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-[#a3a3a3]">-</span>
                   )}
                 </div>
-
-                {/* 3 Price Lines Comparison */}
-                <div className="space-y-1.5 pt-2.5 text-xs font-mono tabular-nums">
-                  {/* Line 1: Dixon-Coles Fair Odds */}
-                  <div className="flex items-center justify-between text-[#cbd5e1]">
-                    <span className="text-[11px] text-[#64748b]">Dixon-Coles Fair:</span>
-                    <strong className="text-[#06b6d4]">
-                      {item.fair !== undefined ? item.fair.toFixed(2) : "-"}
-                    </strong>
-                  </div>
-
-                  {/* Line 2: Benchmark Consensus */}
-                  <div className="flex items-center justify-between text-[#cbd5e1]">
-                    <span className="text-[11px] text-[#64748b]">TheStatsAPI (Bet365):</span>
-                    <span className="text-[#f8fafc] font-medium">
-                      {item.bench !== undefined ? item.bench.toFixed(2) : "-"}
-                    </span>
-                  </div>
-
-                  {/* Line 3: 1xBet Live Odds */}
-                  <div className="flex items-center justify-between text-[#cbd5e1]">
-                    <span className="text-[11px] text-[#64748b]">1xBet Live Market:</span>
-                    <span className={item.oneX ? "text-[#10b981] font-bold" : "text-[#64748b]"}>
-                      {item.oneX !== undefined ? item.oneX.toFixed(2) : "(Belum Scan)"}
-                    </span>
-                  </div>
-
-                  {/* Dislocation Delta Metric */}
-                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between">
-                    <span className="text-[10px] text-[#94a3b8] uppercase">Dislocation Delta:</span>
-                    {delta !== null ? (
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${
-                          isPositive
-                            ? "bg-[#06281e] text-[#10b981] border border-[#134e3a]"
-                            : "bg-[#2a0a11] text-[#f43f5e] border border-[#5b1322]"
-                        }`}
-                      >
-                        {isPositive ? `+${delta.toFixed(1)}% Edge` : `${delta.toFixed(1)}% Disadv`}
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-[#64748b]">-</span>
-                    )}
-                  </div>
-                </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Smart Money Movement Bar */}
-        {bursaPasar?.pergerakan_smart_money && (
-          <div className="p-3 rounded-lg bg-[#0d1017] border border-white/[0.06] flex items-start gap-2.5 text-xs">
-            <TrendingUpIcon size={14} className="text-[#10b981] shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <span className="text-[10px] font-mono text-[#10b981] font-bold uppercase tracking-wider block">
-                Aliran Likuiditas Smart Money
-              </span>
-              <p className="text-[#cbd5e1] leading-relaxed">
-                {bursaPasar.pergerakan_smart_money}
-              </p>
             </div>
-          </div>
-        )}
+          );
+        })}
       </div>
+
+      {/* Smart Money Movement Bar */}
+      {bursaPasar?.pergerakan_smart_money && (
+        <div className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] flex items-start gap-2.5 text-xs">
+          <TrendingUpIcon size={14} className="text-[#0a0a0a] shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-mono text-[#0a0a0a] font-bold uppercase tracking-wider block">
+              Aliran Likuiditas Smart Money
+            </span>
+            <p className="text-[#737373] leading-relaxed">
+              {bursaPasar.pergerakan_smart_money}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

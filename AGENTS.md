@@ -37,8 +37,8 @@ Before the final response, run one reporting pass. If candidates remain, from th
 2. **Subagent Discovery & UI Visibility**: All custom subagents in `.agents/agents/` MUST specify `mainAgent: true` and `subagent: true` in their YAML frontmatter so they remain discoverable and selectable in the UI agent picker.
 3. **Strict Workspace Scope**: Keep all agent configurations, scripts, and customizations strictly within the project repository (`.agents/agents/`). NEVER write or copy customizations to the global machine scope (`~/.gemini/config/`).
 4. **Model Tier & Thinking Modes**: Standardize exclusively on Gemini 3.8 Flash:
-   - **High Thinking** (`inherit`): Mathematical quant modeling, Dixon-Coles Poisson validation, Shin vig-stripping, Kelly risk models, and rigorous code reviews / error debugging (`staff-code-reviewer`).
-   - **Medium Thinking** (`flash`): Architecture planning, modular component decomposition, UI design, external API schema mapping (`api-schema-explorer`), and Git/GitHub release operations (`repo-manager`).
+   - **High Thinking** (`inherit`): Mathematical quant modeling, Dixon-Coles Poisson validation, Shin vig-stripping, Kelly risk models, advanced UI/UX architecture & component modularization (`frontend-architect`), and rigorous code reviews / error debugging (`staff-code-reviewer`).
+   - **Medium Thinking** (`flash`): External API schema mapping (`api-schema-explorer`), and Git/GitHub release operations (`repo-manager`).
    - **Low / Fast Thinking** (`flash`): Zod schema sanitization, API ingestion, rapid typechecks (`tsc`), and non-blocking test runners.
 5. **Frontend Multi-Style Flexibility**: Do not constrain frontend designs to Notion UI. Actively support diverse styles: modern sports analytics (SofaScore/FlashScore), high-density quantitative terminals (Bloomberg dark mode), sleek glassmorphism, and clean SaaS dashboards.
 

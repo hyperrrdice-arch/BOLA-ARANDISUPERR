@@ -68,23 +68,24 @@ export interface SyndicateDebateResult {
 const BASE_URL = process.env.NINE_ROUTER_BASE_URL || "http://localhost:20128/v1";
 const API_KEY = process.env.NINE_ROUTER_API_KEY || "sk-7b18b5c31d5d653c-z0q24f-c3542ecc";
 
-const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "ag/gemini-3.8-flash";
+const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "bai/glm-5.3-flash";
 const MODEL_BULL = process.env.MODEL_BULL || "bai/glm-5.3-flash";
-const MODEL_NEUTRAL = process.env.MODEL_NEUTRAL || "bai/deepseek-v4.1-flash";
-const MODEL_BEAR = process.env.MODEL_BEAR || "ag/gemini-3.8-flash-medium";
+const MODEL_NEUTRAL = process.env.MODEL_NEUTRAL || "bai/qwen3.8-flash";
+const MODEL_BEAR = process.env.MODEL_BEAR || "bai/deepseek-v4.1-flash";
 const MODEL_JUDGEMENT_1 = process.env.MODEL_JUDGEMENT_1 || "ag/gemini-3.8-flash-high";
 const MODEL_JUDGEMENT_2 = process.env.MODEL_JUDGEMENT_2 || "bai/qwen3.8-flash";
 
 /**
  * Resilient HTTP Native Fetcher untuk 9Router
  * Menangani non-streaming JSON, SSE delta chunks, serta format Atria wrapped response.
+ * Unrestricted limits: 16384 max tokens, 180s timeout untuk extended thinking models.
  */
 async function call9RouterDirect(
   targetModel: string,
   systemPrompt: string,
   userPrompt: string,
-  maxTokens: number = 4000,
-  timeoutMs: number = 30000
+  maxTokens: number = 16384,
+  timeoutMs: number = 180000
 ): Promise<{ text: string; modelUsed: string }> {
   const tryCall = async (model: string) => {
     const controller = new AbortController();
@@ -94,6 +95,21 @@ async function call9RouterDirect(
     if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
     messages.push({ role: "user", content: userPrompt });
 
+    const isNativeThinkingModel = model.includes("thinking") && !model.startsWith("bai/");
+    const requestPayload: any = {
+      model,
+      messages,
+      max_tokens: maxTokens,
+      temperature: 0.2,
+      stream: false,
+    };
+
+    // Mode Thinking Ultra untuk model penalaran native
+    if (isNativeThinkingModel) {
+      requestPayload.reasoning_effort = "high";
+      requestPayload.thinking = { type: "enabled", budget_tokens: 32768 };
+    }
+
     try {
       const res = await fetch(`${BASE_URL}/chat/completions`, {
         method: "POST",
@@ -101,13 +117,7 @@ async function call9RouterDirect(
           "Content-Type": "application/json",
           Authorization: `Bearer ${API_KEY}`,
         },
-        body: JSON.stringify({
-          model,
-          messages,
-          max_tokens: maxTokens,
-          temperature: 0.2,
-          stream: false,
-        }),
+        body: JSON.stringify(requestPayload),
         signal: controller.signal,
       });
 
@@ -254,34 +264,34 @@ export async function orchestrate5AgentSyndicate(params: {
     `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n\n` +
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
-  console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [max_tokens: 4000, 30s limit]...`);
+  console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
   const t0 = Date.now();
 
   // STAGE 1: TRI-AGENT ADVERSARIAL DEBATE IN PARALLEL
   const [bullRaw, neutralRaw, bearRaw] = await Promise.all([
-    // 1. Bull Analyst (bai/glm-5.3-flash)
+    // 1. Bull Analyst (ag/gemini-3.8-flash-high)
     call9RouterDirect(
       MODEL_BULL,
-      "Kamu adalah Bull Analyst (Taktis Ofensif) Sindikat Olahraga. Fase reasoning maksimal 20-25 detik. Rumuskan tesis ofensif mendalam dan kaya argumen berbasis data kuantitatif. Keluarkan JSON VALID: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
+      "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang) secara natural dan mengalir di narasi, BUKAN list poin kering. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
       matchContext,
-      4000,
-      30000
+      16384,
+      180000
     ),
-    // 2. Neutral Analyst (bai/deepseek-v4.1-flash)
+    // 2. Neutral Analyst (bai/glm-5.3-flash)
     call9RouterDirect(
       MODEL_NEUTRAL,
-      "Kamu adalah Neutral Analyst (Data Empiris & Ekuilibrium) Sindikat Olahraga. Fase reasoning maksimal 20-25 detik. Rumuskan tesis ekuilibrium mendalam tanpa optimisme bias. Keluarkan JSON VALID: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
+      "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
       matchContext,
-      4000,
-      30000
+      16384,
+      180000
     ),
-    // 3. Bear Auditor (ag/gemini-3.8-flash-medium)
+    // 3. Bear Auditor (kr/deepseek-3.2-thinking - MODE THINKING ULTRA)
     call9RouterDirect(
       MODEL_BEAR,
-      "Kamu adalah Bear Auditor (Skeptis Risiko & Trap Line) Sindikat Olahraga. Fase reasoning maksimal 20-25 detik. Audit kerapuhan defensif dan risiko jebakan bandar secara komprehensif. Keluarkan JSON VALID: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
+      "Lo adalah Bear Auditor di sindikat taruhan bola (Mode: DeepSeek Thinking Ultra). Jalankan penalaran internal mendalam (ultra thinking) secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, atau faktor kelelahan secara mengalir di narasi. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
       matchContext,
-      4000,
-      30000
+      16384,
+      180000
     ),
   ]);
 
@@ -332,7 +342,7 @@ export async function orchestrate5AgentSyndicate(params: {
   };
 
   // STAGE 2: DUAL JUDICIAL BENCH IN PARALLEL
-  console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [max_tokens: 4000, 30s limit]...`);
+  console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, 180s limit]...`);
   const t1 = Date.now();
 
   const debateSummary =
@@ -346,18 +356,18 @@ export async function orchestrate5AgentSyndicate(params: {
     // Judgement 1 (ag/gemini-3.8-flash-high) - Chief Quant & CRO Arbiter
     call9RouterDirect(
       MODEL_JUDGEMENT_1,
-      "Kamu adalah Hakim 1: Chief Quantitative & Risk Arbiter. Fase reasoning maksimal 20-25 detik. Sintesis debat dan angka Dixon-Coles xG secara mendalam. Keluarkan JSON VALID: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
+      "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
       debateSummary,
-      4000,
-      30000
+      16384,
+      180000
     ),
-    // Judgement 2 (atria/Atria-Dawn-Preview) - Independent Synthesizer & Cross-Arbiter
+    // Judgement 2 (kr/deepseek-3.2-thinking - MODE THINKING ULTRA) - Cross-Arbiter
     call9RouterDirect(
       MODEL_JUDGEMENT_2,
-      "Kamu adalah Hakim 2: Independent Synthesizer & Cross-Arbiter. Fase reasoning maksimal 20-25 detik. Evaluasi debat secara independen untuk menguji bias kognitif Hakim 1. Keluarkan JSON VALID: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
+      "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan (Mode: DeepSeek Thinking Ultra). Jalankan penalaran internal mendalam (ultra thinking) sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
       debateSummary,
-      4000,
-      30000
+      16384,
+      180000
     ),
   ]);
 

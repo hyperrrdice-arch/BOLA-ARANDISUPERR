@@ -35,7 +35,7 @@ const nineRouter = createOpenAI({
   fetch: customFetch,
 });
 
-const MODEL_DISPATCHER = process.env.MODEL_FETCHER_DISPATCHER || "ag/gemini-3.8-flash";
+const MODEL_DISPATCHER = process.env.MODEL_FETCHER_DISPATCHER || "bai/qwen3.8-27b";
 
 export interface DispatcherDecision {
   fetch_referee: boolean;

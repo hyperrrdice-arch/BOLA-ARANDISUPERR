@@ -88,6 +88,16 @@ export interface QuantEngineData {
     fair_odds: { home: number; draw: number; away: number };
   };
   value_bets: ValueBetItem[];
+  calibration_metadata?: {
+    is_calibrated: boolean;
+    div?: string;
+    league_name?: string;
+    home_source?: string;
+    away_source?: string;
+    shrinkage_weights?: { home: number; away: number };
+    calibrated_home_advantage?: number;
+    calibrated_league_avg_goals?: number;
+  };
 }
 
 export interface SyndicateJudgeItem {
@@ -232,6 +242,8 @@ export interface BettingResult1xBet {
   message?: string;
   raw_markets_count?: number;
   markets_classified?: Record<string, any>;
+  markets?: any[];
+  all_markets?: any[];
   quant_synthesis?: {
     verdict?: string;
     confidence?: string;
@@ -246,3 +258,87 @@ export interface BettingResult1xBet {
   };
   [key: string]: any;
 }
+
+export interface BookmakerPricePoint {
+  opening: number | null;
+  last_seen: number | null;
+  diff: number | null;
+}
+
+export interface BookmakerOddsComparisonItem {
+  id: string;
+  name: string;
+  match_odds: {
+    home: BookmakerPricePoint;
+    draw: BookmakerPricePoint;
+    away: BookmakerPricePoint;
+  };
+  total_goals_2_5: {
+    over: BookmakerPricePoint;
+    under: BookmakerPricePoint;
+  };
+  margin_1x2: number | null; // e.g. 4.2 (%)
+  overround_1x2: number | null; // e.g. 104.2 (%)
+  margin_ou: number | null; // e.g. 3.8 (%)
+  overround_ou: number | null; // e.g. 103.8 (%)
+}
+
+export interface BestOddsSelection {
+  price: number;
+  bookmaker: string;
+}
+
+export interface TheStatsOddsComparisonData {
+  match_id: string;
+  is_available: boolean;
+  message?: string;
+  bookmakers: BookmakerOddsComparisonItem[];
+  best_odds: {
+    home: BestOddsSelection | null;
+    draw: BestOddsSelection | null;
+    away: BestOddsSelection | null;
+    over_2_5: BestOddsSelection | null;
+    under_2_5: BestOddsSelection | null;
+  } | null;
+  averages: {
+    home: number | null;
+    draw: number | null;
+    away: number | null;
+    over_2_5: number | null;
+    under_2_5: number | null;
+    average_margin_1x2: number | null;
+  };
+  lowest_margin_bookmaker: {
+    name: string;
+    margin: number;
+  } | null;
+  timestamp: string;
+}
+
+export type MarketCategory =
+  | "Semua"
+  | "Utama 1X2"
+  | "Total Goals"
+  | "Asian Handicap"
+  | "Both Teams to Score"
+  | "Babak 1/2"
+  | "Corners & Kartu"
+  | "Lainnya";
+
+export interface LogicalPickItem {
+  id: string;
+  market_id: number | string;
+  market_name: string;
+  category: MarketCategory;
+  selection: string;
+  bookmaker_odds: number;
+  fair_odds: number;
+  model_probability: number; // e.g. 0.62 (62%)
+  expected_value: number; // e.g. 0.085 (+8.5% EV)
+  ev_percentage: string; // "+8.5%"
+  kelly_percentage: number; // e.g. 4.2 (%)
+  confidence_level: "SANGAT TINGGI" | "TINGGI" | "SEDANG" | "SPEKULATIF";
+  rationale: string;
+  is_positive_ev: boolean;
+}
+

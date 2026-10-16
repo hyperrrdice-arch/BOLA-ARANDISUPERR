@@ -1,36 +1,51 @@
 @import "tailwindcss";
+@import "../design-system/theme.css";
 
 :root {
-  --background: #080a0e;
-  --foreground: #f8fafc;
-  --terminal-surface: #0f131a;
-  --terminal-surface-hover: #141a24;
-  --terminal-well: #0a0c12;
-  --terminal-border: rgba(255, 255, 255, 0.08);
-  --terminal-border-strong: rgba(255, 255, 255, 0.16);
+  --background: #f5f5f5;
+  --foreground: #0a0a0a;
+  --canvas: #f5f5f5;
+  --paper: #ffffff;
+  --surface-alt: #fafafa;
+  --ink: #0a0a0a;
+  --ink-soft: #171717;
+  --mid-gray: #737373;
+  --hairline: #e5e5e5;
+  --ember: #e7000b;
 
-  --surface: #0f131a;
-  --surface-hover: #141a24;
-  --surface-active: #1c232f;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --text-primary: #f8fafc;
-  --text-body: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-faint: #64748b;
+  --terminal-surface: #ffffff;
+  --terminal-surface-hover: #fafafa;
+  --terminal-well: #f5f5f5;
+  --terminal-border: #e5e5e5;
+  --terminal-border-strong: #d4d4d8;
+
+  --surface: #ffffff;
+  --surface-hover: #fafafa;
+  --surface-active: #f5f5f5;
+  --border-subtle: #e5e5e5;
+  --border-strong: #d4d4d8;
+  --text-primary: #0a0a0a;
+  --text-body: #171717;
+  --text-muted: #737373;
+  --text-faint: #a1a1aa;
+
+  /* Motion Architecture Curves (cubic-bezier 0.16, 1, 0.3, 1) */
+  --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-micro: 160ms;
+  --duration-layout: 280ms;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -41,109 +56,182 @@ body {
 }
 
 /* ========================================================================= */
-/* DOPPELRAND ARCHITECTURE (DOUBLE-BEZEL MACHINED HARDWARE CONTAINERS)       */
+/* CLINICAL BLUEPRINT 1PX HAIRLINE ARCHITECTURE                              */
 /* ========================================================================= */
 
 .doppel-shell {
-  background-color: #0f131a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  background-color: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 24px;
+  padding: 4px;
+  transition: border-color 160ms var(--ease-terminal);
 }
 
 .doppel-shell:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: #d4d4d8;
 }
 
 .doppel-core {
-  background-color: #0a0c12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: calc(12px - 6px);
-  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: calc(24px - 4px);
+  padding: 20px;
+  box-shadow: oklab(0.145 -0.00000143796 0.00000340492 / 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.06) 0px 1px 3px 0px, rgba(0, 0, 0, 0.04) 0px 1px 2px -1px;
 }
 
-/* Standard flat cards maintained for backward compatibility */
+/* Standard flat cards in pure monochrome */
 .flat-card {
-  background-color: #0f131a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 24px;
+  box-shadow: oklab(0.145 -0.00000143796 0.00000340492 / 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.06) 0px 1px 3px 0px, rgba(0, 0, 0, 0.04) 0px 1px 2px -1px;
+  transition: background-color 160ms var(--ease-terminal), border-color 160ms var(--ease-terminal);
 }
 
 .flat-card:hover {
-  background-color: #141a24;
-  border-color: rgba(255, 255, 255, 0.16);
+  background-color: #fafafa;
+  border-color: #d4d4d8;
 }
 
 .flat-card-static {
-  background-color: #0f131a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 24px;
+  box-shadow: oklab(0.145 -0.00000143796 0.00000340492 / 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.06) 0px 1px 3px 0px, rgba(0, 0, 0, 0.04) 0px 1px 2px -1px;
 }
 
 .flat-callout {
-  background-color: #0f131a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  background-color: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 18px;
   padding: 14px 16px;
 }
 
 /* ========================================================================= */
-/* CALIBRATED TELEMETRY TAG TOKENS (MATTE, HIGH CONTRAST, ZERO SLOP)         */
+/* FUNCTIONAL MONOCHROME TAGS & CHIPS (CAPSULE 18PX PILLS)                   */
 /* ========================================================================= */
 
+.flat-tag-white,
 .flat-tag-green {
-  background-color: #06281e;
-  color: #10b981;
-  border: 1px solid #134e3a;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  border: 1px solid #0a0a0a;
+  border-radius: 18px;
 }
 
-.flat-tag-blue {
-  background-color: #07242c;
-  color: #06b6d4;
-  border: 1px solid #0e4c5b;
-}
-
+.flat-tag-zinc,
+.flat-tag-blue,
 .flat-tag-slate {
-  background-color: #111622;
-  color: #94a3b8;
-  border: 1px solid #1e293b;
+  background-color: #f5f5f5;
+  color: #171717;
+  border: 1px solid #e5e5e5;
+  border-radius: 18px;
 }
 
 .flat-tag-amber {
-  background-color: #261a06;
-  color: #f59e0b;
-  border: 1px solid #5c3d0b;
+  background-color: #fafafa;
+  color: #0a0a0a;
+  border: 1px solid #d4d4d8;
+  border-radius: 18px;
 }
 
 .flat-tag-red {
-  background-color: #2a0a11;
-  color: #f43f5e;
-  border: 1px solid #5b1322;
+  background-color: rgba(231, 0, 11, 0.06);
+  color: #e7000b;
+  border: 1px solid rgba(231, 0, 11, 0.2);
+  border-radius: 18px;
 }
 
 .flat-tag-purple {
-  background-color: #14142b;
-  color: #818cf8;
-  border: 1px solid #312e81;
+  background-color: #f5f5f5;
+  color: #171717;
+  border: 1px solid #e5e5e5;
+  border-radius: 18px;
 }
 
-/* Flat Turf Background for Tactical Pitch */
-.pitch-turf {
-  background-color: #0d1a12;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #0d1a12 0px,
-    #0d1a12 40px,
-    #0b160f 40px,
-    #0b160f 80px
-  );
-  border: 1px solid #1a3324;
+/* ========================================================================= */
+/* MONO SCANNING & LOADING ANIMATION                                        */
+/* ========================================================================= */
+
+@keyframes monoScan {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(40%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }
 
-/* Flat Minimal Scrollbar */
+.mono-loading-bar-container {
+  width: 100%;
+  height: 2px;
+  background-color: #e5e5e5;
+  overflow: hidden;
+  position: relative;
+  border-radius: 9999px;
+}
+
+.mono-loading-bar {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #0a0a0a, transparent);
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: monoScan 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* ========================================================================= */
+/* GPU-ACCELERATED MOTION TOKENS                                             */
+/* ========================================================================= */
+
+@keyframes revealStaggerUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-up {
+  animation: revealStaggerUp 280ms var(--ease-terminal) forwards;
+}
+
+.bar-unfold {
+  transform-origin: left;
+  transition: transform 320ms var(--ease-terminal);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .bar-unfold {
+    transition: none !important;
+  }
+  .mono-loading-bar {
+    animation: none !important;
+    background: #0a0a0a;
+    width: 100%;
+  }
+}
+
+/* Flat Minimal Monochrome Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -154,10 +242,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: #a1a1aa;
 }

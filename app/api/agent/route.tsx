@@ -52,11 +52,11 @@ const nineRouter = createOpenAI({
 
 // Konfigurasi 5 Model Syndicate & Dual Judgement
 const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "ag/gemini-3.8-flash";
-const MODEL_BULL = process.env.MODEL_BULL || "bai/glm-5.3-flash";
-const MODEL_NEUTRAL = process.env.MODEL_NEUTRAL || "bai/deepseek-v4.1-flash";
-const MODEL_BEAR = process.env.MODEL_BEAR || "ag/gemini-3.8-flash-medium";
+const MODEL_BULL = process.env.MODEL_BULL || "ag/gemini-3.8-flash-high";
+const MODEL_NEUTRAL = process.env.MODEL_NEUTRAL || "bai/glm-5.3-flash";
+const MODEL_BEAR = process.env.MODEL_BEAR || "bai/deepseek-v4.1-flash";
 const MODEL_JUDGEMENT_1 = process.env.MODEL_JUDGEMENT_1 || "ag/gemini-3.8-flash-high";
-const MODEL_JUDGEMENT_2 = process.env.MODEL_JUDGEMENT_2 || "atria/Atria-Dawn-Preview";
+const MODEL_JUDGEMENT_2 = process.env.MODEL_JUDGEMENT_2 || "bai/qwen3.8-flash";
 const MODEL_ARBITER = MODEL_JUDGEMENT_1;
 
 // Skema Validasi Output Analisis Lengkap Enterprise
