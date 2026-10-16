@@ -17,6 +17,8 @@ export interface MasterMatchRow {
   htag?: number | null;
   htr?: string | null;
   referee?: string | null;
+  h_xg?: number | null;
+  a_xg?: number | null;
   hs?: number | null;
   as_shots?: number | null;
   hst?: number | null;
@@ -72,6 +74,8 @@ export function getMasterDb(): DatabaseSync {
       htag INTEGER,
       htr TEXT,
       referee TEXT,
+      h_xg REAL,
+      a_xg REAL,
       hs INTEGER,
       as_shots INTEGER,
       hst INTEGER,
@@ -94,6 +98,14 @@ export function getMasterDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_matches_season ON matches(season);
   `);
 
+  // Migrasi non-destruktif untuk kolom h_xg dan a_xg jika belum ada
+  try {
+    db.exec("ALTER TABLE matches ADD COLUMN h_xg REAL;");
+  } catch {}
+  try {
+    db.exec("ALTER TABLE matches ADD COLUMN a_xg REAL;");
+  } catch {}
+
   dbInstance = db;
   return dbInstance;
 }
@@ -106,23 +118,47 @@ export function closeMasterDb(): void {
 }
 
 /**
- * Menyisipkan satu record match secara idempoten (INSERT OR IGNORE)
+ * Menyisipkan atau memperbarui satu record match secara idempoten (UPSERT)
  */
 export function insertMatchRecord(db: DatabaseSync, m: MasterMatchRow): boolean {
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO matches (
+    INSERT INTO matches (
       div, season, date, time, home_team, away_team,
       fthg, ftag, ftr, hthg, htag, htr,
-      referee, hs, as_shots, hst, ast,
+      referee, h_xg, a_xg, hs, as_shots, hst, ast,
       psh, psd, psa, b365h, b365d, b365a,
       max_over_2_5, max_under_2_5
     ) VALUES (
       ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?, ?,
       ?, ?
     )
+    ON CONFLICT(div, date, home_team, away_team) DO UPDATE SET
+      season = excluded.season,
+      time = COALESCE(excluded.time, matches.time),
+      fthg = excluded.fthg,
+      ftag = excluded.ftag,
+      ftr = excluded.ftr,
+      hthg = COALESCE(excluded.hthg, matches.hthg),
+      htag = COALESCE(excluded.htag, matches.htag),
+      htr = COALESCE(excluded.htr, matches.htr),
+      referee = COALESCE(excluded.referee, matches.referee),
+      h_xg = COALESCE(excluded.h_xg, matches.h_xg),
+      a_xg = COALESCE(excluded.a_xg, matches.a_xg),
+      hs = COALESCE(excluded.hs, matches.hs),
+      as_shots = COALESCE(excluded.as_shots, matches.as_shots),
+      hst = COALESCE(excluded.hst, matches.hst),
+      ast = COALESCE(excluded.ast, matches.ast),
+      psh = COALESCE(excluded.psh, matches.psh),
+      psd = COALESCE(excluded.psd, matches.psd),
+      psa = COALESCE(excluded.psa, matches.psa),
+      b365h = COALESCE(excluded.b365h, matches.b365h),
+      b365d = COALESCE(excluded.b365d, matches.b365d),
+      b365a = COALESCE(excluded.b365a, matches.b365a),
+      max_over_2_5 = COALESCE(excluded.max_over_2_5, matches.max_over_2_5),
+      max_under_2_5 = COALESCE(excluded.max_under_2_5, matches.max_under_2_5)
   `);
 
   const result = stmt.run(
@@ -139,6 +175,8 @@ export function insertMatchRecord(db: DatabaseSync, m: MasterMatchRow): boolean 
     m.htag ?? null,
     m.htr ?? null,
     m.referee ?? null,
+    m.h_xg ?? null,
+    m.a_xg ?? null,
     m.hs ?? null,
     m.as_shots ?? null,
     m.hst ?? null,

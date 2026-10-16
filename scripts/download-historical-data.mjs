@@ -36,8 +36,10 @@ const LEAGUES = [
   { code: "G1", name: "Greek Super League", country: "Greece" },
 ];
 
-// Musim yang diunduh (4 Musim Terakhir)
+// Musim yang diunduh (6 Musim: 2021/22 s/d 2026/27)
 const SEASONS = [
+  { code: "2627", label: "2026/2027" },
+  { code: "2526", label: "2025/2026" },
   { code: "2425", label: "2024/2025" },
   { code: "2324", label: "2023/2024" },
   { code: "2223", label: "2022/2023" },
@@ -95,6 +97,7 @@ async function run() {
     console.log("------------------------------------------------------------------");
 
     for (const league of LEAGUES) {
+      await new Promise((r) => setTimeout(r, 400));
       const url = `${BASE_URL}/${season.code}/${league.code}.csv`;
       const fileName = `${league.code}_${season.code}.csv`;
       const filePath = path.join(outputDir, fileName);

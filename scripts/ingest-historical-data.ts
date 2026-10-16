@@ -153,6 +153,8 @@ async function run() {
           htag: parseInteger(r.HTAG),
           htr: r.HTR || null,
           referee: r.Referee || null,
+          h_xg: parseNumber(r.HxG || r.HXG || r.HomeXG),
+          a_xg: parseNumber(r.AxG || r.AXG || r.AwayXG),
           hs: parseInteger(r.HS),
           as_shots: parseInteger(r.AS),
           hst: parseInteger(r.HST),
