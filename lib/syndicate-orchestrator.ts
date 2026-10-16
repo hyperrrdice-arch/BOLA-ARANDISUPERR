@@ -250,6 +250,15 @@ export async function orchestrate5AgentSyndicate(params: {
   const dnbHomeProb = Math.round((dc?.asian_handicap?.ah_0_0_dnb?.home_prob ?? 0.5) * 100);
   const dnbFair = dc?.asian_handicap?.ah_0_0_dnb?.fair_odds_home ?? 2.0;
 
+  const sm = quantPackage?.special_markets;
+  const specialMarketsStr = sm ? (
+    `\nDATA PASAR KHUSUS (SPECIAL MARKETS THESTATSAPI DATASET):\n` +
+    `- Pasar Headed Goal: P(Gol Sundulan >= 1)=${Math.round(sm.headed_goal.prob_at_least_one_header * 100)}% (Fair Odds Yes=${sm.headed_goal.fair_odds_yes} vs No=${sm.headed_goal.fair_odds_no}) | Status: ${sm.headed_goal.confidence_tier} (Sampel: ${sm.headed_goal.observed_aerial_samples.home} kandang, ${sm.headed_goal.observed_aerial_samples.away} tamu)\n` +
+    `- Pasar Corners: Total Ekspektasi=${sm.corners.expected_total_corners} | Over 9.5=${Math.round(sm.corners.over_9_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_9_5}) | Over 10.5=${Math.round(sm.corners.over_10_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_10_5})\n` +
+    `- Pasar Kartu: Total Ekspektasi=${sm.cards.expected_total_cards} | Over 3.5 Cards=${Math.round(sm.cards.over_3_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_3_5}) | Over 4.5 Cards=${Math.round(sm.cards.over_4_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_4_5})\n` +
+    (sm.passing_dominance?.home_expected_passes ? `- Distribusi Passing: Kandang=${sm.passing_dominance.home_expected_passes} vs Tamu=${sm.passing_dominance.away_expected_passes} akurat/laga\n` : "")
+  ) : "";
+
   const matchContext =
     `Pertandingan: ${intel.pertandingan.tim_kandang} vs ${intel.pertandingan.tim_tamu} (${intel.pertandingan.kompetisi})\n` +
     `Waktu: ${intel.pertandingan.waktu} | Venue: ${intel.pertandingan.venue}\n` +
@@ -261,7 +270,8 @@ export async function orchestrate5AgentSyndicate(params: {
     `Over 2.5 Prob: ${over25Prob}% | BTTS Yes: ${bttsProb}%\n` +
     `Asian Handicap DNB: Home ${dnbHomeProb}% (Fair: ${dnbFair})\n` +
     `Status Lineup: ${intel.lineups.status_label}\n` +
-    `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n\n` +
+    `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n` +
+    specialMarketsStr + "\n" +
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);

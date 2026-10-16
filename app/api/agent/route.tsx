@@ -18,6 +18,8 @@ import {
   orchestrate5AgentSyndicate,
   type SyndicateDebateResult,
 } from "@/lib/syndicate-orchestrator";
+import { generateSpecialMarketsPackage } from "@/lib/quant/special-markets-engine";
+import { getTeamRollingTelemetry } from "@/lib/db/team-telemetry";
 
 /**
  * ============================================================================
@@ -193,7 +195,7 @@ const AnalysisSchema = z.object({
         rationale: z.string(),
       })
     ),
-  }),
+  }).passthrough(),
   syndicate_debate: z.object({
     bull_case: z.object({
       model: z.string(),
@@ -320,6 +322,9 @@ export async function GET(req: Request) {
     ? Math.max(3, Math.min(10, intel.h2h_history.sample_size))
     : 5;
 
+  const homeTelem = getTeamRollingTelemetry(homeTeamName, 6, today);
+  const awayTelem = getTeamRollingTelemetry(awayTeamName, 6, today);
+
   const shrunkParams = getShrunkMatchParameters({
     homeTeam: homeTeamName,
     awayTeam: awayTeamName,
@@ -328,6 +333,9 @@ export async function GET(req: Request) {
     liveAwayFormGoalsAvg: intel.form_split.away_goals_avg,
     homeSampleN: sampleN,
     awaySampleN: sampleN,
+    homeTelemetry: homeTelem.sample_size > 0 ? homeTelem : undefined,
+    awayTelemetry: awayTelem.sample_size > 0 ? awayTelem : undefined,
+    matchDateCutoff: today,
   });
 
   const dcOutput = calculateDixonColes({
@@ -379,6 +387,17 @@ export async function GET(req: Request) {
   ];
   const valueBets = evaluatePortfolioKelly(rawValueBets, 5.0);
 
+  // Kompilasi Pasar Khusus (Headed Goal, Corners, Cards, Passes)
+  const specialMarkets = (homeTelem.sample_size > 0 || awayTelem.sample_size > 0)
+    ? generateSpecialMarketsPackage({
+        homeTeam: homeTeamName,
+        awayTeam: awayTeamName,
+        homeTelemetry: homeTelem,
+        awayTelemetry: awayTelem,
+        cutoffDate: today,
+      })
+    : null;
+
   const quantPackage = {
     dixon_coles: {
       lambda_home_xg: dcOutput.lambda,
@@ -401,6 +420,7 @@ export async function GET(req: Request) {
       fair_odds: vigOutput.fair_odds,
     },
     value_bets: valueBets,
+    special_markets: specialMarkets,
     calibration_metadata: {
       is_calibrated: shrunkParams.isCalibrated,
       div: shrunkParams.metadata?.div,
@@ -410,6 +430,11 @@ export async function GET(req: Request) {
       shrinkage_weights: shrunkParams.shrinkageWeights,
       calibrated_home_advantage: shrunkParams.homeAdvantage,
       calibrated_league_avg_goals: shrunkParams.leagueAvgGoals,
+      macro_prior_date: shrunkParams.metadata?.macroPriorDate,
+      telemetry_source: shrunkParams.metadata?.telemetrySource,
+      observed_xg_samples: shrunkParams.metadata?.observedXgSamples,
+      is_estimated_telemetry: shrunkParams.metadata?.isEstimatedTelemetry,
+      pre_match_cutoff: shrunkParams.metadata?.preMatchCutoff,
     },
   };
 

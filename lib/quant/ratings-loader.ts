@@ -1,6 +1,8 @@
 import path from "node:path";
 import fs from "node:fs";
 import { normalizeTeamName } from "./team-normalizer";
+import { getTheStatsDb } from "../db/thestats-dataset";
+import { getTeamRollingTelemetry, type TeamRollingTelemetry } from "../db/team-telemetry";
 
 export interface TeamRating {
   name: string;
@@ -51,6 +53,17 @@ export interface ShrunkMatchParameters {
     leagueName: string;
     homeSource: "primary_league" | "second_division_promoted" | "fallback";
     awaySource: "primary_league" | "second_division_promoted" | "fallback";
+    macroPriorDate?: string;
+    telemetrySource?: {
+      home: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only";
+      away: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only";
+    };
+    observedXgSamples?: {
+      home: number;
+      away: number;
+    };
+    isEstimatedTelemetry?: boolean;
+    preMatchCutoff?: string;
   };
 }
 
@@ -190,18 +203,42 @@ export function findTeamRating(
   return null;
 }
 
-/**
- * Menghitung parameter Dixon-Coles dengan James-Stein Empirical Bayes Shrinkage
- */
-export function getShrunkMatchParameters(options: {
+let theStatsTeamMap: Map<string, string> | null = null;
+
+function getTheStatsTeamId(teamName: string): string | null {
+  if (!theStatsTeamMap) {
+    theStatsTeamMap = new Map();
+    try {
+      const db = getTheStatsDb();
+      const rows = db.prepare("SELECT team_id, name FROM teams").all() as { team_id: string; name: string }[];
+      for (const r of rows) {
+        theStatsTeamMap.set(normalizeTeamName(r.name).toLowerCase(), r.team_id);
+      }
+    } catch {
+      // Ignore jika database belum tersedia
+    }
+  }
+  return theStatsTeamMap.get(normalizeTeamName(teamName).toLowerCase()) || null;
+}
+
+export interface ShrunkMatchParametersOptions {
   homeTeam: string;
   awayTeam: string;
   liveHomeFormGoalsAvg?: number;
   liveAwayFormGoalsAvg?: number;
-  homeSampleN?: number; // Jumlah laga live form yang tersedia (default 5)
+  homeSampleN?: number;
   awaySampleN?: number;
   leagueHint?: string;
-}): ShrunkMatchParameters {
+  homeTelemetry?: TeamRollingTelemetry | null;
+  awayTelemetry?: TeamRollingTelemetry | null;
+  matchDateCutoff?: string; // Pre-match cutoff (anti-leakage)
+}
+
+/**
+ * Menghitung parameter Dixon-Coles dengan James-Stein Empirical Bayes Shrinkage
+ * Mengintegrasikan Macro Prior historis dengan Micro Telemetry thestats_dataset.db
+ */
+export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions): ShrunkMatchParameters {
   const normHome = normalizeTeamName(options.homeTeam);
   const normAway = normalizeTeamName(options.awayTeam);
 
@@ -219,6 +256,17 @@ export function getShrunkMatchParameters(options: {
     rho: -0.04,
     shrinkageWeights: { home: 1.0, away: 1.0 },
     isCalibrated: false,
+    metadata: {
+      div: divCode,
+      leagueName: "Default League",
+      homeSource: "fallback",
+      awaySource: "fallback",
+      macroPriorDate: "2026-10-12",
+      telemetrySource: { home: "macro_prior_only", away: "macro_prior_only" },
+      observedXgSamples: { home: 0, away: 0 },
+      isEstimatedTelemetry: true,
+      preMatchCutoff: options.matchDateCutoff,
+    },
   };
 
   if (!ratingsData || !ratingsData.leagues[divCode]) {
@@ -239,39 +287,95 @@ export function getShrunkMatchParameters(options: {
     };
   }
 
-  // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa)
-  // kappa = 16 (standar sindikat kuantitatif untuk prior half-season)
-  const KAPPA = 16;
-  const nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
-  const nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
-
-  const wHome = (nHome + KAPPA) > 0 ? nHome / (nHome + KAPPA) : 0;
-  const wAway = (nAway + KAPPA) > 0 ? nAway / (nAway + KAPPA) : 0;
-
   const safeLeagueAvg = Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : 1.35;
 
-  // Estimasi Live Attack dengan proteksi division by zero & NaN
-  const rawHomeGoals = Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0
-    ? (options.liveHomeFormGoalsAvg as number)
-    : 1.35;
-  const rawAwayGoals = Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0
-    ? (options.liveAwayFormGoalsAvg as number)
-    : 1.15;
-
-  const liveHomeAttack = rawHomeGoals / safeLeagueAvg;
-  const liveAwayAttack = rawAwayGoals / safeLeagueAvg;
-
-  // Baseline Histori
+  // Baseline Histori dari Macro Prior
   const histHomeAttack = homeResolved && Number.isFinite(homeResolved.rating.attack) ? homeResolved.rating.attack : 1.0;
   const histHomeDefense = homeResolved && Number.isFinite(homeResolved.rating.defense) ? homeResolved.rating.defense : 1.0;
   const histAwayAttack = awayResolved && Number.isFinite(awayResolved.rating.attack) ? awayResolved.rating.attack : 1.0;
   const histAwayDefense = awayResolved && Number.isFinite(awayResolved.rating.defense) ? awayResolved.rating.defense : 1.0;
 
+  // Resolusi Telemetry Lokal (thestats_dataset.db) jika tersedia
+  let homeTelem = options.homeTelemetry;
+  let awayTelem = options.awayTelemetry;
+
+  if (homeTelem === undefined && divCode === "E0") {
+    const homeId = getTheStatsTeamId(options.homeTeam);
+    if (homeId) {
+      try {
+        homeTelem = getTeamRollingTelemetry(homeId, 6, options.matchDateCutoff);
+      } catch {
+        homeTelem = null;
+      }
+    }
+  }
+
+  if (awayTelem === undefined && divCode === "E0") {
+    const awayId = getTheStatsTeamId(options.awayTeam);
+    if (awayId) {
+      try {
+        awayTelem = getTeamRollingTelemetry(awayId, 6, options.matchDateCutoff);
+      } catch {
+        awayTelem = null;
+      }
+    }
+  }
+
+  // 1. Evaluasi Likelihood Home Team
+  let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
+  let liveHomeDefense = Math.max(0.6, 2.5 - liveHomeAttack);
+  let nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
+  let homeTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
+  let homeObservedXg = 0;
+
+  if (homeTelem && homeTelem.observed_xg_samples >= 3 && homeTelem.rolling_xg_for !== null) {
+    liveHomeAttack = homeTelem.rolling_xg_for / safeLeagueAvg;
+    if (homeTelem.rolling_xg_against !== null) {
+      liveHomeDefense = homeTelem.rolling_xg_against / safeLeagueAvg;
+    }
+    nHome = homeTelem.observed_xg_samples;
+    homeTelemetrySource = "thestats_observed_xg";
+    homeObservedXg = homeTelem.observed_xg_samples;
+  } else if (homeTelem && homeTelem.sample_size >= 1) {
+    liveHomeAttack = homeTelem.rolling_goals_for / safeLeagueAvg;
+    liveHomeDefense = homeTelem.rolling_goals_against / safeLeagueAvg;
+    nHome = homeTelem.sample_size;
+    homeTelemetrySource = "thestats_observed_goals";
+  }
+
+  // 2. Evaluasi Likelihood Away Team
+  let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
+  let liveAwayDefense = Math.max(0.7, 2.6 - liveAwayAttack);
+  let nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
+  let awayTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
+  let awayObservedXg = 0;
+
+  if (awayTelem && awayTelem.observed_xg_samples >= 3 && awayTelem.rolling_xg_for !== null) {
+    liveAwayAttack = awayTelem.rolling_xg_for / safeLeagueAvg;
+    if (awayTelem.rolling_xg_against !== null) {
+      liveAwayDefense = awayTelem.rolling_xg_against / safeLeagueAvg;
+    }
+    nAway = awayTelem.observed_xg_samples;
+    awayTelemetrySource = "thestats_observed_xg";
+    awayObservedXg = awayTelem.observed_xg_samples;
+  } else if (awayTelem && awayTelem.sample_size >= 1) {
+    liveAwayAttack = awayTelem.rolling_goals_for / safeLeagueAvg;
+    liveAwayDefense = awayTelem.rolling_goals_against / safeLeagueAvg;
+    nAway = awayTelem.sample_size;
+    awayTelemetrySource = "thestats_observed_goals";
+  }
+
+  // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa)
+  // kappa = 16 (standar sindikat kuantitatif untuk prior half-season)
+  const KAPPA = 16;
+  const wHome = (nHome + KAPPA) > 0 ? nHome / (nHome + KAPPA) : 0;
+  const wAway = (nAway + KAPPA) > 0 ? nAway / (nAway + KAPPA) : 0;
+
   // James-Stein Shrinkage Blend
   const calcHomeAttack = wHome * liveHomeAttack + (1 - wHome) * histHomeAttack;
-  const calcHomeDefense = wHome * Math.max(0.6, 2.5 - liveAwayAttack) + (1 - wHome) * histHomeDefense;
+  const calcHomeDefense = wHome * liveHomeDefense + (1 - wHome) * histHomeDefense;
   const calcAwayAttack = wAway * liveAwayAttack + (1 - wAway) * histAwayAttack;
-  const calcAwayDefense = wAway * Math.max(0.7, 2.6 - liveHomeAttack) + (1 - wAway) * histAwayDefense;
+  const calcAwayDefense = wAway * liveAwayDefense + (1 - wAway) * histAwayDefense;
 
   const finalHomeAttack = Number.isFinite(calcHomeAttack) ? Number(calcHomeAttack.toFixed(3)) : 1.35;
   const finalHomeDefense = Number.isFinite(calcHomeDefense) ? Number(calcHomeDefense.toFixed(3)) : 1.15;
@@ -296,6 +400,17 @@ export function getShrunkMatchParameters(options: {
       leagueName: league.leagueName,
       homeSource: homeResolved ? homeResolved.source : "fallback",
       awaySource: awayResolved ? awayResolved.source : "fallback",
+      macroPriorDate: league.calibrationDate || "2026-10-12",
+      telemetrySource: {
+        home: homeTelemetrySource,
+        away: awayTelemetrySource,
+      },
+      observedXgSamples: {
+        home: homeObservedXg,
+        away: awayObservedXg,
+      },
+      isEstimatedTelemetry: homeTelemetrySource !== "thestats_observed_xg" || awayTelemetrySource !== "thestats_observed_xg",
+      preMatchCutoff: options.matchDateCutoff,
     },
   };
 }
