@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { requireEnv } from "./llm/models";
 
 // In-Memory Cache with TTL to strictly protect the 500 requests/month quota
 interface CacheEntry<T> {
@@ -26,8 +27,8 @@ function setInCache<T>(key: string, data: T, ttlMs: number = 60 * 60 * 1000): vo
   });
 }
 
-const HOST = process.env.RAPIDAPI_1XBET_HOST || "1xbet-api.p.rapidapi.com";
-const KEY = process.env.RAPIDAPI_1XBET_KEY || "c8267e344fmsh6add4d3eaa51353p1dc5d8jsna8bca937e332";
+const HOST = requireEnv("RAPIDAPI_1XBET_HOST");
+const KEY = requireEnv("RAPIDAPI_1XBET_KEY");
 
 async function fetch1xBetRaw(endpoint: string): Promise<any> {
   const url = `https://${HOST}${endpoint}`;

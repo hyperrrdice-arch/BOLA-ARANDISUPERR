@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
+import { getNineRouterApiKey, getNineRouterBaseUrl, STATS_FETCHER } from "./llm/models";import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import {
   validateAndSanitizeMatchData,
   type VerifiedMatchIntelligence,
@@ -30,12 +30,12 @@ const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
 };
 
 const nineRouter = createOpenAI({
-  baseURL: process.env.NINE_ROUTER_BASE_URL || "http://localhost:20128/v1",
-  apiKey: process.env.NINE_ROUTER_API_KEY || "sk-7b18b5c31d5d653c-z0q24f-c3542ecc",
+  baseURL: getNineRouterBaseUrl(),
+  apiKey: getNineRouterApiKey(),
   fetch: customFetch,
 });
 
-const MODEL_DISPATCHER = process.env.MODEL_FETCHER_DISPATCHER || "bai/qwen3.8-27b";
+const MODEL_DISPATCHER = STATS_FETCHER.MODEL_DISPATCHER;
 
 export interface DispatcherDecision {
   fetch_referee: boolean;

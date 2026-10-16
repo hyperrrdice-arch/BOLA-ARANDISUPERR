@@ -174,6 +174,8 @@ export interface VerifiedMatchIntelligence {
     away_form_summary: string;
     home_goals_avg: number;
     away_goals_avg: number;
+    home_form_sample_size: number;
+    away_form_sample_size: number;
   };
   injuries: {
     is_available: boolean;
@@ -400,6 +402,9 @@ export function validateAndSanitizeMatchData(raw: {
         : "Data split tandang terbatas",
     home_goals_avg: homeGoalsAvg,
     away_goals_avg: awayGoalsAvg,
+    // Sample size sebenarnya untuk James-Stein shrinkage (BUKAN jumlah pertemuan H2H)
+    home_form_sample_size: homeMatchesAtHome.length,
+    away_form_sample_size: awayMatchesAtAway.length,
   };
 
   // 6. Validasi Cedera

@@ -74,48 +74,77 @@ export const LEAGUE_ALIAS_TO_DIV: Record<string, string> = {
   "epl": "E0",
   "english premier league": "E0",
   "england premier league": "E0",
+  "england. premier league": "E0",
   "championship": "E1",
   "english championship": "E1",
   "efl championship": "E1",
+  "england. championship": "E1",
 
   // La Liga
   "la liga": "SP1",
   "laliga": "SP1",
   "primera division": "SP1",
   "spanish la liga": "SP1",
+  "spain. la liga": "SP1",
   "segunda division": "SP2",
+  "spanish segunda division": "SP2",
+  "spain. segunda division": "SP2",
   "la liga 2": "SP2",
 
   // Serie A
   "serie a": "I1",
   "italian serie a": "I1",
   "italy serie a": "I1",
+  "italy. serie a": "I1",
   "serie b": "I2",
   "italian serie b": "I2",
+  "italy. serie b": "I2",
 
   // Bundesliga
   "bundesliga": "D1",
   "german bundesliga": "D1",
   "germany bundesliga": "D1",
+  "germany. bundesliga": "D1",
   "2. bundesliga": "D2",
   "2 bundesliga": "D2",
+  "german 2. bundesliga": "D2",
+  "germany. 2. bundesliga": "D2",
 
   // Ligue 1
   "ligue 1": "F1",
   "french ligue 1": "F1",
   "france ligue 1": "F1",
+  "france. ligue 1": "F1",
   "ligue 2": "F2",
+  "french ligue 2": "F2",
+  "france. ligue 2": "F2",
 
   // Eredivisie & Lainnya
   "eredivisie": "N1",
   "dutch eredivisie": "N1",
+  "netherlands. eredivisie": "N1",
   "primeira liga": "P1",
   "portuguese primeira liga": "P1",
+  "portugal. primeira liga": "P1",
   "pro league": "B1",
   "belgian pro league": "B1",
+  "belgian first division a": "B1",
+  "belgium. pro league": "B1",
+  "belgium. first division a": "B1",
   "scottish premiership": "SC0",
+  "scotland. premiership": "SC0",
   "super lig": "T1",
   "turkish super lig": "T1",
+  "turkey. super lig": "T1",
+
+  // Greek Super League (HATI-HATI: bedakan dari "super lig" T1 Turki)
+  "super league": "G1",
+  "greek super league": "G1",
+  "super league greece": "G1",
+  "greece. super league": "G1",
+  "greece super league": "G1",
+  "greek super league 1": "G1",
+  "super league 1 greece": "G1",
 };
 
 // Pasangan Divisi Utama & Kasta Kedua untuk penanganan tim promosi/degradasi
@@ -159,6 +188,21 @@ export function resolveDivCode(leagueHint?: string): string | null {
   const file = loadCalibratedRatings();
   if (file && file.leagues[upper]) {
     return upper;
+  }
+
+  // Format 1xBet: "<Country>. <League Name>" -> buang prefix negara lalu cek lagi
+  const dotIdx = clean.indexOf(".");
+  if (dotIdx > 0 && dotIdx < clean.length - 1) {
+    const stripped = clean.slice(dotIdx + 1).trim();
+    if (LEAGUE_ALIAS_TO_DIV[stripped]) return LEAGUE_ALIAS_TO_DIV[stripped];
+  }
+
+  // Cocokkan nama liga yang tercatat di calibrated_ratings.json (mis. "greek super league")
+  if (file) {
+    for (const [div, league] of Object.entries(file.leagues)) {
+      const leagueName = league.leagueName?.trim().toLowerCase();
+      if (leagueName && leagueName === clean) return div;
+    }
   }
 
   return null;
@@ -243,7 +287,10 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const normAway = normalizeTeamName(options.awayTeam);
 
   const ratingsData = loadCalibratedRatings();
-  const divCode = resolveDivCode(options.leagueHint) || "E0"; // Default ke EPL jika tidak dikenal
+  // JANGAN fallback ke E0: liga tak dikenal harus dilaporkan sebagai tidak terkalibrasi,
+  // bukan diam-diam memakai parameter Premier League.
+  const resolvedDiv = resolveDivCode(options.leagueHint);
+  const divCode = resolvedDiv || "UNKNOWN";
 
   // Default fallback jika data JSON tidak tersedia sama sekali
   const defaultFallback: ShrunkMatchParameters = {
@@ -258,7 +305,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     isCalibrated: false,
     metadata: {
       div: divCode,
-      leagueName: "Default League",
+      leagueName: options.leagueHint ? `Tidak terkalibrasi (${options.leagueHint})` : "Default League",
       homeSource: "fallback",
       awaySource: "fallback",
       macroPriorDate: "2026-10-12",
@@ -269,7 +316,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     },
   };
 
-  if (!ratingsData || !ratingsData.leagues[divCode]) {
+  if (!ratingsData || !resolvedDiv || !ratingsData.leagues[divCode]) {
     return defaultFallback;
   }
 
@@ -295,11 +342,13 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const histAwayAttack = awayResolved && Number.isFinite(awayResolved.rating.attack) ? awayResolved.rating.attack : 1.0;
   const histAwayDefense = awayResolved && Number.isFinite(awayResolved.rating.defense) ? awayResolved.rating.defense : 1.0;
 
-  // Resolusi Telemetry Lokal (thestats_dataset.db) jika tersedia
+  // Resolusi Telemetry Lokal (thestats_dataset.db) jika tersedia.
+  // Gate-nya hasil lookup team_id (bukan divCode): dataset yang kebetulan hanya
+  // berisi PL akan mengembalikan null untuk tim lain, dan itu sudah benar.
   let homeTelem = options.homeTelemetry;
   let awayTelem = options.awayTelemetry;
 
-  if (homeTelem === undefined && divCode === "E0") {
+  if (homeTelem === undefined) {
     const homeId = getTheStatsTeamId(options.homeTeam);
     if (homeId) {
       try {
@@ -310,7 +359,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     }
   }
 
-  if (awayTelem === undefined && divCode === "E0") {
+  if (awayTelem === undefined) {
     const awayId = getTheStatsTeamId(options.awayTeam);
     if (awayId) {
       try {
@@ -322,11 +371,20 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   }
 
   // 1. Evaluasi Likelihood Home Team
+  // SEMANTIK DEFENSE (dikunci): defense sebuah tim diestimasi dari daya gedor LAWAN,
+  // bukan dari attack-nya sendiri. Tim yang menyerang tajam tidak otomatis bertahan baik.
+  // Nilai ini hanya dipakai saat telemetry kosong; bila telemetry ada, defense di-override
+  // oleh xGA/gol kebobolan terukur di bawah.
   let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
-  let liveHomeDefense = Math.max(0.6, 2.5 - liveHomeAttack);
+  let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
+  let liveHomeDefense = Math.max(0.6, 2.5 - liveAwayAttack);
+  let liveAwayDefense = Math.max(0.7, 2.6 - liveHomeAttack);
   let nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
+  let nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
   let homeTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
+  let awayTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
   let homeObservedXg = 0;
+  let awayObservedXg = 0;
 
   if (homeTelem && homeTelem.observed_xg_samples >= 3 && homeTelem.rolling_xg_for !== null) {
     liveHomeAttack = homeTelem.rolling_xg_for / safeLeagueAvg;
@@ -343,13 +401,8 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     homeTelemetrySource = "thestats_observed_goals";
   }
 
-  // 2. Evaluasi Likelihood Away Team
-  let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
-  let liveAwayDefense = Math.max(0.7, 2.6 - liveAwayAttack);
-  let nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
-  let awayTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
-  let awayObservedXg = 0;
-
+  // 2. Evaluasi Likelihood Away Team (attack/defense/n sudah dideklarasikan di atas
+  //    agar defense dapat memakai attack lawan secara konsisten)
   if (awayTelem && awayTelem.observed_xg_samples >= 3 && awayTelem.rolling_xg_for !== null) {
     liveAwayAttack = awayTelem.rolling_xg_for / safeLeagueAvg;
     if (awayTelem.rolling_xg_against !== null) {
@@ -409,7 +462,9 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
         home: homeObservedXg,
         away: awayObservedXg,
       },
-      isEstimatedTelemetry: homeTelemetrySource !== "thestats_observed_xg" || awayTelemetrySource !== "thestats_observed_xg",
+      // "estimasi" = cuma prior/makro. thestats_observed_goals tetap data TERUKUR,
+      // hanya saja bukan xG, jadi tidak boleh ditandai estimasi.
+      isEstimatedTelemetry: homeTelemetrySource === "macro_prior_only" || awayTelemetrySource === "macro_prior_only",
       preMatchCutoff: options.matchDateCutoff,
     },
   };

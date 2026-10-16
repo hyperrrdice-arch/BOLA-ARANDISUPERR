@@ -15,6 +15,7 @@ export interface TeamRollingTelemetry {
   observed_shots_samples: number;
   observed_passes_samples: number;
   observed_aerial_samples: number;
+  observed_crosses_samples: number;
 
   // 2. Kualitas Peluang Murni (NULL jika data tidak tersedia di raw)
   rolling_xg_for: number | null;
@@ -42,6 +43,11 @@ export interface TeamRollingTelemetry {
   avg_pass_accuracy_pct: number | null;
   avg_crosses_accurate_for: number | null;
   avg_aerial_duels_pct_for: number | null;
+  // CATATAN SEMANTIK: aerial_duels_pct_for + ground_duels_pct_for = duels_won_pct_for.
+  // Jadi aerial_duels_pct_for adalah JUMLAH duel udara yang dimenangkan (bukan persentase
+  // dan bukan win-rate udara). Rasio aerial_share dihitung di konsumen.
+  avg_duels_won_pct_for: number | null;
+  avg_ground_duels_pct_for: number | null;
 
   // 6. Bertahan & Disiplin
   avg_tackles_for: number | null;
@@ -129,6 +135,7 @@ export function getTeamRollingTelemetry(
       observed_shots_samples: 0,
       observed_passes_samples: 0,
       observed_aerial_samples: 0,
+      observed_crosses_samples: 0,
       rolling_xg_for: null,
       rolling_xg_against: null,
       rolling_npxg_for: null,
@@ -148,6 +155,8 @@ export function getTeamRollingTelemetry(
       avg_pass_accuracy_pct: null,
       avg_crosses_accurate_for: null,
       avg_aerial_duels_pct_for: null,
+      avg_duels_won_pct_for: null,
+      avg_ground_duels_pct_for: null,
       avg_tackles_for: null,
       avg_corners_for: null,
       avg_fouls_committed: null,
@@ -180,6 +189,8 @@ export function getTeamRollingTelemetry(
   let sumPassPct = 0;
   let sumCrossesAcc = 0, countCrosses = 0;
   let sumAerialPct = 0, countAerial = 0;
+  let sumDuelsWon = 0, countDuelsWon = 0;
+  let sumGroundPct = 0, countGround = 0;
   let sumTacklesFor = 0, countTackles = 0;
   let sumCornersFor = 0, countCorners = 0;
   let sumFouls = 0, countFouls = 0;
@@ -250,6 +261,16 @@ export function getTeamRollingTelemetry(
       countAerial++;
     }
 
+    if (log.duels_won_pct_for !== null && log.duels_won_pct_for !== undefined) {
+      sumDuelsWon += log.duels_won_pct_for;
+      countDuelsWon++;
+    }
+
+    if (log.ground_duels_pct_for !== null && log.ground_duels_pct_for !== undefined) {
+      sumGroundPct += log.ground_duels_pct_for;
+      countGround++;
+    }
+
     if (log.tackles_for !== null && log.tackles_for !== undefined) {
       sumTacklesFor += log.tackles_for;
       countTackles++;
@@ -278,6 +299,7 @@ export function getTeamRollingTelemetry(
     observed_shots_samples: countShots,
     observed_passes_samples: countPasses,
     observed_aerial_samples: countAerial,
+    observed_crosses_samples: countCrosses,
 
     // Rata-rata terukur (NULL jika 0 sampel observed)
     rolling_xg_for: countXg > 0 ? Number((sumXgFor / countXg).toFixed(2)) : null,
@@ -302,6 +324,8 @@ export function getTeamRollingTelemetry(
     avg_pass_accuracy_pct: countPasses > 0 ? Number((sumPassPct / countPasses).toFixed(1)) : null,
     avg_crosses_accurate_for: countCrosses > 0 ? Number((sumCrossesAcc / countCrosses).toFixed(1)) : null,
     avg_aerial_duels_pct_for: countAerial > 0 ? Number((sumAerialPct / countAerial).toFixed(1)) : null,
+    avg_duels_won_pct_for: countDuelsWon > 0 ? Number((sumDuelsWon / countDuelsWon).toFixed(1)) : null,
+    avg_ground_duels_pct_for: countGround > 0 ? Number((sumGroundPct / countGround).toFixed(1)) : null,
 
     avg_tackles_for: countTackles > 0 ? Number((sumTacklesFor / countTackles).toFixed(1)) : null,
     avg_corners_for: countCorners > 0 ? Number((sumCornersFor / countCorners).toFixed(1)) : null,

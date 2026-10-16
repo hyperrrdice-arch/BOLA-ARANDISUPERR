@@ -65,15 +65,17 @@ export interface SyndicateDebateResult {
   };
 }
 
-const BASE_URL = process.env.NINE_ROUTER_BASE_URL || "http://localhost:20128/v1";
-const API_KEY = process.env.NINE_ROUTER_API_KEY || "sk-7b18b5c31d5d653c-z0q24f-c3542ecc";
+import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
 
-const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "bai/glm-5.3-flash";
-const MODEL_BULL = process.env.MODEL_BULL || "bai/glm-5.3-flash";
-const MODEL_NEUTRAL = process.env.MODEL_NEUTRAL || "bai/qwen3.8-flash";
-const MODEL_BEAR = process.env.MODEL_BEAR || "bai/deepseek-v4.1-flash";
-const MODEL_JUDGEMENT_1 = process.env.MODEL_JUDGEMENT_1 || "ag/gemini-3.8-flash-high";
-const MODEL_JUDGEMENT_2 = process.env.MODEL_JUDGEMENT_2 || "bai/qwen3.8-flash";
+const BASE_URL = getNineRouterBaseUrl();
+const API_KEY = getNineRouterApiKey();
+
+const MODEL_DEFAULT = SYNDICATE.MODEL_DEFAULT;
+const MODEL_BULL = SYNDICATE.MODEL_BULL;
+const MODEL_NEUTRAL = SYNDICATE.MODEL_NEUTRAL;
+const MODEL_BEAR = SYNDICATE.MODEL_BEAR;
+const MODEL_JUDGEMENT_1 = SYNDICATE.MODEL_JUDGEMENT_1;
+const MODEL_JUDGEMENT_2 = SYNDICATE.MODEL_JUDGEMENT_2;
 
 /**
  * Resilient HTTP Native Fetcher untuk 9Router
@@ -232,8 +234,10 @@ export async function orchestrate5AgentSyndicate(params: {
     ? `Bursa Live (${intel.market_odds.bookmaker || "Pasar"}): Home=${intel.market_odds.home_last} | Draw=${intel.market_odds.draw_last} | Away=${intel.market_odds.away_last} | O2.5=${intel.market_odds.total_goals_over_2_5 || "N/A"}`
     : "Bursa odds pasar belum tersedia";
 
-  const shinStr = quantPackage?.shin_vig
-    ? `Shin Vig-Stripping: Fair Home=${quantPackage.shin_vig.fair_odds?.home} | Draw=${quantPackage.shin_vig.fair_odds?.draw} | Away=${quantPackage.shin_vig.fair_odds?.away} (Margin Bandar: ${quantPackage.shin_vig.margin_percentage?.toFixed(1)}%)`
+  // CATATAN: key di quantPackage adalah `vig_stripping` (lihat route.tsx).
+  const vigData = quantPackage?.vig_stripping ?? quantPackage?.shin_vig;
+  const shinStr = vigData
+    ? `Shin Vig-Stripping: Fair Home=${vigData.fair_odds?.home} | Draw=${vigData.fair_odds?.draw} | Away=${vigData.fair_odds?.away} (Margin Bandar: ${(vigData.margin_percentage ?? 0).toFixed(1)}%)`
     : "";
 
   const dc = quantPackage?.dixon_coles;
@@ -254,9 +258,13 @@ export async function orchestrate5AgentSyndicate(params: {
   const specialMarketsStr = sm ? (
     `\nDATA PASAR KHUSUS (SPECIAL MARKETS THESTATSAPI DATASET):\n` +
     `- Pasar Headed Goal: P(Gol Sundulan >= 1)=${Math.round(sm.headed_goal.prob_at_least_one_header * 100)}% (Fair Odds Yes=${sm.headed_goal.fair_odds_yes} vs No=${sm.headed_goal.fair_odds_no}) | Status: ${sm.headed_goal.confidence_tier} (Sampel: ${sm.headed_goal.observed_aerial_samples.home} kandang, ${sm.headed_goal.observed_aerial_samples.away} tamu)\n` +
-    `- Pasar Corners: Total Ekspektasi=${sm.corners.expected_total_corners} | Over 9.5=${Math.round(sm.corners.over_9_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_9_5}) | Over 10.5=${Math.round(sm.corners.over_10_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_10_5})\n` +
-    `- Pasar Kartu: Total Ekspektasi=${sm.cards.expected_total_cards} | Over 3.5 Cards=${Math.round(sm.cards.over_3_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_3_5}) | Over 4.5 Cards=${Math.round(sm.cards.over_4_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_4_5})\n` +
-    (sm.passing_dominance?.home_expected_passes ? `- Distribusi Passing: Kandang=${sm.passing_dominance.home_expected_passes} vs Tamu=${sm.passing_dominance.away_expected_passes} akurat/laga\n` : "")
+    `- Pasar Corners: Total Ekspektasi=${sm.corners.expected_total_corners} | Over 9.5=${Math.round(sm.corners.over_9_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_9_5}) | Over 10.5=${Math.round(sm.corners.over_10_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_10_5}) | Status: ${sm.corners.confidence_tier}${sm.corners.is_estimated ? " (ESTIMASI: pakai rata-rata liga, bukan data terukur)" : ""}\n` +
+    `- Pasar Kartu: Total Ekspektasi=${sm.cards.expected_total_cards} | Over 3.5 Cards=${Math.round(sm.cards.over_3_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_3_5}) | Over 4.5 Cards=${Math.round(sm.cards.over_4_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_4_5}) | Status: ${sm.cards.confidence_tier}${sm.cards.is_estimated ? " (ESTIMASI: pakai rata-rata liga, bukan data terukur)" : ""}\n` +
+    (sm.passing_dominance?.home_expected_passes ? `- Distribusi Passing: Kandang=${sm.passing_dominance.home_expected_passes} vs Tamu=${sm.passing_dominance.away_expected_passes} akurat/laga\n` : "") +
+    `PERINGATAN PASAR KHUSUS: Angka di atas HANYA fair odds model, BUKAN rekomendasi value. ` +
+    `Odds pasar 1xBet untuk pasar ini TIDAK tersedia di payload ini, jadi Expected Value (EV) tidak dapat dihitung. ` +
+    `DILARANG mengklaim pasar khusus ini punya "+EV", "edge", atau "value". ` +
+    `Sebut sebagai konteks probabilitas saja, dan prioritaskan rekomendasi hanya pada pasar yang memang tercantum di daftar EV di bawah.\n`
   ) : "";
 
   const matchContext =

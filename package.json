@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "sync:weekly": "npx tsx scripts/sync-weekly-telemetry.ts",
+    "ingest:multileague": "npx tsx scripts/ingest-rich-telemetry-multileague.ts",
     "backup:v1.3": "node scripts/create_backup_v1_3.js",
     "restore:v1.3": "node scripts/restore_v1_3.js",
     "backup:v1.2": "node scripts/create_backup_v1_2.js",

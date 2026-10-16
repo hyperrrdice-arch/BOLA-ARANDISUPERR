@@ -318,9 +318,11 @@ export async function GET(req: Request) {
   const awayTeamName = intel.pertandingan.tim_tamu;
   const leagueName = intel.pertandingan.kompetisi;
 
-  const sampleN = intel.h2h_history?.sample_size
-    ? Math.max(3, Math.min(10, intel.h2h_history.sample_size))
-    : 5;
+  // Sample size untuk James-Stein shrinkage harus dari JUMLAH LAGA FORM tim itu,
+  // bukan jumlah pertemuan head-to-head. Kalau data form tidak tersedia,
+  // pakai 0 (jujur) supaya bobot shrinkage jatuh ke prior makro.
+  const homeSampleN = Math.max(0, intel.form_split.home_form_sample_size || 0);
+  const awaySampleN = Math.max(0, intel.form_split.away_form_sample_size || 0);
 
   const homeTelem = getTeamRollingTelemetry(homeTeamName, 6, today);
   const awayTelem = getTeamRollingTelemetry(awayTeamName, 6, today);
@@ -331,8 +333,8 @@ export async function GET(req: Request) {
     leagueHint: leagueName,
     liveHomeFormGoalsAvg: intel.form_split.home_goals_avg,
     liveAwayFormGoalsAvg: intel.form_split.away_goals_avg,
-    homeSampleN: sampleN,
-    awaySampleN: sampleN,
+    homeSampleN,
+    awaySampleN,
     homeTelemetry: homeTelem.sample_size > 0 ? homeTelem : undefined,
     awayTelemetry: awayTelem.sample_size > 0 ? awayTelem : undefined,
     matchDateCutoff: today,
@@ -447,7 +449,9 @@ export async function GET(req: Request) {
     `2. DILARANG MENGARANG LAPORAN CEDERA: Hanya kutip cedera yang tercatat di 'injuries'. Jika kosong, tulis 'Tidak ada laporan cedera resmi'.\n` +
     `3. DILARANG MENGARANG SKOR MASA LALU: Hanya kutip rekor H2H dari 'h2h_history.recent_meetings'. Jika kosong, sebut 'Data H2H resmi belum tersedia'.\n` +
     `4. WAJIB SELARAS DENGAN QUANT ENGINE: Nilai xG (${dcOutput.lambda} vs ${dcOutput.mu}) dan probabilitas murni telah dihitung secara matematis. Dilarang bertentangan dengan angka ini.\n` +
-    `5. KONSISTENSI DATA HILANG: Setiap poin dalam 'missing_data_registry' wajib dimasukkan ke array 'data_tidak_tersedia'.\n\n` +
+    `5. KONSISTENSI DATA HILANG: Setiap poin dalam 'missing_data_registry' wajib dimasukkan ke array 'data_tidak_tersedia'.\n` +
+    `6. PASAR KHUSUS BUKAN REKOMENDASI VALUE: Jika ada 'special_markets' di payload (headed goal/corners/cards), itu HANYA fair odds model. Odds bandar untuk pasar tersebut TIDAK tersedia, jadi EV tidak dapat dihitung. Dilarang mengklaim pasar khusus punya "+EV", "edge", atau "value". Yang boleh dinilai +EV hanya pasar di 'value_bets'.\n` +
+    `7. STATUS ESTIMASI WAJIB DIHORMATI: Jika sebuah pasar bertanda is_estimated=true atau confidence_tier INSUFFICIENT_DATA/LOW, jangan sajikan sebagai angka terukur. Sebutkan sebagai estimasi berbasis rata-rata liga.\n\n` +
     `ARSITEKTUR DEBAT:\n` +
     `- Bull Analyst (${MODEL_BULL}): Membangun tesis kemenangan berbasis momentum & xG kuantitatif.\n` +
     `- Bear Auditor (${MODEL_BEAR}): Menguji tesis Bull, mencari peringatan trap line bandar & kelelahan.\n` +
