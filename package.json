@@ -8,14 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "sync:weekly": "npx tsx scripts/sync-weekly-telemetry.ts",
-    "ingest:multileague": "npx tsx scripts/ingest-rich-telemetry-multileague.ts",
-    "backup:v1.3": "node scripts/create_backup_v1_3.js",
-    "restore:v1.3": "node scripts/restore_v1_3.js",
-    "backup:v1.2": "node scripts/create_backup_v1_2.js",
-    "restore:v1.2": "node scripts/restore_v1_2.js",
-    "backup:v1.1": "node scripts/create_backup_v1_1.js",
-    "restore:v1.1": "node scripts/restore_v1_1.js",
-    "restore:v1": "node scripts/restore_v1.js"
+    "ingest:multileague": "npx tsx scripts/ingest-rich-telemetry-multileague.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.93",
