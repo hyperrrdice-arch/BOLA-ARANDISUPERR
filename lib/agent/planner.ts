@@ -534,9 +534,22 @@ ATURAN MUTLAK CLOSED-WORLD:
 - DILARANG menyebut pemain yang tidak ada di data tool.
 - Jika tool mengembalikan {error}, perbaiki urutan pemanggilan — jangan mengarang hasilnya.`;
 
+export interface PlannerLoopStepTiming {
+  /** Wall-clock satu step = panggilan model planner + eksekusi tool milik step itu. */
+  ms: number;
+  /** Jumlah tool yang dieksekusi di step ini (0 = step model murni, biasanya step terakhir). */
+  tools: number;
+}
+
 export interface PlannerLoopResult {
   text: string;
   stepCount: number;
+  /**
+   * Durasi per step loop (plan-perf-2 Task 3). Menjawab pertanyaan "sisa waktu yang
+   * tidak teratribusi ke tool itu ada di mana": step dengan `tools: 0` atau
+   * `ms` jauh di atas durasi tool-nya = biaya model planner, bukan biaya tool.
+   */
+  stepTimings: PlannerLoopStepTiming[];
 }
 
 /**
@@ -552,6 +565,8 @@ export async function runPlannerLoop(params: {
   abortSignal?: AbortSignal;
 }): Promise<PlannerLoopResult> {
   const maxSteps = params.maxSteps ?? (Number(process.env.PLANNER_MAX_STEPS) || 8);
+  const stepTimings: PlannerLoopStepTiming[] = [];
+  let stepStartedAt = 0;
   const res = await generateText({
     model: nineRouter.chat(PLANNER.MODEL_PLANNER),
     system: params.systemPrompt ?? PLANNER_SYSTEM_PROMPT,
@@ -560,8 +575,18 @@ export async function runPlannerLoop(params: {
     stopWhen: stepCountIs(maxSteps),
     temperature: 0.2,
     abortSignal: params.abortSignal,
+    // onStepStart jalan SEBELUM provider dipanggil, onStepFinish sesudah tool step itu selesai.
+    onStepStart: () => {
+      stepStartedAt = Date.now();
+    },
+    onStepFinish: (step) => {
+      stepTimings.push({
+        ms: Date.now() - (stepStartedAt || Date.now()),
+        tools: step.toolCalls?.length ?? 0,
+      });
+    },
   });
-  return { text: res.text, stepCount: res.steps.length };
+  return { text: res.text, stepCount: res.steps.length, stepTimings };
 }
 
 export interface PlannerResult {
@@ -585,15 +610,28 @@ export async function runPlannerAnalysis(params: {
     (params.competitionIdHint ? ` (hint kompetisi: ${params.competitionIdHint})` : "") +
     `.\nRencanakan analisis, eksekusi tool yang diperlukan, lalu tutup dengan stop_with_verdict.`;
 
-  await runPlannerLoop({ tools, userPrompt, abortSignal: params.signal });
+  const loopStartedAt = Date.now();
+  const loop = await runPlannerLoop({ tools, userPrompt, abortSignal: params.signal });
+  const loopMs = Date.now() - loopStartedAt;
 
   const coverage = evaluateCoverage(state);
+
+  // Atribusi penutup (plan-perf-2 Task 3): pisahkan waktu eksekusi TOOL dari waktu
+  // model planner + overhead antar-step. Sebelumnya selisih ini cuma "sisa" yang
+  // tidak terjelaskan; sekarang jadi angka bernama.
+  const toolMs = state.traceSteps.reduce((acc, s) => acc + (s.durasi_ms ?? 0), 0);
 
   return {
     trace: {
       steps: state.traceSteps,
       stop_reason: state.verdict ? "verdict" : "max_steps",
       gaps_remaining: coverage.gaps,
+      planner: {
+        loop_ms: loopMs,
+        tool_ms: toolMs,
+        planner_overhead_ms: Math.max(0, loopMs - toolMs),
+        step_timings: loop.stepTimings,
+      },
     },
     verdict: state.verdict,
     coverage,

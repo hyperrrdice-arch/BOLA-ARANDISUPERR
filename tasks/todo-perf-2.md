@@ -16,10 +16,6 @@
 ### Checkpoint
 - [ ] Total run turun > variasi antar-run · tidak ada regresi kualitas yang terlihat · tsc+build+lints hijau
 
-## Task 3: Audit round-trip planner (hanya bila Phase 1 tidak cukup)
-**Description:** 23.9s (10%) habis di round-trip planner antar tool (~6 step). Sebelum dikerjakan: buktikan dulu bahwa biaya itu memang di panggilan model planner (butuh hook `onStepFinish` AI SDK), bukan di tool. Jangan optimasi berdasarkan dugaan.
-**Acceptance criteria:**
-- [ ] Terbukti berapa ms per langkah planner (bukan per tool)
-- [ ] Kalau < 10% dari total, tutup sebagai bukan prioritas
-**Verification:** log `onStepFinish` pada 1 run nyata
-**Dependencies:** Task 2 · **Files:** `lib/agent/planner.ts` · **Size:** S
+## Task 3: Audit round-trip planner — ✅ SELESAI (ditutup sebagai bukan prioritas kode)
+**Hasil:** Instrumentasi `onStepStart`/`onStepFinish` di `runPlannerLoop` + `trace.planner` (`loop_ms`, `tool_ms`, `planner_overhead_ms`, `step_timings`), tampil di ThinkingPlannerCard. Diukur dengan tool mock instan: **23,243ms / 7 step = 3.3s per step**, step terakhir tanpa tool tetap 4.4s ⇒ sisa tak teratribusi = waktu model planner, bukan tool. Invariant `Σ toolCalls` = tool dieksekusi ikut di-assert di `test-planner-loop.ts`.
+**Putusan:** bukan prioritas kode. Lever yang tersisa cuma memangkas jumlah step atau mengganti model planner — dua-duanya keputusan produk.

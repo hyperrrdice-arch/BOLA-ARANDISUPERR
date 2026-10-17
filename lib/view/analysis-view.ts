@@ -181,6 +181,16 @@ export const ThinkingViewSchema = z.object({
   steps: z.array(ThinkingStepSchema),
   stop_reason: z.string(),
   durasi_ms: z.number().nullable().optional(),
+  /** Atribusi waktu loop: total, waktu tool, dan sisa (model planner + overhead antar-step). */
+  planner: z
+    .object({
+      loop_ms: z.number(),
+      tool_ms: z.number(),
+      planner_overhead_ms: z.number(),
+      step_timings: z.array(z.object({ ms: z.number(), tools: z.number() })),
+    })
+    .nullable()
+    .optional(),
 });
 
 export const AnalysisViewSchema = z.object({
@@ -499,6 +509,7 @@ export function mapPipelineToView(input: {
     }),
     stop_reason: plannerTrace?.stop_reason || "verdict",
     durasi_ms: durationMs ?? null,
+    planner: (plannerTrace as { planner?: z.infer<typeof ThinkingViewSchema>["planner"] })?.planner ?? null,
   };
 
   // 7. HASIL VIEW-MODEL LENGKAP

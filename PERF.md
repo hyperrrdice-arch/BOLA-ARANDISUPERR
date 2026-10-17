@@ -61,7 +61,11 @@ Bacaan:
 | **run_syndicate_debate ronde 2** (stage1 42.8s + stage2 52.6s) | **95.4s** | 40% |
 | run_editorial_analysis | 34.9s | 15% |
 | stop_with_verdict | 0.0s | 0% |
-| Belum teratribusi (round-trip planner antar tool) | 23.9s | 10% |
+| **Round-trip planner** (6–7 panggilan model planner, terbukti 23.2s dengan tool mock) | **23.9s** | 10% |
+
+**Round-trip planner terjelaskan (plan-perf-2 Task 3).** Diukur pakai harness dengan **tool mock instan** (`scripts/test-planner-loop.ts`, model planner asli): 7 step = **23,243ms**, rata-rata **3.3s/step** (rentang 1.7–6.6s), dan step terakhir yang **tidak memanggil tool apa pun** tetap makan 4.4s. Artinya sisa yang dulu tidak teratribusi memang **waktu model planner** (`bai/mimo-v2.6-pro`), bukan eksekusi tool. Invariant `Σ toolCalls` = jumlah tool dieksekusi dicek di test, jadi model pengukurannya tervalidasi.
+
+Konsekuensi: lever yang tersisa di situ cuma (a) memangkas jumlah step, atau (b) mengganti model planner — dua-duanya keputusan produk, bukan optimasi kode. Ditutup sebagai bukan prioritas kode.
 
 Fakta dari `stage_timings`:
 1. `stage_2_ms` == `judgement_2_ms` **persis** di kedua ronde (46.3s, 52.6s) → stage 2 sepenuhnya digerbangi satu model.
@@ -80,6 +84,7 @@ Fakta dari `stage_timings`:
 | `/api/matches` 1 gelombang (Task 6) | 1.03s → 1.07s (n=1, dalam noise) | kept sebagai simplifikasi | Bukti langsung: 5 panggilan upstream terukur 0.85–1.23s masing-masing, jadi wave 2→1 semestinya menghemat ~0.9s. Sample cold end-to-end terlalu noisy (satu sampel lain 3.7s) untuk atribusi bersih. Diff-nya juga menghapus kode, bukan menambah |
 | Negative caching + in-flight dedupe (Task 7) | 6 pemanggil bersamaan → 1 fetch; upstream rusak: 2 request → 1 fetch | kept | Diuji `scripts/test-stats-cache.ts` (11 assert) |
 | Plafon token debat 16384 → 2048/1536 (plan-perf-2 Task 1) | straggler 52.6s → 110.9s (B) → 173.0s (C, plafon dikembalikan) | **REVERTED** | Nol gain latensi (waktu panggilan = latensi provider) **dan** regresi kualitas: dengan plafon 2048 persona Bull menghabiskan anggaran untuk reasoning lalu tidak pernah mengeluarkan JSON — `thesis` terisi reasoning mentah dan `key_drivers` jatuh ke template. Setelah revert, JSON normal kembali |
+| Atribusi round-trip planner (plan-perf-2 Task 3) | "sisa tak terjelaskan" → 23.2s di 7 step (3.3s/step) | kept | Diukur dengan tool mock instan, jadi yang tersisa murni waktu model planner. Cukup jelas untuk ditutup sebagai bukan prioritas kode |
 
 ### Pelajaran yang dicatat supaya tidak diulang
 

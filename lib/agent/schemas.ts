@@ -240,6 +240,18 @@ export const PlannerTraceSchema = z.object({
   ),
   stop_reason: z.enum(["verdict", "max_steps", "error"]),
   gaps_remaining: z.array(z.string()),
+  /**
+   * Atribusi waktu loop (plan-perf-2 Task 3): pisahkan waktu tool vs waktu model planner.
+   * `planner_overhead_ms` = sisa yang bukan eksekusi tool (model planner + serialisasi antar-step).
+   */
+  planner: z
+    .object({
+      loop_ms: z.number(),
+      tool_ms: z.number(),
+      planner_overhead_ms: z.number(),
+      step_timings: z.array(z.object({ ms: z.number(), tools: z.number() })),
+    })
+    .optional(),
 });
 
 export type PlannerTrace = z.infer<typeof PlannerTraceSchema>;

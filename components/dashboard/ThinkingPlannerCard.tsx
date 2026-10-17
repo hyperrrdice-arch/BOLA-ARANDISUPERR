@@ -9,7 +9,7 @@ interface ThinkingPlannerCardProps {
 }
 
 export function ThinkingPlannerCard({ thinking }: ThinkingPlannerCardProps) {
-  const { steps, stop_reason, durasi_ms } = thinking;
+  const { steps, stop_reason, durasi_ms, planner } = thinking;
 
   if (!steps || steps.length === 0) return null;
 
@@ -97,6 +97,20 @@ export function ThinkingPlannerCard({ thinking }: ThinkingPlannerCardProps) {
         Loop otonom planner — tiap langkah: alasan memilih tool, hasil evaluasi coverage oleh CODE,
         dan trigger machine-verifiable yang memicu re-plan. Tanpa karangan: apa adanya dari trace.
       </p>
+
+      {planner && (
+        <p className="text-[11px] text-[#737373] font-sans tabular-nums">
+          Waktu loop {(planner.loop_ms / 1000).toFixed(1)}s = tool {(planner.tool_ms / 1000).toFixed(1)}s +
+          planner {(planner.planner_overhead_ms / 1000).toFixed(1)}s
+          {planner.step_timings.length > 0 && (
+            <>
+              {" "}
+              ({planner.step_timings.length} step, rata-rata planner{" "}
+              {(planner.planner_overhead_ms / 1000 / planner.step_timings.length).toFixed(1)}s/step)
+            </>
+          )}
+        </p>
+      )}
 
       <div className="space-y-2 pt-1">{openSteps.map(renderStep)}</div>
 

@@ -250,6 +250,16 @@ const fixtureTrace = PlannerTraceSchema.parse({
   ],
   stop_reason: "verdict",
   gaps_remaining: ["lineups"],
+  planner: {
+    loop_ms: 238000,
+    tool_ms: 214100,
+    planner_overhead_ms: 23900,
+    step_timings: [
+      { ms: 2986, tools: 1 },
+      { ms: 1749, tools: 1 },
+      { ms: 4395, tools: 0 },
+    ],
+  },
 });
 
 // ============================================================================
@@ -342,6 +352,10 @@ assert(view.thinking.stop_reason === "verdict", "stop_reason benar");
 assert(view.thinking.steps[0].durasi_ms === 1250, "durasi_ms per step terpetakan");
 assert(view.thinking.steps[2].stage_timings?.stage_2_ms === 36000, "stage_timings debat terpetakan");
 assert(view.thinking.steps[3].stage_timings === null, "step tanpa stage_timings jadi null (bukan karangan)");
+// Atribusi waktu loop (plan-perf-2 Task 3): tool vs model planner harus lewat apa adanya.
+assert(view.thinking.planner?.planner_overhead_ms === 23900, "planner_overhead_ms terpetakan");
+assert(view.thinking.planner?.step_timings.length === 3, "step_timings terpetakan");
+assert(view.thinking.planner?.step_timings[2].tools === 0, "step tanpa tool tetap tercatat");
 
 console.log("DEBAT & RINGKASAN:");
 assert(view.debat.persona.length === 4, "4 persona (Bull, Bear, Arbiter; Neutral opsional)");

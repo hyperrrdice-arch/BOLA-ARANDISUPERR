@@ -103,7 +103,7 @@ async function main() {
     }),
   };
 
-  const { stepCount } = await runPlannerLoop({
+  const { stepCount, stepTimings } = await runPlannerLoop({
     tools: mockTools,
     systemPrompt: PLANNER_SYSTEM_PROMPT,
     userPrompt:
@@ -120,6 +120,21 @@ async function main() {
   assert(dipanggil[dipanggil.length - 1] === "stop_with_verdict", "stop_with_verdict adalah panggilan terakhir");
   assert(verdictDiterima !== null, "verdict lolos VerdictInputSchema");
   assert(stepCount <= 8, `stepCount ${stepCount} <= 8`);
+
+  // ATRIBUSI WAKTU LOOP (plan-perf-2 Task 3). Tool di test ini MOCK alias instan, jadi
+  // waktu step = waktu model planner + overhead antar-step. Ini yang membuktikan "sisa"
+  // yang dulu tak terjelaskan memang ada di panggilan model planner, bukan di tool.
+  const totalStepMs = stepTimings.reduce((acc, s) => acc + s.ms, 0);
+  console.log(`\nAtribusi waktu loop (tool mock = instan):`);
+  stepTimings.forEach((s, i) => console.log(`  step ${i + 1}: ${s.ms}ms (${s.tools} tool)`));
+  console.log(`  total ${totalStepMs}ms / ${stepTimings.length} step`);
+  assert(stepTimings.length === stepCount, "step_timings sepanjang stepCount");
+  assert(stepTimings.every((s) => Number.isFinite(s.ms) && s.ms >= 0), "durasi tiap step terukur");
+  assert(totalStepMs > 0, "instrumentasi aktif (total waktu step > 0)");
+  assert(
+    stepTimings.reduce((acc, s) => acc + s.tools, 0) === dipanggil.length,
+    `jumlah tool di step (${stepTimings.reduce((a, s) => a + s.tools, 0)}) = jumlah tool dieksekusi (${dipanggil.length})`
+  );
 
   // Self-check coverage evaluator (code-side, tanpa LLM)
   const { createRunState } = await import("../lib/agent/planner");
