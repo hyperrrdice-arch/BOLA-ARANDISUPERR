@@ -1,9 +1,15 @@
 import { getStatsCacheMetrics } from "@/lib/stats-cache";
 import { runPlannerAnalysis, type PlannerResult } from "@/lib/agent/planner";
 import { AnalysisSchema } from "@/lib/agent/schemas";
-import { mapPipelineToView } from "@/lib/view/analysis-view";
+import { mapPipelineToView, type AnalysisView } from "@/lib/view/analysis-view";
 import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-limit";
-import { getFreshAnalysisRun, saveAnalysisRun } from "@/lib/db/thestats-dataset";
+import {
+  getFreshSnapshot,
+  insertSnapshot,
+  deriveMarketKey,
+} from "@/lib/db/analysis-snapshot";
+import { PLANNER } from "@/lib/llm/models";
+import appPkg from "../../../package.json";
 
 /** Window staleness cache hasil analisis (ms). Percobaan ulang dalam window ini dilayani dari DB. */
 const ANALYSIS_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -24,35 +30,109 @@ const ANALYSIS_CACHE_TTL_MS = 10 * 60 * 1000;
  */
 
 // =========================================================================
-// RIWAYAT ANALISIS (cache + korpus backtest)
+// SNAPSHOT ANALISIS (cache + riwayat permanen — kontrak DB SNAPSHOT.md)
 // =========================================================================
 /**
- * Tulis hasil analisis ke SQLite. Baris tidak pernah dihapus.
- * Gagal tulis TIDAK boleh menggagalkan response analisis yang sudah jadi.
+ * Tulis satu snapshot analisis (append-only) + kolom ringkas dari pipeline
+ * state. `view_json` tetap sumber kebenaran; kolom ringkas hanya untuk
+ * query/agregasi cepat. Gagal tulis TIDAK boleh menggagalkan response.
  */
-function persistAnalysisRun(args: {
+function persistSnapshot(args: {
   matchId: string;
   competitionIdHint: string;
-  intel: { pertandingan?: { tim_kandang?: string; tim_tamu?: string } } | undefined;
+  view: AnalysisView;
   durationMs: number;
-  view: unknown;
-  trace: unknown;
   signal?: AbortSignal;
+  intel: { pertandingan?: { tim_kandang?: string; tim_tamu?: string; waktu?: string; kompetisi?: string } } | undefined;
+  dcOutput: {
+    lambda: number;
+    mu: number;
+    expected_total_goals: number;
+    prob_home_win: number;
+    prob_draw: number;
+    prob_away_win: number;
+    fair_odds: { home: number; draw: number; away: number };
+    over_under: { line_2_5: { over: number } };
+    btts: { yes: number };
+  } | undefined;
+  valueBets: Array<{
+    market_name: string;
+    selection: string;
+    bookmaker_odds: number;
+    fair_odds: number;
+    expected_value: number;
+    ev_percentage: string;
+    is_positive_ev: boolean;
+    recommended_stake_percentage: number | null;
+  }>;
+  syndicateDebate: {
+    is_fabricated_fallback?: boolean;
+    dual_judgement?: { judgement_1?: { model?: string }; judgement_2?: { model?: string } };
+  } | undefined;
+  trace: unknown;
+  isFallback: boolean;
 }): void {
-  // Run yang dibatalkan client bisa saja berhenti di tengah: jangan simpan hasil separuh jadi.
+  // Penjaga abort: cek SEBELUM insert — run yang dibatalkan client tidak
+  // boleh meninggalkan snapshot hasil separuh jadi.
   if (args.signal?.aborted) return;
   try {
-    saveAnalysisRun({
+    const topEv =
+      args.valueBets.find((vb) => vb.is_positive_ev) ||
+      (args.valueBets.length > 0 ? args.valueBets[0] : null);
+    const homeTeam = args.intel?.pertandingan?.tim_kandang ?? null;
+    const awayTeam = args.intel?.pertandingan?.tim_tamu ?? null;
+    const dj = args.syndicateDebate?.dual_judgement;
+    const syndicateModels =
+      dj?.judgement_1?.model && dj?.judgement_2?.model
+        ? `${dj.judgement_1.model} + ${dj.judgement_2.model}`
+        : null;
+
+    insertSnapshot({
       match_id: args.matchId,
-      competition_id_hint: args.competitionIdHint,
-      home_team: args.intel?.pertandingan?.tim_kandang ?? null,
-      away_team: args.intel?.pertandingan?.tim_tamu ?? null,
+      competition_name: args.intel?.pertandingan?.kompetisi ?? null,
+      home_team: homeTeam,
+      away_team: awayTeam,
+      // ISO UTC dari TheStatsAPI (intel.pertandingan.waktu = match.utc_date).
+      kickoff_utc: args.intel?.pertandingan?.waktu ?? null,
+      cache_key_hint: args.competitionIdHint,
+      verdict: args.view.ringkasan.verdict ?? null,
+      confidence: args.view.ringkasan.keyakinan ?? null,
+      recommended_market: topEv ? `${topEv.market_name} — ${topEv.selection}` : null,
+      recommended_market_key: topEv
+        ? deriveMarketKey(topEv.market_name, topEv.selection, homeTeam, awayTeam)
+        : null,
+      recommended_odds: topEv?.bookmaker_odds ?? null,
+      recommended_ev_pct: topEv ? topEv.expected_value * 100 : null,
+      stake_pct: topEv?.recommended_stake_percentage ?? null,
+      prob_home: args.dcOutput?.prob_home_win ?? null,
+      prob_draw: args.dcOutput?.prob_draw ?? null,
+      prob_away: args.dcOutput?.prob_away_win ?? null,
+      fair_odds_home: args.dcOutput?.fair_odds?.home ?? null,
+      fair_odds_draw: args.dcOutput?.fair_odds?.draw ?? null,
+      fair_odds_away: args.dcOutput?.fair_odds?.away ?? null,
+      lambda_home: args.dcOutput?.lambda ?? null,
+      mu_away: args.dcOutput?.mu ?? null,
+      expected_total_goals: args.dcOutput?.expected_total_goals ?? null,
+      prob_btts: args.dcOutput?.btts?.yes ?? null,
+      prob_over_2_5: args.dcOutput?.over_under?.line_2_5?.over ?? null,
+      // Sumber evaluasi menyeluruh: SEMUA market, termasuk EV negatif.
+      value_bets_json: args.valueBets.length > 0 ? JSON.stringify(args.valueBets) : null,
+      planner_model: PLANNER.MODEL_PLANNER,
+      syndicate_models: syndicateModels,
+      // ponytail: editorial_model NULL — modelUsed editorial cuma hidup di tool
+      // result planner (tidak dijangkau dari state); isi kalau backtest butuh
+      // atribusi editorial.
+      editorial_model: null,
+      app_version: appPkg.version,
+      is_grounded: args.syndicateDebate?.is_fabricated_fallback ? 0 : 1,
+      is_fallback: args.isFallback ? 1 : 0,
       duration_ms: args.durationMs,
       view_json: JSON.stringify(args.view),
-      planner_trace_json: JSON.stringify(args.trace),
+      // plannerTrace utuh + atribusi per stage (loop_ms/tool_ms/overhead/step_timings).
+      trace_json: JSON.stringify(args.trace),
     });
   } catch (err) {
-    console.warn("[api/agent] Simpan riwayat analisis gagal (response tetap dikembalikan):", err);
+    console.warn("[api/agent] Simpan snapshot analisis gagal (response tetap dikembalikan):", err);
   }
 }
 
@@ -94,12 +174,12 @@ export async function GET(req: Request) {
   const cacheKeyHint = competitionIdHint ?? "";
   if (!isDebug) {
     try {
-      const cached = getFreshAnalysisRun(matchId, cacheKeyHint, ANALYSIS_CACHE_TTL_MS);
+      const cached = getFreshSnapshot(matchId, cacheKeyHint, ANALYSIS_CACHE_TTL_MS);
       if (cached) {
         return Response.json(JSON.parse(cached.view_json) as unknown, {
           headers: {
             "x-analysis-cache": "hit",
-            "x-analysis-cached-at": cached.created_at,
+            "x-analysis-cached-at": cached.captured_utc,
           },
         });
       }
@@ -203,14 +283,18 @@ export async function GET(req: Request) {
       plannerTrace: trace,
       durationMs,
     });
-    persistAnalysisRun({
+    persistSnapshot({
       matchId,
       competitionIdHint: cacheKeyHint,
-      intel,
-      durationMs,
       view: viewData,
-      trace,
+      durationMs,
       signal: req.signal,
+      intel,
+      dcOutput,
+      valueBets: quantPackage?.value_bets ?? [],
+      syndicateDebate,
+      trace,
+      isFallback: false,
     });
     return freshViewResponse(viewData);
   }
@@ -337,14 +421,18 @@ export async function GET(req: Request) {
     plannerTrace: trace,
     durationMs,
   });
-  persistAnalysisRun({
+  persistSnapshot({
     matchId,
     competitionIdHint: cacheKeyHint,
-    intel,
-    durationMs,
     view: viewData,
-    trace,
+    durationMs,
     signal: req.signal,
+    intel,
+    dcOutput,
+    valueBets: quantPackage?.value_bets ?? [],
+    syndicateDebate,
+    trace,
+    isFallback: true,
   });
   return freshViewResponse(viewData);
 }

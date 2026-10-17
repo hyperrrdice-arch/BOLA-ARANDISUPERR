@@ -641,3 +641,43 @@ export function getOutcome(matchId: string): Record<string, unknown> | null {
   const row = db.prepare("SELECT * FROM match_outcomes WHERE match_id = ?").get(matchId);
   return (row as Record<string, unknown>) ?? null;
 }
+
+// ============================================================================
+// KONVENSI MARKET KEY (longgar)
+// ============================================================================
+
+/**
+ * Turunkan market key dari (market_name, selection) pada value_bets.
+ * MIRROR dari CASE `v_snapshot_eval_market` — kalau aturan diubah, ubah
+ * KEDUA sisi. Market di luar konvensi tetap dapat key (string ternormalisasi,
+ * TIDAK dipaksa NONE); pemetaan hasilnya tetap NULL di VIEW (belum dipetakan).
+ */
+export function deriveMarketKey(
+  marketName: string | null | undefined,
+  selection: string | null | undefined,
+  homeTeam?: string | null,
+  awayTeam?: string | null
+): string | null {
+  if (!marketName || !selection) return null;
+  const m = marketName.trim();
+  const sel = selection.trim();
+
+  if (m === "1X2") {
+    if (homeTeam && sel === `${homeTeam} Menang`) return "1X2_HOME";
+    if (sel === "Hasil Imbang (Draw)") return "1X2_DRAW";
+    if (awayTeam && sel === `${awayTeam} Menang`) return "1X2_AWAY";
+  } else if (m === "Over/Under 2.5") {
+    if (/^Over/i.test(sel)) return "O25";
+    if (/^Under/i.test(sel)) return "U25";
+  } else if (m === "Both Teams to Score") {
+    if (/Yes$/i.test(sel)) return "BTTS_YES";
+    if (/No$/i.test(sel)) return "BTTS_NO";
+  } else if (m.includes("DNB")) {
+    if (homeTeam && sel === `${homeTeam} Draw No Bet`) return "AH_DNB_HOME";
+    if (awayTeam && sel === `${awayTeam} Draw No Bet`) return "AH_DNB_AWAY";
+  }
+  return `${m} ${sel}`
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}

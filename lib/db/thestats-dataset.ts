@@ -349,23 +349,6 @@ export function getTheStatsDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_squad_team ON team_squads(team_id);
     CREATE INDEX IF NOT EXISTS idx_matches_comp_season ON matches(competition_id, season);
     CREATE INDEX IF NOT EXISTS idx_matches_date ON matches(utc_date DESC);
-
-    -- Cache + riwayat hasil analisis /api/agent (plan-perf Task 2).
-    -- Dipakai ganda: TTL baca 10 menit untuk cache, dan baris TIDAK dihapus sebagai korpus backtest.
-    CREATE TABLE IF NOT EXISTS analysis_runs (
-      run_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      match_id TEXT NOT NULL,
-      competition_id_hint TEXT NOT NULL DEFAULT '',
-      home_team TEXT,
-      away_team TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      duration_ms INTEGER,
-      view_json TEXT NOT NULL,
-      planner_trace_json TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_analysis_runs_lookup
-      ON analysis_runs(match_id, competition_id_hint, run_id DESC);
   `);
 
   dbInstance = db;
@@ -540,75 +523,11 @@ export function getDatabaseMetrics() {
 }
 
 // ============================================================================
-// CACHE + RIWAYAT ANALISIS (/api/agent) — plan-perf Task 2
+// CATATAN: tabel `analysis_runs` (cache + riwayat analisis) PINDAH ke
+// `data/analysis_snapshots.db` pada DB SNAPSHOT T2b. Riwayat analisis tidak
+// boleh hidup di DB dataset yang boleh di-refresh/DELETE — lihat
+// `lib/db/analysis-snapshot.ts` + `scripts/migrate-analysis-runs.ts`.
 // ============================================================================
-
-export interface AnalysisRunRow {
-  match_id: string;
-  competition_id_hint: string;
-  home_team?: string | null;
-  away_team?: string | null;
-  duration_ms?: number | null;
-  view_json: string;
-  planner_trace_json?: string | null;
-}
-
-/**
- * Simpan satu hasil analisis. Baris TIDAK pernah dihapus: dipakai ganda sebagai
- * cache (dibaca dalam window TTL) dan korpus backtest di kemudian hari.
- */
-export function saveAnalysisRun(row: AnalysisRunRow): void {
-  const db = getTheStatsDb();
-  db.prepare(`
-    INSERT INTO analysis_runs (
-      match_id, competition_id_hint, home_team, away_team, duration_ms, view_json, planner_trace_json
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    row.match_id,
-    row.competition_id_hint,
-    row.home_team ?? null,
-    row.away_team ?? null,
-    row.duration_ms ?? null,
-    row.view_json,
-    row.planner_trace_json ?? null
-  );
-}
-
-/**
- * Ambil hasil analisis terbaru yang masih segar untuk match + hint kompetisi ini.
- * Freshness dihitung di sisi SQLite (`datetime('now')`) supaya tidak ada mismatch
- * timezone/clock antara JS dan DB.
- */
-export function getFreshAnalysisRun(
-  matchId: string,
-  competitionIdHint: string,
-  maxAgeMs: number
-): { view_json: string; duration_ms: number | null; created_at: string } | null {
-  const db = getTheStatsDb();
-  const window = `-${Math.max(0, maxAgeMs) / 60000} minutes`;
-  const row = db.prepare(`
-    SELECT view_json, duration_ms, created_at
-    FROM analysis_runs
-    WHERE match_id = ? AND competition_id_hint = ? AND created_at >= datetime('now', ?)
-    ORDER BY run_id DESC
-    LIMIT 1
-  `).get(matchId, competitionIdHint, window) as
-    | { view_json: string; duration_ms: number | null; created_at: string }
-    | undefined;
-  return row ?? null;
-}
-
-/** Baseline pertumbuhan riwayat analisis (plan-perf Task 8). */
-export function getAnalysisRunMetrics(): { runsCount: number; bytes: number } {
-  const db = getTheStatsDb();
-  const row = db.prepare(`
-    SELECT
-      count(*) AS runs,
-      COALESCE(SUM(LENGTH(view_json) + COALESCE(LENGTH(planner_trace_json), 0)), 0) AS bytes
-    FROM analysis_runs
-  `).get() as { runs: number; bytes: number } | undefined;
-  return { runsCount: row?.runs ?? 0, bytes: row?.bytes ?? 0 };
-}
 
 /**
  * Helper internal untuk me-resolve ID tim baik dari team_id maupun nama tim
