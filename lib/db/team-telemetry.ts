@@ -219,17 +219,17 @@ export function getTeamRollingTelemetry(
 
   // Akumulator observed metrics (HANYA dijumlah jika NOT NULL)
   let sumXgFor = 0, countXg = 0;
-  let sumXgAgainst = 0;
+  let sumXgAgainst = 0, countXgAgainst = 0;
   let sumNpxgFor = 0, countNpxg = 0;
-  let sumNpxgAgainst = 0;
+  let sumNpxgAgainst = 0, countNpxgAgainst = 0;
   let sumPossession = 0, countPossession = 0;
   let sumShotsFor = 0, countShots = 0;
-  let sumShotsOnTargetFor = 0;
+  let sumShotsOnTargetFor = 0, countShotsOnTarget = 0;
   let sumShotsInBoxFor = 0, countShotsInBox = 0;
   let sumBigChancesFor = 0, countBigChances = 0;
   let sumBoxTouchesFor = 0, countBoxTouches = 0;
   let sumPassesAcc = 0, countPasses = 0;
-  let sumPassPct = 0;
+  let sumPassPct = 0, countPassPct = 0;
   let sumCrossesAcc = 0, countCrosses = 0;
   let sumAerialPct = 0, countAerial = 0;
   let sumDuelsWon = 0, countDuelsWon = 0;
@@ -255,18 +255,25 @@ export function getTeamRollingTelemetry(
       }
     }
 
-    // Observed xG dengan penskalaan normalisasi kompetisi
+    // Observed xG dengan penskalaan normalisasi kompetisi.
+    // Sisi for/against dihitung dengan counter terpisah: data absen TIDAK
+    // di-imputasi 0 — rata-rata jujur, sample size mengecil dengan sendirinya.
     if (log.xg_for !== null && log.xg_for !== undefined) {
       sumXgFor += log.xg_for * xgWeight;
-      sumXgAgainst += (log.xg_against ?? 0) * xgWeight;
       countXg++;
     }
+    if (log.xg_against !== null && log.xg_against !== undefined) {
+      sumXgAgainst += log.xg_against * xgWeight;
+      countXgAgainst++;
+    }
 
-    // Observed npxG dengan penskalaan normalisasi kompetisi
     if (log.npxg_for !== null && log.npxg_for !== undefined) {
       sumNpxgFor += log.npxg_for * xgWeight;
-      sumNpxgAgainst += (log.npxg_against ?? 0) * xgWeight;
       countNpxg++;
+    }
+    if (log.npxg_against !== null && log.npxg_against !== undefined) {
+      sumNpxgAgainst += log.npxg_against * xgWeight;
+      countNpxgAgainst++;
     }
 
     // Observed Possession
@@ -278,8 +285,11 @@ export function getTeamRollingTelemetry(
     // Observed Shots
     if (log.shots_for !== null && log.shots_for !== undefined) {
       sumShotsFor += log.shots_for;
-      sumShotsOnTargetFor += log.shots_on_target_for ?? 0;
       countShots++;
+    }
+    if (log.shots_on_target_for !== null && log.shots_on_target_for !== undefined) {
+      sumShotsOnTargetFor += log.shots_on_target_for;
+      countShotsOnTarget++;
     }
 
     if (log.shots_inside_box_for !== null && log.shots_inside_box_for !== undefined) {
@@ -299,8 +309,11 @@ export function getTeamRollingTelemetry(
 
     if (log.passes_accurate_for !== null && log.passes_accurate_for !== undefined) {
       sumPassesAcc += log.passes_accurate_for;
-      sumPassPct += log.pass_accuracy_pct_for ?? 0;
       countPasses++;
+    }
+    if (log.pass_accuracy_pct_for !== null && log.pass_accuracy_pct_for !== undefined) {
+      sumPassPct += log.pass_accuracy_pct_for;
+      countPassPct++;
     }
 
     if (log.accurate_crosses_for !== null && log.accurate_crosses_for !== undefined) {
@@ -355,9 +368,9 @@ export function getTeamRollingTelemetry(
 
     // Rata-rata terukur (NULL jika 0 sampel observed)
     rolling_xg_for: countXg > 0 ? Number((sumXgFor / countXg).toFixed(2)) : null,
-    rolling_xg_against: countXg > 0 ? Number((sumXgAgainst / countXg).toFixed(2)) : null,
+    rolling_xg_against: countXgAgainst > 0 ? Number((sumXgAgainst / countXgAgainst).toFixed(2)) : null,
     rolling_npxg_for: countNpxg > 0 ? Number((sumNpxgFor / countNpxg).toFixed(2)) : null,
-    rolling_npxg_against: countNpxg > 0 ? Number((sumNpxgAgainst / countNpxg).toFixed(2)) : null,
+    rolling_npxg_against: countNpxgAgainst > 0 ? Number((sumNpxgAgainst / countNpxgAgainst).toFixed(2)) : null,
 
     rolling_goals_for: Number((totalGoalsFor / n).toFixed(2)),
     rolling_goals_against: Number((totalGoalsAgainst / n).toFixed(2)),
@@ -367,13 +380,13 @@ export function getTeamRollingTelemetry(
 
     avg_possession_pct: countPossession > 0 ? Number((sumPossession / countPossession).toFixed(1)) : null,
     avg_shots_for: countShots > 0 ? Number((sumShotsFor / countShots).toFixed(1)) : null,
-    avg_shots_on_target_for: countShots > 0 ? Number((sumShotsOnTargetFor / countShots).toFixed(1)) : null,
+    avg_shots_on_target_for: countShotsOnTarget > 0 ? Number((sumShotsOnTargetFor / countShotsOnTarget).toFixed(1)) : null,
     avg_shots_inside_box_for: countShotsInBox > 0 ? Number((sumShotsInBoxFor / countShotsInBox).toFixed(1)) : null,
     avg_big_chances_for: countBigChances > 0 ? Number((sumBigChancesFor / countBigChances).toFixed(1)) : null,
     avg_box_touches_for: countBoxTouches > 0 ? Number((sumBoxTouchesFor / countBoxTouches).toFixed(1)) : null,
 
     avg_passes_accurate_for: countPasses > 0 ? Math.round(sumPassesAcc / countPasses) : null,
-    avg_pass_accuracy_pct: countPasses > 0 ? Number((sumPassPct / countPasses).toFixed(1)) : null,
+    avg_pass_accuracy_pct: countPassPct > 0 ? Number((sumPassPct / countPassPct).toFixed(1)) : null,
     avg_crosses_accurate_for: countCrosses > 0 ? Number((sumCrossesAcc / countCrosses).toFixed(1)) : null,
     avg_aerial_duels_pct_for: countAerial > 0 ? Number((sumAerialPct / countAerial).toFixed(1)) : null,
     avg_duels_won_pct_for: countDuelsWon > 0 ? Number((sumDuelsWon / countDuelsWon).toFixed(1)) : null,
