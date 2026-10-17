@@ -369,20 +369,25 @@ export function validateAndSanitizeMatchData(raw: {
   const homeMatchesAtHome = homeRecentMatches.filter((m: any) => m?.home_team?.id === homeTeamId);
   const awayMatchesAtAway = awayRecentMatches.filter((m: any) => m?.away_team?.id === awayTeamId);
 
+  // Hanya laga dengan skor tervalidasi yang masuk rata-rata. Jangan imputasi 1.5/1.2
+  // untuk laga tanpa skor — biarkan sample n yang menyusut menyerap ketiadaan data.
+  const homeScored = homeMatchesAtHome.filter((m: any) => Number.isFinite(m.score?.regulation?.home));
+  const awayScored = awayMatchesAtAway.filter((m: any) => Number.isFinite(m.score?.regulation?.away));
+
   const homeGoalsAvg =
-    homeMatchesAtHome.length > 0
+    homeScored.length > 0
       ? Math.round(
-          (homeMatchesAtHome.reduce((acc: number, m: any) => acc + (m.score?.regulation?.home ?? 1.5), 0) /
-            homeMatchesAtHome.length) *
+          (homeScored.reduce((acc: number, m: any) => acc + m.score.regulation.home, 0) /
+            homeScored.length) *
             100
         ) / 100
       : 1.6;
 
   const awayGoalsAvg =
-    awayMatchesAtAway.length > 0
+    awayScored.length > 0
       ? Math.round(
-          (awayMatchesAtAway.reduce((acc: number, m: any) => acc + (m.score?.regulation?.away ?? 1.2), 0) /
-            awayMatchesAtAway.length) *
+          (awayScored.reduce((acc: number, m: any) => acc + m.score.regulation.away, 0) /
+            awayScored.length) *
             100
         ) / 100
       : 1.25;
@@ -402,9 +407,9 @@ export function validateAndSanitizeMatchData(raw: {
         : "Data split tandang terbatas",
     home_goals_avg: homeGoalsAvg,
     away_goals_avg: awayGoalsAvg,
-    // Sample size sebenarnya untuk James-Stein shrinkage (BUKAN jumlah pertemuan H2H)
-    home_form_sample_size: homeMatchesAtHome.length,
-    away_form_sample_size: awayMatchesAtAway.length,
+    // Sample size = laga BERSKOR tervalidasi (bukan seluruh laga) → bobot shrinkage lihat n yang jujur
+    home_form_sample_size: homeScored.length,
+    away_form_sample_size: awayScored.length,
   };
 
   // 6. Validasi Cedera

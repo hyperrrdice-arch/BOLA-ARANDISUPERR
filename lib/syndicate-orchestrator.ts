@@ -15,6 +15,8 @@ export interface BullCase {
   thesis: string;
   key_drivers: string[];
   tactical_edge: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
 }
 
 export interface NeutralCase {
@@ -22,6 +24,8 @@ export interface NeutralCase {
   thesis: string;
   empirical_drivers: string[];
   equilibrium_assessment: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
 }
 
 export interface BearCase {
@@ -29,6 +33,8 @@ export interface BearCase {
   thesis: string;
   trap_warnings: string[];
   vulnerability_audit: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
 }
 
 export interface SingleJudgement {
@@ -39,6 +45,8 @@ export interface SingleJudgement {
   recommended_market: string;
   key_reasoning?: string;
   alternative_perspective?: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
 }
 
 export interface DualJudgement {
@@ -63,6 +71,8 @@ export interface SyndicateDebateResult {
     recommended_market: string;
     recommended_stake_fraction: string;
   };
+  /** true = ada bagian yang diisi template fallback, bukan output model asli. */
+  is_fabricated_fallback?: boolean;
 }
 
 import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
@@ -195,20 +205,24 @@ async function call9RouterDirect(
 }
 
 /**
- * Ekstraksi JSON aman dari respons teks LLM
+ * Ekstraksi JSON aman dari respons teks LLM.
+ * `usedFallback: true` = konten hasil parse gagal → objek fallback (berisi template).
  */
-function safeExtractJSON<T>(text: string, fallback: T): T {
+function safeExtractJSON<T>(text: string, fallback: T): { data: T; usedFallback: boolean } {
   try {
     const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as T;
+      return { data: JSON.parse(jsonMatch[0]) as T, usedFallback: false };
     }
-    return fallback;
+    return { data: fallback, usedFallback: true };
   } catch {
-    return fallback;
+    return { data: fallback, usedFallback: true };
   }
 }
+
+// Penanda jujur untuk konten template degradasi, agar UI bisa membedakan dari output model asli.
+const FALLBACK_PREFIX = "[Template fallback — bukan output model asli] ";
 
 /**
  * Main 5-Agent Multi-Model Orchestration Pipeline
@@ -361,45 +375,64 @@ export async function orchestrate5AgentSyndicate(params: {
   const isErrText = (t?: string) => !t || t.includes("mengalami kendala respon") || t.length < 20;
 
   const defaultBullThesis = "Peluang ofensif menguntungkan tuan rumah dengan momentum xG yang solid.";
-  const bullParsed = safeExtractJSON<Partial<BullCase>>(bullRaw.text, {
+  const { data: bullParsed, usedFallback: bullParseFailed } = safeExtractJSON<Partial<BullCase>>(bullRaw.text, {
     thesis: isErrText(bullRaw.text) ? defaultBullThesis : bullRaw.text,
     key_drivers: ["Momentum xG ofensif di atas rata-rata liga", "Efisiensi ruang tembak lini depan"],
     tactical_edge: "Keunggulan duel sayap dan transisi cepat",
   });
 
   const defaultNeutralThesis = "Distribusi statistik menunjukkan ekuilibrium harga pasar yang proporsional.";
-  const neutralParsed = safeExtractJSON<Partial<NeutralCase>>(neutralRaw.text, {
+  const { data: neutralParsed, usedFallback: neutralParseFailed } = safeExtractJSON<Partial<NeutralCase>>(neutralRaw.text, {
     thesis: isErrText(neutralRaw.text) ? defaultNeutralThesis : neutralRaw.text,
     empirical_drivers: ["Keseimbangan probabilitas wajar Poisson", "Regresi performa kandang vs tandang"],
     equilibrium_assessment: "Margin selisih xG tipis mengindikasikan pertandingan ketat berimbang",
   });
 
   const defaultBearThesis = "Waspadai kerapuhan pertahanan transisi dan odds pasar yang overvalued.";
-  const bearParsed = safeExtractJSON<Partial<BearCase>>(bearRaw.text, {
+  const { data: bearParsed, usedFallback: bearParseFailed } = safeExtractJSON<Partial<BearCase>>(bearRaw.text, {
     thesis: isErrText(bearRaw.text) ? defaultBearThesis : bearRaw.text,
     trap_warnings: ["Harga bandar terlalu pendek untuk tim favorit", "Risiko kebobolan dari serangan balik cepat"],
     vulnerability_audit: "Konsesi xGA tinggi pada 20 menit akhir laga",
   });
 
+  // Konten template hanya boleh tampil dengan penanda jujur, tidak pernah menyamar jadi output model
+  const bullThesisIsTemplate = bullParseFailed ? isErrText(bullRaw.text) : isErrText(bullParsed.thesis);
+  const bullSubstituted =
+    bullParseFailed || bullThesisIsTemplate || !bullParsed.tactical_edge ||
+    !Array.isArray(bullParsed.key_drivers) || bullParsed.key_drivers.length === 0;
+
   const bullCase: BullCase = {
     model: bullRaw.modelUsed,
-    thesis: isErrText(bullParsed.thesis) ? defaultBullThesis : (bullParsed.thesis as string),
+    thesis: bullThesisIsTemplate ? FALLBACK_PREFIX + defaultBullThesis : (bullParsed.thesis as string),
     key_drivers: Array.isArray(bullParsed.key_drivers) && bullParsed.key_drivers.length > 0 ? bullParsed.key_drivers : ["Momentum serang aktif"],
     tactical_edge: bullParsed.tactical_edge || "Keunggulan taktis terkonfirmasi.",
+    source: bullSubstituted ? "fallback_template" : "model",
   };
+
+  const neutralThesisIsTemplate = neutralParseFailed ? isErrText(neutralRaw.text) : isErrText(neutralParsed.thesis);
+  const neutralSubstituted =
+    neutralParseFailed || neutralThesisIsTemplate || !neutralParsed.equilibrium_assessment ||
+    !Array.isArray(neutralParsed.empirical_drivers) || neutralParsed.empirical_drivers.length === 0;
 
   const neutralCase: NeutralCase = {
     model: neutralRaw.modelUsed,
-    thesis: isErrText(neutralParsed.thesis) ? defaultNeutralThesis : (neutralParsed.thesis as string),
+    thesis: neutralThesisIsTemplate ? FALLBACK_PREFIX + defaultNeutralThesis : (neutralParsed.thesis as string),
     empirical_drivers: Array.isArray(neutralParsed.empirical_drivers) && neutralParsed.empirical_drivers.length > 0 ? neutralParsed.empirical_drivers : ["Empirical balance"],
     equilibrium_assessment: neutralParsed.equilibrium_assessment || "Keseimbangan pasar wajar.",
+    source: neutralSubstituted ? "fallback_template" : "model",
   };
+
+  const bearThesisIsTemplate = bearParseFailed ? isErrText(bearRaw.text) : isErrText(bearParsed.thesis);
+  const bearSubstituted =
+    bearParseFailed || bearThesisIsTemplate || !bearParsed.vulnerability_audit ||
+    !Array.isArray(bearParsed.trap_warnings) || bearParsed.trap_warnings.length === 0;
 
   const bearCase: BearCase = {
     model: bearRaw.modelUsed,
-    thesis: isErrText(bearParsed.thesis) ? defaultBearThesis : (bearParsed.thesis as string),
+    thesis: bearThesisIsTemplate ? FALLBACK_PREFIX + defaultBearThesis : (bearParsed.thesis as string),
     trap_warnings: Array.isArray(bearParsed.trap_warnings) && bearParsed.trap_warnings.length > 0 ? bearParsed.trap_warnings : ["Waspada volatilitas odds"],
     vulnerability_audit: bearParsed.vulnerability_audit || "Audit risiko terkonfirmasi.",
+    source: bearSubstituted ? "fallback_template" : "model",
   };
 
   // STAGE 2: DUAL JUDICIAL BENCH IN PARALLEL
@@ -438,41 +471,55 @@ export async function orchestrate5AgentSyndicate(params: {
 
   const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
 
-  const j1Parsed = safeExtractJSON<Partial<SingleJudgement>>(j1Raw.text, {
-    verdict_summary: isErrText(j1Raw.text) ? "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol." : j1Raw.text,
+  const j1DefaultVerdict = "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol.";
+  const { data: j1Parsed, usedFallback: j1ParseFailed } = safeExtractJSON<Partial<SingleJudgement>>(j1Raw.text, {
+    verdict_summary: isErrText(j1Raw.text) ? j1DefaultVerdict : j1Raw.text,
     confidence_tier: "B_MODERATE",
     recommended_market: defaultRecommendedMarket,
     key_reasoning: "Peluang quant terkonfirmasi dengan deviasi harga bandar yang positif.",
   });
 
-  const j2Parsed = safeExtractJSON<Partial<SingleJudgement>>(j2Raw.text, {
-    verdict_summary: isErrText(j2Raw.text) ? "Menyetujui evaluasi risiko: hindari taruhan langsung 1X2 dan prioritaskan perlindungan modal pada garis handicap atau total gol." : j2Raw.text,
+  const j2DefaultVerdict = "Menyetujui evaluasi risiko: hindari taruhan langsung 1X2 dan prioritaskan perlindungan modal pada garis handicap atau total gol.";
+  const { data: j2Parsed, usedFallback: j2ParseFailed } = safeExtractJSON<Partial<SingleJudgement>>(j2Raw.text, {
+    verdict_summary: isErrText(j2Raw.text) ? j2DefaultVerdict : j2Raw.text,
     confidence_tier: "B_MODERATE",
     recommended_market: j1Parsed.recommended_market || defaultRecommendedMarket,
     alternative_perspective: "Pendekatan independen mengonfirmasi probabilitas selisih gol tipis.",
   });
 
-  const validateTier = (t?: string): "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID" => {
+  const validateTier = (t?: string): "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID" | undefined => {
     if (t === "A_HIGH_VALUE" || t === "B_MODERATE" || t === "C_LEAN" || t === "PASS_AVOID") return t;
-    return "B_MODERATE";
+    return undefined;
   };
+
+  const j1VerdictIsTemplate = j1ParseFailed ? isErrText(j1Raw.text) : isErrText(j1Parsed.verdict_summary);
+  const j1Substituted =
+    j1ParseFailed || j1VerdictIsTemplate || !validateTier(j1Parsed.confidence_tier) ||
+    !j1Parsed.key_reasoning || !j1Parsed.recommended_market;
 
   const judgement1: SingleJudgement = {
     model: j1Raw.modelUsed,
     title: "Chief Quantitative & Risk Arbiter",
-    verdict_summary: j1Parsed.verdict_summary || "Vonis kuantitatif selesai.",
-    confidence_tier: validateTier(j1Parsed.confidence_tier),
+    verdict_summary: j1VerdictIsTemplate ? FALLBACK_PREFIX + j1DefaultVerdict : (j1Parsed.verdict_summary as string),
+    confidence_tier: validateTier(j1Parsed.confidence_tier) ?? "B_MODERATE",
     recommended_market: j1Parsed.recommended_market || "Over 2.5 Goals",
     key_reasoning: j1Parsed.key_reasoning || "Dixon-Coles xG alignment.",
+    source: j1Substituted ? "fallback_template" : "model",
   };
+
+  const j2VerdictIsTemplate = j2ParseFailed ? isErrText(j2Raw.text) : isErrText(j2Parsed.verdict_summary);
+  const j2Substituted =
+    j2ParseFailed || j2VerdictIsTemplate || !validateTier(j2Parsed.confidence_tier) ||
+    !j2Parsed.alternative_perspective;
 
   const judgement2: SingleJudgement = {
     model: j2Raw.modelUsed,
     title: "Independent Cross-Audit Arbiter",
-    verdict_summary: j2Parsed.verdict_summary || "Vonis independen selesai.",
-    confidence_tier: validateTier(j2Parsed.confidence_tier),
+    verdict_summary: j2VerdictIsTemplate ? FALLBACK_PREFIX + j2DefaultVerdict : (j2Parsed.verdict_summary as string),
+    confidence_tier: validateTier(j2Parsed.confidence_tier) ?? "B_MODERATE",
     recommended_market: j2Parsed.recommended_market || judgement1.recommended_market,
     alternative_perspective: j2Parsed.alternative_perspective || "Verifikasi silang argumen independen.",
+    source: j2Substituted ? "fallback_template" : "model",
   };
 
   // STAGE 3: SUPREME CONSENSUS SYNTHESIS
@@ -531,6 +578,7 @@ export async function orchestrate5AgentSyndicate(params: {
     neutral_case: neutralCase,
     bear_case: bearCase,
     dual_judgement: dualJudgement,
+    is_fabricated_fallback: bullSubstituted || neutralSubstituted || bearSubstituted || j1Substituted || j2Substituted,
     arbiter_verdict: {
       model: `${judgement1.model} + ${judgement2.model}`,
       chief_risk_officer_synthesis: supremeVerdict,

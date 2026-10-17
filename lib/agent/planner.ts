@@ -114,14 +114,22 @@ export function buildQuantPackage(
   const dLast = intel.market_odds.draw_last;
   const aLast = intel.market_odds.away_last;
 
-  const vigOutput = (hLast && dLast && aLast)
-    ? stripVigShin(hLast, dLast, aLast)
-    : {
-        overround: 1.055,
-        margin_percentage: 5.5,
-        fair_odds: dcOutput.fair_odds,
-        fair_prob: { home: dcOutput.prob_home_win, draw: dcOutput.prob_draw, away: dcOutput.prob_away_win },
-      };
+  // Odds pasar rusak/absen → cabang model-only (tanpa method_used), JANGAN karang prob pasar
+  const vigOutput: QuantEngineBundle["vigOutput"] = (() => {
+    if (hLast && dLast && aLast) {
+      try {
+        return stripVigShin(hLast, dLast, aLast);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  })() ?? {
+    overround: 1.055,
+    margin_percentage: 5.5,
+    fair_odds: dcOutput.fair_odds,
+    fair_prob: { home: dcOutput.prob_home_win, draw: dcOutput.prob_draw, away: dcOutput.prob_away_win },
+  };
 
   // Evaluasi +EV & Portfolio Kelly Stake Sizing
   const rawValueBets: ValueBetEvaluation[] = [
