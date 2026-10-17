@@ -2,7 +2,7 @@
 
 Rencana penyimpanan permanen hasil analisis sebagai **data pribadi**, supaya setelah laga selesai statistik match itu bisa ditarik dan **dibandingkan dengan hasil analisisnya**.
 
-> **Status: SIAP DIKERJAKAN — dieksekusi oleh user, BUKAN oleh agent.** Dokumen ini adalah kontraknya. Agent tidak mengubah kode untuk rencana ini.
+> **Status: EKSEKUSI OLEH AGENT BACKEND — tahap per tahap, review user tiap selesai tahap.** Dokumen ini adalah kontraknya.
 
 - Asal: sesi optimasi latensi (`PERF.md`, `tasks/plan-perf.md`, `tasks/plan-perf-2.md`)
 - Keputusan user: database **baru khusus snapshot**, terpisah dari `data/thestats_dataset.db`
@@ -102,9 +102,12 @@ Turunan **per market** (semua market, bukan cuma yang direkomendasikan) diekspan
 - [ ] **T1 — DB + helper.** `data/analysis_snapshots.db`, file baru `lib/db/analysis-snapshot.ts` dengan pola `lib/db/thestats-vault.ts` (path helper, `DatabaseSync`, `PRAGMA journal_mode = WAL` + `synchronous = NORMAL`, `CREATE TABLE IF NOT EXISTS`). Isi: skema 2 tabel + VIEW + indeks, `insertSnapshot()`, `getFreshSnapshot(matchId, hint, maxAgeMs)`, `getSnapshotMetrics()`, `upsertOutcome()`, `getOutcome(matchId)`. Tambah `data/analysis_snapshots.db*` ke `.gitignore`.
   - **Acceptance:** DB dibuat, WAL aktif, skema idempotent (dibuka dua kali tidak error) · insert+lookup round-trip, hint berbeda ≠ baris yang sama · file DB tidak muncul di `git status`
   - **Verify:** `npx tsx scripts/test-snapshot-db.ts` (assert-based, `match_id` sintetis ber-prefix lalu dibersihkan) · `npx tsc --noEmit`
-- [ ] **T2 — Route menulis snapshot, pensiunkan `analysis_runs`.** `app/api/agent/route.tsx` pindah dari `saveAnalysisRun`/`getFreshAnalysisRun` → `insertSnapshot`/`getFreshSnapshot`. Kolom ringkas diisi dari view-model yang sudah ada; provenance dari trace; `recommended_market_key` dari market yang benar-benar direkomendasikan. Migrasi 2 baris lama dari `analysis_runs`, hapus jalur lama (fungsi + test), lalu `DROP TABLE analysis_runs`.
-  - **Acceptance:** run nyata 1 match → 1 baris; kolom wajib (`match_id`, `captured_utc`, `kickoff_utc`, `lead_time_minutes`, `view_json`) tidak `NULL` · `lead_time_minutes` positif untuk analisis pre-match · `recommended_market_key` terisi konvensi (bukan kosong/dipaksa `NONE` kalau marketnya dikenal) · buka ulang match sama < 50ms · `?debug=1` tetap tidak menulis · run yang di-abort tetap tidak menulis · gagal tulis tidak menggagalkan response 200 · `analysis_runs` hilang, 2 baris lamanya ada di snapshot
-  - **Verify:** run nyata via `/api/agent` · query kolom wajib · `npx tsc --noEmit` + `npm run build` · buka-tutup match: respons identik (SHA256)
+- [ ] **T2a — Route menulis snapshot.** `app/api/agent/route.tsx` pindah dari `saveAnalysisRun`/`getFreshAnalysisRun` → `insertSnapshot`/`getFreshSnapshot`. Kolom ringkas diisi dari view-model yang sudah ada; provenance dari trace; `recommended_market_key` dari market yang benar-benar direkomendasikan; `trace_json` memuat plannerTrace + atribusi per stage (`loop_ms`, `tool_ms`, `planner_overhead_ms`, `step_timings` dari perf-1 Task 1). Penjaga `req.signal.aborted` dipasang SEBELUM `insertSnapshot` (bukan sesudah).
+  - **Acceptance:** run nyata 1 match → 1 baris; kolom wajib (`match_id`, `captured_utc`, `kickoff_utc`, `lead_time_minutes`, `view_json`) tidak `NULL` · `lead_time_minutes` positif untuk analisis pre-match · `recommended_market_key` terisi konvensi (bukan kosong/dipaksa `NONE` kalau marketnya dikenal) · buka ulang match sama < 50ms · `?debug=1` tetap tidak menulis · run yang di-abort tetap tidak menulis · gagal tulis tidak menggagalkan response 200
+  - **Verify:** run nyata via `/api/agent` · query kolom wajib · buka-tutup match: respons identik (SHA256)
+- [ ] **T2b — Pensiunkan `analysis_runs`.** Migrasi 2 baris lama (Brentford, Valencia) dari `analysis_runs` → `analysis_snapshots` (`view_json` dipindah utuh; kolom ringkas boleh NULL), hapus `saveAnalysisRun`/`getFreshAnalysisRun`/`getAnalysisRunMetrics` dari `lib/db/thestats-dataset.ts`, ganti `scripts/test-analysis-cache.ts` dengan test berbasis snapshot, lalu `DROP TABLE analysis_runs`. Selama transisi TIDAK ADA dual-write — alihkan sekali, bukan dua salinan.
+  - **Acceptance:** `analysis_runs` hilang dari `thestats_dataset.db`, 2 baris lamanya ada di snapshot · `npx tsc --noEmit` + `npm run build` hijau tanpa referensi fungsi lama
+  - **Verify:** `SELECT count(*) FROM analysis_snapshots` ≥ 2 · grep `saveAnalysisRun` → nol hasil di kode produk · jalankan `scripts/test-snapshot-db.ts`
   - **Files:** `app/api/agent/route.tsx`, `lib/db/thestats-dataset.ts`, `lib/db/analysis-snapshot.ts`, `scripts/test-snapshot-db.ts`, `scripts/test-analysis-cache.ts`
 
 #### ✅ Checkpoint A
@@ -147,13 +150,13 @@ Turunan **per market** (semua market, bukan cuma yang direkomendasikan) diekspan
 
 ---
 
-## 7. Open questions (buat user)
+## 7. Open questions (closed — default diterima user, 18 Okt 2026)
 
-1. **Daftar konvensi key market** — mulai dari `1X2_HOME/DRAW/AWAY`, `BTTS_YES/NO`, `O25/U25`, `AH_DNB_HOME/AWAY`. Karena key sudah longgar, ini **tidak memblokir**: market di luar daftar tetap tersimpan dan bisa dipetakan belakangan tanpa migrasi.
-2. **Closing line** — pakai odds terakhir yang tersimpan di snapshot (harga terakhir yang kita lihat pre-match) atau fetch ulang setelah kickoff? **Rekomendasi: yang tersimpan**, dan `closing_source` mencatat asalnya.
-3. **Backup & retensi** — append-only + backup manual dulu (rekomendasi), atau langsung `VACUUM INTO` mingguan otomatis?
-4. **Pullback** — cukup CLI manual (rekomendasi, idempotent, dijalankan bareng `sync:weekly`), atau sekalian endpoint/UI tombol "tarik statistik"?
-5. **Kelola `NULL` di report** — kalau ada market yang belum dipetakan, lebih berguna mana: dihitung "belum dipetakan" di baris terpisah (rekomendasi) atau disembunyikan sampai pemetaan lengkap?
+1. **Daftar konvensi key market** — ✅ `1X2_HOME/DRAW/AWAY`, `BTTS_YES/NO`, `O25/U25`, `AH_DNB_HOME/AWAY`. Key longgar: market di luar daftar tetap tersimpan dan bisa dipetakan belakangan tanpa migrasi. Tidak memblokir.
+2. **Closing line** — ✅ Pakai odds terakhir yang tersimpan di snapshot (harga terakhir pre-match). `closing_source` mencatat asalnya.
+3. **Backup & retensi** — ✅ Append-only + backup manual dulu (`VACUUM INTO` saat dibutuhkan), otomatisasi mingguan nanti kalau korpus tumbuh.
+4. **Pullback** — ✅ CLI manual idempotent (`scripts/sync-match-outcomes.ts`), dijalankan bareng `sync:weekly`. Endpoint/UI tombol: belum.
+5. **Kelola `NULL` di report** — ✅ Market belum dipetakan ditampilkan sebagai baris "belum dipetakan" terpisah, tidak disembunyikan, tidak dihitung benar.
 
 ---
 
