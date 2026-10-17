@@ -1,112 +1,108 @@
-# Tasks: Dual-Layer SQLite Relational Database & Dixon-Coles Calibration
+# TODO — Dashboard Overhaul v2 (anti-tumpuk; lihat tasks/plan.md)
 
-## Slice 1: Database Schema & Hybrid Ingestion Pipeline
+> Prinsip revisi: tiap view = 1 elemen dominan. Yang terbuka: ringkasan + ≤5 baris bukti.
+> Sisanya (metode, turunan, tabel panjang, argumen) → terlipat, judulnya informatif.
 
-- [x] Task 1: SQLite Master Schema & Database Client (`lib/db/sqlite-master.ts`)
-  - **Description**: Membangun modul koneksi dan inisialisasi schema database SQLite menggunakan native `node:sqlite`. Tabel `matches` mencakup date, div, home_team, away_team, fthg, ftag, ftr, hthg, htag, hs, as, hst, ast, closing odds (pinnacle, bet365). Menyediakan helper query terindeks untuk lookup riwayat tim.
-  - **Acceptance criteria**:
-    - [x] Schema terbuat dengan indeks pada `(div, date)` dan `(home_team, away_team)`.
-    - [x] Mendukung idempotent creation (`CREATE TABLE IF NOT EXISTS`).
-    - [x] Fungsi upsert match mencegah duplikasi record (`INSERT OR IGNORE` / `REPLACE`).
-  - **Verification**:
-    - [x] Tests pass: Ingestion 22.394 baris berhasil tanpa duplikasi.
-    - [x] Build succeeds: `npx tsc --noEmit` lulus.
-    - [x] Manual check: Database `data/football_master.db` (7.3 MB) tercipta dan tabel terverifikasi.
-  - **Dependencies**: None
-  - **Files touched**:
-    - `lib/db/sqlite-master.ts`
-    - `lib/db/index.ts`
-    - `types/node-sqlite.d.ts`
+## Task 1: CUT MarketOddsOverviewCard
+**Description:** Hapus kartu bursa yang duplikat OddsDislocationBar, sering kosong (fallback hardcoded), dan satu-satunya kartu gelap nyasar. `pergerakan_smart_money` pindah ke OddsDislocationBar.
+**Acceptance criteria:**
+- [x] File pindah `archive/legacy-components/`, tak di-import siapapun
+- [x] `pergerakan_smart_money` tampil di OddsDislocationBar
+**Verification:** tsc + build hijau · screenshot tab Odds: info identik
+**Dependencies:** None · **Files:** app/page.tsx, OddsDislocationBar.tsx, MarketOddsOverviewCard.tsx (→archive) · **Size:** S
 
-- [x] Task 2: Team Name Resolution Engine (`lib/quant/team-normalizer.ts`)
-  - **Description**: Membangun modul normalisasi nama klub sepak bola yang memetakan variasi nama dari dataset Football-Data.co.uk dan sumber eksternal ke nama standar TheStatsAPI & 1xBet untuk 10 divisi (Top 5 Eropa + 5 Kasta Kedua).
-  - **Acceptance criteria**:
-    - [x] Memetakan minimal 50+ alias umum (misal: "Man United" -> "Manchester United", "Nott'm Forest" -> "Nottingham Forest", "Ath Madrid" -> "Atletico Madrid", "Sp Gijon" -> "Sporting Gijon").
-    - [x] Fungsi `normalizeTeamName(rawName: string): string` tahan terhadap spasi berlebih, aksen (diakritik), dan variasi kapitalisasi.
-  - **Verification**:
-    - [x] Tests pass: 428 klub di 16 divisi dipetakan dan diuji.
-    - [x] Build succeeds: `npx tsc --noEmit` lulus.
-  - **Dependencies**: None
-  - **Files touched**:
-    - `lib/quant/team-normalizer.ts`
-    - `lib/quant/index.ts`
+## Task 2: MERGE DualThinkingConclusionCard ke SyndicateDebateCard
+**Description:** Dual bench + arbiter_verdict dirender 2× (SyndicateDebateCard Stage 2 vs DualThinkingConclusionCard). Satu renderan saja. Konten conclusion card yang unik (3 metrik sizing) pindah ke Ringkasan bila relevan.
+**Acceptance criteria:**
+- [x] Dual bench + supreme tampil tepat 1×
+- [x] File ke archive; fallback "Mode Arbiter Tunggal" tetap jalan
+**Verification:** tsc + build hijau · run nyata: debat lengkap
+**Dependencies:** None · **Files:** SyndicateDebateCard.tsx, DualThinkingConclusionCard.tsx (→archive), app/page.tsx · **Size:** M
 
-- [x] Task 3: Historical Dataset Downloader & Ingestion Script (`scripts/download-historical-data.mjs` & `scripts/ingest-historical-data.ts`)
-  - **Description**: Membuat downloader otomatis yang mengunduh dataset 4 musim (2021/22 s/d 2024/25) dari Football-Data.co.uk untuk 16 divisi ke `data/historical/raw/`, serta ingestion worker yang mem-parse file CSV dan menyimpannya ke `data/football_master.db`.
-  - **Acceptance criteria**:
-    - [x] Downloader berhasil mengambil 64 file CSV tanpa error network (Total: 9.92 MB).
-    - [x] Ingestion worker membersihkan record, menormalkan nama tim, dan memasukkan data ke SQLite.
-    - [x] Total 22.394 pertandingan berhasil di-ingest ke `data/football_master.db`.
-  - **Verification**:
-    - [x] Script run: `node scripts/download-historical-data.mjs` (64/64 OK)
-    - [x] Ingest run: `npx tsx scripts/ingest-historical-data.ts` (22.394 match OK)
-    - [x] Manual check: Database size 7.3 MB.
-  - **Dependencies**: Task 1, Task 2
-  - **Files touched**:
-    - `scripts/download-historical-data.mjs`
-    - `scripts/ingest-historical-data.ts`
-    - `data/historical/raw/*.csv`
+## Task 3: MERGE Kelly ke QuantEngine + pangkas DeepMath
+**Description:** Simulator bankroll + tabel EV/stake jadi section "Alokasi Kelly" di QuantEngineCard (default terlipat, kecuali ringkasan stake). DeepMath → panel metode terlipat ("Cara angka ini dihitung": baseline, shrinkage, DC, Shin/Kelly + calibration_metadata), ≤150 baris, tanpa angka yang mengulang QuantEngine.
+**Acceptance criteria:**
+- [x] EV/stake tampil 1× (ringkas di hero, detail di lipatan Kelly)
+- [x] DeepMath tanpa duplikat scorelines/vig/EV
+**Verification:** tsc + build hijau · nilai EV/stake sama dgn sebelum merge
+**Dependencies:** None · **Files:** QuantEngineCard.tsx, KellyMatrixCard.tsx (→archive), DeepMathEvidenceCard.tsx, app/page.tsx · **Size:** M
 
----
+## Task 4: faktor_kunci dirender 1×
+**Description:** Blok identik di page.tsx:515 & :609 → satu `FaktorKunciList` di Ringkasan.
+**Acceptance criteria:** [x] Satu komponen, dirender 1× · [x] Nol duplikasi JSX
+**Verification:** tsc + build hijau
+**Dependencies:** None · **Files:** app/page.tsx · **Size:** XS
 
-## Slice 2: Dixon-Coles MLE Calibration & Ratings Matrix Builder
+### ✅ Checkpoint Phase 1: build+tsc hijau · nol duplikat · info identik
 
-- [x] Task 4: Dixon-Coles Bivariate Poisson MLE Calibration Engine (`scripts/calibrate-ratings.ts`)
-  - **Description**: Membangun algoritma optimasi Maximum Likelihood Estimation (MLE) untuk mengestimasi parameter kekuatan serang ($\alpha_i$), bertahan ($\beta_j$), home advantage ($\gamma$), dan koreksi skor rendah ($\rho$) dengan bobot peluruhan waktu eksponensial ($\xi = 0.0035/\text{hari}$). Mengekspor hasilnya ke file `data/calibrated_ratings.json`.
-  - **Acceptance criteria**:
-    - [x] Konstrain identifiabilitas terpenuhi: mean attack = 1.0.
-    - [x] Optimasi konvergen untuk seluruh 16 divisi target.
-    - [x] Menghasilkan `data/calibrated_ratings.json` (111.6 KB, 428 klub, 16 liga).
-  - **Verification**:
-    - [x] Script run: `npx tsx scripts/calibrate-ratings.ts`
-    - [x] Output check: `data/calibrated_ratings.json` tercipta (111.6 KB).
-    - [x] Sanity check: Liverpool α=1.595, Bayern Munich α=1.930, Arsenal pertahanan terbaik β=1.175.
-  - **Dependencies**: Task 3
-  - **Files touched**:
-    - `scripts/calibrate-ratings.ts`
-    - `data/calibrated_ratings.json`
+## Task 5: Tab 5→4 + Ringkasan verdict-first
+**Description:** Tab: **Ringkasan** (default: verdict display-size + prediksi + keyakinan + faktor_kunci + DataIntegrityShield + entry on-demand markets) · **Kuantitatif** · **Odds** (TheStatsOddsComparison + OddsDislocation) · **Debat**. SidebarNav 4 tab.
+**Acceptance criteria:**
+- [x] PASS/NO BET + skor + keyakinan terbaca ≤1 layar di 1440px tanpa scroll
+- [x] Semua konten lama tercapai (≤1 klik)
+**Verification:** tsc + build hijau · run nyata: katalog → keputusan = 1 klik
+**Dependencies:** Task 2, 3, 4 · **Files:** app/page.tsx, SidebarNav.tsx, MatchHeaderCard.tsx · **Size:** M
 
-- [x] Task 5: Runtime Ratings Loader with Empirical Bayes Shrinkage (`lib/quant/ratings-loader.ts`)
-  - **Description**: Membangun modul runtime ultra-cepat yang memuat `data/calibrated_ratings.json` ke memory (<0.05 ms) dan menyediakan fungsi `getShrunkMatchParameters(...)` yang memadukan rating historis dengan form live TheStatsAPI menggunakan James-Stein shrinkage ($w_i = \frac{n_i}{n_i + 16}$).
-  - **Acceptance criteria**:
-    - [x] Waktu baca memory <3 ms cold start, <0.05 ms cached lookup.
-    - [x] Menghitung shrinkage secara presisi untuk $n_i \ge 0$.
-    - [x] Menangani tim promosi (misal Ipswich Town diuji dan berhasil dideteksi).
-    - [x] Fallback graceful jika tim atau liga tidak terdaftar di matriks.
-  - **Verification**:
-    - [x] Tests pass: `npx tsx scripts/test-ratings-loader.ts`
-    - [x] Build succeeds: `npx tsc --noEmit`
-  - **Dependencies**: Task 4
-  - **Files touched**:
-    - `lib/quant/ratings-loader.ts`
-    - `lib/quant/index.ts`
-    - `scripts/test-ratings-loader.ts`
+## Task 6: Restack Kuantitatif (anti-tumpuk)
+**Description:** Satu bintang per layar: probabilitas 1X2 + fair odds + EV teratas display-size; baris bukti ≤5 (top scorelines ringkas, margin vig, λ/μ); SISANYA terlipat: "Alokasi Kelly (simulator)" , "Cara angka ini dihitung" (DeepMath), tabel panjang ("Lihat semua pasar"). StatsAndSplitsCard → 6 blok jadi baris ringkas per blok, expandable per blok.
+**Acceptance criteria:**
+- [ ] Tab Kuantitatif: ≤1 elemen dominan + ≤5 baris bukti terbuka, sisanya accordion
+- [ ] Semua field yang tampil hari ini masih tercapai ≤1 klik dari tab ini
+- [ ] Nol informasi hilang
+**Verification:** tsc + build hijau · screenshot tab: jauh lebih lapang vs baseline `.taste-skill/inspect/` · semua lipatan terbuka benar
+**Dependencies:** Task 3 · **Files:** QuantEngineCard.tsx, DeepMathEvidenceCard.tsx, StatsAndSplitsCard.tsx · **Size:** M
 
----
+## Task 7: Restack Debat verdict-first
+**Description:** Supreme verdict + consensus besar di atas; argumen Bull/Neutral/Bear + dual bench dalam accordion per persona (judul: persona + kesimpulan 1 kalimat). Tanpa accordion, halaman debat = tembok teks.
+**Acceptance criteria:**
+- [ ] Verdict/consensus terbaca tanpa scroll; argumen terlipat per persona
+- [ ] Semua argumen tetap terbaca ≤1 klik
+**Verification:** tsc + build hijau · run nyata: debat tampil ringkas + detail terbuka
+**Dependencies:** Task 2 · **Files:** SyndicateDebateCard.tsx · **Size:** M
 
-## Slice 3: Agent Integration, Diagnostics & Verification
+## Task 8: Loading jujur + receipt plannerTrace
+**Description:** Ganti checklist statis palsu ("✓ Fase 1" selalu centang) dgn status jujur + elapsed timer + estimasi 2–7 menit. Setelah selesai: render `plannerTrace` (steps, alasan, trigger, stop_reason) sebagai kuitansi di Ringkasan (bisa terlipat per step).
+**Acceptance criteria:**
+- [ ] Nol klaim palsu saat loading · [ ] Elapsed timer jalan
+- [ ] plannerTrace tampil, trigger re-plan (FIELD_KOSONG/CONSENSUS_LEMAH/ODDS_DISLOCATION) kelihatan
+**Verification:** tsc + build hijau · run nyata: trace cocok dgn response
+**Dependencies:** Task 5 · **Files:** app/page.tsx, (baru) components/dashboard/PlannerTraceCard.tsx · **Size:** M
 
-- [x] Task 6: Live Agent Pipeline Integration (`app/api/agent/route.tsx`)
-  - **Description**: Menghubungkan `ratings-loader.ts` ke dalam pipeline evaluasi agen di `app/api/agent/route.tsx`, menggantikan heuristik ad-hoc lama dengan parameter Dixon-Coles terkalibrasi yang di-shrinkage dengan live form data.
-  - **Acceptance criteria**:
-    - [x] Intensitas gol $\lambda$ dan $\mu$ dihitung menggunakan $\alpha_i^*, \beta_j^*$ dari Empirical Bayes.
-    - [x] Home advantage $\gamma$ menggunakan parameter kalibrasi liga spesifik.
-    - [x] Tidak ada regresi pada output Shin vig-stripping, probabilitas 1X2, atau Kelly stake sizing.
-  - **Verification**:
-    - [x] Build succeeds: `npx tsc --noEmit` lulus dengan 0 error.
-  - **Dependencies**: Task 5
-  - **Files touched**:
-    - `app/api/agent/route.tsx`
+## Task 9: Payload & fetch enteng
+**Description:** (a) `/api/agent` tanpa `rawLineups` kecuali `?debug=1`; (b) cache `/api/odds` (stop re-fetch tiap tab); (c) `next/dynamic` OneXBetDeepMarketsCard (853ln).
+**Acceptance criteria:**
+- [ ] Payload default tanpa rawLineups; `?debug=1` kembali penuh
+- [ ] Buka-tutup tab Odds tanpa fetch ulang · [ ] Tab markets lazy
+**Verification:** tsc + build hijau · bandingkan ukuran response · test-planner-loop lulus
+**Dependencies:** None · **Files:** app/api/agent/route.tsx, app/page.tsx, TheStatsOddsComparisonCard.tsx, OneXBetDeepMarketsCard.tsx · **Size:** M
 
-- [x] Task 7: Comprehensive Typecheck, Diagnostics & Git Sync via `repo-manager`
-  - **Description**: Menjalankan typecheck penuh, memastikan seluruh pengujian quant lulus, dan mendelegasikan kepada subagent `repo-manager` untuk membuat commit serta push ke GitHub agar Vercel siap digunakan.
-  - **Acceptance criteria**:
-    - [x] `npx tsc --noEmit` lulus dengan 0 error.
-    - [x] Git commit bersih dibuat dengan Conventional Commits (`a19c6b9`).
-    - [x] Push ke `origin/main` berhasil dan terverifikasi di GitHub via MCP `list_commits`.
-  - **Verification**:
-    - [x] `git status` bersih (working tree clean).
-    - [x] MCP tool `list_commits` memverifikasi commit terbaru di GitHub.
-  - **Dependencies**: Task 1, 2, 3, 4, 5, 6
-  - **Files touched**:
-    - All modified files + `data/calibrated_ratings.json`
+## Task 10: Horizon 72h
+**Description:** API support `hours=72`, UI hanya 12/24/48. Tambah opsi 72h (default tetap 12).
+**Acceptance criteria:** [ ] Opsi 72h berfungsi
+**Verification:** tsc + build hijau · klik 72h di UI
+**Dependencies:** None · **Files:** FilterToolbar.tsx, app/page.tsx · **Size:** XS
+
+### ✅ Checkpoint Phase 2: run nyata · 1 elemen dominan per view · accordion OK · keputusan ≤1 layar
+
+## Task 11: Tokens & konsistensi
+**Description:** Draw direction (`--keep palette,type`). globals.css + kartu: radius 2 nilai (outer/inner), padding 1 nilai, error tone 1 resep, hapus 101 shadow statis + 204 hairline dekoratif (tabel/field asli boleh bergaris).
+**Acceptance criteria:** [ ] Shadow statis nol · [ ] Hairline hanya tabel/field · [ ] Radius/padding seragam · [ ] Deviation skill tercatat
+**Verification:** lint.mjs kategori shadow/hairline bersih · tsc + build hijau
+**Dependencies:** Task 1–7 · **Files:** app/globals.css, components/dashboard/*.tsx tersisa · **Size:** M
+
+## Task 12: Katalog, header & tipografi
+**Description:** First screen milik katalog: buang noise operator (bar status + cache stats → footer/tooltip), fix wrap header mobile, heading display-size, body 12→14/16px, micro-label uppercase (201×) → sentence case, prose lepas Geist Mono (mono data-only).
+**Acceptance criteria:**
+- [ ] 390px: header rapi, judul app tak terpotong
+- [ ] Body ≥14px · label sentence case · prose sans
+- [ ] 1440px fold: satu elemen dominan + katalog terlihat
+**Verification:** inspect.mjs ulang: body-size/small-text/micro-label/mono (data di-allow) bersih · screenshot fold direview
+**Dependencies:** Task 11 · **Files:** app/page.tsx, MatchTickerStrip.tsx, FilterToolbar.tsx, MatchCatalogView.tsx, MatchHeaderCard.tsx, globals.css · **Size:** M
+
+## Task 13: Gate + critique
+**Description:** lint + inspect final (1440/768/390), critique (references/critique.md), fix 3 masalah teratas, ulang — maks 3 ronde.
+**Acceptance criteria:** [ ] inspect tanpa FAIL (mono-data `--allow mono`) · [ ] Critique terakhir tercatat
+**Verification:** output inspect bersih · semua screenshot dilihat manual
+**Dependencies:** Task 11, 12 · **Files:** sesuai temuan · **Size:** S
+
+### ✅ Checkpoint Final: build+tsc hijau · test-planner lulus · inspect bersih · user review
