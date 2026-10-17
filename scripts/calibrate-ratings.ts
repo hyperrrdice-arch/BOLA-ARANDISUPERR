@@ -18,7 +18,7 @@ export interface LeagueCalibratedParameters {
   country: string;
   seasonCount: number;
   totalMatches: number;
-  leagueAvgGoals: number; // bar{G}
+  leagueAvgGoals: number; // bar{G} — base rate per tim per laga (hasil moment-match, bukan rata-rata mentah)
   homeAdvantage: number;  // gamma
   rho: number;            // low-score dependency parameter
   calibrationDate: string;
@@ -207,15 +207,35 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
     }
   }
 
-  // 4. Kalibrasi Rho (Grid Search atas -0.15 s/d 0.05)
+  // ── [FIX skala output — audit 2026-10-17] ──────────────────────────────────
+  // Model punya gauge freedom α→c·α, β→β/c (λ/μ tidak berubah) → cukup SATU
+  // normalisasi identifikasi. Loop di atas menormalkan KEDUANYA ke mean 1.0,
+  // jadi skala global (tingkat gol) harus dicocokkan ke momen data di output.
+  // Tanpa langkah ini, expected away goals kelebihan 9-24% di SEMUA liga
+  // (μ tidak punya penyerap skala; γ hanya menyerap sisi home).
+  // Struktur relatif α/β tidak terpengaruh — faktor global ter-normalisasi.
+  // Momen dicocokkan dengan bobot waktu yang sama seperti fit:
+  //   G_fit = Σw·y / Σw·(α_away·β_home)          → Σμ ≈ Σy (sisi away)
+  //   γ_fit = Σw·x / (G_fit·Σw·(α_home·β_away))  → Σλ ≈ Σx (sisi home)
+  let wGoalsAway = 0, wExpBaseMu = 0, wGoalsHome = 0, wExpBaseLam = 0;
+  for (const m of weightedMatches) {
+    wGoalsAway += m.w * m.y;
+    wExpBaseMu += m.w * alpha[m.away] * beta[m.home];
+    wGoalsHome += m.w * m.x;
+    wExpBaseLam += m.w * alpha[m.home] * beta[m.away];
+  }
+  const fittedG = wExpBaseMu > 0 ? wGoalsAway / wExpBaseMu : leagueAvgGoals;
+  const fittedGamma = wExpBaseLam > 0 && fittedG > 0 ? wGoalsHome / (fittedG * wExpBaseLam) : gamma;
+
+  // 4. Kalibrasi Rho (Grid Search atas -0.12 s/d 0.02)
   let bestRho = -0.04;
   let bestLogLik = -Infinity;
 
   for (let r = -0.12; r <= 0.02; r += 0.01) {
     let logLik = 0;
     for (const m of weightedMatches) {
-      const lambda = (alpha[m.home] * beta[m.away] * leagueAvgGoals) * gamma;
-      const mu = (alpha[m.away] * beta[m.home] * leagueAvgGoals);
+      const lambda = (alpha[m.home] * beta[m.away] * fittedG) * fittedGamma;
+      const mu = (alpha[m.away] * beta[m.home] * fittedG);
       const adj = tau(m.x, m.y, lambda, mu, r);
       if (adj > 0) {
         logLik += m.w * Math.log(adj);
@@ -247,8 +267,8 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
     country: meta.country,
     seasonCount: 4,
     totalMatches: matches.length,
-    leagueAvgGoals: Number(leagueAvgGoals.toFixed(3)),
-    homeAdvantage: Number(gamma.toFixed(3)),
+    leagueAvgGoals: Number(fittedG.toFixed(3)),
+    homeAdvantage: Number(fittedGamma.toFixed(3)),
     rho: bestRho,
     calibrationDate: refDate,
     teams: teamRatings,

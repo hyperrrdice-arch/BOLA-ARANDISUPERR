@@ -8,9 +8,14 @@
  *      (total ≈ leagueAvgGoals * (1 + homeAdvantage), bukan leagueAvgGoals/2)
  *   2. prob_home_win + prob_draw + prob_away_win ≈ 1
  *   3. stripVig* throw pada odds invalid (bukan karang probabilitas seragam)
+ *   4. Ratings output terkalibrasi: Σλ ≈ Σx dan Σμ ≈ Σy per liga
+ *      (guard bug double-normalization skala output, audit 2026-10-17)
  *
  * Jalankan: npx.cmd tsx scripts/test-quant-scale.ts
  */
+import fs from "node:fs";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
 import { stripVigShin, stripVigProportional, stripVigTwoWay } from "../lib/quant/vig-stripping";
 
@@ -105,6 +110,66 @@ console.log("[3] Vig stripping throw pada odds invalid");
     "fair_prob valid berjumlah ~1",
     `got ${ok.fair_prob.home + ok.fair_prob.draw + ok.fair_prob.away}`
   );
+}
+
+console.log("[4] Ratings output terkalibrasi: Σλ ≈ Σx dan Σμ ≈ Σy (weighted, per liga)");
+{
+  const ratingsPath = path.join(process.cwd(), "data", "calibrated_ratings.json");
+  const dbPath = path.join(process.cwd(), "data", "football_master.db");
+  if (!fs.existsSync(ratingsPath) || !fs.existsSync(dbPath)) {
+    failures++;
+    console.error("FAIL  data/calibrated_ratings.json atau data/football_master.db tidak ada");
+  } else {
+    const ratings = JSON.parse(fs.readFileSync(ratingsPath, "utf8")) as {
+      leagues: Record<
+        string,
+        {
+          calibrationDate: string;
+          leagueAvgGoals: number;
+          homeAdvantage: number;
+          teams: Record<string, { attack: number; defense: number }>;
+        }
+      >;
+    };
+    const db = new DatabaseSync(dbPath, { readOnly: true });
+    const XI_W = 0.0035; // sama dengan computeTimeWeight di calibrate-ratings.ts
+    let checked = 0;
+    let worst = 0;
+    for (const [div, lg] of Object.entries(ratings.leagues)) {
+      const rows = db
+        .prepare(
+          "SELECT home_team, away_team, fthg, ftag, date FROM matches WHERE div = ? AND fthg IS NOT NULL AND ftag IS NOT NULL AND date <= ?"
+        )
+        .all(div, lg.calibrationDate) as { home_team: string; away_team: string; fthg: number; ftag: number; date: string }[];
+      if (rows.length < 50) continue;
+      const G = lg.leagueAvgGoals;
+      const gam = lg.homeAdvantage;
+      const T = lg.teams;
+      let wX = 0, wY = 0, wLx = 0, wMu = 0;
+      for (const m of rows) {
+        const h = T[m.home_team];
+        const a = T[m.away_team];
+        if (!h || !a) continue;
+        const diffDays = Math.max(0, (new Date(lg.calibrationDate).getTime() - new Date(m.date).getTime()) / 86400000);
+        const w = Math.exp(-XI_W * diffDays);
+        wX += w * m.fthg;
+        wY += w * m.ftag;
+        wLx += w * G * h.attack * a.defense * gam;
+        wMu += w * G * a.attack * h.defense;
+      }
+      const errH = wX > 0 ? Math.abs(wLx / wX - 1) : 0;
+      const errA = wY > 0 ? Math.abs(wMu / wY - 1) : 0;
+      worst = Math.max(worst, errH, errA);
+      if (errH > 0.02 || errA > 0.02) {
+        failures++;
+        console.error(`FAIL  ${div}: home err ${(errH * 100).toFixed(1)}%, away err ${(errA * 100).toFixed(1)}% (> 2%)`);
+      }
+      checked++;
+    }
+    db.close();
+    assert(checked >= 10, `minimal 10 liga teraudit (got ${checked})`);
+    assert(worst <= 0.02, `seluruh liga terkalibrasi ≤ 2% (worst ${(worst * 100).toFixed(1)}%)`);
+  }
 }
 
 if (failures > 0) {

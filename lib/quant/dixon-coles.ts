@@ -11,7 +11,7 @@ export interface DixonColesInput {
   awayDefense: number; // Rasio dimensionless (mean 1.0)
   homeAdvantage?: number; // Home ground multiplier (default 1.15)
   leagueAvgGoals?: number; // League average goals per team per match (default 1.35)
-  rho?: number; // Low-score correlation parameter tau (standard: -0.13)
+  rho?: number; // Low-score correlation parameter tau (standar: -0.04..-0.05, lihat backtest0.1 §8.3)
   maxGoals?: number; // Matrix dimension limit (default 10 goals per side)
 }
 
@@ -135,7 +135,7 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
   const safeAwayDef = Number.isFinite(input.awayDefense) && input.awayDefense > 0 ? input.awayDefense : 1.0;
   const safeAwayAtk = Number.isFinite(input.awayAttack) && input.awayAttack > 0 ? input.awayAttack : 1.0;
   const safeHomeDef = Number.isFinite(input.homeDefense) && input.homeDefense > 0 ? input.homeDefense : 1.0;
-  const rho = Number.isFinite(input.rho) ? (input.rho as number) : -0.13;
+  const rho = Number.isFinite(input.rho) ? (input.rho as number) : -0.04;
   const maxGoals = Math.min(10, Math.max(5, Number.isFinite(input.maxGoals) ? (input.maxGoals as number) : 10));
 
   // Konvensi rasio: lambda = leagueAvg * attack * defense * homeAdv

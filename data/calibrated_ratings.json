@@ -1,6 +1,6 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-10-17T12:11:36.284Z",
+  "compiledAt": "2026-10-17T13:12:58.223Z",
   "totalLeagues": 16,
   "totalTeams": 483,
   "leagues": {
@@ -10,8 +10,8 @@
       "country": "Belgium",
       "seasonCount": 4,
       "totalMatches": 1619,
-      "leagueAvgGoals": 1.426,
-      "homeAdvantage": 1.091,
+      "leagueAvgGoals": 1.278,
+      "homeAdvantage": 1.217,
       "rho": -0.03,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -239,8 +239,8 @@
       "country": "Germany",
       "seasonCount": 4,
       "totalMatches": 1575,
-      "leagueAvgGoals": 1.597,
-      "homeAdvantage": 1.087,
+      "leagueAvgGoals": 1.355,
+      "homeAdvantage": 1.282,
       "rho": -0.04,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -495,8 +495,8 @@
       "country": "Germany",
       "seasonCount": 4,
       "totalMatches": 1593,
-      "leagueAvgGoals": 1.496,
-      "homeAdvantage": 1.147,
+      "leagueAvgGoals": 1.359,
+      "homeAdvantage": 1.262,
       "rho": 0,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -805,8 +805,8 @@
       "country": "England",
       "seasonCount": 4,
       "totalMatches": 1960,
-      "leagueAvgGoals": 1.464,
-      "homeAdvantage": 1.095,
+      "leagueAvgGoals": 1.328,
+      "homeAdvantage": 1.207,
       "rho": -0.11,
       "calibrationDate": "2026-10-12",
       "teams": {
@@ -1079,8 +1079,8 @@
       "country": "England",
       "seasonCount": 4,
       "totalMatches": 2879,
-      "leagueAvgGoals": 1.276,
-      "homeAdvantage": 1.169,
+      "leagueAvgGoals": 1.228,
+      "homeAdvantage": 1.214,
       "rho": -0.04,
       "calibrationDate": "2026-10-14",
       "teams": {
@@ -1488,8 +1488,8 @@
       "country": "France",
       "seasonCount": 4,
       "totalMatches": 1732,
-      "leagueAvgGoals": 1.412,
-      "homeAdvantage": 1.142,
+      "leagueAvgGoals": 1.289,
+      "homeAdvantage": 1.251,
       "rho": -0.04,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -1735,8 +1735,8 @@
       "country": "France",
       "seasonCount": 4,
       "totalMatches": 1822,
-      "leagueAvgGoals": 1.226,
-      "homeAdvantage": 1.113,
+      "leagueAvgGoals": 1.184,
+      "homeAdvantage": 1.152,
       "rho": -0.04,
       "calibrationDate": "2026-10-12",
       "teams": {
@@ -2081,8 +2081,8 @@
       "country": "Greece",
       "seasonCount": 4,
       "totalMatches": 1231,
-      "leagueAvgGoals": 1.27,
-      "homeAdvantage": 1.14,
+      "leagueAvgGoals": 1.107,
+      "homeAdvantage": 1.308,
       "rho": -0.12,
       "calibrationDate": "2026-10-12",
       "teams": {
@@ -2283,9 +2283,9 @@
       "country": "Italy",
       "seasonCount": 4,
       "totalMatches": 1960,
-      "leagueAvgGoals": 1.307,
-      "homeAdvantage": 1.055,
-      "rho": -0.01,
+      "leagueAvgGoals": 1.233,
+      "homeAdvantage": 1.118,
+      "rho": -0.02,
       "calibrationDate": "2026-10-12",
       "teams": {
         "Inter Milan": {
@@ -2539,8 +2539,8 @@
       "country": "Italy",
       "seasonCount": 4,
       "totalMatches": 1960,
-      "leagueAvgGoals": 1.24,
-      "homeAdvantage": 1.182,
+      "leagueAvgGoals": 1.149,
+      "homeAdvantage": 1.276,
       "rho": -0.09,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -2966,8 +2966,8 @@
       "country": "Netherlands",
       "seasonCount": 4,
       "totalMatches": 1602,
-      "leagueAvgGoals": 1.547,
-      "homeAdvantage": 1.091,
+      "leagueAvgGoals": 1.486,
+      "homeAdvantage": 1.136,
       "rho": -0.12,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -3204,8 +3204,8 @@
       "country": "Portugal",
       "seasonCount": 4,
       "totalMatches": 1601,
-      "leagueAvgGoals": 1.327,
-      "homeAdvantage": 1.072,
+      "leagueAvgGoals": 1.228,
+      "homeAdvantage": 1.159,
       "rho": 0.02,
       "calibrationDate": "2026-10-12",
       "teams": {
@@ -3460,8 +3460,8 @@
       "country": "Scotland",
       "seasonCount": 4,
       "totalMatches": 1188,
-      "leagueAvgGoals": 1.386,
-      "homeAdvantage": 1.1,
+      "leagueAvgGoals": 1.244,
+      "homeAdvantage": 1.226,
       "rho": 0.02,
       "calibrationDate": "2026-10-11",
       "teams": {
@@ -3599,9 +3599,9 @@
       "country": "Spain",
       "seasonCount": 4,
       "totalMatches": 1978,
-      "leagueAvgGoals": 1.307,
-      "homeAdvantage": 1.238,
-      "rho": -0.02,
+      "leagueAvgGoals": 1.19,
+      "homeAdvantage": 1.36,
+      "rho": -0.03,
       "calibrationDate": "2026-10-12",
       "teams": {
         "Valencia CF": {
@@ -3873,8 +3873,8 @@
       "country": "Spain",
       "seasonCount": 4,
       "totalMatches": 2409,
-      "leagueAvgGoals": 1.191,
-      "homeAdvantage": 1.166,
+      "leagueAvgGoals": 1.067,
+      "homeAdvantage": 1.301,
       "rho": 0.01,
       "calibrationDate": "2026-10-12",
       "teams": {
@@ -4264,9 +4264,9 @@
       "country": "Turkey",
       "seasonCount": 4,
       "totalMatches": 1813,
-      "leagueAvgGoals": 1.426,
-      "homeAdvantage": 1.122,
-      "rho": -0.08,
+      "leagueAvgGoals": 1.249,
+      "homeAdvantage": 1.281,
+      "rho": -0.09,
       "calibrationDate": "2026-10-12",
       "teams": {
         "Besiktas": {
