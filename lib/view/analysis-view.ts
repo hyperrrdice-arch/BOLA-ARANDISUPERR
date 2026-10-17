@@ -191,6 +191,9 @@ export const AnalysisViewSchema = z.object({
 
 export type AnalysisView = z.infer<typeof AnalysisViewSchema>;
 
+// Tipe bantu untuk komponen UI (tidak lagi butuh `any` di kode presentasi).
+export type AnalysisKuantitatifValueBet = z.infer<typeof ValueBetItemSchema>;
+
 // ============================================================================
 // HELPER FORMATTING — SADAR SKALA, TANPA NILAI KARANGAN
 // ============================================================================

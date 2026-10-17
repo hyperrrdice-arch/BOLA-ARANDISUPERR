@@ -43,13 +43,13 @@ const RawBookmakerSchema = z
   })
   .passthrough();
 
-function toNum(v: any): number | null {
+function toNum(v: unknown): number | null {
   if (v === null || v === undefined) return null;
   const n = typeof v === "number" ? v : parseFloat(String(v));
   return Number.isFinite(n) && n > 1.0 ? Math.round(n * 100) / 100 : null;
 }
 
-function parsePricePoint(rawPoint: any): {
+function parsePricePoint(rawPoint: unknown): {
   opening: number | null;
   last_seen: number | null;
   diff: number | null;
@@ -58,8 +58,8 @@ function parsePricePoint(rawPoint: any): {
     return { opening: null, last_seen: null, diff: null };
   }
 
-  const opening = toNum(rawPoint.opening);
-  const last_seen = toNum(rawPoint.last_seen ?? rawPoint.price ?? rawPoint.value);
+  const opening = toNum((rawPoint as Record<string, unknown>).opening);
+  const last_seen = toNum((rawPoint as Record<string, unknown>).last_seen ?? (rawPoint as Record<string, unknown>).price ?? (rawPoint as Record<string, unknown>).value);
   const effectiveOpening = opening ?? last_seen;
   const effectiveLast = last_seen ?? opening;
 
@@ -112,7 +112,9 @@ export async function GET(req: Request) {
         lowest_margin_bookmaker: null,
         timestamp: new Date().toISOString(),
         cache_metrics: getStatsCacheMetrics(),
-      } satisfies TheStatsOddsComparisonData & { cache_metrics: any });
+      } satisfies TheStatsOddsComparisonData & {
+        cache_metrics: ReturnType<typeof getStatsCacheMetrics>;
+      });
     }
 
     const rawList = Array.isArray(rawRes?.data?.bookmakers)
@@ -139,7 +141,9 @@ export async function GET(req: Request) {
         lowest_margin_bookmaker: null,
         timestamp: new Date().toISOString(),
         cache_metrics: getStatsCacheMetrics(),
-      } satisfies TheStatsOddsComparisonData & { cache_metrics: any });
+      } satisfies TheStatsOddsComparisonData & {
+        cache_metrics: ReturnType<typeof getStatsCacheMetrics>;
+      });
     }
 
     const bookmakers: BookmakerOddsComparisonItem[] = [];
@@ -276,7 +280,9 @@ export async function GET(req: Request) {
       }
     }
 
-    const payload: TheStatsOddsComparisonData & { cache_metrics: any } = {
+    const payload: TheStatsOddsComparisonData & {
+      cache_metrics: ReturnType<typeof getStatsCacheMetrics>;
+    } = {
       match_id: matchId,
       is_available: bookmakers.length > 0,
       message: bookmakers.length > 0 ? undefined : "Data belum tersedia dari TheStatsAPI",

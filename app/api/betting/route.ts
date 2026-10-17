@@ -1,7 +1,6 @@
 import { generateText } from "ai";
 import { z } from "zod";
 import { get1xBetMarketsV2, find1xBetMatch } from "@/lib/1xbet";
-import { evaluateValueBet } from "@/lib/quant";
 import { nineRouter } from "@/lib/agent/llm";
 
 // Klien 9Router tunggal: lihat lib/agent/llm.ts (customFetch non-streaming).
@@ -11,7 +10,7 @@ const MODEL_A = process.env.BETTING_MODEL_A || "bai/qwen3.8-27b";
 const MODEL_B = process.env.BETTING_MODEL_B || "bai/deepseek-v4.1-flash";
 
 // Helper regex to extract JSON
-function extractJSON(text: string): any {
+function extractJSON(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch {}
@@ -34,7 +33,7 @@ function extractJSON(text: string): any {
   return null;
 }
 
-const BettingAdviceSchema = z.object({
+export const BettingAdviceSchema = z.object({
   rekomendasi_aman: z.object({
     pasar: z.string(),
     pilihan: z.string(),
@@ -195,10 +194,12 @@ export async function POST(req: Request) {
     let consensusSummary = "Kedua model memberikan sudut pandang pasar yang berbeda.";
 
     if (resultA.success && resultB.success && resultA.data && resultB.data) {
-      const aPick = resultA.data.rekomendasi_aman?.pilihan || "";
-      const bPick = resultB.data.rekomendasi_aman?.pilihan || "";
-      const aVal = resultA.data.rekomendasi_value?.pilihan || "";
-      const bVal = resultB.data.rekomendasi_value?.pilihan || "";
+      const aData = resultA.data as Record<string, { pilihan?: string }>;
+      const bData = resultB.data as Record<string, { pilihan?: string }>;
+      const aPick = aData.rekomendasi_aman?.pilihan || "";
+      const bPick = bData.rekomendasi_aman?.pilihan || "";
+      const aVal = aData.rekomendasi_value?.pilihan || "";
+      const bVal = bData.rekomendasi_value?.pilihan || "";
 
       if (aPick === bPick || aVal === bVal) {
         consensusAgreed = true;

@@ -69,13 +69,29 @@ export async function GET(req: Request) {
     // Filter pertandingan yang kickoff-nya berada dalam rentang [sekarang, sekarang + hours]
     const leagueMap = new Map<string, { id: string; name: string; count: number }>();
 
+    // Bentuk mentah item dari TheStatsAPI (tidak tervalidasi di sini; hanya dipakai untuk mapping).
+    type RawMatch = {
+      id: string | number;
+      utc_date: string;
+      competition_id?: string | number | null;
+      competition_name?: string | null;
+      stage_name?: string | null;
+      home_team?: { id?: string | number | null; name?: string | null } | null;
+      away_team?: { id?: string | number | null; name?: string | null } | null;
+      venue?: string | null;
+      is_neutral?: boolean | null;
+      odds_available?: boolean | null;
+      xg_available?: boolean | null;
+      shotmap_available?: boolean | null;
+    };
+
     const filtered = rawMatches
-      .filter((m: any) => {
+      .filter((m: RawMatch) => {
         if (!m.utc_date) return false;
         const kickoff = new Date(m.utc_date);
         return kickoff >= now && kickoff <= maxTime;
       })
-      .map((m: any) => {
+      .map((m: RawMatch) => {
         const compId = String(m.competition_id || "");
         const compMeta = competitionMap.get(compId);
 
