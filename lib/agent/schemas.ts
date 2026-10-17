@@ -230,6 +230,8 @@ export const PlannerTraceSchema = z.object({
       action: z.string(),
       alasan: z.string(),
       trigger: z.string().nullable().optional(),
+      /** Hasil evaluator coverage (lib/agent/coverage.ts) per step — disalin dari tool result. */
+      coverage: z.any().nullable().optional(),
     })
   ),
   stop_reason: z.enum(["verdict", "max_steps", "error"]),

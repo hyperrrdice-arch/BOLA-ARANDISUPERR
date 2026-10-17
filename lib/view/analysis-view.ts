@@ -9,6 +9,12 @@ import type { PlannerTrace } from "@/lib/agent/schemas";
  * Skema data bersih yang dikirim ke frontend client.
  * Frontend bertindak sebagai dumb renderer tanpa menggali path dalam.
  * Menghilangkan redundansi data dan memotong payload mentah (rawLineups, dll).
+ *
+ * Aturan fidelitas angka (REVISI): angka di-COPY apa adanya. Konversi tampilan
+ * hanya lewat helper sadar-skala di bawah (sumber desimal vs sumber persen
+ * HARUS beda helper — kasus nyata: top_scorelines.prob sudah skala persen
+ * dari lib/quant/dixon-coles.ts sehingga dikali 100 lagi menjadi salah 100x).
+ * Tidak ada nilai default karangan saat field absen: null / "—" apa adanya.
  */
 
 export const MatchViewSchema = z.object({
@@ -19,6 +25,10 @@ export const MatchViewSchema = z.object({
   competition: z.string(),
   venue: z.string().nullable().optional(),
   wasit: z.string().nullable().optional(),
+  /** Kartu rata-rata wasit (salinan wasit_analisis.rata_rata_kartu) — dipakai payload /api/betting. */
+  wasit_kartu: z.number().nullable().optional(),
+  /** status_lineup: "resmi" | "prediksi" | "belum_tersedia". */
+  status_lineup: z.string().nullable().optional(),
 });
 
 export const RingkasanViewSchema = z.object({
@@ -30,21 +40,19 @@ export const RingkasanViewSchema = z.object({
   integrity: z.object({
     gaps: z.array(z.string()),
     status_estimasi: z.array(z.string()),
-    cache_quota_saved: z.number().optional(),
-    dispatcher_model: z.string().optional(),
   }),
 });
 
 export const KuantitatifHeroSchema = z.object({
   prob: z.object({
-    home: z.number(),
-    draw: z.number(),
-    away: z.number(),
+    home: z.number().nullable(),
+    draw: z.number().nullable(),
+    away: z.number().nullable(),
   }),
   fair_odds: z.object({
-    home: z.number(),
-    draw: z.number(),
-    away: z.number(),
+    home: z.number().nullable(),
+    draw: z.number().nullable(),
+    away: z.number().nullable(),
   }),
   ev_teratas: z
     .object({
@@ -70,20 +78,20 @@ export const ValueBetItemSchema = z.object({
   expected_value: z.number(),
   ev_percentage: z.string(),
   is_positive_ev: z.boolean(),
-  edge_rating: z.string(),
-  recommended_stake_percentage: z.number(),
-  rationale: z.string(),
+  edge_rating: z.string().nullable(),
+  recommended_stake_percentage: z.number().nullable(),
+  rationale: z.string().nullable(),
 });
 
 export const KuantitatifDetailSchema = z.object({
   kelly: z.object({
-    simulator: z.any().nullable().optional(),
     tabel: z.array(ValueBetItemSchema),
   }),
   metode: z.object({
     baseline: z.any().optional(),
     shrinkage: z.any().optional(),
-    dixon_coles: z.any().optional(),
+    /** Salinan UTUH quant_engine.dixon_coles — sumber angka bagi konsumen (OneXBet, panel metode). */
+    dixon_coles: z.any().nullable().optional(),
     shin_kelly: z.any().optional(),
     calibration_metadata: z.any().optional(),
   }),
@@ -94,6 +102,9 @@ export const KuantitatifDetailSchema = z.object({
     rekor_tandang_spesifik: z.string(),
     npxg_kandang: z.number().nullable(),
     npxg_tamu: z.number().nullable(),
+    klasemen: z.string().nullable().optional(),
+    pemain_kunci: z.array(z.any()).optional(),
+    coverage_liga: z.any().nullable().optional(),
   }),
   pasar_lain: z.array(z.any()).optional(),
 });
@@ -109,12 +120,12 @@ export const OddsDislocationSchema = z.object({
   asian_handicap: z.string().nullable().optional(),
   over_under: z.string().nullable().optional(),
   btts: z.string().nullable().optional(),
-  benchmarks: z
+  /** Salinan probabilitas_pasar (persen, {kandang,seri,tandang}) — dikirim utuh ke /api/betting. */
+  pasar_konsensus: z
     .object({
-      home: z.number().optional(),
-      draw: z.number().optional(),
-      away: z.number().optional(),
-      source: z.string().optional(),
+      kandang: z.number(),
+      seri: z.number(),
+      tandang: z.number(),
     })
     .nullable()
     .optional(),
@@ -129,7 +140,6 @@ export const OddsDislocationSchema = z.object({
 });
 
 export const OddsViewSchema = z.object({
-  bookmakers: z.array(z.any()),
   dislocation: OddsDislocationSchema,
   smart_money: z.string(),
 });
@@ -160,7 +170,7 @@ export const ThinkingStepSchema = z.object({
   tool: z.string(),
   alasan: z.string(),
   trigger: z.string().nullable().optional(),
-  coverage: z.any().optional(),
+  coverage: z.any().nullable().optional(),
 });
 
 export const ThinkingViewSchema = z.object({
@@ -182,7 +192,7 @@ export const AnalysisViewSchema = z.object({
 export type AnalysisView = z.infer<typeof AnalysisViewSchema>;
 
 // ============================================================================
-// HELPER FORMATTING
+// HELPER FORMATTING — SADAR SKALA, TANPA NILAI KARANGAN
 // ============================================================================
 
 function formatKickoffWIB(utcDateStr?: string | null): string {
@@ -204,11 +214,26 @@ function formatKickoffWIB(utcDateStr?: string | null): string {
 }
 
 function formatCapitalKeyakinan(k?: string | null): string {
-  if (!k) return "Sedang";
+  if (!k) return "-";
   const lower = k.toLowerCase();
   if (lower.includes("tinggi")) return "Tinggi";
   if (lower.includes("rendah")) return "Rendah";
-  return "Sedang";
+  if (lower.includes("sedang")) return "Sedang";
+  return k; // nilai tak dikenal ditampilkan apa adanya, bukan dipaksa "Sedang"
+}
+
+/** Persen dari sumber skala DESIMAL (0.439 → "43.9%"). */
+function pctFromDecimal(x?: number | null, digits = 1): string {
+  return x == null ? "—" : `${(x * 100).toFixed(digits)}%`;
+}
+
+/** Persen dari sumber yang SUDAH skala PERSEN (13.2 → "13.2%"). JANGAN dikali 100 lagi. */
+function pctFromPercent(x?: number | null, digits = 1): string {
+  return x == null ? "—" : `${x.toFixed(digits)}%`;
+}
+
+function numOrDash(x?: number | null, digits = 2): string {
+  return x == null ? "—" : x.toFixed(digits);
 }
 
 // ============================================================================
@@ -221,12 +246,9 @@ function formatCapitalKeyakinan(k?: string | null): string {
 export function mapPipelineToView(input: {
   analisis: Analysis;
   plannerTrace?: PlannerTrace | null;
-  rawLineups?: any;
-  audit?: any;
-  cacheMetrics?: any;
   durationMs?: number | null;
 }): AnalysisView {
-  const { analisis: a, plannerTrace, audit, durationMs } = input;
+  const { analisis: a, plannerTrace, durationMs } = input;
   const q = a.quant_engine;
   const dc = q?.dixon_coles;
   const d = a.syndicate_debate;
@@ -240,6 +262,8 @@ export function mapPipelineToView(input: {
     competition: a.pertandingan.kompetisi,
     venue: a.pertandingan.venue ?? null,
     wasit: a.pertandingan.wasit ?? a.wasit_analisis?.nama ?? null,
+    wasit_kartu: a.wasit_analisis?.rata_rata_kartu ?? null,
+    status_lineup: a.taktik_dan_lineup?.status_lineup ?? null,
   };
 
   // 2. RINGKASAN SECTION
@@ -262,10 +286,6 @@ export function mapPipelineToView(input: {
       status_estimasi: (q as any)?.calibration_metadata?.is_estimated_telemetry
         ? ["Telemetri rolling form menggunakan estimasi prior"]
         : [],
-      cache_quota_saved:
-        a.data_integrity_audit?.cache_quota_saved ?? audit?.cache_metrics?.savedCalls ?? 0,
-      dispatcher_model:
-        a.data_integrity_audit?.dispatcher_model ?? audit?.dispatcher_model ?? "ag/gemini-3.8-flash",
     },
   };
 
@@ -275,14 +295,14 @@ export function mapPipelineToView(input: {
 
   const hero: z.infer<typeof KuantitatifHeroSchema> = {
     prob: {
-      home: dc?.prob_home_win ?? 0,
-      draw: dc?.prob_draw ?? 0,
-      away: dc?.prob_away_win ?? 0,
+      home: dc?.prob_home_win ?? null,
+      draw: dc?.prob_draw ?? null,
+      away: dc?.prob_away_win ?? null,
     },
     fair_odds: {
-      home: dc?.fair_odds?.home ?? 0,
-      draw: dc?.fair_odds?.draw ?? 0,
-      away: dc?.fair_odds?.away ?? 0,
+      home: dc?.fair_odds?.home ?? null,
+      draw: dc?.fair_odds?.draw ?? null,
+      away: dc?.fair_odds?.away ?? null,
     },
     ev_teratas: topEv
       ? {
@@ -295,33 +315,35 @@ export function mapPipelineToView(input: {
       : null,
   };
 
-  // Maksimal 5 baris bukti terpenting
+  // Maksimal 5 baris bukti terpenting.
+  // PERHATIAN SKALA: top_scorelines.prob dari lib/quant/dixon-coles.ts SUDAH
+  // persen (mis. 13.2 = 13.2%). Field `percentage` bila ada = string siap tampil.
   const topScore =
     Array.isArray(dc?.top_scorelines) && dc.top_scorelines.length > 0
       ? dc.top_scorelines[0]
       : null;
   const topScoreStr = topScore
-    ? `${topScore.score || `${topScore.homeGoals}-${topScore.awayGoals}`} (${
-        topScore.percentage || `${Math.round((topScore.probability || topScore.prob || 0) * 100)}%`
+    ? `${topScore.score ?? `${topScore.homeGoals ?? "?"}-${topScore.awayGoals ?? "?"}`} (${
+        topScore.percentage ?? pctFromPercent(topScore.prob)
       })`
-    : "-";
+    : "—";
 
   const bukti: z.infer<typeof BuktiItemSchema>[] = [
     {
       label: "Proyeksi xG (Kandang vs Tamu)",
-      value: `${(dc?.lambda_home_xg ?? 0).toFixed(2)} vs ${(dc?.mu_away_xg ?? 0).toFixed(2)}`,
+      value: `${numOrDash(dc?.lambda_home_xg)} vs ${numOrDash(dc?.mu_away_xg)}`,
     },
     {
       label: "Peluang Over 2.5 Gol",
-      value: `${((dc?.over_2_5_prob ?? 0) * 100).toFixed(1)}%`,
+      value: pctFromDecimal(dc?.over_2_5_prob),
     },
     {
       label: "Peluang Kedua Tim Cetak Gol (BTTS)",
-      value: `${((dc?.btts_yes_prob ?? 0) * 100).toFixed(1)}%`,
+      value: pctFromDecimal(dc?.btts_yes_prob),
     },
     {
       label: "Ekspektasi Total Gol",
-      value: `${(dc?.expected_total_goals ?? 0).toFixed(2)} gol`,
+      value: dc?.expected_total_goals == null ? "—" : `${dc.expected_total_goals.toFixed(2)} gol`,
     },
     {
       label: "Skor Paling Mungkin",
@@ -331,7 +353,6 @@ export function mapPipelineToView(input: {
 
   const detail: z.infer<typeof KuantitatifDetailSchema> = {
     kelly: {
-      simulator: null,
       tabel: valueBets.map((vb) => ({
         market_name: vb.market_name,
         selection: vb.selection,
@@ -340,22 +361,18 @@ export function mapPipelineToView(input: {
         expected_value: vb.expected_value,
         ev_percentage: vb.ev_percentage,
         is_positive_ev: Boolean(vb.is_positive_ev),
-        edge_rating: vb.edge_rating || "NORMAL",
-        recommended_stake_percentage: vb.recommended_stake_percentage || 0,
-        rationale: vb.rationale || "-",
+        edge_rating: vb.edge_rating ?? null,
+        recommended_stake_percentage: vb.recommended_stake_percentage ?? null,
+        rationale: vb.rationale ?? null,
       })),
     },
     metode: {
       baseline: {
-        lambda: dc?.lambda_home_xg,
-        mu: dc?.mu_away_xg,
+        lambda: dc?.lambda_home_xg ?? null,
+        mu: dc?.mu_away_xg ?? null,
       },
-      shrinkage: (q as any)?.calibration_metadata?.shrinkage ?? null,
-      dixon_coles: {
-        top_scorelines: dc?.top_scorelines ?? [],
-        asian_handicap: dc?.asian_handicap ?? null,
-        clean_sheet: dc?.clean_sheet ?? null,
-      },
+      shrinkage: (q as any)?.calibration_metadata?.shrinkage_weights ?? null,
+      dixon_coles: dc ?? null,
       shin_kelly: q?.vig_stripping ?? null,
       calibration_metadata: (q as any)?.calibration_metadata ?? null,
     },
@@ -366,6 +383,9 @@ export function mapPipelineToView(input: {
       rekor_tandang_spesifik: a.form_dan_split?.rekor_tandang_spesifik || "-",
       npxg_kandang: a.statistik_mendalam?.shot_quality?.npxg_kandang ?? null,
       npxg_tamu: a.statistik_mendalam?.shot_quality?.npxg_tamu ?? null,
+      klasemen: a.klasemen ?? null,
+      pemain_kunci: a.statistik_mendalam?.pemain_kunci ?? [],
+      coverage_liga: a.coverage_liga ?? null,
     },
     pasar_lain: q?.special_markets ? [q.special_markets] : [],
   };
@@ -376,25 +396,21 @@ export function mapPipelineToView(input: {
     detail,
   };
 
-  // 4. ODDS SECTION
-  let benchmarkOdds: { home?: number; draw?: number; away?: number; source?: string } | null = null;
-  if (a.probabilitas_pasar && a.probabilitas_pasar.kandang > 0) {
-    benchmarkOdds = {
-      home: +(100 / a.probabilitas_pasar.kandang).toFixed(2),
-      draw: +(100 / a.probabilitas_pasar.seri).toFixed(2),
-      away: +(100 / a.probabilitas_pasar.tandang).toFixed(2),
-      source: "Consensus Probabilities",
-    };
-  }
-
+  // 4. ODDS SECTION — pasar_konsensus disalin apa adanya (persen integer),
+  // tanpa konversi ke implied odds di mapper (perhitungan = ranah display/UI).
   const odds: z.infer<typeof OddsViewSchema> = {
-    bookmakers: [], // diisi di consumer atau via /api/odds
     dislocation: {
       ringkasan_1x2: a.bursa_pasar?.ringkasan_1x2 || "-",
       asian_handicap: a.bursa_pasar?.asian_handicap ?? null,
       over_under: a.bursa_pasar?.over_under ?? null,
       btts: a.bursa_pasar?.btts ?? null,
-      benchmarks: benchmarkOdds,
+      pasar_konsensus: a.probabilitas_pasar
+        ? {
+            kandang: a.probabilitas_pasar.kandang,
+            seri: a.probabilitas_pasar.seri,
+            tandang: a.probabilitas_pasar.tandang,
+          }
+        : null,
       fair: dc?.fair_odds ?? null,
     },
     smart_money: a.bursa_pasar?.pergerakan_smart_money || "Aliran pasar stabil dalam batas wajar.",
@@ -467,7 +483,7 @@ export function mapPipelineToView(input: {
       tool: s.action,
       alasan: s.alasan || "(tanpa alasan)",
       trigger: s.trigger ?? null,
-      coverage: null,
+      coverage: (s as { coverage?: unknown }).coverage ?? null,
     })),
     stop_reason: plannerTrace?.stop_reason || "verdict",
     durasi_ms: durationMs ?? null,

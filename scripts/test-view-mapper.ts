@@ -1,256 +1,346 @@
 /**
- * Test Task T3 — Verifikasi Pure View Mapper (BFF Layer)
- * Memastikan mapPipelineToView menghasilkan AnalysisView sesuai Zod Schema,
- * tidak ada kebocoran field mentah pipeline, durasi tercatat, dan angka
- * kuantitatif konsisten 1:1 tanpa modifikasi.
+ * Runnable check: mapPipelineToView() (lib/view/analysis-view.ts)
+ *
+ * Tujuan: membuktikan (1) angka disalin apa adanya tanpa salah skala,
+ * (2) field mentah tidak bocor ke client, (3) mapper tidak mengarang nilai
+ * saat field absen (null / "—", bukan 0 / "-").
+ *
+ * Gate realisme: fixture WAJIB lolos AnalysisSchema.parse — kalau nama field
+ * fixture meleset dari schema asli, test ini gagal (insiden sebelumnya: fixture
+ * memakai `lambda`/`mu`/`kelly_stake_full` sehingga assert palsu lolos).
  *
  * Jalankan: npx tsx scripts/test-view-mapper.ts
  */
+import {
+  mapPipelineToView,
+  AnalysisViewSchema,
+  type AnalysisView,
+} from "../lib/view/analysis-view";
+import { AnalysisSchema, PlannerTraceSchema } from "../lib/agent/schemas";
+import type { z } from "zod";
 
-import { mapPipelineToView, AnalysisViewSchema } from "../lib/view/analysis-view";
-import type { Analysis, PlannerTrace } from "../lib/agent/schemas";
+let passed = 0;
+let failed = 0;
 
-function assert(kondisi: boolean, label: string): void {
-  if (kondisi) {
+function assert(cond: boolean, label: string) {
+  if (cond) {
+    passed++;
     console.log(`  ✅ ${label}`);
   } else {
+    failed++;
     console.error(`  ❌ ${label}`);
-    process.exitCode = 1;
-    throw new Error(`Assert gagal: ${label}`);
   }
 }
 
-async function main() {
-  console.log("=== TEST VIEW MAPPER (lib/view/analysis-view.ts) ===\n");
+// ============================================================================
+// FIXTURE — skala nilai mengikuti sumber asli:
+//   - prob_*_win, over_2_5_prob, btts_yes_prob, lambda/mu = desimal
+//   - top_scorelines.prob = SUDAH PERSEN (lib/quant/dixon-coles.ts:307, mis. 13.2 = 13.2%)
+//   - probabilitas_pasar = persen integer (lib/agent/llm.ts, dari vig fair_prob)
+//   - ev_percentage = string siap tampil ("+8.2%")
+// ============================================================================
 
-  // 1. Siapkan fixture Analysis lengkap yang valid
-  const mockAnalysis: Analysis = {
-    pertandingan: {
-      id: "test-match-123",
-      tim_kandang: "Arsenal",
-      tim_tamu: "Chelsea",
-      waktu: "2026-10-18T19:30:00Z",
-      kompetisi: "Premier League",
-      venue: "Emirates Stadium",
-      wasit: "Michael Oliver",
-    },
-    wasit_analisis: {
-      nama: "Michael Oliver",
-      rata_rata_kartu: 3.8,
-      total_kartu_kuning: 42,
-      total_kartu_merah: 2,
-      level_ketegasan: "Tegas",
-      catatan: "Wasit berstandar UEFA dengan kontrol ketat.",
-    },
-    taktik_dan_lineup: {
-      formasi_kandang: "4-3-3",
-      formasi_tamu: "4-2-3-1",
-      status_lineup: "Official Confirmed",
-      starting_xi_kandang: [{ name: "Saka", pos: "RW" }],
-      starting_xi_tamu: [{ name: "Palmer", pos: "AM" }],
-      ulasan_benturan_taktik: "Adu dominasi lini tengah transisi cepat.",
-    },
-    coverage_liga: {
-      has_xg: true,
-      has_odds: true,
-      has_shotmap: false,
-      has_player_stats: true,
-    },
-    form_dan_split: {
-      form_kandang: "W-W-D-W-W",
-      form_tamu: "L-W-D-W-L",
-      rekor_kandang_spesifik: "Home dominant",
-      rekor_tandang_spesifik: "Away shaky",
-    },
-    klasemen: "Matchday 9",
-    bursa_pasar: {
-      ringkasan_1x2: "Arsenal diunggulkan bursa @ 1.85",
-      asian_handicap: "Arsenal -0.75",
-      over_under: "Over 2.5",
-      btts: "BTTS Yes",
-      pergerakan_smart_money: "Sharp flow condong ke Arsenal -0.75 awal pekan.",
-    },
-    probabilitas_pasar: {
-      kandang: 54,
-      seri: 24,
-      tandang: 22,
-    },
-    statistik_mendalam: {
-      shot_quality: {
-        npxg_kandang: 1.85,
-        npxg_tamu: 0.95,
-        catatan: "xG dominan Arsenal.",
-      },
-      pemain_kunci: [
-        { nama: "Saka", tim: "Arsenal", peran: "Winger", catatan: "Key threat" },
-      ],
-    },
-    faktor_kunci: ["Keunggulan xG Kandang", "Efisiensi Transisi Arsenal", "Disiplin Taktis"],
-    prediksi: {
-      hasil: "Arsenal Menang Tipis",
-      keyakinan: "tinggi",
-      alasan: "Keunggulan struktural dan rating Dixon-Coles positif.",
-      konsensus_panel: "ARSENAL_WIN",
-    },
-    quant_engine: {
-      dixon_coles: {
-        lambda: 1.85,
-        mu: 0.95,
-        prob_home_win: 0.582,
-        prob_draw: 0.228,
-        prob_away_win: 0.19,
-        fair_odds: { home: 1.72, draw: 4.39, away: 5.26 },
-        expected_total_goals: 2.8,
-        rho_used: -0.06,
-        top_scorelines: [
-          { score: "2-1", prob: 0.125 },
-          { score: "2-0", prob: 0.11 },
-          { score: "1-1", prob: 0.095 },
-        ],
-      },
-      shin_market: {
-        z_favorite: 0.021,
-        implied_margin_percentage: 4.5,
-        fair_probabilities: { home: 0.53, draw: 0.24, away: 0.23 },
-        fair_odds: { home: 1.88, draw: 4.17, away: 4.35 },
-      },
-      value_bets: [
-        {
-          market_name: "Match Odds 1X2",
-          selection: "Arsenal (Home)",
-          bookmaker_odds: 1.85,
-          fair_odds: 1.72,
-          expected_value: 0.075,
-          ev_percentage: "+7.5%",
-          kelly_stake_full: 0.088,
-          kelly_stake_half: 0.044,
-          is_positive_ev: true,
-          model_confidence: "tinggi",
-          reasoning: "Dislokasi harga bursa terhadap Dixon-Coles lambda.",
-        },
-      ],
-      calibration_metadata: {
-        calibration_tier: "A+",
-        brier_score_sample: 0.185,
-        is_estimated_telemetry: false,
-      },
-    },
-    syndicate_debate: {
-      bull_case: {
-        model: "deepseek/deepseek-r1",
-        thesis: "Arsenal unggul telak di parameter lambda xG.",
-        key_drivers: ["High press sukses", "Palmer terisolasi"],
-      },
-      neutral_case: {
-        model: "openai/o3-mini",
-        thesis: "Chelsea mampu menahan imbang jika transisi Arsenal melambat.",
-        empirical_drivers: ["Chelsea split tandang membaik"],
-      },
-      bear_case: {
-        model: "meta-llama/llama-3.3-70b-instruct",
-        thesis: "Bursa terlalu miring, risiko overconfidence kandang.",
-        trap_warnings: ["Potensi kartu wasit tinggi", "Kelelahan UCL"],
-      },
-      arbiter_verdict: {
-        model: "anthropic/claude-3.5-sonnet",
-        chief_risk_officer_synthesis: "Value terkonfirmasi pada Arsenal dengan half-Kelly 4.4%.",
-        recommended_market: "Arsenal 1X2",
-        confidence_tier: "HIGH_CONVICTION",
-        recommended_stake_fraction: "HALF_KELLY_4.4%",
-      },
-      dual_judgement: {
-        judgement_1: {
-          model: "gemini-3.8-flash",
-          verdict: "ARSENAL_WIN",
-          confidence: "HIGH",
-          stake_recommendation: "4.4%",
-          key_justification: "Lambda xG superior.",
-        },
-        judgement_2: {
-          model: "claude-3.5-sonnet",
-          verdict: "ARSENAL_WIN",
-          confidence: "HIGH",
-          stake_recommendation: "4.0%",
-          key_justification: "Risk-reward terkonfirmasi positif.",
-        },
-        consensus_level: "FULL_CONSENSUS",
-        supreme_verdict: "ARSENAL_WIN (Half-Kelly 4.4%)",
-        final_confidence_tier: "HIGH_CONVICTION",
-        final_recommended_market: "Match Odds: Arsenal Win",
-        final_stake_fraction: "HALF_KELLY_4.4%",
-      },
-    },
-    data_tidak_tersedia: [],
-    data_integrity_audit: {
-      is_strictly_grounded: true,
-      dispatcher_model: "ag/gemini-3.8-flash",
-      cache_quota_saved: 4,
-      endpoints_called: ["match", "lineups", "odds"],
-      endpoints_skipped: ["player_history"],
-    },
-  };
-
-  const mockPlannerTrace: PlannerTrace = {
-    steps: [
-      { step: 1, action: "check_data_integrity", alasan: "Validasi data match dan coverage" },
-      { step: 2, action: "run_quant_engine", alasan: "Kalkulasi Dixon-Coles dan Shin Fair Odds" },
-      { step: 3, action: "run_syndicate_debate", alasan: "Debat Bull vs Bear vs Arbiter" },
-      { step: 4, action: "stop_with_verdict", alasan: "Semua evidence lengkap, konsensus tercapai" },
+const fixtureAnalisis = {
+  pertandingan: {
+    id: "mt_1",
+    tim_kandang: "Shimizu S-Pulse",
+    tim_tamu: "Gamba Osaka",
+    waktu: "2026-10-17T04:00:00Z",
+    kompetisi: "Japan. J1 League",
+    venue: "Nihondaira Stadium",
+    wasit: "H. Sato",
+  },
+  wasit_analisis: {
+    nama: "H. Sato",
+    rata_rata_kartu: 4.2,
+    total_kartu_kuning: 42,
+    total_kartu_merah: 2,
+    level_ketegasan: "sedang" as const,
+    catatan: "Cukup tegas, rata-rata 4.2 kartu per laga.",
+  },
+  taktik_dan_lineup: {
+    formasi_kandang: "4-2-3-1",
+    formasi_tamu: "4-4-2",
+    status_lineup: "prediksi" as const,
+    starting_xi_kandang: [{ name: "Pemain A", pos: "FW", num: 9 }],
+    starting_xi_tamu: [{ name: "Pemain B", pos: "GK", num: 1 }],
+    ulasan_benturan_taktik: "Kandang menekan lewat sayap.",
+  },
+  coverage_liga: { has_xg: true, has_odds: true, has_shotmap: false, has_player_stats: true },
+  form_dan_split: {
+    form_kandang: "W-D-L-W-W",
+    form_tamu: "L-L-D-W-D",
+    rekor_kandang_spesifik: "Kandang: 5 menang dari 8",
+    rekor_tandang_spesifik: "Tandang: 2 menang dari 8",
+  },
+  klasemen: "Shimizu #8 (32 poin) vs Gamba #5 (38 poin)",
+  bursa_pasar: {
+    ringkasan_1x2: "Kandang 2.10 / Seri 3.40 / Tamu 3.60",
+    asian_handicap: "Shimizu -0.25",
+    over_under: "Line 2.5",
+    btts: "Ya 1.95",
+    pergerakan_smart_money: "Aliran dana menguat ke pasar Under.",
+  },
+  probabilitas_pasar: { kandang: 46, seri: 28, tandang: 26 },
+  statistik_mendalam: {
+    shot_quality: { npxg_kandang: 1.32, npxg_tamu: 1.08, catatan: "npxG dari shotmap terverifikasi." },
+    pemain_kunci: [
+      { nama: "Pemain A", tim: "Shimizu S-Pulse", peran: "Finisher", catatan: "xG per 90 tertinggi." },
     ],
-    stop_reason: "verdict",
-    gaps_remaining: [],
-    coverage_score: 1.0,
-  };
+  },
+  faktor_kunci: ["Rekor kandang kuat", "Lini tengah tamu rapuh"],
+  prediksi: {
+    hasil: "1-1",
+    keyakinan: "sedang" as const,
+    alasan: "Keseimbangan xG tipis; kedua tim punya peluang.",
+    konsensus_panel: "DISSENT",
+  },
+  quant_engine: {
+    dixon_coles: {
+      lambda_home_xg: 1.41,
+      mu_away_xg: 1.03,
+      prob_home_win: 0.4516,
+      prob_draw: 0.2784,
+      prob_away_win: 0.27,
+      fair_odds: { home: 2.21, draw: 3.59, away: 3.7 },
+      over_2_5_prob: 0.439,
+      btts_yes_prob: 0.49,
+      expected_total_goals: 2.43,
+      // SKALA ASLI: prob sudah persen (13.2 = 13.2%) — jangan dikali 100 lagi.
+      top_scorelines: [{ homeGoals: 1, awayGoals: 1, prob: 13.2 }],
+      asian_handicap: { ah_0_0_dnb: { home_prob: 48.2, away_prob: 51.8, push_prob: 0 } },
+      clean_sheet: { home_clean_sheet_prob: 28.1, away_clean_sheet_prob: 22.4 },
+      expected_points: { home: 1.48, draw: 1.02, away: 1.05 },
+    },
+    vig_stripping: {
+      overround: 1.055,
+      margin_percentage: 5.5,
+      fair_odds: { home: 2.18, draw: 3.55, away: 3.66 },
+    },
+    value_bets: [
+      {
+        market_name: "Asian Handicap 0.0",
+        selection: "Shimizu S-Pulse",
+        bookmaker_odds: 2.05,
+        fair_odds: 1.95,
+        expected_value: 0.051,
+        ev_percentage: "+5.1%",
+        is_positive_ev: true,
+        edge_rating: "B_MODERATE",
+        recommended_stake_percentage: 1.6,
+        rationale: "Edge tipis dari model Poisson terkalibrasi.",
+      },
+      {
+        market_name: "Over/Under 2.5",
+        selection: "Under 2.5",
+        bookmaker_odds: 1.9,
+        fair_odds: 2.1,
+        expected_value: -0.095,
+        ev_percentage: "-9.5%",
+        is_positive_ev: false,
+        edge_rating: "C_LEAN",
+        recommended_stake_percentage: 0,
+        rationale: "Tidak ada edge pada pasar ini.",
+      },
+    ],
+    special_markets: { corners: { over_9_5: 1.88, under_9_5: 1.92 } },
+    calibration_metadata: {
+      is_calibrated: true,
+      league_name: "Japan. J1 League",
+      telemetry_source: "rolling-form",
+      shrinkage_weights: { home: 0.62, away: 0.58 },
+      is_estimated_telemetry: true,
+    },
+  },
+  syndicate_debate: {
+    bull_case: {
+      model: "ag/gemini-3.8-flash-high",
+      thesis: "Keunggulan kandang nyata.",
+      key_drivers: ["xG kandang lebih tinggi", "Form 5 laga terakhir"],
+      tactical_edge: "Sayap kanan menang duel.",
+    },
+    neutral_case: {
+      model: "bai/glm-5.3-flash",
+      thesis: "Keseimbangan tipis di tengah.",
+      empirical_drivers: ["xG hampir imbang", "Head-to-head seimbang"],
+      equilibrium_assessment: "Tidak ada sinyal dominan.",
+    },
+    bear_case: {
+      model: "bai/deepseek-v4.1-flash",
+      thesis: "Value pasar sudah efisien.",
+      trap_warnings: ["Odds kandang terlalu rendah"],
+      vulnerability_audit: "Risiko rotasi pemain.",
+    },
+    dual_judgement: {
+      judgement_1: {
+        model: "ag/gemini-3.8-flash-high",
+        title: "Judicial Bench I",
+        verdict_summary: "Cenderung kandang namun tipis.",
+        confidence_tier: "C_LEAN" as const,
+        recommended_market: "Asian Handicap 0.0 Home",
+        key_reasoning: "Keunggulan xG kandang 0.38.",
+      },
+      judgement_2: {
+        model: "bai/qwen3.8-flash",
+        title: "Judicial Bench II",
+        verdict_summary: "Risiko imbang tinggi.",
+        confidence_tier: "PASS_AVOID" as const,
+        recommended_market: "PASS",
+        alternative_perspective: "Disiplin bertahan tamu.",
+      },
+      consensus_level: "DISSENT" as const,
+      supreme_verdict: "DISSENT / DISAGREEMENT: Rekomendasi PASS (Hindari taruhan).",
+      final_recommended_market: "PASS",
+      final_confidence_tier: "PASS_AVOID" as const,
+      final_stake_fraction: "0%",
+    },
+    arbiter_verdict: {
+      model: "ag/gemini-3.8-flash-high",
+      chief_risk_officer_synthesis: "Pertentangan risiko antar hakim.",
+      confidence_tier: "PASS_AVOID" as const,
+      recommended_market: "PASS",
+      recommended_stake_fraction: "0%",
+    },
+  },
+  data_tidak_tersedia: ["lineups", "injuries"],
+  data_integrity_audit: {
+    is_strictly_grounded: true,
+    dispatcher_model: "bai/qwen3.8-27b (fast heuristic fallback)",
+    cache_quota_saved: 12,
+    endpoints_called: ["/football/matches/mt_1"],
+    endpoints_skipped: ["/football/matches/mt_1/shotmap"],
+  },
+} as unknown as z.infer<typeof AnalysisSchema>;
 
-  const mockRawLineups = { home_starting_xi: [{ name: "Saka" }], away_starting_xi: [{ name: "Palmer" }] };
-  const mockAudit = { dispatcher_model: "ag/gemini-3.8-flash", cache_metrics: { savedCalls: 4 } };
-  const durationMs = 385;
-
-  // 2. Eksekusi pure view mapper
-  const view = mapPipelineToView({
-    analisis: mockAnalysis,
-    plannerTrace: mockPlannerTrace,
-    rawLineups: mockRawLineups,
-    audit: mockAudit,
-    durationMs,
-  });
-
-  // 3. Verifikasi skema dengan Zod
-  const parsed = AnalysisViewSchema.safeParse(view);
-  assert(parsed.success, "AnalysisViewSchema.safeParse sukses memvalidasi output");
-
-  // 4. Verifikasi zero leakage payload mentah
-  const rawLeakKeys = ["analisis", "rawLineups", "isEnterpriseSyndicate", "modelUsed", "audit", "plannerTrace"];
-  for (const leakKey of rawLeakKeys) {
-    assert(!(leakKey in view), `Field mentah '${leakKey}' TIDAK bocor ke root AnalysisView`);
-  }
-
-  // 5. Verifikasi durasi & trace jujur
-  assert(view.thinking.durasi_ms === 385, "Thinking durasi_ms tercatat persis (385 ms)");
-  assert(view.thinking.steps.length === 4, "Thinking steps memuat 4 langkah planner");
-  assert(view.thinking.stop_reason === "verdict", "Thinking stop_reason adalah 'verdict'");
-  assert(view.thinking.steps[0].tool === "check_data_integrity", "Step 1 tool check_data_integrity");
-
-  // 6. Verifikasi kuantitatif: hero, prob, zero modification
-  assert(view.kuantitatif.hero.prob.home === 0.582, "Probabilitas home Dixon-Coles 0.582 (1:1 tanpa re-kalkulasi)");
-  assert(view.kuantitatif.hero.fair_odds.home === 1.72, "Fair odds home 1.72");
-  assert(view.kuantitatif.hero.ev_teratas?.selection === "Arsenal (Home)", "EV teratas teridentifikasi");
-  assert(view.kuantitatif.hero.ev_teratas?.ev_percentage === "+7.5%", "EV percentage terpetakan");
-  assert(view.kuantitatif.bukti.length <= 5, "Maksimal 5 baris bukti terpenting");
-
-  // 7. Verifikasi debat: persona, consensus, supreme
-  assert(view.debat.persona.length === 4, "Debat memuat 4 persona (Bull, Neutral, Bear, Arbiter)");
-  assert(view.debat.consensus === "FULL_CONSENSUS", "Debat consensus terpetakan dari supreme");
-  assert(view.debat.supreme?.verdict.includes("ARSENAL_WIN") === true, "Supreme verdict terisi");
-
-  // 8. Verifikasi odds dislocation
-  assert(view.odds.dislocation.ringkasan_1x2.includes("Arsenal diunggulkan"), "Dislocation ringkasan_1x2 terisi");
-  assert(view.odds.smart_money.includes("Sharp flow"), "Smart money terpetakan ke view.odds");
-
-  console.log("\n Semua pengujian mapPipelineToView LOLOS!");
-}
-
-main().catch((e) => {
-  console.error("Test gagal:", e);
-  process.exit(1);
+const fixtureTrace = PlannerTraceSchema.parse({
+  steps: [
+    {
+      step: 1,
+      action: "check_data_integrity",
+      alasan: "Validasi coverage data intelijen pra-laga.",
+      trigger: null,
+      coverage: { complete: false, gaps: ["lineups"], triggers: ["FIELD_KOSONG"] },
+    },
+    {
+      step: 2,
+      action: "fetch_missing_intel",
+      alasan: "Isi field kosong: lineups, cedera.",
+      trigger: "FIELD_KOSONG",
+      coverage: { complete: false, gaps: ["lineups"], triggers: ["FIELD_KOSONG"] },
+    },
+    {
+      step: 3,
+      action: "stop_with_verdict",
+      alasan: "Pipeline lengkap dengan degradasi eksplisit.",
+      trigger: null,
+      coverage: { complete: true, gaps: [], triggers: [] },
+    },
+  ],
+  stop_reason: "verdict",
+  gaps_remaining: ["lineups"],
 });
+
+// ============================================================================
+// GATE REALISME FIXTURE — kalau nama field fixture meleset dari schema asli,
+// test harus gagal di sini, bukan lolos dengan angka palsu.
+// ============================================================================
+console.log("GATE: fixture wajib lolos AnalysisSchema.parse + PlannerTraceSchema.parse");
+const gate = AnalysisSchema.safeParse(fixtureAnalisis);
+if (!gate.success) {
+  console.error("  issue schema:", gate.error.issues.slice(0, 6));
+}
+assert(gate.success, "fixture analisis valid terhadap AnalysisSchema asli");
+
+// ============================================================================
+// RUN
+// ============================================================================
+const view: AnalysisView = mapPipelineToView({
+  analisis: fixtureAnalisis,
+  plannerTrace: fixtureTrace,
+  durationMs: 229900,
+});
+
+console.log("FIDELITAS ANGKA (sadar skala):");
+assert(view.kuantitatif.bukti[0].value === "1.41 vs 1.03", "xG disalin apa adanya (1.41 vs 1.03)");
+assert(view.kuantitatif.bukti[1].value === "43.9%", "over_2_5_prob desimal → 43.9%");
+assert(view.kuantitatif.bukti[2].value === "49.0%", "btts_yes_prob desimal → 49.0%");
+assert(view.kuantitatif.bukti[3].value === "2.43 gol", "expected_total_goals disalin");
+assert(
+  view.kuantitatif.bukti[4].value === "1-1 (13.2%)",
+  "top_scorelines.prob SUDAH persen → '1-1 (13.2%)', BUKAN 1320%"
+);
+assert(view.kuantitatif.hero.prob.home === 0.4516, "prob home copy 1:1 (0.4516)");
+assert(view.kuantitatif.hero.fair_odds.home === 2.21, "fair odds copy 1:1 (2.21)");
+assert(view.odds.dislocation.pasar_konsensus?.kandang === 46, "pasar_konsensus copy persen (46), tanpa konversi odds");
+
+console.log("KONTRAK BETTING (/api/betting match_context):");
+assert(view.match.wasit_kartu === 4.2, "wasit_kartu terpetakan (4.2)");
+assert(view.match.status_lineup === "prediksi", "status_lineup terpetakan");
+assert(view.odds.dislocation.pasar_konsensus?.seri === 28, "probabilitas_pasar bentuk {kandang,seri,tandang} utuh");
+
+console.log("INFO YANG DULU HILANG:");
+assert(view.kuantitatif.detail.splits.npxg_kandang === 1.32, "npxg_kandang dari shot_quality (1.32), bukan lambda");
+assert(view.kuantitatif.detail.splits.klasemen?.includes("#8") === true, "klasemen terpetakan");
+assert((view.kuantitatif.detail.splits.pemain_kunci ?? []).length === 1, "pemain_kunci terpetakan");
+assert(view.kuantitatif.detail.splits.coverage_liga?.has_xg === true, "coverage_liga terpetakan");
+assert(view.kuantitatif.detail.metode.dixon_coles?.expected_points?.home === 1.48, "expected_points terbawa via copy dc utuh");
+assert(view.kuantitatif.detail.metode.shrinkage?.home === 0.62, "shrinkage terbaca dari calibration_metadata.shrinkage_weights (key asli)");
+assert(view.kuantitatif.detail.pasar_lain?.length === 1, "special_markets terpetakan ke pasar_lain");
+
+console.log("ANTI-KARANGAN (field absen → null / '—', bukan 0 / '-'):");
+const vbMissing = mapPipelineToView({
+  analisis: {
+    ...fixtureAnalisis,
+    quant_engine: {
+      ...fixtureAnalisis.quant_engine,
+      value_bets: [{ ...fixtureAnalisis.quant_engine.value_bets[1], rationale: undefined }],
+    },
+  } as unknown as z.infer<typeof AnalysisSchema>,
+  plannerTrace: fixtureTrace,
+});
+assert(vbMissing.kuantitatif.detail.kelly.tabel[0].rationale === null, "rationale absen → null, bukan '-'");
+assert(view.kuantitatif.detail.kelly.tabel[1].recommended_stake_percentage === 0, "stake 0 asli dipertahankan");
+const partial = mapPipelineToView({
+  analisis: {
+    ...fixtureAnalisis,
+    quant_engine: { ...fixtureAnalisis.quant_engine, dixon_coles: {} },
+  } as unknown as z.infer<typeof AnalysisSchema>,
+  plannerTrace: fixtureTrace,
+});
+assert(partial.kuantitatif.bukti[1].value === "—", "over_2_5_prob hilang → '—', bukan '0.0%'");
+assert(partial.kuantitatif.bukti[0].value === "— vs —", "xG hilang → '— vs —', bukan '0.00 vs 0.00'");
+assert(partial.kuantitatif.hero.prob.home === null, "prob hero hilang → null, bukan 0");
+
+console.log("KEBOCORAN FIELD MENTAH (tidak boleh ada di root):");
+const root = view as unknown as Record<string, unknown>;
+for (const rawKey of ["analisis", "rawLineups", "modelUsed", "isEnterpriseSyndicate", "cacheMetrics", "audit", "plannerTrace"]) {
+  assert(!(rawKey in root), `Field mentah '${rawKey}' TIDAK bocor ke root AnalysisView`);
+}
+assert(!("benchmarks" in view.odds.dislocation), "benchmarks (hasil kalkulasi 100/prob) sudah dihapus dari view");
+assert(!("cache_quota_saved" in view.ringkasan.integrity), "cache_quota_saved (noise operator) tidak dikirim");
+
+console.log("THINKING PLANNER:");
+assert(view.thinking.durasi_ms === 229900, "durasi_ms tercatat persis");
+assert(view.thinking.steps.length === 3, "steps lengkap");
+assert(view.thinking.steps[0].tool === "check_data_integrity", "tool step 1 benar");
+assert(view.thinking.steps[1].trigger === "FIELD_KOSONG", "trigger re-plan terpetakan");
+assert(view.thinking.steps[0].coverage?.complete === false, "coverage_check terbawa dari trace (bukan hardcode null)");
+assert(view.thinking.stop_reason === "verdict", "stop_reason benar");
+
+console.log("DEBAT & RINGKASAN:");
+assert(view.debat.persona.length === 4, "4 persona (Bull, Bear, Arbiter; Neutral opsional)");
+assert(view.debat.supreme?.verdict.startsWith("DISSENT") === true, "supreme verdict terisi");
+assert(view.debat.dual_bench?.judgement_1.verdict_summary.includes("kandang") === true, "dual_bench utuh");
+assert(view.ringkasan.prediksi === "1-1", "prediksi terpetakan");
+assert(view.ringkasan.keyakinan === "Sedang", "keyakinan ternormalisasi");
+assert(view.ringkasan.integrity.gaps.includes("lineups"), "gaps dari trace");
+
+// ============================================================================
+// SUMMARY
+// ============================================================================
+console.log(`\n${passed} lulus, ${failed} gagal`);
+if (failed > 0) {
+  console.error("=== TEST VIEW-MAPPER GAGAL ===");
+  process.exit(1);
+}
+console.log("=== SEMUA PENGUJIAN mapPipelineToView LOLOS ===");

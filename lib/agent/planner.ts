@@ -250,7 +250,11 @@ function traceStep(state: PlannerRunState, action: string, input: { alasan?: str
 
 /** Suntikkan hasil evaluasi coverage (code) ke tool result sebagai bahan re-plan planner. */
 function withCoverage(state: PlannerRunState, result: Record<string, any>): Record<string, any> {
-  return { ...result, coverage_check: evaluateCoverage(state) };
+  const coverage = evaluateCoverage(state);
+  // Stempel coverage pasca-eksekusi ke step trace yang sesuai (dipakai UI thinking panel).
+  const last = state.traceSteps[state.traceSteps.length - 1];
+  if (last) last.coverage = coverage;
+  return { ...result, coverage_check: coverage };
 }
 
 const StepInputSchema = z.object({

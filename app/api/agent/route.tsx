@@ -115,9 +115,6 @@ export async function GET(req: Request) {
     const viewData = mapPipelineToView({
       analisis: validatedAnalysis.data,
       plannerTrace: trace,
-      rawLineups: intel.lineups,
-      audit: fetchResult.audit,
-      cacheMetrics: getStatsCacheMetrics(),
       durationMs,
     });
     return Response.json(viewData);
@@ -237,9 +234,6 @@ export async function GET(req: Request) {
   const viewData = mapPipelineToView({
     analisis: fallbackAnalysis,
     plannerTrace: trace,
-    rawLineups: intel.lineups,
-    audit: fetchResult.audit,
-    cacheMetrics: getStatsCacheMetrics(),
     durationMs,
   });
   return Response.json(viewData);
