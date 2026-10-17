@@ -1,29 +1,30 @@
 # ARCHITECTURE — Football Pre-Match Analyst Agent
 
-Dokumen ini menjelaskan pipeline **aktif** (planner loop, Okt 2026). Versi lama ada di `archive/legacy-docs/ARCHITECTURE.md`.
+Dokumen ini menjelaskan pipeline **aktif** (planner loop + view-model BFF, Okt 2026). Versi lama ada di `archive/legacy-docs/ARCHITECTURE.md`.
 
 ---
 
 ## 1. Gambaran Besar
 
-App ini menganalisis pertandingan sepak bola **sebelum kickoff** dan memutuskan: ada value bet atau tidak. Tiga lapis:
+App ini menganalisis pertandingan sepak bola **sebelum kickoff** dan memutuskan: ada value bet atau tidak. Empat lapis:
 
 1. **Agent** — satu planner (`bai/mimo-v2.6-pro`) yang merencanakan analisis, memanggil tool, mengevaluasi hasil, dan re-plan bila ada gap (loop, bukan pipeline statis)
 2. **Deterministic Quant Engine** — semua angka (probabilitas, fair odds, EV, stake Kelly) dihitung **code murni** di `lib/quant/*`, nol LLM
 3. **Multi-Model Syndicate** — 5+ model berbeda beradu argumen (Bull/Neutral/Bear + 2 Judgement + Arbiter) sebagai cross-check anti-bias
+4. **View-Model (BFF)** — `lib/view/analysis-view.ts` mengubah output pipeline menjadi JSON bersih per section; frontend adalah dumb renderer, tidak pernah menggali path dalam
 
-Aturan emasnya: **LLM hanya boleh menyusun narasi dan keputusan alur. Semua angka datang dari tool.**
+Aturan emasnya: **LLM hanya boleh menyusun narasi dan keputusan alur. Semua angka datang dari tool, disalin apa adanya sampai ke layar.**
 
 ---
 
 ## 2. Alur End-to-End
 
 ```
-User buka dashboard (app/page.tsx) ──► GET /api/matches?hours=72        [katalog match]
-User klik match ──► GET /api/agent?match_id=...                          [analisis]
+User buka dashboard (app/page.tsx) ──► GET /api/matches?hours=12|24|48|72   [katalog]
+User klik match ──► GET /api/agent?match_id=...                              [analisis]
                      │
                      ▼
-        app/api/agent/route.tsx  (HTTP shell: validasi + merge + response)
+        app/api/agent/route.tsx  (HTTP shell: validasi + merge)
                      │
                      ▼
         lib/agent/planner.ts :: runPlannerAnalysis()
@@ -32,8 +33,7 @@ User klik match ──► GET /api/agent?match_id=...                          [
    ┌─────────────────┼──────────────────────────────────────┐
    ▼                 ▼                                      ▼
  [1] check_data_integrity ─► lib/stats-fetcher-agent.ts
-   │     dispatcher endpoint + fetch TheStatsAPI + Zod sanitizer
-   │     ─► VerifiedMatchIntelligence + missing_data_registry
+   │     fetch TheStatsAPI + Zod sanitizer → missing_data_registry
    ▼
  [2] fetch_missing_intel (hanya bila ada gap) ─► fetch ulang, bandingkan delta
    ▼
@@ -53,10 +53,19 @@ User klik match ──► GET /api/agent?match_id=...                          [
  [6] stop_with_verdict ─► sintesis planner (narasi prediksi, faktor kunci)
    │
    ▼
- route.tsx merge (Zod AnalysisSchema) ─► response JSON ─► cards dashboard
+ lib/view/analysis-view.ts :: mapPipelineToView()          ← LAPISAN BFF
+   pure function, Zod AnalysisViewSchema, angka disalin apa adanya
+   │
+   ▼
+ response JSON: { match, ringkasan, kuantitatif, odds, debat, thinking, markets }
+   (?debug=1 → payload mentah pipeline, untuk audit)
+   │
+   ▼
+ dashboard 4 tab: Ringkasan (default) · Kuantitatif · Odds · Debat
+ + pasar 1xBet on-demand (lazy, butuh scan manual)
 ```
 
-Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self-report LLM) yang menjadi bahan re-plan planner.
+Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self-report LLM) yang menjadi bahan re-plan planner **dan** dicatat ke `plannerTrace` per step (ditampilkan UI sebagai section "Cara Agen Menyusun Analisis Ini").
 
 ---
 
@@ -64,17 +73,18 @@ Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self
 
 | Path | Peran |
 |---|---|
-| `app/page.tsx` + `components/dashboard/*` | Dashboard (17 kartu: QuantEngine, KellyMatrix, SyndicateDebate, OddsDislocation, dll) |
+| `app/page.tsx` + `components/dashboard/*` | Dashboard: tab Ringkasan (verdict + faktor kunci + ThinkingPlannerCard + integrity), Kuantitatif (QuantEngineCard: hero prob/fair odds + bukti + lipatan Kelly & metode), Odds (TheStatsOddsComparison + OddsDislocationBar), Debat (SyndicateDebateCard, argumen per persona terlipat) |
 | `app/api/matches/route.ts` | Katalog match dari TheStatsAPI |
-| `app/api/agent/route.tsx` | **HTTP shell pipeline analisis** — panggil planner, merge output, jaga kontrak response |
+| `app/api/agent/route.tsx` | **HTTP shell pipeline analisis** — panggil planner, validasi `AnalysisSchema`, map ke `AnalysisView` |
 | `app/api/betting/route.ts` | Bonus: analisis taruhan dual-model A/B (`bai/qwen3.8-27b` + `bai/deepseek-v4.1-flash`) |
-| `app/api/odds/route.ts` | Bonus: perbandingan odds TheStatsAPI vs pasar |
-| `lib/agent/planner.ts` | **Otomasi inti**: loop `plan→act→evaluate→re-plan`, tool definitions, `buildQuantPackage` |
+| `app/api/odds/route.ts` | Bonus: perbandingan odds TheStatsAPI vs pasar (di-cache di client) |
+| `lib/view/analysis-view.ts` | **BFF**: `AnalysisViewSchema` + `mapPipelineToView()` — pure function, angka copy 1:1, helper format sadar-skala, null jujur ("—", bukan 0) |
+| `lib/agent/planner.ts` | **Otomasi inti**: loop `plan→act→evaluate→re-plan`, tool definitions, `buildQuantPackage`, trace + coverage per step |
 | `lib/agent/coverage.ts` | Evaluator coverage (code) + aturan trigger re-plan machine-verifiable |
-| `lib/agent/schemas.ts` | `AnalysisSchema` (kontrak response), `VerdictInputSchema`, `PlannerTraceSchema` |
+| `lib/agent/schemas.ts` | `AnalysisSchema` (kontrak pipeline), `VerdictInputSchema`, `PlannerTraceSchema` (termasuk `coverage` per step) |
 | `lib/agent/llm.ts` | Klien 9Router (sumber tunggal), `callModelWithFallback`, `extractJSON`, `buildEditorialPrompts` |
 | `lib/llm/models.ts` | Sumber tunggal nama model: `PLANNER`, `SYNDICATE`, `STATS_FETCHER`, `EDITORIAL` |
-| `lib/stats-fetcher-agent.ts` | Dispatcher pemilihan endpoint + fetch selektif TheStatsAPI |
+| `lib/stats-fetcher-agent.ts` | Dispatcher fetch selektif TheStatsAPI (heuristic langsung; LLM di balik flag `DISPATCHER_LLM=1`) |
 | `lib/stats-validator.ts` | Zod sanitizer `VerifiedMatchIntelligence` |
 | `lib/syndicate-orchestrator.ts` | Debat 5 persona multi-model + dual judgement + arbiter |
 | `lib/quant/*` | Dixon-Coles, vig-stripping (Shin), Kelly, ratings (James-Stein), luck regression, special markets |
@@ -83,7 +93,8 @@ Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self
 | `scripts/sync-weekly-telemetry.ts`, `ingest-*.ts` | Ingestion data mingguan/multi-liga (CLI manual) |
 | `scripts/calibrate-ratings.ts`, `backtest-dixon-coles.ts` | Kalibrasi rating + backtest harness (workstream kuantitatif) |
 | `scripts/test-planner-tool-calling.ts`, `test-planner-loop.ts` | Runnable check pipeline agent |
-| `archive/` | Sisa pipeline lama & eksplorasi one-off (lihat `archive/README.md`) |
+| `scripts/test-view-mapper.ts` | Runnable check BFF: fixture wajib lolos `AnalysisSchema`, assert skala angka, null jujur, anti-kebocoran field mentah |
+| `archive/` | Sisa pipeline lama, komponen terpotong (`archive/legacy-components/`), eksplorasi one-off (lihat `archive/README.md`) |
 
 ---
 
@@ -112,21 +123,46 @@ Loop = `plan → act → evaluate → re-plan`, hard cap **8 step** (`PLANNER_MA
 | `CONSENSUS_LEMAH` | `consensus_level` ∈ {SPLIT_DECISION, DISSENT} | `run_syndicate_debate` ronde 2 (maks 2) |
 | `ODDS_DISLOCATION` | \|EV\| value bet > 20% | Editorial wajib membahas gap odds |
 
-Hasil evaluasi disuntikkan ke tiap tool result sebagai `coverage_check`. Setelah loop, route menyimpan jejaknya di response field `plannerTrace` (steps + alasan + stop_reason + gaps).
+`coverage_check` disuntikkan ke tiap tool result **dan** distempel ke step `plannerTrace` (checklist, gaps, triggers). UI menampilkannya apa adanya di thinking panel — 2 step pertama + step ber-trigger terbuka, sisanya terlipat.
 
 ---
 
 ## 6. Guardrails (jangan dilanggar)
 
 1. **Angka hanya dari tool** — planner dilarang menghitung/mengarang angka; `lib/quant/*` tidak boleh memanggil LLM
-2. **Closed-world grounding** — prompt editorial punya 7 aturan anti-halusinasi (pemain/cedera/H2H hanya dari data, wajib selaras quant engine, pasar khusus bukan +EV, status estimasi dihormati)
-3. **Evaluasi oleh code** — coverage & trigger re-plan dihitung Zod/numerik, bukan klaim LLM
-4. **Multi-model jangan diseragamkan** — kesalahan antar vendor tidak berkorelasi; itu nilai cross-check-nya
-5. **Fail-fast eksplisit** — data inti hilang → HTTP 500 + `plannerTrace`, bukan output palsu
+2. **Fidelitas angka sampai ke layar** — view-model menyalin angka apa adanya; konversi tampilan hanya lewat helper **sadar skala** (sumber desimal vs sumber persen beda helper — `top_scorelines.prob` sudah persen, jangan dikali 100 lagi). Tidak ada nilai default karangan: field absen → `null` / "—", bukan 0
+3. **Closed-world grounding** — prompt editorial punya 7 aturan anti-halusinasi; status estimasi dihormati
+4. **Evaluasi oleh code** — coverage & trigger re-plan dihitung Zod/numerik, bukan klaim LLM
+5. **Multi-model jangan diseragamkan** — kesalahan antar vendor tidak berkorelasi; itu nilai cross-check-nya
+6. **Fail-fast eksplisit** — data inti hilang → HTTP 500 + `plannerTrace`, bukan output palsu
 
 ---
 
-## 7. Model Roster (via 9Router lokal, konfigurasi `lib/llm/models.ts`)
+## 7. View-Model & Frontend
+
+**Kontrak client = `AnalysisViewSchema`** (`lib/view/analysis-view.ts`), bentuknya persis yang dirender:
+
+```
+match      : id, home, away, kickoff_wib, competition, venue, wasit, wasit_kartu, status_lineup
+ringkasan  : verdict, prediksi, keyakinan, alasan, faktor_kunci, integrity {gaps, status_estimasi}
+kuantitatif: hero {prob, fair_odds, ev_teratas} · bukti[] (maks 5) · detail {kelly, metode, splits, pasar_lain}
+odds       : dislocation {ringkasan_1x2, asian_handicap, over_under, btts, pasar_konsensus, fair}, smart_money
+debat      : consensus, supreme, persona[] (terlipat per persona), dual_bench
+thinking   : steps[] {step, tool, alasan, trigger, coverage}, stop_reason, durasi_ms
+markets    : null (on-demand dari /api/betting)
+```
+
+Aturan frontend:
+- **Dumb renderer** — tiap section render field-nya 1:1; nol penggalian path dalam, nol kalkulasi angka baru (perhitungan turunan display seperti delta% odds ada di card, bukan di mapper)
+- **Anti-tumpuk**: tiap view satu elemen dominan; terbuka default = ringkasan + ≤5 baris bukti; sisanya `<details>` native dengan judul informatif
+- **Verdict-first** — tab default Ringkasan: keputusan (PASS/NO BET + skor + keyakinan) terbaca ≤1 layar
+- **Markets on-demand** — 1xBet/Scanner lazy (`next/dynamic`), butuh scan manual, entry 1 klik dari Ringkasan
+- **Payload minimal** — `rawLineups`/`audit`/`cacheMetrics` tidak pernah ke client (audit via `?debug=1`)
+- Kontrak `/api/betting` dijaga dari sisi client: `match_context.probabilitas_pasar` = `odds.dislocation.pasar_konsensus` (persen konsensus), `wasit_kartu` = `match.wasit_kartu`, `npxg_*` = `detail.splits.npxg_*`
+
+---
+
+## 8. Model Roster (via 9Router lokal, konfigurasi `lib/llm/models.ts`)
 
 | Peran | Default | Sifat |
 |---|---|---|
@@ -143,16 +179,16 @@ Semua bisa dioverride lewat env (lihat `.env.example`).
 
 ---
 
-## 8. Data Layer
+## 9. Data Layer
 
 - **TheStatsAPI** (remote, kuota terbatas) → `lib/stats-cache.ts` (TTL in-memory) → Zod sanitizer
-- **SQLite lokal** (`lib/db/`): `thestats-dataset` (team, squad, match log, H2H, injuries), `team-telemetry` (rolling stats pra-laga), `thestats-vault` (payload mentah), `sqlite-master` (historis untuk backtest)
+- **SQLite lokal** (`lib/db/`): `thestats-dataset`, `team-telemetry`, `thestats-vault`, `sqlite-master`
 - **`data/calibrated_ratings.json`** — hasil kalibrasi rating (James-Stein shrinkage) dari `scripts/calibrate-ratings.ts`
 - Tier-1 offline diprioritaskan: fetch online hanya fallback bila SQLite kosong
 
 ---
 
-## 9. Menjalankan & Menguji
+## 10. Menjalankan & Menguji
 
 ```bash
 npm run dev                        # dashboard di http://localhost:3000
@@ -160,6 +196,7 @@ npm run sync:weekly                # sinkronisasi telemetry mingguan (CLI)
 npm run ingest:multileague         # ingest multi-liga
 npx tsx scripts/test-planner-tool-calling.ts   # gate native tool-calling model planner
 npx tsx scripts/test-planner-loop.ts           # loop + coverage evaluator (mock tools)
+npx tsx scripts/test-view-mapper.ts            # BFF: fidelitas angka, null jujur, anti-leak
 npx tsc --noEmit                   # typecheck
 npm run build                      # build produksi
 ```
@@ -167,11 +204,15 @@ npm run build                      # build produksi
 Env wajib ada di `.env.local` (lihat `.env.example`): `NINE_ROUTER_BASE_URL`, `NINE_ROUTER_API_KEY`, `STATS_API_KEY`.
 Flag debug: `PIPELINE_DEBUG=1` (log verbose), `PLANNER_MAX_STEPS` (cap loop), `DISPATCHER_LLM=1` (aktifkan kembali dispatcher LLM).
 
+Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build terpotong — bug Next.js yang sudah dilaporkan). `?debug=1` menjalankan analisis ulang penuh (belum mengambil raw dari run yang sama).
+
 ---
 
-## 10. Roadmap yang belum dibangun
+## 11. Roadmap (topik bahasan berikutnya)
 
-- Outcome tracker: hasil aktual vs prediksi → feedback ke ratings/confidence
-- Trigger otonom (cron per kickoff) — saat ini analisis dipicu klik user
-- Trace rencana di UI (`plannerTrace` sudah ada di response, belum dirender)
-- `query_odds_dislocation` & `run_special_markets` sebagai tool terpisah (saat ini masuk paket quant)
+- **Optimasi latensi** — run 2–7 menit (debate 2 ronde + editorial sekuensial); kandidat: paralelisasi debate↔editorial, caching hasil run, `?debug=1` tanpa re-run
+- **Riwayat analisis** — simpan `AnalysisView` per match (SQLite) + endpoint baca (saat ini hasil hilang setelah refresh)
+- **Outcome tracker** — hasil aktual vs prediksi → feedback ke ratings/confidence
+- **Trigger otonom** (cron per kickoff) — saat ini analisis dipicu klik user
+- `query_odds_dislocation` & `run_special_markets` sebagai tool planner terpisah (saat ini masuk paket quant)
+- Sisa polish UI: struktur katalog (grid kartu identik), radius/tokens menyeluruh
