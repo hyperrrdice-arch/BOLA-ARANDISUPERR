@@ -56,6 +56,14 @@ export interface TeamRollingTelemetry {
   avg_yellow_cards: number | null;
 
   recent_logs: TeamMatchLogRecord[];
+
+  // 7. Gesekan Jadwal & Kelelahan Kontinental (Midweek Fatigue Signal)
+  schedule_friction?: {
+    last_match_date: string | null;
+    rest_days: number | null;
+    midweek_continental: boolean;
+    fatigue_risk: "HIGH" | "MODERATE" | "LOW";
+  };
 }
 
 export interface TeamSquadTelemetry {
@@ -90,40 +98,67 @@ export function resolveTeamId(teamIdOrName: string): string {
   }
 }
 
+export const COMPETITION_AVG_GOALS: Record<string, number> = {
+  comp_3039: 1.48, // EPL (E0)
+  comp_8814: 1.54, // LaLiga (SP1)
+  comp_5840: 1.43, // Serie A (I1)
+  comp_4643: 1.91, // Bundesliga (D1)
+  comp_0256: 1.45, // Ligue 1 (F1)
+  comp_3809: 1.87, // Eredivisie (N1)
+  comp_3498: 2.04, // UCL (Continental)
+};
+
+export const DIV_TO_COMPETITION_ID: Record<string, string> = {
+  E0: "comp_3039",
+  SP1: "comp_8814",
+  I1: "comp_5840",
+  D1: "comp_4643",
+  F1: "comp_0256",
+  N1: "comp_3809",
+  UCL: "comp_3498",
+};
+
 /**
  * Mengambil log laga pra-pertandingan (Anti-Data Leakage)
- * Hanya mengambil laga dengan match_date < beforeDate jika beforeDate disediakan
+ * Menyertakan competition_id dari matches untuk normalisasi kompetisi
  */
-export function getPreMatchLogs(teamIdOrName: string, limit: number = 6, beforeDate?: string): TeamMatchLogRecord[] {
+export function getPreMatchLogs(
+  teamIdOrName: string,
+  limit: number = 6,
+  beforeDate?: string
+): (TeamMatchLogRecord & { competition_id?: string })[] {
   const db = getTheStatsDb();
   const teamId = resolveTeamId(teamIdOrName);
   if (beforeDate) {
     const stmt = db.prepare(`
-      SELECT * FROM team_match_logs
-      WHERE team_id = ? AND match_date < ?
-      ORDER BY match_date DESC
+      SELECT l.*, m.competition_id FROM team_match_logs l
+      LEFT JOIN matches m ON l.match_id = m.match_id
+      WHERE l.team_id = ? AND l.match_date < ?
+      ORDER BY l.match_date DESC
       LIMIT ?
     `);
-    return stmt.all(teamId, beforeDate, limit) as unknown as TeamMatchLogRecord[];
+    return stmt.all(teamId, beforeDate, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
   }
 
   const stmt = db.prepare(`
-    SELECT * FROM team_match_logs
-    WHERE team_id = ?
-    ORDER BY match_date DESC
+    SELECT l.*, m.competition_id FROM team_match_logs l
+    LEFT JOIN matches m ON l.match_id = m.match_id
+    WHERE l.team_id = ?
+    ORDER BY l.match_date DESC
     LIMIT ?
   `);
-  return stmt.all(teamId, limit) as unknown as TeamMatchLogRecord[];
+  return stmt.all(teamId, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
 }
 
 /**
  * Menghitung rolling metrics tanpa silent imputation (Zero False Assumptions)
- * Data observed yang tidak tersedia di raw API tetap bernilai NULL secara transparan.
+ * Menerapkan Weighted Normalization xG lintas kompetisi jika targetDivCode disediakan.
  */
 export function getTeamRollingTelemetry(
   teamId: string,
   limit: number = 6,
-  beforeDate?: string
+  beforeDate?: string,
+  targetDivCode?: string
 ): TeamRollingTelemetry {
   const logs = getPreMatchLogs(teamId, limit, beforeDate);
 
@@ -167,6 +202,10 @@ export function getTeamRollingTelemetry(
 
   const n = logs.length;
 
+  // Resolusi bobot target liga untuk normalisasi xG
+  const targetCompId = targetDivCode ? DIV_TO_COMPETITION_ID[targetDivCode.toUpperCase()] : undefined;
+  const targetAvgGoals = targetCompId ? (COMPETITION_AVG_GOALS[targetCompId] || 1.48) : 1.48;
+
   // Akumulator metrik aktual
   let totalGoalsFor = 0;
   let totalGoalsAgainst = 0;
@@ -203,17 +242,26 @@ export function getTeamRollingTelemetry(
     if (log.goals_against === 0) cleanSheets++;
     formArr.push(log.result);
 
-    // Observed xG
+    // Weighted Normalization factor untuk xG (EPL vs UCL dll.)
+    let xgWeight = 1.0;
+    if (log.competition_id && targetCompId && log.competition_id !== targetCompId) {
+      const logCompAvg = COMPETITION_AVG_GOALS[log.competition_id] || targetAvgGoals;
+      if (logCompAvg > 0) {
+        xgWeight = Number((targetAvgGoals / logCompAvg).toFixed(3));
+      }
+    }
+
+    // Observed xG dengan penskalaan normalisasi kompetisi
     if (log.xg_for !== null && log.xg_for !== undefined) {
-      sumXgFor += log.xg_for;
-      sumXgAgainst += log.xg_against ?? 0;
+      sumXgFor += log.xg_for * xgWeight;
+      sumXgAgainst += (log.xg_against ?? 0) * xgWeight;
       countXg++;
     }
 
-    // Observed npxG
+    // Observed npxG dengan penskalaan normalisasi kompetisi
     if (log.npxg_for !== null && log.npxg_for !== undefined) {
-      sumNpxgFor += log.npxg_for;
-      sumNpxgAgainst += log.npxg_against ?? 0;
+      sumNpxgFor += log.npxg_for * xgWeight;
+      sumNpxgAgainst += (log.npxg_against ?? 0) * xgWeight;
       countNpxg++;
     }
 
@@ -333,6 +381,20 @@ export function getTeamRollingTelemetry(
     avg_yellow_cards: countYellows > 0 ? Number((sumYellows / countYellows).toFixed(1)) : null,
 
     recent_logs: logs,
+
+    schedule_friction: (() => {
+      if (logs.length === 0 || !logs[0].match_date) return undefined;
+      const lastDate = new Date(logs[0].match_date).getTime();
+      const refDate = beforeDate ? new Date(beforeDate).getTime() : Date.now();
+      const restDays = Math.max(0, Math.round((refDate - lastDate) / (1000 * 60 * 60 * 24)));
+      const isContinental = logs[0].competition_id === "comp_3498";
+      return {
+        last_match_date: logs[0].match_date,
+        rest_days: restDays,
+        midweek_continental: isContinental && restDays <= 4,
+        fatigue_risk: (isContinental && restDays <= 3) ? "HIGH" : (restDays <= 3 ? "MODERATE" : "LOW"),
+      };
+    })(),
   };
 }
 

@@ -70,9 +70,9 @@ assert('"greek super league" -> G1', resolveDivCode("greek super league") === "G
 // ---------------------------------------------------------------------------
 console.log("\n[4] Liga tak dikenal TIDAK boleh fallback ke E0");
 const unknown = getShrunkMatchParameters({
-  homeTeam: "Real Madrid",
-  awayTeam: "Barcelona",
-  leagueHint: "UEFA Champions League",
+  homeTeam: "Persija",
+  awayTeam: "Persib",
+  leagueHint: "Liga 1 Indonesia",
   homeSampleN: 3,
   awaySampleN: 3,
 });
@@ -80,6 +80,16 @@ assert("isCalibrated === false", unknown.isCalibrated === false);
 assert('div === "UNKNOWN"', unknown.metadata?.div === "UNKNOWN", `dapat ${unknown.metadata?.div}`);
 assert('div BUKAN "E0"', unknown.metadata?.div !== "E0");
 assert("telemetry source macro_prior_only", unknown.metadata?.telemetrySource?.home === "macro_prior_only");
+
+// UCL resmi terpetakan ke divisi kontinental UCL
+const uclMatch = getShrunkMatchParameters({
+  homeTeam: "Arsenal",
+  awayTeam: "Paris Saint-Germain",
+  leagueHint: "UEFA Champions League",
+  homeSampleN: 3,
+  awaySampleN: 3,
+});
+assert('UCL -> div "UCL"', uclMatch.metadata?.div === "UCL", `dapat ${uclMatch.metadata?.div}`);
 
 const laliga = getShrunkMatchParameters({
   homeTeam: "Real Madrid",

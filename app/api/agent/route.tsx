@@ -397,6 +397,7 @@ export async function GET(req: Request) {
         homeTelemetry: homeTelem,
         awayTelemetry: awayTelem,
         cutoffDate: today,
+        divCode: shrunkParams.metadata?.div,
       })
     : null;
 
@@ -423,6 +424,7 @@ export async function GET(req: Request) {
     },
     value_bets: valueBets,
     special_markets: specialMarkets,
+    luck_metrics: shrunkParams.metadata?.luckMetrics,
     calibration_metadata: {
       is_calibrated: shrunkParams.isCalibrated,
       div: shrunkParams.metadata?.div,
@@ -452,10 +454,7 @@ export async function GET(req: Request) {
     `5. KONSISTENSI DATA HILANG: Setiap poin dalam 'missing_data_registry' wajib dimasukkan ke array 'data_tidak_tersedia'.\n` +
     `6. PASAR KHUSUS BUKAN REKOMENDASI VALUE: Jika ada 'special_markets' di payload (headed goal/corners/cards), itu HANYA fair odds model. Odds bandar untuk pasar tersebut TIDAK tersedia, jadi EV tidak dapat dihitung. Dilarang mengklaim pasar khusus punya "+EV", "edge", atau "value". Yang boleh dinilai +EV hanya pasar di 'value_bets'.\n` +
     `7. STATUS ESTIMASI WAJIB DIHORMATI: Jika sebuah pasar bertanda is_estimated=true atau confidence_tier INSUFFICIENT_DATA/LOW, jangan sajikan sebagai angka terukur. Sebutkan sebagai estimasi berbasis rata-rata liga.\n\n` +
-    `ARSITEKTUR DEBAT:\n` +
-    `- Bull Analyst (${MODEL_BULL}): Membangun tesis kemenangan berbasis momentum & xG kuantitatif.\n` +
-    `- Bear Auditor (${MODEL_BEAR}): Menguji tesis Bull, mencari peringatan trap line bandar & kelelahan.\n` +
-    `- Chief Risk Officer Verdict (${MODEL_ARBITER}): Keputusan final, tier keyakinan (A/B/C/PASS), dan stake Kelly.\n` +
+    `Tugas kamu adalah menyusun analisis taktis, ulasan wasit, evaluasi pasar, dan prediksi editorial yang objektif dan berpijak penuh pada data intelijen di atas.\n` +
     `KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON VALID.`;
 
   const userPayload = {
@@ -541,27 +540,6 @@ export async function GET(req: Request) {
     `    "keyakinan": "rendah" | "sedang" | "tinggi",\n` +
     `    "alasan": string,\n` +
     `    "konsensus_panel": string\n` +
-    `  },\n` +
-    `  "syndicate_debate": {\n` +
-    `    "bull_case": {\n` +
-    `      "model": "${MODEL_BULL}",\n` +
-    `      "thesis": string,\n` +
-    `      "key_drivers": [ string, string ],\n` +
-    `      "tactical_edge": string\n` +
-    `    },\n` +
-    `    "bear_case": {\n` +
-    `      "model": "${MODEL_BEAR}",\n` +
-    `      "thesis": string,\n` +
-    `      "trap_warnings": [ string, string ],\n` +
-    `      "vulnerability_audit": string\n` +
-    `    },\n` +
-    `    "arbiter_verdict": {\n` +
-    `      "model": "${MODEL_ARBITER}",\n` +
-    `      "chief_risk_officer_synthesis": string,\n` +
-    `      "confidence_tier": "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID",\n` +
-    `      "recommended_market": string,\n` +
-    `      "recommended_stake_fraction": string\n` +
-    `    }\n` +
     `  },\n` +
     `  "data_tidak_tersedia": ${JSON.stringify(intel.missing_data_registry)}\n` +
     `}`;

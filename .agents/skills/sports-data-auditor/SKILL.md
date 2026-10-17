@@ -13,7 +13,7 @@ This slash command routes the request directly to the specialized **`sports-data
 2. **Invoke Subagent**: Immediately call the `invoke_subagent` tool with:
    - `TypeName`: `sports-data-auditor`
    - `Role`: `Sports Data Integrity & Grounding Auditor`
-   - `Model`: `flash` (Gemini 3.8 Flash Low / Fast)
+   - `Model`: `flash` (Gemini 3.8 Flash Medium)
    - `Workspace`: `inherit`
    - `Prompt`: Pass the target data parser (`lib/stats-*`), caching strategy, or syndicate grounding prompt to audit.
 3. **Report Back**: Summarize the data sanitization findings, missing field registries, or quota optimization metrics.

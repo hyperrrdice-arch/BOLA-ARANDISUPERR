@@ -521,3 +521,114 @@ export function getDatabaseMetrics() {
     logsCount,
   };
 }
+
+/**
+ * Helper internal untuk me-resolve ID tim baik dari team_id maupun nama tim
+ */
+export function resolveLocalTeamId(idOrName: string): string {
+  const db = getTheStatsDb();
+  const direct = db.prepare("SELECT team_id FROM teams WHERE team_id = ?").get(idOrName) as { team_id: string } | undefined;
+  if (direct) return direct.team_id;
+
+  const byName = db.prepare(`
+    SELECT team_id FROM teams 
+    WHERE LOWER(name) = LOWER(?) 
+       OR LOWER(short_name) = LOWER(?) 
+       OR LOWER(name) LIKE LOWER(?)
+    LIMIT 1
+  `).get(idOrName, idOrName, `%${idOrName}%`) as { team_id: string } | undefined;
+
+  return byName ? byName.team_id : idOrName;
+}
+
+/**
+ * Mengambil H2H lokal dari thestats_dataset.db (Tier-1 Offline SQLite)
+ * Memformat output sesuai RawMatchSchema / stats-validator.ts
+ */
+export function getLocalH2HMatches(teamA: string, teamB: string, limit: number = 6) {
+  const db = getTheStatsDb();
+  const teamAId = resolveLocalTeamId(teamA);
+  const teamBId = resolveLocalTeamId(teamB);
+
+  const rows = db.prepare(`
+    SELECT m.match_id as id, m.utc_date, m.status, 
+           m.home_team_id, ht.name as home_name,
+           m.away_team_id, at.name as away_name,
+           m.home_score, m.away_score
+    FROM matches m
+    JOIN teams ht ON m.home_team_id = ht.team_id
+    JOIN teams at ON m.away_team_id = at.team_id
+    WHERE (m.home_team_id = ? AND m.away_team_id = ?)
+       OR (m.home_team_id = ? AND m.away_team_id = ?)
+    ORDER BY m.utc_date DESC LIMIT ?
+  `).all(teamAId, teamBId, teamBId, teamAId, limit) as any[];
+
+  return rows.map((m) => ({
+    id: m.id,
+    utc_date: m.utc_date,
+    status: m.status,
+    home_team: { id: m.home_team_id, name: m.home_name },
+    away_team: { id: m.away_team_id, name: m.away_name },
+    score: {
+      regulation: { home: m.home_score ?? 0, away: m.away_score ?? 0 },
+      home: m.home_score ?? 0,
+      away: m.away_score ?? 0,
+    },
+  }));
+}
+
+/**
+ * Mengambil 6 Match Form Lokal dari thestats_dataset.db (Tier-1 Offline SQLite)
+ */
+export function getLocalRecentMatches(team: string, limit: number = 6) {
+  const db = getTheStatsDb();
+  const teamId = resolveLocalTeamId(team);
+
+  const rows = db.prepare(`
+    SELECT m.match_id as id, m.utc_date, m.status, 
+           m.home_team_id, ht.name as home_name,
+           m.away_team_id, at.name as away_name,
+           m.home_score, m.away_score
+    FROM matches m
+    JOIN teams ht ON m.home_team_id = ht.team_id
+    JOIN teams at ON m.away_team_id = at.team_id
+    WHERE m.home_team_id = ? OR m.away_team_id = ?
+    ORDER BY m.utc_date DESC LIMIT ?
+  `).all(teamId, teamId, limit) as any[];
+
+  return rows.map((m) => ({
+    id: m.id,
+    utc_date: m.utc_date,
+    status: m.status,
+    home_team: { id: m.home_team_id, name: m.home_name },
+    away_team: { id: m.away_team_id, name: m.away_name },
+    score: {
+      regulation: { home: m.home_score ?? 0, away: m.away_score ?? 0 },
+      home: m.home_score ?? 0,
+      away: m.away_score ?? 0,
+    },
+  }));
+}
+
+/**
+ * Mengambil Laporan Cedera dari SQLite team_squads (Tier-1 Offline SQLite)
+ */
+export function getLocalSquadInjuries(team: string) {
+  const db = getTheStatsDb();
+  const teamId = resolveLocalTeamId(team);
+
+  const rows = db.prepare(`
+    SELECT name, injury_status 
+    FROM team_squads 
+    WHERE team_id = ? 
+      AND injury_status IS NOT NULL 
+      AND injury_status != 'FIT'
+      AND injury_status NOT LIKE 'UNKNOWN%'
+  `).all(teamId) as { name: string; injury_status: string }[];
+
+  return rows.map((r) => ({
+    player_name: r.name,
+    reason: r.injury_status,
+  }));
+}
+

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Quantitative Special Markets Engine
  * Menghitung probabilitas pasar khusus 1xBet (Headed Goal, Corners, Cards, Passes)
  * berbasis telemetry terukur dari thestats_dataset.db.
@@ -96,22 +96,47 @@ function poissonCDF(k: number, lambda: number): number {
   return Math.min(1.0, Math.max(0.0, sum));
 }
 
+export interface LeagueSpecialBenchmarks {
+  divCode: string;
+  avgCornersTeam: number;
+  avgCardsTeam: number;
+  avgAccurateCrosses: number;
+  avgAerialShare: number;
+  avgHeaderRate: number;
+  avgBoxTouches: number;
+}
+
+export const SPECIAL_MARKET_BENCHMARKS: Record<string, LeagueSpecialBenchmarks> = {
+  E0: { divCode: "E0", avgCornersTeam: 4.66, avgCardsTeam: 1.96, avgAccurateCrosses: 4.13, avgAerialShare: 0.311, avgHeaderRate: 0.19, avgBoxTouches: 25.0 },
+  SP1: { divCode: "SP1", avgCornersTeam: 4.89, avgCardsTeam: 2.21, avgAccurateCrosses: 3.62, avgAerialShare: 0.218, avgHeaderRate: 0.16, avgBoxTouches: 23.6 },
+  I1: { divCode: "I1", avgCornersTeam: 4.75, avgCardsTeam: 1.67, avgAccurateCrosses: 4.43, avgAerialShare: 0.228, avgHeaderRate: 0.17, avgBoxTouches: 26.0 },
+  D1: { divCode: "D1", avgCornersTeam: 5.40, avgCardsTeam: 1.77, avgAccurateCrosses: 4.87, avgAerialShare: 0.316, avgHeaderRate: 0.20, avgBoxTouches: 28.3 },
+  F1: { divCode: "F1", avgCornersTeam: 4.82, avgCardsTeam: 1.64, avgAccurateCrosses: 4.52, avgAerialShare: 0.231, avgHeaderRate: 0.18, avgBoxTouches: 24.6 },
+  N1: { divCode: "N1", avgCornersTeam: 5.23, avgCardsTeam: 1.38, avgAccurateCrosses: 4.57, avgAerialShare: 0.261, avgHeaderRate: 0.19, avgBoxTouches: 28.1 },
+  UCL: { divCode: "UCL", avgCornersTeam: 4.90, avgCardsTeam: 1.82, avgAccurateCrosses: 3.40, avgAerialShare: 0.196, avgHeaderRate: 0.15, avgBoxTouches: 26.0 },
+  DEFAULT: { divCode: "DEFAULT", avgCornersTeam: 5.00, avgCardsTeam: 1.90, avgAccurateCrosses: 4.10, avgAerialShare: 0.260, avgHeaderRate: 0.18, avgBoxTouches: 25.0 },
+};
+
+export function getLeagueBenchmarks(divCode?: string): LeagueSpecialBenchmarks {
+  if (!divCode) return SPECIAL_MARKET_BENCHMARKS.DEFAULT;
+  const upper = divCode.toUpperCase().trim();
+  return SPECIAL_MARKET_BENCHMARKS[upper] || SPECIAL_MARKET_BENCHMARKS.DEFAULT;
+}
+
 /**
  * Menghitung probabilitas pasar Headed Goal (Gol Sundulan)
- * Menggunakan korelasi antara accurate_crosses, aerial_duels_pct, dan touches_in_box
+ * Menggunakan benchmark adaptif multi-liga dan korelasi antara accurate_crosses, aerial_duels_pct, dan touches_in_box
  */
 export function calculateHeadedGoalMarket(
   homeTelemetry: TeamRollingTelemetry,
-  awayTelemetry: TeamRollingTelemetry
+  awayTelemetry: TeamRollingTelemetry,
+  divCode?: string
 ): SpecialMarketsPackage["headed_goal"] {
-  // Baseline Liga Inggris (PL 2024-2026): ~0.38 gol sundulan per laga (0.19 per tim)
-  const LEAGUE_BASE_HEADER_RATE = 0.19;
-  const BENCHMARK_CROSSES = 3.5;
-  // Rata-rata aerial share PL (aerial_duels / total duels_won) dari sample dataset.
-  // Aerial share adalah fitur dominan gol sundulan dan memang berupa rasio 0-1,
-  // jadi dipakai proporsional (exponent 1.0) tanpa damping tambahan.
-  const BENCHMARK_AERIAL_SHARE = 0.3;
-  const BENCHMARK_BOX_TOUCHES = 24.0;
+  const bench = getLeagueBenchmarks(divCode);
+  const LEAGUE_BASE_HEADER_RATE = bench.avgHeaderRate;
+  const BENCHMARK_CROSSES = bench.avgAccurateCrosses;
+  const BENCHMARK_AERIAL_SHARE = bench.avgAerialShare;
+  const BENCHMARK_BOX_TOUCHES = bench.avgBoxTouches;
 
   const homeAerialSamples = homeTelemetry.observed_aerial_samples || 0;
   const awayAerialSamples = awayTelemetry.observed_aerial_samples || 0;
@@ -121,9 +146,6 @@ export function calculateHeadedGoalMarket(
   const minSamples = Math.min(homeAerialSamples, awayAerialSamples);
 
   // Aerial share = duel udara yang dimenangkan / total duel yang dimenangkan.
-  // Field mentah aerial_duels_pct_for adalah JUMLAH duel udara (bukan persentase dan
-  // bukan win-rate udara), jadi tidak boleh dibandingkan dengan benchmark persen.
-  // Rasio inilah yang bermakna sebagai kekuatan duel udara sebuah tim.
   const aerialShare = (t: TeamRollingTelemetry): number | null => {
     const aerial = t.avg_aerial_duels_pct_for;
     const total = t.avg_duels_won_pct_for;
@@ -240,12 +262,15 @@ function tierForSamples(minSamples: number): {
 
 /**
  * Menghitung probabilitas pasar Corners (Tendangan Sudut)
+ * Menggunakan benchmark adaptif multi-liga
  */
 export function calculateCornersMarket(
   homeTelemetry: TeamRollingTelemetry,
-  awayTelemetry: TeamRollingTelemetry
+  awayTelemetry: TeamRollingTelemetry,
+  divCode?: string
 ): SpecialMarketsPackage["corners"] {
-  const LEAGUE_AVG_CORNERS_TEAM = 5.2;
+  const bench = getLeagueBenchmarks(divCode);
+  const LEAGUE_AVG_CORNERS_TEAM = bench.avgCornersTeam;
 
   const homeCorners = homeTelemetry.avg_corners_for !== null ? homeTelemetry.avg_corners_for : LEAGUE_AVG_CORNERS_TEAM;
   const awayCorners = awayTelemetry.avg_corners_for !== null ? awayTelemetry.avg_corners_for : LEAGUE_AVG_CORNERS_TEAM;
@@ -291,12 +316,15 @@ export function calculateCornersMarket(
 
 /**
  * Menghitung probabilitas pasar Kartu & Disiplin (Yellow/Red Cards)
+ * Menggunakan benchmark adaptif multi-liga
  */
 export function calculateCardsMarket(
   homeTelemetry: TeamRollingTelemetry,
-  awayTelemetry: TeamRollingTelemetry
+  awayTelemetry: TeamRollingTelemetry,
+  divCode?: string
 ): SpecialMarketsPackage["cards"] {
-  const LEAGUE_AVG_CARDS_TEAM = 2.1;
+  const bench = getLeagueBenchmarks(divCode);
+  const LEAGUE_AVG_CARDS_TEAM = bench.avgCardsTeam;
 
   const homeCards = homeTelemetry.avg_yellow_cards !== null ? homeTelemetry.avg_yellow_cards : LEAGUE_AVG_CARDS_TEAM;
   const awayCards = awayTelemetry.avg_yellow_cards !== null ? awayTelemetry.avg_yellow_cards : LEAGUE_AVG_CARDS_TEAM;
@@ -347,12 +375,13 @@ export function generateSpecialMarketsPackage(options: {
   homeTelemetry: TeamRollingTelemetry;
   awayTelemetry: TeamRollingTelemetry;
   cutoffDate?: string;
+  divCode?: string;
 }): SpecialMarketsPackage {
-  const { homeTeam, awayTeam, homeTelemetry, awayTelemetry, cutoffDate } = options;
+  const { homeTeam, awayTeam, homeTelemetry, awayTelemetry, cutoffDate, divCode } = options;
 
-  const headed = calculateHeadedGoalMarket(homeTelemetry, awayTelemetry);
-  const corners = calculateCornersMarket(homeTelemetry, awayTelemetry);
-  const cards = calculateCardsMarket(homeTelemetry, awayTelemetry);
+  const headed = calculateHeadedGoalMarket(homeTelemetry, awayTelemetry, divCode);
+  const corners = calculateCornersMarket(homeTelemetry, awayTelemetry, divCode);
+  const cards = calculateCardsMarket(homeTelemetry, awayTelemetry, divCode);
 
   const homePass = homeTelemetry.avg_passes_accurate_for;
   const awayPass = awayTelemetry.avg_passes_accurate_for;

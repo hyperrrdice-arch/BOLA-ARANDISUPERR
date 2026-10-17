@@ -217,6 +217,7 @@ export async function orchestrate5AgentSyndicate(params: {
   matchSummary: string;
   intel: any;
   quantPackage: any;
+  luckSignal?: any;
 }): Promise<SyndicateDebateResult> {
   const { matchSummary, intel, quantPackage } = params;
 
@@ -267,6 +268,39 @@ export async function orchestrate5AgentSyndicate(params: {
     `Sebut sebagai konteks probabilitas saja, dan prioritaskan rekomendasi hanya pada pasar yang memang tercantum di daftar EV di bawah.\n`
   ) : "";
 
+  // Detail Faktual Skuad & Pertemuan (Anti-Halusinasi)
+  const homeXI = intel.lineups?.is_available && Array.isArray(intel.lineups.home_starting_xi) && intel.lineups.home_starting_xi.length > 0
+    ? intel.lineups.home_starting_xi.map((p: any) => `${p.name} (${p.pos || "P"})`).join(", ")
+    : "Lineup belum resmi diumumkan (analisis berbasis unit taktis kolektif)";
+
+  const awayXI = intel.lineups?.is_available && Array.isArray(intel.lineups.away_starting_xi) && intel.lineups.away_starting_xi.length > 0
+    ? intel.lineups.away_starting_xi.map((p: any) => `${p.name} (${p.pos || "P"})`).join(", ")
+    : "Lineup belum resmi diumumkan (analisis berbasis unit taktis kolektif)";
+
+  const homeInjuries = Array.isArray(intel.injuries?.home_injuries) && intel.injuries.home_injuries.length > 0
+    ? intel.injuries.home_injuries.join("; ")
+    : "Tidak ada laporan cedera resmi";
+
+  const awayInjuries = Array.isArray(intel.injuries?.away_injuries) && intel.injuries.away_injuries.length > 0
+    ? intel.injuries.away_injuries.join("; ")
+    : "Tidak ada laporan cedera resmi";
+
+  const h2hMeetings = Array.isArray(intel.h2h_history?.recent_meetings) && intel.h2h_history.recent_meetings.length > 0
+    ? intel.h2h_history.recent_meetings.map((m: any) => `${m.date}: ${m.home} ${m.score} ${m.away}`).join(" | ")
+    : "Tidak ada catatan pertemuan langsung baru";
+
+  // Injeksi Sinyal Keberuntungan xG (Luck Regression)
+  const lm = quantPackage?.calibration_metadata?.luckMetrics || quantPackage?.luck_metrics || params.luckSignal;
+  const luckStr = lm ? (
+    `\nMETRIK REGRESI xG & KEBERUNTUNGAN TIM (LUCK SIGNAL):\n` +
+    `- Disparitas Keberuntungan: ${lm.luck_disparity > 0 ? "+" : ""}${Number(lm.luck_disparity).toFixed(2)}\n` +
+    `- Kandang (${lm.home?.team_id || "Home"}): Status=${lm.home?.status || "NEUTRAL"} | Finishing Luck=${(lm.home?.finishing_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.home?.finishing_luck_per_match ?? 0).toFixed(2)} gol/laga | Def Luck=${(lm.home?.defensive_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.home?.defensive_luck_per_match ?? 0).toFixed(2)}\n` +
+    `- Tamu (${lm.away?.team_id || "Away"}): Status=${lm.away?.status || "NEUTRAL"} | Finishing Luck=${(lm.away?.finishing_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.away?.finishing_luck_per_match ?? 0).toFixed(2)} gol/laga | Def Luck=${(lm.away?.defensive_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.away?.defensive_luck_per_match ?? 0).toFixed(2)}\n` +
+    (lm.market_bias_warning ? `- PERINGATAN BIAS PASAR: ${lm.market_bias_warning}\n` : "") +
+    `- Sudut Pandang Bull: ${lm.agentic_tactical_thesis?.bull_angle || "N/A"}\n` +
+    `- Sudut Pandang Bear: ${lm.agentic_tactical_thesis?.bear_angle || "N/A"}\n`
+  ) : "";
+
   const matchContext =
     `Pertandingan: ${intel.pertandingan.tim_kandang} vs ${intel.pertandingan.tim_tamu} (${intel.pertandingan.kompetisi})\n` +
     `Waktu: ${intel.pertandingan.waktu} | Venue: ${intel.pertandingan.venue}\n` +
@@ -277,9 +311,16 @@ export async function orchestrate5AgentSyndicate(params: {
     `Fair 1X2 Odds: Home=${fairHome} | Draw=${fairDraw} | Away=${fairAway}\n` +
     `Over 2.5 Prob: ${over25Prob}% | BTTS Yes: ${bttsProb}%\n` +
     `Asian Handicap DNB: Home ${dnbHomeProb}% (Fair: ${dnbFair})\n` +
-    `Status Lineup: ${intel.lineups.status_label}\n` +
+    `Lineup Status: ${intel.lineups?.status_label || "belum_tersedia"}\n` +
+    `- Starting XI Kandang: ${homeXI}\n` +
+    `- Starting XI Tamu: ${awayXI}\n` +
+    `Laporan Cedera/Absen:\n` +
+    `- Kandang: ${homeInjuries}\n` +
+    `- Tamu: ${awayInjuries}\n` +
+    `Histori H2H: ${h2hMeetings}\n` +
     `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n` +
     specialMarketsStr + "\n" +
+    luckStr + "\n" +
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
@@ -287,26 +328,26 @@ export async function orchestrate5AgentSyndicate(params: {
 
   // STAGE 1: TRI-AGENT ADVERSARIAL DEBATE IN PARALLEL
   const [bullRaw, neutralRaw, bearRaw] = await Promise.all([
-    // 1. Bull Analyst (ag/gemini-3.8-flash-high)
+    // 1. Bull Analyst (MODEL_BULL)
     call9RouterDirect(
       MODEL_BULL,
-      "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang) secara natural dan mengalir di narasi, BUKAN list poin kering. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
+      "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
       matchContext,
       16384,
       180000
     ),
-    // 2. Neutral Analyst (bai/glm-5.3-flash)
+    // 2. Neutral Analyst (MODEL_NEUTRAL)
     call9RouterDirect(
       MODEL_NEUTRAL,
-      "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
+      "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
       matchContext,
       16384,
       180000
     ),
-    // 3. Bear Auditor (kr/deepseek-3.2-thinking - MODE THINKING ULTRA)
+    // 3. Bear Auditor (MODEL_BEAR)
     call9RouterDirect(
       MODEL_BEAR,
-      "Lo adalah Bear Auditor di sindikat taruhan bola (Mode: DeepSeek Thinking Ultra). Jalankan penalaran internal mendalam (ultra thinking) secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, atau faktor kelelahan secara mengalir di narasi. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
+      "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
       matchContext,
       16384,
       180000
@@ -371,18 +412,18 @@ export async function orchestrate5AgentSyndicate(params: {
     `3. Bear Case (${bearCase.model}): ${bearCase.thesis} (Audit: ${bearCase.vulnerability_audit})\n`;
 
   const [j1Raw, j2Raw] = await Promise.all([
-    // Judgement 1 (ag/gemini-3.8-flash-high) - Chief Quant & CRO Arbiter
+    // Judgement 1 (MODEL_JUDGEMENT_1) - Chief Quant & CRO Arbiter
     call9RouterDirect(
       MODEL_JUDGEMENT_1,
-      "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
+      "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
       debateSummary,
       16384,
       180000
     ),
-    // Judgement 2 (kr/deepseek-3.2-thinking - MODE THINKING ULTRA) - Cross-Arbiter
+    // Judgement 2 (MODEL_JUDGEMENT_2) - Cross-Arbiter
     call9RouterDirect(
       MODEL_JUDGEMENT_2,
-      "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan (Mode: DeepSeek Thinking Ultra). Jalankan penalaran internal mendalam (ultra thinking) sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
+      "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
       debateSummary,
       16384,
       180000

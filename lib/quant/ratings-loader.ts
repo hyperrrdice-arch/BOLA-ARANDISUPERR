@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { normalizeTeamName } from "./team-normalizer";
 import { getTheStatsDb } from "../db/thestats-dataset";
 import { getTeamRollingTelemetry, type TeamRollingTelemetry } from "../db/team-telemetry";
+import { evaluateMatchupLuck, type MatchupLuckSignal } from "./luck-regression";
 
 export interface TeamRating {
   name: string;
@@ -64,6 +65,7 @@ export interface ShrunkMatchParameters {
     };
     isEstimatedTelemetry?: boolean;
     preMatchCutoff?: string;
+    luckMetrics?: MatchupLuckSignal;
   };
 }
 
@@ -145,6 +147,28 @@ export const LEAGUE_ALIAS_TO_DIV: Record<string, string> = {
   "greece super league": "G1",
   "greek super league 1": "G1",
   "super league 1 greece": "G1",
+
+  // UEFA Champions League (Kontinental)
+  "ucl": "UCL",
+  "champions league": "UCL",
+  "uefa champions league": "UCL",
+  "champions-league": "UCL",
+  "europe. uefa champions league": "UCL",
+};
+
+// Koefisien Kualitas Liga UEFA Q(L) untuk penskalaan tim lintas liga di UCL
+export const UEFA_LEAGUE_COEFFICIENT: Record<string, number> = {
+  E0: 1.000,   // Premier League
+  SP1: 0.965,  // LaLiga
+  D1: 0.940,   // Bundesliga
+  I1: 0.935,   // Serie A
+  F1: 0.865,   // Ligue 1
+  N1: 0.780,   // Eredivisie
+  P1: 0.770,   // Primeira Liga
+  B1: 0.720,   // Belgian Pro League
+  SC0: 0.650,  // Scottish Premiership
+  T1: 0.640,   // Turkish Super Lig
+  G1: 0.600,   // Greek Super League
 };
 
 // Pasangan Divisi Utama & Kasta Kedua untuk penanganan tim promosi/degradasi
@@ -155,6 +179,35 @@ const SECOND_DIVISION_MAP: Record<string, string> = {
   D1: "D2",
   F1: "F2",
 };
+
+/**
+ * Mencari rating klub untuk kompetisi kontinental UCL melintasi semua liga utama
+ * dengan penskalaan koefisien kualitas liga UEFA Q(L)
+ */
+export function findTeamRatingForUCL(
+  data: CalibratedRatingsFile,
+  normalizedTeam: string
+): { rating: TeamRating; source: "primary_league"; domesticDiv: string } | null {
+  for (const [div, league] of Object.entries(data.leagues)) {
+    if (SECOND_DIVISION_MAP[div] || !UEFA_LEAGUE_COEFFICIENT[div]) continue;
+    if (league.teams[normalizedTeam]) {
+      const raw = league.teams[normalizedTeam];
+      const q = UEFA_LEAGUE_COEFFICIENT[div] || 0.80;
+      const adjustedAttack = Number((raw.attack * Math.sqrt(q)).toFixed(3));
+      const adjustedDefense = Number((raw.defense / Math.sqrt(q)).toFixed(3));
+      return {
+        rating: {
+          ...raw,
+          attack: adjustedAttack,
+          defense: adjustedDefense,
+        },
+        source: "primary_league",
+        domesticDiv: div,
+      };
+    }
+  }
+  return null;
+}
 
 // In-memory cache singleton
 let cachedRatings: CalibratedRatingsFile | null = null;
@@ -316,13 +369,32 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     },
   };
 
-  if (!ratingsData || !resolvedDiv || !ratingsData.leagues[divCode]) {
+  const isUCL = divCode === "UCL";
+  const league = isUCL
+    ? {
+        div: "UCL",
+        leagueName: "UEFA Champions League",
+        country: "Europe",
+        seasonCount: 1,
+        totalMatches: 36,
+        leagueAvgGoals: 2.04,
+        homeAdvantage: 1.12,
+        rho: -0.05,
+        calibrationDate: "2026-10-17",
+        teams: {},
+      }
+    : (ratingsData ? ratingsData.leagues[divCode] : undefined);
+
+  if (!ratingsData || !resolvedDiv || !league) {
     return defaultFallback;
   }
 
-  const league = ratingsData.leagues[divCode];
-  const homeResolved = findTeamRating(ratingsData, divCode, normHome);
-  const awayResolved = findTeamRating(ratingsData, divCode, normAway);
+  const homeResolved = isUCL
+    ? findTeamRatingForUCL(ratingsData, normHome)
+    : findTeamRating(ratingsData, divCode, normHome);
+  const awayResolved = isUCL
+    ? findTeamRatingForUCL(ratingsData, normAway)
+    : findTeamRating(ratingsData, divCode, normAway);
 
   // Jika kedua tim tidak ditemukan sama sekali di database historis
   if (!homeResolved && !awayResolved) {
@@ -343,8 +415,6 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const histAwayDefense = awayResolved && Number.isFinite(awayResolved.rating.defense) ? awayResolved.rating.defense : 1.0;
 
   // Resolusi Telemetry Lokal (thestats_dataset.db) jika tersedia.
-  // Gate-nya hasil lookup team_id (bukan divCode): dataset yang kebetulan hanya
-  // berisi PL akan mengembalikan null untuk tim lain, dan itu sudah benar.
   let homeTelem = options.homeTelemetry;
   let awayTelem = options.awayTelemetry;
 
@@ -352,7 +422,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     const homeId = getTheStatsTeamId(options.homeTeam);
     if (homeId) {
       try {
-        homeTelem = getTeamRollingTelemetry(homeId, 6, options.matchDateCutoff);
+        homeTelem = getTeamRollingTelemetry(homeId, 6, options.matchDateCutoff, divCode);
       } catch {
         homeTelem = null;
       }
@@ -363,7 +433,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     const awayId = getTheStatsTeamId(options.awayTeam);
     if (awayId) {
       try {
-        awayTelem = getTeamRollingTelemetry(awayId, 6, options.matchDateCutoff);
+        awayTelem = getTeamRollingTelemetry(awayId, 6, options.matchDateCutoff, divCode);
       } catch {
         awayTelem = null;
       }
@@ -371,10 +441,6 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   }
 
   // 1. Evaluasi Likelihood Home Team
-  // SEMANTIK DEFENSE (dikunci): defense sebuah tim diestimasi dari daya gedor LAWAN,
-  // bukan dari attack-nya sendiri. Tim yang menyerang tajam tidak otomatis bertahan baik.
-  // Nilai ini hanya dipakai saat telemetry kosong; bila telemetry ada, defense di-override
-  // oleh xGA/gol kebobolan terukur di bawah.
   let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
   let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
   let liveHomeDefense = Math.max(0.6, 2.5 - liveAwayAttack);
@@ -401,8 +467,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     homeTelemetrySource = "thestats_observed_goals";
   }
 
-  // 2. Evaluasi Likelihood Away Team (attack/defense/n sudah dideklarasikan di atas
-  //    agar defense dapat memakai attack lawan secara konsisten)
+  // 2. Evaluasi Likelihood Away Team
   if (awayTelem && awayTelem.observed_xg_samples >= 3 && awayTelem.rolling_xg_for !== null) {
     liveAwayAttack = awayTelem.rolling_xg_for / safeLeagueAvg;
     if (awayTelem.rolling_xg_against !== null) {
@@ -418,11 +483,13 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     awayTelemetrySource = "thestats_observed_goals";
   }
 
-  // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa)
-  // kappa = 16 (standar sindikat kuantitatif untuk prior half-season)
-  const KAPPA = 16;
-  const wHome = (nHome + KAPPA) > 0 ? nHome / (nHome + KAPPA) : 0;
-  const wAway = (nAway + KAPPA) > 0 ? nAway / (nAway + KAPPA) : 0;
+  // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa_i)
+  // Bimodal Kappa: kappa = 8.0 jika observed_xg (varians rendah), 14.0 jika observed_goals, 16.0 fallback
+  const kappaHome = homeTelemetrySource === "thestats_observed_xg" ? 8.0 : (homeTelemetrySource === "thestats_observed_goals" ? 14.0 : 16.0);
+  const kappaAway = awayTelemetrySource === "thestats_observed_xg" ? 8.0 : (awayTelemetrySource === "thestats_observed_goals" ? 14.0 : 16.0);
+
+  const wHome = (nHome + kappaHome) > 0 ? nHome / (nHome + kappaHome) : 0;
+  const wAway = (nAway + kappaAway) > 0 ? nAway / (nAway + kappaAway) : 0;
 
   // James-Stein Shrinkage Blend
   const calcHomeAttack = wHome * liveHomeAttack + (1 - wHome) * histHomeAttack;
@@ -434,6 +501,12 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const finalHomeDefense = Number.isFinite(calcHomeDefense) ? Number(calcHomeDefense.toFixed(3)) : 1.15;
   const finalAwayAttack = Number.isFinite(calcAwayAttack) ? Number(calcAwayAttack.toFixed(3)) : 1.15;
   const finalAwayDefense = Number.isFinite(calcAwayDefense) ? Number(calcAwayDefense.toFixed(3)) : 1.25;
+
+  // Evaluasi Metrik Keberuntungan xG (Luck Regression)
+  let luckSignal: MatchupLuckSignal | undefined = undefined;
+  try {
+    luckSignal = evaluateMatchupLuck(options.homeTeam, options.awayTeam, options.matchDateCutoff);
+  } catch {}
 
   return {
     homeAttack: Math.max(0.5, finalHomeAttack),
@@ -462,10 +535,9 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
         home: homeObservedXg,
         away: awayObservedXg,
       },
-      // "estimasi" = cuma prior/makro. thestats_observed_goals tetap data TERUKUR,
-      // hanya saja bukan xG, jadi tidak boleh ditandai estimasi.
       isEstimatedTelemetry: homeTelemetrySource === "macro_prior_only" || awayTelemetrySource === "macro_prior_only",
       preMatchCutoff: options.matchDateCutoff,
+      luckMetrics: luckSignal,
     },
   };
 }

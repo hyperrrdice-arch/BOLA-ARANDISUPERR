@@ -1,10 +1,17 @@
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { getNineRouterApiKey, getNineRouterBaseUrl, STATS_FETCHER } from "./llm/models";import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
+import { getNineRouterApiKey, getNineRouterBaseUrl, STATS_FETCHER } from "./llm/models";
+import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import {
   validateAndSanitizeMatchData,
   type VerifiedMatchIntelligence,
 } from "@/lib/stats-validator";
+import {
+  getLocalH2HMatches,
+  getLocalRecentMatches,
+  getLocalSquadInjuries,
+} from "@/lib/db/thestats-dataset";
+
 
 /**
  * ============================================================================
@@ -221,8 +228,21 @@ export async function fetchAndValidateMatchIntelligence(
     endpointsSkipped.push("lineups (kickoff > 2.5 jam)");
   }
 
-  if (decision.fetch_h2h && homeTeamId) {
-    endpointsCalled.push(`/football/matches (h2h pool)`);
+  // 1. Cek Ketersediaan Data Lokal (Tier-1 Offline SQLite Ingestion)
+  const localH2H = (homeTeamId && awayTeamId) 
+    ? getLocalH2HMatches(String(homeTeamId), String(awayTeamId), 6) 
+    : [];
+  const localHomeRecent = homeTeamId ? getLocalRecentMatches(String(homeTeamId), 6) : [];
+  const localAwayRecent = awayTeamId ? getLocalRecentMatches(String(awayTeamId), 6) : [];
+  const localHomeInjuries = homeTeamId ? getLocalSquadInjuries(String(homeTeamId)) : [];
+  const localAwayInjuries = awayTeamId ? getLocalSquadInjuries(String(awayTeamId)) : [];
+
+  // H2H: Pakai database lokal jika ada, fallback online jika kosong
+  if (localH2H.length > 0) {
+    endpointsSkipped.push(`h2h (Tier-1 Local SQLite: ${localH2H.length} laga)`);
+    promises.h2hRes = Promise.resolve({ data: localH2H, source: "offline_sqlite" });
+  } else if (decision.fetch_h2h && homeTeamId) {
+    endpointsCalled.push(`/football/matches (h2h pool online fallback)`);
     promises.h2hRes = cachedStatsGet(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 30 },
@@ -232,8 +252,13 @@ export async function fetchAndValidateMatchIntelligence(
     endpointsSkipped.push("h2h");
   }
 
-  if (homeTeamId && awayTeamId) {
-    endpointsCalled.push("/football/matches (recent home/away)");
+  // Recent Matches: Pakai database lokal jika ada (>= 3 match)
+  if (localHomeRecent.length >= 3 && localAwayRecent.length >= 3) {
+    endpointsSkipped.push(`recent_matches (Tier-1 Local SQLite: ${localHomeRecent.length}H / ${localAwayRecent.length}A)`);
+    promises.homeRecentRes = Promise.resolve({ data: localHomeRecent, source: "offline_sqlite" });
+    promises.awayRecentRes = Promise.resolve({ data: localAwayRecent, source: "offline_sqlite" });
+  } else if (homeTeamId && awayTeamId) {
+    endpointsCalled.push("/football/matches (recent home/away online fallback)");
     promises.homeRecentRes = cachedStatsGet(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 6 },
@@ -246,8 +271,13 @@ export async function fetchAndValidateMatchIntelligence(
     );
   }
 
-  if (decision.fetch_injuries && homeTeamId && awayTeamId) {
-    endpointsCalled.push("injuries-suspensions (home & away)");
+  // Injuries: Pakai database lokal jika terdaftar di squad DB
+  if (localHomeInjuries.length > 0 || localAwayInjuries.length > 0) {
+    endpointsSkipped.push(`injuries (Tier-1 Local SQLite: ${localHomeInjuries.length}H / ${localAwayInjuries.length}A)`);
+    promises.homeInjuriesRes = Promise.resolve({ data: localHomeInjuries, source: "offline_sqlite" });
+    promises.awayInjuriesRes = Promise.resolve({ data: localAwayInjuries, source: "offline_sqlite" });
+  } else if (decision.fetch_injuries && homeTeamId && awayTeamId) {
+    endpointsCalled.push("injuries-suspensions (online fallback)");
     promises.homeInjuriesRes = cachedStatsGet(
       `/football/teams/${homeTeamId}/injuries-suspensions`,
       { current: true },
