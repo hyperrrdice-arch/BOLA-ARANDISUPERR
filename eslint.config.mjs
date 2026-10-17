@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Non-active code: legacy snapshots + vendored skills (not shipped).
+    "archive/**",
+    ".agents/**",
   ]),
 ]);
 
