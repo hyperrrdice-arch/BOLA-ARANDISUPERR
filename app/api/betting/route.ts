@@ -2,6 +2,7 @@ import { generateText } from "ai";
 import { z } from "zod";
 import { get1xBetMarketsV2, find1xBetMatch } from "@/lib/1xbet";
 import { nineRouter } from "@/lib/agent/llm";
+import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-limit";
 
 // Klien 9Router tunggal: lihat lib/agent/llm.ts (customFetch non-streaming).
 
@@ -74,6 +75,14 @@ export const BettingAdviceSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    // Rate limit anti-DoS: tiap hit bakar LLM call ganda + kuota 1xBet 500 req/bulan
+    const rl = checkRateLimit(
+      clientKeyFromReq(req),
+      Number(process.env.RATE_LIMIT_BETTING) || 20,
+      60_000
+    );
+    if (!rl.ok) return tooManyResponse(rl.retryAfterSec);
+
     const body = await req.json();
     const {
       match_id_1xbet,

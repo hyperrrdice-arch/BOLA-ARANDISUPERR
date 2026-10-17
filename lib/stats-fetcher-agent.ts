@@ -164,8 +164,15 @@ export async function fetchAndValidateMatchIntelligence(
   matchId: string,
   competitionIdHint?: string
 ): Promise<FetchResultWithAudit> {
+  // Boundary: matchId datang dari query string publik → jangan pernah di-interpolasi mentah
+  // ke path upstream (? # / bisa retarget endpoint lain + poison cache key)
+  if (!/^[\w-]+$/.test(matchId || "")) {
+    throw new Error("matchId tidak valid — hanya alfanumerik, '-' dan '_' yang diterima.");
+  }
+  const safeMatchId = encodeURIComponent(matchId);
+
   // 1. Ambil Match Dasar (Cache 15 menit)
-  const matchRes = await cachedStatsGet(`/football/matches/${matchId}`, {}, 15 * 60 * 1000);
+  const matchRes = await cachedStatsGet(`/football/matches/${safeMatchId}`, {}, 15 * 60 * 1000);
   const matchData = matchRes?.data || null;
 
   if (!matchData) {
@@ -191,7 +198,7 @@ export async function fetchAndValidateMatchIntelligence(
   );
 
   const ttlMs = decision.cache_ttl_minutes * 60 * 1000;
-  const endpointsCalled: string[] = [`/football/matches/${matchId}`];
+  const endpointsCalled: string[] = [`/football/matches/${safeMatchId}`];
   const endpointsSkipped: string[] = [];
 
   // 3. Eksekusi panggilan secara selektif & paralel
@@ -207,15 +214,15 @@ export async function fetchAndValidateMatchIntelligence(
   } = {};
 
   if (decision.fetch_referee) {
-    endpointsCalled.push(`/football/matches/${matchId}/referee`);
-    promises.refRes = cachedStatsGet(`/football/matches/${matchId}/referee`, {}, ttlMs);
+    endpointsCalled.push(`/football/matches/${safeMatchId}/referee`);
+    promises.refRes = cachedStatsGet(`/football/matches/${safeMatchId}/referee`, {}, ttlMs);
   } else {
     endpointsSkipped.push("referee");
   }
 
   if (decision.fetch_lineups) {
-    endpointsCalled.push(`/football/matches/${matchId}/lineups`);
-    promises.lineupsRes = cachedStatsGet(`/football/matches/${matchId}/lineups`, {}, ttlMs);
+    endpointsCalled.push(`/football/matches/${safeMatchId}/lineups`);
+    promises.lineupsRes = cachedStatsGet(`/football/matches/${safeMatchId}/lineups`, {}, ttlMs);
   } else {
     endpointsSkipped.push("lineups (kickoff > 2.5 jam)");
   }
@@ -285,9 +292,9 @@ export async function fetchAndValidateMatchIntelligence(
   }
 
   if (decision.fetch_odds) {
-    endpointsCalled.push(`/football/matches/${matchId}/odds`);
+    endpointsCalled.push(`/football/matches/${safeMatchId}/odds`);
     promises.oddsRes = cachedStatsGet(
-      `/football/matches/${matchId}/odds`,
+      `/football/matches/${safeMatchId}/odds`,
       { bookmaker: "bet365,pinnacle" },
       ttlMs
     );

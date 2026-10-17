@@ -2,6 +2,7 @@ import { getStatsCacheMetrics } from "@/lib/stats-cache";
 import { runPlannerAnalysis, type PlannerResult } from "@/lib/agent/planner";
 import { AnalysisSchema } from "@/lib/agent/schemas";
 import { mapPipelineToView } from "@/lib/view/analysis-view";
+import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-limit";
 
 /**
  * ============================================================================
@@ -27,6 +28,14 @@ export async function GET(req: Request) {
   const matchId = searchParams.get("match_id");
   const competitionIdHint = searchParams.get("competition_id") || undefined;
   const isDebug = searchParams.get("debug") === "1";
+
+  // Rate limit anti-DoS: tiap hit bakar multi-LLM call + kuota 1xBet
+  const rl = checkRateLimit(
+    clientKeyFromReq(req),
+    Number(process.env.RATE_LIMIT_AGENT) || 10,
+    60_000
+  );
+  if (!rl.ok) return tooManyResponse(rl.retryAfterSec);
 
   if (!matchId) {
     return Response.json(
@@ -81,6 +90,9 @@ export async function GET(req: Request) {
   const syndicateDebate = state.debate;
   const rawObj = state.editorial ?? {};
 
+  // is_strictly_grounded = jujur: false kalau ada bagian debat yang diisi template fallback
+  const isGrounded = !syndicateDebate.is_fabricated_fallback;
+
   // 3. Defensif parsing & merging (kontrak response dashboard TIDAK berubah)
   const validatedAnalysis = AnalysisSchema.safeParse({
     ...rawObj,
@@ -90,7 +102,7 @@ export async function GET(req: Request) {
     syndicate_debate: syndicateDebate,
     data_tidak_tersedia: intel.missing_data_registry,
     data_integrity_audit: {
-      is_strictly_grounded: true,
+      is_strictly_grounded: isGrounded,
       dispatcher_model: fetchResult.audit.dispatcher_model,
       cache_quota_saved: fetchResult.audit.cache_metrics.savedCalls,
       endpoints_called: fetchResult.audit.endpoints_called,
@@ -209,7 +221,7 @@ export async function GET(req: Request) {
     syndicate_debate: syndicateDebate,
     data_tidak_tersedia: intel.missing_data_registry,
     data_integrity_audit: {
-      is_strictly_grounded: true,
+      is_strictly_grounded: isGrounded,
       dispatcher_model: fetchResult.audit.dispatcher_model,
       cache_quota_saved: fetchResult.audit.cache_metrics.savedCalls,
       endpoints_called: fetchResult.audit.endpoints_called,
@@ -230,9 +242,15 @@ export async function GET(req: Request) {
   }
 
   const durationMs = Date.now() - startTime;
-  const fallbackAnalysis = AnalysisSchema.parse(merged);
+  const fallbackParsed = AnalysisSchema.safeParse(merged);
+  if (!fallbackParsed.success) {
+    return Response.json(
+      { error: "Pipeline menghasilkan data tidak valid (schema fallback gagal)." },
+      { status: 500 }
+    );
+  }
   const viewData = mapPipelineToView({
-    analisis: fallbackAnalysis,
+    analisis: fallbackParsed.data,
     plannerTrace: trace,
     durationMs,
   });
