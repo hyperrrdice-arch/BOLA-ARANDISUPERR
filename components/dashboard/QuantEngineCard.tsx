@@ -343,7 +343,7 @@ export function QuantEngineCard({
               <span className="text-[11px] text-[#737373] block">Expected Points (EPL Model)</span>
               <strong className="text-[#0a0a0a] block mt-0.5">
                 {metode.dixon_coles?.expected_points
-                  ? `Kandang ${metode.dixon_coles.expected_points.home ?? "—"} · Seri ${metode.dixon_coles.expected_points.draw ?? "—"} · Tamu ${metode.dixon_coles.expected_points.away ?? "—"}`
+                  ? `Kandang ${metode.dixon_coles.expected_points.home_xpts ?? "—"} · Tamu ${metode.dixon_coles.expected_points.away_xpts ?? "—"}`
                   : "—"}
               </strong>
               <span className="text-[11px] text-[#737373]">Ekspektasi poin dari distribusi skor penuh</span>
