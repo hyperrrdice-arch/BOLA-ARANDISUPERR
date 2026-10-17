@@ -70,16 +70,23 @@ function tau(x: number, y: number, lambda: number, mu: number, rho: number): num
   return 1;
 }
 
-function calibrateDivision(db: any, div: string): LeagueCalibratedParameters | null {
+export function calibrateDivision(db: any, div: string, maxDate?: string): LeagueCalibratedParameters | null {
   const meta = LEAGUE_METADATA[div] || { name: div, country: "Europe" };
 
-  // Ambil semua match terurut tanggal
-  const matches = db.prepare(`
+  // Ambil semua match terurut tanggal (opsional dibatasi maxDate)
+  let query = `
     SELECT date, home_team, away_team, fthg, ftag 
     FROM matches 
     WHERE div = ? AND fthg IS NOT NULL AND ftag IS NOT NULL
-    ORDER BY date ASC
-  `).all(div) as { date: string; home_team: string; away_team: string; fthg: number; ftag: number }[];
+  `;
+  const params: any[] = [div];
+  if (maxDate) {
+    query += ` AND date <= ?`;
+    params.push(maxDate);
+  }
+  query += ` ORDER BY date ASC`;
+
+  const matches = db.prepare(query).all(...params) as { date: string; home_team: string; away_team: string; fthg: number; ftag: number }[];
 
   if (matches.length < 50) return null;
 
@@ -240,9 +247,15 @@ function calibrateDivision(db: any, div: string): LeagueCalibratedParameters | n
   };
 }
 
-async function run() {
+export async function runCalibration(options?: { maxDate?: string; outputPath?: string }): Promise<CalibratedRatingsFile> {
+  const maxDate = options?.maxDate;
+  const customOutputPath = options?.outputPath;
+
   console.log("==================================================================");
   console.log("🧮 MEMULAI KALIBRASI MODEL KUANTITATIF DIXON-COLES (MLE)");
+  if (maxDate) {
+    console.log(`📅 Cutoff Max Date: <= ${maxDate} (Historical Train Holdout)`);
+  }
   console.log("==================================================================\n");
 
   const db = getMasterDb();
@@ -263,7 +276,7 @@ async function run() {
 
   for (const div of targetDivs) {
     process.stdout.write(`  [${div.padEnd(4)}] Kalibrasi parameter MLE... `);
-    const result = calibrateDivision(db, div);
+    const result = calibrateDivision(db, div, maxDate);
 
     if (!result) {
       console.log(`⚠️ Data tidak cukup (< 50 laga)`);
@@ -286,7 +299,15 @@ async function run() {
 
   output.totalTeams = grandTotalTeams;
 
-  const outputPath = path.join(process.cwd(), "data", "calibrated_ratings.json");
+  const outputPath = customOutputPath
+    ? (path.isAbsolute(customOutputPath) ? customOutputPath : path.join(process.cwd(), customOutputPath))
+    : path.join(process.cwd(), "data", "calibrated_ratings.json");
+
+  const outputDir = path.dirname(outputPath);
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf-8");
 
   const stats = fs.statSync(outputPath);
@@ -298,9 +319,31 @@ async function run() {
   console.log(`🏆 Total Liga  : ${output.totalLeagues} divisi`);
   console.log(`👥 Total Tim   : ${output.totalTeams} klub`);
   console.log("==================================================================\n");
+
+  return output;
 }
 
-run().catch((err) => {
-  console.error("FATAL ERROR KALIBRASI:", err);
-  process.exit(1);
-});
+async function run() {
+  const args = process.argv.slice(2);
+  let maxDate: string | undefined = undefined;
+  let customOutputPath: string | undefined = undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--max-date" && args[i + 1]) {
+      maxDate = args[i + 1];
+      i++;
+    } else if (args[i] === "--output" && args[i + 1]) {
+      customOutputPath = args[i + 1];
+      i++;
+    }
+  }
+
+  await runCalibration({ maxDate, outputPath: customOutputPath });
+}
+
+if (process.argv[1] && path.basename(process.argv[1]).includes("calibrate-ratings")) {
+  run().catch((err) => {
+    console.error("FATAL ERROR KALIBRASI:", err);
+    process.exit(1);
+  });
+}
