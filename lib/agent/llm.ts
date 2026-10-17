@@ -2,6 +2,7 @@ import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import type { VerifiedMatchIntelligence } from "@/lib/stats-validator";
 import type { calculateDixonColes } from "@/lib/quant";
+import { EDITORIAL } from "@/lib/llm/models";
 
 /**
  * Infra LLM 9Router untuk jalur analisis editorial + planner.
@@ -29,12 +30,14 @@ export const nineRouter = createOpenAI({
   fetch: customFetch,
 });
 
-export const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "ag/gemini-3.8-flash";
+export const MODEL_DEFAULT = EDITORIAL.MODEL_DEFAULT;
 
 // Helper untuk memanggil model VPS dengan failover aman
 export async function callModelWithFallback(targetModel: string, systemPrompt: string, userPrompt: string) {
   try {
-    console.log(`[9Router] Menjalankan target model: ${targetModel}...`);
+    if (process.env.PIPELINE_DEBUG) {
+      console.log(`[9Router] Menjalankan target model: ${targetModel}...`);
+    }
     const res = await generateText({
       model: nineRouter.chat(targetModel),
       system: systemPrompt,

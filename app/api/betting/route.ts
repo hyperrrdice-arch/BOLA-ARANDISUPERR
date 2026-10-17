@@ -1,28 +1,10 @@
 import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import { get1xBetMarketsV2, find1xBetMatch } from "@/lib/1xbet";
 import { evaluateValueBet } from "@/lib/quant";
+import { nineRouter } from "@/lib/agent/llm";
 
-// Custom fetch wrapper forcing 9Router into non-streaming JSON mode
-const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
-  if (init?.body && typeof init.body === "string") {
-    try {
-      const parsed = JSON.parse(init.body);
-      if (parsed.stream === undefined) {
-        parsed.stream = false;
-        init = { ...init, body: JSON.stringify(parsed) };
-      }
-    } catch {}
-  }
-  return fetch(url, init);
-};
-
-const nineRouter = createOpenAI({
-  baseURL: process.env.NINE_ROUTER_BASE_URL || "http://localhost:20128/v1",
-  apiKey: process.env.NINE_ROUTER_API_KEY || "9router-local",
-  fetch: customFetch,
-});
+// Klien 9Router tunggal: lihat lib/agent/llm.ts (customFetch non-streaming).
 
 const MODEL_DEFAULT = process.env.NINE_ROUTER_MODEL || "bai/glm-5.3-flash";
 const MODEL_A = process.env.BETTING_MODEL_A || "bai/qwen3.8-27b";

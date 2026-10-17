@@ -27,25 +27,12 @@ export const SYNDICATE = {
 } as const;
 
 /**
- * Default yang dipakai `app/api/agent/route.tsx`. Label-model di file itu hanya
- * teks pada template JSON (ditimpa `syndicate_debate` dari orchestrator), sehingga
- * nilainya praktis-mati; dipertahankan apa adanya agar tidak ada perubahan diam-diam.
+ * Default yang dipakai `lib/agent/llm.ts` (failover model editorial).
+ * Konstanta AGENT_ROUTE dan BETTING dihapus pada cleanup PLAN-D (nol importer
+ * sejak route dijadikan shell planner loop).
  */
-export const AGENT_ROUTE = {
+export const EDITORIAL = {
   MODEL_DEFAULT: envModel("NINE_ROUTER_MODEL", "ag/gemini-3.8-flash"),
-  MODEL_BULL: envModel("MODEL_BULL", "ag/gemini-3.8-flash-high"),
-  MODEL_NEUTRAL: envModel("MODEL_NEUTRAL", "bai/glm-5.3-flash"),
-  MODEL_BEAR: envModel("MODEL_BEAR", "bai/deepseek-v4.1-flash"),
-  MODEL_JUDGEMENT_1: envModel("MODEL_JUDGEMENT_1", "ag/gemini-3.8-flash-high"),
-  MODEL_JUDGEMENT_2: envModel("MODEL_JUDGEMENT_2", "bai/qwen3.8-flash"),
-  MODEL_ARBITER: envModel("MODEL_ARBITER", "ag/gemini-3.8-flash-high"),
-} as const;
-
-/** Default yang dipakai `app/api/betting/route.ts` (pemanggilan ganda A/B). */
-export const BETTING = {
-  MODEL_DEFAULT: envModel("NINE_ROUTER_MODEL", "bai/glm-5.3-flash"),
-  MODEL_A: envModel("BETTING_MODEL_A", "bai/qwen3.8-27b"),
-  MODEL_B: envModel("BETTING_MODEL_B", "bai/deepseek-v4.1-flash"),
 } as const;
 
 /** Default yang dipakai `lib/stats-fetcher-agent.ts` (pemilih endpoint). */

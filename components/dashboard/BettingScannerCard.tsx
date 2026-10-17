@@ -41,7 +41,7 @@ export function BettingScannerCard({
           </div>
           <p className="text-xs text-[#737373] mt-1 leading-relaxed max-w-2xl font-mono">
             Pindai 500+ baris data bursa taruhan 1xBet RapidAPI dianalisis bersama model quant{" "}
-            <span className="text-[#0a0a0a] font-semibold">oc/muse-spark-1.3-contributor-free</span> &amp; Gemini 3.8.
+            <span className="text-[#0a0a0a] font-semibold">bai/qwen3.8-27b</span> &amp; bai/deepseek-v4.1-flash.
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export function BettingScannerCard({
             Menghubungkan ke 1xBet API &amp; Mengambil 500+ Baris Pasar...
           </p>
           <p className="text-[11px] text-[#737373] font-mono">
-            Menjalankan penalaran kuantitatif di VPS 9Router (Muse Spark 1.3 Contributor Free)
+            Menjalankan penalaran kuantitatif di VPS 9Router (bai/qwen3.8-27b + bai/deepseek-v4.1-flash)
           </p>
         </div>
       )}

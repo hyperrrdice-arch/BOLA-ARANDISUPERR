@@ -131,7 +131,7 @@ export default function Home() {
       if (json.cacheMetrics) {
         setCacheMetrics(json.cacheMetrics);
       }
-      setModelUsed(json.modelUsed ?? "oc/muse-spark-1.3-contributor-free");
+      setModelUsed(json.modelUsed ?? "bai/mimo-v2.6-pro");
     } catch (e) {
       setAgentError(e instanceof Error ? e.message : String(e));
     } finally {
