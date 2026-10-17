@@ -1,0 +1,151 @@
+{
+  "executedAt": "2026-10-17T01:41:01.105Z",
+  "config": {
+    "targetTrack": "a",
+    "targetDiv": "ALL",
+    "trainCutoffDate": "2025-06-30"
+  },
+  "trackA": {
+    "totalMatches": 6528,
+    "resolvedMatches": 6528,
+    "skippedMatches": 0,
+    "coveragePct": 100,
+    "models": {
+      "dixonColesProduction": {
+        "logLoss": 1.0324,
+        "brier": 0.6202,
+        "ece": 0.026
+      },
+      "dixonColesNoTau": {
+        "logLoss": 1.0327,
+        "brier": 0.6203,
+        "ece": 0
+      },
+      "dixonColesRhoNeg13": {
+        "logLoss": 1.033,
+        "brier": 0.6202
+      },
+      "dixonColesRhoNeg04": {
+        "logLoss": 1.0323,
+        "brier": 0.62
+      },
+      "dixonColesRhoNeg05": {
+        "logLoss": 1.0323,
+        "brier": 0.62
+      },
+      "marketShin": {
+        "logLoss": 0.9949,
+        "brier": 0.5948,
+        "ece": 0.0183,
+        "matchCount": 6516
+      },
+      "marketProportional": {
+        "logLoss": 0.9955,
+        "brier": 0.595,
+        "matchCount": 6516
+      },
+      "homeFavoriteBaseline": {
+        "logLoss": 1.0771,
+        "brier": 0.652,
+        "ece": 0.0102
+      }
+    },
+    "subAnalyses": {
+      "scheduleFrictionFatigue": {
+        "highFatigueCount": 145,
+        "highFatigueLogLoss": 1.0403,
+        "normalFatigueCount": 6060,
+        "normalFatigueLogLoss": 1.0332
+      },
+      "promotedTeams": {
+        "matchCount": 1076,
+        "modelLogLoss": 1.0767,
+        "baselineLogLoss": 1.0866
+      },
+      "promotedTeamsAblation": {
+        "matchCount": 1076,
+        "withDiscountLogLoss": 1.0767,
+        "withoutDiscountLogLoss": 1.1405,
+        "pairedDelta": -0.06387,
+        "ciLower": -0.0783,
+        "ciUpper": -0.05111,
+        "pValue": 0,
+        "verdict": "Statistically massive improvement from promotion discount rules"
+      }
+    },
+    "gateStatus": {
+      "coverageGate": true,
+      "marketComparisonGate": false,
+      "favoriteComparisonGate": true,
+      "eceGate": true,
+      "overallPass": false
+    }
+  },
+  "trackB": {
+    "sampleSize": 1078,
+    "season": "2026/2027",
+    "marketComparisonOn1078": {
+      "marketShinLogLoss": 0.9919,
+      "marketShinBrier": 0.5927,
+      "goalsDcLogLoss": 1.0351,
+      "goalsDcBrier": 0.6227,
+      "pairedDiffDcVsShin": {
+        "meanDiff": 0.04316,
+        "ciLower": 0.02576,
+        "ciUpper": 0.06133,
+        "pValue": 0
+      },
+      "postHocLeakedXgLogLoss": 0.958,
+      "note": "h_xg & a_xg are post-match 90-min realizations (data leakage). Valid out-of-sample goals DC loses to market closing lines by +0.0432."
+    },
+    "luckReversion": {
+      "overperformingTeams": {
+        "count": 68,
+        "dropNextMatchPct": 51.5,
+        "pValue": 0.81
+      },
+      "underperformingTeams": {
+        "count": 69,
+        "reboundNextMatchPct": 55.1,
+        "pValue": 0.4
+      },
+      "statisticallySignificant": false
+    }
+  },
+  "trackC": {
+    "sampleSize": 405,
+    "source": "thestats telemetry (rolling 6 matches)",
+    "kappaAblation": {
+      "fixedKappa8": {
+        "logLoss": 0.947,
+        "brier": 0.567,
+        "pairedDeltaVsBimodal": -0.0069,
+        "ciLower": -0.01344,
+        "ciUpper": -0.00041,
+        "pValue": 0.032
+      },
+      "fixedKappa16": {
+        "logLoss": 0.9494,
+        "brier": 0.5681,
+        "pairedDeltaVsBimodal": -0.00444,
+        "ciLower": -0.00847,
+        "ciUpper": -0.0006,
+        "pValue": 0.022
+      },
+      "bimodalProduction": {
+        "logLoss": 0.9539,
+        "brier": 0.5702,
+        "pairedDeltaVsBimodal": 0
+      },
+      "macroOnly": {
+        "logLoss": 0.9981,
+        "brier": 0.5985,
+        "pairedDeltaVsBimodal": 0.04425,
+        "ciLower": 0.03181,
+        "ciUpper": 0.05689,
+        "pValue": 0
+      }
+    },
+    "recommendationPlanB14": "Switch from bimodal kappa to fixed kappa 8 or continuous scaling"
+  }
+}
