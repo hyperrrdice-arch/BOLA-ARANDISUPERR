@@ -443,8 +443,8 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   // 1. Evaluasi Likelihood Home Team
   let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
   let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
-  let liveHomeDefense = Math.max(0.6, 2.5 - liveAwayAttack);
-  let liveAwayDefense = Math.max(0.7, 2.6 - liveHomeAttack);
+  let liveHomeDefense = Math.max(0.6, 2.0 - liveAwayAttack);
+  let liveAwayDefense = Math.max(0.7, 2.0 - liveHomeAttack);
   let nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
   let nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
   let homeTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
@@ -497,10 +497,11 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const calcAwayAttack = wAway * liveAwayAttack + (1 - wAway) * histAwayAttack;
   const calcAwayDefense = wAway * liveAwayDefense + (1 - wAway) * histAwayDefense;
 
-  const finalHomeAttack = Number.isFinite(calcHomeAttack) ? Number(calcHomeAttack.toFixed(3)) : 1.35;
-  const finalHomeDefense = Number.isFinite(calcHomeDefense) ? Number(calcHomeDefense.toFixed(3)) : 1.15;
-  const finalAwayAttack = Number.isFinite(calcAwayAttack) ? Number(calcAwayAttack.toFixed(3)) : 1.15;
-  const finalAwayDefense = Number.isFinite(calcAwayDefense) ? Number(calcAwayDefense.toFixed(3)) : 1.25;
+  // Fallback non-finite harus tetap skala rasio (mean 1.0), bukan gol absolut
+  const finalHomeAttack = Number.isFinite(calcHomeAttack) ? Number(calcHomeAttack.toFixed(3)) : 1.0;
+  const finalHomeDefense = Number.isFinite(calcHomeDefense) ? Number(calcHomeDefense.toFixed(3)) : 1.0;
+  const finalAwayAttack = Number.isFinite(calcAwayAttack) ? Number(calcAwayAttack.toFixed(3)) : 1.0;
+  const finalAwayDefense = Number.isFinite(calcAwayDefense) ? Number(calcAwayDefense.toFixed(3)) : 1.0;
 
   // Evaluasi Metrik Keberuntungan xG (Luck Regression)
   let luckSignal: MatchupLuckSignal | undefined = undefined;

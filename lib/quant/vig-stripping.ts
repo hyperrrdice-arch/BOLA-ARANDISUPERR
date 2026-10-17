@@ -25,19 +25,13 @@ export interface TwoWayVigResult {
  * Proportional (Multiplicative) Margin Removal
  */
 export function stripVigProportional(home: number, draw: number, away: number): VigStrippingResult {
+  // Odds invalid = data hilang/rusak → fail-fast. DILARANG karang probabilitas seragam 0.3333,
+  // downstream bakal treat itu sebagai konsensus pasar dan hitung edge +EV palsu.
   if (
     !Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away) ||
     home <= 1.0 || draw <= 1.0 || away <= 1.0
   ) {
-    return {
-      raw_odds: { home: Math.max(1.01, home || 3.0), draw: Math.max(1.01, draw || 3.0), away: Math.max(1.01, away || 3.0) },
-      implied_prob_raw: { home: 0.3333, draw: 0.3333, away: 0.3333 },
-      overround: 1.0,
-      margin_percentage: 0.0,
-      fair_prob: { home: 0.3333, draw: 0.3334, away: 0.3333 },
-      fair_odds: { home: 3.0, draw: 3.0, away: 3.0 },
-      method_used: "proportional",
-    };
+    throw new Error(`stripVigProportional: odds tidak valid (home=${home}, draw=${draw}, away=${away}) — wajib finite dan > 1.0`);
   }
 
   const invH = 1 / home;
@@ -82,12 +76,12 @@ export function stripVigProportional(home: number, draw: number, away: number): 
  * Solves for z via bisection search such that sum(p_i(z)) = 1.0.
  */
 export function stripVigShin(home: number, draw: number, away: number): VigStrippingResult {
-  // If invalid odds or non-finite, fallback to proportional
+  // Odds invalid → fail-fast, jangan fallback ke proporsional yang ngarang angka
   if (
     !Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away) ||
     home <= 1.0 || draw <= 1.0 || away <= 1.0
   ) {
-    return stripVigProportional(home, draw, away);
+    throw new Error(`stripVigShin: odds tidak valid (home=${home}, draw=${draw}, away=${away}) — wajib finite dan > 1.0`);
   }
 
   const p = [1 / home, 1 / draw, 1 / away];
@@ -172,12 +166,7 @@ export function stripVigShin(home: number, draw: number, away: number): VigStrip
  */
 export function stripVigTwoWay(oddA: number, oddB: number): TwoWayVigResult {
   if (!Number.isFinite(oddA) || !Number.isFinite(oddB) || oddA <= 1.0 || oddB <= 1.0) {
-    return {
-      overround: 1.0,
-      margin_percentage: 0.0,
-      fair_prob: { optionA: 0.5, optionB: 0.5 },
-      fair_odds: { optionA: 2.0, optionB: 2.0 },
-    };
+    throw new Error(`stripVigTwoWay: odds tidak valid (A=${oddA}, B=${oddB}) — wajib finite dan > 1.0`);
   }
 
   const invA = 1 / oddA;

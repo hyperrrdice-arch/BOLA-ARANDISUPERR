@@ -129,7 +129,11 @@ export function getPreMatchLogs(
 ): (TeamMatchLogRecord & { competition_id?: string })[] {
   const db = getTheStatsDb();
   const teamId = resolveTeamId(teamIdOrName);
-  if (beforeDate) {
+  // Boundary normalization: beforeDate boleh ISO timestamp utuh, tapi kolom match_date
+  // disimpan sebagai tanggal 10-digit. Tanpa slice, '2026-09-08' < '2026-09-08T16:45...' = TRUE
+  // dan match T sendiri ikut masuk rolling window-nya (post-hoc leakage).
+  const cutoff = beforeDate ? beforeDate.slice(0, 10) : undefined;
+  if (cutoff) {
     const stmt = db.prepare(`
       SELECT l.*, m.competition_id FROM team_match_logs l
       LEFT JOIN matches m ON l.match_id = m.match_id
@@ -137,7 +141,7 @@ export function getPreMatchLogs(
       ORDER BY l.match_date DESC
       LIMIT ?
     `);
-    return stmt.all(teamId, beforeDate, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
+    return stmt.all(teamId, cutoff, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
   }
 
   const stmt = db.prepare(`

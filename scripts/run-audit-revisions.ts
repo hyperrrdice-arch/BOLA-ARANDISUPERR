@@ -32,7 +32,7 @@ async function run() {
   console.log("=== 1. MARKET SHIN PADA 1.078 MATCH 2026/2027 (TRACK B) ===");
   const bMatches = masterDb
     .prepare(
-      "SELECT id, div, date, home_team, away_team, fthg, ftag, ftr, b365h, b365d, b365a, h_xg, a_xg FROM matches WHERE season = '2026/2027' AND h_xg IS NOT NULL AND a_xg IS NOT NULL"
+      "SELECT id, div, date, home_team, away_team, fthg, ftag, ftr, b365h, b365d, b365a, h_xg, a_xg FROM matches WHERE season = '2026/2027' AND h_xg IS NOT NULL AND a_xg IS NOT NULL AND b365h > 1.0 AND b365d > 1.0 AND b365a > 1.0"
     )
     .all() as any[];
 

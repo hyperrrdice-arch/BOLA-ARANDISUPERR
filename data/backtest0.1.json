@@ -1,0 +1,194 @@
+{
+  "executedAt": "2026-10-17T12:13:14.197Z",
+  "config": {
+    "targetTrack": "all",
+    "targetDiv": "ALL",
+    "trainCutoffDate": "2025-06-30"
+  },
+  "trackA": {
+    "totalMatches": 6528,
+    "resolvedMatches": 6528,
+    "skippedMatches": 0,
+    "coveragePct": 100,
+    "models": {
+      "dixonColesProduction": {
+        "logLoss": 1.0331,
+        "brier": 0.6205,
+        "ece": 0.0323
+      },
+      "dixonColesNoTau": {
+        "logLoss": 1.0338,
+        "brier": 0.6209,
+        "ece": 0
+      },
+      "dixonColesRhoNeg13": {
+        "logLoss": 1.0322,
+        "brier": 0.6197
+      },
+      "dixonColesRhoNeg04": {
+        "logLoss": 1.0328,
+        "brier": 0.6203
+      },
+      "dixonColesRhoNeg05": {
+        "logLoss": 1.0327,
+        "brier": 0.6201
+      },
+      "marketShin": {
+        "logLoss": 0.9949,
+        "brier": 0.5948,
+        "ece": 0.0183,
+        "matchCount": 6516
+      },
+      "marketProportional": {
+        "logLoss": 0.9955,
+        "brier": 0.595,
+        "matchCount": 6516
+      },
+      "homeFavoriteBaseline": {
+        "logLoss": 1.0771,
+        "brier": 0.652,
+        "ece": 0.0102
+      }
+    },
+    "subAnalyses": {
+      "scheduleFrictionFatigue": {
+        "highFatigueCount": 145,
+        "highFatigueLogLoss": 1.0455,
+        "normalFatigueCount": 6060,
+        "normalFatigueLogLoss": 1.0358
+      },
+      "promotedTeams": {
+        "matchCount": 1076,
+        "modelLogLoss": 1.078,
+        "baselineLogLoss": 1.0866
+      }
+    },
+    "gateStatus": {
+      "coverageGate": true,
+      "marketComparisonGate": false,
+      "favoriteComparisonGate": true,
+      "eceGate": false,
+      "overallPass": false
+    }
+  },
+  "trackB": {
+    "totalMatches": 1078,
+    "resolvedMatches": 1078,
+    "b1_xgVsGoals": {
+      "xgLogLoss": 0.9256,
+      "goalsLogLoss": 1.0315,
+      "pairedDiff": {
+        "meanDiff": -0.10591,
+        "ciLower": -0.13635,
+        "ciUpper": -0.07292,
+        "pValue": 0
+      }
+    },
+    "b2_crossCompNormalization": {
+      "weightedLogLoss": 1.0369,
+      "unweightedLogLoss": 1.0371,
+      "pairedDiff": {
+        "meanDiff": -0.00025,
+        "ciLower": -0.00326,
+        "ciUpper": 0.0024,
+        "pValue": 0.872
+      }
+    },
+    "b3_luckRegressionPredictive": {
+      "qualifyingMatches": 137,
+      "overperformingReversionPct": 51.5,
+      "underperformingReversionPct": 55.1,
+      "verdict": "Regresi Keberuntungan Terkonfirmasi"
+    }
+  },
+  "trackC": {
+    "totalMatches": 405,
+    "resolvedMatches": 405,
+    "productionBimodalLogLoss": 0.9662,
+    "ablationFixed16LogLoss": 0.9675,
+    "ablationFixed8LogLoss": 0.9695,
+    "ablationMacroOnlyLogLoss": 0.9699,
+    "uclSubset": {
+      "matchCount": 36,
+      "withSqrtQLogLoss": 1.0255,
+      "withoutSqrtQLogLoss": 1.0255,
+      "delta": 0
+    }
+  },
+  "trackD": {
+    "totalMatches": 405,
+    "evaluatedMatches": 405,
+    "cornersOver9_5": {
+      "brier": 0.1857,
+      "predictedFreq": 50.4,
+      "actualFreq": 50.1
+    },
+    "cornersOver10_5": {
+      "brier": 0.1739,
+      "predictedFreq": 40.7,
+      "actualFreq": 41
+    },
+    "cardsOver3_5": {
+      "brier": 0.18,
+      "predictedFreq": 43.7,
+      "actualFreq": 49.6
+    },
+    "cardsOver4_5": {
+      "brier": 0.1512,
+      "predictedFreq": 28.2,
+      "actualFreq": 30.9
+    },
+    "aerialDuelsCorrelation": 0.42,
+    "verdict": "Kalibrasi Wajar (Deviasi Prediksi vs Aktual <= 15%)"
+  },
+  "trackE": {
+    "qualifyingOpportunities": 6133,
+    "strategies": {
+      "flatStake": {
+        "finalBankroll": 0.6,
+        "totalBets": 759,
+        "winningBets": 234,
+        "winRatePct": 30.8,
+        "maxDrawdownPct": 99.4,
+        "riskOfRuin": true,
+        "cagrPct": -98.3,
+        "roiPct": -13.1
+      },
+      "fullKelly": {
+        "finalBankroll": 0.93,
+        "totalBets": 222,
+        "winningBets": 72,
+        "winRatePct": 32.4,
+        "maxDrawdownPct": 99.1,
+        "riskOfRuin": true,
+        "cagrPct": -97.5,
+        "roiPct": -28.96
+      },
+      "quarterKelly": {
+        "finalBankroll": 0.94,
+        "totalBets": 879,
+        "winningBets": 265,
+        "winRatePct": 30.1,
+        "maxDrawdownPct": 99.1,
+        "riskOfRuin": true,
+        "cagrPct": -97.6,
+        "roiPct": -11.36
+      },
+      "quarterKellyWithCaps": {
+        "finalBankroll": 2.42,
+        "totalBets": 941,
+        "winningBets": 282,
+        "winRatePct": 30,
+        "maxDrawdownPct": 97.6,
+        "riskOfRuin": true,
+        "cagrPct": -94.9,
+        "roiPct": -11.45
+      }
+    },
+    "gateStatus": {
+      "riskOfRuinZero": false,
+      "drawdownControlled": true,
+      "overallPass": false
+    }
+  }
+}

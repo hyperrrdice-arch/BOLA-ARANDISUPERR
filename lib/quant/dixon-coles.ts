@@ -5,10 +5,10 @@
  */
 
 export interface DixonColesInput {
-  homeAttack: number; // e.g. xG per match or season goals scored per game (~1.1 - 2.5)
-  homeDefense: number; // e.g. xGA per match or goals conceded per game (~0.8 - 2.2)
-  awayAttack: number; // e.g. xG per match
-  awayDefense: number; // e.g. xGA per match
+  homeAttack: number; // Rasio dimensionless (mean 1.0) = xG_for / leagueAvgGoals
+  homeDefense: number; // Rasio dimensionless (mean 1.0) = xGA / leagueAvgGoals
+  awayAttack: number; // Rasio dimensionless (mean 1.0)
+  awayDefense: number; // Rasio dimensionless (mean 1.0)
   homeAdvantage?: number; // Home ground multiplier (default 1.15)
   leagueAvgGoals?: number; // League average goals per team per match (default 1.35)
   rho?: number; // Low-score correlation parameter tau (standard: -0.13)
@@ -130,21 +130,22 @@ function tauAdjustment(x: number, y: number, lambda: number, mu: number, rho: nu
 export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: number }): DixonColesResult {
   const safeHomeAdv = Number.isFinite(input.homeAdvantage) && (input.homeAdvantage as number) > 0 ? (input.homeAdvantage as number) : 1.15;
   const safeLeagueAvg = Number.isFinite(input.leagueAvgGoals) && (input.leagueAvgGoals as number) > 0 ? (input.leagueAvgGoals as number) : 1.35;
-  const safeHomeAtk = Number.isFinite(input.homeAttack) && input.homeAttack > 0 ? input.homeAttack : 1.35;
-  const safeAwayDef = Number.isFinite(input.awayDefense) && input.awayDefense > 0 ? input.awayDefense : 1.35;
-  const safeAwayAtk = Number.isFinite(input.awayAttack) && input.awayAttack > 0 ? input.awayAttack : 1.15;
-  const safeHomeDef = Number.isFinite(input.homeDefense) && input.homeDefense > 0 ? input.homeDefense : 1.35;
+  // Attack/Defense = rasio dimensionless (mean 1.0), bukan gol absolut
+  const safeHomeAtk = Number.isFinite(input.homeAttack) && input.homeAttack > 0 ? input.homeAttack : 1.0;
+  const safeAwayDef = Number.isFinite(input.awayDefense) && input.awayDefense > 0 ? input.awayDefense : 1.0;
+  const safeAwayAtk = Number.isFinite(input.awayAttack) && input.awayAttack > 0 ? input.awayAttack : 1.0;
+  const safeHomeDef = Number.isFinite(input.homeDefense) && input.homeDefense > 0 ? input.homeDefense : 1.0;
   const rho = Number.isFinite(input.rho) ? (input.rho as number) : -0.13;
   const maxGoals = Math.min(10, Math.max(5, Number.isFinite(input.maxGoals) ? (input.maxGoals as number) : 10));
 
-  // Normalisasi terhadap rata-rata liga & terapkan Home Advantage yang sebenarnya
+  // Konvensi rasio: lambda = leagueAvg * attack * defense * homeAdv
   const rawLambda = Math.max(
     0.2,
-    ((safeHomeAtk * safeAwayDef) / safeLeagueAvg) * safeHomeAdv
+    safeLeagueAvg * safeHomeAtk * safeAwayDef * safeHomeAdv
   );
   const rawMu = Math.max(
     0.2,
-    ((safeAwayAtk * safeHomeDef) / safeLeagueAvg)
+    safeLeagueAvg * safeAwayAtk * safeHomeDef
   );
 
   const lambda = Math.round(rawLambda * 1000) / 1000;

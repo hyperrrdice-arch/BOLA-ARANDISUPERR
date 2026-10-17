@@ -154,16 +154,16 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
       for (const m of weightedMatches) {
         if (m.home === t) {
           num += m.w * m.x;
-          den += m.w * beta[m.away] * gamma / leagueAvgGoals;
+          den += m.w * beta[m.away] * gamma * leagueAvgGoals;
         } else if (m.away === t) {
           num += m.w * m.y;
-          den += m.w * beta[m.home] / leagueAvgGoals;
+          den += m.w * beta[m.home] * leagueAvgGoals;
         }
       }
       alpha[t] = den > 0 ? (num + 0.1) / (den + 0.1) : 1.0;
     }
 
-    // Normalisasi sum(alpha) = T
+    // Normalisasi sum(alpha) = T (mean = 1.0)
     let sumAlpha = 0;
     for (const t of teams) sumAlpha += alpha[t];
     const meanAlpha = sumAlpha / T;
@@ -178,13 +178,21 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
       for (const m of weightedMatches) {
         if (m.home === t) {
           num += m.w * m.y;
-          den += m.w * alpha[m.away] / leagueAvgGoals;
+          den += m.w * alpha[m.away] * leagueAvgGoals;
         } else if (m.away === t) {
           num += m.w * m.x;
-          den += m.w * alpha[m.home] * gamma / leagueAvgGoals;
+          den += m.w * alpha[m.home] * gamma * leagueAvgGoals;
         }
       }
       beta[t] = den > 0 ? (num + 0.1) / (den + 0.1) : 1.0;
+    }
+
+    // Normalisasi sum(beta) = T (mean = 1.0)
+    let sumBeta = 0;
+    for (const t of teams) sumBeta += beta[t];
+    const meanBeta = sumBeta / T;
+    for (const t of teams) {
+      beta[t] /= meanBeta;
     }
 
     // 3. Update Home Advantage (gamma)
@@ -192,7 +200,7 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
     let homeDen = 0;
     for (const m of weightedMatches) {
       homeNum += m.w * m.x;
-      homeDen += m.w * (alpha[m.home] * beta[m.away] / leagueAvgGoals);
+      homeDen += m.w * (alpha[m.home] * beta[m.away] * leagueAvgGoals);
     }
     if (homeDen > 0) {
       gamma = Math.min(1.4, Math.max(1.05, homeNum / homeDen));
@@ -206,8 +214,8 @@ export function calibrateDivision(db: any, div: string, maxDate?: string): Leagu
   for (let r = -0.12; r <= 0.02; r += 0.01) {
     let logLik = 0;
     for (const m of weightedMatches) {
-      const lambda = (alpha[m.home] * beta[m.away] / leagueAvgGoals) * gamma;
-      const mu = (alpha[m.away] * beta[m.home] / leagueAvgGoals);
+      const lambda = (alpha[m.home] * beta[m.away] * leagueAvgGoals) * gamma;
+      const mu = (alpha[m.away] * beta[m.home] * leagueAvgGoals);
       const adj = tau(m.x, m.y, lambda, mu, r);
       if (adj > 0) {
         logLik += m.w * Math.log(adj);

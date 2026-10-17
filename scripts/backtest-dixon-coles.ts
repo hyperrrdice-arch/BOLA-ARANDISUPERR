@@ -740,11 +740,15 @@ export async function runTrackB(trainRatings: CalibratedRatingsFile): Promise<Tr
 
       if (telemWeighted.observed_xg_samples >= 3 && telemUnweighted.observed_xg_samples >= 3) {
         crossCompCount++;
-        const pWeighted = telemWeighted.rolling_xg_for || homeRes.rating.attack;
-        const pUnweighted = telemUnweighted.rolling_xg_for || homeRes.rating.attack;
+        const pWeighted = telemWeighted.rolling_xg_for
+          ? telemWeighted.rolling_xg_for / league.leagueAvgGoals
+          : homeRes.rating.attack;
+        const pUnweighted = telemUnweighted.rolling_xg_for
+          ? telemUnweighted.rolling_xg_for / league.leagueAvgGoals
+          : homeRes.rating.attack;
 
         const resW = calculateDixonColes({
-          homeAttack: pWeighted / league.leagueAvgGoals,
+          homeAttack: pWeighted,
           homeDefense: homeRes.rating.defense,
           awayAttack: awayRes.rating.attack,
           awayDefense: awayRes.rating.defense,
@@ -753,7 +757,7 @@ export async function runTrackB(trainRatings: CalibratedRatingsFile): Promise<Tr
           rho: explicitRho,
         });
         const resUnW = calculateDixonColes({
-          homeAttack: pUnweighted / league.leagueAvgGoals,
+          homeAttack: pUnweighted,
           homeDefense: homeRes.rating.defense,
           awayAttack: awayRes.rating.attack,
           awayDefense: awayRes.rating.defense,
@@ -890,9 +894,10 @@ export async function runTrackC(trainRatings: CalibratedRatingsFile): Promise<Tr
     const divCode = COMPETITION_TO_DIV[m.competition_id] || "UNKNOWN";
     const actual = m.home_score > m.away_score ? "H" : (m.home_score === m.away_score ? "D" : "A");
 
-    // Telemetri rolling sebelum tanggal match (STRICT anti-leakage)
-    const homeTelem = getTeamRollingTelemetry(m.home_team_id, 6, m.utc_date, divCode);
-    const awayTelem = getTeamRollingTelemetry(m.away_team_id, 6, m.utc_date, divCode);
+    // Telemetri rolling sebelum tanggal match (STRICT anti-leakage: cutoff YYYY-MM-DD)
+    const cutoffDate = m.utc_date.slice(0, 10);
+    const homeTelem = getTeamRollingTelemetry(m.home_team_id, 6, cutoffDate, divCode);
+    const awayTelem = getTeamRollingTelemetry(m.away_team_id, 6, cutoffDate, divCode);
 
     // 1. Pipeline Produksi: Bimodal Kappa (8 xG / 14 Goals / 16 Fallback)
     const prodParams = getShrunkMatchParameters({
