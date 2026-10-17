@@ -65,15 +65,19 @@ export async function cachedStatsGet<T = any>(
   if (cached && now < cached.expiry) {
     metrics.hits += 1;
     const remainingSec = Math.round((cached.expiry - now) / 1000);
-    console.log(
-      `[TheStatsAPI Cache] 🟢 HIT: ${path} (Tersisa ${remainingSec}s, Quota dihemat: ${metrics.hits})`
-    );
+    if (process.env.PIPELINE_DEBUG) {
+      console.log(
+        `[TheStatsAPI Cache] 🟢 HIT: ${path} (Tersisa ${remainingSec}s, Quota dihemat: ${metrics.hits})`
+      );
+    }
     return cached.data as T;
   }
 
   // 2. Cache Miss atau Expired: Lakukan fetch ke TheStatsAPI
   metrics.misses += 1;
-  console.log(`[TheStatsAPI Cache] 🔴 MISS: ${path} (Fetching remote API...)`);
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[TheStatsAPI Cache] 🔴 MISS: ${path} (Fetching remote API...)`);
+  }
 
   const url = new URL(API_BASE + path);
   for (const [k, v] of Object.entries(params)) {

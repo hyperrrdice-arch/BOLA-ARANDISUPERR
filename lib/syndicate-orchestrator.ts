@@ -323,7 +323,9 @@ export async function orchestrate5AgentSyndicate(params: {
     luckStr + "\n" +
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
-  console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
+  }
   const t0 = Date.now();
 
   // STAGE 1: TRI-AGENT ADVERSARIAL DEBATE IN PARALLEL
@@ -401,7 +403,9 @@ export async function orchestrate5AgentSyndicate(params: {
   };
 
   // STAGE 2: DUAL JUDICIAL BENCH IN PARALLEL
-  console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, 180s limit]...`);
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, 180s limit]...`);
+  }
   const t1 = Date.now();
 
   const debateSummary =

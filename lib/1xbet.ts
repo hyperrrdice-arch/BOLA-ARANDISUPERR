@@ -196,11 +196,15 @@ export async function get1xBetMarketsV2(matchId: string | number): Promise<Marke
   const cacheKey = `1xbet:markets_v2:${matchId}`;
   const cached = getFromCache<Market1xBetV2[]>(cacheKey);
   if (cached) {
-    console.log(`[1xBet] Cache hit for matchId ${matchId} (0 API requests used)`);
+    if (process.env.PIPELINE_DEBUG) {
+      console.log(`[1xBet] Cache hit for matchId ${matchId} (0 API requests used)`);
+    }
     return cached;
   }
 
-  console.log(`[1xBet] Fetching fresh markets for matchId ${matchId} from RapidAPI...`);
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[1xBet] Fetching fresh markets for matchId ${matchId} from RapidAPI...`);
+  }
   const json = await fetch1xBetRaw(`/matches/${matchId}/markets_v2`);
   const markets = json.data || [];
 

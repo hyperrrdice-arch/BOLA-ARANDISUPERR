@@ -1,6 +1,6 @@
 import { generateText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
-import { getNineRouterApiKey, getNineRouterBaseUrl, STATS_FETCHER } from "./llm/models";
+import { STATS_FETCHER } from "./llm/models";
+import { nineRouter } from "@/lib/agent/llm";
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import {
   validateAndSanitizeMatchData,
@@ -22,25 +22,7 @@ import {
  * yang wajib dipanggil vs yang dilewati demi menghemat kuota API.
  */
 
-// Injektor fetch untuk memastikan 9Router mengirimkan JSON non-streaming
-const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
-  if (init?.body && typeof init.body === "string") {
-    try {
-      const parsed = JSON.parse(init.body);
-      if (parsed.stream === undefined) {
-        parsed.stream = false;
-        init = { ...init, body: JSON.stringify(parsed) };
-      }
-    } catch {}
-  }
-  return fetch(url, init);
-};
-
-const nineRouter = createOpenAI({
-  baseURL: getNineRouterBaseUrl(),
-  apiKey: getNineRouterApiKey(),
-  fetch: customFetch,
-});
+// Klien 9Router tunggal: lihat lib/agent/llm.ts (customFetch non-streaming + failover).
 
 const MODEL_DISPATCHER = STATS_FETCHER.MODEL_DISPATCHER;
 
@@ -106,6 +88,16 @@ async function planFetchWithLightweightAgent(
   status: string
 ): Promise<{ decision: DispatcherDecision; modelUsed: string }> {
   const heuristic = getHeuristicDecision(hoursUntilKickoff, status);
+
+  // Shortcut PLAN-D: dispatcher LLM selalu kalah dari timeout 2.5s di lingkungan lokal
+  // dan output-nya identik dengan heuristic (aturan prompt = aturan heuristic).
+  // Aktifkan kembali eksperimen LLM via env DISPATCHER_LLM=1.
+  if (process.env.DISPATCHER_LLM !== "1") {
+    return {
+      decision: heuristic,
+      modelUsed: `${MODEL_DISPATCHER} (fast heuristic fallback)`,
+    };
+  }
 
   try {
     const prompt =
