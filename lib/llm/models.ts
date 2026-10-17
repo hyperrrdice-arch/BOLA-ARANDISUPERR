@@ -53,6 +53,11 @@ export const STATS_FETCHER = {
   MODEL_DISPATCHER: envModel("MODEL_FETCHER_DISPATCHER", "bai/qwen3.8-27b"),
 } as const;
 
+/** Default yang dipakai `lib/agent/planner.ts` (planner agent loop). */
+export const PLANNER = {
+  MODEL_PLANNER: envModel("MODEL_PLANNER", "bai/mimo-v2.6-pro"),
+} as const;
+
 /**
  * Kredensial wajib dari environment.
  *
