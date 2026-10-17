@@ -230,5 +230,8 @@ const metrics = getSnapshotMetrics();
 assert(metrics.snapshotsCount >= 4, `metrics menghitung snapshot (>=4, dapat ${metrics.snapshotsCount})`);
 assert(metrics.bytes > 0, "metrics bytes terisi");
 
-console.log(`\n=== ${passed} lulus, ${failed} gagal ===`);
+// 12. Bersihkan di akhir (baris test TIDAK boleh tinggal di korpus pribadi).
+cleanup();
+const after = getSnapshotMetrics();
+console.log(`\n=== ${passed} lulus, ${failed} gagal (sisa baris test: ${after.snapshotsCount} total snapshot) ===`);
 process.exit(failed > 0 ? 1 : 0);

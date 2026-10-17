@@ -186,6 +186,25 @@ Semua bisa dioverride lewat env (lihat `.env.example`).
 - **`data/calibrated_ratings.json`** — hasil kalibrasi rating (James-Stein shrinkage) dari `scripts/calibrate-ratings.ts`
 - Tier-1 offline diprioritaskan: fetch online hanya fallback bila SQLite kosong
 
+### 9.1 `data/analysis_snapshots.db` — riwayat analisis (data pribadi, APPEND-ONLY)
+
+Berkas **terpisah** dari `thestats_dataset.db` (`lib/db/analysis-snapshot.ts`), di-gitignore.
+Tabel `analysis_snapshots` (hasil pipeline, lengkap dengan `view_json` sebagai sumber kebenaran
++ kolom ringkas untuk query), `match_outcomes` (hasil aktual, boleh di-refresh via upsert),
+dan dua VIEW evaluasi (`v_snapshot_eval`, `v_snapshot_eval_market`) yang menyaring
+`lead_time_minutes > 0` (pre-match) + `status = 'finished'` untuk mencegah leakage.
+
+> ⚠️ **Tidak bisa di-rebuild.** Isinya keluaran LLM (200–415 detik per match, model
+> nondeterministik). Ngawet ulang berarti menjalankan ulang seluruh pipeline. **Jangan
+> pernah DELETE/DROP** di jalur produksi; satu-satunya `DELETE` yang sah adalah cleanup
+> data test ber-prefix di `scripts/test-snapshot-db.ts`. Backup manual bila perlu:
+> `sqlite3 data/analysis_snapshots.db ".backup data/backup-snapshots-YYYY.db"`.
+
+Skema ini menggantikan tabel `analysis_runs` yang dulu hidup di `thestats_dataset.db`
+(DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `DB SNAPSHOT.md`.
+Operasional: `scripts/sync-match-outcomes.ts` (tarik hasil aktual, lokal dulu),
+`scripts/snapshot-report.ts` (report read-only).
+
 ---
 
 ## 10. Menjalankan & Menguji
@@ -197,6 +216,9 @@ npm run ingest:multileague         # ingest multi-liga
 npx tsx scripts/test-planner-tool-calling.ts   # gate native tool-calling model planner
 npx tsx scripts/test-planner-loop.ts           # loop + coverage evaluator (mock tools)
 npx tsx scripts/test-view-mapper.ts            # BFF: fidelitas angka, null jujur, anti-leak
+npx tsx scripts/test-snapshot-db.ts            # DB snapshot: round-trip, VIEW, leakage guard
+npx tsx scripts/sync-match-outcomes.ts         # tarik hasil aktual (CLI, idempoten)
+npx tsx scripts/snapshot-report.ts             # report prediksi vs hasil (read-only)
 npx tsc --noEmit                   # typecheck
 npm run build                      # build produksi
 ```
@@ -210,9 +232,9 @@ Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build
 
 ## 11. Roadmap (topik bahasan berikutnya)
 
-- **Optimasi latensi** — run 2–7 menit (debate 2 ronde + editorial sekuensial); kandidat: paralelisasi debate↔editorial, caching hasil run, `?debug=1` tanpa re-run
-- **Riwayat analisis** — simpan `AnalysisView` per match (SQLite) + endpoint baca (saat ini hasil hilang setelah refresh)
-- **Outcome tracker** — hasil aktual vs prediksi → feedback ke ratings/confidence
+- **Optimasi latensi** — run 2–7 menit (debate 2 ronde + editorial sekuencial); kandidat: paralelisasi debate↔editorial, `?debug=1` tanpa re-run
+- **Riwayat analisis** — ✅ selesai: `AnalysisView` per match tersimpan permanen di `data/analysis_snapshots.db` (§9.1), bukan hilang setelah refresh
+- **Evaluasi outcome berjalan** — lengkapi: tarik `match_outcomes` otomatis per jadwal (`sync-match-outcomes.ts` via cron), accumulate ≥100 snapshot evaluable, lalu pakai angka Brier/log-loss/P-L untuk kalibrasi ulang ratings & confidence
 - **Trigger otonom** (cron per kickoff) — saat ini analisis dipicu klik user
 - `query_odds_dislocation` & `run_special_markets` sebagai tool planner terpisah (saat ini masuk paket quant)
 - Sisa polish UI: struktur katalog (grid kartu identik), radius/tokens menyeluruh

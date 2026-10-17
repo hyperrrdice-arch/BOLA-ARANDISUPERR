@@ -49,6 +49,8 @@ next-env.d.ts
 
 # local sqlite master & raw historical datasets (preserve compiled ratings)
 data/football_master.db*
+# dataset ingesti: data runtime, bisa dibangun ulang dari API (PERF.md)
+data/thestats_dataset.db*
 # snapshot analisis: data pribadi append-only, tak bisa di-rebuild (DB SNAPSHOT.md)
 data/analysis_snapshots.db*
 *.db-shm
