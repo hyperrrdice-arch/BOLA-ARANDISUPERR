@@ -113,39 +113,65 @@
     }
   },
   "trackC": {
-    "sampleSize": 405,
+    "totalMatches": 405,
+    "matchedWithMarketOdds": 369,
+    "uclMatchesSkippedFromMarket": 36,
     "source": "thestats telemetry (rolling 6 matches)",
-    "kappaAblation": {
-      "fixedKappa8": {
-        "logLoss": 0.947,
-        "brier": 0.567,
-        "pairedDeltaVsBimodal": -0.0069,
-        "ciLower": -0.01344,
-        "ciUpper": -0.00041,
-        "pValue": 0.032
+    "cleanOutOfSampleComparisonOn369": {
+      "marketShin": {
+        "logLoss": 0.9736,
+        "brier": 0.5802
       },
-      "fixedKappa16": {
-        "logLoss": 0.9494,
-        "brier": 0.5681,
-        "pairedDeltaVsBimodal": -0.00444,
-        "ciLower": -0.00847,
-        "ciUpper": -0.0006,
-        "pValue": 0.022
+      "cleanProductionBimodal": {
+        "logLoss": 0.9976,
+        "brier": 0.596,
+        "pairedDeltaVsMarket": 0.02399,
+        "ciLower": -0.01263,
+        "ciUpper": 0.05839,
+        "pValue": 0.226
       },
-      "bimodalProduction": {
-        "logLoss": 0.9539,
-        "brier": 0.5702,
-        "pairedDeltaVsBimodal": 0
+      "cleanFixedKappa8": {
+        "logLoss": 1.003,
+        "brier": 0.5985,
+        "pairedDeltaVsMarket": 0.02937,
+        "ciLower": -0.00746,
+        "ciUpper": 0.06421,
+        "pValue": 0.104
       },
-      "macroOnly": {
+      "cleanFixedKappa16": {
+        "logLoss": 1.0005,
+        "brier": 0.5973,
+        "pairedDeltaVsMarket": 0.02684,
+        "ciLower": -0.01008,
+        "ciUpper": 0.06137,
+        "pValue": 0.15
+      },
+      "cleanMacroOnly": {
         "logLoss": 0.9981,
         "brier": 0.5985,
-        "pairedDeltaVsBimodal": 0.04425,
-        "ciLower": 0.03181,
-        "ciUpper": 0.05689,
-        "pValue": 0
+        "pairedDeltaVsMarket": 0.0245
       }
     },
-    "recommendationPlanB14": "Switch from bimodal kappa to fixed kappa 8 or continuous scaling"
+    "leakageAudit": {
+      "point1_beforeDate_strict": "FAIL (SQLite string comparison 'YYYY-MM-DD' < 'YYYY-MM-DDTHH:mm:ss.sssZ' evaluated to TRUE for same-day matches)",
+      "point2_match_t_in_window": "FAIL (Match T was retrieved as index 0 in the 6-match window for 405 matches, 810 occurrences)",
+      "point3_match_t_fields_used": "FAIL (goals_for and xg_for from match T contaminated rolling averages)",
+      "postHocLeakedRunLogLoss": {
+        "bimodalProduction": 0.9394,
+        "fixedKappa8": 0.9351,
+        "fixedKappa16": 0.9366
+      },
+      "conclusion": "When string comparison leakage is strictly fixed, Dixon-Coles fusion loses to closing market by +0.0240, confirming Track E findings."
+    },
+    "uclScalingSubset": {
+      "matchCount": 36,
+      "withSqrtQLogLoss": 1.1017,
+      "withoutSqrtQLogLoss": 1.1046,
+      "pairedDelta": -0.00285,
+      "ciLower": -0.00367,
+      "ciUpper": -0.00188,
+      "pValue": 0.466,
+      "verdict": "Directionally positive, statistically not significant at N=36"
+    }
   }
 }
