@@ -6,11 +6,10 @@ import type { AnalysisView } from "@/lib/view/analysis-view";
 
 interface DataIntegrityShieldProps {
   integrity?: AnalysisView["ringkasan"]["integrity"];
-  data?: any;
 }
 
-export function DataIntegrityShield({ integrity, data }: DataIntegrityShieldProps) {
-  const missing = integrity?.gaps || data?.data_tidak_tersedia || [];
+export function DataIntegrityShield({ integrity }: DataIntegrityShieldProps) {
+  const missing = integrity?.gaps || [];
   const statusEstimasi = integrity?.status_estimasi || [];
 
   return (

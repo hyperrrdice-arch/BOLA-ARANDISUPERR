@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import type { AnalysisView } from "@/lib/view/analysis-view";
+import type { AnalysisView, AnalysisKuantitatifValueBet } from "@/lib/view/analysis-view";
+import type { ScorelineProbability } from "@/lib/quant/dixon-coles";
 import {
   CpuIcon,
-  BarChart3Icon,
   CoinsIcon,
-  ArrowUpRightIcon,
   ShieldIcon,
-  CheckCircleIcon,
-  ActivityIcon,
 } from "@/components/icons";
 
 interface QuantEngineCardProps {
@@ -227,7 +224,7 @@ export function QuantEngineCard({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e5e5e5] tabular-nums">
-                {value_bets.map((vb: any, idx: number) => {
+                {value_bets.map((vb: AnalysisKuantitatifValueBet, idx: number) => {
                   const effectiveStakePct = +((vb.recommended_stake_percentage ?? 0) * kellyMultiplier).toFixed(2);
                   const stakeIdr = Math.round((bankroll * effectiveStakePct) / 100);
 
@@ -299,15 +296,21 @@ export function QuantEngineCard({
             <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
               <span className="text-[11px] text-[#737373] block">Skor Teratas (Top Scorelines)</span>
               <div className="mt-1 space-y-0.5">
-                {(metode.dixon_coles?.top_scorelines || []).slice(0, 3).map((ts: any, idx: number) => (
+                {(metode.dixon_coles?.top_scorelines || []).slice(0, 3).map(
+                  (ts: ScorelineProbability, idx: number) => (
                   <div key={idx} className="flex justify-between text-[11px]">
                     <span className="font-semibold text-[#0a0a0a]">
-                      {ts.score ?? `${ts.homeGoals ?? "?"}-${ts.awayGoals ?? "?"}`}
+                      {"score" in ts && ts.score
+                        ? String(ts.score)
+                        : `${ts.homeGoals ?? "?"}-${ts.awayGoals ?? "?"}`}
                     </span>
                     {/* prob dari lib/quant sudah skala persen — jangan dikali 100 lagi */}
-                    <span className="text-[#737373]">{ts.prob == null ? "—" : `${ts.prob.toFixed(1)}%`}</span>
+                    <span className="text-[#737373]">
+                      {ts.prob == null ? "—" : `${ts.prob.toFixed(1)}%`}
+                    </span>
                   </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
 

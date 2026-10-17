@@ -8,19 +8,14 @@ import {
   TrendingDownIcon,
   AlertCircleIcon,
   ShieldIcon,
-  CheckCircleIcon,
 } from "@/components/icons";
 
 interface SyndicateDebateCardProps {
   debat: AnalysisView["debat"];
-  homeTeam?: string;
-  awayTeam?: string;
 }
 
 export function SyndicateDebateCard({
   debat,
-  homeTeam = "Tim Kandang",
-  awayTeam = "Tim Tamu",
 }: SyndicateDebateCardProps) {
   const { consensus, supreme, persona, dual_bench } = debat;
 

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { QuantEngineData, BettingResult1xBet } from "./types";
+import type { Market1xBetV2 } from "@/lib/1xbet";
 import { TrendingUpIcon, RefreshCwIcon, ArrowUpRightIcon, CoinsIcon } from "@/components/icons";
 
 interface OddsDislocationBarProps {
@@ -96,8 +97,9 @@ export function OddsDislocationBar({
   // 1xBet Live Odds jika sudah discan
   const oneXBetOdds = useMemo(() => {
     if (bettingResult?.sample_markets && Array.isArray(bettingResult.sample_markets)) {
-      const m1x2 = bettingResult.sample_markets.find((m: any) =>
-        m.name?.toLowerCase().includes("1x2") || m.name?.toLowerCase().includes("match winner") || m.market_id === 1
+      const m1x2 = bettingResult.sample_markets.find(
+        (m: Market1xBetV2) =>
+          m.name?.toLowerCase().includes("1x2") || m.name?.toLowerCase().includes("match winner") || m.market_id === 1
       );
       if (m1x2?.odds) {
         const hVal = m1x2.odds["1"] || m1x2.odds["W1"] || m1x2.odds["Home"];
@@ -116,9 +118,9 @@ export function OddsDislocationBar({
     if (!bettingResult?.markets_classified) return null;
     const m1x2 = bettingResult.markets_classified["1X2"] || bettingResult.markets_classified["1x2"];
     if (m1x2 && Array.isArray(m1x2) && m1x2.length >= 3) {
-      const h = m1x2.find((p: any) => p.name?.includes("1") || p.title?.includes("1"));
-      const d = m1x2.find((p: any) => p.name?.includes("X") || p.title?.includes("Draw") || p.title?.includes("Seri"));
-      const a = m1x2.find((p: any) => p.name?.includes("2") || p.title?.includes("2"));
+      const h = m1x2.find((p: Market1xBetV2) => p.name?.includes("1"));
+      const d = m1x2.find((p: Market1xBetV2) => p.name?.includes("X"));
+      const a = m1x2.find((p: Market1xBetV2) => p.name?.includes("2"));
       if (h?.odds && d?.odds && a?.odds) {
         return {
           home: Number(h.odds),

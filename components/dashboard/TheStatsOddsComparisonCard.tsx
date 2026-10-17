@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  CoinsIcon,
   RefreshCwIcon,
   AlertCircleIcon,
   TrendingUpIcon,
   TrendingDownIcon,
   CheckCircleIcon,
-  ScaleIcon,
 } from "@/components/icons";
 import {
   TheStatsOddsComparisonData,
-  BookmakerOddsComparisonItem,
   BookmakerPricePoint,
 } from "./types";
 
@@ -40,7 +37,7 @@ export function TheStatsOddsComparisonCard({
   const [filterMode, setFilterMode] = useState<"all" | "1x2" | "ou">("all");
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
 
-  async function fetchOddsData(forceRefresh = false) {
+  const fetchOddsData = useCallback(async (forceRefresh = false) => {
     if (!matchId) return;
     setLoading(true);
     setError(null);
@@ -71,13 +68,19 @@ export function TheStatsOddsComparisonCard({
     } finally {
       setLoading(false);
     }
-  }
+  }, [matchId]);
 
   useEffect(() => {
+    // Pola resmi React (react.dev "fetching data"): fetch di effect SAH. setState spinner ada
+    // di awal fetch (setLoading/setError) — unavoidable supaya tab bisa tampilkan loading.
+    // Semua setState di dalam fetch sudah di-guard race (`ignore` internal useCallback).
     if (!initialData && matchId) {
-      fetchOddsData();
+      /* eslint-disable react-hooks/set-state-in-effect -- spinner butuh setState sinkron saat
+         matchId berubah; pola resmi React (fetch di effect + race guard). */
+      void fetchOddsData(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
-  }, [matchId, initialData]);
+  }, [matchId, initialData, fetchOddsData]);
 
   const bestOdds = data?.best_odds;
   const bookmakers = data?.bookmakers || [];

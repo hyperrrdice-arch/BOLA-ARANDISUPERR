@@ -1,3 +1,37 @@
+import type { Market1xBetV2 } from "@/lib/1xbet";
+
+// Bentuk rekomendasi tunggal dari LLM (aman/value/niche/hindari) — nullable karena model bisa gagal parse.
+export type BettingRecommendation = {
+  pasar?: string;
+  pilihan?: string;
+  base?: number | string | null;
+  odds?: number | string | null;
+  alasan?: string;
+  expected_value?: string;
+  expected_value_rating?: string;
+} | null;
+
+// Satu model dalam sindikat scanner (dua model paralel).
+export type BettingScannerModelSlot = {
+  model_name?: string;
+  model?: string;
+  result?: {
+    success?: boolean;
+    data?: BettingScannerAdviceData | null;
+    error?: string;
+  };
+};
+
+// Bentuk JSON yang diharapkan dari LLM scanner (struktur prompt di /api/betting).
+export type BettingScannerAdviceData = {
+  rekomendasi_aman?: BettingRecommendation;
+  rekomendasi_value?: BettingRecommendation;
+  pasar_niche?: BettingRecommendation;
+  pasar_hindari?: { pasar?: string; pilihan?: string; alasan?: string } | null;
+  skor_keyakinan?: number;
+  catatan_strategi?: string;
+};
+
 export interface MatchItem {
   id: string;
   utc_date: string;
@@ -241,9 +275,15 @@ export interface BettingResult1xBet {
   status?: string;
   message?: string;
   raw_markets_count?: number;
-  markets_classified?: Record<string, any>;
-  markets?: any[];
-  all_markets?: any[];
+  sample_markets?: Market1xBetV2[];
+  match_id_1xbet?: string | number | null;
+  total_markets_scanned?: number;
+  consensus?: { summary?: string } | null;
+  model_a?: BettingScannerModelSlot;
+  model_b?: BettingScannerModelSlot;
+  markets_classified?: Record<string, Market1xBetV2[]>;
+  markets?: Market1xBetV2[];
+  all_markets?: Market1xBetV2[];
   quant_synthesis?: {
     verdict?: string;
     confidence?: string;
@@ -256,7 +296,7 @@ export interface BettingResult1xBet {
     }>;
     risk_analysis?: string;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface BookmakerPricePoint {

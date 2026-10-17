@@ -2,11 +2,13 @@
 
 import React from "react";
 import { RefreshCwIcon, AlertCircleIcon, ScaleIcon, TrendingUpIcon } from "@/components/icons";
+import type { Market1xBetV2 } from "@/lib/1xbet";
+import type { BettingResult1xBet } from "./types";
 
 interface BettingScannerCardProps {
   loading: boolean;
   error: string | null;
-  result: any | null;
+  result: BettingResult1xBet | null;
   manualId: string;
   showManualInput: boolean;
   onManualIdChange: (id: string) => void;
@@ -25,8 +27,6 @@ export function BettingScannerCard({
   onManualIdChange,
   onToggleManualInput,
   onTriggerScan,
-  homeTeam,
-  awayTeam,
 }: BettingScannerCardProps) {
   return (
     <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-5 text-[#0a0a0a]">
@@ -116,7 +116,7 @@ export function BettingScannerCard({
             <div>
               <p className="font-semibold text-[13px] text-[#991b1b]">{error}</p>
               <p className="text-[13px] text-[#b91c1c] mt-0.5 leading-relaxed">
-                Tips: Buka situs 1xBet di browser atau gunakan tombol "Manual ID" di atas untuk memasukkan ID laga secara langsung.
+                Tips: Buka situs 1xBet di browser atau gunakan tombol &quot;Manual ID&quot; di atas untuk memasukkan ID laga secara langsung.
               </p>
             </div>
           </div>
@@ -383,8 +383,8 @@ export function BettingScannerCard({
                 Lihat Snapshot Garis Pasar 1xBet Langsung ({result.sample_markets.length} Pasar Populer)
               </summary>
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
-                {result.sample_markets.map((sm: any, idx: number) => (
-                  <div key={idx} className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] space-y-1">
+                {result.sample_markets.map((sm: Market1xBetV2) => (
+                  <div key={sm.market_id} className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] space-y-1">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="font-bold text-[#0a0a0a] truncate">{sm.name}</span>
                       {sm.base !== null && (
@@ -392,7 +392,7 @@ export function BettingScannerCard({
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono">
-                      {Object.entries(sm.odds || {}).map(([outcome, odd]: any) => (
+                      {Object.entries(sm.odds || {}).map(([outcome, odd]) => (
                         <span
                           key={outcome}
                           className="px-2 py-0.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] text-[#0a0a0a]"

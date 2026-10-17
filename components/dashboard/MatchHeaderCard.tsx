@@ -5,16 +5,14 @@ import type { AnalysisView } from "@/lib/view/analysis-view";
 import { formatWib } from "./utils";
 import {
   WhistleIcon,
-  ActivityIcon,
   CheckCircleIcon,
-  AlertCircleIcon,
   RefreshCwIcon,
   SparklesIcon,
+  ActivityIcon,
 } from "@/components/icons";
 
 interface MatchHeaderCardProps {
   view?: AnalysisView | null;
-  data?: any;
   onBack: () => void;
   onRefreshOdds?: () => void;
   onRerunAnalysis?: () => void;
@@ -24,26 +22,25 @@ interface MatchHeaderCardProps {
 
 export function MatchHeaderCard({
   view,
-  data,
   onBack,
   onRefreshOdds,
   onRerunAnalysis,
   refreshingOdds = false,
   rerunningAnalysis = false,
 }: MatchHeaderCardProps) {
-  const homeTeam = view?.match.home || data?.pertandingan?.tim_kandang || "Tim Kandang";
-  const awayTeam = view?.match.away || data?.pertandingan?.tim_tamu || "Tim Tamu";
-  const competition = view?.match.competition || data?.pertandingan?.kompetisi || "Kompetisi";
-  const kickoff = view?.match.kickoff_wib || data?.pertandingan?.waktu || "";
-  const venue = view?.match.venue || data?.pertandingan?.venue;
-  const wasit = view?.match.wasit || data?.wasit_analisis?.nama || "Belum Ditunjuk";
-  const wasitKartu = view?.match.wasit_kartu ?? data?.wasit_analisis?.rata_rata_kartu ?? null;
-  const statusLineup = view?.match.status_lineup ?? data?.taktik_dan_lineup?.status_lineup ?? null;
-  const prediksiHasil = view?.ringkasan.prediksi || data?.prediksi?.hasil || "Menganalisis...";
-  const keyakinan = (view?.ringkasan.keyakinan || data?.prediksi?.keyakinan || "sedang").toLowerCase();
+  const homeTeam = view?.match.home || "Tim Kandang";
+  const awayTeam = view?.match.away || "Tim Tamu";
+  const competition = view?.match.competition || "Kompetisi";
+  const kickoff = view?.match.kickoff_wib || "";
+  const venue = view?.match.venue;
+  const wasit = view?.match.wasit || "Belum Ditunjuk";
+  const wasitKartu = view?.match.wasit_kartu ?? null;
+  const statusLineup = view?.match.status_lineup ?? null;
+  const prediksiHasil = view?.ringkasan.prediksi || "Menganalisis...";
+  const keyakinan = (view?.ringkasan.keyakinan || "sedang").toLowerCase();
 
-  const dcHomeXg = view?.kuantitatif?.detail?.metode?.baseline?.lambda ?? data?.quant_engine?.dixon_coles?.lambda_home_xg;
-  const dcAwayXg = view?.kuantitatif?.detail?.metode?.baseline?.mu ?? data?.quant_engine?.dixon_coles?.mu_away_xg;
+  const dcHomeXg = view?.kuantitatif?.detail?.metode?.baseline?.lambda;
+  const dcAwayXg = view?.kuantitatif?.detail?.metode?.baseline?.mu;
 
   return (
     <div className="space-y-3 font-mono">

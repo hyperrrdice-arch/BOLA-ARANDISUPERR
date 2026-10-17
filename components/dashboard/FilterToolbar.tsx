@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { RefreshCwIcon } from "@/components/icons";
-import { CacheMetrics } from "./types";
 
 interface FilterToolbarProps {
   hours: number;
@@ -12,7 +11,6 @@ interface FilterToolbarProps {
   selectedCompetitionId: string;
   onCompetitionChange: (compId: string) => void;
   activeLeagues: Array<{ id: string; name: string; count: number }>;
-  cacheMetrics: CacheMetrics | null;
   loading: boolean;
   onRefresh: () => void;
   sortBy?: "time" | "name";
@@ -27,7 +25,6 @@ export function FilterToolbar({
   selectedCompetitionId,
   onCompetitionChange,
   activeLeagues,
-  cacheMetrics,
   loading,
   onRefresh,
   sortBy = "time",
@@ -35,6 +32,12 @@ export function FilterToolbar({
 }: FilterToolbarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [localSearch, setLocalSearch] = useState(searchQuery);
+  // Sinkron jika parent reset prop (mis. ganti liga) — pola React: adjust saat render, bukan effect
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
+  if (searchQuery !== prevSearchQuery) {
+    setPrevSearchQuery(searchQuery);
+    setLocalSearch(searchQuery);
+  }
 
   // Debounced search dispatch (150ms)
   useEffect(() => {
@@ -43,11 +46,6 @@ export function FilterToolbar({
     }, 150);
     return () => clearTimeout(handler);
   }, [localSearch, onSearchChange]);
-
-  // Keep local search synced if parent resets it
-  useEffect(() => {
-    setLocalSearch(searchQuery);
-  }, [searchQuery]);
 
   // Keyboard shortcut listener: '/' or 'Ctrl/Cmd + K' to focus search
   useEffect(() => {

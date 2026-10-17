@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { WhistleIcon, LayersIcon, FlameIcon } from "@/components/icons";
 
 interface StatsAndSplitsCardProps {
   splits?: {
@@ -22,21 +21,20 @@ interface StatsAndSplitsCardProps {
   };
   homeTeam?: string;
   awayTeam?: string;
-  data?: any;
 }
 
-export function StatsAndSplitsCard({ splits, homeTeam, awayTeam, data }: StatsAndSplitsCardProps) {
-  const timKandang = homeTeam || data?.pertandingan?.tim_kandang || "Tim Kandang";
-  const timTamu = awayTeam || data?.pertandingan?.tim_tamu || "Tim Tamu";
-  const formKandang = splits?.form_kandang || data?.form_dan_split?.form_kandang || "-";
-  const formTamu = splits?.form_tamu || data?.form_dan_split?.form_tamu || "-";
-  const rekorKandang = splits?.rekor_kandang_spesifik || data?.form_dan_split?.rekor_kandang_spesifik || "Ulasan split kandang stabil.";
-  const rekorTandang = splits?.rekor_tandang_spesifik || data?.form_dan_split?.rekor_tandang_spesifik || "Ulasan split tandang stabil.";
-  const npxgKandang = splits?.npxg_kandang ?? data?.statistik_mendalam?.shot_quality?.npxg_kandang ?? null;
-  const npxgTamu = splits?.npxg_tamu ?? data?.statistik_mendalam?.shot_quality?.npxg_tamu ?? null;
-  const klasemen = splits?.klasemen ?? data?.klasemen ?? null;
-  const pemainKunci = splits?.pemain_kunci ?? data?.statistik_mendalam?.pemain_kunci ?? [];
-  const coverage = splits?.coverage_liga ?? data?.coverage_liga ?? null;
+export function StatsAndSplitsCard({ splits, homeTeam, awayTeam }: StatsAndSplitsCardProps) {
+  const timKandang = homeTeam || "Tim Kandang";
+  const timTamu = awayTeam || "Tim Tamu";
+  const formKandang = splits?.form_kandang || "-";
+  const formTamu = splits?.form_tamu || "-";
+  const rekorKandang = splits?.rekor_kandang_spesifik || "Ulasan split kandang stabil.";
+  const rekorTandang = splits?.rekor_tandang_spesifik || "Ulasan split tandang stabil.";
+  const npxgKandang = splits?.npxg_kandang ?? null;
+  const npxgTamu = splits?.npxg_tamu ?? null;
+  const klasemen = splits?.klasemen ?? null;
+  const pemainKunci = splits?.pemain_kunci ?? [];
+  const coverage = splits?.coverage_liga ?? null;
 
   return (
     <div className="space-y-4 font-mono text-xs">

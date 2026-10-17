@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
-  TrendingUpIcon,
   RefreshCwIcon,
   AlertCircleIcon,
   CheckCircleIcon,
-  ScaleIcon,
-  ZapIcon,
   CrosshairIcon,
 } from "@/components/icons";
 import {
@@ -16,6 +13,7 @@ import {
 import {
   QuantEngineData,
   BettingResult1xBet,
+  BettingScannerAdviceData,
   MarketCategory,
   LogicalPickItem,
 } from "./types";
@@ -118,7 +116,9 @@ export function OneXBetDeepMarketsCard({
         : [])
   );
   const [matchId1xBet, setMatchId1xBet] = useState<string>(
-    initialBettingResult?.match_id_1xbet || ""
+    initialBettingResult?.match_id_1xbet
+      ? String(initialBettingResult.match_id_1xbet)
+      : ""
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,25 +131,28 @@ export function OneXBetDeepMarketsCard({
   const [page, setPage] = useState<number>(1);
   const pageSize = 30;
 
-  // Sinkronisasi jika initialMarkets atau initialBettingResult berubah
-  useEffect(() => {
+  // Sinkronisasi jika initialMarkets atau initialBettingResult berubah (pola React:
+  // adjust state saat render, bukan effect — lihat react.dev "you might not need an effect")
+  const [prevInitialMarkets, setPrevInitialMarkets] = useState(initialMarkets);
+  const [prevInitialBettingResult, setPrevInitialBettingResult] =
+    useState(initialBettingResult);
+  if (initialMarkets !== prevInitialMarkets) {
+    setPrevInitialMarkets(initialMarkets);
     if (initialMarkets && initialMarkets.length > 0) {
       setMarkets(initialMarkets);
-    } else if (
-      initialBettingResult?.all_markets &&
-      initialBettingResult.all_markets.length > 0
-    ) {
+    }
+  }
+  if (initialBettingResult !== prevInitialBettingResult) {
+    setPrevInitialBettingResult(initialBettingResult);
+    if (initialBettingResult?.all_markets && initialBettingResult.all_markets.length > 0) {
       setMarkets(initialBettingResult.all_markets);
-    } else if (
-      initialBettingResult?.markets &&
-      initialBettingResult.markets.length > 0
-    ) {
+    } else if (initialBettingResult?.markets && initialBettingResult.markets.length > 0) {
       setMarkets(initialBettingResult.markets);
     }
     if (initialBettingResult?.match_id_1xbet) {
-      setMatchId1xBet(initialBettingResult.match_id_1xbet);
+      setMatchId1xBet(String(initialBettingResult.match_id_1xbet));
     }
-  }, [initialMarkets, initialBettingResult]);
+  }
 
   // Fetch 500+ Markets via Fast GET API
   async function fetchMarketsFast(targetId?: string) {
@@ -205,59 +208,74 @@ export function OneXBetDeepMarketsCard({
         initialBettingResult?.model_a?.result?.data ||
         initialBettingResult?.model_b?.result?.data;
       if (aiAdvice) {
-        if (aiAdvice.rekomendasi_aman) {
-          picks.push({
-            id: "pick-ai-safe",
-            market_id: "safe",
-            market_name: aiAdvice.rekomendasi_aman.pasar,
-            category: "Utama 1X2",
-            selection: aiAdvice.rekomendasi_aman.pilihan,
-            bookmaker_odds: aiAdvice.rekomendasi_aman.odds,
-            fair_odds: Math.round((aiAdvice.rekomendasi_aman.odds / 1.1) * 100) / 100,
-            model_probability: 0.72,
-            expected_value: 0.08,
-            ev_percentage: aiAdvice.rekomendasi_aman.expected_value || "+8.0%",
-            kelly_percentage: 3.5,
-            confidence_level: "TINGGI",
-            rationale: aiAdvice.rekomendasi_aman.alasan,
+        const toPick = (
+          advice: NonNullable<BettingScannerAdviceData["rekomendasi_aman"]>,
+          id: string,
+          category: MarketCategory,
+          confidence: LogicalPickItem["confidence_level"],
+          fairDivisor: number,
+          defaultEv: string,
+          defaultEvNum: number
+        ): LogicalPickItem => {
+          const oddsNum = typeof advice.odds === "number" ? advice.odds : 0;
+          return {
+            id,
+            market_id: id,
+            market_name: advice.pasar ?? "",
+            category,
+            selection: advice.pilihan ?? "",
+            bookmaker_odds: oddsNum,
+            fair_odds:
+              oddsNum > 0
+                ? Math.round((oddsNum / fairDivisor) * 100) / 100
+                : 0,
+            model_probability: 0.6,
+            expected_value: defaultEvNum,
+            ev_percentage: advice.expected_value || defaultEv,
+            kelly_percentage: 0,
+            confidence_level: confidence,
+            rationale: advice.alasan ?? "",
             is_positive_ev: true,
-          });
+          };
+        };
+        if (aiAdvice.rekomendasi_aman) {
+          picks.push(
+            toPick(
+              aiAdvice.rekomendasi_aman,
+              "pick-ai-safe",
+              "Utama 1X2",
+              "TINGGI",
+              1.1,
+              "+8.0%",
+              0.08
+            )
+          );
         }
         if (aiAdvice.rekomendasi_value) {
-          picks.push({
-            id: "pick-ai-val",
-            market_id: "val",
-            market_name: aiAdvice.rekomendasi_value.pasar,
-            category: "Asian Handicap",
-            selection: aiAdvice.rekomendasi_value.pilihan,
-            bookmaker_odds: aiAdvice.rekomendasi_value.odds,
-            fair_odds: Math.round((aiAdvice.rekomendasi_value.odds / 1.15) * 100) / 100,
-            model_probability: 0.58,
-            expected_value: 0.12,
-            ev_percentage: aiAdvice.rekomendasi_value.expected_value || "+12.0%",
-            kelly_percentage: 2.8,
-            confidence_level: "SANGAT TINGGI",
-            rationale: aiAdvice.rekomendasi_value.alasan,
-            is_positive_ev: true,
-          });
+          picks.push(
+            toPick(
+              aiAdvice.rekomendasi_value,
+              "pick-ai-val",
+              "Asian Handicap",
+              "SANGAT TINGGI",
+              1.15,
+              "+12.0%",
+              0.12
+            )
+          );
         }
         if (aiAdvice.pasar_niche) {
-          picks.push({
-            id: "pick-ai-niche",
-            market_id: "niche",
-            market_name: aiAdvice.pasar_niche.pasar,
-            category: "Total Goals",
-            selection: aiAdvice.pasar_niche.pilihan,
-            bookmaker_odds: aiAdvice.pasar_niche.odds,
-            fair_odds: Math.round((aiAdvice.pasar_niche.odds / 1.1) * 100) / 100,
-            model_probability: 0.61,
-            expected_value: 0.09,
-            ev_percentage: aiAdvice.pasar_niche.expected_value || "+9.0%",
-            kelly_percentage: 2.0,
-            confidence_level: "TINGGI",
-            rationale: aiAdvice.pasar_niche.alasan,
-            is_positive_ev: true,
-          });
+          picks.push(
+            toPick(
+              aiAdvice.pasar_niche,
+              "pick-ai-niche",
+              "Total Goals",
+              "TINGGI",
+              1.1,
+              "+9.0%",
+              0.09
+            )
+          );
         }
       }
       return picks;
@@ -268,7 +286,6 @@ export function OneXBetDeepMarketsCard({
     const m1x2 = markets.find((m) => m.name.toLowerCase() === "1x2" || m.market_id === 1);
     if (m1x2 && m1x2.odds) {
       const oH = m1x2.odds["W1"] ?? m1x2.odds["1"];
-      const oD = m1x2.odds["X"];
       const oA = m1x2.odds["W2"] ?? m1x2.odds["2"];
 
       const evHome = oH ? dc.prob_home_win * oH - 1 : -1;
@@ -611,7 +628,7 @@ export function OneXBetDeepMarketsCard({
             <p className="font-bold text-[#991b1b]">Pencarian Pasar 1xBet Memerlukan Tindakan</p>
             <p className="text-[13px] text-[#b91c1c] leading-relaxed font-sans">{error}</p>
             <p className="text-[13px] text-[#737373] font-sans">
-              Gunakan tombol "Manual ID" di atas untuk memasukkan 1xBet Match ID secara presisi.
+              Gunakan tombol &quot;Manual ID&quot; di atas untuk memasukkan 1xBet Match ID secara presisi.
             </p>
           </div>
         </div>
@@ -633,7 +650,7 @@ export function OneXBetDeepMarketsCard({
 
         {logicalPicks.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {logicalPicks.map((pick, idx) => (
+            {logicalPicks.map((pick) => (
               <div
                 key={pick.id}
                 className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] hover:border-[#0a0a0a]/30 transition-colors space-y-3 font-mono"
@@ -710,7 +727,7 @@ export function OneXBetDeepMarketsCard({
               Katalog pasar 1xBet belum dipindai untuk komputasi +EV otomatis.
             </p>
             <p className="text-[13px] font-sans">
-              Klik tombol <strong className="text-[#0a0a0a]">"Pindai Pasar 1xBet"</strong> di atas
+              Klik tombol <strong className="text-[#0a0a0a]">&quot;Pindai Pasar 1xBet&quot;</strong> di atas
               untuk menarik 500+ baris bursa langsung dari RapidAPI.
             </p>
           </div>

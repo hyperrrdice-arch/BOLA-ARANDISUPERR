@@ -3,13 +3,10 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   AlertCircleIcon,
-  ActivityIcon,
-  SparklesIcon,
   CheckCircleIcon,
 } from "@/components/icons";
 import {
   MatchItem,
-  CacheMetrics,
   BettingResult1xBet,
 } from "@/components/dashboard/types";
 import type { AnalysisView } from "@/lib/view/analysis-view";
@@ -47,7 +44,6 @@ export default function Home() {
   const [activeLeagues, setActiveLeagues] = useState<
     Array<{ id: string; name: string; count: number }>
   >([]);
-  const [cacheMetrics, setCacheMetrics] = useState<CacheMetrics | null>(null);
   const [sortBy, setSortBy] = useState<"time" | "name">("time");
 
   const [selectedMatch, setSelectedMatch] = useState<MatchItem | null>(null);
@@ -67,41 +63,50 @@ export default function Home() {
   const [manual1xBetId, setManual1xBetId] = useState<string>("");
   const [showManualInput, setShowManualInput] = useState<boolean>(false);
 
-  // Live elapsed timer saat analisis sedang berjalan
+  // Live elapsed timer saat analisis sedang berjalan.
+  // setElapsedMs(0) sengaja di tick pertama: effect = sinkronisasi timer eksternal (interval),
+  // bukan cascade render (lihat react.dev "synchronizing with effects").
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (analyzing) {
-      const start = Date.now();
-      setElapsedMs(0);
-      timer = setInterval(() => {
-        setElapsedMs(Date.now() - start);
-      }, 100);
-    }
+    if (!analyzing) return;
+    const start = Date.now();
+    const timer = setInterval(() => {
+      setElapsedMs(Date.now() - start);
+    }, 100);
     return () => clearInterval(timer);
   }, [analyzing]);
 
-  // Ambil daftar laga terjadwal
-  async function fetchUpcomingMatches(selectedHours: number) {
+  // Ambil daftar laga terjadwal. `isStale` = callback cek apakah permintaan sudah usang.
+  async function fetchUpcomingMatches(selectedHours: number, isStale: () => boolean = () => false) {
     setLoadingMatches(true);
     setMatchError(null);
     try {
       const res = await fetch(`/api/matches?hours=${selectedHours}`);
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error ?? `HTTP ${res.status}`);
+      if (isStale()) return;
       setMatches(json.matches ?? []);
       setActiveLeagues(json.leagues ?? []);
-      if (json.cacheMetrics) {
-        setCacheMetrics(json.cacheMetrics);
-      }
     } catch (e) {
+      if (isStale()) return;
       setMatchError(e instanceof Error ? e.message : String(e));
     } finally {
+      if (isStale()) return;
       setLoadingMatches(false);
     }
   }
 
   useEffect(() => {
-    fetchUpcomingMatches(hours);
+    // `ignore` = flag stale-request (direset tiap cleanup), mengikuti pola resmi React
+    // (react.dev "fetching data"): fetch di effect SAH + race guard.
+    // Semua setState spinner ada DI DALAM fetch (bukan di body effect).
+    let ignore = false;
+    /* eslint-disable react-hooks/set-state-in-effect -- setState loading/error sinkron saat
+       `hours` berubah; pola resmi React (fetch di effect + race guard `ignore`). */
+    void fetchUpcomingMatches(hours, () => ignore);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    return () => {
+      ignore = true;
+    };
   }, [hours]);
 
   const filteredMatches = useMemo(() => {
@@ -279,7 +284,6 @@ export default function Home() {
               selectedCompetitionId={selectedCompetitionId}
               onCompetitionChange={setSelectedCompetitionId}
               activeLeagues={activeLeagues}
-              cacheMetrics={cacheMetrics}
               loading={loadingMatches}
               onRefresh={() => fetchUpcomingMatches(hours)}
               sortBy={sortBy}
@@ -534,11 +538,7 @@ export default function Home() {
                   {/* TAB 4: SIDANG SINDIKAT */}
                   {activeTab === "debat" && (
                     <div className="space-y-5">
-                      <SyndicateDebateCard
-                        debat={data.debat}
-                        homeTeam={data.match.home}
-                        awayTeam={data.match.away}
-                      />
+                      <SyndicateDebateCard debat={data.debat} />
                     </div>
                   )}
                 </div>
