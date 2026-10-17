@@ -232,6 +232,10 @@ export const PlannerTraceSchema = z.object({
       trigger: z.string().nullable().optional(),
       /** Hasil evaluator coverage (lib/agent/coverage.ts) per step — disalin dari tool result. */
       coverage: z.any().nullable().optional(),
+      /** Wall-clock tool ini (ms) — atribusi latensi per stage (Task 1 plan perf). */
+      durasi_ms: z.number().optional(),
+      /** Pecahan durasi internal per stage/persona (khusus debat sindikat). */
+      stage_timings: z.record(z.string(), z.number()).optional(),
     })
   ),
   stop_reason: z.enum(["verdict", "max_steps", "error"]),

@@ -220,6 +220,7 @@ const fixtureTrace = PlannerTraceSchema.parse({
       alasan: "Validasi coverage data intelijen pra-laga.",
       trigger: null,
       coverage: { complete: false, gaps: ["lineups"], triggers: ["FIELD_KOSONG"] },
+      durasi_ms: 1250,
     },
     {
       step: 2,
@@ -227,13 +228,24 @@ const fixtureTrace = PlannerTraceSchema.parse({
       alasan: "Isi field kosong: lineups, cedera.",
       trigger: "FIELD_KOSONG",
       coverage: { complete: false, gaps: ["lineups"], triggers: ["FIELD_KOSONG"] },
+      durasi_ms: 800,
     },
     {
       step: 3,
+      action: "run_syndicate_debate",
+      alasan: "Debat 5 persona sebagai cross-check anti-bias.",
+      trigger: null,
+      coverage: { complete: true, gaps: [], triggers: [] },
+      durasi_ms: 64000,
+      stage_timings: { stage_1_ms: 28000, stage_2_ms: 36000, bull_ms: 27000 },
+    },
+    {
+      step: 4,
       action: "stop_with_verdict",
       alasan: "Pipeline lengkap dengan degradasi eksplisit.",
       trigger: null,
       coverage: { complete: true, gaps: [], triggers: [] },
+      durasi_ms: 10,
     },
   ],
   stop_reason: "verdict",
@@ -321,11 +333,15 @@ assert(!("cache_quota_saved" in view.ringkasan.integrity), "cache_quota_saved (n
 
 console.log("THINKING PLANNER:");
 assert(view.thinking.durasi_ms === 229900, "durasi_ms tercatat persis");
-assert(view.thinking.steps.length === 3, "steps lengkap");
+assert(view.thinking.steps.length === 4, "steps lengkap");
 assert(view.thinking.steps[0].tool === "check_data_integrity", "tool step 1 benar");
 assert(view.thinking.steps[1].trigger === "FIELD_KOSONG", "trigger re-plan terpetakan");
 assert(view.thinking.steps[0].coverage?.complete === false, "coverage_check terbawa dari trace (bukan hardcode null)");
 assert(view.thinking.stop_reason === "verdict", "stop_reason benar");
+// Atribusi latensi per stage (Task 1 plan perf): durasi per tool + pecahan stage debat wajib lewat apa adanya.
+assert(view.thinking.steps[0].durasi_ms === 1250, "durasi_ms per step terpetakan");
+assert(view.thinking.steps[2].stage_timings?.stage_2_ms === 36000, "stage_timings debat terpetakan");
+assert(view.thinking.steps[3].stage_timings === null, "step tanpa stage_timings jadi null (bukan karangan)");
 
 console.log("DEBAT & RINGKASAN:");
 assert(view.debat.persona.length === 4, "4 persona (Bull, Bear, Arbiter; Neutral opsional)");

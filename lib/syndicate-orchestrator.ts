@@ -73,6 +73,8 @@ export interface SyndicateDebateResult {
   };
   /** true = ada bagian yang diisi template fallback, bukan output model asli. */
   is_fabricated_fallback?: boolean;
+  /** Atribusi latensi debat: total per stage + per persona (ms). */
+  stage_timings?: Record<string, number>;
 }
 
 import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
@@ -342,35 +344,51 @@ export async function orchestrate5AgentSyndicate(params: {
   }
   const t0 = Date.now();
 
+  /** Bungkus promise supaya durasi per model bisa diatribusi (bukan cuma total stage). */
+  const timed = async <T,>(p: Promise<T>): Promise<{ value: T; ms: number }> => {
+    const start = Date.now();
+    const value = await p;
+    return { value, ms: Date.now() - start };
+  };
+
   // STAGE 1: TRI-AGENT ADVERSARIAL DEBATE IN PARALLEL
-  const [bullRaw, neutralRaw, bearRaw] = await Promise.all([
-    // 1. Bull Analyst (MODEL_BULL)
-    call9RouterDirect(
-      MODEL_BULL,
-      "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
-      matchContext,
-      16384,
-      180000
+  const [bullTimed, neutralTimed, bearTimed] = await Promise.all([
+    timed(
+      // 1. Bull Analyst (MODEL_BULL)
+      call9RouterDirect(
+        MODEL_BULL,
+        "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
+        matchContext,
+        16384,
+        180000
+      )
     ),
-    // 2. Neutral Analyst (MODEL_NEUTRAL)
-    call9RouterDirect(
-      MODEL_NEUTRAL,
-      "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
-      matchContext,
-      16384,
-      180000
+    timed(
+      // 2. Neutral Analyst (MODEL_NEUTRAL)
+      call9RouterDirect(
+        MODEL_NEUTRAL,
+        "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
+        matchContext,
+        16384,
+        180000
+      )
     ),
-    // 3. Bear Auditor (MODEL_BEAR)
-    call9RouterDirect(
-      MODEL_BEAR,
-      "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
-      matchContext,
-      16384,
-      180000
+    timed(
+      // 3. Bear Auditor (MODEL_BEAR)
+      call9RouterDirect(
+        MODEL_BEAR,
+        "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
+        matchContext,
+        16384,
+        180000
+      )
     ),
   ]);
 
-  console.log(`[Syndicate] Stage 1 selesai dalam ${Date.now() - t0}ms.`);
+  const stage1Ms = Date.now() - t0;
+  const [bullRaw, neutralRaw, bearRaw] = [bullTimed.value, neutralTimed.value, bearTimed.value];
+
+  console.log(`[Syndicate] Stage 1 selesai dalam ${stage1Ms}ms.`);
 
   const isErrText = (t?: string) => !t || t.includes("mengalami kendala respon") || t.length < 20;
 
@@ -448,26 +466,30 @@ export async function orchestrate5AgentSyndicate(params: {
     `2. Neutral Case (${neutralCase.model}): ${neutralCase.thesis} (Equilibrium: ${neutralCase.equilibrium_assessment})\n` +
     `3. Bear Case (${bearCase.model}): ${bearCase.thesis} (Audit: ${bearCase.vulnerability_audit})\n`;
 
-  const [j1Raw, j2Raw] = await Promise.all([
+  const [j1Timed, j2Timed] = await Promise.all([
     // Judgement 1 (MODEL_JUDGEMENT_1) - Chief Quant & CRO Arbiter
-    call9RouterDirect(
+    timed(call9RouterDirect(
       MODEL_JUDGEMENT_1,
       "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
       debateSummary,
       16384,
       180000
-    ),
+    )),
     // Judgement 2 (MODEL_JUDGEMENT_2) - Cross-Arbiter
-    call9RouterDirect(
+    timed(call9RouterDirect(
       MODEL_JUDGEMENT_2,
       "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
       debateSummary,
       16384,
       180000
-    ),
+    )),
   ]);
 
-  console.log(`[Syndicate] Stage 2 selesai dalam ${Date.now() - t1}ms.`);
+  const stage2Ms = Date.now() - t1;
+  const j1Raw = j1Timed.value;
+  const j2Raw = j2Timed.value;
+
+  console.log(`[Syndicate] Stage 2 selesai dalam ${stage2Ms}ms.`);
 
   const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
 
@@ -578,6 +600,15 @@ export async function orchestrate5AgentSyndicate(params: {
     neutral_case: neutralCase,
     bear_case: bearCase,
     dual_judgement: dualJudgement,
+    stage_timings: {
+      stage_1_ms: stage1Ms,
+      stage_2_ms: stage2Ms,
+      bull_ms: bullTimed.ms,
+      neutral_ms: neutralTimed.ms,
+      bear_ms: bearTimed.ms,
+      judgement_1_ms: j1Timed.ms,
+      judgement_2_ms: j2Timed.ms,
+    },
     is_fabricated_fallback: bullSubstituted || neutralSubstituted || bearSubstituted || j1Substituted || j2Substituted,
     arbiter_verdict: {
       model: `${judgement1.model} + ${judgement2.model}`,

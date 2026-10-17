@@ -171,6 +171,10 @@ export const ThinkingStepSchema = z.object({
   alasan: z.string(),
   trigger: z.string().nullable().optional(),
   coverage: z.any().nullable().optional(),
+  /** Wall-clock tool ini (ms) — atribusi latensi per stage. */
+  durasi_ms: z.number().nullable().optional(),
+  /** Pecahan durasi internal per stage/persona debat (ms). */
+  stage_timings: z.record(z.string(), z.number()).nullable().optional(),
 });
 
 export const ThinkingViewSchema = z.object({
@@ -481,13 +485,18 @@ export function mapPipelineToView(input: {
   // 6. THINKING PLANNER SECTION
   const traceSteps = plannerTrace?.steps || [];
   const thinking: z.infer<typeof ThinkingViewSchema> = {
-    steps: traceSteps.map((s) => ({
-      step: s.step,
-      tool: s.action,
-      alasan: s.alasan || "(tanpa alasan)",
-      trigger: s.trigger ?? null,
-      coverage: (s as { coverage?: unknown }).coverage ?? null,
-    })),
+    steps: traceSteps.map((s) => {
+      const step = s as { coverage?: unknown; durasi_ms?: number; stage_timings?: Record<string, number> };
+      return {
+        step: s.step,
+        tool: s.action,
+        alasan: s.alasan || "(tanpa alasan)",
+        trigger: s.trigger ?? null,
+        coverage: step.coverage ?? null,
+        durasi_ms: typeof step.durasi_ms === "number" ? step.durasi_ms : null,
+        stage_timings: step.stage_timings ?? null,
+      };
+    }),
     stop_reason: plannerTrace?.stop_reason || "verdict",
     durasi_ms: durationMs ?? null,
   };

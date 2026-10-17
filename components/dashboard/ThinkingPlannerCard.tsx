@@ -45,14 +45,28 @@ export function ThinkingPlannerCard({ thinking }: ThinkingPlannerCardProps) {
             <span className="font-bold text-[#0a0a0a] text-[11px]">
               Tool: <span className="font-mono text-[#0a0a0a]">{st.tool}</span>
             </span>
-            {st.trigger && (
-              <span className="text-[11px] text-[#0a0a0a] bg-white px-2 py-0.5 rounded-[10px] border border-[#d4d4d8]">
-                Re-plan dipicu: {st.trigger}
-              </span>
-            )}
+            <span className="flex items-center gap-2">
+              {typeof st.durasi_ms === "number" && (
+                <span className="text-[11px] text-[#0a0a0a] font-semibold tabular-nums">
+                  {(st.durasi_ms / 1000).toFixed(1)}s
+                </span>
+              )}
+              {st.trigger && (
+                <span className="text-[11px] text-[#0a0a0a] bg-white px-2 py-0.5 rounded-[10px] border border-[#d4d4d8]">
+                  Re-plan dipicu: {st.trigger}
+                </span>
+              )}
+            </span>
           </div>
           <p className="text-[#171717] text-[13px] font-sans leading-relaxed">{st.alasan}</p>
           {cov && <p className="text-[11px] text-[#737373] font-sans">{cov}</p>}
+          {st.stage_timings && (
+            <p className="text-[11px] text-[#737373] font-sans tabular-nums">
+              {Object.entries(st.stage_timings)
+                .map(([k, v]) => `${k.replace(/_ms$/, "")} ${(v / 1000).toFixed(1)}s`)
+                .join(" · ")}
+            </p>
+          )}
         </div>
       </div>
     );

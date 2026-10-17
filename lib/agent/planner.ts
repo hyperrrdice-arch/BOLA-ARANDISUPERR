@@ -247,21 +247,37 @@ export function createRunState(matchId: string, competitionIdHint?: string): Pla
   };
 }
 
-function traceStep(state: PlannerRunState, action: string, input: { alasan?: string; trigger?: string }): void {
-  state.traceSteps.push({
+export interface PlannerTraceStep {
+  step: number;
+  action: string;
+  alasan: string;
+  trigger: string | null;
+  coverage?: unknown;
+  /** Wall-clock eksekusi tool ini (ms). Diisi oleh withCoverage(). */
+  durasi_ms?: number;
+  /** Pecahan durasi internal (khusus debat sindikat): stage/persona → ms. */
+  stage_timings?: Record<string, number>;
+}
+function traceStep(state: PlannerRunState, action: string, input: { alasan?: string; trigger?: string }): PlannerTraceStep {
+  const step: PlannerTraceStep = {
     step: state.traceSteps.length + 1,
     action,
     alasan: input.alasan || "(tanpa alasan)",
     trigger: input.trigger ?? null,
-  });
+  };
+  state.traceSteps.push(step);
+  return step;
 }
 
 /** Suntikkan hasil evaluasi coverage (code) ke tool result sebagai bahan re-plan planner. */
-function withCoverage(state: PlannerRunState, result: Record<string, any>): Record<string, any> {
+function withCoverage(state: PlannerRunState, result: Record<string, any>, startedAt?: number): Record<string, any> {
   const coverage = evaluateCoverage(state);
-  // Stempel coverage pasca-eksekusi ke step trace yang sesuai (dipakai UI thinking panel).
+  // Stempel coverage + durasi pasca-eksekusi ke step trace yang sesuai (dipakai UI thinking panel).
   const last = state.traceSteps[state.traceSteps.length - 1];
-  if (last) last.coverage = coverage;
+  if (last) {
+    last.coverage = coverage;
+    if (startedAt !== undefined) last.durasi_ms = Date.now() - startedAt;
+  }
   return { ...result, coverage_check: coverage };
 }
 
@@ -282,6 +298,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Mengembalikan ringkasan coverage + daftar field yang hilang (missing_data_registry).",
       inputSchema: StepInputSchema,
       execute: async (input) => {
+        const t0 = Date.now();
         traceStep(state, "check_data_integrity", input);
         try {
           state.fetchResult = await fetchAndValidateMatchIntelligence(
@@ -302,9 +319,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
               endpoints_called: state.fetchResult.audit.endpoints_called,
               endpoints_skipped: state.fetchResult.audit.endpoints_skipped,
             },
-          });
+          }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Gagal mengumpulkan data: ${err?.message || err}` });
+          return withCoverage(state, { error: `Gagal mengumpulkan data: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -315,6 +332,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Mengembalikan delta missing sebelum vs sesudah. Jika tetap kosong, nyatakan gap eksplisit.",
       inputSchema: StepInputSchema,
       execute: async (input) => {
+        const t0 = Date.now();
         traceStep(state, "fetch_missing_intel", input);
         state.fetchAttempts++;
         // ponytail: pengambilan ulang masih menyeluruh (cache membuatnya murah).
@@ -329,9 +347,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             missing_sesudah: after,
             berhasil_diisi: before.filter((m) => !after.includes(m)),
             masih_kosong: after,
-          });
+          }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Gagal mengambil ulang data: ${err?.message || err}` });
+          return withCoverage(state, { error: `Gagal mengambil ulang data: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -342,6 +360,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Wajib setelah data lengkap. Mengembalikan probabilitas murni, fair odds, dan value bets.",
       inputSchema: StepInputSchema,
       execute: async (input) => {
+        const t0 = Date.now();
         traceStep(state, "run_quant_package", input);
         if (!state.fetchResult) {
           return { error: "Jalankan check_data_integrity dulu sebelum run_quant_package." };
@@ -355,9 +374,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             value_bets: q.quantPackage.value_bets,
             special_markets_tersedia: q.quantPackage.special_markets !== null,
             calibration_metadata: q.quantPackage.calibration_metadata,
-          });
+          }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Quant engine gagal: ${err?.message || err}` });
+          return withCoverage(state, { error: `Quant engine gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -368,12 +387,13 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "WAJIB dalam setiap analisis, setelah run_quant_package. Mengembalikan consensus_level dan verdict panel.",
       inputSchema: StepInputSchema,
       execute: async (input) => {
-        traceStep(state, "run_syndicate_debate", input);
+        const t0 = Date.now();
+        const stepRef = traceStep(state, "run_syndicate_debate", input);
         if (!state.fetchResult || !state.quant) {
-          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." });
+          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
         if (state.debateRounds >= 2) {
-          return withCoverage(state, { error: "Batas ronde debat (2) tercapai. Lanjut ke stop_with_verdict." });
+          return withCoverage(state, { error: "Batas ronde debat (2) tercapai. Lanjut ke stop_with_verdict." }, t0);
         }
         state.debateRounds++;
         try {
@@ -382,6 +402,8 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             intel: state.fetchResult.intelligence,
             quantPackage: state.quant.quantPackage,
           });
+          // Atribusi sisa durasi: pecahan stage/persona debat ikut terstempel ke step trace.
+          if (state.debate.stage_timings) stepRef.stage_timings = state.debate.stage_timings;
           return withCoverage(state, {
             ronde: state.debateRounds,
             consensus_level: state.debate.dual_judgement?.consensus_level,
@@ -389,9 +411,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             final_recommended_market: state.debate.dual_judgement?.final_recommended_market,
             supreme_verdict: state.debate.dual_judgement?.supreme_verdict,
             bear_trap_warnings: state.debate.bear_case?.trap_warnings,
-          });
+          }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Syndicate debate gagal: ${err?.message || err}` });
+          return withCoverage(state, { error: `Syndicate debate gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -402,9 +424,10 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "dengan aturan closed-world anti-halusinasi. Wajib sebelum stop_with_verdict.",
       inputSchema: StepInputSchema,
       execute: async (input) => {
+        const t0 = Date.now();
         traceStep(state, "run_editorial_analysis", input);
         if (!state.fetchResult || !state.quant) {
-          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." });
+          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
         try {
           const intel = state.fetchResult.intelligence;
@@ -430,9 +453,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             modelUsed,
             kunci_output: Object.keys(editorial),
             prediksi_editorial: editorial.prediksi ?? null,
-          });
+          }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Editorial analysis gagal: ${err?.message || err}` });
+          return withCoverage(state, { error: `Editorial analysis gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -443,9 +466,10 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "WAJIB dipanggil paling akhir. DILARANG memasukkan angka quant — angka sudah dihitung tool lain.",
       inputSchema: VerdictInputSchema,
       execute: async (input) => {
+        const t0 = Date.now();
         traceStep(state, "stop_with_verdict", { alasan: input.ringkasan_perencanaan });
         state.verdict = input;
-        return { ok: true, catatan: "Verdict diterima. Analisis selesai." };
+        return withCoverage(state, { ok: true, catatan: "Verdict diterima. Analisis selesai." }, t0);
       },
     }),
   };
