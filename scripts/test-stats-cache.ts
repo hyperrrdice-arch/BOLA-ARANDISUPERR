@@ -49,7 +49,10 @@ async function main() {
     Array.from({ length: 6 }, () => cachedStatsGet("/stampede", { q: "a" }, 60_000))
   );
   assert(calls === 1, `6 pemanggil bersamaan = 1 fetch upstream (nyata: ${calls})`);
-  assert(parallel.every((r: any) => r?.data?.[0]?.id === 1), "semua pemanggil dapat data yang sama");
+  assert(
+    parallel.every((r: { data?: Array<{ id: number }> }) => r?.data?.[0]?.id === 1),
+    "semua pemanggil dapat data yang sama"
+  );
   assert(getStatsCacheMetrics().misses === 1, "misses dihitung sekali (bukan 6)");
 
   // 2. Hit setelahnya tidak menambah fetch.
@@ -62,8 +65,8 @@ async function main() {
   calls = 0;
   const first = await cachedStatsGet("/negative", {}, 60_000);
   const second = await cachedStatsGet("/negative", {}, 60_000);
-  assert((first as any).error === "HTTP 503", "error upstream dikembalikan apa adanya");
-  assert((second as any).error === "HTTP 503", "error kedua datang dari cache");
+  assert((first as { error?: string }).error === "HTTP 503", "error upstream dikembalikan apa adanya");
+  assert((second as { error?: string }).error === "HTTP 503", "error kedua datang dari cache");
   assert(calls === 1, `upstream yang rusak tidak dipukul ulang (nyata: ${calls} fetch)`);
 
   // 4. Abort tidak di-cache sebagai error, dan tidak meninggalkan promise basi di dedupe map.
@@ -81,7 +84,10 @@ async function main() {
   calls = 0;
   const afterAbort = await cachedStatsGet("/aborted", {}, 60_000);
   assert(calls === 1, "abort tidak tertinggal di cache — request sehat berikutnya fetch ulang");
-  assert((afterAbort as any).data?.[0]?.id === 1, "request sehat setelah abort dapat data asli");
+  assert(
+    (afterAbort as { data?: Array<{ id: number }> }).data?.[0]?.id === 1,
+    "request sehat setelah abort dapat data asli"
+  );
 
   // 5. Pemanggil ber-signal tidak ikut dedupe.
   calls = 0;
