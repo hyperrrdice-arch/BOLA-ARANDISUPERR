@@ -1,6 +1,7 @@
 import { getStatsCacheMetrics } from "@/lib/stats-cache";
 import { runPlannerAnalysis, type PlannerResult } from "@/lib/agent/planner";
 import { AnalysisSchema } from "@/lib/agent/schemas";
+import { mapPipelineToView } from "@/lib/view/analysis-view";
 
 /**
  * ============================================================================
@@ -12,17 +13,20 @@ import { AnalysisSchema } from "@/lib/agent/schemas";
  *   2. Deterministic Quant Engine (Dixon-Coles + Shin + Kelly)
  *   3. Strict Closed-World Multi-Agent Syndicate (Bull vs Bear vs Arbiter)
  *
- * Route ini hanya memvalidasi input, menjalankan planner, dan menggabungkan
- * hasil tool ke bentuk response yang sama dengan kontrak dashboard.
+ * Route ini hanya memvalidasi input, menjalankan planner, dan mengembalikan
+ * AnalysisView bersih (BFF layer) ke client. Param `?debug=1` disediakan untuk
+ * inspeksi payload mentah jika diperlukan.
  */
 
 // =========================================================================
 // PIPELINE HANDLER UTAMA
 // =========================================================================
 export async function GET(req: Request) {
+  const startTime = Date.now();
   const { searchParams } = new URL(req.url);
   const matchId = searchParams.get("match_id");
   const competitionIdHint = searchParams.get("competition_id") || undefined;
+  const isDebug = searchParams.get("debug") === "1";
 
   if (!matchId) {
     return Response.json(
@@ -95,15 +99,28 @@ export async function GET(req: Request) {
   });
 
   if (validatedAnalysis.success) {
-    return Response.json({
+    if (isDebug) {
+      return Response.json({
+        analisis: validatedAnalysis.data,
+        rawLineups: intel.lineups,
+        modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
+        isEnterpriseSyndicate: true,
+        cacheMetrics: getStatsCacheMetrics(),
+        audit: fetchResult.audit,
+        plannerTrace: trace,
+      });
+    }
+
+    const durationMs = Date.now() - startTime;
+    const viewData = mapPipelineToView({
       analisis: validatedAnalysis.data,
-      rawLineups: intel.lineups,
-      modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
-      isEnterpriseSyndicate: true,
-      cacheMetrics: getStatsCacheMetrics(),
-      audit: fetchResult.audit,
       plannerTrace: trace,
+      rawLineups: intel.lineups,
+      audit: fetchResult.audit,
+      cacheMetrics: getStatsCacheMetrics(),
+      durationMs,
     });
+    return Response.json(viewData);
   }
 
   console.warn("[Planner] Schema parse fallback, merging verified intelligence");
@@ -203,13 +220,27 @@ export async function GET(req: Request) {
     },
   };
 
-  return Response.json({
-    analisis: merged,
-    rawLineups: intel.lineups,
-    modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
-    isEnterpriseSyndicate: true,
-    cacheMetrics: getStatsCacheMetrics(),
-    audit: fetchResult.audit,
+  if (isDebug) {
+    return Response.json({
+      analisis: merged,
+      rawLineups: intel.lineups,
+      modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
+      isEnterpriseSyndicate: true,
+      cacheMetrics: getStatsCacheMetrics(),
+      audit: fetchResult.audit,
+      plannerTrace: trace,
+    });
+  }
+
+  const durationMs = Date.now() - startTime;
+  const fallbackAnalysis = AnalysisSchema.parse(merged);
+  const viewData = mapPipelineToView({
+    analisis: fallbackAnalysis,
     plannerTrace: trace,
+    rawLineups: intel.lineups,
+    audit: fetchResult.audit,
+    cacheMetrics: getStatsCacheMetrics(),
+    durationMs,
   });
+  return Response.json(viewData);
 }

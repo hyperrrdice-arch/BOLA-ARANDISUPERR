@@ -5,17 +5,14 @@ import {
   CpuIcon,
   ScaleIcon,
   CoinsIcon,
-  TrendingUpIcon,
   CheckCircleIcon,
-  ActivityIcon,
 } from "@/components/icons";
 
 export type AnalysisTabKey =
-  | "math"
-  | "llm"
-  | "thestatsapi-odds"
-  | "1xbet-markets"
-  | "conclusion";
+  | "ringkasan"
+  | "kuantitatif"
+  | "odds"
+  | "debat";
 
 interface SidebarNavProps {
   activeTab: AnalysisTabKey;
@@ -34,39 +31,32 @@ const TABS: Array<{
   icon: React.ComponentType<{ size?: number; className?: string }>;
 }> = [
   {
-    id: "math",
+    id: "ringkasan",
     step: "01",
-    label: "Kalkulasi Matematis",
-    desc: "Dixon-Coles, xG, Fair Odds & Kelly",
+    label: "Ringkasan & Vonis",
+    desc: "Vonis Utama, Alasan & Jejak Planner",
+    icon: CheckCircleIcon,
+  },
+  {
+    id: "kuantitatif",
+    step: "02",
+    label: "Model Kuantitatif",
+    desc: "Dixon-Coles, Probabilitas & Kelly",
     icon: CpuIcon,
   },
   {
-    id: "llm",
-    step: "02",
-    label: "Sidang Analis AI",
-    desc: "Debat Bull vs Bear & Panel Mahkamah",
-    icon: ScaleIcon,
-  },
-  {
-    id: "thestatsapi-odds",
+    id: "odds",
     step: "03",
-    label: "Odds Booker TheStatsAPI",
-    desc: "Bursa resmi & vig margin overround",
+    label: "Bursa & Dislokasi",
+    desc: "Dislokasi 1X2, Smart Money & 1xBet",
     icon: CoinsIcon,
   },
   {
-    id: "1xbet-markets",
+    id: "debat",
     step: "04",
-    label: "Katalog 500+ Market 1xBet",
-    desc: "Scanner live bookie & dual-model AI",
-    icon: TrendingUpIcon,
-  },
-  {
-    id: "conclusion",
-    step: "05",
-    label: "Vonis Akhir Dual Thinking",
-    desc: "Pilihan paling masuk akal & eksekusi",
-    icon: CheckCircleIcon,
+    label: "Sidang Sindikat",
+    desc: "Supreme Verdict, Dual Bench & 4 Persona",
+    icon: ScaleIcon,
   },
 ];
 
@@ -85,7 +75,7 @@ export function SidebarNav({
         <div className="flex items-center justify-between text-[10px] text-[#737373]">
           <span className="uppercase tracking-wider font-semibold">Navigasi Analisis</span>
           <span className="px-2 py-0.5 rounded-[18px] bg-[#f5f5f5] border border-[#e5e5e5] text-[#171717] font-medium">
-            5 Ruang Bedah
+            4 Ruang Bedah
           </span>
         </div>
         {homeTeam && awayTeam && (
@@ -98,95 +88,80 @@ export function SidebarNav({
       {/* Vertical Navigation Buttons */}
       <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-thin">
         {TABS.map((tab) => {
-          const IconComponent = tab.icon;
           const isActive = activeTab === tab.id;
+          const Icon = tab.icon;
 
           return (
             <button
               key={tab.id}
               onClick={() => onSelectTab(tab.id)}
-              className={`w-full text-left p-3 rounded-[18px] border transition-all cursor-pointer flex items-start gap-3 shrink-0 sm:shrink lg:shrink-0 ${
+              className={`p-3 rounded-[18px] text-left transition-all cursor-pointer relative shrink-0 min-w-[200px] lg:min-w-0 border ${
                 isActive
-                  ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[0_2px_4px_rgba(0,0,0,0.1)] font-medium"
-                  : "bg-white hover:bg-[#fafafa] text-[#737373] hover:text-[#0a0a0a] border-[#e5e5e5] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+                  ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[0_2px_4px_rgba(0,0,0,0.1)]"
+                  : "bg-white text-[#171717] border-[#e5e5e5] hover:border-[#d4d4d8] hover:bg-[#fafafa]"
               }`}
             >
-              <div
-                className={`p-1.5 rounded-[10px] border shrink-0 mt-0.5 ${
-                  isActive
-                    ? "bg-white/10 text-white border-white/20"
-                    : "bg-[#f5f5f5] text-[#0a0a0a] border-[#e5e5e5]"
-                }`}
-              >
-                <IconComponent size={14} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span
-                    className={`text-xs font-semibold truncate block tracking-tight ${
-                      isActive ? "text-white" : "text-[#0a0a0a]"
-                    }`}
-                  >
-                    {tab.label}
-                  </span>
-                  <span
-                    className={`text-[9px] font-mono px-1.5 py-0.2 rounded-[10px] border ${
-                      isActive
-                        ? "bg-white/10 text-white border-white/20"
-                        : "text-[#a1a1aa] border-transparent"
-                    }`}
-                  >
-                    {tab.step}
-                  </span>
-                </div>
-                <p
-                  className={`text-[10px] truncate mt-0.5 font-sans leading-normal ${
-                    isActive ? "text-zinc-300" : "text-[#737373]"
+              <div className="flex items-start gap-2.5">
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[10px] tabular-nums shrink-0 mt-0.5 ${
+                    isActive
+                      ? "bg-white text-[#0a0a0a]"
+                      : "bg-[#f5f5f5] text-[#737373] border border-[#e5e5e5]"
                   }`}
                 >
-                  {tab.desc}
-                </p>
+                  {tab.step}
+                </span>
 
-                {/* Sub-Badges */}
-                {tab.id === "math" && hasValueBets && (
-                  <span
-                    className={`mt-1.5 inline-block text-[9px] px-2 py-0.5 rounded-[18px] font-mono font-semibold ${
-                      isActive
-                        ? "bg-white text-[#0a0a0a]"
-                        : "bg-[#0a0a0a] text-white"
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <Icon
+                      size={13}
+                      className={isActive ? "text-white" : "text-[#0a0a0a]"}
+                    />
+                    <h4
+                      className={`text-xs font-bold tracking-tight truncate ${
+                        isActive ? "text-white" : "text-[#0a0a0a]"
+                      }`}
+                    >
+                      {tab.label}
+                    </h4>
+                  </div>
+                  <p
+                    className={`text-[10px] leading-tight truncate ${
+                      isActive ? "text-[#d4d4d8]" : "text-[#737373]"
                     }`}
                   >
-                    +EV Edge Terdeteksi
-                  </span>
-                )}
-                {tab.id === "1xbet-markets" && total1xBetLines && total1xBetLines > 0 && (
-                  <span
-                    className={`mt-1.5 inline-block text-[9px] px-2 py-0.5 rounded-[18px] font-mono ${
-                      isActive
-                        ? "bg-white/20 text-white border border-white/20"
-                        : "bg-[#f5f5f5] text-[#171717] border border-[#e5e5e5]"
-                    }`}
-                  >
-                    {total1xBetLines} Baris Siap
-                  </span>
-                )}
+                    {tab.desc}
+                  </p>
+                </div>
               </div>
+
+              {/* Special Context Badges */}
+              {tab.id === "kuantitatif" && hasValueBets && (
+                <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px]">
+                  <span className={isActive ? "text-[#10b981]" : "text-[#059669]"}>
+                    ● +EV Terdeteksi
+                  </span>
+                  <span className={isActive ? "text-[#a1a1aa]" : "text-[#737373]"}>
+                    Kelly Active
+                  </span>
+                </div>
+              )}
+
+              {tab.id === "odds" && total1xBetLines && total1xBetLines > 0 && (
+                <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px]">
+                  <span className={isActive ? "text-[#38bdf8]" : "text-[#0284c7]"}>
+                    ● {total1xBetLines} Pasar Live
+                  </span>
+                  <span className={isActive ? "text-[#a1a1aa]" : "text-[#737373]"}>
+                    1xBet
+                  </span>
+                </div>
+              )}
             </button>
           );
         })}
       </nav>
-
-      {/* Mini Tip Box */}
-      <div className="hidden lg:block p-3.5 rounded-[18px] bg-white border border-[#e5e5e5] text-[11px] text-[#737373] space-y-1 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-        <div className="flex items-center gap-1.5 text-[#0a0a0a] font-semibold text-[10px] uppercase">
-          <ActivityIcon size={12} className="text-[#0a0a0a]" />
-          <span>Tips Santai</span>
-        </div>
-        <p className="text-[10px] text-[#737373] leading-relaxed font-sans">
-          Buka tiap tab buat lihat kalkulasi matematis, debat AI, sampai vonis akhir secara terpisah tanpa pusing tumpukan data.
-        </p>
-      </div>
     </aside>
   );
 }
