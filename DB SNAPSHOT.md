@@ -99,41 +99,45 @@ Turunan **per market** (semua market, bukan cuma yang direkomendasikan) diekspan
 ## 5. Task list
 
 ### Phase 1: Store
-- [ ] **T1 — DB + helper.** `data/analysis_snapshots.db`, file baru `lib/db/analysis-snapshot.ts` dengan pola `lib/db/thestats-vault.ts` (path helper, `DatabaseSync`, `PRAGMA journal_mode = WAL` + `synchronous = NORMAL`, `CREATE TABLE IF NOT EXISTS`). Isi: skema 2 tabel + VIEW + indeks, `insertSnapshot()`, `getFreshSnapshot(matchId, hint, maxAgeMs)`, `getSnapshotMetrics()`, `upsertOutcome()`, `getOutcome(matchId)`. Tambah `data/analysis_snapshots.db*` ke `.gitignore`.
+- [x] **T1 — DB + helper.** (selesai: 35/35 assert, commit `6a66170`) `data/analysis_snapshots.db`, file baru `lib/db/analysis-snapshot.ts` dengan pola `lib/db/thestats-vault.ts` (path helper, `DatabaseSync`, `PRAGMA journal_mode = WAL` + `synchronous = NORMAL`, `CREATE TABLE IF NOT EXISTS`). Isi: skema 2 tabel + VIEW + indeks, `insertSnapshot()`, `getFreshSnapshot(matchId, hint, maxAgeMs)`, `getSnapshotMetrics()`, `upsertOutcome()`, `getOutcome(matchId)`. Tambah `data/analysis_snapshots.db*` ke `.gitignore`.
   - **Acceptance:** DB dibuat, WAL aktif, skema idempotent (dibuka dua kali tidak error) · insert+lookup round-trip, hint berbeda ≠ baris yang sama · file DB tidak muncul di `git status`
   - **Verify:** `npx tsx scripts/test-snapshot-db.ts` (assert-based, `match_id` sintetis ber-prefix lalu dibersihkan) · `npx tsc --noEmit`
-- [ ] **T2a — Route menulis snapshot.** `app/api/agent/route.tsx` pindah dari `saveAnalysisRun`/`getFreshAnalysisRun` → `insertSnapshot`/`getFreshSnapshot`. Kolom ringkas diisi dari view-model yang sudah ada; provenance dari trace; `recommended_market_key` dari market yang benar-benar direkomendasikan; `trace_json` memuat plannerTrace + atribusi per stage (`loop_ms`, `tool_ms`, `planner_overhead_ms`, `step_timings` dari perf-1 Task 1). Penjaga `req.signal.aborted` dipasang SEBELUM `insertSnapshot` (bukan sesudah).
+- [x] **T2a — Route menulis snapshot.** (selesai: run nyata Valencia 407s, `lead_time` 65 mnt, cache lookup 0,08 ms) `app/api/agent/route.tsx` pindah dari `saveAnalysisRun`/`getFreshAnalysisRun` → `insertSnapshot`/`getFreshSnapshot`. Kolom ringkas diisi dari view-model yang sudah ada; provenance dari trace; `recommended_market_key` dari market yang benar-benar direkomendasikan; `trace_json` memuat plannerTrace + atribusi per stage (`loop_ms`, `tool_ms`, `planner_overhead_ms`, `step_timings` dari perf-1 Task 1). Penjaga `req.signal.aborted` dipasang SEBELUM `insertSnapshot` (bukan sesudah).
   - **Acceptance:** run nyata 1 match → 1 baris; kolom wajib (`match_id`, `captured_utc`, `kickoff_utc`, `lead_time_minutes`, `view_json`) tidak `NULL` · `lead_time_minutes` positif untuk analisis pre-match · `recommended_market_key` terisi konvensi (bukan kosong/dipaksa `NONE` kalau marketnya dikenal) · buka ulang match sama < 50ms · `?debug=1` tetap tidak menulis · run yang di-abort tetap tidak menulis · gagal tulis tidak menggagalkan response 200
   - **Verify:** run nyata via `/api/agent` · query kolom wajib · buka-tutup match: respons identik (SHA256)
-- [ ] **T2b — Pensiunkan `analysis_runs`.** Migrasi 2 baris lama (Brentford, Valencia) dari `analysis_runs` → `analysis_snapshots` (`view_json` dipindah utuh; kolom ringkas boleh NULL), hapus `saveAnalysisRun`/`getFreshAnalysisRun`/`getAnalysisRunMetrics` dari `lib/db/thestats-dataset.ts`, ganti `scripts/test-analysis-cache.ts` dengan test berbasis snapshot, lalu `DROP TABLE analysis_runs`. Selama transisi TIDAK ADA dual-write — alihkan sekali, bukan dua salinan.
+- [x] **T2b — Pensiunkan `analysis_runs`.** (selesai: 2 baris termigrasi, tabel di-DROP, `02639c6`) Migrasi 2 baris lama (Brentford, Valencia) dari `analysis_runs` → `analysis_snapshots` (`view_json` dipindah utuh; kolom ringkas boleh NULL), hapus `saveAnalysisRun`/`getFreshAnalysisRun`/`getAnalysisRunMetrics` dari `lib/db/thestats-dataset.ts`, ganti `scripts/test-analysis-cache.ts` dengan test berbasis snapshot, lalu `DROP TABLE analysis_runs`. Selama transisi TIDAK ADA dual-write — alihkan sekali, bukan dua salinan.
   - **Acceptance:** `analysis_runs` hilang dari `thestats_dataset.db`, 2 baris lamanya ada di snapshot · `npx tsc --noEmit` + `npm run build` hijau tanpa referensi fungsi lama
   - **Verify:** `SELECT count(*) FROM analysis_snapshots` ≥ 2 · grep `saveAnalysisRun` → nol hasil di kode produk · jalankan `scripts/test-snapshot-db.ts`
   - **Files:** `app/api/agent/route.tsx`, `lib/db/thestats-dataset.ts`, `lib/db/analysis-snapshot.ts`, `scripts/test-snapshot-db.ts`, `scripts/test-analysis-cache.ts`
 
 #### ✅ Checkpoint A
-- [ ] 1 baris snapshot lengkap dari run nyata · cache hit < 50ms · tsc + build + semua test hijau
-- [ ] **Review kontrak kolom dengan user sebelum lanjut** — enum/key sudah longgar, tapi nama kolom dikunci di sini
+- [x] 1 baris snapshot lengkap dari run nyata (Valencia `mt_022075415`, 407s, lead 65 mnt)
+- [x] Cache hit < 50ms (lookup DB 0,08ms, SHA256 respons identik)
+- [x] `?debug=1` tidak menulis (run penuh 474s → 0 baris baru) · run di-abort tidak menulis (log "dibatalkan client")
+- [x] tsc + build + semua test hijau
+- [x] **Review kontrak kolom dengan user** — disetujui; konvensi key + extra VIEW `v_snapshot_eval_market` dikunci di sini
 
 ### Phase 2: Outcome & perbandingan
-- [ ] **T3 — Pullback outcome.** `scripts/sync-match-outcomes.ts`: ambil `match_id` dari snapshot yang `kickoff_utc` sudah lewat dan belum ada di `match_outcomes`, isi dari sumber **lokal dulu** (`matches` + `team_match_logs` dua tim, join per `match_id`); fallback online hanya kalau lokal kosong, `source` dicatat. Idempotent. Odds penutup 1X2/O/U 2.5 diambil dari snapshot terakhir match itu (`closing_source` dicatat).
+- [x] **T3 — Pullback outcome.** (selesai: lokal `mt_206118228` + online `mt_988366076`, idempoten) `scripts/sync-match-outcomes.ts`: ambil `match_id` dari snapshot yang `kickoff_utc` sudah lewat dan belum ada di `match_outcomes`, isi dari sumber **lokal dulu** (`matches` + `team_match_logs` dua tim, join per `match_id`); fallback online hanya kalau lokal kosong, `source` dicatat. Idempotent. Odds penutup 1X2/O/U 2.5 diambil dari snapshot terakhir match itu (`closing_source` dicatat).
   - **Acceptance:** laga yang sudah selesai (contoh: Valencia vs Athletic Club, kickoff 17 Okt 19:00 UTC) dapat baris `source = 'local_sqlite'` · dijalankan dua kali → jumlah baris tidak bertambah · laga belum selesai tidak ditulis atau `status != 'finished'` · liga belum ter-ingest jatuh ke `online_api` dan `source`-nya tercatat
   - **Verify:** jalankan dua kali · `SELECT match_id, status, home_goals, away_goals, ftr, source FROM match_outcomes`
-- [ ] **T4 — Report perbandingan.** `scripts/snapshot-report.ts` dari VIEW `v_snapshot_eval`: jumlah snapshot per versi model/commit · hit rate **per market (semua market, termasuk EV negatif)** · EV diklaim vs hasil nyata · Brier + log-loss 1X2 vs implied closing odds · `model_divergence` · daftar snapshot belum punya outcome + umurnya · market yang belum dipetakan.
+- [x] **T4 — Report perbandingan.** (selesai: read-only, nol-pembagian dijaga, `1a6a4ec`) `scripts/snapshot-report.ts` dari VIEW `v_snapshot_eval`: jumlah snapshot per versi model/commit · hit rate **per market (semua market, termasuk EV negatif)** · EV diklaim vs hasil nyata · Brier + log-loss 1X2 vs implied closing odds · `model_divergence` · daftar snapshot belum punya outcome + umurnya · market yang belum dipetakan.
   - **Acceptance:** snapshot live/pasca-kickoff tidak dihitung · market tanpa data hasil dilaporkan "belum tersedia", bukan dihitung benar · statistik dipisah per versi model/commit · aman dijalankan saat snapshot masih sedikit (nol pembagian)
   - **Verify:** `npx tsx scripts/snapshot-report.ts` · jalankan lagi setelah match kedua → angka berubah wajar
 
 #### ✅ Checkpoint B
-- [ ] Minimal 1 baris evaluasi nyata: prediksi vs skor aktual vs harga pasar
-- [ ] Report bersifat read-only, aman diulang
+- [x] Report read-only, aman diulang (2x jalan → angka identik)
+- [ ] Minimal 1 baris evaluasi nyata — Valencia kickoff 19:00 UTC; jalankan `npx tsx scripts/sync-match-outcomes.ts` lalu `npx tsx scripts/snapshot-report.ts` setelah laga selesai (kickoff < 1 jam dari saat T4 diselesaikan)
 
 ### Phase 3: Guard & dokumentasi
-- [ ] **T5 — Guard integritas + dokumentasi.** Filter `lead_time_minutes > 0` + `status = 'finished'` di VIEW; snapshot live ditandai eksplisit di report. Dokumentasikan di `ARCHITECTURE.md` §9 (Data Layer: file DB baru, aturan append-only, peringatan tak-bisa-di-rebuild) dan §11 (Roadmap: "Riwayat analisis" → selesai, ganti jadi "evaluasi outcome berjalan").
+- [x] **T5 — Guard integritas + dokumentasi.** (selesai: ARCHITECTURE §9.1/§10/§11, grep `DELETE FROM analysis_snapshots` di kode produk = nol, `47cf844`) Filter `lead_time_minutes > 0` + `status = 'finished'` di VIEW; snapshot live ditandai eksplisit di report. Dokumentasikan di `ARCHITECTURE.md` §9 (Data Layer: file DB baru, aturan append-only, peringatan tak-bisa-di-rebuild) dan §11 (Roadmap: "Riwayat analisis" → selesai, ganti jadi "evaluasi outcome berjalan").
   - **Acceptance:** `ARCHITECTURE.md` menyebut file DB + aturan append-only · report menandai snapshot live · nol `DELETE`/`DROP` di jalur snapshot (kecuali cleanup test ber-prefix)
   - **Verify:** `npx tsc --noEmit` + `npm run build` · grep `DELETE FROM analysis_snapshots` di kode produk → nol hasil
 
 #### ✅ Checkpoint Final
-- [ ] Snapshot permanen dari ≥2 match · outcome terisi · report bisa dijalankan berulang
-- [ ] tsc + build + semua test hijau
+- [x] Snapshot permanen: 1 run nyata + 2 baris termigrasi · outcome terisi 2 match (lokal + online) · report jalan berulang
+- [x] tsc + build + semua test hijau (35 snapshot assert, 51 view-mapper, planner-loop)
+- [ ] Baris evaluasi (>0): Valencia selesai → `sync-match-outcomes` + `snapshot-report` (lihat Checkpoint B)
 
 ---
 
@@ -165,3 +169,21 @@ Turunan **per market** (semua market, bukan cuma yang direkomendasikan) diekspan
 - Dokumen ini menggantikan `tasks/plan-snapshot-db.md` + `tasks/todo-snapshot-db.md` (dihapus supaya tidak ada dua sumber kebenaran).
 - `duration_ms` di snapshot memakai instrumentasi dari `tasks/plan-perf.md` Task 1; cache lookup memakai hasil Task 2 yang sekarang pindah ke DB baru.
 - Recon memastikan `team_match_logs` sudah memuat 60+ kolom statistik, jadi `match_outcomes` tidak butuh fetch baru untuk kasus normal.
+
+## 9. Catatan Evaluasi Eksekusi (T1–T5 selesai, 18 Okt 2026)
+
+Commit: `6a66170` (T1) → `02639c6` (T2a+T2b) → `1a6a4ec` (T3+T4) → `47cf844` (T5).
+
+**Penyimpangan dari kontrak awal (semua disengaja, sudah direview di atas):**
+1. **Satu VIEW tambahan** `v_snapshot_eval_market` (§4 hanya menyebut "satu VIEW"). Satu baris-per-snapshot dan satu-baris-per-market tidak mungkin cohabitasi; mapping market-per-market + `AH_DNB` push (0.5) tinggal di situ, kolom `market_key` untuk agregasi lintas match.
+2. `test-snapshot-db.ts` sekarang membersihkan baris test di **akhir** (bukan cuma awal) — kontrak §5 T1 bilang "dibersihkan di akhir".
+3. `data/thestats_dataset.db` di-**untrack** dari git + masuk `.gitignore` (mencerminkan intent PERF.md: data runtime). File tetap ada di disk.
+4. `is_grounded` diisi dari `!syndicateDebate.is_fabricated_fallback` (sumber Route yang sudah ada), `is_fallback` = 1 saat pipeline lewat jalur merged.
+
+**Limitasi jujur yang tersisa:**
+- 2 baris termigrasi (`analysis_runs` lama) punya `kickoff_utc` NULL — match_id-nya tidak ada di `matches` lokal maupun vault, jadi tidak ada sumber kickoff yang jujur. consequence: lead NULL → **dikeluarkan dari `v_snapshot_eval`** (bukan dihitung, bukan dianggap benar). `view_json` utuh tetap tersimpan.
+- `editorial_model` NULL untuk semua baris: `modelUsed` editorial hanya hidup di tool result planner, tidak dijangkau dari state. Provenance inti tetap ada: `planner_model`, `syndicate_models`, `app_version`, `trace_json.planner.{loop_ms,tool_ms,overhead,step_timings}`.
+- Skor HT hanya terisi untuk outcome dari sumber online (`score.half_time_*`); `matches` lokal tidak menyimpan skor HT.
+- `v_snapshot_eval_market` memetakan `1X2` per selection `<tim> Menang`; kalau nama tim dari intel berubah format, key jadi NULL → dilaporkan "belum dipetakan", bukan salah hitung.
+
+**Bukti run nyata (Valencia `mt_022075415`, 17 Okt 2026):** pipeline 407,3s → snapshot_id 5, `lead_time_minutes` 65 (pre-match sejati, kickoff 19:00 UTC), `recommended_market_key` `1X2_AWAY`, `duration_ms` 405618, `trace_json.planner.step_timings` 7 step. Buka-tutup respons SHA256 identik (`e281f50e…`), cache lookup DB 0,08ms. `?debug=1` full run 474s → 0 baris baru. Run di-abort (curl timeout 12s) → 0 baris baru, log "dibatalkan client".
