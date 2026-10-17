@@ -62,3 +62,4 @@ data/historical/raw/
 !data/calibrated_ratings.json
 data/sample_*.json
 data/backtest_cache/
+.taste-skill/
