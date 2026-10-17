@@ -97,17 +97,6 @@ const MODEL_JUDGEMENT_2 = SYNDICATE.MODEL_JUDGEMENT_2;
 const RETRY_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_RETRY_TIMEOUT_MS) || 60000);
 
 /**
- * Plafon token KELUARAN per peran (plan-perf-2 Task 1).
- * Output yang diminta cuma JSON kecil: persona = { thesis, 2 driver, tactical_edge },
- * hakim = { verdict, tier, market, alasan }. Plafon 16384 tidak menambah isi, hanya
- * menambah ekor generasi — dan stage = max(anggota), jadi ekor satu model menggeser
- * seluruh stage. Model tidak diseragamkan; hanya plafonnya diturunkan.
- * Override: SYNDICATE_PERSONA_MAX_TOKENS / SYNDICATE_JUDGE_MAX_TOKENS.
- */
-const PERSONA_MAX_TOKENS = Math.max(256, Number(process.env.SYNDICATE_PERSONA_MAX_TOKENS) || 2048);
-const JUDGE_MAX_TOKENS = Math.max(256, Number(process.env.SYNDICATE_JUDGE_MAX_TOKENS) || 1536);
-
-/**
  * Resilient HTTP Native Fetcher untuk 9Router
  * Menangani non-streaming JSON, SSE delta chunks, serta format Atria wrapped response.
  * Unrestricted limits: 16384 max tokens, 180s timeout untuk extended thinking models.
@@ -372,7 +361,7 @@ export async function orchestrate5AgentSyndicate(params: {
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   if (process.env.PIPELINE_DEBUG) {
-    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [max_tokens: ${PERSONA_MAX_TOKENS}, 180s limit]...`);
+    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
   }
   const t0 = Date.now();
 
@@ -391,7 +380,7 @@ export async function orchestrate5AgentSyndicate(params: {
         MODEL_BULL,
         "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
         matchContext,
-        PERSONA_MAX_TOKENS,
+        16384,
         180000,
         signal
       )
@@ -402,7 +391,7 @@ export async function orchestrate5AgentSyndicate(params: {
         MODEL_NEUTRAL,
         "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
         matchContext,
-        PERSONA_MAX_TOKENS,
+        16384,
         180000,
         signal
       )
@@ -413,7 +402,7 @@ export async function orchestrate5AgentSyndicate(params: {
         MODEL_BEAR,
         "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
         matchContext,
-        PERSONA_MAX_TOKENS,
+        16384,
         180000,
         signal
       )
@@ -490,7 +479,7 @@ export async function orchestrate5AgentSyndicate(params: {
 
   // STAGE 2: DUAL JUDICIAL BENCH IN PARALLEL
   if (process.env.PIPELINE_DEBUG) {
-    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [max_tokens: ${JUDGE_MAX_TOKENS}, 180s limit]...`);
+    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, 180s limit]...`);
   }
   const t1 = Date.now();
 
@@ -507,7 +496,7 @@ export async function orchestrate5AgentSyndicate(params: {
       MODEL_JUDGEMENT_1,
       "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
       debateSummary,
-      JUDGE_MAX_TOKENS,
+      16384,
       180000,
       signal
     )),
@@ -516,7 +505,7 @@ export async function orchestrate5AgentSyndicate(params: {
       MODEL_JUDGEMENT_2,
       "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
       debateSummary,
-      JUDGE_MAX_TOKENS,
+      16384,
       180000,
       signal
     )),
