@@ -81,6 +81,7 @@ export function BettingScannerCard({
           <input
             type="text"
             placeholder="Contoh: 751762591"
+            aria-label="Masukkan ID pertandingan 1xBet"
             value={manualId}
             onChange={(e) => onManualIdChange(e.target.value)}
             className="flex-1 bg-white text-[#0a0a0a] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] font-mono text-[13px] focus:outline-none focus:border-[#0a0a0a]"

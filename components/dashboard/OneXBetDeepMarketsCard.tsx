@@ -140,6 +140,8 @@ export function OneXBetDeepMarketsCard({
     setPrevInitialMarkets(initialMarkets);
     if (initialMarkets && initialMarkets.length > 0) {
       setMarkets(initialMarkets);
+    } else {
+      setMarkets([]);
     }
   }
   if (initialBettingResult !== prevInitialBettingResult) {
@@ -148,6 +150,8 @@ export function OneXBetDeepMarketsCard({
       setMarkets(initialBettingResult.all_markets);
     } else if (initialBettingResult?.markets && initialBettingResult.markets.length > 0) {
       setMarkets(initialBettingResult.markets);
+    } else {
+      setMarkets([]);
     }
     if (initialBettingResult?.match_id_1xbet) {
       setMatchId1xBet(String(initialBettingResult.match_id_1xbet));
@@ -212,12 +216,14 @@ export function OneXBetDeepMarketsCard({
           advice: NonNullable<BettingScannerAdviceData["rekomendasi_aman"]>,
           id: string,
           category: MarketCategory,
-          confidence: LogicalPickItem["confidence_level"],
-          fairDivisor: number,
-          defaultEv: string,
-          defaultEvNum: number
+          confidence: LogicalPickItem["confidence_level"]
         ): LogicalPickItem => {
           const oddsNum = typeof advice.odds === "number" ? advice.odds : 0;
+          // Tanpa probabilitas model, fair odds/EV/Kelly tidak bisa dihitung → 0 (render "—").
+          // is_positive_ev hanya boleh true kalau EV-nya benar-benar terverifikasi dari advice.
+          const evPct = typeof advice.expected_value === "string"
+            ? parseFloat(advice.expected_value.replace("%", ""))
+            : NaN;
           return {
             id,
             market_id: id,
@@ -225,56 +231,29 @@ export function OneXBetDeepMarketsCard({
             category,
             selection: advice.pilihan ?? "",
             bookmaker_odds: oddsNum,
-            fair_odds:
-              oddsNum > 0
-                ? Math.round((oddsNum / fairDivisor) * 100) / 100
-                : 0,
-            model_probability: 0.6,
-            expected_value: defaultEvNum,
-            ev_percentage: advice.expected_value || defaultEv,
+            fair_odds: 0,
+            model_probability: 0,
+            expected_value: 0,
+            ev_percentage: advice.expected_value ?? "",
             kelly_percentage: 0,
             confidence_level: confidence,
             rationale: advice.alasan ?? "",
-            is_positive_ev: true,
+            is_positive_ev: Number.isFinite(evPct) ? evPct > 0 : false,
           };
         };
         if (aiAdvice.rekomendasi_aman) {
           picks.push(
-            toPick(
-              aiAdvice.rekomendasi_aman,
-              "pick-ai-safe",
-              "Utama 1X2",
-              "TINGGI",
-              1.1,
-              "+8.0%",
-              0.08
-            )
+            toPick(aiAdvice.rekomendasi_aman, "pick-ai-safe", "Utama 1X2", "TINGGI")
           );
         }
         if (aiAdvice.rekomendasi_value) {
           picks.push(
-            toPick(
-              aiAdvice.rekomendasi_value,
-              "pick-ai-val",
-              "Asian Handicap",
-              "SANGAT TINGGI",
-              1.15,
-              "+12.0%",
-              0.12
-            )
+            toPick(aiAdvice.rekomendasi_value, "pick-ai-val", "Asian Handicap", "SANGAT TINGGI")
           );
         }
         if (aiAdvice.pasar_niche) {
           picks.push(
-            toPick(
-              aiAdvice.pasar_niche,
-              "pick-ai-niche",
-              "Total Goals",
-              "TINGGI",
-              1.1,
-              "+9.0%",
-              0.09
-            )
+            toPick(aiAdvice.pasar_niche, "pick-ai-niche", "Total Goals", "TINGGI")
           );
         }
       }
@@ -292,7 +271,8 @@ export function OneXBetDeepMarketsCard({
       const evAway = oA ? dc.prob_away_win * oA - 1 : -1;
 
       if (oH && evHome > 0.02) {
-        const kelly = Math.max(0.5, Math.min(5.0, (evHome / (oH - 1)) * 25));
+        // Kelly aman: tanpa edge positif → 0; odds <= 1 → 0 (hindari div/0 & Infinity)
+        const kelly = (oH > 1 && evHome > 0) ? Math.max(0, Math.min(5.0, (evHome / (oH - 1)) * 25)) : 0;
         picks.push({
           id: "logical-1x2-home",
           market_id: m1x2.market_id,
@@ -310,7 +290,7 @@ export function OneXBetDeepMarketsCard({
           is_positive_ev: true,
         });
       } else if (oA && evAway > 0.02) {
-        const kelly = Math.max(0.5, Math.min(5.0, (evAway / (oA - 1)) * 25));
+        const kelly = (oA > 1 && evAway > 0) ? Math.max(0, Math.min(5.0, (evAway / (oA - 1)) * 25)) : 0;
         picks.push({
           id: "logical-1x2-away",
           market_id: m1x2.market_id,
@@ -350,7 +330,7 @@ export function OneXBetDeepMarketsCard({
           model_probability: prob1X,
           expected_value: ev1X,
           ev_percentage: `${ev1X >= 0 ? "+" : ""}${(ev1X * 100).toFixed(1)}%`,
-          kelly_percentage: 3.5,
+          kelly_percentage: Math.round(Math.max(0, Math.min(5.0, (o1X > 1 && ev1X > 0) ? (ev1X / (o1X - 1)) * 25 : 0)) * 10) / 10,
           confidence_level: "SANGAT TINGGI",
           rationale: `Tingkat resistensi kekalahan tinggi: Model mengonfirmasi probabilitas 1X mencapai ${(prob1X * 100).toFixed(1)}%, opsi konservatif paling stabil.`,
           is_positive_ev: ev1X >= 0,
@@ -388,7 +368,7 @@ export function OneXBetDeepMarketsCard({
           model_probability: probOver,
           expected_value: evO,
           ev_percentage: `+${(evO * 100).toFixed(1)}%`,
-          kelly_percentage: Math.round(Math.max(1, (evO / (oOver - 1)) * 25) * 10) / 10,
+          kelly_percentage: Math.round(Math.max(0, Math.min(5.0, (oOver > 1 && evO > 0) ? (evO / (oOver - 1)) * 25 : 0)) * 10) / 10,
           confidence_level: probOver >= 0.58 ? "SANGAT TINGGI" : "TINGGI",
           rationale: `Expected total goals ${dc.expected_total_goals.toFixed(2)} gol mendukung skenario Over 2.5 dengan probabilitas model ${(probOver * 100).toFixed(1)}%.`,
           is_positive_ev: true,
@@ -406,7 +386,7 @@ export function OneXBetDeepMarketsCard({
           model_probability: probUnder,
           expected_value: evU,
           ev_percentage: `+${(evU * 100).toFixed(1)}%`,
-          kelly_percentage: Math.round(Math.max(1, (evU / (oUnder - 1)) * 25) * 10) / 10,
+          kelly_percentage: Math.round(Math.max(0, Math.min(5.0, (oUnder > 1 && evU > 0) ? (evU / (oUnder - 1)) * 25 : 0)) * 10) / 10,
           confidence_level: probUnder >= 0.58 ? "SANGAT TINGGI" : "TINGGI",
           rationale: `Pertahanan solid dan xG rendah (${dc.expected_total_goals.toFixed(2)} xG total) mendukung garis Under 2.5 dengan probabilitas ${(probUnder * 100).toFixed(1)}%.`,
           is_positive_ev: true,
@@ -439,7 +419,7 @@ export function OneXBetDeepMarketsCard({
           model_probability: probYes,
           expected_value: ev,
           ev_percentage: `+${(ev * 100).toFixed(1)}%`,
-          kelly_percentage: 2.4,
+          kelly_percentage: Math.round(Math.max(0, Math.min(5.0, (oYes > 1 && ev > 0) ? (ev / (oYes - 1)) * 25 : 0)) * 10) / 10,
           confidence_level: probYes >= 0.6 ? "SANGAT TINGGI" : "TINGGI",
           rationale: `Kedua tim memiliki attacking rating tajam; probabilitas BTTS Yes mencapai ${(probYes * 100).toFixed(1)}% melampaui implied odds pasar.`,
           is_positive_ev: true,
@@ -457,7 +437,7 @@ export function OneXBetDeepMarketsCard({
           model_probability: probNo,
           expected_value: ev,
           ev_percentage: `+${(ev * 100).toFixed(1)}%`,
-          kelly_percentage: 2.2,
+          kelly_percentage: Math.round(Math.max(1, (ev / (oNo - 1)) * 25) * 10) / 10,
           confidence_level: "SEDANG",
           rationale: `Potensi clean sheet sepihak diperkirakan tinggi oleh model Dixon-Coles dengan peluang ${(probNo * 100).toFixed(1)}%.`,
           is_positive_ev: true,
@@ -492,7 +472,7 @@ export function OneXBetDeepMarketsCard({
             model_probability: dnb.home_prob,
             expected_value: ev,
             ev_percentage: `+${(ev * 100).toFixed(1)}%`,
-            kelly_percentage: 3.2,
+            kelly_percentage: Math.round(Math.max(0, Math.min(5.0, (oH0 > 1 && ev > 0) ? (ev / (oH0 - 1)) * 25 : 0)) * 10) / 10,
             confidence_level: "SANGAT TINGGI",
             rationale: `Perlindungan modal penuh jika seri (push). Probabilitas cover ${homeTeam} ${(dnb.home_prob * 100).toFixed(1)}% dengan margin keamanan optimal.`,
             is_positive_ev: true,
@@ -689,19 +669,19 @@ export function OneXBetDeepMarketsCard({
                   <div>
                     <span className="text-[11px] text-[#737373] block">Fair Odds</span>
                     <span className="text-xs font-medium text-[#737373]">
-                      {pick.fair_odds.toFixed(2)}
+                      {pick.fair_odds > 0 ? pick.fair_odds.toFixed(2) : "—"}
                     </span>
                   </div>
                   <div>
                     <span className="text-[11px] text-[#737373] block">Win Prob</span>
                     <span className="text-xs font-bold text-[#0a0a0a]">
-                      {(pick.model_probability * 100).toFixed(0)}%
+                      {pick.model_probability > 0 ? `${(pick.model_probability * 100).toFixed(0)}%` : "—"}
                     </span>
                   </div>
                   <div>
                     <span className="text-[11px] text-[#737373] block">+EV Edge</span>
                     <span className="text-xs font-bold text-[#0a0a0a]">
-                      {pick.ev_percentage}
+                      {pick.ev_percentage || "—"}
                     </span>
                   </div>
                 </div>
@@ -715,7 +695,7 @@ export function OneXBetDeepMarketsCard({
                 <div className="flex items-center justify-between pt-1 text-[11px] text-[#737373]">
                   <span>Alokasi Kelly Rekomendasi:</span>
                   <span className="font-bold text-[#0a0a0a]">
-                    {pick.kelly_percentage}% Bankroll
+                    {pick.kelly_percentage > 0 ? `${pick.kelly_percentage}% Bankroll` : "—"}
                   </span>
                 </div>
               </div>

@@ -69,7 +69,8 @@ export function OddsDislocationBar({
       };
     }
 
-    if (impliedProb && impliedProb.kandang > 0) {
+    // Validasi 3 arah: satu-satunya nilai 0/null bikin 100/x = Infinity → NaN
+    if (impliedProb && impliedProb.kandang > 0 && impliedProb.seri > 0 && impliedProb.tandang > 0) {
       return {
         home: +(100 / impliedProb.kandang).toFixed(2),
         draw: +(100 / impliedProb.seri).toFixed(2),
@@ -281,7 +282,7 @@ export function OddsDislocationBar({
                       {item.team}
                     </strong>
                   </div>
-                  {item.prob !== undefined && (
+                  {item.prob != null && Number.isFinite(item.prob) && (
                     <span className="px-2 py-0.5 rounded-[12px] text-[11px] font-bold flat-tag-zinc tabular-nums">
                       {(item.prob * 100).toFixed(0)}%
                     </span>
@@ -292,21 +293,21 @@ export function OddsDislocationBar({
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-[#737373]">Dixon-Coles Fair:</span>
                     <strong className="text-[#0a0a0a]">
-                      {item.fair !== undefined ? item.fair.toFixed(2) : "-"}
+                      {item.fair != null ? item.fair.toFixed(2) : "-"}
                     </strong>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-[#737373]">TheStatsAPI (Consensus):</span>
                     <span className="text-[#0a0a0a] font-medium">
-                      {item.bench !== undefined ? item.bench.toFixed(2) : "-"}
+                      {item.bench != null ? item.bench.toFixed(2) : "-"}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-[#737373]">1xBet Live Market:</span>
                     <span className={item.oneX ? "text-[#0a0a0a] font-bold" : "text-[#737373]"}>
-                      {item.oneX !== undefined ? item.oneX.toFixed(2) : "(Belum Scan)"}
+                      {item.oneX != null ? item.oneX.toFixed(2) : "(Belum Scan)"}
                     </span>
                   </div>
 

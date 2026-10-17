@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   AlertCircleIcon,
   CheckCircleIcon,
@@ -62,6 +62,10 @@ export default function Home() {
   const [bettingResult, setBettingResult] = useState<BettingResult1xBet | null>(null);
   const [manual1xBetId, setManual1xBetId] = useState<string>("");
   const [showManualInput, setShowManualInput] = useState<boolean>(false);
+
+  // Guard race: response lama yang balik setelah request baru jalan wajib diabaikan
+  const analysisReqId = useRef(0);
+  const bettingReqId = useRef(0);
 
   // Live elapsed timer saat analisis sedang berjalan.
   // setElapsedMs(0) sengaja di tick pertama: effect = sinkronisasi timer eksternal (interval),
@@ -136,10 +140,18 @@ export default function Home() {
   }, [matches, selectedCompetitionId, searchQuery, sortBy]);
 
   async function runAnalysis(match: MatchItem) {
+    const reqId = ++analysisReqId.current;
     setSelectedMatch(match);
     setAnalyzing(true);
     setAgentError(null);
     setData(null);
+    // Reset state betting/1xBet milik analisis sebelumnya — jangan sampai bocor ke match baru
+    bettingReqId.current++; // batalkan request 1xBet yang masih in-flight
+    setBettingResult(null);
+    setBettingError(null);
+    setManual1xBetId("");
+    setShowManualInput(false);
+    setShowMarkets(false);
     setActiveTab("ringkasan");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -151,17 +163,21 @@ export default function Home() {
         )}`
       );
       const json = await res.json();
+      if (analysisReqId.current !== reqId) return; // stale response
       if (!res.ok || json.error) throw new Error(json.error ?? `HTTP ${res.status}`);
       // JSON adalah AnalysisView bersih dari BFF layer
       setData(json);
     } catch (e) {
+      if (analysisReqId.current !== reqId) return;
       setAgentError(e instanceof Error ? e.message : String(e));
     } finally {
-      setAnalyzing(false);
+      if (analysisReqId.current === reqId) setAnalyzing(false);
     }
   }
 
   function handleBackToList() {
+    analysisReqId.current++;
+    bettingReqId.current++;
     setSelectedMatch(null);
     setData(null);
     setAgentError(null);
@@ -174,6 +190,8 @@ export default function Home() {
 
   async function trigger1xBetAnalysis(customId?: string) {
     if (!selectedMatch) return;
+    const reqId = ++bettingReqId.current;
+    const match = selectedMatch;
     setBettingLoading(true);
     setBettingError(null);
 
@@ -183,9 +201,9 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           match_id_1xbet: customId || (manual1xBetId.trim() ? manual1xBetId.trim() : undefined),
-          home_team: selectedMatch.home_team.name,
-          away_team: selectedMatch.away_team.name,
-          competition: selectedMatch.competition_name,
+          home_team: match.home_team.name,
+          away_team: match.away_team.name,
+          competition: match.competition_name,
           match_context: {
             hasil_proyeksi: data?.ringkasan.prediksi,
             keyakinan: data?.ringkasan.keyakinan,
@@ -202,6 +220,7 @@ export default function Home() {
       });
 
       const json = await res.json();
+      if (bettingReqId.current !== reqId) return; // hasil match lama, sudah diganti request baru
       if (!res.ok || json.error) {
         throw new Error(json.error || `HTTP ${res.status}`);
       }
@@ -219,9 +238,10 @@ export default function Home() {
 
       setBettingResult(json);
     } catch (e) {
+      if (bettingReqId.current !== reqId) return;
       setBettingError(e instanceof Error ? e.message : String(e));
     } finally {
-      setBettingLoading(false);
+      if (bettingReqId.current === reqId) setBettingLoading(false);
     }
   }
 

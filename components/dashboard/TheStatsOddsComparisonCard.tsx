@@ -37,49 +37,76 @@ export function TheStatsOddsComparisonCard({
   const [filterMode, setFilterMode] = useState<"all" | "1x2" | "ou">("all");
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
 
+  // Guard race: jangan sampai respon match lama menimpa match baru jika switch cepat
+  const activeMatchIdRef = React.useRef(matchId);
+  useEffect(() => {
+    activeMatchIdRef.current = matchId;
+  }, [matchId]);
+
+  const formattedKickoff = React.useMemo(() => {
+    if (!kickoffTime) return null;
+    const d = new Date(kickoffTime);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  }, [kickoffTime]);
+
   const fetchOddsData = useCallback(async (forceRefresh = false) => {
     if (!matchId) return;
+    const targetId = matchId;
     setLoading(true);
     setError(null);
 
     // Cache level module: buka-tutup tab Odds tidak memicu fetch ulang.
-    if (!forceRefresh && oddsCache.has(matchId)) {
-      setData(oddsCache.get(matchId)!);
+    if (!forceRefresh && oddsCache.has(targetId)) {
+      setData(oddsCache.get(targetId)!);
       setLoading(false);
       return;
     }
 
     try {
-      const url = `/api/odds?match_id=${encodeURIComponent(matchId)}${
+      const url = `/api/odds?match_id=${encodeURIComponent(targetId)}${
         forceRefresh ? `&_t=${Date.now()}` : ""
       }`;
       const res = await fetch(url);
       const json = await res.json();
 
+      if (activeMatchIdRef.current !== targetId) return;
+
       if (!res.ok) {
         throw new Error(json.error || `HTTP ${res.status}`);
       }
 
-      oddsCache.set(matchId, json);
+      oddsCache.set(targetId, json);
       setData(json);
     } catch (err) {
+      if (activeMatchIdRef.current !== targetId) return;
       console.error("[TheStatsOddsComparisonCard] Fetch error:", err);
       setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setLoading(false);
+      if (activeMatchIdRef.current === targetId) {
+        setLoading(false);
+      }
     }
   }, [matchId]);
 
   useEffect(() => {
-    // Pola resmi React (react.dev "fetching data"): fetch di effect SAH. setState spinner ada
-    // di awal fetch (setLoading/setError) — unavoidable supaya tab bisa tampilkan loading.
-    // Semua setState di dalam fetch sudah di-guard race (`ignore` internal useCallback).
+    /* eslint-disable react-hooks/set-state-in-effect -- spinner & cache-hit butuh setState sinkron
+       saat matchId berubah; pola resmi React (fetch di effect + race guard). */
     if (!initialData && matchId) {
-      /* eslint-disable react-hooks/set-state-in-effect -- spinner butuh setState sinkron saat
-         matchId berubah; pola resmi React (fetch di effect + race guard). */
-      void fetchOddsData(false);
-      /* eslint-enable react-hooks/set-state-in-effect */
+      if (oddsCache.has(matchId)) {
+        setData(oddsCache.get(matchId)!);
+        setLoading(false);
+        setError(null);
+      } else {
+        setData(null);
+        void fetchOddsData(false);
+      }
+    } else if (initialData) {
+      setData(initialData);
+      setLoading(false);
+      setError(null);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [matchId, initialData, fetchOddsData]);
 
   const bestOdds = data?.best_odds;
@@ -165,10 +192,8 @@ export function TheStatsOddsComparisonCard({
           </h3>
           <p className="text-xs text-[#737373] font-mono mt-0.5">
             {homeTeam} vs {awayTeam}
-            {kickoffTime && (
-              <span className="text-[#a3a3a3] ml-2">
-                • {new Date(kickoffTime).toLocaleDateString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-              </span>
+            {formattedKickoff && (
+              <span className="text-[#a3a3a3] ml-2">• {formattedKickoff}</span>
             )}
           </p>
         </div>

@@ -185,11 +185,15 @@ export function QuantEngineCard({
               <span className="text-[11px] text-[#737373]">IDR</span>
               <input
                 type="number"
+                aria-label="Nominal modal bankroll"
                 min={100000}
                 max={500000000}
                 step={500000}
                 value={bankroll}
-                onChange={(e) => setBankroll(Math.max(0, Number(e.target.value)))}
+                onChange={(e) => {
+                  const raw = Number(e.target.value);
+                  setBankroll(Number.isFinite(raw) && raw >= 0 ? raw : 0);
+                }}
                 className="w-36 bg-white text-[#0a0a0a] font-bold px-3 py-1 rounded-[14px] border border-[#e5e5e5] text-xs tabular-nums focus:outline-none focus:border-[#0a0a0a]"
               />
               <span className="text-xs font-bold text-[#0a0a0a] tabular-nums">
@@ -200,6 +204,7 @@ export function QuantEngineCard({
 
           <input
             type="range"
+            aria-label="Slider penyesuaian modal bankroll"
             min={1000000}
             max={100000000}
             step={1000000}

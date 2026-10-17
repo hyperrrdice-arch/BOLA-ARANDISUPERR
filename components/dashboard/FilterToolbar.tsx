@@ -72,7 +72,7 @@ export function FilterToolbar({
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Cari tim atau liga (tekan '/' atau ⌘K)..."
+            placeholder="Cari tim atau liga (tekan '/' atau ⌘K)..." aria-label="Cari tim atau liga"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             className="w-full bg-[#f5f5f5] focus:bg-white text-[#0a0a0a] placeholder-[#737373] px-4 py-2 pr-16 rounded-[18px] border border-transparent focus:border-[#e5e5e5] text-[13px] font-mono focus:outline-none transition-colors"
@@ -81,6 +81,7 @@ export function FilterToolbar({
             {localSearch ? (
               <button
                 type="button"
+                aria-label="Hapus pencarian"
                 onClick={() => {
                   setLocalSearch("");
                   onSearchChange("");

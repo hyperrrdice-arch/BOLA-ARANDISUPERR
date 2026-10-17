@@ -174,7 +174,7 @@ export function MatchHeaderCard({
           <div className="p-3 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5]">
             <span className="text-[11px] text-[#737373] block">Target xG Poisson</span>
             <span className="text-[#0a0a0a] font-semibold block mt-0.5">
-              {dcHomeXg !== undefined && dcAwayXg !== undefined
+              {dcHomeXg != null && dcAwayXg != null && Number.isFinite(Number(dcHomeXg)) && Number.isFinite(Number(dcAwayXg))
                 ? `${Number(dcHomeXg).toFixed(2)} vs ${Number(dcAwayXg).toFixed(2)}`
                 : "Terkalibrasi"}
             </span>
