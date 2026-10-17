@@ -31,11 +31,11 @@ export function MatchCatalogView({
       <div className="space-y-1.5 pb-1">
         <div className="flex items-center gap-2">
           <RadioIcon size={16} className="text-[#0a0a0a]" />
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#0a0a0a] font-mono uppercase">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0a0a0a]">
             Database Pertandingan Terjadwal
           </h1>
         </div>
-        <p className="text-xs text-[#737373] leading-relaxed max-w-3xl">
+        <p className="text-[13px] text-[#737373] leading-relaxed max-w-3xl font-sans">
           Pusat telemetri pra-laga deterministik TheStatsAPI terintegrasi penalaran kuantitatif AI.
           Pilih pertandingan untuk membuka analisis probabilitas Dixon-Coles, alokasi Kelly, dan konsensus mahkamah arbitrase.
         </p>
@@ -47,7 +47,7 @@ export function MatchCatalogView({
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] animate-pulse space-y-3"
+              className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] animate-pulse space-y-3"
             >
               <div className="flex justify-between items-center">
                 <div className="h-3.5 bg-[#f5f5f5] rounded w-28" />
@@ -84,7 +84,7 @@ export function MatchCatalogView({
 
       {/* Empty State */}
       {!loading && !error && matches.length === 0 && (
-        <div className="p-12 text-center text-xs text-[#737373] rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] font-mono">
+        <div className="p-12 text-center text-[13px] text-[#737373] rounded-[24px] bg-white border border-[#e5e5e5] font-sans">
           Tidak ada pertandingan terjadwal dalam rentang {hours} jam ke depan
           {hasSearchQuery ? " yang sesuai dengan kriteria pencarian." : "."}
         </div>
@@ -103,16 +103,16 @@ export function MatchCatalogView({
                 style={{
                   animationDelay: `${Math.min(index * 25, 300)}ms`,
                 }}
-                className="reveal-up p-5 rounded-[24px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] hover:border-[#d4d4d8] shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col justify-between cursor-pointer group transition-all"
+                className="reveal-up p-5 rounded-[24px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] hover:border-[#d4d4d8] flex flex-col justify-between cursor-pointer group transition-all"
                 onClick={() => onSelectMatch(m)}
               >
                 <div>
                   {/* Card Top: Competition & Kickoff */}
-                  <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#e5e5e5]">
-                    <span className="px-2.5 py-0.5 rounded-[18px] text-[10px] font-mono flat-tag-zinc truncate max-w-[70%] font-semibold uppercase tracking-wider">
+                  <div className="flex items-center justify-between gap-2 pb-3">
+                    <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-mono flat-tag-zinc truncate max-w-[70%] font-semibold">
                       {m.competition_name}
                     </span>
-                    <span className="text-[10px] font-mono text-[#737373] shrink-0 font-medium tabular-nums">
+                    <span className="text-[11px] font-mono text-[#737373] shrink-0 font-medium tabular-nums">
                       {formatKickoffTime(m.utc_date)}
                     </span>
                   </div>
@@ -123,45 +123,45 @@ export function MatchCatalogView({
                       <h3 className="font-semibold text-sm text-[#0a0a0a] group-hover:text-black transition-colors truncate">
                         {homeName}
                       </h3>
-                      <span className="text-[10px] font-mono text-[#737373]">H</span>
+                      <span className="text-[11px] font-mono text-[#737373]">H</span>
                     </div>
-                    <div className="text-[10px] text-[#a1a1aa] font-mono uppercase tracking-widest">
+                    <div className="text-[11px] text-[#a1a1aa] font-mono">
                       vs
                     </div>
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-sm text-[#0a0a0a] group-hover:text-black transition-colors truncate">
                         {awayName}
                       </h3>
-                      <span className="text-[10px] font-mono text-[#737373]">A</span>
+                      <span className="text-[11px] font-mono text-[#737373]">A</span>
                     </div>
                   </div>
 
                   {/* Date & Venue */}
                   <div className="text-[11px] text-[#737373] space-y-0.5 pb-2 font-mono">
-                    <p className="text-[10px] text-[#171717] tabular-nums">{formatWib(m.utc_date)}</p>
+                    <p className="text-[11px] text-[#171717] tabular-nums">{formatWib(m.utc_date)}</p>
                     {m.venue && (
-                      <p className="truncate text-[10px] text-[#737373]">
-                        VENUE: {m.venue.name}, {m.venue.city}
+                      <p className="truncate text-[11px] text-[#737373]">
+                        Venue: {m.venue.name}, {m.venue.city}
                       </p>
                     )}
                   </div>
                 </div>
 
                 {/* Card Footer: Data Indicators & Action */}
-                <div className="pt-3 border-t border-[#e5e5e5] flex items-center justify-between gap-2 text-xs font-mono">
+                <div className="pt-3 flex items-center justify-between gap-2 text-xs font-mono">
                   <div className="flex items-center gap-1.5">
                     {m.odds_available && (
-                      <span className="px-2 py-0.5 rounded-[18px] text-[9px] font-mono flat-tag-white">
+                      <span className="px-2 py-0.5 rounded-[18px] text-[11px] font-mono flat-tag-white">
                         Odds
                       </span>
                     )}
                     {m.xg_available && (
-                      <span className="px-2 py-0.5 rounded-[18px] text-[9px] font-mono flat-tag-zinc">
+                      <span className="px-2 py-0.5 rounded-[18px] text-[11px] font-mono flat-tag-zinc">
                         xG
                       </span>
                     )}
                     {m.shotmap_available && (
-                      <span className="px-2 py-0.5 rounded-[18px] text-[9px] font-mono flat-tag-zinc">
+                      <span className="px-2 py-0.5 rounded-[18px] text-[11px] font-mono flat-tag-zinc">
                         Shotmap
                       </span>
                     )}

@@ -29,17 +29,17 @@ export function BettingScannerCard({
   awayTeam,
 }: BettingScannerCardProps) {
   return (
-    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-5 text-[#0a0a0a]">
+    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-5 text-[#0a0a0a]">
       {/* Scanner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e5e5]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div>
           <div className="flex items-center gap-2">
             <TrendingUpIcon size={15} className="text-[#0a0a0a]" />
-            <h4 className="text-xs sm:text-sm font-bold text-[#0a0a0a] font-mono tracking-tight uppercase">
+            <h4 className="text-xs sm:text-sm font-bold text-[#0a0a0a] font-mono tracking-tight">
               1xBet Market Scanner &amp; Dual-Model AI Intelligence
             </h4>
           </div>
-          <p className="text-xs text-[#737373] mt-1 leading-relaxed max-w-2xl font-mono">
+          <p className="text-[13px] text-[#737373] mt-1 leading-relaxed max-w-2xl font-sans">
             Pindai 500+ baris data bursa taruhan 1xBet RapidAPI dianalisis bersama model quant{" "}
             <span className="text-[#0a0a0a] font-semibold">bai/qwen3.8-27b</span> &amp; bai/deepseek-v4.1-flash.
           </p>
@@ -49,7 +49,7 @@ export function BettingScannerCard({
           <button
             onClick={() => onTriggerScan()}
             disabled={loading}
-            className="px-3.5 py-2 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-xs font-semibold text-white transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            className="px-3.5 py-2 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-xs font-semibold text-white transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>
@@ -83,12 +83,12 @@ export function BettingScannerCard({
             placeholder="Contoh: 751762591"
             value={manualId}
             onChange={(e) => onManualIdChange(e.target.value)}
-            className="flex-1 bg-white text-[#0a0a0a] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] font-mono text-xs focus:outline-none focus:border-[#0a0a0a]"
+            className="flex-1 bg-white text-[#0a0a0a] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] font-mono text-[13px] focus:outline-none focus:border-[#0a0a0a]"
           />
           <button
             onClick={() => onTriggerScan(manualId.trim())}
             disabled={loading || !manualId.trim()}
-            className="px-4 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white font-medium disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            className="px-4 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white font-medium disabled:opacity-50 cursor-pointer"
           >
             Scan ID Ini
           </button>
@@ -99,10 +99,10 @@ export function BettingScannerCard({
       {loading && (
         <div className="p-8 text-center space-y-3 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5]">
           <div className="inline-block w-6 h-6 border-2 border-[#e5e5e5] border-t-[#0a0a0a] rounded-full animate-spin" />
-          <p className="text-xs text-[#0a0a0a] font-semibold">
+          <p className="text-[13px] text-[#0a0a0a] font-semibold">
             Menghubungkan ke 1xBet API &amp; Mengambil 500+ Baris Pasar...
           </p>
-          <p className="text-[11px] text-[#737373] font-mono">
+          <p className="text-[13px] text-[#737373] font-sans">
             Menjalankan penalaran kuantitatif di VPS 9Router (bai/qwen3.8-27b + bai/deepseek-v4.1-flash)
           </p>
         </div>
@@ -114,8 +114,8 @@ export function BettingScannerCard({
           <div className="flex items-start gap-2.5">
             <AlertCircleIcon size={16} className="text-[#e7000b] shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-xs text-[#991b1b]">{error}</p>
-              <p className="text-[11px] text-[#b91c1c] mt-0.5 leading-relaxed">
+              <p className="font-semibold text-[13px] text-[#991b1b]">{error}</p>
+              <p className="text-[13px] text-[#b91c1c] mt-0.5 leading-relaxed">
                 Tips: Buka situs 1xBet di browser atau gunakan tombol "Manual ID" di atas untuk memasukkan ID laga secara langsung.
               </p>
             </div>
@@ -135,7 +135,7 @@ export function BettingScannerCard({
               <span className="text-[#737373]">Total Pasar:</span>
               <span className="text-[#0a0a0a] font-bold">{result.total_markets_scanned} Lines</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-[18px] bg-white border border-[#e5e5e5] text-[#0a0a0a] text-[10px] font-bold shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <span className="px-2.5 py-0.5 rounded-[18px] bg-white border border-[#e5e5e5] text-[#0a0a0a] text-[11px] font-bold">
               Cache 60 Min
             </span>
           </div>
@@ -145,10 +145,10 @@ export function BettingScannerCard({
             <div className="p-4 rounded-[18px] text-xs flex items-start gap-3 border bg-[#fafafa] border-[#e5e5e5]">
               <ScaleIcon size={16} className="shrink-0 mt-0.5 text-[#0a0a0a]" />
               <div className="space-y-0.5">
-                <h5 className="font-bold text-[#0a0a0a] font-mono uppercase tracking-wider text-[11px]">
+                <h5 className="font-bold text-[#0a0a0a] font-mono text-[11px]">
                   Sintesis Konsensus Dual-Model
                 </h5>
-                <p className="text-xs text-[#737373] leading-relaxed">
+                <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                   {result.consensus.summary}
                 </p>
               </div>
@@ -159,15 +159,15 @@ export function BettingScannerCard({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
             {/* MODEL A */}
             <div className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-3">
-              <div className="flex items-center justify-between pb-2.5 border-b border-[#e5e5e5]">
+              <div className="flex items-center justify-between pb-1">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#0a0a0a]" />
-                  <h5 className="text-xs font-bold text-[#0a0a0a] font-mono uppercase">
+                  <h5 className="text-xs font-bold text-[#0a0a0a] font-mono">
                     Model A: {result.model_a?.model_name || result.model_a?.model || "Scanner"}
                   </h5>
                 </div>
                 {result.model_a?.result?.data?.skor_keyakinan && (
-                  <span className="px-2.5 py-0.5 rounded-[18px] text-[10px] font-mono bg-white border border-[#e5e5e5] text-[#0a0a0a] font-bold">
+                  <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-mono bg-white border border-[#e5e5e5] text-[#0a0a0a] font-bold">
                     Keyakinan: {result.model_a.result.data.skor_keyakinan}%
                   </span>
                 )}
@@ -178,7 +178,7 @@ export function BettingScannerCard({
                   {/* Banker */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#0a0a0a] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#0a0a0a] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#0a0a0a]">
                         Rekomendasi Teraman (Banker)
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -195,7 +195,7 @@ export function BettingScannerCard({
                         ? ` (Base: ${result.model_a.result.data.rekomendasi_aman?.base})`
                         : ""}
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_a.result.data.rekomendasi_aman?.alasan}
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export function BettingScannerCard({
                   {/* Value Bet */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#0a0a0a] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#0a0a0a] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#0a0a0a]">
                         Value Bet (Expected Value)
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -216,7 +216,7 @@ export function BettingScannerCard({
                         {result.model_a.result.data.rekomendasi_value?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_a.result.data.rekomendasi_value?.alasan}
                     </p>
                   </div>
@@ -224,7 +224,7 @@ export function BettingScannerCard({
                   {/* Pasar Niche */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#737373] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#737373] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#737373]">
                         Pasar Niche Pilihan
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -237,15 +237,16 @@ export function BettingScannerCard({
                         {result.model_a.result.data.pasar_niche?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_a.result.data.pasar_niche?.alasan}
                     </p>
                   </div>
 
                   {/* Pasar Hindari */}
                   <div className="p-3 rounded-[18px] bg-[#fef2f2] border border-[#fecaca] border-l-4 border-l-[#e7000b] space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-[#991b1b] uppercase block">
-                      ⚠️ Pasar Hindari (Jebakan Bandar)
+                    <span className="text-[11px] font-mono font-bold text-[#991b1b] flex items-center gap-1.5">
+                      <AlertCircleIcon size={12} className="text-[#991b1b] shrink-0" />
+                      Pasar Hindari (Jebakan Bandar)
                     </span>
                     <p className="font-bold text-[#991b1b]">
                       {result.model_a.result.data.pasar_hindari?.pasar}:{" "}
@@ -253,13 +254,13 @@ export function BettingScannerCard({
                         {result.model_a.result.data.pasar_hindari?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#b91c1c] leading-relaxed">
+                    <p className="text-[13px] text-[#b91c1c] leading-relaxed">
                       {result.model_a.result.data.pasar_hindari?.alasan}
                     </p>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-[#991b1b]">
+                <p className="text-[13px] text-[#991b1b]">
                   Model A gagal: {result.model_a?.result?.error || "Unknown error"}
                 </p>
               )}
@@ -267,15 +268,15 @@ export function BettingScannerCard({
 
             {/* MODEL B */}
             <div className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-3">
-              <div className="flex items-center justify-between pb-2.5 border-b border-[#e5e5e5]">
+              <div className="flex items-center justify-between pb-1">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#0a0a0a]" />
-                  <h5 className="text-xs font-bold text-[#0a0a0a] font-mono uppercase">
+                  <h5 className="text-xs font-bold text-[#0a0a0a] font-mono">
                     Model B: {result.model_b?.model_name || result.model_b?.model || "Auditor High"}
                   </h5>
                 </div>
                 {result.model_b?.result?.data?.skor_keyakinan && (
-                  <span className="px-2.5 py-0.5 rounded-[18px] text-[10px] font-mono bg-white border border-[#e5e5e5] text-[#0a0a0a] font-bold">
+                  <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-mono bg-white border border-[#e5e5e5] text-[#0a0a0a] font-bold">
                     Keyakinan: {result.model_b.result.data.skor_keyakinan}%
                   </span>
                 )}
@@ -286,7 +287,7 @@ export function BettingScannerCard({
                   {/* Banker */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#0a0a0a] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#0a0a0a] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#0a0a0a]">
                         Rekomendasi Teraman (Banker)
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -303,7 +304,7 @@ export function BettingScannerCard({
                         ? ` (Base: ${result.model_b.result.data.rekomendasi_aman?.base})`
                         : ""}
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_b.result.data.rekomendasi_aman?.alasan}
                     </p>
                   </div>
@@ -311,7 +312,7 @@ export function BettingScannerCard({
                   {/* Value Bet */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#0a0a0a] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#0a0a0a] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#0a0a0a]">
                         Value Bet (Expected Value)
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -324,7 +325,7 @@ export function BettingScannerCard({
                         {result.model_b.result.data.rekomendasi_value?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_b.result.data.rekomendasi_value?.alasan}
                     </p>
                   </div>
@@ -332,7 +333,7 @@ export function BettingScannerCard({
                   {/* Pasar Niche */}
                   <div className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] border-l-4 border-l-[#737373] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-[#737373] uppercase">
+                      <span className="text-[11px] font-mono font-bold text-[#737373]">
                         Pasar Niche Pilihan
                       </span>
                       <span className="font-mono text-[#0a0a0a] font-bold">
@@ -345,15 +346,16 @@ export function BettingScannerCard({
                         {result.model_b.result.data.pasar_niche?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#737373] leading-relaxed">
+                    <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                       {result.model_b.result.data.pasar_niche?.alasan}
                     </p>
                   </div>
 
                   {/* Pasar Hindari */}
                   <div className="p-3 rounded-[18px] bg-[#fef2f2] border border-[#fecaca] border-l-4 border-l-[#e7000b] space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-[#991b1b] uppercase block">
-                      ⚠️ Pasar Hindari (Jebakan Bandar)
+                    <span className="text-[11px] font-mono font-bold text-[#991b1b] flex items-center gap-1.5">
+                      <AlertCircleIcon size={12} className="text-[#991b1b] shrink-0" />
+                      Pasar Hindari (Jebakan Bandar)
                     </span>
                     <p className="font-bold text-[#991b1b]">
                       {result.model_b.result.data.pasar_hindari?.pasar}:{" "}
@@ -361,13 +363,13 @@ export function BettingScannerCard({
                         {result.model_b.result.data.pasar_hindari?.pilihan}
                       </span>
                     </p>
-                    <p className="text-[11px] text-[#b91c1c] leading-relaxed">
+                    <p className="text-[13px] text-[#b91c1c] leading-relaxed">
                       {result.model_b.result.data.pasar_hindari?.alasan}
                     </p>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-[#991b1b]">
+                <p className="text-[13px] text-[#991b1b]">
                   Model B gagal: {result.model_b?.result?.error || "Unknown error"}
                 </p>
               )}
@@ -380,7 +382,7 @@ export function BettingScannerCard({
               <summary className="font-bold text-[#737373] hover:text-[#0a0a0a] cursor-pointer font-mono">
                 Lihat Snapshot Garis Pasar 1xBet Langsung ({result.sample_markets.length} Pasar Populer)
               </summary>
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2 border-t border-[#e5e5e5]">
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
                 {result.sample_markets.map((sm: any, idx: number) => (
                   <div key={idx} className="p-3 rounded-[18px] bg-white border border-[#e5e5e5] space-y-1">
                     <div className="flex items-center justify-between text-[11px]">
@@ -389,7 +391,7 @@ export function BettingScannerCard({
                         <span className="text-[#737373] font-mono">({sm.base})</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 flex-wrap text-[10px] font-mono">
+                    <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono">
                       {Object.entries(sm.odds || {}).map(([outcome, odd]: any) => (
                         <span
                           key={outcome}

@@ -23,10 +23,19 @@ import { QuantEngineCard } from "@/components/dashboard/QuantEngineCard";
 import { SyndicateDebateCard } from "@/components/dashboard/SyndicateDebateCard";
 import { StatsAndSplitsCard } from "@/components/dashboard/StatsAndSplitsCard";
 import { ThinkingPlannerCard } from "@/components/dashboard/ThinkingPlannerCard";
-import { BettingScannerCard } from "@/components/dashboard/BettingScannerCard";
 import { TheStatsOddsComparisonCard } from "@/components/dashboard/TheStatsOddsComparisonCard";
-import { OneXBetDeepMarketsCard } from "@/components/dashboard/OneXBetDeepMarketsCard";
 import { SidebarNav, AnalysisTabKey } from "@/components/dashboard/SidebarNav";
+import dynamic from "next/dynamic";
+
+// Pasar 1xBet/Scanner = on-demand (butuh scan manual) → lazy, bukan masuk bundle awal.
+const OneXBetDeepMarketsCard = dynamic(
+  () => import("@/components/dashboard/OneXBetDeepMarketsCard").then((m) => m.OneXBetDeepMarketsCard),
+  { ssr: false }
+);
+const BettingScannerCard = dynamic(
+  () => import("@/components/dashboard/BettingScannerCard").then((m) => m.BettingScannerCard),
+  { ssr: false }
+);
 
 export default function Home() {
   const [hours, setHours] = useState<number>(12);
@@ -49,6 +58,7 @@ export default function Home() {
 
   // 4 Tab Bersih (Verdict-First): 'ringkasan' | 'kuantitatif' | 'odds' | 'debat'
   const [activeTab, setActiveTab] = useState<AnalysisTabKey>("ringkasan");
+  const [showMarkets, setShowMarkets] = useState<boolean>(false);
 
   // 1xBet State
   const [bettingLoading, setBettingLoading] = useState<boolean>(false);
@@ -175,12 +185,13 @@ export default function Home() {
             hasil_proyeksi: data?.ringkasan.prediksi,
             keyakinan: data?.ringkasan.keyakinan,
             alasan: data?.ringkasan.alasan,
-            probabilitas_pasar: data?.kuantitatif.hero.prob,
+            probabilitas_pasar: data?.odds.dislocation.pasar_konsensus,
             form_kandang: data?.kuantitatif.detail.splits.form_kandang,
             form_tamu: data?.kuantitatif.detail.splits.form_tamu,
             wasit: data?.match.wasit,
-            npxg_kandang: data?.kuantitatif.detail.metode.baseline?.lambda,
-            npxg_tamu: data?.kuantitatif.detail.metode.baseline?.mu,
+            wasit_kartu: data?.match.wasit_kartu,
+            npxg_kandang: data?.kuantitatif.detail.splits.npxg_kandang,
+            npxg_tamu: data?.kuantitatif.detail.splits.npxg_tamu,
           },
         }),
       });
@@ -210,45 +221,26 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f5] text-[#0a0a0a] flex flex-col font-sans">
+    <main className="min-h-svh bg-[#f5f5f5] text-[#0a0a0a] flex flex-col font-sans">
       {/* HEADER & TELEMETRY STRIP */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#e5e5e5] bg-[#ffffff]/95 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full bg-[#ffffff]/95 backdrop-blur-md">
         {/* System Telemetry Bar */}
-        <div className="border-b border-[#e5e5e5] bg-[#fafafa] py-1.5 px-4 sm:px-6">
-          <div className="max-w-[1280px] mx-auto flex items-center justify-between text-[11px] font-mono tabular-nums text-[#737373]">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-[#0a0a0a] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a] animate-pulse" />
-                <span>SISTEM SIAP TEMPUR</span>
-              </span>
-              <span className="text-[#e5e5e5]">|</span>
-              <span>
-                Cakupan:{" "}
-                <strong className="text-[#0a0a0a]">
-                  {activeLeagues.length > 0 ? activeLeagues.length : 7} Liga
-                </strong>
-              </span>
-              <span className="text-[#e5e5e5] hidden sm:inline">|</span>
-              <span className="hidden sm:inline">
-                DB: <strong className="text-[#171717]">SQLite Master Terverifikasi</strong>
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span>
-                Jadwal:{" "}
-                <strong className="text-[#0a0a0a]">{matches.length} Laga Siap Bedah</strong>
-              </span>
-              <span className="text-[#e5e5e5]">|</span>
-              <span className="text-[#737373]">WIB (UTC+7)</span>
-            </div>
+        <div className="bg-[#fafafa] py-1 px-4 sm:px-6">
+          <div className="max-w-[1280px] mx-auto flex items-center text-[11px] font-mono tabular-nums text-[#525252] truncate">
+            <span className="truncate">
+              <strong className="text-[#737373]">{matches.length}</strong> laga ·{" "}
+              <strong className="text-[#737373]">
+                {activeLeagues.length > 0 ? activeLeagues.length : 7}
+              </strong>{" "}
+              liga · WIB (UTC+7)
+            </span>
           </div>
         </div>
 
         {/* Command Navigation Row */}
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4 text-xs font-mono">
-          <div className="flex items-center gap-2.5 truncate">
-            <span className="font-bold text-[#0a0a0a] tracking-tight text-xs uppercase">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="font-bold text-[#0a0a0a] tracking-tight text-xs truncate">
               BOLA-ARANDISUPERR Quant Terminal
             </span>
             <span className="text-[#e5e5e5] hidden sm:inline">/</span>
@@ -258,7 +250,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[18px] text-[11px] bg-[#f5f5f5] border border-[#e5e5e5] text-[#171717] font-medium">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[18px] text-[11px] bg-[#f5f5f5] border border-[#e5e5e5] text-[#171717] font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" />
               TheStatsAPI Live Feed
             </span>
@@ -321,12 +313,12 @@ export default function Home() {
 
             {/* LIVE ELAPSED LOADING BAR (TIMER JUJUR) */}
             {analyzing && (
-              <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4 font-mono">
+              <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4 font-mono">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#0a0a0a] animate-ping shrink-0" />
                     <div>
-                      <h2 className="text-sm font-semibold text-[#0a0a0a] uppercase tracking-wider">
+                      <h2 className="text-sm font-semibold text-[#0a0a0a]">
                         Menganalisis Data Pertandingan...
                       </h2>
                       <p className="text-xs text-[#737373] mt-0.5">
@@ -342,6 +334,10 @@ export default function Home() {
                 <div className="mono-loading-bar-container">
                   <div className="mono-loading-bar" />
                 </div>
+
+                <p className="text-[13px] text-[#737373] font-sans">
+                  Analisis berjalan penuh di server — tipikal 2–7 menit, lebih lama bila debat sindikat masuk ronde 2.
+                </p>
 
                 <div className="flex items-center justify-between text-xs text-[#737373] pt-1">
                   <span>Pipeline: Ingestion &rarr; Quant Bivariate &rarr; Adversarial Debate &rarr; Verdict</span>
@@ -359,7 +355,7 @@ export default function Home() {
                     <h3 className="font-semibold text-xs text-[#e7000b]">
                       Gagal Menjalankan Analisis Laga
                     </h3>
-                    <p className="text-[11px] text-[#737373] mt-0.5">{agentError}</p>
+                    <p className="text-[13px] text-[#737373] mt-0.5 font-sans">{agentError}</p>
                     <button
                       onClick={() => runAnalysis(selectedMatch)}
                       className="mt-2.5 px-3 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-[#171717] text-white text-xs font-medium transition-colors cursor-pointer"
@@ -392,15 +388,15 @@ export default function Home() {
                   {activeTab === "ringkasan" && (
                     <div className="space-y-5">
                       {/* Top Verdict Banner */}
-                      <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4 font-mono">
-                        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e5e5e5]">
+                      <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4 font-mono">
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
                           <div className="flex items-center gap-2">
                             <CheckCircleIcon size={16} className="text-[#0a0a0a]" />
-                            <h3 className="font-bold text-xs sm:text-sm text-[#0a0a0a] uppercase tracking-wider">
+                            <h3 className="font-bold text-xs sm:text-sm text-[#0a0a0a]">
                               Vonis Utama &amp; Konsensus Laga
                             </h3>
                           </div>
-                          <span className="px-2.5 py-0.5 rounded-[18px] text-[10px] font-bold flat-tag-zinc uppercase">
+                          <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-bold flat-tag-zinc">
                             Keyakinan: {data.ringkasan.keyakinan}
                           </span>
                         </div>
@@ -409,15 +405,15 @@ export default function Home() {
                           <h2 className="text-xl sm:text-2xl font-bold text-[#0a0a0a] font-sans">
                             {data.ringkasan.verdict}
                           </h2>
-                          <p className="text-xs text-[#171717] leading-relaxed font-sans">
+                          <p className="text-[13px] text-[#171717] leading-relaxed font-sans">
                             {data.ringkasan.alasan}
                           </p>
                         </div>
 
                         {/* Checklist Faktor Kunci */}
                         {data.ringkasan.faktor_kunci.length > 0 && (
-                          <div className="pt-3 border-t border-[#e5e5e5] space-y-2">
-                            <span className="text-[10px] text-[#737373] uppercase tracking-wider block font-semibold">
+                          <div className="pt-1 space-y-2">
+                            <span className="text-[11px] text-[#737373] block font-semibold">
                               Faktor Kunci Penentu Pertandingan:
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -426,8 +422,8 @@ export default function Home() {
                                   key={i}
                                   className="flex items-start gap-2 p-2.5 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#171717]"
                                 >
-                                  <span className="text-[#0a0a0a] font-bold mt-0.5">✓</span>
-                                  <span className="font-sans leading-relaxed text-[11px]">{f}</span>
+                                  <CheckCircleIcon size={13} className="text-[#0a0a0a] shrink-0 mt-0.5" />
+                                  <span className="font-sans leading-relaxed text-[13px]">{f}</span>
                                 </div>
                               ))}
                             </div>
@@ -437,6 +433,19 @@ export default function Home() {
 
                       {/* Section Thinking Planner Trace */}
                       <ThinkingPlannerCard thinking={data.thinking} />
+
+                      {/* Pasar 1xBet on-demand: 1 klik, pindah tab + muat lazy */}
+                      {!showMarkets && (
+                        <button
+                          onClick={() => {
+                            setShowMarkets(true);
+                            setActiveTab("odds");
+                          }}
+                          className="w-full p-3.5 rounded-[20px] bg-white border border-[#e5e5e5] text-xs font-semibold text-[#0a0a0a] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                        >
+                          Buka Pemindaian Pasar 1xBet →
+                        </button>
+                      )}
 
                       {/* Data Integrity Shield */}
                       <DataIntegrityShield integrity={data.ringkasan.integrity} />
@@ -473,6 +482,11 @@ export default function Home() {
 
                       <OddsDislocationBar
                         odds={data.odds}
+                        impliedProb={data.odds.dislocation.pasar_konsensus}
+                        quantData={{
+                          dixon_coles: data.kuantitatif.detail.metode.dixon_coles,
+                          vig_stripping: data.kuantitatif.detail.metode.shin_kelly,
+                        }}
                         bettingResult={bettingResult}
                         homeTeam={data.match.home}
                         awayTeam={data.match.away}
@@ -480,29 +494,40 @@ export default function Home() {
                         bettingLoading={bettingLoading}
                       />
 
-                      <OneXBetDeepMarketsCard
-                        homeTeam={data.match.home}
-                        awayTeam={data.match.away}
-                        competition={data.match.competition}
-                        quantData={data.kuantitatif as any}
-                        initialMarkets={bettingResult?.markets || bettingResult?.all_markets}
-                        initialBettingResult={bettingResult}
-                        onTriggerScan={trigger1xBetAnalysis}
-                        scanLoading={bettingLoading}
-                      />
+                      {showMarkets ? (
+                        <>
+                          <OneXBetDeepMarketsCard
+                            homeTeam={data.match.home}
+                            awayTeam={data.match.away}
+                            competition={data.match.competition}
+                            quantData={{ dixon_coles: data.kuantitatif.detail.metode.dixon_coles }}
+                            initialMarkets={bettingResult?.markets || bettingResult?.all_markets}
+                            initialBettingResult={bettingResult}
+                            onTriggerScan={trigger1xBetAnalysis}
+                            scanLoading={bettingLoading}
+                          />
 
-                      <BettingScannerCard
-                        loading={bettingLoading}
-                        error={bettingError}
-                        result={bettingResult}
-                        manualId={manual1xBetId}
-                        showManualInput={showManualInput}
-                        onManualIdChange={setManual1xBetId}
-                        onToggleManualInput={() => setShowManualInput(!showManualInput)}
-                        onTriggerScan={trigger1xBetAnalysis}
-                        homeTeam={data.match.home}
-                        awayTeam={data.match.away}
-                      />
+                          <BettingScannerCard
+                            loading={bettingLoading}
+                            error={bettingError}
+                            result={bettingResult}
+                            manualId={manual1xBetId}
+                            showManualInput={showManualInput}
+                            onManualIdChange={setManual1xBetId}
+                            onToggleManualInput={() => setShowManualInput(!showManualInput)}
+                            onTriggerScan={trigger1xBetAnalysis}
+                            homeTeam={data.match.home}
+                            awayTeam={data.match.away}
+                          />
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setShowMarkets(true)}
+                          className="w-full p-4 rounded-[20px] bg-white border border-[#e5e5e5] text-xs font-semibold text-[#0a0a0a] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                        >
+                          Buka Pemindaian Pasar 1xBet (butuh scan manual) →
+                        </button>
+                      )}
                     </div>
                   )}
 

@@ -37,6 +37,8 @@ export function MatchHeaderCard({
   const kickoff = view?.match.kickoff_wib || data?.pertandingan?.waktu || "";
   const venue = view?.match.venue || data?.pertandingan?.venue;
   const wasit = view?.match.wasit || data?.wasit_analisis?.nama || "Belum Ditunjuk";
+  const wasitKartu = view?.match.wasit_kartu ?? data?.wasit_analisis?.rata_rata_kartu ?? null;
+  const statusLineup = view?.match.status_lineup ?? data?.taktik_dan_lineup?.status_lineup ?? null;
   const prediksiHasil = view?.ringkasan.prediksi || data?.prediksi?.hasil || "Menganalisis...";
   const keyakinan = (view?.ringkasan.keyakinan || data?.prediksi?.keyakinan || "sedang").toLowerCase();
 
@@ -50,7 +52,7 @@ export function MatchHeaderCard({
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#0a0a0a] transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+          className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#0a0a0a] transition-colors cursor-pointer"
         >
           <span className="text-[#737373] group-hover:-translate-x-0.5 transition-transform">←</span>
           <span>Cari Laga Lain</span>
@@ -62,7 +64,7 @@ export function MatchHeaderCard({
             <button
               onClick={onRefreshOdds}
               disabled={refreshingOdds}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#0a0a0a] transition-colors cursor-pointer disabled:opacity-50 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#0a0a0a] transition-colors cursor-pointer disabled:opacity-50"
               title="Perbarui data odds bursa"
             >
               <RefreshCwIcon size={12} className={refreshingOdds ? "animate-spin" : ""} />
@@ -74,7 +76,7 @@ export function MatchHeaderCard({
             <button
               onClick={onRerunAnalysis}
               disabled={rerunningAnalysis}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-[#171717] text-xs text-white font-medium transition-colors cursor-pointer disabled:opacity-50 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-[#171717] text-xs text-white font-medium transition-colors cursor-pointer disabled:opacity-50"
               title="Bedah ulang laga ini dengan AI"
             >
               <SparklesIcon size={12} className={rerunningAnalysis ? "animate-spin" : ""} />
@@ -85,11 +87,11 @@ export function MatchHeaderCard({
       </div>
 
       {/* Main Header Card */}
-      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
+      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] flat-tag-zinc font-semibold uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] flat-tag-zinc font-semibold">
                 {competition}
               </span>
               <span className="text-xs text-[#737373] flex items-center gap-1.5">
@@ -104,7 +106,7 @@ export function MatchHeaderCard({
 
             {venue && (
               <p className="text-xs text-[#737373] flex items-center gap-1.5">
-                <span className="text-[#a1a1aa]">VENUE:</span>
+                <span className="text-[#a1a1aa]">Venue:</span>
                 <span className="text-[#171717]">{venue}</span>
               </p>
             )}
@@ -113,7 +115,7 @@ export function MatchHeaderCard({
           {/* Quick Result Projection Pill */}
           <div className="shrink-0">
             <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1.5 min-w-[200px]">
-              <div className="flex items-center justify-between text-[10px] text-[#737373] uppercase tracking-wider">
+              <div className="flex items-center justify-between text-[11px] text-[#737373]">
                 <span>Proyeksi Utama</span>
                 <ActivityIcon size={12} className="text-[#0a0a0a]" />
               </div>
@@ -122,7 +124,7 @@ export function MatchHeaderCard({
                   {prediksiHasil}
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded-[18px] text-[10px] uppercase font-bold ${
+                  className={`px-2 py-0.5 rounded-[18px] text-[11px] font-bold ${
                     keyakinan === "tinggi"
                       ? "flat-tag-white"
                       : keyakinan === "sedang"
@@ -133,14 +135,19 @@ export function MatchHeaderCard({
                   {keyakinan}
                 </span>
               </div>
+              {statusLineup && (
+                <div className="text-[11px] text-[#737373]">
+                  Lineup: <span className="text-[#0a0a0a] font-semibold">{statusLineup}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Telemetry Properties Inset Grid */}
-        <div className="pt-3 border-t border-[#e5e5e5] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs tabular-nums">
+        <div className="pt-1 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs tabular-nums">
           <div className="p-3 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5]">
-            <span className="text-[10px] text-[#737373] uppercase block">Integritas Data</span>
+            <span className="text-[11px] text-[#737373] block">Integritas Data</span>
             <span className="font-semibold flex items-center gap-1.5 mt-0.5 text-[#0a0a0a]">
               <CheckCircleIcon size={12} className="text-[#0a0a0a]" />
               <span>Grounded 100%</span>
@@ -148,22 +155,27 @@ export function MatchHeaderCard({
           </div>
 
           <div className="p-3 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5]">
-            <span className="text-[10px] text-[#737373] uppercase block">Wasit Pertandingan</span>
+            <span className="text-[11px] text-[#737373] block">Wasit Pertandingan</span>
             <span className="text-[#0a0a0a] font-medium truncate block mt-0.5 flex items-center gap-1.5">
               <WhistleIcon size={12} className="text-[#737373] shrink-0" />
               <span className="truncate">{wasit}</span>
             </span>
+            {wasitKartu != null && (
+              <span className="text-[11px] text-[#737373] block mt-0.5 tabular-nums">
+                Rata-rata {wasitKartu} kartu / laga
+              </span>
+            )}
           </div>
 
           <div className="p-3 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5]">
-            <span className="text-[10px] text-[#737373] uppercase block">Status Bursa</span>
+            <span className="text-[11px] text-[#737373] block">Status Bursa</span>
             <span className="text-[#0a0a0a] font-semibold block mt-0.5">
               Aktif &amp; Terkalibrasi
             </span>
           </div>
 
           <div className="p-3 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5]">
-            <span className="text-[10px] text-[#737373] uppercase block">Target xG Poisson</span>
+            <span className="text-[11px] text-[#737373] block">Target xG Poisson</span>
             <span className="text-[#0a0a0a] font-semibold block mt-0.5">
               {dcHomeXg !== undefined && dcAwayXg !== undefined
                 ? `${Number(dcHomeXg).toFixed(2)} vs ${Number(dcAwayXg).toFixed(2)}`

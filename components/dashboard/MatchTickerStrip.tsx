@@ -20,7 +20,7 @@ export function MatchTickerStrip({
 }: MatchTickerStripProps) {
   if (loading) {
     return (
-      <div className="w-full bg-[#ffffff] border-b border-[#e5e5e5] py-2 px-4 sm:px-6">
+      <div className="w-full bg-[#ffffff] py-2 px-4 sm:px-6">
         <div className="max-w-[1280px] mx-auto flex items-center gap-3 overflow-hidden animate-pulse">
           <div className="flex items-center gap-1.5 text-[11px] text-[#737373] font-mono shrink-0">
             <span className="w-2 h-2 rounded-full bg-[#d4d4d8]" />
@@ -42,9 +42,9 @@ export function MatchTickerStrip({
   }
 
   return (
-    <div className="w-full bg-[#ffffff] border-b border-[#e5e5e5] py-2 px-4 sm:px-6">
+    <div className="w-full bg-[#ffffff] py-2 px-4 sm:px-6">
       <div className="max-w-[1280px] mx-auto flex items-center gap-2 overflow-x-auto scrollbar-thin">
-        <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider shrink-0 pr-2 border-r border-[#e5e5e5]">
+        <div className="flex items-center gap-1.5 text-[11px] font-mono shrink-0 pr-2">
           <RadioIcon size={12} className="text-[#0a0a0a] animate-pulse" />
           <span className="font-semibold text-[#171717]">Live Ticker</span>
         </div>
@@ -63,7 +63,7 @@ export function MatchTickerStrip({
                 }`}
                 title={`${m.home_team.name} vs ${m.away_team.name} - ${m.competition_name}`}
               >
-                <span className={`text-[10px] tabular-nums ${isSelected ? "text-zinc-300" : "text-[#737373]"}`}>
+                <span className={`text-[11px] tabular-nums ${isSelected ? "text-zinc-300" : "text-[#737373]"}`}>
                   {formatKickoffTime(m.utc_date)}
                 </span>
                 <span className={isSelected ? "text-zinc-600" : "text-[#e5e5e5]"}>|</span>

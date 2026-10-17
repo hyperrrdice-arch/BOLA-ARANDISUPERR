@@ -24,7 +24,7 @@ interface OneXBetDeepMarketsCardProps {
   homeTeam: string;
   awayTeam: string;
   competition?: string;
-  quantData?: QuantEngineData | null;
+  quantData?: Pick<QuantEngineData, "dixon_coles"> | null;
   initialMarkets?: Market1xBetV2[] | null;
   initialBettingResult?: BettingResult1xBet | null;
   onTriggerScan?: (customId?: string) => void;
@@ -523,27 +523,27 @@ export function OneXBetDeepMarketsCard({
   }, [filteredMarkets, page, pageSize]);
 
   return (
-    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-6 text-[#0a0a0a]">
+    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-6 text-[#0a0a0a]">
       {/* 1. HEADER & TELEMETRY */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#e5e5e5]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#737373] bg-[#fafafa] px-2.5 py-1 rounded-[18px] border border-[#e5e5e5]">
+            <span className="text-[11px] font-mono text-[#737373] bg-[#fafafa] px-2.5 py-1 rounded-[18px] border border-[#e5e5e5]">
               1xBet Deep Orderbook Feed
             </span>
             {matchId1xBet && (
-              <span className="text-[10px] font-mono text-[#737373]">
+              <span className="text-[11px] font-mono text-[#737373]">
                 1xBet ID: <strong className="text-[#0a0a0a]">{matchId1xBet}</strong>
               </span>
             )}
-            <span className="text-[10px] font-mono text-[#737373]">
+            <span className="text-[11px] font-mono text-[#737373]">
               {markets.length > 0 ? `${markets.length} Pasar Aktif` : "Katalog 500+ Baris"}
             </span>
           </div>
-          <h3 className="text-sm sm:text-base font-bold text-[#0a0a0a] font-mono uppercase tracking-tight mt-1">
+          <h3 className="text-sm sm:text-base font-bold text-[#0a0a0a] font-mono tracking-tight mt-1">
             Katalog 500+ Market 1xBet &amp; Pilihan Logis
           </h3>
-          <p className="text-xs text-[#737373] font-mono mt-0.5">
+          <p className="text-xs text-[#737373] font-sans mt-0.5">
             {homeTeam} vs {awayTeam} • Penelusuran bursa mendalam &amp; kuantifikasi ekspektasi nilai (+EV)
           </p>
         </div>
@@ -558,7 +558,7 @@ export function OneXBetDeepMarketsCard({
               }
             }}
             disabled={loading || scanLoading}
-            className="px-3.5 py-2 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-mono font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            className="px-3.5 py-2 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-mono font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             <RefreshCwIcon
               size={12}
@@ -586,7 +586,7 @@ export function OneXBetDeepMarketsCard({
             placeholder="Contoh: 751762591"
             value={manualIdInput}
             onChange={(e) => setManualIdInput(e.target.value)}
-            className="flex-1 bg-white text-[#0a0a0a] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] focus:outline-none focus:border-[#0a0a0a] font-mono text-xs"
+            className="flex-1 bg-white text-[#0a0a0a] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] focus:outline-none focus:border-[#0a0a0a] font-mono text-[13px]"
           />
           <button
             onClick={() => {
@@ -596,7 +596,7 @@ export function OneXBetDeepMarketsCard({
               }
             }}
             disabled={!manualIdInput.trim() || loading}
-            className="px-4 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white font-bold transition-colors disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            className="px-4 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white font-bold transition-colors disabled:opacity-50 cursor-pointer"
           >
             Pindai ID Ini
           </button>
@@ -609,8 +609,8 @@ export function OneXBetDeepMarketsCard({
           <AlertCircleIcon size={16} className="text-[#e7000b] shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold text-[#991b1b]">Pencarian Pasar 1xBet Memerlukan Tindakan</p>
-            <p className="text-[11px] text-[#b91c1c] leading-relaxed">{error}</p>
-            <p className="text-[10px] text-[#737373]">
+            <p className="text-[13px] text-[#b91c1c] leading-relaxed font-sans">{error}</p>
+            <p className="text-[13px] text-[#737373] font-sans">
               Gunakan tombol "Manual ID" di atas untuk memasukkan 1xBet Match ID secara presisi.
             </p>
           </div>
@@ -622,11 +622,11 @@ export function OneXBetDeepMarketsCard({
         <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
             <CrosshairIcon size={15} className="text-[#0a0a0a]" />
-            <h4 className="text-xs font-bold text-[#0a0a0a] font-mono uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[#0a0a0a] font-mono">
               Pilihan Paling Masuk Akal (Most Logical Picks)
             </h4>
           </div>
-          <span className="text-[10px] font-mono text-[#737373] bg-[#fafafa] px-2.5 py-1 rounded-[18px] border border-[#e5e5e5]">
+          <span className="text-[11px] font-mono text-[#737373] bg-[#fafafa] px-2.5 py-1 rounded-[18px] border border-[#e5e5e5]">
             Dixon-Coles + Shin Vig + 1xBet Synthesis
           </span>
         </div>
@@ -642,16 +642,16 @@ export function OneXBetDeepMarketsCard({
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-[18px] bg-white border border-[#e5e5e5] text-[#0a0a0a] uppercase tracking-tight">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-[18px] bg-white border border-[#e5e5e5] text-[#0a0a0a]">
                         {pick.category}
                       </span>
-                      <span className="text-[10px] text-[#737373]">{pick.market_name}</span>
+                      <span className="text-[11px] text-[#737373]">{pick.market_name}</span>
                     </div>
                     <h5 className="text-xs font-bold text-[#0a0a0a]">{pick.selection}</h5>
                   </div>
 
                   <span
-                    className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-[18px] uppercase tracking-wider border ${
+                    className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-[18px] border ${
                       pick.confidence_level === "SANGAT TINGGI"
                         ? "bg-[#0a0a0a] text-white border-[#0a0a0a]"
                         : "bg-white text-[#0a0a0a] border-[#e5e5e5]"
@@ -664,25 +664,25 @@ export function OneXBetDeepMarketsCard({
                 {/* Metric Strip */}
                 <div className="grid grid-cols-4 gap-1.5 p-2 rounded-[18px] bg-white border border-[#e5e5e5] text-center text-xs tabular-nums">
                   <div>
-                    <span className="text-[9px] text-[#737373] block uppercase">1xBet</span>
+                    <span className="text-[11px] text-[#737373] block">1xBet</span>
                     <span className="text-xs font-bold text-[#0a0a0a]">
                       {pick.bookmaker_odds.toFixed(2)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#737373] block uppercase">Fair Odds</span>
+                    <span className="text-[11px] text-[#737373] block">Fair Odds</span>
                     <span className="text-xs font-medium text-[#737373]">
                       {pick.fair_odds.toFixed(2)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#737373] block uppercase">Win Prob</span>
+                    <span className="text-[11px] text-[#737373] block">Win Prob</span>
                     <span className="text-xs font-bold text-[#0a0a0a]">
                       {(pick.model_probability * 100).toFixed(0)}%
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#737373] block uppercase">+EV Edge</span>
+                    <span className="text-[11px] text-[#737373] block">+EV Edge</span>
                     <span className="text-xs font-bold text-[#0a0a0a]">
                       {pick.ev_percentage}
                     </span>
@@ -690,12 +690,12 @@ export function OneXBetDeepMarketsCard({
                 </div>
 
                 {/* Rationale */}
-                <p className="text-[11px] text-[#737373] leading-relaxed">
+                <p className="text-[13px] text-[#737373] leading-relaxed font-sans">
                   {pick.rationale}
                 </p>
 
                 {/* Kelly Fraction footer */}
-                <div className="flex items-center justify-between pt-1 border-t border-[#e5e5e5] text-[10px] text-[#737373]">
+                <div className="flex items-center justify-between pt-1 text-[11px] text-[#737373]">
                   <span>Alokasi Kelly Rekomendasi:</span>
                   <span className="font-bold text-[#0a0a0a]">
                     {pick.kelly_percentage}% Bankroll
@@ -706,10 +706,10 @@ export function OneXBetDeepMarketsCard({
           </div>
         ) : (
           <div className="p-5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] text-xs font-mono text-[#737373] space-y-1">
-            <p className="text-[#0a0a0a] font-semibold">
+            <p className="text-[#0a0a0a] font-semibold text-[13px] font-sans">
               Katalog pasar 1xBet belum dipindai untuk komputasi +EV otomatis.
             </p>
-            <p className="text-[11px]">
+            <p className="text-[13px] font-sans">
               Klik tombol <strong className="text-[#0a0a0a]">"Pindai Pasar 1xBet"</strong> di atas
               untuk menarik 500+ baris bursa langsung dari RapidAPI.
             </p>
@@ -718,7 +718,7 @@ export function OneXBetDeepMarketsCard({
       </div>
 
       {/* 2. FILTER KATEGORI CEPAT & PENCARIAN INSTAN */}
-      <div className="space-y-3 pt-2 border-t border-[#e5e5e5]">
+      <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           {/* Category Tabs */}
           <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none font-mono text-xs">
@@ -733,7 +733,7 @@ export function OneXBetDeepMarketsCard({
                   }}
                   className={`px-3 py-1.5 rounded-[18px] text-[11px] font-medium transition-colors shrink-0 cursor-pointer ${
                     isActive
-                      ? "bg-[#0a0a0a] text-white font-bold shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                      ? "bg-[#0a0a0a] text-white font-bold"
                       : "bg-[#fafafa] text-[#737373] hover:text-[#0a0a0a] border border-[#e5e5e5]"
                   }`}
                 >
@@ -753,14 +753,14 @@ export function OneXBetDeepMarketsCard({
                 setSearchQuery(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-[#fafafa] text-[#0a0a0a] placeholder-[#737373] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] focus:outline-none focus:border-[#0a0a0a] text-xs"
+              className="w-full bg-[#fafafa] text-[#0a0a0a] placeholder-[#737373] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] focus:outline-none focus:border-[#0a0a0a] text-[13px]"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#0a0a0a] text-xs cursor-pointer"
               >
-                ✕
+                ×
               </button>
             )}
           </div>
@@ -797,8 +797,8 @@ export function OneXBetDeepMarketsCard({
                   className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] hover:border-[#0a0a0a]/30 transition-colors space-y-2.5 flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-1 text-[10px] text-[#737373] pb-1 border-b border-[#e5e5e5]">
-                      <span className="truncate uppercase tracking-wider font-semibold text-[#737373]">
+                    <div className="flex items-center justify-between gap-1 text-[11px] text-[#737373] pb-1">
+                      <span className="truncate font-semibold text-[#737373]">
                         {classifyMarket(m.name)}
                       </span>
                       <span className="shrink-0 tabular-nums text-[#a3a3a3]">
@@ -811,7 +811,7 @@ export function OneXBetDeepMarketsCard({
                         {m.name}
                       </h6>
                       {m.base !== null && m.base !== undefined && (
-                        <span className="text-[10px] bg-white px-2 py-0.5 rounded-[18px] text-[#0a0a0a] font-bold border border-[#e5e5e5] shrink-0 tabular-nums">
+                        <span className="text-[11px] bg-white px-2 py-0.5 rounded-[18px] text-[#0a0a0a] font-bold border border-[#e5e5e5] shrink-0 tabular-nums">
                           Line: {m.base}
                         </span>
                       )}
@@ -836,7 +836,7 @@ export function OneXBetDeepMarketsCard({
                             key={key}
                             className="p-2 rounded-[18px] bg-white border border-[#e5e5e5] text-center flex flex-col justify-center"
                           >
-                            <span className="text-[10px] text-[#737373] truncate block">
+                            <span className="text-[11px] text-[#737373] truncate block">
                               {key}
                             </span>
                             <span className="text-xs font-bold text-[#0a0a0a] tabular-nums">
@@ -858,7 +858,7 @@ export function OneXBetDeepMarketsCard({
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer"
               >
                 ← Sebelumnya
               </button>
@@ -868,7 +868,7 @@ export function OneXBetDeepMarketsCard({
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer"
               >
                 Selanjutnya →
               </button>
@@ -882,7 +882,7 @@ export function OneXBetDeepMarketsCard({
               ? "Belum ada pasar 1xBet yang dimuat."
               : "Tidak ada pasar yang cocok dengan filter atau kata kunci pencarian Anda."}
           </p>
-          <p className="text-[11px] text-[#737373]">
+          <p className="text-[13px] text-[#737373] font-sans">
             {markets.length === 0
               ? "Klik 'Pindai Pasar 1xBet' atau masukkan Match ID 1xBet secara manual."
               : "Coba ubah kategori filter atau hapus kata kunci pencarian."}
@@ -891,7 +891,7 @@ export function OneXBetDeepMarketsCard({
       )}
 
       {/* FOOTER GUARANTEE */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-[#e5e5e5] text-[11px] font-mono text-[#737373]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 text-[11px] font-mono text-[#737373]">
         <div className="flex items-center gap-2">
           <CheckCircleIcon size={12} className="text-[#0a0a0a]" />
           <span>RapidAPI 1xBet Ingestion • 60-Minute RAM Cache Protection</span>

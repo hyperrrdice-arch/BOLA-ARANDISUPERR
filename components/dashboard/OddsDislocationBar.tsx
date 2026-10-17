@@ -12,6 +12,7 @@ interface OddsDislocationBarProps {
       over_under?: string | null;
       btts?: string | null;
       benchmarks?: { home?: number; draw?: number; away?: number; source?: string } | null;
+      pasar_konsensus?: { kandang: number; seri: number; tandang: number } | null;
       fair?: { home?: number; draw?: number; away?: number } | null;
     };
     smart_money?: string;
@@ -23,7 +24,7 @@ interface OddsDislocationBarProps {
     btts: string | null;
     pergerakan_smart_money: string;
   };
-  quantData?: QuantEngineData;
+  quantData?: Pick<QuantEngineData, "dixon_coles" | "vig_stripping">;
   impliedProb?: { kandang: number; seri: number; tandang: number } | null;
   bettingResult?: BettingResult1xBet | null;
   homeTeam: string;
@@ -176,17 +177,17 @@ export function OddsDislocationBar({
   ], [homeTeam, awayTeam, modelFair, benchmarkOdds, oneXBetOdds, quantData]);
 
   return (
-    <div className="p-5 sm:p-6 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-5 text-[#0a0a0a] font-mono text-xs">
+    <div className="p-5 sm:p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-5 text-[#0a0a0a] font-mono text-xs">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e5e5]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CoinsIcon size={16} className="text-[#0a0a0a]" />
-            <h3 className="text-xs sm:text-sm font-bold text-[#0a0a0a] tracking-tight uppercase">
+            <h3 className="text-xs sm:text-sm font-bold text-[#0a0a0a] tracking-tight">
               Bursa Odds, Dislokasi Pasar &amp; Efisiensi Harga
             </h3>
           </div>
-          <p className="text-[11px] text-[#737373] font-sans">
+          <p className="text-[13px] text-[#737373] font-sans">
             Kompilasi pasar utama bursa global serta deteksi anomali harga (+EV) terhadap model matematis deterministik.
           </p>
         </div>
@@ -196,7 +197,7 @@ export function OddsDislocationBar({
             <button
               onClick={onTriggerScan}
               disabled={bettingLoading}
-              className="px-3.5 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+              className="px-3.5 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {bettingLoading ? (
                 <>
@@ -217,7 +218,7 @@ export function OddsDislocationBar({
       {/* 4-GRID SUMMARY PASAR (TERINTEGRASI DARI MARKET ODDS OVERVIEW CARD) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
         <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[10px] text-[#737373] uppercase block font-semibold">
+          <span className="text-[11px] text-[#737373] block font-semibold">
             1X2 Match Odds
           </span>
           <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
@@ -226,7 +227,7 @@ export function OddsDislocationBar({
         </div>
 
         <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[10px] text-[#737373] uppercase block font-semibold">
+          <span className="text-[11px] text-[#737373] block font-semibold">
             Asian Handicap
           </span>
           <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
@@ -235,7 +236,7 @@ export function OddsDislocationBar({
         </div>
 
         <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[10px] text-[#737373] uppercase block font-semibold">
+          <span className="text-[11px] text-[#737373] block font-semibold">
             Total Goals (O/U)
           </span>
           <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
@@ -244,7 +245,7 @@ export function OddsDislocationBar({
         </div>
 
         <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[10px] text-[#737373] uppercase block font-semibold">
+          <span className="text-[11px] text-[#737373] block font-semibold">
             BTTS (Kedua Tim Gol)
           </span>
           <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
@@ -255,7 +256,7 @@ export function OddsDislocationBar({
 
       {/* Odds Comparison Tri-Panel */}
       <div className="space-y-2">
-        <span className="text-[10px] text-[#737373] uppercase tracking-wider block font-semibold">
+        <span className="text-[11px] text-[#737373] block font-semibold">
           Evaluasi Dislokasi 1X2 (Model Fair vs Bursa Real-Time):
         </span>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -269,9 +270,9 @@ export function OddsDislocationBar({
                 key={item.key}
                 className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-3"
               >
-                <div className="flex items-center justify-between pb-2 border-b border-[#e5e5e5]">
+                <div className="flex items-center justify-between pb-1">
                   <div>
-                    <span className="text-[10px] text-[#737373] uppercase block font-mono">
+                    <span className="text-[11px] text-[#737373] block font-mono">
                       Pilihan {item.label}
                     </span>
                     <strong className="text-xs font-bold text-[#0a0a0a] block truncate max-w-[170px]">
@@ -279,7 +280,7 @@ export function OddsDislocationBar({
                     </strong>
                   </div>
                   {item.prob !== undefined && (
-                    <span className="px-2 py-0.5 rounded-[12px] text-[10px] font-bold flat-tag-zinc tabular-nums">
+                    <span className="px-2 py-0.5 rounded-[12px] text-[11px] font-bold flat-tag-zinc tabular-nums">
                       {(item.prob * 100).toFixed(0)}%
                     </span>
                   )}
@@ -307,11 +308,11 @@ export function OddsDislocationBar({
                     </span>
                   </div>
 
-                  <div className="pt-2 border-t border-[#e5e5e5] flex items-center justify-between">
-                    <span className="text-[10px] text-[#737373] uppercase">Dislocation Delta:</span>
+                  <div className="pt-1 flex items-center justify-between">
+                    <span className="text-[11px] text-[#737373]">Dislocation Delta:</span>
                     {delta !== null ? (
                       <span
-                        className={`px-2 py-0.5 rounded-[14px] text-[10px] font-bold ${
+                        className={`px-2 py-0.5 rounded-[14px] text-[11px] font-bold ${
                           isPositive
                             ? "bg-[#10b981]/10 text-[#059669] border border-[#10b981]/30"
                             : "bg-[#f43f5e]/10 text-[#e11d48] border border-[#f43f5e]/30"
@@ -320,7 +321,7 @@ export function OddsDislocationBar({
                         {isPositive ? `+${delta.toFixed(1)}% Edge` : `${delta.toFixed(1)}% Disadv`}
                       </span>
                     ) : (
-                      <span className="text-[10px] text-[#737373]">-</span>
+                      <span className="text-[11px] text-[#737373]">-</span>
                     )}
                   </div>
                 </div>
@@ -335,10 +336,10 @@ export function OddsDislocationBar({
         <div className="p-4 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5] flex items-start gap-2.5 text-xs">
           <TrendingUpIcon size={15} className="text-[#0a0a0a] shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <span className="text-[10px] text-[#0a0a0a] font-bold uppercase tracking-wider block">
+            <span className="text-[11px] text-[#0a0a0a] font-bold block">
               Aliran Likuiditas Smart Money &amp; Pergerakan Line Bursa
             </span>
-            <p className="text-[#737373] leading-relaxed font-sans text-xs">
+            <p className="text-[#737373] leading-relaxed font-sans text-[13px]">
               {smartMoneyText}
             </p>
           </div>

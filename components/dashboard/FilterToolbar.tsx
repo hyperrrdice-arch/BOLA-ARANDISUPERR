@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { RefreshCwIcon, CpuIcon } from "@/components/icons";
+import { RefreshCwIcon } from "@/components/icons";
 import { CacheMetrics } from "./types";
 
 interface FilterToolbarProps {
@@ -66,7 +66,7 @@ export function FilterToolbar({
   }, []);
 
   return (
-    <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
+    <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4">
       {/* Top Row: Search Input & Horizon & Sort & Refresh */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Box with keyboard shortcut chip */}
@@ -77,7 +77,7 @@ export function FilterToolbar({
             placeholder="Cari tim atau liga (tekan '/' atau ⌘K)..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full bg-[#f5f5f5] focus:bg-white text-[#0a0a0a] placeholder-[#737373] px-4 py-2 pr-16 rounded-[18px] border border-transparent focus:border-[#e5e5e5] text-xs font-mono focus:outline-none transition-colors"
+            className="w-full bg-[#f5f5f5] focus:bg-white text-[#0a0a0a] placeholder-[#737373] px-4 py-2 pr-16 rounded-[18px] border border-transparent focus:border-[#e5e5e5] text-[13px] font-mono focus:outline-none transition-colors"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
             {localSearch ? (
@@ -89,10 +89,10 @@ export function FilterToolbar({
                 }}
                 className="pointer-events-auto text-xs text-[#737373] hover:text-[#0a0a0a] px-1"
               >
-                ✕
+                ×
               </button>
             ) : (
-              <kbd className="px-1.5 py-0.5 rounded-[6px] bg-white border border-[#e5e5e5] text-[10px] font-mono text-[#737373]">
+              <kbd className="px-1.5 py-0.5 rounded-[6px] bg-white border border-[#e5e5e5] text-[11px] font-mono text-[#737373]">
                 /
               </kbd>
             )}
@@ -103,7 +103,7 @@ export function FilterToolbar({
         <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
           {/* Time Horizon Selector */}
           <div className="flex items-center rounded-[18px] border border-[#e5e5e5] bg-[#f5f5f5] p-0.5 text-xs font-mono">
-            {[12, 24, 48].map((h) => (
+            {[12, 24, 48, 72].map((h) => (
               <button
                 key={h}
                 onClick={() => onHoursChange(h)}
@@ -186,7 +186,7 @@ export function FilterToolbar({
             >
               <span>{lg.name}</span>
               <span
-                className={`px-1.5 py-0.5 rounded-[18px] text-[10px] font-mono tabular-nums ${
+                className={`px-1.5 py-0.5 rounded-[18px] text-[11px] font-mono tabular-nums ${
                   isSelected
                     ? "bg-zinc-800 text-white"
                     : "bg-white text-[#0a0a0a] border border-[#e5e5e5]"
@@ -198,31 +198,6 @@ export function FilterToolbar({
           );
         })}
       </div>
-
-      {/* Telemetry & Cache Metrics Bar */}
-      {cacheMetrics && (
-        <div className="pt-3 border-t border-[#e5e5e5] flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono tabular-nums text-[#737373]">
-          <div className="flex items-center gap-3">
-            <span>
-              Cache Hits: <strong className="text-[#0a0a0a]">{cacheMetrics.hits}</strong>
-            </span>
-            <span className="text-[#e5e5e5]">|</span>
-            <span>
-              Misses: <strong className="text-[#171717]">{cacheMetrics.misses}</strong>
-            </span>
-            <span className="text-[#e5e5e5]">|</span>
-            <span>
-              Total Entri: <strong className="text-[#0a0a0a]">{cacheMetrics.totalEntries}</strong>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-[#0a0a0a]">
-            <CpuIcon size={12} className="text-[#0a0a0a]" />
-            <span className="text-[#737373]">API Calls Dihemat:</span>
-            <strong className="text-[#0a0a0a]">{cacheMetrics.savedCalls}</strong>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

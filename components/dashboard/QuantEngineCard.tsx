@@ -39,23 +39,26 @@ export function QuantEngineCard({
     }).format(val);
   };
 
-  const probHomePct = Math.round(hero.prob.home * 100);
-  const probDrawPct = Math.round(hero.prob.draw * 100);
-  const probAwayPct = Math.round(hero.prob.away * 100);
+  // Angka hero sadar-null: sumber bisa absen → "—", bukan 0 karangan.
+  const probHomePct = hero.prob.home == null ? null : Math.round(hero.prob.home * 100);
+  const probDrawPct = hero.prob.draw == null ? null : Math.round(hero.prob.draw * 100);
+  const probAwayPct = hero.prob.away == null ? null : Math.round(hero.prob.away * 100);
+  const fmtPct = (v: number | null) => (v == null ? "—" : `${v}%`);
+  const fmtOdds = (v: number | null) => (v == null ? "—" : v.toFixed(2));
 
   return (
     <div className="space-y-4 font-mono text-xs">
       {/* 1. HERO QUANT CARD: 3-WAY PROBABILITIES & FAIR ODDS */}
-      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e5e5e5]">
+      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
           <div className="flex items-center gap-2">
             <CpuIcon size={16} className="text-[#0a0a0a]" />
-            <h3 className="font-semibold text-xs sm:text-sm text-[#0a0a0a] tracking-tight uppercase">
+            <h3 className="font-semibold text-xs sm:text-sm text-[#0a0a0a] tracking-tight">
               Deterministic Quant Engine (Dixon-Coles Poisson + Shin Fair Odds)
             </h3>
           </div>
           {hero.ev_teratas && (
-            <span className="px-2.5 py-0.5 rounded-[18px] text-[10px] font-bold flat-tag-zinc flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-bold flat-tag-zinc flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
               Edge Teratas: {hero.ev_teratas.selection} ({hero.ev_teratas.ev_percentage})
             </span>
@@ -71,57 +74,57 @@ export function QuantEngineCard({
 
           <div className="h-6 w-full rounded-[18px] bg-[#f5f5f5] overflow-hidden flex border border-[#e5e5e5]">
             <div
-              style={{ width: `${probHomePct}%` }}
-              className="h-full bg-[#0a0a0a] text-white flex items-center justify-center text-[10px] font-semibold tabular-nums"
-              title={`${homeTeam}: ${probHomePct}%`}
+              style={{ width: `${probHomePct ?? 0}%` }}
+              className="h-full bg-[#0a0a0a] text-white flex items-center justify-center text-[11px] font-semibold tabular-nums"
+              title={`${homeTeam}: ${fmtPct(probHomePct)}`}
             >
-              {probHomePct > 12 && `${homeTeam} ${probHomePct}%`}
+              {(probHomePct ?? 0) > 12 && `${homeTeam} ${fmtPct(probHomePct)}`}
             </div>
             <div
-              style={{ width: `${probDrawPct}%` }}
-              className="h-full bg-[#737373] text-white flex items-center justify-center text-[10px] font-semibold tabular-nums"
-              title={`Seri: ${probDrawPct}%`}
+              style={{ width: `${probDrawPct ?? 0}%` }}
+              className="h-full bg-[#737373] text-white flex items-center justify-center text-[11px] font-semibold tabular-nums"
+              title={`Seri: ${fmtPct(probDrawPct)}`}
             >
-              {probDrawPct > 10 && `X ${probDrawPct}%`}
+              {(probDrawPct ?? 0) > 10 && `X ${fmtPct(probDrawPct)}`}
             </div>
             <div
-              style={{ width: `${probAwayPct}%` }}
-              className="h-full bg-[#d4d4d8] text-[#0a0a0a] flex items-center justify-center text-[10px] font-semibold tabular-nums"
-              title={`${awayTeam}: ${probAwayPct}%`}
+              style={{ width: `${probAwayPct ?? 0}%` }}
+              className="h-full bg-[#d4d4d8] text-[#0a0a0a] flex items-center justify-center text-[11px] font-semibold tabular-nums"
+              title={`${awayTeam}: ${fmtPct(probAwayPct)}`}
             >
-              {probAwayPct > 12 && `${awayTeam} ${probAwayPct}%`}
+              {(probAwayPct ?? 0) > 12 && `${awayTeam} ${fmtPct(probAwayPct)}`}
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2 pt-1 text-[11px] tabular-nums">
             <div className="p-2.5 rounded-[12px] bg-[#fafafa] border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] block truncate">{homeTeam} (1)</span>
-              <strong className="text-[#0a0a0a] text-sm block mt-0.5">{probHomePct}%</strong>
-              <span className="text-[10px] text-[#737373]">Fair Odds: {hero.fair_odds.home.toFixed(2)}</span>
+              <span className="text-[11px] text-[#737373] block truncate">{homeTeam} (1)</span>
+              <strong className="text-[#0a0a0a] text-2xl block mt-0.5 leading-tight">{fmtPct(probHomePct)}</strong>
+              <span className="text-[11px] text-[#737373]">Fair Odds: {fmtOdds(hero.fair_odds.home)}</span>
             </div>
             <div className="p-2.5 rounded-[12px] bg-[#fafafa] border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] block">Seri (X)</span>
-              <strong className="text-[#0a0a0a] text-sm block mt-0.5">{probDrawPct}%</strong>
-              <span className="text-[10px] text-[#737373]">Fair Odds: {hero.fair_odds.draw.toFixed(2)}</span>
+              <span className="text-[11px] text-[#737373] block">Seri (X)</span>
+              <strong className="text-[#0a0a0a] text-2xl block mt-0.5 leading-tight">{fmtPct(probDrawPct)}</strong>
+              <span className="text-[11px] text-[#737373]">Fair Odds: {fmtOdds(hero.fair_odds.draw)}</span>
             </div>
             <div className="p-2.5 rounded-[12px] bg-[#fafafa] border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] block truncate">{awayTeam} (2)</span>
-              <strong className="text-[#0a0a0a] text-sm block mt-0.5">{probAwayPct}%</strong>
-              <span className="text-[10px] text-[#737373]">Fair Odds: {hero.fair_odds.away.toFixed(2)}</span>
+              <span className="text-[11px] text-[#737373] block truncate">{awayTeam} (2)</span>
+              <strong className="text-[#0a0a0a] text-2xl block mt-0.5 leading-tight">{fmtPct(probAwayPct)}</strong>
+              <span className="text-[11px] text-[#737373]">Fair Odds: {fmtOdds(hero.fair_odds.away)}</span>
             </div>
           </div>
         </div>
 
         {/* 2. BUKTI TERPENTING (MAX 5 BARIS KEY TELEMETRY) */}
         {bukti.length > 0 && (
-          <div className="pt-2 border-t border-[#e5e5e5] space-y-2">
-            <span className="text-[10px] font-semibold text-[#737373] uppercase tracking-wider block">
+          <div className="pt-1 space-y-2">
+            <span className="text-[11px] font-semibold text-[#737373] block">
               Parameter Kunci Dixon-Coles Bivariate:
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-[11px] tabular-nums">
               {bukti.map((b, idx) => (
                 <div key={idx} className="p-2.5 rounded-[12px] bg-[#fafafa] border border-[#e5e5e5]">
-                  <span className="text-[10px] text-[#737373] block truncate">{b.label}</span>
+                  <span className="text-[11px] text-[#737373] block truncate">{b.label}</span>
                   <strong className="text-[#0a0a0a] block mt-0.5">{b.value}</strong>
                 </div>
               ))}
@@ -131,17 +134,31 @@ export function QuantEngineCard({
       </div>
 
       {/* 3. VALUE BETS & KELLY CAPITAL SIZING SIMULATOR */}
-      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e5e5]">
+      <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
           <div className="flex items-center gap-2">
             <CoinsIcon size={16} className="text-[#0a0a0a]" />
-            <h4 className="font-semibold text-xs sm:text-sm text-[#0a0a0a] tracking-tight uppercase">
+            <h4 className="font-semibold text-xs sm:text-sm text-[#0a0a0a] tracking-tight">
               Kelly Criterion Matrix &amp; Capital Sizing
             </h4>
           </div>
 
+          {/* Ringkasan 1 baris: cukup untuk keputusan, detail di lipatan */}
+          <span className="text-[11px] text-[#737373] tabular-nums">
+            {value_bets.length > 0
+              ? `${value_bets.length} pasar · EV teratas ${hero.ev_teratas?.ev_percentage ?? "—"}`
+              : "Tidak ada +EV"}
+          </span>
+        </div>
+
+        <details className="group">
+          <summary className="cursor-pointer select-none text-[11px] text-[#0a0a0a] font-semibold flex items-center justify-between">
+            <span>Simulator bankroll &amp; tabel {value_bets.length} pasar</span>
+            <span className="text-[10px] text-[#737373] font-normal group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+
           {/* Sizing Strategy Selector */}
-          <div className="flex items-center gap-1 bg-[#f5f5f5] p-0.5 rounded-[18px] border border-[#e5e5e5] text-[10px]">
+          <div className="flex items-center gap-1 bg-[#f5f5f5] p-0.5 rounded-[18px] border border-[#e5e5e5] text-[11px] mt-3">
             {[
               { label: "1/4 Kelly (Konservatif)", value: 0.25 },
               { label: "1/2 Kelly (Moderat)", value: 0.5 },
@@ -160,12 +177,11 @@ export function QuantEngineCard({
               </button>
             ))}
           </div>
-        </div>
 
         {/* Bankroll Controller */}
         <div className="p-3.5 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5] space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-            <span className="text-[#737373] uppercase tracking-wider text-[10px]">
+            <span className="text-[#737373] text-[11px]">
               Modal Bankroll Portofolio:
             </span>
             <div className="flex items-center gap-2">
@@ -201,7 +217,7 @@ export function QuantEngineCard({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#e5e5e5] text-[10px] text-[#737373] uppercase">
+                <tr className="border-b border-[#e5e5e5] text-[11px] text-[#737373]">
                   <th className="py-2 pr-3">Pasar &amp; Pilihan</th>
                   <th className="py-2 px-3 text-right">Bursa Odds</th>
                   <th className="py-2 px-3 text-right">Fair Odds</th>
@@ -212,14 +228,14 @@ export function QuantEngineCard({
               </thead>
               <tbody className="divide-y divide-[#e5e5e5] tabular-nums">
                 {value_bets.map((vb: any, idx: number) => {
-                  const effectiveStakePct = +(vb.recommended_stake_percentage * kellyMultiplier).toFixed(2);
+                  const effectiveStakePct = +((vb.recommended_stake_percentage ?? 0) * kellyMultiplier).toFixed(2);
                   const stakeIdr = Math.round((bankroll * effectiveStakePct) / 100);
 
                   return (
                     <tr key={idx} className="hover:bg-[#fafafa] transition-colors">
                       <td className="py-2.5 pr-3">
                         <div className="font-semibold text-[#0a0a0a]">{vb.selection}</div>
-                        <span className="text-[10px] text-[#737373]">{vb.market_name}</span>
+                        <span className="text-[11px] text-[#737373]">{vb.market_name}</span>
                       </td>
                       <td className="py-2.5 px-3 text-right font-semibold text-[#0a0a0a]">
                         {vb.bookmaker_odds.toFixed(2)}
@@ -243,15 +259,16 @@ export function QuantEngineCard({
             </table>
           </div>
         ) : (
-          <div className="p-4 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5] text-center text-[#737373]">
+          <div className="p-4 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5] text-center text-[#737373] text-[13px] font-sans">
             Tidak ada dislokasi harga bernilai positif (EV &gt; 0) yang melampaui ambang batas keamanan sindikat pada laga ini. Disarankan No Bet / Pass.
           </div>
         )}
+        </details>
       </div>
 
       {/* 4. EXPANDABLE DETAILS: FORMULA & PARAMETER KALIBRASI */}
       <details className="p-4 rounded-[20px] bg-[#fafafa] border border-[#e5e5e5] space-y-3 cursor-pointer group">
-        <summary className="font-semibold text-xs text-[#0a0a0a] uppercase tracking-wider flex items-center justify-between select-none">
+        <summary className="font-semibold text-xs text-[#0a0a0a] flex items-center justify-between select-none">
           <span className="flex items-center gap-2">
             <ShieldIcon size={14} className="text-[#0a0a0a]" />
             Formula &amp; Parameter Kalibrasi Matematis (Dekomposisi Mendalam)
@@ -261,34 +278,81 @@ export function QuantEngineCard({
           </span>
         </summary>
 
-        <div className="pt-3 border-t border-[#e5e5e5] space-y-3 text-[11px] text-[#171717] tabular-nums">
-          <p className="font-sans leading-relaxed text-[#737373]">
+        <div className="pt-1 space-y-3 text-[11px] text-[#171717] tabular-nums">
+          <p className="font-sans leading-relaxed text-[#737373] text-[13px]">
             Dekomposisi parameter Poisson bivariate Dixon-Coles dengan matriks skor rendah rho (ρ), penyesuaian penyusutan James-Stein (shrinkage), dan isolasi vigorish Shin untuk mengestimasi probabilitas murni.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] uppercase block">Home Base xG (λ)</span>
+              <span className="text-[11px] text-[#737373] block">Home Base xG (λ)</span>
               <strong className="text-[#0a0a0a] block mt-0.5">{metode.baseline?.lambda ?? "-"}</strong>
-              <span className="text-[9px] text-[#737373]">Intensitas serang kandang</span>
+              <span className="text-[11px] text-[#737373]">Intensitas serang kandang</span>
             </div>
 
             <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] uppercase block">Away Base xG (μ)</span>
+              <span className="text-[11px] text-[#737373] block">Away Base xG (μ)</span>
               <strong className="text-[#0a0a0a] block mt-0.5">{metode.baseline?.mu ?? "-"}</strong>
-              <span className="text-[9px] text-[#737373]">Intensitas serang tandang</span>
+              <span className="text-[11px] text-[#737373]">Intensitas serang tandang</span>
             </div>
 
             <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
-              <span className="text-[10px] text-[#737373] uppercase block">Skor Teratas (Top Scorelines)</span>
+              <span className="text-[11px] text-[#737373] block">Skor Teratas (Top Scorelines)</span>
               <div className="mt-1 space-y-0.5">
                 {(metode.dixon_coles?.top_scorelines || []).slice(0, 3).map((ts: any, idx: number) => (
-                  <div key={idx} className="flex justify-between text-[10px]">
-                    <span className="font-semibold text-[#0a0a0a]">{ts.score}</span>
-                    <span className="text-[#737373]">{(ts.prob * 100).toFixed(1)}%</span>
+                  <div key={idx} className="flex justify-between text-[11px]">
+                    <span className="font-semibold text-[#0a0a0a]">
+                      {ts.score ?? `${ts.homeGoals ?? "?"}-${ts.awayGoals ?? "?"}`}
+                    </span>
+                    {/* prob dari lib/quant sudah skala persen — jangan dikali 100 lagi */}
+                    <span className="text-[#737373]">{ts.prob == null ? "—" : `${ts.prob.toFixed(1)}%`}</span>
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
+              <span className="text-[11px] text-[#737373] block">Shrinkage James-Stein</span>
+              <strong className="text-[#0a0a0a] block mt-0.5">
+                {metode.shrinkage
+                  ? `Kandang ${metode.shrinkage.home ?? "—"} / Tamu ${metode.shrinkage.away ?? "—"}`
+                  : "—"}
+              </strong>
+              <span className="text-[11px] text-[#737373]">Bobot blend form live vs prior makro</span>
+            </div>
+
+            <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
+              <span className="text-[11px] text-[#737373] block">Isolasi Vigorish (Shin)</span>
+              <strong className="text-[#0a0a0a] block mt-0.5">
+                {metode.shin_kelly
+                  ? `Margin ${metode.shin_kelly.margin_percentage ?? "—"}% · Overround ${metode.shin_kelly.overround ?? "—"}`
+                  : "—"}
+              </strong>
+              <span className="text-[11px] text-[#737373]">Vig dibuang dari odds pasar sebelum fair odds</span>
+            </div>
+
+            <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
+              <span className="text-[11px] text-[#737373] block">Expected Points (EPL Model)</span>
+              <strong className="text-[#0a0a0a] block mt-0.5">
+                {metode.dixon_coles?.expected_points
+                  ? `Kandang ${metode.dixon_coles.expected_points.home ?? "—"} · Seri ${metode.dixon_coles.expected_points.draw ?? "—"} · Tamu ${metode.dixon_coles.expected_points.away ?? "—"}`
+                  : "—"}
+              </strong>
+              <span className="text-[11px] text-[#737373]">Ekspektasi poin dari distribusi skor penuh</span>
+            </div>
+
+            <div className="p-3 rounded-[12px] bg-white border border-[#e5e5e5]">
+              <span className="text-[11px] text-[#737373] block">Status Kalibrasi</span>
+              <strong className="text-[#0a0a0a] block mt-0.5">
+                {metode.calibration_metadata
+                  ? `${metode.calibration_metadata.is_calibrated ? "Terkalibrasi" : "Belum terkalibrasi"} · ${metode.calibration_metadata.league_name ?? "Liga tak diketahui"}`
+                  : "—"}
+              </strong>
+              <span className="text-[11px] text-[#737373]">
+                {metode.calibration_metadata?.is_estimated_telemetry
+                  ? "Telemetri: estimasi prior (bukan data mentah)"
+                  : `Telemetri: ${metode.calibration_metadata?.telemetry_source ?? "—"}`}
+              </span>
             </div>
           </div>
         </div>
