@@ -162,7 +162,8 @@ async function planFetchWithLightweightAgent(
  */
 export async function fetchAndValidateMatchIntelligence(
   matchId: string,
-  competitionIdHint?: string
+  competitionIdHint?: string,
+  signal?: AbortSignal
 ): Promise<FetchResultWithAudit> {
   // Boundary: matchId datang dari query string publik → jangan pernah di-interpolasi mentah
   // ke path upstream (? # / bisa retarget endpoint lain + poison cache key)
@@ -171,8 +172,16 @@ export async function fetchAndValidateMatchIntelligence(
   }
   const safeMatchId = encodeURIComponent(matchId);
 
+  // Semua fetch TheStatsAPI di fungsi ini ikut signal request supaya run yang
+  // ditinggalkan client berhenti, bukan lanjut menguras kuota (plan-perf Task 3).
+  const get = (
+    path: string,
+    params: Record<string, string | number | boolean | undefined>,
+    ttlMs: number
+  ) => cachedStatsGet(path, params, ttlMs, signal);
+
   // 1. Ambil Match Dasar (Cache 15 menit)
-  const matchRes = await cachedStatsGet(`/football/matches/${safeMatchId}`, {}, 15 * 60 * 1000);
+  const matchRes = await get(`/football/matches/${safeMatchId}`, {}, 15 * 60 * 1000);
   const matchData = matchRes?.data || null;
 
   if (!matchData) {
@@ -215,14 +224,14 @@ export async function fetchAndValidateMatchIntelligence(
 
   if (decision.fetch_referee) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/referee`);
-    promises.refRes = cachedStatsGet(`/football/matches/${safeMatchId}/referee`, {}, ttlMs);
+    promises.refRes = get(`/football/matches/${safeMatchId}/referee`, {}, ttlMs);
   } else {
     endpointsSkipped.push("referee");
   }
 
   if (decision.fetch_lineups) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/lineups`);
-    promises.lineupsRes = cachedStatsGet(`/football/matches/${safeMatchId}/lineups`, {}, ttlMs);
+    promises.lineupsRes = get(`/football/matches/${safeMatchId}/lineups`, {}, ttlMs);
   } else {
     endpointsSkipped.push("lineups (kickoff > 2.5 jam)");
   }
@@ -242,7 +251,7 @@ export async function fetchAndValidateMatchIntelligence(
     promises.h2hRes = Promise.resolve({ data: localH2H, source: "offline_sqlite" });
   } else if (decision.fetch_h2h && homeTeamId) {
     endpointsCalled.push(`/football/matches (h2h pool online fallback)`);
-    promises.h2hRes = cachedStatsGet(
+    promises.h2hRes = get(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 30 },
       ttlMs
@@ -258,12 +267,12 @@ export async function fetchAndValidateMatchIntelligence(
     promises.awayRecentRes = Promise.resolve({ data: localAwayRecent, source: "offline_sqlite" });
   } else if (homeTeamId && awayTeamId) {
     endpointsCalled.push("/football/matches (recent home/away online fallback)");
-    promises.homeRecentRes = cachedStatsGet(
+    promises.homeRecentRes = get(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 6 },
       ttlMs
     );
-    promises.awayRecentRes = cachedStatsGet(
+    promises.awayRecentRes = get(
       "/football/matches",
       { status: "finished", team_id: awayTeamId, sort: "-utc_date", per_page: 6 },
       ttlMs
@@ -277,12 +286,12 @@ export async function fetchAndValidateMatchIntelligence(
     promises.awayInjuriesRes = Promise.resolve({ data: localAwayInjuries, source: "offline_sqlite" });
   } else if (decision.fetch_injuries && homeTeamId && awayTeamId) {
     endpointsCalled.push("injuries-suspensions (online fallback)");
-    promises.homeInjuriesRes = cachedStatsGet(
+    promises.homeInjuriesRes = get(
       `/football/teams/${homeTeamId}/injuries-suspensions`,
       { current: true },
       ttlMs
     );
-    promises.awayInjuriesRes = cachedStatsGet(
+    promises.awayInjuriesRes = get(
       `/football/teams/${awayTeamId}/injuries-suspensions`,
       { current: true },
       ttlMs
@@ -293,7 +302,7 @@ export async function fetchAndValidateMatchIntelligence(
 
   if (decision.fetch_odds) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/odds`);
-    promises.oddsRes = cachedStatsGet(
+    promises.oddsRes = get(
       `/football/matches/${safeMatchId}/odds`,
       { bookmaker: "bet365,pinnacle" },
       ttlMs

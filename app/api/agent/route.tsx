@@ -3,6 +3,10 @@ import { runPlannerAnalysis, type PlannerResult } from "@/lib/agent/planner";
 import { AnalysisSchema } from "@/lib/agent/schemas";
 import { mapPipelineToView } from "@/lib/view/analysis-view";
 import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-limit";
+import { getFreshAnalysisRun, saveAnalysisRun } from "@/lib/db/thestats-dataset";
+
+/** Window staleness cache hasil analisis (ms). Percobaan ulang dalam window ini dilayani dari DB. */
+const ANALYSIS_CACHE_TTL_MS = 10 * 60 * 1000;
 
 /**
  * ============================================================================
@@ -18,6 +22,46 @@ import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-li
  * AnalysisView bersih (BFF layer) ke client. Param `?debug=1` disediakan untuk
  * inspeksi payload mentah jika diperlukan.
  */
+
+// =========================================================================
+// RIWAYAT ANALISIS (cache + korpus backtest)
+// =========================================================================
+/**
+ * Tulis hasil analisis ke SQLite. Baris tidak pernah dihapus.
+ * Gagal tulis TIDAK boleh menggagalkan response analisis yang sudah jadi.
+ */
+function persistAnalysisRun(args: {
+  matchId: string;
+  competitionIdHint: string;
+  intel: { pertandingan?: { tim_kandang?: string; tim_tamu?: string } } | undefined;
+  durationMs: number;
+  view: unknown;
+  trace: unknown;
+  signal?: AbortSignal;
+}): void {
+  // Run yang dibatalkan client bisa saja berhenti di tengah: jangan simpan hasil separuh jadi.
+  if (args.signal?.aborted) return;
+  try {
+    saveAnalysisRun({
+      match_id: args.matchId,
+      competition_id_hint: args.competitionIdHint,
+      home_team: args.intel?.pertandingan?.tim_kandang ?? null,
+      away_team: args.intel?.pertandingan?.tim_tamu ?? null,
+      duration_ms: args.durationMs,
+      view_json: JSON.stringify(args.view),
+      planner_trace_json: JSON.stringify(args.trace),
+    });
+  } catch (err) {
+    console.warn("[api/agent] Simpan riwayat analisis gagal (response tetap dikembalikan):", err);
+  }
+}
+
+/** Response analisis segar + penanda cache miss untuk verifikasi. */
+function freshViewResponse(view: unknown): Response {
+  return Response.json(view as Record<string, unknown>, {
+    headers: { "x-analysis-cache": "miss" },
+  });
+}
 
 // =========================================================================
 // PIPELINE HANDLER UTAMA
@@ -44,11 +88,41 @@ export async function GET(req: Request) {
     );
   }
 
+  // 1a. Cache hasil analisis: satu analisis = puluhan panggilan LLM, jadi hasilnya
+  // dibaca jauh lebih sering daripada ditulis ulang. `?debug=1` sengaja dilewatkan
+  // (semantiknya "jalankan ulang penuh").
+  const cacheKeyHint = competitionIdHint ?? "";
+  if (!isDebug) {
+    try {
+      const cached = getFreshAnalysisRun(matchId, cacheKeyHint, ANALYSIS_CACHE_TTL_MS);
+      if (cached) {
+        return Response.json(JSON.parse(cached.view_json) as unknown, {
+          headers: {
+            "x-analysis-cache": "hit",
+            "x-analysis-cached-at": cached.created_at,
+          },
+        });
+      }
+    } catch (err) {
+      // Cache rusak/tidak terbaca tidak boleh menggagalkan analisis segar.
+      console.warn("[api/agent] Baca cache gagal, lanjut pipeline:", err);
+    }
+  }
+
   // 1. Jalankan planner loop (tools: fetch -> quant -> debat -> editorial -> verdict)
+  // `req.signal` diturunkan sampai fetch upstream + LLM: client yang pergi menghentikan
+  // run, bukan meninggalkan proses 8 menit di belakang (plan-perf Task 3).
   let result: PlannerResult;
   try {
-    result = await runPlannerAnalysis({ matchId, competitionIdHint });
+    result = await runPlannerAnalysis({ matchId, competitionIdHint, signal: req.signal });
   } catch (err) {
+    if (req.signal.aborted) {
+      console.log(`[Planner] Run match ${matchId} dibatalkan client — dihentikan, tidak ada hasil disimpan.`);
+      return Response.json(
+        { error: "Analisis dibatalkan oleh client (koneksi ditutup)." },
+        { status: 499 }
+      );
+    }
     console.error(`[Planner] Loop gagal:`, err);
     return Response.json(
       { error: `Pipeline Enterprise Gagal: ${err instanceof Error ? err.message : String(err)}` },
@@ -129,7 +203,16 @@ export async function GET(req: Request) {
       plannerTrace: trace,
       durationMs,
     });
-    return Response.json(viewData);
+    persistAnalysisRun({
+      matchId,
+      competitionIdHint: cacheKeyHint,
+      intel,
+      durationMs,
+      view: viewData,
+      trace,
+      signal: req.signal,
+    });
+    return freshViewResponse(viewData);
   }
 
   console.warn("[Planner] Schema parse fallback, merging verified intelligence");
@@ -254,5 +337,14 @@ export async function GET(req: Request) {
     plannerTrace: trace,
     durationMs,
   });
-  return Response.json(viewData);
+  persistAnalysisRun({
+    matchId,
+    competitionIdHint: cacheKeyHint,
+    intel,
+    durationMs,
+    view: viewData,
+    trace,
+    signal: req.signal,
+  });
+  return freshViewResponse(viewData);
 }

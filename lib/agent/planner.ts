@@ -287,23 +287,55 @@ const StepInputSchema = z.object({
 });
 
 /**
+ * Request editorial diturunkan HANYA dari intel + quant (bukan hasil debat), sehingga
+ * bisa disiapkan bersamaan dengan debat sindikat. Dipakai dua jalur:
+ * warm-start saat debat mulai, dan jalur normal bila planner memanggil editorial dulu.
+ */
+function buildEditorialRequest(state: PlannerRunState): { systemPrompt: string; userPrompt: string } {
+  const intel = state.fetchResult!.intelligence;
+  const q = state.quant!;
+  return buildEditorialPrompts({
+    intel,
+    quantPackage: q.quantPackage,
+    dcOutput: q.dcOutput,
+    vigOutput: q.vigOutput,
+    hLast: q.hLast,
+    dLast: q.dLast,
+    aLast: q.aLast,
+    today: state.today,
+  });
+}
+
+/**
  * Tool planner. Semua argumen divalidasi Zod (inputSchema) dan semua angka
  * yang dilihat planner datang dari execute di sisi server — bukan dari otak LLM.
  */
 export function createPlannerTools(state: PlannerRunState): ToolSet {
+  // Editorial tidak bergantung pada hasil debat → jalankan bersamaan dengan debat
+  // (plan-perf Task 4: satu round-trip LLM keluar dari critical path).
+  // Disimpan di closure tool set: terisolasi per run, aman untuk request bersamaan.
+  let pendingEditorial: Promise<{ text: string; modelUsed: string }> | null = null;
+
+  const takePendingEditorial = () => {
+    const p = pendingEditorial;
+    pendingEditorial = null;
+    return p;
+  };
+
   return {
     check_data_integrity: tool({
       description:
         "Ambil & validasi semua data intelijen match (Zod). WAJIB dipanggil pertama. " +
         "Mengembalikan ringkasan coverage + daftar field yang hilang (missing_data_registry).",
       inputSchema: StepInputSchema,
-      execute: async (input) => {
+      execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
         traceStep(state, "check_data_integrity", input);
         try {
           state.fetchResult = await fetchAndValidateMatchIntelligence(
             state.matchId,
-            state.competitionIdHint
+            state.competitionIdHint,
+            abortSignal
           );
           const intel = state.fetchResult.intelligence;
           return withCoverage(state, {
@@ -331,7 +363,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Ambil ulang data intelijen ketika check_data_integrity melaporkan field penting kosong. " +
         "Mengembalikan delta missing sebelum vs sesudah. Jika tetap kosong, nyatakan gap eksplisit.",
       inputSchema: StepInputSchema,
-      execute: async (input) => {
+      execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
         traceStep(state, "fetch_missing_intel", input);
         state.fetchAttempts++;
@@ -339,7 +371,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         // Upgrade ke fetch per-endpoint spesifik jika kuota TheStatsAPI jadi masalah.
         const before = state.fetchResult?.intelligence.missing_data_registry ?? [];
         try {
-          const fresh = await fetchAndValidateMatchIntelligence(state.matchId, state.competitionIdHint);
+          const fresh = await fetchAndValidateMatchIntelligence(state.matchId, state.competitionIdHint, abortSignal);
           state.fetchResult = fresh;
           const after = fresh.intelligence.missing_data_registry;
           return withCoverage(state, {
@@ -386,7 +418,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Jalankan debat 5 persona multi-model (Bull/Neutral/Bear + Dual Judgement + Arbiter). " +
         "WAJIB dalam setiap analisis, setelah run_quant_package. Mengembalikan consensus_level dan verdict panel.",
       inputSchema: StepInputSchema,
-      execute: async (input) => {
+      execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
         const stepRef = traceStep(state, "run_syndicate_debate", input);
         if (!state.fetchResult || !state.quant) {
@@ -397,10 +429,25 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         }
         state.debateRounds++;
         try {
+          // Warm-start editorial: tidak butuh output debat, jadi mulai sekarang dan
+          // biarkan overlap. Hasilnya dipakai tool run_editorial_analysis.
+          if (!pendingEditorial) {
+            const request = buildEditorialRequest(state);
+            pendingEditorial = callModelWithFallback(
+              SYNDICATE.MODEL_JUDGEMENT_1,
+              request.systemPrompt,
+              request.userPrompt,
+              abortSignal
+            );
+            // Kalau planner ternyata tidak memakainya, jangan biarkan rejection menggantung.
+            void pendingEditorial.catch(() => {});
+          }
+
           state.debate = await orchestrate5AgentSyndicate({
             matchSummary: `${state.fetchResult.intelligence.pertandingan.tim_kandang} vs ${state.fetchResult.intelligence.pertandingan.tim_tamu}`,
             intel: state.fetchResult.intelligence,
             quantPackage: state.quant.quantPackage,
+            signal: abortSignal,
           });
           // Atribusi sisa durasi: pecahan stage/persona debat ikut terstempel ke step trace.
           if (state.debate.stage_timings) stepRef.stage_timings = state.debate.stage_timings;
@@ -423,34 +470,28 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         "Susun analisis editorial terstruktur (wasit, taktik & lineup, form, pasar, statistik mendalam) " +
         "dengan aturan closed-world anti-halusinasi. Wajib sebelum stop_with_verdict.",
       inputSchema: StepInputSchema,
-      execute: async (input) => {
+      execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
         traceStep(state, "run_editorial_analysis", input);
         if (!state.fetchResult || !state.quant) {
           return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
         try {
-          const intel = state.fetchResult.intelligence;
-          const q = state.quant;
-          const { systemPrompt, userPrompt } = buildEditorialPrompts({
-            intel,
-            quantPackage: q.quantPackage,
-            dcOutput: q.dcOutput,
-            vigOutput: q.vigOutput,
-            hLast: q.hLast,
-            dLast: q.dLast,
-            aLast: q.aLast,
-            today: state.today,
-          });
-          const { text, modelUsed } = await callModelWithFallback(
-            SYNDICATE.MODEL_JUDGEMENT_1,
-            systemPrompt,
-            userPrompt
-          );
+          const pending = takePendingEditorial();
+          const request = pending ? null : buildEditorialRequest(state);
+          const { text, modelUsed } = pending
+            ? await pending
+            : await callModelWithFallback(
+                SYNDICATE.MODEL_JUDGEMENT_1,
+                request!.systemPrompt,
+                request!.userPrompt,
+                abortSignal
+              );
           const editorial: Record<string, any> = extractJSON(text);
           state.editorial = editorial;
           return withCoverage(state, {
             modelUsed,
+            editorial_overlap: pending !== null,
             kunci_output: Object.keys(editorial),
             prediksi_editorial: editorial.prediksi ?? null,
           }, t0);
@@ -508,6 +549,7 @@ export async function runPlannerLoop(params: {
   systemPrompt?: string;
   userPrompt: string;
   maxSteps?: number;
+  abortSignal?: AbortSignal;
 }): Promise<PlannerLoopResult> {
   const maxSteps = params.maxSteps ?? (Number(process.env.PLANNER_MAX_STEPS) || 8);
   const res = await generateText({
@@ -517,6 +559,7 @@ export async function runPlannerLoop(params: {
     tools: params.tools,
     stopWhen: stepCountIs(maxSteps),
     temperature: 0.2,
+    abortSignal: params.abortSignal,
   });
   return { text: res.text, stepCount: res.steps.length };
 }
@@ -532,6 +575,7 @@ export async function runPlannerAnalysis(params: {
   matchId: string;
   competitionIdHint?: string;
   tools?: ToolSet; // override untuk test
+  signal?: AbortSignal;
 }): Promise<PlannerResult> {
   const state = createRunState(params.matchId, params.competitionIdHint);
   const tools = params.tools ?? createPlannerTools(state);
@@ -541,7 +585,7 @@ export async function runPlannerAnalysis(params: {
     (params.competitionIdHint ? ` (hint kompetisi: ${params.competitionIdHint})` : "") +
     `.\nRencanakan analisis, eksekusi tool yang diperlukan, lalu tutup dengan stop_with_verdict.`;
 
-  await runPlannerLoop({ tools, userPrompt });
+  await runPlannerLoop({ tools, userPrompt, abortSignal: params.signal });
 
   const coverage = evaluateCoverage(state);
 

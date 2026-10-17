@@ -66,6 +66,9 @@ export default function Home() {
   // Guard race: response lama yang balik setelah request baru jalan wajib diabaikan
   const analysisReqId = useRef(0);
   const bettingReqId = useRef(0);
+  // Abort request analisis yang sudah usang supaya server berhenti bekerja
+  // (satu analisis = puluhan panggilan LLM, bukan request murah).
+  const analysisAbort = useRef<AbortController | null>(null);
 
   // Live elapsed timer saat analisis sedang berjalan.
   // setElapsedMs(0) sengaja di tick pertama: effect = sinkronisasi timer eksternal (interval),
@@ -156,11 +159,17 @@ export default function Home() {
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 
+    // Batalkan run sebelumnya (kalau masih jalan) sebelum memulai yang baru.
+    analysisAbort.current?.abort();
+    const controller = new AbortController();
+    analysisAbort.current = controller;
+
     try {
       const res = await fetch(
         `/api/agent?match_id=${encodeURIComponent(match.id)}&competition_id=${encodeURIComponent(
           match.competition_id
-        )}`
+        )}`,
+        { signal: controller.signal }
       );
       const json = await res.json();
       if (analysisReqId.current !== reqId) return; // stale response
@@ -169,6 +178,8 @@ export default function Home() {
       setData(json);
     } catch (e) {
       if (analysisReqId.current !== reqId) return;
+      // Abort memang disengaja (user pindah match) — bukan error yang perlu ditampilkan.
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setAgentError(e instanceof Error ? e.message : String(e));
     } finally {
       if (analysisReqId.current === reqId) setAnalyzing(false);
@@ -178,6 +189,9 @@ export default function Home() {
   function handleBackToList() {
     analysisReqId.current++;
     bettingReqId.current++;
+    // User keluar dari analisis → hentikan run di server, jangan biarkan jalan 8 menit.
+    analysisAbort.current?.abort();
+    analysisAbort.current = null;
     setSelectedMatch(null);
     setData(null);
     setAgentError(null);

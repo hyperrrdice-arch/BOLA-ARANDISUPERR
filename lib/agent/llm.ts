@@ -33,7 +33,12 @@ export const nineRouter = createOpenAI({
 export const MODEL_DEFAULT = EDITORIAL.MODEL_DEFAULT;
 
 // Helper untuk memanggil model VPS dengan failover aman
-export async function callModelWithFallback(targetModel: string, systemPrompt: string, userPrompt: string) {
+export async function callModelWithFallback(
+  targetModel: string,
+  systemPrompt: string,
+  userPrompt: string,
+  signal?: AbortSignal
+) {
   try {
     if (process.env.PIPELINE_DEBUG) {
       console.log(`[9Router] Menjalankan target model: ${targetModel}...`);
@@ -42,15 +47,21 @@ export async function callModelWithFallback(targetModel: string, systemPrompt: s
       model: nineRouter.chat(targetModel),
       system: systemPrompt,
       prompt: userPrompt,
+      abortSignal: signal,
     });
     return { text: res.text, modelUsed: targetModel };
   } catch (primaryErr) {
+    // Client sudah pergi → jangan bakar percobaan fallback.
+    if (signal?.aborted) {
+      throw primaryErr instanceof Error ? primaryErr : new Error(String(primaryErr));
+    }
     console.warn(`[9Router] Model ${targetModel} gagal, beralih ke fallback ${MODEL_DEFAULT}:`, primaryErr);
     try {
       const res = await generateText({
         model: nineRouter.chat(MODEL_DEFAULT),
         system: systemPrompt,
         prompt: userPrompt,
+        abortSignal: signal,
       });
       return { text: res.text, modelUsed: `${targetModel} (fallback: ${MODEL_DEFAULT})` };
     } catch (fallbackErr) {

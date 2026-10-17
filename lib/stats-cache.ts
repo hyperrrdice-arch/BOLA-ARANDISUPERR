@@ -35,6 +35,15 @@ if (!globalCache.__theStatsApiMetrics) {
 const memoryStore = globalCache.__theStatsApiCache;
 const metrics = globalCache.__theStatsApiMetrics;
 
+/** Dedupe fetch yang sedang jalan per key (hanya untuk pemanggil tanpa signal). */
+const inFlight = new Map<string, Promise<any>>();
+
+/**
+ * TTL untuk response error upstream. Sengaja pendek: cukup untuk menahan hujan
+ * request saat TheStatsAPI sedang rusak, tapi tidak menahan data bagus kelamaan.
+ */
+const NEGATIVE_TTL_MS = Math.max(1000, Number(process.env.STATS_NEGATIVE_TTL_MS) || 30_000);
+
 const API_BASE = "https://api.thestatsapi.com/api";
 
 function buildCacheKey(path: string, params: Record<string, any> = {}): string {
@@ -51,11 +60,13 @@ function buildCacheKey(path: string, params: Record<string, any> = {}): string {
  * @param path Endpoint path, misalnya "/football/matches" atau "/football/matches/123/stats"
  * @param params Query parameters
  * @param ttlMs Time to live dalam milidetik (Default: 30 menit)
+ * @param signal AbortSignal request pemanggil — abort membatalkan fetch upstream (plan-perf Task 3)
  */
 export async function cachedStatsGet<T = any>(
   path: string,
   params: Record<string, string | number | boolean | undefined> = {},
-  ttlMs: number = 30 * 60 * 1000
+  ttlMs: number = 30 * 60 * 1000,
+  signal?: AbortSignal
 ): Promise<T> {
   const key = buildCacheKey(path, params);
   const now = Date.now();
@@ -73,7 +84,37 @@ export async function cachedStatsGet<T = any>(
     return cached.data as T;
   }
 
-  // 2. Cache Miss atau Expired: Lakukan fetch ke TheStatsAPI
+  // 2. Dedupe: N pemanggil bersamaan pada key dingin = 1 fetch upstream.
+  // ponytail: hanya untuk pemanggil TANPA signal — abort milik satu client tidak boleh
+  // membunuh fetch milik client lain yang sedang berbagi promise. Upgrade: ref-count per key.
+  if (!signal) {
+    const pending = inFlight.get(key);
+    if (pending) return pending as Promise<T>;
+    const request = loadFromUpstream<T>(path, params, ttlMs, key);
+    inFlight.set(key, request);
+    void request.then(
+      () => inFlight.delete(key),
+      () => inFlight.delete(key)
+    );
+    return request;
+  }
+
+  return loadFromUpstream<T>(path, params, ttlMs, key, signal);
+}
+
+/**
+ * Fetch sebenarnya ke TheStatsAPI + tulis cache.
+ * Response error di-cache singkat (negative caching) supaya upstream yang sedang rusak
+ * tidak dipukul ulang tiap request. Throw (termasuk abort) TIDAK pernah di-cache.
+ */
+async function loadFromUpstream<T>(
+  path: string,
+  params: Record<string, string | number | boolean | undefined>,
+  ttlMs: number,
+  key: string,
+  signal?: AbortSignal
+): Promise<T> {
+  // 3. Cache Miss atau Expired: Lakukan fetch ke TheStatsAPI
   metrics.misses += 1;
   if (process.env.PIPELINE_DEBUG) {
     console.log(`[TheStatsAPI Cache] 🔴 MISS: ${path} (Fetching remote API...)`);
@@ -95,6 +136,7 @@ export async function cachedStatsGet<T = any>(
     headers: {
       Authorization: `Bearer ${apiKey}`,
     },
+    signal,
   });
 
   if (!res.ok) {
@@ -104,6 +146,13 @@ export async function cachedStatsGet<T = any>(
       code: errJson?.error?.code || "REQUEST_FAILED",
       message: errJson?.error?.message || res.statusText,
     };
+    // Negative caching: tahan beban error sebentar, jangan sampai tiap request menembak upstream.
+    memoryStore.set(key, {
+      data: errObj as unknown as T,
+      cachedAt: Date.now(),
+      expiry: Date.now() + NEGATIVE_TTL_MS,
+      path,
+    });
     return errObj as unknown as T;
   }
 
@@ -111,11 +160,11 @@ export async function cachedStatsGet<T = any>(
 
   const safeTtl = Math.max(1000, Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 30 * 60 * 1000);
 
-  // 3. Simpan di Memory Cache jika fetch berhasil
+  // 4. Simpan di Memory Cache jika fetch berhasil
   memoryStore.set(key, {
     data,
-    cachedAt: now,
-    expiry: now + safeTtl,
+    cachedAt: Date.now(),
+    expiry: Date.now() + safeTtl,
     path,
   });
 
