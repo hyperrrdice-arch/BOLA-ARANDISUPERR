@@ -182,9 +182,21 @@ Semua bisa dioverride lewat env (lihat `.env.example`).
 ## 9. Data Layer
 
 - **TheStatsAPI** (remote, kuota terbatas) → `lib/stats-cache.ts` (TTL in-memory) → Zod sanitizer
-- **SQLite lokal** (`lib/db/`): `thestats-dataset`, `team-telemetry`, `thestats-vault`, `sqlite-master`
+- **SQLite lokal** (`lib/db/`): `thestats-dataset`, `team-telemetry`, `thestats-vault`, `sqlite-master`, `upcoming-fixtures`, `analysis-snapshot`
 - **`data/calibrated_ratings.json`** — hasil kalibrasi rating (James-Stein shrinkage) dari `scripts/calibrate-ratings.ts`
 - Tier-1 offline diprioritaskan: fetch online hanya fallback bila SQLite kosong
+
+**Peta 4 DB lokal** (semua di `data/`, semua di-gitignore):
+
+| DB | Isi | Bisa di-rebuild? | Boleh DELETE/refresh? |
+|---|---|---|---|
+| `football_master.db` | 22.394 match historis 6 musim (CSV football-data.co.uk) | ✅ download ulang | ✅ |
+| `thestats_dataset.db` | 434 match + 868 log tim season 26/27 (telemetri TheStatsAPI) | ✅ sync ulang | ✅ |
+| `thestats_raw_vault.db` | 1.129 payload mentah API | ✅ (tapi isinya kadaluarsa) | ✅ |
+| `analysis_snapshots.db` | 4 snapshot analisis + 3 outcome (§9.1) | ❌ **tidak bisa** | ❌ append-only |
+| `upcoming_fixtures.db` | 246 fixture 30 hari (§9.2) | ✅ sync ulang | ✅ disposable |
+
+`football_master.db` = **prior** (α/β attack/defense dari fitting 22rb match, materialisasi di `calibrated_ratings.json`); `thestats_dataset.db` = **observasi** season berjalan (n di shrinkage `w = n/(n+κ)`). Keduanya beda ID space (nama tim vs `mt_*`) — jembatannya `lib/quant/team-normalizer.ts`.
 
 ### 9.1 `data/analysis_snapshots.db` — riwayat analisis (data pribadi, APPEND-ONLY)
 
@@ -211,6 +223,10 @@ dengan EV positif pertama (aturan `hero.ev_teratas` di view), sedangkan
 `panel_market_key` = market yang benar-benar direkomendasikan arbiter/supreme
 (diturunkan dari teksnya, market yang disebut pertama). Keduanya punya hit rate
 sendiri di report — sering berbeda, jadi membandingkan keduanya itu inti evaluasi.
+Semua jalur operasional:
+- `npm run sync:weekly` — tarik telemetry match selesai (2 call/match + 1 cedera/tim, skip yang sudah ada)
+- `npm run sync:outcomes` — tarik skor/statistik aktual → `match_outcomes` (lokal dulu, online fallback)
+- `npm run report:snapshot` — evaluasi prediksi vs nyata (read-only, aman diulang)
 
 ### 9.2 `data/upcoming_fixtures.db` — katalog fixture (umur pendek, disposable)
 
@@ -253,6 +269,8 @@ Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build
 
 - **Optimasi latensi** — run 2–7 menit (debate 2 ronde + editorial sekuencial); kandidat: paralelisasi debate↔editorial, `?debug=1` tanpa re-run
 - **Riwayat analisis** — ✅ selesai: `AnalysisView` per match tersimpan permanen di `data/analysis_snapshots.db` (§9.1), bukan hilang setelah refresh
+- **Katalog fixture offline-first** — ✅ selesai: `/api/matches` membaca `data/upcoming_fixtures.db`, API hanya fallback (§9.2)
+- **Lifecycle fixture otomatis** — ✅ selesai: `sync:upcoming` (isi) + `promote-upcoming-to-telemetry.ts` (match selesai → telemetry ke dataset utama → baris dihapus)
 - **Evaluasi outcome berjalan** — lengkapi: tarik `match_outcomes` otomatis per jadwal (`sync-match-outcomes.ts` via cron), accumulate ≥100 snapshot evaluable, lalu pakai angka Brier/log-loss/P-L untuk kalibrasi ulang ratings & confidence
 - **Trigger otonom** (cron per kickoff) — saat ini analisis dipicu klik user
 - `query_odds_dislocation` & `run_special_markets` sebagai tool planner terpisah (saat ini masuk paket quant)
