@@ -177,18 +177,18 @@
 
 ---
 
-## Task 9: (Opsional) Presisi `match_date` ISO penuh
+## Task 9: (Opsional) Presisi `match_date` ISO penuh ✅
 
 **Description:** `team_match_logs.match_date` = tanggal 10-digit → urutan laga satu hari hilang. Simpan ISO penuh di baris baru + backfill dari `matches.utc_date` (bukan neok).
 
 **Acceptance criteria:**
-- [ ] Baris baru ISO penuh; backfill dari sumber nyata
-- [ ] Cutoff tetap anti-leakage (terbukti `test-upcoming-guard`)
+- [x] Baris baru ISO penuh (mapper `lib/stats-log-mapper.ts` menyimpan `m.utc_date` utuh); backfill 868 baris dari `matches.utc_date` (`scripts/backfill-match-date-iso.ts`, idempoten, sumber nyata)
+- [x] Cutoff tetap anti-leakage (terbukti `test-upcoming-guard` 10/10) — semua pembanding cutoff memotong cutoff ke 10-digit, jadi "match hari T" tetap terkecuali; catatan: varian `match_date <= ?` di `run-clean-track-c.ts` jadi ikut mengecualikan hari T (lebih konservatif, arah aman)
 
-**Verification:** `npx.cmd tsx scripts/test-upcoming-guard.ts` hijau · `npx.cmd tsc --noEmit` bersih
+**Verification:** `npx.cmd tsx scripts/test-upcoming-guard.ts` hijau · `npx.cmd tsc --noEmit` bersih · `verify-tier1` 15/15 · `verify-foundation` 47/47
 
 **Dependencies:** Task 6
-**Files:** `lib/stats-log-mapper.ts`, `lib/db/thestats-dataset.ts`
+**Files:** `lib/stats-log-mapper.ts`, `scripts/backfill-match-date-iso.ts`
 **Scope:** S
 
 ---

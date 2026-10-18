@@ -349,6 +349,17 @@ export function getTheStatsDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_squad_team ON team_squads(team_id);
     CREATE INDEX IF NOT EXISTS idx_matches_comp_season ON matches(competition_id, season);
     CREATE INDEX IF NOT EXISTS idx_matches_date ON matches(utc_date DESC);
+
+    -- Riwayat odds: anchor harga pre-pull (captured_utc = saat tarik, BUKAN closing).
+    -- Sumber: scripts/prepull-match-odds.ts (lihat tasks/plan-data-coverage.md Task 4/8).
+    CREATE TABLE IF NOT EXISTS match_odds_history (
+      match_id TEXT NOT NULL,
+      captured_utc TEXT NOT NULL,
+      payload_json TEXT,
+      has_odds INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (match_id, captured_utc)
+    );
+    CREATE INDEX IF NOT EXISTS idx_moh_match ON match_odds_history(match_id);
   `);
 
   dbInstance = db;
@@ -465,6 +476,37 @@ export function upsertTeamMatchLog(log: TeamMatchLogRecord): void {
   const stmt = db.prepare(sql);
   const values = keys.map((k) => (log as any)[k] ?? null);
   stmt.run(...values);
+}
+
+/**
+ * Simpan baris odds apa adanya (anchor harga pre-pull).
+ * `payload` null + has_odds=0 = pernyataan eksplisit "API tidak punya odds saat tarik".
+ */
+export function insertMatchOdds(matchId: string, payload: unknown, hasOdds: boolean): void {
+  const db = getTheStatsDb();
+  db.prepare(`
+    INSERT INTO match_odds_history (match_id, captured_utc, payload_json, has_odds)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(match_id, captured_utc) DO UPDATE SET
+      payload_json = excluded.payload_json,
+      has_odds = excluded.has_odds
+  `).run(matchId, new Date().toISOString(), payload == null ? null : JSON.stringify(payload), hasOdds ? 1 : 0);
+}
+
+export function hasMatchOdds(matchId: string): boolean {
+  const db = getTheStatsDb();
+  return !!db.prepare("SELECT 1 FROM match_odds_history WHERE match_id = ? AND has_odds = 1 LIMIT 1").get(matchId);
+}
+
+export function hasMatchOddsRow(matchId: string): boolean {
+  const db = getTheStatsDb();
+  return !!db.prepare("SELECT 1 FROM match_odds_history WHERE match_id = ? LIMIT 1").get(matchId);
+}
+
+export function countMatchOdds(): { rows: number; withOdds: number } {
+  const db = getTheStatsDb();
+  const r = db.prepare("SELECT count(*) AS n, COALESCE(sum(has_odds), 0) AS w FROM match_odds_history").get() as any;
+  return { rows: r?.n ?? 0, withOdds: r?.w ?? 0 };
 }
 
 export function getTeamRecentLogs(teamId: string, limit: number = 6): TeamMatchLogRecord[] {

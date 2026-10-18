@@ -23,7 +23,7 @@ import { TARGET_COMPETITIONS } from "../lib/thestats-competitions";
 import { getTheStatsDb, upsertMatch, upsertTeamMatchLog, upsertTeam } from "../lib/db/thestats-dataset";
 import { getDueFixtures, deleteUpcoming, countUpcoming } from "../lib/db/upcoming-fixtures";
 import { mapStatsToTelemetry } from "../lib/stats-log-mapper";
-import { saveRawPayload } from "../lib/db/thestats-vault";
+import { saveRawPayload, getRawPayload } from "../lib/db/thestats-vault";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const API_BASE = "https://api.thestatsapi.com/api";
@@ -117,15 +117,19 @@ async function main() {
       continue;
     }
     if (!DRY_RUN) {
+      // Referee dari vault (ditarik Task 7 enrichment) — apa adanya, boleh null.
+      const refPayload: any = getRawPayload(`referee_${row.match_id}`);
+      const refName = refPayload?.data?.name ?? refPayload?.data?.referee?.name ?? null;
       // Transaksi tunggal per match: crash di tengah tidak boleh meninggalkan
       // log setengah jadi (audit 2026-10-18). Vault terpisah, di luar transaksi ini.
       dataset.exec("BEGIN IMMEDIATE");
       try {
-        upsertMatch(mapped.match);
+        upsertMatch({ ...mapped.match, referee_name: typeof refName === "string" ? refName : null });
         upsertTeamMatchLog(mapped.homeLog);
         upsertTeamMatchLog(mapped.awayLog);
-        upsertTeam({ team_id: mapped.match.home_team_id, name: row.home_team_name ?? "" });
-        upsertTeam({ team_id: mapped.match.away_team_id, name: row.away_team_name ?? "" });
+        // Guardrail 7: nama kosong jangan menimpa nama yang sudah ada.
+        if (row.home_team_name) upsertTeam({ team_id: mapped.match.home_team_id, name: row.home_team_name });
+        if (row.away_team_name) upsertTeam({ team_id: mapped.match.away_team_id, name: row.away_team_name });
         dataset.exec("COMMIT");
       } catch (err) {
         dataset.exec("ROLLBACK");

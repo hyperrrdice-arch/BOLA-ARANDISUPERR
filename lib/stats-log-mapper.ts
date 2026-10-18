@@ -48,7 +48,10 @@ export function mapStatsToTelemetry(args: {
   // Skor/status wajib dari sumber. Absen → skip baris, JANGAN karang 0-0/"finished"
   // (kontrak baris 8; default karangan pernah memalsukan form/H2H — audit 2026-10-18).
   if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore) || m.status == null) return null;
-  const matchDate = m.utc_date.slice(0, 10);
+  // ISO penuh (Task 9 plan-data-coverage): urutan beberapa laga dalam satu hari
+  // hilang kalau dipotong 10-digit. Cutoff anti-leakage TIDAK berubah — semua
+  // pembanding memotong cutoff ke 10-digit, jadi "match hari T" tetap terkecuali.
+  const matchDate = m.utc_date;
 
   const ov = stats?.overview;
   const sh = stats?.shots;
