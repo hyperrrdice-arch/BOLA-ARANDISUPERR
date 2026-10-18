@@ -88,7 +88,7 @@ Fakta dari `stage_timings`:
 | Plafon token debat 16384 → 2048/1536 (plan-perf-2 Task 1) | straggler 52.6s → 110.9s (B) → 173.0s (C, plafon dikembalikan) | **REVERTED** | Nol gain latensi (waktu panggilan = latensi provider) **dan** regresi kualitas: dengan plafon 2048 persona Bull menghabiskan anggaran untuk reasoning lalu tidak pernah mengeluarkan JSON — `thesis` terisi reasoning mentah dan `key_drivers` jatuh ke template. Setelah revert, JSON normal kembali |
 | Atribusi round-trip planner (plan-perf-2 Task 3) | "sisa tak terjelaskan" → 23.2s di 7 step (3.3s/step) | kept | Diukur dengan tool mock instan, jadi yang tersisa murni waktu model planner. Cukup jelas untuk ditutup sebagai bukan prioritas kode |
 | Kompresi JSON API (`lib/http-json.ts`) | `/api/matches` 36.954 B → 5.989 B · `/api/odds` 2.712 → 699 B | kept | Audit `uses-text-compression` 0.5 → 1; LCP 681→600ms, SI 1416→600ms. Diuji `scripts/test-http-json.ts` (12 assert) termasuk penghormatan `Accept-Encoding` |
-| Code-split 9 kartu analisis (next/dynamic) | initial JS 194 KB → 183 KB on-wire | kept | Kartu analisis tidak terjangkau pada paint pertama. Sisa flag `unused-javascript` (49 KB) ada di chunk vendor React — dilaporkan sebagai batas, tidak diklaim beres |
+| Code-split 9 kartu analisis (next/dynamic) | initial JS 194 KB → 183 KB on-wire | kept, tapi **ekspektasinya salah** | Kartu analisis memang tidak terjangkau pada paint pertama, jadi memindahkannya benar secara delivery (−11 KB JS jalan-pertama). TAPI tujuan yang diklaim (menurunkan render delay / LCP mobile) **tidak tercapai**: LCP mobile 2459 → 2487 ms (noise). Biayanya 6 request tambahan saat analisis dibuka. Sisa flag `unused-javascript` (49 KB) ternyata di chunk vendor React, bukan kode app |
 
 ### Pelajaran yang dicatat supaya tidak diulang
 
@@ -122,7 +122,7 @@ Koreksi catatan sebelumnya: angka "171 KB" adalah **pembanding yang tidak sah** 
 | `/api/matches` transfer | < 10 KB | ✅ **5,9 KB** (gzip manual; dari 36,9 KB) |
 | Kompresi respons JSON API | `Content-Encoding: gzip` | ✅ matches/odds/agent |
 | CSS | < 50KB | ✅ 4.1KB |
-| LCP `/` | ≤ 2.5s | ✅ desktop **483 ms** · ⚠️ mobile+4×CPU **2459 ms** (lolos 41 ms) → SSR katalog tidak dikerjakan, lever = render delay |
+| LCP `/` | ≤ 2.5s | ⚠️ desktop **502 ms** ✅ · mobile+4×CPU **2487 ms** — lolos tipis, **tidak membaik** oleh kompresi/code-split. SSR katalog tidak dikerjakan (belum terbukti jadi penyebabnya) |
 
 ## LCP & Core Web Vitals (Chrome DevTools MCP — trace nyata, bukan simulasi)
 
@@ -130,18 +130,15 @@ Diukur 18 Okt 2026 terhadap prod lokal `next start -p 3100`, build perf terakhir
 
 | Metrik | Desktop 1440×900 | Mobile 390×844 · Fast 3G · CPU 4× | Target |
 |---|---|---|---|
-| **LCP** | **483 ms** ✅ | **2459 ms** ⚠️ (lolos 41 ms) | ≤ 2.5s |
-| LCP breakdown — TTFB | 33 ms | 22 ms | — |
-| LCP breakdown — render delay | 450 ms | **2437 ms (99.1% LCP)** | — |
+| **LCP pra-fix** | 483 ms ✅ | 2459 ms ⚠️ (lolos 41 ms) | ≤ 2.5s |
+| **LCP pasca-fix** | **502 ms** | **2487 ms — TIDAK berubah (noise)** | ≤ 2.5s |
+| LCP breakdown — TTFB (pra-fix) | 33 ms | 22 ms | — |
+| LCP breakdown — render delay (pra-fix) | 450 ms | 2437 ms (99.1% LCP) | — |
 | CLS | 0.01 ✅ | 0.00 ✅ | ≤ 0.1 |
 
-Cross-check Lighthouse 12 (desktop, throttling `simulate`): skor **91**, LCP 681 ms, TBT 213 ms, FCP 350 ms, root doc 20 ms — konsisten.
+**Mobile LCP tidak membaik setelah kompresi + code-split (2459 → 2487 ms, selisih dalam noise).** Ini menggugurkan klaim awal di dokumen ini bahwa lever-nya adalah 49 KB JS tak terpakai yang bisa dipotong code-split: ternyata menendang kartu analisis keluar dari bundle awal **tidak** mengurangi render delay. Penyebab render delay 99% itu ada di main thread saat hidrasi — baseline React yang tetap harus di-parse/di-eksekusi + CSS render-blocking yang harus tiba dulu di Fast 3G — bukan di kode kartu analisis.
 
-LCP element = `<p>` deskripsi katalog (teks, **bukan** resource jaringan). Jadi biaya LCP **bukan** network (TTFB 22–33 ms) melainkan **render delay**: main thread sibuk parse/eksekusi JS + nunggu CSS render-blocking sebelum teks boleh cat.
-
-**Keputusan Task 8:** desktop 483 ms ✅, mobile-terthrottle 2459 ms lolos tipis → **SSR katalog tidak dikerjakan** (belum terbukti perlu). Tapi klaim lama "paint pertama cuma skeleton" **tetap tidak terbukti** — elemen terbesar sudah ada di HTML awal. Lever yang benar kalau mau margin di mobile = **turunkan render delay**, bukan SSR.
-
-Bukti pendukung dari trace: dari 8 chunk (656 KB raw), Lighthouse menandai **49 KB tidak terpakai** di layar katalog — kartu analisis (`QuantEngineCard`, `SyndicateDebateCard`, `TheStatsOddsComparisonCard`) diimpor eager di `app/page.tsx` padahal baru dipakai setelah match diklik. JS itu tetap di-parse/eksekusi saat hidrasi, dan itulah yang menggigit di CPU 4×.
+Lever yang benar-benar tersisa untuk metrik ini (SSR/streaming, critical CSS, atau memangkas baseline framework) berada di luar scope "delivery ringan" dan butuh keputusan produk. Dicatat sebagai batas, bukan diklaim beres.
 
 ### Temuan dari trace & inspeksi
 
