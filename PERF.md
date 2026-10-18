@@ -67,6 +67,8 @@ Bacaan:
 
 Konsekuensi: lever yang tersisa di situ cuma (a) memangkas jumlah step, atau (b) mengganti model planner — dua-duanya keputusan produk, bukan optimasi kode. Ditutup sebagai bukan prioritas kode.
 
+**Konfirmasi di run nyata (8 step, `mt_644500856`)**: total 393.6s = **tool 337.3s + planner 56.3s**, nol sisa tak terjelaskan. Planner 56.3s / 8 step = **~7s per step** (vs 3.3s di harness mock) — lebih besar karena payload hasil tool yang asli jauh lebih besar, jadi input token per langkah planner ikut naik. Ini konsisten dengan kesimpulan di atas: biaya planner proporsional ukuran konteks, bukan kode.
+
 Fakta dari `stage_timings`:
 1. `stage_2_ms` == `judgement_2_ms` **persis** di kedua ronde (46.3s, 52.6s) → stage 2 sepenuhnya digerbangi satu model.
 2. `stage_1_ms` = max(bull, neutral, bear) → Stage 1 memang paralel efektif.
@@ -80,11 +82,13 @@ Fakta dari `stage_timings`:
 | Cache + riwayat `/api/agent` di SQLite (Task 2) | 238.9s → 8ms warm | kept | Win terbesar; baris juga jadi korpus backtest |
 | Cancellation `req.signal` (Task 3) | 238s → berhenti 1.0s setelah cut | kept | Hemat LLM; run yang di-abort tidak masuk cache |
 | Editorial warm-start saat debat (Task 4) | 34.9s di jalur → **1ms / 0ms** | kept | Terabsorpsi penuh di 2 run; `judgement_1_ms` tidak ikut melambat (18–20s) jadi tidak ada rebutan provider |
-| Anggaran retry same-model (Task 5) | worst case 360s → ≤240s per model | kept | Belum teramati di run nyata (butuh kegagalan model untuk memicu). Terkait: run C menunjukkan J2 menyentuh 173s dari plafon 180s, jadi anggaran retry memang relevan |
+| Anggaran retry same-model (Task 5) | worst case 360s → **240s teramati** | kept | **Terbukti di run nyata**: `judgement_2_ms` = 240.069 ms = 180s timeout + 60s retry (sebelum perubahan: 180+180 = 360s) → hemat 120s nyata. Retry tetap model sama, independensi vendor terjaga. Konsekuensi jujur: karena retry juga kehabisan waktu, `judgement_2` turun ke `[Template fallback]` — degradasi terlihat, bukan diam-diam |
 | `/api/matches` 1 gelombang (Task 6) | 1.03s → 1.07s (n=1, dalam noise) | kept sebagai simplifikasi | Bukti langsung: 5 panggilan upstream terukur 0.85–1.23s masing-masing, jadi wave 2→1 semestinya menghemat ~0.9s. Sample cold end-to-end terlalu noisy (satu sampel lain 3.7s) untuk atribusi bersih. Diff-nya juga menghapus kode, bukan menambah |
 | Negative caching + in-flight dedupe (Task 7) | 6 pemanggil bersamaan → 1 fetch; upstream rusak: 2 request → 1 fetch | kept | Diuji `scripts/test-stats-cache.ts` (11 assert) |
 | Plafon token debat 16384 → 2048/1536 (plan-perf-2 Task 1) | straggler 52.6s → 110.9s (B) → 173.0s (C, plafon dikembalikan) | **REVERTED** | Nol gain latensi (waktu panggilan = latensi provider) **dan** regresi kualitas: dengan plafon 2048 persona Bull menghabiskan anggaran untuk reasoning lalu tidak pernah mengeluarkan JSON — `thesis` terisi reasoning mentah dan `key_drivers` jatuh ke template. Setelah revert, JSON normal kembali |
 | Atribusi round-trip planner (plan-perf-2 Task 3) | "sisa tak terjelaskan" → 23.2s di 7 step (3.3s/step) | kept | Diukur dengan tool mock instan, jadi yang tersisa murni waktu model planner. Cukup jelas untuk ditutup sebagai bukan prioritas kode |
+| Kompresi JSON API (`lib/http-json.ts`) | `/api/matches` 36.954 B → 5.989 B · `/api/odds` 2.712 → 699 B | kept | Audit `uses-text-compression` 0.5 → 1; LCP 681→600ms, SI 1416→600ms. Diuji `scripts/test-http-json.ts` (12 assert) termasuk penghormatan `Accept-Encoding` |
+| Code-split 9 kartu analisis (next/dynamic) | initial JS 194 KB → 183 KB on-wire | kept | Kartu analisis tidak terjangkau pada paint pertama. Sisa flag `unused-javascript` (49 KB) ada di chunk vendor React — dilaporkan sebagai batas, tidak diklaim beres |
 
 ### Pelajaran yang dicatat supaya tidak diulang
 
@@ -114,7 +118,9 @@ Koreksi catatan sebelumnya: angka "171 KB" adalah **pembanding yang tidak sah** 
 | `/api/agent` cold | < 240s | ⚠️ 238.9–415.4s (digegerkan ekor 1 panggilan model; bukan target yang bisa dicapai lewat perubahan kode saja) |
 | `/api/matches` p95 | < 200ms | ✅ 8ms |
 | `/api/odds` p95 | < 200ms | ✅ 9ms |
-| Initial JS | < 200KB on-wire | ⚠️ 194KB (mepet) |
+| Initial JS | < 200KB on-wire | ✅ **183 KB** (setelah code-split; dari 194 KB) |
+| `/api/matches` transfer | < 10 KB | ✅ **5,9 KB** (gzip manual; dari 36,9 KB) |
+| Kompresi respons JSON API | `Content-Encoding: gzip` | ✅ matches/odds/agent |
 | CSS | < 50KB | ✅ 4.1KB |
 | LCP `/` | ≤ 2.5s | ✅ desktop **483 ms** · ⚠️ mobile+4×CPU **2459 ms** (lolos 41 ms) → SSR katalog tidak dikerjakan, lever = render delay |
 
@@ -137,17 +143,30 @@ LCP element = `<p>` deskripsi katalog (teks, **bukan** resource jaringan). Jadi 
 
 Bukti pendukung dari trace: dari 8 chunk (656 KB raw), Lighthouse menandai **49 KB tidak terpakai** di layar katalog — kartu analisis (`QuantEngineCard`, `SyndicateDebateCard`, `TheStatsOddsComparisonCard`) diimpor eager di `app/page.tsx` padahal baru dipakai setelah match diklik. JS itu tetap di-parse/eksekusi saat hidrasi, dan itulah yang menggigit di CPU 4×.
 
-### Temuan baru dari trace & inspeksi (belum dikerjakan)
+### Temuan dari trace & inspeksi
 
-1. **`/api/matches` dikirim TANPA kompresi.** Terkonfirmasi dua sumber independen:
-   - Lighthouse: 36 KB transfer / 36 KB resource (rasio 1.01), **30 KB terbuang**, sementara semua chunk JS/CSS di app yang sama gzip (rasio 0.2–0.32).
-   - Chrome DevTools (`get_network_request`): response header `/api/matches` cuma `content-type: application/json` + `transfer-encoding: chunked` — **nol `content-encoding`**. Chunk JS di navigasi yang sama: `content-encoding: gzip`.
-   `/api/agent` (payload ~21 KB) dan `/api/odds` lewat `Response.json()` yang sama, jadi kena juga. Masalah **delivery**, bukan bentuk data (payload sudah ramping: 97 match × 11 field).
-2. **49 KB JS tidak terpakai di layar katalog** — dua chunk terberat (71 KB & 48 KB transfer) masing-masing 26 KB & 23 KB tidak terpakai sebelum match dipilih, karena kartu analisis diimpor eager. Kandidat `next/dynamic`.
+1. **`/api/matches` dikirim TANPA kompresi — SUDAH DIPERBAIKI.** Terkonfirmasi dua sumber independen:
+   - Lighthouse: 36 KB transfer / 36 KB resource (rasio 1.01), **30 KB terbuang**.
+   - Chrome DevTools (`get_network_request`): response header cuma `content-type: application/json` + `transfer-encoding: chunked` — nol `content-encoding`. Chunk JS di navigasi yang sama: `content-encoding: gzip`.
+   Perbaikan: `lib/http-json.ts` (`gzipSync`, hormati `Accept-Encoding`, ambang 1 KB, `Vary: Accept-Encoding`), dipakai `/api/matches`, `/api/odds`, `/api/agent`. Hasil terukur: `/api/matches` **36.954 B → 5.989 B (hemat 30 KB, 84%)**, `/api/odds` 2.712 → 699 B, audit `uses-text-compression` **0.5 → 1**.
+2. **49 KB JS tidak terpakai di layar katalog — SUDAH DIKURANGI, tapi sumbernya bukan kode app.** Kartu analisis di-`next/dynamic` (9 komponen): initial JS **194 → 183 KB on-wire**. Sisa flag `unused-javascript` 49 KB ternyata ada di **chunk vendor React/React-DOM** (224 KB & 177 KB raw) — internal framework, bukan komponen aplikasi, jadi tidak bisa dihapus lewat code-split komponen. Dicatat sebagai batas, bukan target.
 3. Font: 4 file woff2 = **83 KB** transfer (29+23+16+15). Prioritas rendah.
-4. **Console tidak bersih — 1 issue a11y** (bukan perf): "A form field element should have an id or name attribute" (input pencarian di `FilterToolbar`). Dicatat di sini, belum diperbaiki.
+4. **Console tidak bersih — 1 issue a11y** (bukan perf): "A form field element should have an id or name attribute" (input pencarian di `FilterToolbar`). Dicatat, belum diperbaiki.
 
-Catatan metode: trace mentah (`chrome-trace-*.json.gz`, ~5.7 MB) dan screenshot DevTools sudah dihapus setelah angkanya dictat di dokumen ini — bukan artefak yang disimpan di repo.
+Catatan metode: trace mentah (`chrome-trace-*.json.gz`, ~5.7 MB) dan screenshot DevTools dihapus setelah angkanya dicatat di dokumen ini — bukan artefak yang disimpan di repo.
+
+### Lighthouse sebelum vs sesudah fix (desktop preset, throttling `simulate`)
+
+| Audit | Sebelum | Sesudah |
+|---|---|---|
+| `uses-text-compression` | 0.5 (30 KB terbuang) | **1** ✅ |
+| `unused-javascript` | 49 KB | 49 KB (vendor React) |
+| Initial JS on-wire | 194 KB | **183 KB** |
+| LCP | 681 ms | **600 ms** |
+| FCP | 350 ms | **300 ms** |
+| Speed Index | 1416 ms | **600 ms** |
+| TBT | 213 ms | **180 ms** |
+| CLS | 0.015 | 0.015 |
 
 ## Langkah berikutnya (butuh keputusan user, bukan eksekusi sepihak)
 

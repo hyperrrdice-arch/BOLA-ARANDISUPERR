@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import { format1xBetLeagueName } from "@/lib/league-constants";
+import { jsonResponse } from "@/lib/http-json";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -40,7 +40,8 @@ export async function GET(req: Request) {
     ]);
 
     if (json.error) {
-      return NextResponse.json(
+      return jsonResponse(
+        req,
         {
           error: json.message || `HTTP ${json.error}: Gagal mengambil jadwal pertandingan`,
         },
@@ -140,7 +141,7 @@ export async function GET(req: Request) {
     // Urutkan daftar liga aktif berdasarkan jumlah pertandingan terbanyak
     const activeLeagues = Array.from(leagueMap.values()).sort((a, b) => b.count - a.count);
 
-    return NextResponse.json({
+    return jsonResponse(req, {
       hours,
       total: filtered.length,
       matches: filtered,
@@ -148,7 +149,8 @@ export async function GET(req: Request) {
       cacheMetrics: getStatsCacheMetrics(),
     });
   } catch (error) {
-    return NextResponse.json(
+    return jsonResponse(
+      req,
       { error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );

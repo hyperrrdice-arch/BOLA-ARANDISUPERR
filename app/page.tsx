@@ -12,16 +12,8 @@ import {
 import type { AnalysisView } from "@/lib/view/analysis-view";
 import { FilterToolbar } from "@/components/dashboard/FilterToolbar";
 import { MatchCatalogView } from "@/components/dashboard/MatchCatalogView";
-import { MatchHeaderCard } from "@/components/dashboard/MatchHeaderCard";
 import { MatchTickerStrip } from "@/components/dashboard/MatchTickerStrip";
-import { DataIntegrityShield } from "@/components/dashboard/DataIntegrityShield";
-import { OddsDislocationBar } from "@/components/dashboard/OddsDislocationBar";
-import { QuantEngineCard } from "@/components/dashboard/QuantEngineCard";
-import { SyndicateDebateCard } from "@/components/dashboard/SyndicateDebateCard";
-import { StatsAndSplitsCard } from "@/components/dashboard/StatsAndSplitsCard";
-import { ThinkingPlannerCard } from "@/components/dashboard/ThinkingPlannerCard";
-import { TheStatsOddsComparisonCard } from "@/components/dashboard/TheStatsOddsComparisonCard";
-import { SidebarNav, AnalysisTabKey } from "@/components/dashboard/SidebarNav";
+import type { AnalysisTabKey } from "@/components/dashboard/SidebarNav";
 import dynamic from "next/dynamic";
 
 // Pasar 1xBet/Scanner = on-demand (butuh scan manual) → lazy, bukan masuk bundle awal.
@@ -31,6 +23,47 @@ const OneXBetDeepMarketsCard = dynamic(
 );
 const BettingScannerCard = dynamic(
   () => import("@/components/dashboard/BettingScannerCard").then((m) => m.BettingScannerCard),
+  { ssr: false }
+);
+
+// Kartu-kartu analisis cuma dipakai SETELAH match dipilih, tapi sebelumnya diimpor eager
+// sehingga ikut di-parse/eksekusi saat hidrasi layar katalog — terukur 49 KB tidak terpakai
+// dan menyumbang render delay LCP di CPU throttle. Semua di sini tidak terjangkau pada
+// paint pertama, jadi dipisah dari bundle awal mengikuti pola OneXBet di atas.
+const MatchHeaderCard = dynamic(
+  () => import("@/components/dashboard/MatchHeaderCard").then((m) => m.MatchHeaderCard),
+  { ssr: false }
+);
+const SidebarNav = dynamic(
+  () => import("@/components/dashboard/SidebarNav").then((m) => m.SidebarNav),
+  { ssr: false }
+);
+const ThinkingPlannerCard = dynamic(
+  () => import("@/components/dashboard/ThinkingPlannerCard").then((m) => m.ThinkingPlannerCard),
+  { ssr: false }
+);
+const DataIntegrityShield = dynamic(
+  () => import("@/components/dashboard/DataIntegrityShield").then((m) => m.DataIntegrityShield),
+  { ssr: false }
+);
+const StatsAndSplitsCard = dynamic(
+  () => import("@/components/dashboard/StatsAndSplitsCard").then((m) => m.StatsAndSplitsCard),
+  { ssr: false }
+);
+const QuantEngineCard = dynamic(
+  () => import("@/components/dashboard/QuantEngineCard").then((m) => m.QuantEngineCard),
+  { ssr: false }
+);
+const TheStatsOddsComparisonCard = dynamic(
+  () => import("@/components/dashboard/TheStatsOddsComparisonCard").then((m) => m.TheStatsOddsComparisonCard),
+  { ssr: false }
+);
+const OddsDislocationBar = dynamic(
+  () => import("@/components/dashboard/OddsDislocationBar").then((m) => m.OddsDislocationBar),
+  { ssr: false }
+);
+const SyndicateDebateCard = dynamic(
+  () => import("@/components/dashboard/SyndicateDebateCard").then((m) => m.SyndicateDebateCard),
   { ssr: false }
 );
 

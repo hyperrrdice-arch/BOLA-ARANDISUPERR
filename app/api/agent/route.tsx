@@ -1,4 +1,5 @@
 import { getStatsCacheMetrics } from "@/lib/stats-cache";
+import { jsonResponse } from "@/lib/http-json";
 import { runPlannerAnalysis, type PlannerResult } from "@/lib/agent/planner";
 import { AnalysisSchema } from "@/lib/agent/schemas";
 import { mapPipelineToView, type AnalysisView } from "@/lib/view/analysis-view";
@@ -186,8 +187,8 @@ function panelMarketFrom(
 }
 
 /** Response analisis segar + penanda cache miss untuk verifikasi. */
-function freshViewResponse(view: unknown): Response {
-  return Response.json(view as Record<string, unknown>, {
+function freshViewResponse(req: Request, view: unknown): Response {
+  return jsonResponse(req, view, {
     headers: { "x-analysis-cache": "miss" },
   });
 }
@@ -211,7 +212,7 @@ export async function GET(req: Request) {
   if (!rl.ok) return tooManyResponse(rl.retryAfterSec);
 
   if (!matchId) {
-    return Response.json(
+    return jsonResponse(req, 
       { error: "Parameter match_id diperlukan untuk menjalankan analisis pra-laga." },
       { status: 400 }
     );
@@ -225,7 +226,7 @@ export async function GET(req: Request) {
     try {
       const cached = getFreshSnapshot(matchId, cacheKeyHint, ANALYSIS_CACHE_TTL_MS);
       if (cached) {
-        return Response.json(JSON.parse(cached.view_json) as unknown, {
+        return jsonResponse(req, JSON.parse(cached.view_json) as unknown, {
           headers: {
             "x-analysis-cache": "hit",
             "x-analysis-cached-at": cached.captured_utc,
@@ -247,13 +248,13 @@ export async function GET(req: Request) {
   } catch (err) {
     if (req.signal.aborted) {
       console.log(`[Planner] Run match ${matchId} dibatalkan client — dihentikan, tidak ada hasil disimpan.`);
-      return Response.json(
+      return jsonResponse(req, 
         { error: "Analisis dibatalkan oleh client (koneksi ditutup)." },
         { status: 499 }
       );
     }
     console.error(`[Planner] Loop gagal:`, err);
-    return Response.json(
+    return jsonResponse(req, 
       { error: `Pipeline Enterprise Gagal: ${err instanceof Error ? err.message : String(err)}` },
       { status: 500 }
     );
@@ -265,7 +266,7 @@ export async function GET(req: Request) {
 
   // 2. Fail-fast eksplisit jika komponen inti tidak terpenuhi
   if (!fetchResult || !intel) {
-    return Response.json(
+    return jsonResponse(req, 
       {
         error: `Gagal mengumpulkan data pertandingan: ${trace.gaps_remaining.join(", ") || "data intelijen tidak tersedia"}`,
         planner_trace: trace,
@@ -274,7 +275,7 @@ export async function GET(req: Request) {
     );
   }
   if (!state.quant || !state.debate) {
-    return Response.json(
+    return jsonResponse(req, 
       {
         error: `Pipeline Enterprise Gagal: komponen analisis tidak lengkap (${coverage.checklist
           .filter((c) => !c.terpenuhi)
@@ -315,7 +316,7 @@ export async function GET(req: Request) {
 
   if (validatedAnalysis.success) {
     if (isDebug) {
-      return Response.json({
+      return jsonResponse(req, {
         analisis: validatedAnalysis.data,
         rawLineups: intel.lineups,
         modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
@@ -345,7 +346,7 @@ export async function GET(req: Request) {
       trace,
       isFallback: false,
     });
-    return freshViewResponse(viewData);
+    return freshViewResponse(req, viewData);
   }
 
   console.warn("[Planner] Schema parse fallback, merging verified intelligence");
@@ -446,7 +447,7 @@ export async function GET(req: Request) {
   };
 
   if (isDebug) {
-    return Response.json({
+    return jsonResponse(req, {
       analisis: merged,
       rawLineups: intel.lineups,
       modelUsed: `${syndicateDebate.dual_judgement.judgement_1.model} + ${syndicateDebate.dual_judgement.judgement_2.model}`,
@@ -460,7 +461,7 @@ export async function GET(req: Request) {
   const durationMs = Date.now() - startTime;
   const fallbackParsed = AnalysisSchema.safeParse(merged);
   if (!fallbackParsed.success) {
-    return Response.json(
+    return jsonResponse(req, 
       { error: "Pipeline menghasilkan data tidak valid (schema fallback gagal)." },
       { status: 500 }
     );
@@ -483,5 +484,5 @@ export async function GET(req: Request) {
     trace,
     isFallback: true,
   });
-  return freshViewResponse(viewData);
+  return freshViewResponse(req, viewData);
 }

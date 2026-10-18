@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { jsonResponse } from "@/lib/http-json";
 import { z } from "zod";
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import {
@@ -80,7 +80,7 @@ export async function GET(req: Request) {
   const matchId = searchParams.get("match_id");
 
   if (!matchId) {
-    return NextResponse.json(
+    return jsonResponse(req, 
       { error: "Parameter match_id wajib disertakan" },
       { status: 400 }
     );
@@ -95,7 +95,7 @@ export async function GET(req: Request) {
     );
 
     if (rawRes?.error) {
-      return NextResponse.json({
+      return jsonResponse(req, {
         match_id: matchId,
         is_available: false,
         message: "Data belum tersedia dari TheStatsAPI",
@@ -124,7 +124,7 @@ export async function GET(req: Request) {
       : [];
 
     if (rawList.length === 0) {
-      return NextResponse.json({
+      return jsonResponse(req, {
         match_id: matchId,
         is_available: false,
         message: "Data belum tersedia dari TheStatsAPI",
@@ -308,10 +308,10 @@ export async function GET(req: Request) {
       cache_metrics: getStatsCacheMetrics(),
     };
 
-    return NextResponse.json(payload);
+    return jsonResponse(req, payload);
   } catch (error) {
     console.error("[api/odds] Error fetching bookmaker comparison:", error);
-    return NextResponse.json(
+    return jsonResponse(req, 
       {
         match_id: matchId,
         is_available: false,
