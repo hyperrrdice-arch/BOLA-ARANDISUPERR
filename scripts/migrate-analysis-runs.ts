@@ -38,6 +38,13 @@ if (!hasLegacy) {
   process.exit(0);
 }
 
+// Jaring pengaman: backup file DB SEBELUM apa pun disentuh (rollback = salin balik).
+if (!DRY_RUN) {
+  const backupPath = `${LEGACY_DB}.pre_migrate`;
+  fs.copyFileSync(LEGACY_DB, backupPath);
+  console.log(`[migrate] Backup DB legacy → ${backupPath}`);
+}
+
 interface LegacyRow {
   run_id: number;
   match_id: string;
@@ -74,6 +81,10 @@ function num(v: unknown): number | null {
 const db = getSnapshotDb();
 let migrated = 0;
 
+// Transaksi tunggal: crash di tengah loop tidak boleh meninggalkan migrasi
+// setengah jadi. Throw sebelum COMMIT → koneksi ditutup → SQLite rollback otomatis.
+if (!DRY_RUN) db.exec("BEGIN IMMEDIATE");
+
 for (const row of rows) {
   let view: any = null;
   try {
@@ -105,7 +116,7 @@ for (const row of rows) {
     home_team: homeTeam ?? null,
     away_team: awayTeam ?? null,
     kickoff_utc: kickoff,
-    captured_utc: capturedIso ?? new Date().toISOString(),
+    captured_utc: capturedIso ?? "1970-01-01T00:00:00.000Z", // fallback DETERMINAN per baris: new Date() berubah tiap run → dedupe lolos → duplikat
     lead_time_minutes: leadTimeMinutes,
     cache_key_hint: row.competition_id_hint ?? "",
     verdict: view?.ringkasan?.verdict ?? null,
@@ -182,17 +193,20 @@ for (const row of rows) {
   console.log(`[migrate] run ${row.run_id} → snapshot ${row.match_id} (lead ${leadTimeMinutes} menit)`);
 }
 
+if (!DRY_RUN) db.exec("COMMIT");
+
 if (DRY_RUN) {
   console.log(`\n[migrate] DRY RUN: ${migrated} baris akan dimigrasi. Tabel ${LEGACY_TABLE} belum disentuh.`);
   legacy.close();
   process.exit(0);
 }
 
-// Baru DROP setelah semua baris tersalin.
+// Pensiunkan (RENAME, bukan DROP): rollback nihil setelah DROP — padahal data ini
+// tidak bisa di-rebuild tanpa LLM. Hapus manual analysis_runs_retired setelah verifikasi.
 legacyRw = new DatabaseSync(LEGACY_DB);
-legacyRw.exec(`DROP TABLE IF EXISTS ${LEGACY_TABLE};`);
+legacyRw.exec(`ALTER TABLE ${LEGACY_TABLE} RENAME TO ${LEGACY_TABLE}_retired;`);
 legacyRw.close();
 legacy.close();
 
 const remaining = db.prepare("SELECT count(*) AS c FROM analysis_snapshots").get() as { c: number };
-console.log(`\n[migrate] Selesai: ${migrated} baris dimigrasi, ${LEGACY_TABLE} di-DROP, total snapshot = ${remaining.c}.`);
+console.log(`\n[migrate] Selesai: ${migrated} baris dimigrasi, ${LEGACY_TABLE} → ${LEGACY_TABLE}_retired (hapus manual setelah verifikasi), total snapshot = ${remaining.c}.`);

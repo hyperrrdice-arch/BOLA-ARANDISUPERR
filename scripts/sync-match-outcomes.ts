@@ -51,10 +51,13 @@ const candidates: string[] = forcedMatch
             SELECT 1 FROM analysis_snapshots s2
             WHERE s2.match_id = s.match_id
               AND s2.kickoff_utc IS NOT NULL
-              AND s2.kickoff_utc > datetime('now')
+              AND s2.kickoff_utc > ?
           )
       `)
-      .all() as { match_id: string }[]).map((r) => r.match_id);
+      // Bandingkan sesama ISO 8601 — datetime('now') berformat "YYYY-MM-DD HH:MM:SS"
+      // selalu kalah string-compare vs "YYYY-MM-DDT.." sehingga outcome tertunda
+      // sampai hari berikutnya (audit 2026-10-18).
+      .all(new Date().toISOString()) as { match_id: string }[]).map((r) => r.match_id);
 
 if (candidates.length === 0) {
   console.log("[sync-outcomes] Tidak ada match yang perlu ditarik.");
@@ -157,12 +160,12 @@ async function main() {
           htHome = r.score?.half_time_home ?? null;
           htAway = r.score?.half_time_away ?? null;
           statsJson = JSON.stringify(r); // payload mentah, untuk audit
-        } else {
-          matchRow = null;
         }
+        // Respons tidak berbentuk match ATAU catch di bawah: matchRow lokal (bila ada)
+        // tetap dipakai — skor lokal valid tidak boleh dibuang karena fallback online
+        // gagal (audit 2026-10-18). Cukup stats online yang kosong.
       } catch (err) {
         console.warn(`[online] ${matchId} gagal diambil:`, err instanceof Error ? err.message : err);
-        matchRow = null;
       }
     }
 

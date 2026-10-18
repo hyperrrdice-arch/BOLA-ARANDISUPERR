@@ -71,14 +71,22 @@ async function main() {
   const deleted: string[] = [];
 
   for (const row of due) {
-    const existing = dataset
-      .prepare("SELECT 1 AS x FROM team_match_logs WHERE match_id = ? LIMIT 1")
-      .get(row.match_id);
+    // Kelengkapan = 2 log (home + away). Cek `LIMIT 1` lama menganggap crash
+    // di tengah promosi sebagai "sudah ada" sehingga awayLog hilang permanen.
+    const logCount = (
+      dataset.prepare("SELECT count(*) AS c FROM team_match_logs WHERE match_id = ?").get(row.match_id) as { c: number }
+    ).c;
 
-    if (existing) {
+    if (logCount >= 2) {
       deleted.push(row.match_id);
       console.log(`  ♻️ ${row.home_team_name} vs ${row.away_team_name}: telemetry sudah ada → hapus dari upcoming.`);
       continue;
+    }
+    if (logCount === 1) {
+      console.warn(`  ⚠️ ${row.match_id}: telemetry setengah jadi (1 log) → bersihkan dan promosikan ulang.`);
+      if (!DRY_RUN) {
+        dataset.prepare("DELETE FROM team_match_logs WHERE match_id = ?").run(row.match_id);
+      }
     }
 
     const remote = await get(`/football/matches/${row.match_id}`);
@@ -109,11 +117,20 @@ async function main() {
       continue;
     }
     if (!DRY_RUN) {
-      upsertMatch(mapped.match);
-      upsertTeamMatchLog(mapped.homeLog);
-      upsertTeamMatchLog(mapped.awayLog);
-      upsertTeam({ team_id: mapped.match.home_team_id, name: row.home_team_name ?? "" });
-      upsertTeam({ team_id: mapped.match.away_team_id, name: row.away_team_name ?? "" });
+      // Transaksi tunggal per match: crash di tengah tidak boleh meninggalkan
+      // log setengah jadi (audit 2026-10-18). Vault terpisah, di luar transaksi ini.
+      dataset.exec("BEGIN IMMEDIATE");
+      try {
+        upsertMatch(mapped.match);
+        upsertTeamMatchLog(mapped.homeLog);
+        upsertTeamMatchLog(mapped.awayLog);
+        upsertTeam({ team_id: mapped.match.home_team_id, name: row.home_team_name ?? "" });
+        upsertTeam({ team_id: mapped.match.away_team_id, name: row.away_team_name ?? "" });
+        dataset.exec("COMMIT");
+      } catch (err) {
+        dataset.exec("ROLLBACK");
+        throw err;
+      }
     }
     promoted.push(row.match_id);
     deleted.push(row.match_id);

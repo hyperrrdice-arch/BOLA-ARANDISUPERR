@@ -239,12 +239,19 @@ export async function fetchAndValidateMatchIntelligence(
   // 1. Cek Ketersediaan Data Lokal (Tier-1 Offline SQLite Ingestion)
   // Cutoff = kickoff match yang sedang dianalisis: form/H2H lokal hanya boleh
   // berisi match SEBELUM ini (anti-leakage waktu saat match lama diulang).
+  // FAIL-CLOSED (audit 2026-10-18): tanpa utc_date, cutoff tidak bisa dipastikan →
+  // sumber lokal TIDAK dipakai (query tanpa batas waktu bisa membocorkan match
+  // masa depan). Jalur online tetap aman karena difilter status=finished.
   const beforeDate = String(matchData.utc_date || "");
-  const localH2H = (homeTeamId && awayTeamId) 
+  const canUseLocalSources = beforeDate !== "";
+  if (!canUseLocalSources) {
+    console.warn(`[stats-fetcher] ${safeMatchId}: utc_date absen — sumber lokal dilewati (fail-closed anti-leakage).`);
+  }
+  const localH2H = (canUseLocalSources && homeTeamId && awayTeamId) 
     ? getLocalH2HMatches(String(homeTeamId), String(awayTeamId), 6, beforeDate) 
     : [];
-  const localHomeRecent = homeTeamId ? getLocalRecentMatches(String(homeTeamId), 6, beforeDate) : [];
-  const localAwayRecent = awayTeamId ? getLocalRecentMatches(String(awayTeamId), 6, beforeDate) : [];
+  const localHomeRecent = canUseLocalSources && homeTeamId ? getLocalRecentMatches(String(homeTeamId), 6, beforeDate) : [];
+  const localAwayRecent = canUseLocalSources && awayTeamId ? getLocalRecentMatches(String(awayTeamId), 6, beforeDate) : [];
   const localHomeInjuries = homeTeamId ? getLocalSquadInjuries(String(homeTeamId)) : [];
   const localAwayInjuries = awayTeamId ? getLocalSquadInjuries(String(awayTeamId)) : [];
 
