@@ -37,14 +37,19 @@ async function main() {
   // ───────────────────── (a) Injuries semua tim ─────────────────────
   let injOk = 0;
   let injEmpty = 0;
+  const failedFetch: string[] = [];
   for (const t of teams) {
-    const res: any = await statsFetch(
-      `/football/teams/${t.team_id}/injuries-suspensions`,
-      null,
-      `injuries_${t.team_id}`,
-      "injuries",
-      { maxAgeMs: INJ_MAX_AGE, retries: 5 }
-    );
+    let res: any = null;
+    try {
+      res = await statsFetch(`/football/teams/${t.team_id}/injuries-suspensions`, null, `injuries_${t.team_id}`, "injuries", {
+        maxAgeMs: INJ_MAX_AGE,
+        retries: 5,
+      });
+    } catch (err: any) {
+      failedFetch.push(`inj:${t.team_id}`);
+      console.error(`  ❌ injuries ${t.name}: ${err?.message ?? err} — dicatat, lanjut`);
+      continue;
+    }
     const list: any[] = res?.data?.injuries ?? [];
     if (res && list.length === 0) {
       injEmpty++; // API bilang memang tidak ada yang cedera — data apa adanya
@@ -75,10 +80,17 @@ async function main() {
   console.log(`\n👟 [SKUAD] ${thinSquads.length} tim dengan <${MIN_SQUAD} pemain`);
 
   for (const t of thinSquads) {
-    const res: any = await statsFetch(`/football/teams/${t.team_id}/players`, null, `players_${t.team_id}`, "players", {
-      maxAgeMs: INJ_MAX_AGE,
-      retries: 5,
-    });
+    let res: any = null;
+    try {
+      res = await statsFetch(`/football/teams/${t.team_id}/players`, null, `players_${t.team_id}`, "players", {
+        maxAgeMs: INJ_MAX_AGE,
+        retries: 5,
+      });
+    } catch (err: any) {
+      failedFetch.push(`sq:${t.team_id}`);
+      console.error(`  ❌ players ${t.name}: ${err?.message ?? err} — dicatat, lanjut`);
+      continue;
+    }
     const players: any[] = Array.isArray(res?.data) ? res.data : [];
     if (players.length === 0) {
       console.warn(`  ⚠️ ${t.name}: API tidak mengembalikan pemain — dibiarkan kosong`);
@@ -126,9 +138,16 @@ async function main() {
   let refOk = 0;
   let refMissing = 0;
   for (const f of todayFixtures) {
-    const res: any = await statsFetch(`/football/matches/${f.match_id}/referee`, null, `referee_${f.match_id}`, "referee", {
-      retries: 4,
-    });
+    let res: any = null;
+    try {
+      res = await statsFetch(`/football/matches/${f.match_id}/referee`, null, `referee_${f.match_id}`, "referee", {
+        retries: 5,
+      });
+    } catch (err: any) {
+      failedFetch.push(`ref:${f.match_id}`);
+      console.error(`  ❌ referee ${f.match_id}: ${err?.message ?? err} — dicatat, lanjut`);
+      continue;
+    }
     if (res) refOk++;
     else refMissing++;
     await sleep(RATE_PAUSE_MS);
@@ -136,6 +155,10 @@ async function main() {
   console.log(`✅ Referee: ${refOk} tersimpan di vault, ${refMissing} tidak tersedia (404 — jalankan lagi mendekati kickoff)`);
 
   console.log(`\n🎉 [TASK 7 SELESAI] sisa budget: ${remainingBudget()} dari ${API_BUDGET_TOTAL}`);
+  if (failedFetch.length > 0) {
+    console.error(`⚠️ Gagal fetch ${failedFetch.length} (run berikutnya mencoba lagi): ${failedFetch.slice(0, 10).join(", ")}`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {

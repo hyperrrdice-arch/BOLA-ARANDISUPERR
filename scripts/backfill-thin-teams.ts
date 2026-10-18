@@ -65,12 +65,20 @@ async function main() {
   console.log(`🔬 [XG BACKFILL] ${missIds.length} match dengan log tanpa xG`);
 
   const stillMissing: string[] = [];
+  const failedFetch: string[] = [];
   for (const matchId of missIds) {
     // Force refresh (maxAgeMs=1 → cache lama tidak dipakai ulang).
-    const raw: any = await statsFetch(`/football/matches/${matchId}/stats`, null, `stats_${matchId}`, "stats", {
-      maxAgeMs: 1,
-      retries: 5,
-    });
+    let raw: any = null;
+    try {
+      raw = await statsFetch(`/football/matches/${matchId}/stats`, null, `stats_${matchId}`, "stats", {
+        maxAgeMs: 1,
+        retries: 5,
+      });
+    } catch (err: any) {
+      failedFetch.push(matchId);
+      console.error(`  ❌ ${matchId}: ${err?.message ?? err} — dicatat, lanjut`);
+      continue;
+    }
     const statsData = raw?.data ?? raw ?? null;
     const mRow = db.prepare("SELECT * FROM matches WHERE match_id = ?").get(matchId) as any;
     const hasXg = statsData?.overview?.expected_goals != null || statsData?.xg != null;
@@ -110,13 +118,20 @@ async function main() {
     let logCount = Number(t.n);
     // Listing per tim: 1 request per 100 match (murah). team_id di luar 7 kompetisi
     // tetap sah — ini observasi nyata untuk form tim.
-    const listing: any = await statsFetch(
-      "/football/matches",
-      { team_id: t.team_id, status: "finished", per_page: 100, page: 1 },
-      `team_list_${t.team_id}_p1`,
-      "matches",
-      { maxAgeMs: 6 * 3600 * 1000 }
-    );
+    let listing: any = null;
+    try {
+      listing = await statsFetch(
+        "/football/matches",
+        { team_id: t.team_id, status: "finished", per_page: 100, page: 1 },
+        `team_list_${t.team_id}_p1`,
+        "matches",
+        { maxAgeMs: 6 * 3600 * 1000 }
+      );
+    } catch (err: any) {
+      failedFetch.push(`list:${t.team_id}`);
+      console.error(`  ❌ listing ${t.name}: ${err?.message ?? err} — dicatat, lanjut`);
+      continue;
+    }
     const rows: any[] = Array.isArray(listing?.data) ? listing.data : [];
     if (rows.length === 0) {
       console.warn(`  ⚠️ ${t.name}: listing team kosong / team_id tidak didukung — tidak ada sumber tambahan`);
@@ -129,7 +144,14 @@ async function main() {
 
     for (const m of candidates) {
       if (logCount >= TARGET_LOGS) break;
-      const raw: any = await statsFetch(`/football/matches/${m.id}/stats`, null, `stats_${m.id}`, "stats", { retries: 5 });
+      let raw: any = null;
+      try {
+        raw = await statsFetch(`/football/matches/${m.id}/stats`, null, `stats_${m.id}`, "stats", { retries: 5 });
+      } catch (err: any) {
+        failedFetch.push(String(m.id));
+        console.error(`  ❌ stats ${m.id}: ${err?.message ?? err} — dicatat, lanjut`);
+        continue;
+      }
       const statsData = raw?.data ?? raw ?? null;
       const ok = remapAndUpsert(db, { ...m, competitionId: m.competition_id }, statsData, m.home_team?.name ?? null, m.away_team?.name ?? null);
       if (ok) {
@@ -154,7 +176,10 @@ async function main() {
   console.log(`\n🎉 [TASK 6 SELESAI]`);
   console.log(`- Tim <${TARGET_LOGS} log tersisa: ${thinAfter.c} (laporkan apa adanya kalau memang tidak ada sumber)`);
   console.log(`- Log tanpa xG tersisa: ${nullAfter} (sumber kosong, TANPA imputasi)`);
+  console.log(`- Gagal fetch (run berikutnya mencoba lagi): ${failedFetch.length}`);
+  if (failedFetch.length > 0) console.error(`   contoh gagal: ${failedFetch.slice(0, 10).join(", ")}`);
   console.log(`- Sisa budget: ${remainingBudget()} dari ${API_BUDGET_TOTAL}`);
+  if (failedFetch.length > 0) process.exitCode = 1;
 }
 
 main().catch((err) => {

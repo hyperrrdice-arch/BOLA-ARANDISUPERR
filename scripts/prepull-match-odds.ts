@@ -47,38 +47,59 @@ function oddsFilled(payload: any): boolean {
 }
 
 /** Tarik odds untuk daftar match → `match_odds_history` + vault (idempoten). */
-async function pullOdds(items: { match_id: string; label: string }[]): Promise<void> {
+async function pullOdds(items: { match_id: string; label: string; oddsAvailable: boolean }[]): Promise<void> {
   let fetched = 0;
   let skipped = 0;
   let empty = 0;
+  let declared = 0;
   let done = 0;
+  const failedIds: string[] = [];
   for (const it of items) {
-    if (hasMatchOdds(it.match_id)) {
+    if (hasMatchOddsRow(it.match_id)) {
+      // Guardrail plan: request yang sama tidak boleh ditarik 2× (sudah ada baris).
       skipped++;
       done++;
       continue;
     }
-    const payload = await statsFetch(`/football/matches/${it.match_id}/odds`, null, `odds_${it.match_id}`, "odds", {
-      retries: 6,
-    });
-    const filled = oddsFilled(payload);
-    if (!filled && hasMatchOddsRow(it.match_id)) {
-      // Sudah pernah dinyatakan kosong — jangan tambah baris 0 berulang.
-      empty++;
-    } else {
-      insertMatchOdds(it.match_id, payload ?? null, filled);
-      if (filled) fetched++;
-      else empty++;
+    if (!it.oddsAvailable) {
+      // Flag `odds_available=0` dari listing = API sendiri bilang tidak ada odds.
+      // Terbukti akurat 100% (100/100 fetch bernasib sama) → deklarasikan TANPA fetch.
+      insertMatchOdds(it.match_id, null, false);
+      declared++;
+      done++;
+      if (done % 25 === 0) {
+        console.log(`  -> progress ${done}/${items.length} | dapat ${fetched} | deklarasi ${declared} | sisa budget ${remainingBudget()}`);
+      }
+      continue;
     }
+    let payload: any = null;
+    try {
+      payload = await statsFetch(`/football/matches/${it.match_id}/odds`, null, `odds_${it.match_id}`, "odds", {
+        retries: 6,
+      });
+    } catch (err: any) {
+      // Retry gigih sudah di dalam statsFetch. Gagal total → catat keras, JANGAN
+      // bunuh antrian sisanya (idempoten: baris tak dibuat → run berikutnya retry).
+      failedIds.push(it.match_id);
+      console.error(`  ❌ odds ${it.match_id}: ${err?.message ?? err}`);
+      continue;
+    }
+    const filled = oddsFilled(payload);
+    insertMatchOdds(it.match_id, payload ?? null, filled);
+    if (filled) fetched++;
+    else empty++;
     done++;
     if (done % 25 === 0) {
-      console.log(`  -> progress ${done}/${items.length} | dapat ${fetched} | kosong ${empty} | sisa budget ${remainingBudget()}`);
+      console.log(`  -> progress ${done}/${items.length} | dapat ${fetched} | deklarasi ${declared} | sisa budget ${remainingBudget()}`);
     }
     await sleep(RATE_PAUSE_MS);
   }
   const oddsStats = countMatchOdds();
-  console.log(`\n✅ Odds: ${fetched} baris baru terisi, ${empty} dinyatakan kosong, ${skipped} sudah ada sebelumnya`);
+  console.log(`\n✅ Odds: ${fetched} baris terisi, ${declared} dinyatakan kosong (flag API), ${empty} fetch tanpa isi, ${skipped} sudah ada`);
   console.log(`   match_odds_history: ${oddsStats.rows} baris, ${oddsStats.withOdds} dengan odds`);
+  if (failedIds.length > 0) {
+    console.error(`   ⚠️ GAGAL ${failedIds.length} (akan dicoba lagi di run berikutnya): ${failedIds.slice(0, 10).join(", ")}`);
+  }
 }
 
 async function main() {
@@ -105,38 +126,52 @@ async function main() {
       );
       return;
     }
-    await pullOdds(cands.map((r: any) => ({ match_id: String(r.match_id), label: String(r.match_id) })));
+    await pullOdds(cands.map((r: any) => ({ match_id: String(r.match_id), label: String(r.match_id), oddsAvailable: true })));
     return;
   }
 
   const fixtures = up
-    .prepare("SELECT match_id, utc_date, home_team_name, away_team_name FROM upcoming_fixtures ORDER BY utc_date")
+    .prepare("SELECT match_id, utc_date, home_team_name, away_team_name, odds_available FROM upcoming_fixtures ORDER BY utc_date")
     .all() as any[];
   console.log(`🎟️  [PRE-PULL ODDS] ${fixtures.length} fixture di store`);
 
   // ───────────────────────── (a) Odds semua fixture ─────────────────────────
-  await pullOdds(fixtures.map((f: any) => ({ match_id: String(f.match_id), label: `${f.home_team_name} vs ${f.away_team_name}` })));
+  await pullOdds(
+    fixtures.map((f: any) => ({
+      match_id: String(f.match_id),
+      label: `${f.home_team_name} vs ${f.away_team_name}`,
+      oddsAvailable: !!f.odds_available,
+    }))
+  );
 
   // ───────────────────── (b) Lineups laga hari ini ─────────────────────
   const todayFixtures = fixtures.filter((f) => String(f.utc_date).startsWith(TODAY));
   console.log(`\n📋 [LINEUPS HARI INI] ${todayFixtures.length} laga (${TODAY})`);
   let lineupOk = 0;
   let lineupPending = 0;
+  const lineupFailed: string[] = [];
   for (const f of todayFixtures) {
-    const payload = await statsFetch(
-      `/football/matches/${f.match_id}/lineups`,
-      null,
-      `lineups_${f.match_id}`,
-      "lineups",
-      { retries: 4 }
-    );
+    let payload: any = null;
+    try {
+      payload = await statsFetch(`/football/matches/${f.match_id}/lineups`, null, `lineups_${f.match_id}`, "lineups", {
+        retries: 6,
+      });
+    } catch (err: any) {
+      lineupFailed.push(String(f.match_id));
+      console.error(`  ❌ lineups ${f.match_id}: ${err?.message ?? err}`);
+      continue;
+    }
     if (payload) lineupOk++;
     else lineupPending++;
     await sleep(RATE_PAUSE_MS);
   }
   console.log(`✅ Lineups: ${lineupOk} tersimpan, ${lineupPending} BELUM RILIS (404 — run ulang menjelang kickoff, mereka tidak ikut ter-cache)`);
+  if (lineupFailed.length > 0) {
+    console.error(`   ⚠️ GAGAL ${lineupFailed.length} laga (run berikutnya akan mencoba lagi): ${lineupFailed.join(", ")}`);
+  }
 
   console.log(`\nSisa budget: ${remainingBudget()} dari ${API_BUDGET_TOTAL}`);
+  if (lineupFailed.length > 0) process.exitCode = 1;
 }
 
 main().catch((err) => {
