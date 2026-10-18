@@ -203,7 +203,14 @@ dan dua VIEW evaluasi (`v_snapshot_eval`, `v_snapshot_eval_market`) yang menyari
 Skema ini menggantikan tabel `analysis_runs` yang dulu hidup di `thestats_dataset.db`
 (DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `DB SNAPSHOT.md`.
 Operasional: `scripts/sync-match-outcomes.ts` (tarik hasil aktual, lokal dulu),
-`scripts/snapshot-report.ts` (report read-only).
+`scripts/snapshot-report.ts` (report read-only),
+`scripts/backfill-panel-market.ts` (isi kolom `panel_market*` untuk baris lama).
+
+**Dua definisi rekomendasi, sengaja dipisah:** `recommended_market_key` = market
+dengan EV positif pertama (aturan `hero.ev_teratas` di view), sedangkan
+`panel_market_key` = market yang benar-benar direkomendasikan arbiter/supreme
+(diturunkan dari teksnya, market yang disebut pertama). Keduanya punya hit rate
+sendiri di report — sering berbeda, jadi membandingkan keduanya itu inti evaluasi.
 
 ---
 
