@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "sync:weekly": "npx tsx scripts/sync-weekly-telemetry.ts",
+    "sync:upcoming": "npx tsx scripts/sync-upcoming-fixtures.ts",
+    "sync:outcomes": "npx tsx scripts/sync-match-outcomes.ts",
+    "report:snapshot": "npx tsx scripts/snapshot-report.ts",
     "ingest:multileague": "npx tsx scripts/ingest-rich-telemetry-multileague.ts"
   },
   "dependencies": {

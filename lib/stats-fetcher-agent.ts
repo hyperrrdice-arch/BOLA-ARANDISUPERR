@@ -237,11 +237,14 @@ export async function fetchAndValidateMatchIntelligence(
   }
 
   // 1. Cek Ketersediaan Data Lokal (Tier-1 Offline SQLite Ingestion)
+  // Cutoff = kickoff match yang sedang dianalisis: form/H2H lokal hanya boleh
+  // berisi match SEBELUM ini (anti-leakage waktu saat match lama diulang).
+  const beforeDate = String(matchData.utc_date || "");
   const localH2H = (homeTeamId && awayTeamId) 
-    ? getLocalH2HMatches(String(homeTeamId), String(awayTeamId), 6) 
+    ? getLocalH2HMatches(String(homeTeamId), String(awayTeamId), 6, beforeDate) 
     : [];
-  const localHomeRecent = homeTeamId ? getLocalRecentMatches(String(homeTeamId), 6) : [];
-  const localAwayRecent = awayTeamId ? getLocalRecentMatches(String(awayTeamId), 6) : [];
+  const localHomeRecent = homeTeamId ? getLocalRecentMatches(String(homeTeamId), 6, beforeDate) : [];
+  const localAwayRecent = awayTeamId ? getLocalRecentMatches(String(awayTeamId), 6, beforeDate) : [];
   const localHomeInjuries = homeTeamId ? getLocalSquadInjuries(String(homeTeamId)) : [];
   const localAwayInjuries = awayTeamId ? getLocalSquadInjuries(String(awayTeamId)) : [];
 

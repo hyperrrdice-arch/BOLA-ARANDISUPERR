@@ -551,10 +551,14 @@ export function getDatabaseMetrics() {
  * Mengambil H2H lokal dari thestats_dataset.db (Tier-1 Offline SQLite)
  * Memformat output sesuai RawMatchSchema / stats-validator.ts
  */
-export function getLocalH2HMatches(teamA: string, teamB: string, limit: number = 6) {
+export function getLocalH2HMatches(teamA: string, teamB: string, limit: number = 6, beforeDate?: string) {
   const db = getTheStatsDb();
   const teamAId = resolveLocalTeamId(teamA);
   const teamBId = resolveLocalTeamId(teamB);
+  // HANYA match yang benar-benar selesai: baris `scheduled` (fixture 30 hari
+  // ke depan) akan terbaca sebagai skor 0-0 palsu kalau lolos. Cutoff tanggal
+  // opsional = anti-leakage waktu saat analisis match lama diulang.
+  const cutoff = beforeDate ? beforeDate.slice(0, 10) : null;
 
   const rows = db.prepare(`
     SELECT m.match_id as id, m.utc_date, m.status, 
@@ -564,10 +568,14 @@ export function getLocalH2HMatches(teamA: string, teamB: string, limit: number =
     FROM matches m
     JOIN teams ht ON m.home_team_id = ht.team_id
     JOIN teams at ON m.away_team_id = at.team_id
-    WHERE (m.home_team_id = ? AND m.away_team_id = ?)
-       OR (m.home_team_id = ? AND m.away_team_id = ?)
+    WHERE m.status = 'finished'
+      AND m.home_score IS NOT NULL
+      AND m.away_score IS NOT NULL
+      AND ((m.home_team_id = ? AND m.away_team_id = ?)
+        OR (m.home_team_id = ? AND m.away_team_id = ?))
+      AND (? IS NULL OR m.utc_date < ?)
     ORDER BY m.utc_date DESC LIMIT ?
-  `).all(teamAId, teamBId, teamBId, teamAId, limit) as any[];
+  `).all(teamAId, teamBId, teamBId, teamAId, cutoff, cutoff, limit) as any[];
 
   return rows.map((m) => ({
     id: m.id,
@@ -586,9 +594,12 @@ export function getLocalH2HMatches(teamA: string, teamB: string, limit: number =
 /**
  * Mengambil 6 Match Form Lokal dari thestats_dataset.db (Tier-1 Offline SQLite)
  */
-export function getLocalRecentMatches(team: string, limit: number = 6) {
+export function getLocalRecentMatches(team: string, limit: number = 6, beforeDate?: string) {
   const db = getTheStatsDb();
   const teamId = resolveLocalTeamId(team);
+  // Sama seperti H2H: hanya match selesai + skor terisi, dan opsional cutoff
+  // tanggal. Tanpa ini, form akan menghitung fixture yang belum main.
+  const cutoff = beforeDate ? beforeDate.slice(0, 10) : null;
 
   const rows = db.prepare(`
     SELECT m.match_id as id, m.utc_date, m.status, 
@@ -598,9 +609,13 @@ export function getLocalRecentMatches(team: string, limit: number = 6) {
     FROM matches m
     JOIN teams ht ON m.home_team_id = ht.team_id
     JOIN teams at ON m.away_team_id = at.team_id
-    WHERE m.home_team_id = ? OR m.away_team_id = ?
+    WHERE m.status = 'finished'
+      AND m.home_score IS NOT NULL
+      AND m.away_score IS NOT NULL
+      AND (m.home_team_id = ? OR m.away_team_id = ?)
+      AND (? IS NULL OR m.utc_date < ?)
     ORDER BY m.utc_date DESC LIMIT ?
-  `).all(teamId, teamId, limit) as any[];
+  `).all(teamId, teamId, cutoff, cutoff, limit) as any[];
 
   return rows.map((m) => ({
     id: m.id,
