@@ -31,7 +31,7 @@ Metode: `curl -w %{time_total}` / `%{size_download}`, `--compressed` untuk ukura
 | `/api/matches` warm | 12ms (pengukuran lama) | med 7ms · p95 8ms | 35KB |
 | `/api/matches` cold | 1.03s | 1.07s (n=1) | **dalam noise**, lihat ledger |
 | `/api/odds` warm | 10ms | med 7ms · p95 9ms | |
-| Initial JS | 171KB | 194KB on-wire | lihat catatan bundle |
+| Initial JS | 171KB (angka tidak sah) | **194 KB on-wire** | A/B bersih vs `4e260ec`: +275 B on-wire. Lihat bagian Bundle |
 | CSS | 4.0KB | 4.1KB on-wire | |
 | `analysis_runs` (riwayat) | — | 1 baris, 27KB `view_json` | pertumbuhan ~27KB/analisis |
 
@@ -92,9 +92,19 @@ Fakta dari `stage_timings`:
 - `stage = max(anggota)`: satu panggilan model yang lambat (110–173s) menggeser seluruh run. Optimasi yang menyasar "banyak panggilan" tidak menyentuh masalah; yang perlu ditangani adalah **ekor** panggilan tunggal.
 - Perubahan kode tanpa gain terukur tapi dengan risiko kualitas = revert, bukan "biarkan saja".
 
-## Catatan bundle
+## Bundle — A/B bersih (worktree terpisah, build + node_modules + metode sama)
 
-Initial JS naik 171KB → 194KB on-wire (+13%). **Tidak teratribusi** ke perubahan ronde 1: semua impor `lib/view/analysis-view` dan `lib/agent/schemas` di kode client bersifat `import type` (terhapus saat build); tambahan runtime di client hanya ~20 baris JSX durasi + satu `AbortController`. Angka 171KB diambil dari build lama yang chunk-split-nya berbeda, jadi perbandingannya tidak setara. Kalau ini penting, ukur ulang dengan build lama berdampingan.
+Dijalankan di worktree terisolasi: `4e260ec` (sebelum kerjaan perf) vs `121e30d` (commit perf terakhir). Cara ukur: ambil 8 `<script src>` dari HTML `/`, `curl --compressed` per chunk.
+
+| | chunk app | total on-wire | total raw |
+|---|---|---|---|
+| **BEFORE** `4e260ec` | `1rt17a5snc2qj.js` — 21,726 B / 95,005 B | **194 KB** | 656 KB |
+| **AFTER** `121e30d` | `3ha6r8ir9o98k.js` — 22,001 B / 96,067 B | **194 KB** | 657 KB |
+| **Selisih** | **+275 B on-wire / +1,062 B raw** | 0 | +1 KB |
+
+Tujuh chunk lain **byte-identik**. Jadi biaya client-side dari seluruh kerjaan perf = **~1 KB raw** (tampilan durasi per step + `stage_timings` + `AbortController`) — 0,14% dari total, tidak signifikan.
+
+Koreksi catatan sebelumnya: angka "171 KB" adalah **pembanding yang tidak sah** (build lama dengan chunk-split berbeda), bukan baseline. Baseline sah untuk `4e260ec` adalah 194 KB — sama dengan hasil akhir. Checklist "bundle size hasn't increased significantly" **terpenuhi**.
 
 ## Anggaran (plan-perf-2, Task 8)
 
