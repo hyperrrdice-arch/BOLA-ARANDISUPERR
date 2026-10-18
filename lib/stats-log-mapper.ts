@@ -18,6 +18,9 @@ export interface MatchForMapping {
   away_score?: number | null;
   home_team?: { id?: string | number | null } | null;
   away_team?: { id?: string | number | null } | null;
+  /** Bentuk baris tabel `matches` (dipakai test & pemanggil internal). */
+  home_team_id?: string | null;
+  away_team_id?: string | null;
 }
 
 export interface MappedTelemetry {
@@ -34,8 +37,8 @@ export function mapStatsToTelemetry(args: {
 }): MappedTelemetry | null {
   const { m, stats, competitionId, seasonName } = args;
   const matchId = String(m.id);
-  const homeId = m.home_team?.id != null ? String(m.home_team.id) : null;
-  const awayId = m.away_team?.id != null ? String(m.away_team.id) : null;
+  const homeId = m.home_team?.id != null ? String(m.home_team.id) : m.home_team_id != null ? String(m.home_team_id) : null;
+  const awayId = m.away_team?.id != null ? String(m.away_team.id) : m.away_team_id != null ? String(m.away_team_id) : null;
   if (!homeId || !awayId || !m.utc_date) return null;
 
   const homeScore = Number(m.score?.home ?? m.home_score ?? 0);

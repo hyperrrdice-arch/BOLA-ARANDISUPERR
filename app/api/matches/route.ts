@@ -1,6 +1,7 @@
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import { format1xBetLeagueName } from "@/lib/league-constants";
 import { jsonResponse } from "@/lib/http-json";
+import { getUpcomingInWindow } from "@/lib/db/upcoming-fixtures";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -27,6 +28,41 @@ export async function GET(req: Request) {
   }
 
   try {
+    // Tier-1: store fixture lokal (diisi `npm run sync:upcoming`).
+    // Kalau store punya fixture di jendela ini → 0 panggilan TheStatsAPI.
+    // Store kosong / window tak ter-cover → fallback API (perilaku lama).
+    const localRows = getUpcomingInWindow(now.getTime(), hours, competitionId);
+    if (localRows.length > 0) {
+      const localLeagueMap = new Map<string, { id: string; name: string; count: number }>();
+      const localMatches = localRows.map((m) => {
+        const compId = String(m.competition_id ?? "");
+        const standardName = format1xBetLeagueName(m.competition_name ?? "", m.competition_country ?? undefined);
+        const existing = localLeagueMap.get(compId);
+        if (existing) existing.count += 1;
+        else localLeagueMap.set(compId, { id: compId, name: standardName, count: 1 });
+        return {
+          id: m.match_id,
+          utc_date: m.utc_date,
+          competition_id: compId,
+          competition_name: standardName,
+          home_team: { id: m.home_team_id, name: m.home_team_name },
+          away_team: { id: m.away_team_id, name: m.away_team_name },
+          venue: m.venue || null,
+          is_neutral: m.is_neutral ?? false,
+          odds_available: m.odds_available ?? false,
+          xg_available: m.xg_available ?? false,
+          shotmap_available: false, // tidak disimpan di store upcoming
+        };
+      });
+      return jsonResponse(req, {
+        hours,
+        total: localMatches.length,
+        matches: localMatches,
+        leagues: Array.from(localLeagueMap.values()).sort((a, b) => b.count - a.count),
+        cacheMetrics: { ...getStatsCacheMetrics(), upcomingSource: "local_sqlite" },
+      });
+    }
+
     // 1. Jadwal laga (cache 10 menit) + kamus kompetisi (cache 24 jam) dalam SATU gelombang.
     // Sebelumnya jadwal di-await sendirian lalu kompetisi menyusul → dua round-trip upstream
     // di jalur dingin (terukur 1.03s). Kelimanya independen, jadi satu Promise.all.
