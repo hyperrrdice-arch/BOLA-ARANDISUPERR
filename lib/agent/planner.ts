@@ -131,30 +131,26 @@ export function buildQuantPackage(
     fair_prob: { home: dcOutput.prob_home_win, draw: dcOutput.prob_draw, away: dcOutput.prob_away_win },
   };
 
-  // Evaluasi +EV & Portfolio Kelly Stake Sizing
-  const rawValueBets: ValueBetEvaluation[] = [
-    evaluateValueBet(dcOutput.prob_home_win, hLast || dcOutput.fair_odds.home, "1X2", `${intel.pertandingan.tim_kandang} Menang`),
-    evaluateValueBet(dcOutput.prob_draw, dLast || dcOutput.fair_odds.draw, "1X2", "Hasil Imbang (Draw)"),
-    evaluateValueBet(dcOutput.prob_away_win, aLast || dcOutput.fair_odds.away, "1X2", `${intel.pertandingan.tim_tamu} Menang`),
-    evaluateValueBet(
-      dcOutput.over_under.line_2_5.over,
-      intel.market_odds.total_goals_over_2_5 || 1.95,
-      "Over/Under 2.5",
-      "Over 2.5 Goals"
-    ),
-    evaluateValueBet(
-      dcOutput.btts.yes,
-      1.88,
-      "Both Teams to Score",
-      "BTTS Yes"
-    ),
-    evaluateValueBet(
-      dcOutput.asian_handicap.ah_0_0_dnb.home_prob,
-      dcOutput.asian_handicap.ah_0_0_dnb.fair_odds_home,
-      "Asian Handicap 0.0 (DNB)",
-      `${intel.pertandingan.tim_kandang} Draw No Bet`
-    ),
-  ];
+  // Value bet WAJIB membandingkan probabilitas model dengan odds pasar NYATA.
+  // Tanpa odds pasar → tidak ada value bet untuk market itu. JANGAN karang odds
+  // (1.95 / 1.88 / fair-odds model): EV, Kelly, dan recommended_odds yang mengalir
+  // ke snapshot jadi angka yang tidak dimiliki bandar mana pun (audit 2026-10-18).
+  const rawValueBets: ValueBetEvaluation[] = [];
+  if (hLast && hLast > 1) {
+    rawValueBets.push(evaluateValueBet(dcOutput.prob_home_win, hLast, "1X2", `${intel.pertandingan.tim_kandang} Menang`));
+  }
+  if (dLast && dLast > 1) {
+    rawValueBets.push(evaluateValueBet(dcOutput.prob_draw, dLast, "1X2", "Hasil Imbang (Draw)"));
+  }
+  if (aLast && aLast > 1) {
+    rawValueBets.push(evaluateValueBet(dcOutput.prob_away_win, aLast, "1X2", `${intel.pertandingan.tim_tamu} Menang`));
+  }
+  const o25Odds = intel.market_odds.total_goals_over_2_5;
+  if (typeof o25Odds === "number" && Number.isFinite(o25Odds) && o25Odds > 1) {
+    rawValueBets.push(evaluateValueBet(dcOutput.over_under.line_2_5.over, o25Odds, "Over/Under 2.5", "Over 2.5 Goals"));
+  }
+  // BTTS & AH DNB: intel tidak punya odds pasar untuk market ini → dilewati,
+  // bukan diisi odds karangan. Bila kelak field odds-nya tersedia, tambahkan di sini.
   const valueBets = evaluatePortfolioKelly(rawValueBets, 5.0);
 
   // Kompilasi Pasar Khusus (Headed Goal, Corners, Cards, Passes)
@@ -270,13 +266,13 @@ function traceStep(state: PlannerRunState, action: string, input: { alasan?: str
 }
 
 /** Suntikkan hasil evaluasi coverage (code) ke tool result sebagai bahan re-plan planner. */
-function withCoverage(state: PlannerRunState, result: Record<string, any>, startedAt?: number): Record<string, any> {
+function withCoverage(state: PlannerRunState, step: PlannerTraceStep | undefined, result: Record<string, any>, startedAt?: number): Record<string, any> {
   const coverage = evaluateCoverage(state);
-  // Stempel coverage + durasi pasca-eksekusi ke step trace yang sesuai (dipakai UI thinking panel).
-  const last = state.traceSteps[state.traceSteps.length - 1];
-  if (last) {
-    last.coverage = coverage;
-    if (startedAt !== undefined) last.durasi_ms = Date.now() - startedAt;
+  // Stempel ke step MILIK tool ini — tool call dalam satu step dieksekusi paralel,
+  // menstempel "step terakhir" akan salah saat ada 2 tool dalam 1 step (audit 2026-10-18).
+  if (step) {
+    step.coverage = coverage;
+    if (startedAt !== undefined) step.durasi_ms = Date.now() - startedAt;
   }
   return { ...result, coverage_check: coverage };
 }
@@ -330,7 +326,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
       inputSchema: StepInputSchema,
       execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
-        traceStep(state, "check_data_integrity", input);
+        const stepRef = traceStep(state, "check_data_integrity", input);
         try {
           state.fetchResult = await fetchAndValidateMatchIntelligence(
             state.matchId,
@@ -338,7 +334,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             abortSignal
           );
           const intel = state.fetchResult.intelligence;
-          return withCoverage(state, {
+          return withCoverage(state, stepRef, {
             pertandingan: intel.pertandingan,
             coverage: {
               odds: intel.market_odds.is_available,
@@ -353,7 +349,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             },
           }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Gagal mengumpulkan data: ${err?.message || err}` }, t0);
+          return withCoverage(state, stepRef, { error: `Gagal mengumpulkan data: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -365,7 +361,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
       inputSchema: StepInputSchema,
       execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
-        traceStep(state, "fetch_missing_intel", input);
+        const stepRef = traceStep(state, "fetch_missing_intel", input);
         state.fetchAttempts++;
         // ponytail: pengambilan ulang masih menyeluruh (cache membuatnya murah).
         // Upgrade ke fetch per-endpoint spesifik jika kuota TheStatsAPI jadi masalah.
@@ -374,14 +370,14 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
           const fresh = await fetchAndValidateMatchIntelligence(state.matchId, state.competitionIdHint, abortSignal);
           state.fetchResult = fresh;
           const after = fresh.intelligence.missing_data_registry;
-          return withCoverage(state, {
+          return withCoverage(state, stepRef, {
             missing_sebelum: before,
             missing_sesudah: after,
             berhasil_diisi: before.filter((m) => !after.includes(m)),
             masih_kosong: after,
           }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Gagal mengambil ulang data: ${err?.message || err}` }, t0);
+          return withCoverage(state, stepRef, { error: `Gagal mengambil ulang data: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -393,14 +389,14 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
       inputSchema: StepInputSchema,
       execute: async (input) => {
         const t0 = Date.now();
-        traceStep(state, "run_quant_package", input);
+        const stepRef = traceStep(state, "run_quant_package", input);
         if (!state.fetchResult) {
-          return { error: "Jalankan check_data_integrity dulu sebelum run_quant_package." };
+          return withCoverage(state, stepRef, { error: "Jalankan check_data_integrity dulu sebelum run_quant_package." }, t0);
         }
         try {
           state.quant = buildQuantPackage(state.fetchResult.intelligence, state.today);
           const q = state.quant;
-          return withCoverage(state, {
+          return withCoverage(state, stepRef, {
             dixon_coles: q.quantPackage.dixon_coles,
             vig_stripping: q.quantPackage.vig_stripping,
             value_bets: q.quantPackage.value_bets,
@@ -408,7 +404,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             calibration_metadata: q.quantPackage.calibration_metadata,
           }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Quant engine gagal: ${err?.message || err}` }, t0);
+          return withCoverage(state, stepRef, { error: `Quant engine gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -422,10 +418,10 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         const t0 = Date.now();
         const stepRef = traceStep(state, "run_syndicate_debate", input);
         if (!state.fetchResult || !state.quant) {
-          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
+          return withCoverage(state, stepRef, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
         if (state.debateRounds >= 2) {
-          return withCoverage(state, { error: "Batas ronde debat (2) tercapai. Lanjut ke stop_with_verdict." }, t0);
+          return withCoverage(state, stepRef, { error: "Batas ronde debat (2) tercapai. Lanjut ke stop_with_verdict." }, t0);
         }
         state.debateRounds++;
         try {
@@ -451,7 +447,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
           });
           // Atribusi sisa durasi: pecahan stage/persona debat ikut terstempel ke step trace.
           if (state.debate.stage_timings) stepRef.stage_timings = state.debate.stage_timings;
-          return withCoverage(state, {
+          return withCoverage(state, stepRef, {
             ronde: state.debateRounds,
             consensus_level: state.debate.dual_judgement?.consensus_level,
             final_confidence_tier: state.debate.dual_judgement?.final_confidence_tier,
@@ -460,7 +456,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
             bear_trap_warnings: state.debate.bear_case?.trap_warnings,
           }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Syndicate debate gagal: ${err?.message || err}` }, t0);
+          return withCoverage(state, stepRef, { error: `Syndicate debate gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -472,9 +468,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
       inputSchema: StepInputSchema,
       execute: async (input, { abortSignal }) => {
         const t0 = Date.now();
-        traceStep(state, "run_editorial_analysis", input);
+        const stepRef = traceStep(state, "run_editorial_analysis", input);
         if (!state.fetchResult || !state.quant) {
-          return withCoverage(state, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
+          return withCoverage(state, stepRef, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
         try {
           const pending = takePendingEditorial();
@@ -489,14 +485,14 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
               );
           const editorial: Record<string, any> = extractJSON(text);
           state.editorial = editorial;
-          return withCoverage(state, {
+          return withCoverage(state, stepRef, {
             modelUsed,
             editorial_overlap: pending !== null,
             kunci_output: Object.keys(editorial),
             prediksi_editorial: editorial.prediksi ?? null,
           }, t0);
         } catch (err: any) {
-          return withCoverage(state, { error: `Editorial analysis gagal: ${err?.message || err}` }, t0);
+          return withCoverage(state, stepRef, { error: `Editorial analysis gagal: ${err?.message || err}` }, t0);
         }
       },
     }),
@@ -508,9 +504,9 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
       inputSchema: VerdictInputSchema,
       execute: async (input) => {
         const t0 = Date.now();
-        traceStep(state, "stop_with_verdict", { alasan: input.ringkasan_perencanaan });
+        const stepRef = traceStep(state, "stop_with_verdict", { alasan: input.ringkasan_perencanaan });
         state.verdict = input;
-        return withCoverage(state, { ok: true, catatan: "Verdict diterima. Analisis selesai." }, t0);
+        return withCoverage(state, stepRef, { ok: true, catatan: "Verdict diterima. Analisis selesai." }, t0);
       },
     }),
   };
@@ -567,6 +563,10 @@ export async function runPlannerLoop(params: {
   const maxSteps = params.maxSteps ?? (Number(process.env.PLANNER_MAX_STEPS) || 8);
   const stepTimings: PlannerLoopStepTiming[] = [];
   let stepStartedAt = 0;
+  // Plafon jaring pengaman keseluruhan loop — BUKAN per model call (tool debat
+  // sindikat sah memakan 5-7 menit). Model call tunggal sudah ber-timeout 180s
+  // di callModelWithFallback; tanpa plafon ini, loop bisa menggantung selamanya.
+  const loopTimeoutMs = Number(process.env.PLANNER_LOOP_TIMEOUT_MS) || 30 * 60_000;
   const res = await generateText({
     model: nineRouter.chat(PLANNER.MODEL_PLANNER),
     system: params.systemPrompt ?? PLANNER_SYSTEM_PROMPT,
@@ -574,7 +574,9 @@ export async function runPlannerLoop(params: {
     tools: params.tools,
     stopWhen: stepCountIs(maxSteps),
     temperature: 0.2,
-    abortSignal: params.abortSignal,
+    abortSignal: params.abortSignal
+      ? AbortSignal.any([params.abortSignal, AbortSignal.timeout(loopTimeoutMs)])
+      : AbortSignal.timeout(loopTimeoutMs),
     // onStepStart jalan SEBELUM provider dipanggil, onStepFinish sesudah tool step itu selesai.
     onStepStart: () => {
       stepStartedAt = Date.now();

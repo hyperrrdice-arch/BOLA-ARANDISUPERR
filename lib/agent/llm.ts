@@ -32,6 +32,17 @@ export const nineRouter = createOpenAI({
 
 export const MODEL_DEFAULT = EDITORIAL.MODEL_DEFAULT;
 
+// Batas tunggu per percobaan model (konsisten dengan jalur sindikat 180s). Tanpa ini,
+// klien yang hold koneksi bisa menggantungkan run planner/editorial tanpa batas.
+export const MODEL_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS) || 180_000;
+
+/** Gabungkan signal klien dengan timeout tunggu — dipakai SEMUA pemanggilan generateText. */
+export function withModelTimeout(signal?: AbortSignal): AbortSignal {
+  return signal
+    ? AbortSignal.any([signal, AbortSignal.timeout(MODEL_TIMEOUT_MS)])
+    : AbortSignal.timeout(MODEL_TIMEOUT_MS);
+}
+
 // Helper untuk memanggil model VPS dengan failover aman
 export async function callModelWithFallback(
   targetModel: string,
@@ -47,7 +58,7 @@ export async function callModelWithFallback(
       model: nineRouter.chat(targetModel),
       system: systemPrompt,
       prompt: userPrompt,
-      abortSignal: signal,
+      abortSignal: withModelTimeout(signal),
     });
     return { text: res.text, modelUsed: targetModel };
   } catch (primaryErr) {
@@ -61,7 +72,7 @@ export async function callModelWithFallback(
         model: nineRouter.chat(MODEL_DEFAULT),
         system: systemPrompt,
         prompt: userPrompt,
-        abortSignal: signal,
+        abortSignal: withModelTimeout(signal),
       });
       return { text: res.text, modelUsed: `${targetModel} (fallback: ${MODEL_DEFAULT})` };
     } catch (fallbackErr) {

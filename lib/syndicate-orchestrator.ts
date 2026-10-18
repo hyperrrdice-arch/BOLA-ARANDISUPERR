@@ -259,14 +259,14 @@ export async function orchestrate5AgentSyndicate(params: {
   const { matchSummary, intel, quantPackage, signal } = params;
 
   // Format evaluasi Value Bet (+EV) & Kelly untuk diinjeksi ke prompt LLM
-  const valueBetsSummary = Array.isArray(quantPackage?.value_bets)
+  const valueBetsSummary = Array.isArray(quantPackage?.value_bets) && quantPackage.value_bets.length > 0
     ? quantPackage.value_bets
         .map(
           (b: any) =>
             `- [${b.market_name}] ${b.selection}: Odds Pasar=${b.bookmaker_odds} vs Fair Model=${b.fair_odds} | EV=${b.ev_percentage} | Sizing Kelly=${b.recommended_stake_percentage}%`
         )
         .join("\n")
-    : "Evaluasi value bet belum terkompilasi";
+    : "Belum ada value bet: odds pasar tidak tersedia untuk market mana pun (jangan karang).";
 
   const marketOddsStr = intel.market_odds?.is_available || intel.market_odds?.home_last
     ? `Bursa Live (${intel.market_odds.bookmaker || "Pasar"}): Home=${intel.market_odds.home_last} | Draw=${intel.market_odds.draw_last} | Away=${intel.market_odds.away_last} | O2.5=${intel.market_odds.total_goals_over_2_5 || "N/A"}`
