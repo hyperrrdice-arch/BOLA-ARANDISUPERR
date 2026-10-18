@@ -1,5 +1,15 @@
 # TODO — Integrity Fixes Pasca-Review Pipeline (lihat tasks/plan-phase-integrity.md)
 
+## ✅ STATUS AKHIR (2026-10-18) — Phase 1 & 2 selesai (Task 1-8), Phase 3 menunggu
+
+**Phase 1 (commit `a024d08`, `c57303b`, `6c14b4e`):** cache tolak view fallback + marker `is_strictly_grounded` ke client · `v_snapshot_eval` guard skor NULL + `upsertOutcome` COALESCE · mapper tolak skor/status absen (3 script ingest ikut) · dataset kosong berisik + jalur rebuild terdokumentasi (opsi (b), keputusan gitignore dihormati).
+
+**Phase 2 (commit `44cdf96`, `acb0067`):** trace planner di-stamp per step (race paralel beres + error path `run_quant_package` ter-wrap) · semua LLM call ber-timeout (180s/call, plafon loop 30 menit) · anti-leakage fail-closed saat `utc_date` absen · `sync-match-outcomes` format tanggal ISO + skor lokal tidak dibuang · value bet HANYA dari odds pasar nyata (1.95/1.88/fair-odds-model dihapus; BTTS/AH-DNB skip sampai ada field odds) · promote transaksi + cek 2 log · migrate: backup + transaksi + fallback determinan + RENAME (bukan DROP).
+
+**Verifikasi:** `tsc` bersih · `next build` ✓ · 46/46 snapshot-db · 53/53 view-mapper · 19/19 stats-mapper · 11/11 upcoming-guard · planner-loop semua lolos · quant-scale semua lolos · snapshot-report bersih · lint delta bersih.
+
+**Sisa:** uji manual 1 run `/api/agent` penuh (butuh kredit LLM provider) → verifikasi snapshot terisi marker di live. Phase 3 (Task 9-11) + deferred menunggu perintah.
+
 ---
 
 ## Task 1: Cache snapshot menolak view fallback + marker grounded ke client
