@@ -13,6 +13,19 @@ import { recordRequests, guardBudget } from "./api-budget";
 const API_BASE = "https://api.thestatsapi.com/api";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// ── Pacing adaptif (rate limit API ternyata jauh lebih ketat dari 120/menit) ──
+// 429 → jarak antar request membesar; sukses → mengecil lagi pelan (AIMD).
+// Tanpa ini request saling tabrak → 429 beruntun → throughput ~2/menit (terukur).
+const BASE_GAP_MS = 1500;
+let adaptiveGapMs = BASE_GAP_MS;
+let nextAllowedAt = 0;
+
+async function pace(): Promise<void> {
+  const wait = nextAllowedAt - Date.now();
+  if (wait > 0) await sleep(wait);
+  nextAllowedAt = Date.now() + adaptiveGapMs;
+}
+
 export interface StatsFetchOpts {
   /** Umur cache vault. `undefined` = pakai cache apa adanya (tanpa batas). */
   maxAgeMs?: number;
@@ -52,6 +65,7 @@ export async function statsFetch<T = any>(
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     guardBudget(opts.minRemaining ?? 100);
     recordRequests(1);
+    await pace();
     try {
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${apiKey}` },
@@ -60,7 +74,8 @@ export async function statsFetch<T = any>(
 
       if (res.status === 404) return null; // data memang tidak ada — jangan dikarang
       if (res.status === 429) {
-        // Rate limit: tunggu lebih lama tiap percobaan (jangan skip — user: retry!).
+        // Rate limit: jarak adaptif membesar + backoff — jangan skip (user: retry!).
+        adaptiveGapMs = Math.min(60_000, Math.round(adaptiveGapMs * 1.6));
         const waitMs = Math.min(60_000, 3000 * 2 ** (attempt - 1));
         lastErr = "HTTP 429 rate limit";
         console.warn(`⚠️ 429 ${path} — tunggu ${waitMs / 1000}s (percobaan ${attempt}/${maxRetries})`);
@@ -81,6 +96,7 @@ export async function statsFetch<T = any>(
 
       const json = (await res.json()) as T;
       saveRawPayload(endpointType, resourceId, json);
+      adaptiveGapMs = Math.max(BASE_GAP_MS, Math.round(adaptiveGapMs * 0.9)); // sukses → longgar lagi pelan
       return json;
     } catch (err: any) {
       if (err?.message?.startsWith("[statsFetch]")) throw err; // 4xx non-404: bug kita, jangan di-retry
