@@ -48,9 +48,9 @@ export async function GET(req: Request) {
           home_team: { id: m.home_team_id, name: m.home_team_name },
           away_team: { id: m.away_team_id, name: m.away_team_name },
           venue: m.venue || null,
-          is_neutral: m.is_neutral ?? false,
-          odds_available: m.odds_available ?? false,
-          xg_available: m.xg_available ?? false,
+          is_neutral: Boolean(m.is_neutral),
+          odds_available: Boolean(m.odds_available),
+          xg_available: Boolean(m.xg_available),
           shotmap_available: false, // tidak disimpan di store upcoming
         };
       });
@@ -167,9 +167,9 @@ export async function GET(req: Request) {
             name: m.away_team?.name,
           },
           venue: m.venue || null,
-          is_neutral: m.is_neutral ?? false,
-          odds_available: m.odds_available ?? false,
-          xg_available: m.xg_available ?? false,
+          is_neutral: Boolean(m.is_neutral),
+          odds_available: Boolean(m.odds_available),
+          xg_available: Boolean(m.xg_available),
           shotmap_available: m.shotmap_available ?? false,
         };
       });

@@ -27,8 +27,9 @@ const BettingScannerCard = dynamic(
 );
 
 // Kartu-kartu analisis cuma dipakai SETELAH match dipilih, tapi sebelumnya diimpor eager
-// sehingga ikut di-parse/eksekusi saat hidrasi layar katalog — terukur 49 KB tidak terpakai
-// dan menyumbang render delay LCP di CPU throttle. Semua di sini tidak terjangkau pada
+// sehingga ikut di-parse/eksekusi saat hidrasi layar katalog. Code-split ini menghemat
+// ~11 KB on-wire (194→183 KB — lihat PERF.md); klaim lama soal penurunan LCP/render delay
+// DIGUGURKAN pengukuran (mobile 2459→2487 ms = noise). Semua di sini tidak terjangkau pada
 // paint pertama, jadi dipisah dari bundle awal mengikuti pola OneXBet di atas.
 const MatchHeaderCard = dynamic(
   () => import("@/components/dashboard/MatchHeaderCard").then((m) => m.MatchHeaderCard),

@@ -18,7 +18,7 @@
  * Jalankan: npx tsx scripts/sync-match-outcomes.ts [--match <match_id>]
  */
 import { getTheStatsDb } from "../lib/db/thestats-dataset";
-import { getSnapshotDb, upsertOutcome, type MatchOutcomeInput } from "../lib/db/analysis-snapshot";
+import { getSnapshotDb, upsertOutcome, deriveMarketKey, type MatchOutcomeInput } from "../lib/db/analysis-snapshot";
 import { cachedStatsGet } from "../lib/stats-cache";
 
 // Auto-load .env.local (pola sama dengan scripts/sync-weekly-telemetry.ts) —
@@ -93,14 +93,15 @@ function closingOddsFromSnapshots(matchId: string): {
     for (const b of bets) {
       const odds = typeof b.bookmaker_odds === "number" ? b.bookmaker_odds : null;
       if (!odds) continue;
-      if (b.market_name === "1X2") {
-        if (b.selection === "Hasil Imbang (Draw)") out.draw = odds;
-        else if (b.selection === `${row.home_team} Menang`) out.home = odds;
-        else if (b.selection === `${row.away_team} Menang`) out.away = odds;
-      } else if (b.market_name === "Over/Under 2.5") {
-        if (/^Over/i.test(b.selection)) out.over25 = odds;
-        if (/^Under/i.test(b.selection)) out.under25 = odds;
-      }
+      // Sumber tunggal konvensi market = deriveMarketKey (mirror yang sama dengan
+      // VIEW & route). Komentar lama mengklaim ini tapi kodenya menyalin logika
+      // sendiri — drift antar salinan = closing odds salah atribusi diam-diam.
+      const key = deriveMarketKey(b.market_name, b.selection, row.home_team, row.away_team);
+      if (key === "1X2_HOME") out.home = odds;
+      else if (key === "1X2_DRAW") out.draw = odds;
+      else if (key === "1X2_AWAY") out.away = odds;
+      else if (key === "O25") out.over25 = odds;
+      else if (key === "U25") out.under25 = odds;
     }
     return out;
   } catch {

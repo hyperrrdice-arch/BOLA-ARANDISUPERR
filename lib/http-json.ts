@@ -28,15 +28,17 @@ export function jsonResponse(
   headers.set("Content-Type", "application/json; charset=utf-8");
 
   const existingVary = headers.get("Vary");
+  const varyHasAcceptEncoding = (existingVary ?? "").toLowerCase().includes("accept-encoding");
   headers.set(
     "Vary",
-    existingVary && !existingVary.includes("Accept-Encoding")
+    existingVary && !varyHasAcceptEncoding
       ? `${existingVary}, Accept-Encoding`
       : "Accept-Encoding"
   );
 
   const acceptsGzip = (req.headers.get("accept-encoding") ?? "").includes("gzip");
-  if (!acceptsGzip || payload.length < MIN_COMPRESS_BYTES) {
+  // Panjang dalam BYTE (bukan UTF-16 length) — threshold 1KB salah hitung untuk JSON non-ASCII.
+  if (!acceptsGzip || Buffer.byteLength(payload, "utf8") < MIN_COMPRESS_BYTES) {
     return new Response(payload, { status: init?.status ?? 200, headers });
   }
 

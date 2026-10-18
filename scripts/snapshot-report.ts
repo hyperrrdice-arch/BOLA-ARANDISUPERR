@@ -67,8 +67,7 @@ const perMarket = db
            sum(CASE WHEN market_hit = 1 THEN 1 ELSE 0 END) AS hits,
            sum(CASE WHEN market_hit = 0 THEN 1 ELSE 0 END) AS misses,
            sum(CASE WHEN market_hit = 0.5 THEN 1 ELSE 0 END) AS pushes,
-           sum(CASE WHEN market_hit IS NULL THEN 1 ELSE 0 END) AS unmapped,
-           avg(CASE WHEN market_hit IS NOT NULL THEN market_hit END) AS hit_rate
+           sum(CASE WHEN market_hit IS NULL THEN 1 ELSE 0 END) AS unmapped
     FROM v_snapshot_eval_market
     GROUP BY market_key
     ORDER BY bets DESC

@@ -149,7 +149,7 @@ export async function syncWeeklyDelta(daysLookback: number = 8) {
 
       const mapped = mapStatsToTelemetry({ m, stats: statsData, competitionId: comp.id, seasonName: comp.seasonName });
       if (!mapped) {
-        console.warn(`  ?? Mapping telemetry gagal untuk ${matchId} � dilewati.`);
+        console.warn(`  ⚠️ Mapping telemetry gagal untuk ${matchId} — dilewati.`);
         continue;
       }
 

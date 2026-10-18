@@ -531,7 +531,8 @@ export function getDatabaseMetrics() {
 
 /**
  * Helper internal untuk me-resolve ID tim baik dari team_id maupun nama tim
- */export function resolveLocalTeamId(idOrName: string): string {
+ */
+export function resolveLocalTeamId(idOrName: string): string {
   const db = getTheStatsDb();
   const direct = db.prepare("SELECT team_id FROM teams WHERE team_id = ?").get(idOrName) as { team_id: string } | undefined;
   if (direct) return direct.team_id;
