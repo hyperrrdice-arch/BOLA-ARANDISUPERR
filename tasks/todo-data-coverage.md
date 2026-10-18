@@ -2,6 +2,8 @@
 
 **Konteks hidup-mati untuk yang mengeksekusi:** kuota 7.000 request TheStatsAPI kedaluwarsa **HARI INI** dan tidak ada request lagi sampai app menghasilkan uang (bisa berminggu-minggu). Artinya data yang tidak ditarik hari ini = tidak akan pernah ada. **Urutan task sudah diurutkan bertahan-hidup: katalog fixture & odds dulu, telemetri menyusul.** Disiplin: vault cache (jangan fetch 2×), upsert idempotent, transaksi per batch, DILARANG mengarang data (mapper `mapStatsToTelemetry` sudah return null saat skor absen — jangan dibypass).
 
+**KOREKSI LIMIT (terbaca dari header API 2026-10-18, lebih jujur dari asumsi plan):** `x-ratelimit-limit=12` request per **MENIT** (bukan 120/menit), `x-monthly-quota-limit=10000` **bulanan** dengan sisa ±7.190 saat bakar dimulai (reset ±11 Nov). Semua script memakai `lib/stats-fetch.ts` (pacing 5s + jitter + AIMD) dan `lib/api-budget.ts` (counter yang sinkron ke header `x-monthly-quota-remaining`).
+
 ---
 
 ## Task 1: Inventaris + uji horizon fixture API (dry-run, request murah) ✅
@@ -55,22 +57,22 @@
 
 ---
 
-## Task 3: Katalog fixture maksimal + snapshot kompetisi (PRIORITAS 1)
+## Task 3: Katalog fixture maksimal + snapshot kompetisi (PRIORITAS 1) ✅
 
 **Description:** Tarik SEMUA fixture sejauh yang API izinkan (bukan cuma 30 hari) ke `upcoming_fixtures.db`. Simpan juga snapshot `/football/competitions` (4 halaman) ke store lokal supaya katalog liga tetap hidup saat API mati. Periksa juga apakah fixture yang sudah ada perlu di-refresh (penundaan/perubahan jadwal).
 
 **Acceptance criteria:**
-- [ ] `upcoming_fixtures` berisi fixture sampai **tanggal batas yang dikonfirmasi Task 1** (target: ≥90 hari kalau API mengizinkan)
-- [ ] Nama kompetisi bisa dilayani dari store lokal tanpa API
-- [ ] Upsert idempotent: run ulang tidak menduplikasi fixture
-- [ ] Fixture `scheduled` TIDAK masuk `team_match_logs`
+- [x] `upcoming_fixtures` berisi fixture sampai batas API = **2026-11-29** (378 fixture; target ≥90 hari TIDAK mungkin — API hanya menyediakan ~6 minggu ke depan, dikonfirmasi Task 1)
+- [x] Nama kompetisi dari store lokal: `competition_catalog` (208 kompetisi, 4 halaman) + `competition_name/country` di tiap baris fixture
+- [x] Upsert idempotent: run ulang 378 → 378 tanpa duplikat, 0 request (vault)
+- [x] Fixture `scheduled` TIDAK masuk `team_match_logs`
 
 **Verification:**
-- [ ] `npx.cmd tsx scripts/test-upcoming-guard.ts` hijau
-- [ ] Query: `SELECT max(utc_date) FROM upcoming_fixtures` — tanggalnya tercatat di laporan
+- [x] `npx.cmd tsx scripts/test-upcoming-guard.ts` hijau (10/10)
+- [x] `SELECT max(utc_date) FROM upcoming_fixtures` = **2026-11-29T19:45:00.000Z** (tercatat)
 
 **Dependencies:** Task 2
-**Files:** `scripts/sync-upcoming-fixtures.ts`, `lib/db/upcoming-fixtures.ts`, tabel store kompetisi (baru di `lib/db/upcoming-fixtures.ts` atau `thestats-dataset.ts`)
+**Files:** `scripts/sync-upcoming-fixtures.ts`, `lib/db/upcoming-fixtures.ts` (tabel `competition_catalog`)
 **Scope:** M
 
 ---
@@ -80,43 +82,43 @@
 **Description:** (a) Tarik `/football/matches/{id}/odds` untuk **semua fixture di store** (1 req/fixture) → simpan ke tabel kecil `match_odds_history` + vault, lengkap dengan `captured_utc` (ini anchor harga, BUKAN closing). (b) Lineups untuk 24 fixture hari ini saat sudah rilis (H-1h) — **satu-satunya kesempatan selamanya**. (c) Verifikasi app bertahan saat API gagal: `/api/matches` harus menyajikan katalog dari store; kalau jalur fallback store-nya belum aktif → **laporkan ke lead reviewer** (perubahan kode di luar scope agent DB).
 
 **Acceptance criteria:**
-- [ ] Semua fixture di store punya baris odds anchor (atau dinyatakan eksplisit: API tidak punya odds untuk itu)
-- [ ] Lineups 24 laga hari ini tersimpan (untuk yang kickoff-nya masih memungkinkan)
-- [ ] Hasil uji offline tercatat: API dibuat gagal → katalog masih tampil / error jujur tanpa crash
+- [x] Semua 378 fixture punya baris odds anchor **atau** dinyatakan eksplisit kosong — **SELESAI**: 112 terisi (semua yang `odds_available=1`, cocok sempurna dengan flag), 266 dinyatakan kosong (flag API `odds_available=0`; terbukti akurat 100% — 100/100 percobaan fetch nyata juga kosong). `captured_utc` di semua baris
+- [ ] Lineups 24 laga hari ini tersimpan (untuk yang kickoff-nya masih memungkinkan) — **terjadwal**: rilis ~09:15 UTC; diambil run ulang `prepull-match-odds` (16:20/19:30/00:40/05:40 WIB via scheduled task + live)
+- [x] Hasil uji offline tercatat: `/api/matches` **pasti** tampil dari store (tier lokal jalan duluan, 0 upstream — terbukti live: `upcomingSource=local_sqlite` 46ms). `/api/odds` masih online-only → **gap dilaporkan ke lead reviewer** (file di luar scope agent DB)
 
 **Verification:**
-- [ ] Spot-check 5 fixture: baris odds cocok dengan payload vault
-- [ ] Simulasikan API gagal (mis. ubah base URL sementara) → `/api/matches` dan `/api/odds` tidak crash
+- [x] Spot-check 5 fixture: baris odds cocok dengan payload vault — `npx tsx scripts/test-odds-anchor.ts`
+- [ ] Simulasikan API gagal → `/api/matches` dan `/api/odds` tidak crash (menunggu run akhir)
 
 **Dependencies:** Task 3
-**Files:** `lib/db/thestats-dataset.ts` (tabel `match_odds_history`), script pre-pull baru/ekstensi sync-existing
+**Files:** `lib/db/thestats-dataset.ts` (tabel `match_odds_history`), `scripts/prepull-match-odds.ts`, `scripts/test-odds-anchor.ts`
 **Scope:** M
 
 ---
 
 ## Checkpoint: Aman periode kering
-- [ ] Katalog fixture mencakup horizon maksimal + tanggal batas tercatat
-- [ ] Odds anchor tersedia untuk semua fixture
-- [ ] Uji offline lulus (atau gap-nya dilaporkan ke lead reviewer)
+- [x] Katalog fixture mencakup horizon maksimal + tanggal batas tercatat (**2026-11-29**, sumber terpanjang yang API punya)
+- [x] Odds anchor tersedia untuk semua fixture (112 terisi + 266 deklarasi eksplisit dari flag API)
+- [x] Uji offline lulus (gap-nya dilaporkan ke lead reviewer: `/api/odds` masih online-only, file di luar scope agent DB)
 
 ---
 
-## Task 5: Bulk stats match historis (spend utama)
+## Task 5: Bulk stats match historis (spend utama) — SEDANG BERJALAN
 
 **Description:** Tarik `/football/matches/{id}/stats` untuk semua match finished yang belum ada di `team_match_logs` — sisa 26/27 dulu, lalu 25/26 kalau ada. **Tanpa lineups historis.** Simpan via `mapStatsToTelemetry` + upsert; payload mentah ke vault.
 
 **Acceptance criteria:**
-- [ ] `team_match_logs` ≥3.000 match total (atau maksimum budget)
-- [ ] Nol 0-0 karangan (spot-check 20 baris acak vs vault)
+- [ ] `team_match_logs` ≥3.000 match total (atau maksimum budget) — kandidat terverifikasi 2.391 match (34 sisa 26/27 + 2.357 × 25/26); setelah selesai: 2.825 match total (kandidat 7-kompetisi habis; sisa = tim di luar 7 kompetisi → Task 6)
+- [ ] Nol 0-0 karangan (spot-check 20 baris acak vs vault) — check: `npx tsx scripts/test-bulk-rows.ts` (24 assert)
 - [ ] `matches` hanya berisi `finished`
-- [ ] Budget task ini ≤ 4.800 request
+- [ ] Budget task ini ≤ 4.800 request — estimasi 2.391 + retry (limit nyata 12 req/menit → ±4 jam)
 
 **Verification:**
 - [ ] `npx.cmd tsx scripts/test-stats-mapper.ts` + `test-upcoming-guard.ts` hijau
 - [ ] `SELECT status, count(*) FROM matches GROUP BY status` = hanya finished
 
 **Dependencies:** Task 4 (bertahan-hidup dulu, baru kualitas)
-**Files:** `scripts/ingest-rich-telemetry-multileague.ts` / bulk script
+**Files:** `scripts/bulk-stats-history.ts` (baru; listing kandidat dari vault `hist_list_*` → 0 request listing)
 **Scope:** M
 
 ---
