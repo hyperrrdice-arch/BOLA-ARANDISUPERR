@@ -116,15 +116,39 @@ Koreksi catatan sebelumnya: angka "171 KB" adalah **pembanding yang tidak sah** 
 | `/api/odds` p95 | < 200ms | ✅ 9ms |
 | Initial JS | < 200KB on-wire | ⚠️ 194KB (mepet) |
 | CSS | < 50KB | ✅ 4.1KB |
-| LCP `/` | ≤ 2.5s | ❓ **belum terukur — terblokir tooling** |
+| LCP `/` | ≤ 2.5s | ✅ **681 ms** (Lighthouse desktop) → SSR katalog tidak dikerjakan |
 
-**Task 8 (LCP) tidak bisa ditutup di environment ini**: tidak ada MCP browser / chrome-devtools, tidak ada Lighthouse, jadi tidak ada angka LCP yang bisa dikarang. Yang bisa dipastikan secara struktur: HTML `/` statis 15.9KB (TTFB 81ms) tapi katalog di-fetch **setelah hidrasi** (`app/page.tsx:87`), jadi paint pertama adalah skeleton. Keputusan SSR katalog **ditunda** sampai ada pengukuran LCP nyata (butuh chrome-devtools MCP atau satu kali run DevTools manual).
+## LCP & Core Web Vitals (Lighthouse 12, headless Chrome, desktop preset, throttling `simulate`)
+
+Diukur 18 Okt 2026 di prod local `next start -p 3100`, build perf terakhir.
+
+| Metrik | Nilai | Target | Status |
+|---|---|---|---|
+| Performance score | **91** | ≥ 90 | ✅ |
+| **LCP** | **681 ms** | ≤ 2.5s | ✅ |
+| CLS | **0.015** | ≤ 0.1 | ✅ |
+| TBT | 213 ms | — | — |
+| FCP | 350 ms | — | — |
+| Speed Index | 1416 ms | — | — |
+| Server response (root doc) | 20 ms | — | ✅ |
+
+LCP element = `<p>` deskripsi katalog (`max-w-3xl`), **bukan skeleton loader**. Jadi hipotesis lama "paint pertama cuma skeleton karena katalog di-fetch setelah hidrasi" **tidak terbukti di LCP** — elemen terbesar ada di HTML awal.
+
+**Keputusan Task 8: LCP ≤ 2.5s → SSR katalog TIDAK dikerjakan.** Ditutup sebagai bukan masalah, sesuai aturan putusan di rencana. Catatan: preset desktop (sesuai sifat app: terminal quant desktop). Preset mobile belum dijalankan.
+
+### Temuan baru dari trace (belum dikerjakan)
+
+1. **`/api/matches` dikirim TANPA kompresi** — 36 KB transfer / 36 KB resource (rasio 1.01), sementara semua chunk JS/CSS di app yang sama gzip (rasio 0.2–0.32). Lighthouse memperkirakan **30 KB terbuang** hanya di endpoint ini. `/api/agent` (payload ~21 KB) dan `/api/odds` memakai jalur `Response.json()` yang sama, jadi kena juga. Ini masalah **delivery**, bukan bentuk data (payload sudah ramping: 97 match × 11 field).
+2. **49 KB JS tidak terpakai di layar katalog** — dua chunk terberat (71 KB dan 48 KB transfer) masing-masing 26 KB dan 23 KB tidak terpakai saat belum ada match dipilih, karena kartu-kartu analisis (`QuantEngineCard`, `SyndicateDebateCard`, `TheStatsOddsComparisonCard`, …) diimpor eager di `app/page.tsx` padahal cuma dipakai setelah match diklik. Kandidat `next/dynamic` selektif.
+3. Font: 4 file woff2 = **83 KB** transfer (29+23+16+15). Kandidat: preload hanya yang di atas fold. Prioritas rendah.
 
 ## Langkah berikutnya (butuh keputusan user, bukan eksekusi sepihak)
 
-1. **Ronde 2 debat = 40–74% total run, dan tidak mengubah keputusan** di ketiga run (akhirnya tetap `SPLIT_DECISION` / `C_LEAN`). Ini lever terbesar yang tersisa. Gating-nya mengubah perilaku produk → diangkat sebagai pertanyaan di `tasks/plan-perf-2.md`, tidak dikerjakan.
-2. **Ekor panggilan tunggal** (110–173s). Kandidat: plafon waktu per model yang lebih pendek + degradasi eksplisit, alih-alih menunggu 180s. Ini menyentuh kualitas keputusan, jadi perlu persetujuan.
-3. **Round-trip planner 23.9–38.4s** (6 step). Sudah ada Task 3 di `tasks/todo-perf-2.md`, belum dikerjakan karena belum terbukti di mana biayanya (butuh hook `onStepFinish`).
+1. **Kompresi JSON API (baru, temuan Lighthouse).** `/api/matches` 36 KB tanpa `Content-Encoding` → ~30 KB terbuang; `/api/agent` & `/api/odds` jalur sama. Perbaikan: helper kompresi di sisi route (`node:zlib` gzip, hormati `Accept-Encoding`), lalu verifikasi header + delta Lighthouse. Tidak menyentuh produk, hanya delivery.
+2. **Code-split kartu analisis (baru, temuan Lighthouse).** 49 KB JS tidak terpakai di layar katalog karena kartu analisis diimpor eager. Kandidat `next/dynamic`. Tidak menyentuh produk (perilaku sama), tapi ada risiko regresi UI ringan.
+3. **Ronde 2 debat = 40–74% total run**, dan di 4 run hasilnya tetap tidak berubah keputusan. Ini lever terbesar yang tersisa. Gating-nya mengubah perilaku produk → butuh keputusan user.
+4. **Ekor panggilan tunggal** (110–173s dari plafon 180s). Kandidat: plafon waktu lebih pendek + degradasi eksplisit. Menyentuh kualitas keputusan.
+5. **Round-trip planner 23.2s (3.3s/step)** — sudah diatribusi; lever = pangkas step atau ganti model planner (keduanya keputusan produk).
 
 ## Catatan operasional
 
