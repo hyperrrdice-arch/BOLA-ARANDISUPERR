@@ -82,6 +82,38 @@ for (const r of perMarket) {
 }
 if (perMarket.length === 0) console.log("— (belum ada snapshot evaluable)");
 
+section("DUA DEFINISI REKOMENDASI (EV-teratas vs PANEL)");
+const dual = db
+  .prepare(`
+    SELECT
+      count(*) AS evaluable,
+      sum(CASE WHEN hit_recommended IS NOT NULL THEN 1 ELSE 0 END) AS ev_decided,
+      sum(CASE WHEN hit_recommended = 1 THEN 1 ELSE 0 END) AS ev_hits,
+      sum(CASE WHEN hit_panel IS NOT NULL THEN 1 ELSE 0 END) AS panel_decided,
+      sum(CASE WHEN hit_panel = 1 THEN 1 ELSE 0 END) AS panel_hits,
+      sum(CASE WHEN recommended_market_key = panel_market_key THEN 1 ELSE 0 END) AS same_key,
+      sum(CASE WHEN panel_market_key IS NULL THEN 1 ELSE 0 END) AS panel_unmapped
+    FROM v_snapshot_eval
+  `)
+  .get() as any;
+const dualEvDecided = (dual?.ev_decided ?? 0) as number;
+const panelDecided = (dual?.panel_decided ?? 0) as number;
+console.log(`Rekomendasi EV-teratas: ${dual?.ev_hits ?? 0}/${dualEvDecided} ${dualEvDecided > 0 ? pct((dual?.ev_hits ?? 0) / dualEvDecided) : "—"}`);
+console.log(`Rekomendasi PANEL:      ${dual?.panel_hits ?? 0}/${panelDecided} ${panelDecided > 0 ? pct((dual?.panel_hits ?? 0) / panelDecided) : "—"}`);
+console.log(`Key identik (keduanya sama): ${dual?.same_key ?? 0}/${dual?.evaluable ?? 0} snapshot`);
+console.log(`Panel key belum dipetakan: ${dual?.panel_unmapped ?? 0} (ditandai, tidak dihitung)`);
+const keyPairs = db
+  .prepare(`
+    SELECT recommended_market_key AS ev_key, panel_market_key AS panel_key, count(*) AS n
+    FROM v_snapshot_eval
+    GROUP BY recommended_market_key, panel_market_key
+    ORDER BY n DESC
+  `)
+  .all() as any[];
+for (const r of keyPairs) {
+  console.log(`- EV ${r.ev_key ?? "—"} → PANEL ${r.panel_key ?? "—"}: ${r.n} snapshot`);
+}
+
 section("EV DIKLAIM vs HASIL NYATA (rekomendasi utama per snapshot)");
 const evSummary = db
   .prepare(`

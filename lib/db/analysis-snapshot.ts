@@ -38,9 +38,26 @@ export function getSnapshotDb(): DatabaseSync {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   ensureSnapshotSchema(db);
+  ensureSnapshotColumns(db);
 
   snapshotDbInstance = db;
   return snapshotDbInstance;
+}
+
+/**
+ * Tambah kolom baru ke tabel yang SUDAH ada (CREATE TABLE IF NOT EXISTS
+ * nggak menambah kolom ke DB lama). Idempotent via PRAGMA table_info.
+ */
+export function ensureSnapshotColumns(db: DatabaseSync): void {
+  const cols = new Set(
+    (db.prepare("PRAGMA table_info(analysis_snapshots)").all() as { name: string }[]).map((c) => c.name)
+  );
+  if (!cols.has("panel_market")) {
+    db.exec("ALTER TABLE analysis_snapshots ADD COLUMN panel_market TEXT");
+  }
+  if (!cols.has("panel_market_key")) {
+    db.exec("ALTER TABLE analysis_snapshots ADD COLUMN panel_market_key TEXT");
+  }
 }
 
 /**
@@ -48,6 +65,13 @@ export function getSnapshotDb(): DatabaseSync {
  * dua kali untuk membuktikan "dibuka dua kali tidak error".
  */
 export function ensureSnapshotSchema(db: DatabaseSync): void {
+  // VIEW selalu DROP + CREATE: definisi VIEW bisa saja tertinggal versi lama
+  // (CREATE VIEW IF NOT EXISTS nggak memperbarui). View itu derived — nol
+  // data user di dalamnya, jadi rebuild aman. Urutan: dependent dulu.
+  db.exec(`
+    DROP VIEW IF EXISTS v_snapshot_eval_market;
+    DROP VIEW IF EXISTS v_snapshot_eval;
+  `);
   db.exec(`
     -- ======================================================================
     -- Tabel 1: hasil analisis kita (append-only, TANPA DELETE di produksi)
@@ -67,6 +91,10 @@ export function ensureSnapshotSchema(db: DatabaseSync): void {
       confidence TEXT,
       recommended_market TEXT,
       recommended_market_key TEXT,
+      -- Rekomendasi PANEL (arbiter/supreme), beda dari "EV teratas" di atas:
+      -- dua definisi sengaja dipisah supaya evaluasi bisa menghitung keduanya.
+      panel_market TEXT,
+      panel_market_key TEXT,
       recommended_odds REAL,
       recommended_ev_pct REAL,
       stake_pct REAL,
@@ -195,6 +223,8 @@ export function ensureSnapshotSchema(db: DatabaseSync): void {
         s.confidence,
         s.recommended_market,
         s.recommended_market_key,
+        s.panel_market,
+        s.panel_market_key,
         s.recommended_odds,
         s.recommended_ev_pct,
         s.stake_pct,
@@ -260,7 +290,22 @@ export function ensureSnapshotSchema(db: DatabaseSync): void {
           WHEN s.recommended_market_key = 'AH_DNB_HOME' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = 'AH_DNB_AWAY' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
           ELSE NULL
-        END AS hit_recommended
+        END AS hit_recommended,
+        -- Sama seperti hit_recommended, tapi untuk rekomendasi PANEL (arbiter).
+        -- NULL = key belum dipetakan / panel tidak menyebut market yang dikenal.
+        CASE
+          WHEN s.panel_market_key IS NULL OR s.panel_market_key = '' THEN NULL
+          WHEN s.panel_market_key = '1X2_HOME' THEN CASE WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = '1X2_DRAW' THEN CASE WHEN o.home_goals = o.away_goals THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = '1X2_AWAY' THEN CASE WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'BTTS_YES' THEN CASE WHEN o.home_goals > 0 AND o.away_goals > 0 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'BTTS_NO' THEN CASE WHEN COALESCE(o.home_goals, 0) = 0 OR COALESCE(o.away_goals, 0) = 0 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'O25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) > 2.5 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'U25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) <= 2.5 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'AH_DNB_HOME' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'AH_DNB_AWAY' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
+          ELSE NULL
+        END AS hit_panel
       FROM analysis_snapshots s
       LEFT JOIN match_outcomes o ON o.match_id = s.match_id
       WHERE s.lead_time_minutes IS NOT NULL
@@ -371,6 +416,10 @@ export interface AnalysisSnapshotInput {
   confidence?: string | null;
   recommended_market?: string | null;
   recommended_market_key?: string | null;
+  /** Rekomendasi panel (arbiter/supreme) — teks mentah, buat audit. */
+  panel_market?: string | null;
+  /** Key konvensi untuk panel_market; NULL kalau panel tidak menyebut market yang dipetakan. */
+  panel_market_key?: string | null;
   recommended_odds?: number | null;
   recommended_ev_pct?: number | null;
   stake_pct?: number | null;
@@ -420,52 +469,65 @@ export function insertSnapshot(input: AnalysisSnapshotInput): number {
       match_id, competition_id, competition_name, home_team, away_team,
       kickoff_utc, captured_utc, lead_time_minutes, cache_key_hint,
       verdict, confidence, recommended_market, recommended_market_key,
+      panel_market, panel_market_key,
       recommended_odds, recommended_ev_pct, stake_pct,
       prob_home, prob_draw, prob_away,
       fair_odds_home, fair_odds_draw, fair_odds_away,
       lambda_home, mu_away, expected_total_goals, prob_btts, prob_over_2_5,
       value_bets_json, planner_model, syndicate_models, editorial_model,
       app_version, is_grounded, is_fallback, duration_ms, view_json, trace_json
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    input.match_id,
-    input.competition_id ?? null,
-    input.competition_name ?? null,
-    input.home_team ?? null,
-    input.away_team ?? null,
-    input.kickoff_utc ?? null,
-    capturedUtc,
-    leadTimeMinutes,
-    input.cache_key_hint ?? "",
-    input.verdict ?? null,
-    input.confidence ?? null,
-    input.recommended_market ?? null,
-    input.recommended_market_key ?? null,
-    input.recommended_odds ?? null,
-    input.recommended_ev_pct ?? null,
-    input.stake_pct ?? null,
-    input.prob_home ?? null,
-    input.prob_draw ?? null,
-    input.prob_away ?? null,
-    input.fair_odds_home ?? null,
-    input.fair_odds_draw ?? null,
-    input.fair_odds_away ?? null,
-    input.lambda_home ?? null,
-    input.mu_away ?? null,
-    input.expected_total_goals ?? null,
-    input.prob_btts ?? null,
-    input.prob_over_2_5 ?? null,
-    input.value_bets_json ?? null,
-    input.planner_model ?? null,
-    input.syndicate_models ?? null,
-    input.editorial_model ?? null,
-    input.app_version ?? null,
-    input.is_grounded ?? null,
-    input.is_fallback ?? null,
-    input.duration_ms ?? null,
-    input.view_json,
-    input.trace_json ?? null
-  );
+    ) VALUES (
+      :match_id, :competition_id, :competition_name, :home_team, :away_team,
+      :kickoff_utc, :captured_utc, :lead_time_minutes, :cache_key_hint,
+      :verdict, :confidence, :recommended_market, :recommended_market_key,
+      :panel_market, :panel_market_key,
+      :recommended_odds, :recommended_ev_pct, :stake_pct,
+      :prob_home, :prob_draw, :prob_away,
+      :fair_odds_home, :fair_odds_draw, :fair_odds_away,
+      :lambda_home, :mu_away, :expected_total_goals, :prob_btts, :prob_over_2_5,
+      :value_bets_json, :planner_model, :syndicate_models, :editorial_model,
+      :app_version, :is_grounded, :is_fallback, :duration_ms, :view_json, :trace_json
+    )
+  `).run({
+    ...input,
+    competition_id: input.competition_id ?? null,
+    competition_name: input.competition_name ?? null,
+    home_team: input.home_team ?? null,
+    away_team: input.away_team ?? null,
+    kickoff_utc: input.kickoff_utc ?? null,
+    captured_utc: capturedUtc,
+    lead_time_minutes: leadTimeMinutes,
+    cache_key_hint: input.cache_key_hint ?? "",
+    verdict: input.verdict ?? null,
+    confidence: input.confidence ?? null,
+    recommended_market: input.recommended_market ?? null,
+    recommended_market_key: input.recommended_market_key ?? null,
+    panel_market: input.panel_market ?? null,
+    panel_market_key: input.panel_market_key ?? null,
+    recommended_odds: input.recommended_odds ?? null,
+    recommended_ev_pct: input.recommended_ev_pct ?? null,
+    stake_pct: input.stake_pct ?? null,
+    prob_home: input.prob_home ?? null,
+    prob_draw: input.prob_draw ?? null,
+    prob_away: input.prob_away ?? null,
+    fair_odds_home: input.fair_odds_home ?? null,
+    fair_odds_draw: input.fair_odds_draw ?? null,
+    fair_odds_away: input.fair_odds_away ?? null,
+    lambda_home: input.lambda_home ?? null,
+    mu_away: input.mu_away ?? null,
+    expected_total_goals: input.expected_total_goals ?? null,
+    prob_btts: input.prob_btts ?? null,
+    prob_over_2_5: input.prob_over_2_5 ?? null,
+    value_bets_json: input.value_bets_json ?? null,
+    planner_model: input.planner_model ?? null,
+    syndicate_models: input.syndicate_models ?? null,
+    editorial_model: input.editorial_model ?? null,
+    app_version: input.app_version ?? null,
+    is_grounded: input.is_grounded ?? null,
+    is_fallback: input.is_fallback ?? null,
+    duration_ms: input.duration_ms ?? null,
+    trace_json: input.trace_json ?? null,
+  } as Record<string, unknown>);
 
   return Number(result.lastInsertRowid);
 }

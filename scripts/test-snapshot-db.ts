@@ -11,6 +11,7 @@
 import {
   getSnapshotDb,
   ensureSnapshotSchema,
+  ensureSnapshotColumns,
   insertSnapshot,
   getFreshSnapshot,
   getSnapshotMetrics,
@@ -46,7 +47,8 @@ cleanup();
 // 1. Skema idempotent: dipanggil ulang pada DB yang sama tidak error.
 try {
   ensureSnapshotSchema(db);
-  assert(true, "skema idempotent (ensureSnapshotSchema dipanggil 2x tidak error)");
+  ensureSnapshotColumns(db);
+  assert(true, "skema idempotent (ensureSnapshotSchema + ensureSnapshotColumns dipanggil 2x tidak error)");
 } catch (e) {
   assert(false, `skema idempotent: ${e}`);
 }
@@ -65,6 +67,8 @@ const snapshotId = insertSnapshot({
   confidence: "HIGH",
   recommended_market: "Kandang FC Menang (1X2)",
   recommended_market_key: "1X2_HOME",
+  panel_market: "Both Teams to Score (BTTS) Yes @ 1.88, sizing kecil",
+  panel_market_key: "BTTS_YES",
   recommended_odds: 2.1,
   recommended_ev_pct: 8.5,
   stake_pct: 1.0,
@@ -164,6 +168,9 @@ assert(evalA?.actual_result === "H", "actual_result = H (2-1)");
 assert(evalA?.actual_btts === 1, "actual_btts = 1 (kedua tim gol)");
 assert(evalA?.actual_over_2_5 === 1, "actual_over_2_5 = 1 (3 gol)");
 assert(evalA?.hit_recommended === 1, "hit_recommended = 1 (1X2_HOME menang)");
+// Panel rekomendasikan BTTS Yes sementara EV-teratas 1X2: dua key harus dinilai terpisah.
+assert(evalA?.panel_market_key === "BTTS_YES", "panel_market_key terpisah dari recommended_market_key");
+assert(evalA?.hit_panel === 1, "hit_panel dihitung sendiri (BTTS Yes: 2-1 = hit)");
 assert(evalA?.pl_result_pct !== null && Math.abs(evalA.pl_result_pct - 1.1) < 1e-9, "pl_result_pct = stake*(odds-1) = 1.1");
 // Brier multiclass: (0.5-1)^2 + (0.3-0)^2 + (0.2-0)^2 = 0.25+0.09+0.04 = 0.38
 assert(evalA?.brier_1x2 !== null && Math.abs(evalA.brier_1x2 - 0.38) < 1e-9, `brier_1x2 = 0.38 (dapat ${evalA?.brier_1x2})`);

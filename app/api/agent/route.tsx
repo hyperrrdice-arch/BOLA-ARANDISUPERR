@@ -67,7 +67,12 @@ function persistSnapshot(args: {
   }>;
   syndicateDebate: {
     is_fabricated_fallback?: boolean;
-    dual_judgement?: { judgement_1?: { model?: string }; judgement_2?: { model?: string } };
+    arbiter_verdict?: { recommended_market?: string } | null;
+    dual_judgement?: {
+      supreme_verdict?: string;
+      judgement_1?: { model?: string };
+      judgement_2?: { model?: string };
+    };
   } | undefined;
   trace: unknown;
   isFallback: boolean;
@@ -86,6 +91,12 @@ function persistSnapshot(args: {
       dj?.judgement_1?.model && dj?.judgement_2?.model
         ? `${dj.judgement_1.model} + ${dj.judgement_2.model}`
         : null;
+    const panel = panelMarketFrom(
+      args.syndicateDebate?.arbiter_verdict?.recommended_market ?? dj?.supreme_verdict,
+      args.valueBets,
+      homeTeam,
+      awayTeam
+    );
 
     insertSnapshot({
       match_id: args.matchId,
@@ -101,6 +112,8 @@ function persistSnapshot(args: {
       recommended_market_key: topEv
         ? deriveMarketKey(topEv.market_name, topEv.selection, homeTeam, awayTeam)
         : null,
+      panel_market: panel.panel_market,
+      panel_market_key: panel.panel_market_key,
       recommended_odds: topEv?.bookmaker_odds ?? null,
       recommended_ev_pct: topEv ? topEv.expected_value * 100 : null,
       stake_pct: topEv?.recommended_stake_percentage ?? null,
@@ -134,6 +147,42 @@ function persistSnapshot(args: {
   } catch (err) {
     console.warn("[api/agent] Simpan snapshot analisis gagal (response tetap dikembalikan):", err);
   }
+}
+
+/**
+ * Rekomendasi PANEL (arbiter/supreme) expressed sebagai teks bebas
+ * ("Both Teams to Score (BTTS) Yes @ 1.88, sizing kecil..."). Cocokkan ke
+ * value_bets yang tersedia; kalau market-nya tak dikenal → NULL (jujur,
+ * dilaporkan "belum dipetakan", bukan ditebak).
+ *
+ * Kalau teks menyebut beberapa market, yang disebut PERTAMA menang — itu
+ * posisi utama panel; sisanya cuma catatan diversifikasi.
+ */
+function panelMarketFrom(
+  panelText: string | null | undefined,
+  valueBets: Array<{ market_name: string; selection: string }>,
+  homeTeam: string | null,
+  awayTeam: string | null
+): { panel_market: string | null; panel_market_key: string | null } {
+  if (!panelText) return { panel_market: null, panel_market_key: null };
+  const hay = panelText.toLowerCase();
+  let best: { market_name: string; selection: string } | null = null;
+  let bestPos = Infinity;
+  for (const vb of valueBets) {
+    const pos = [vb.selection, vb.market_name]
+      .filter(Boolean)
+      .map((s) => hay.indexOf(String(s).toLowerCase()))
+      .filter((i) => i >= 0)
+      .sort((a, b) => a - b)[0];
+    if (pos !== undefined && pos < bestPos) {
+      bestPos = pos;
+      best = vb;
+    }
+  }
+  return {
+    panel_market: panelText,
+    panel_market_key: best ? deriveMarketKey(best.market_name, best.selection, homeTeam, awayTeam) : null,
+  };
 }
 
 /** Response analisis segar + penanda cache miss untuk verifikasi. */
