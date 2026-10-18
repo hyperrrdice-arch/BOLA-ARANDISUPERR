@@ -1,19 +1,19 @@
 /**
- * SYNC FIXTURE UPCOMING (Plan B) — taruh jadwal 30 hari ke depan ke `matches`.
+ * SYNC FIXTURE UPCOMING → `data/upcoming_fixtures.db` (store TERPISAH).
  *
- * Kenapa ada: `sync:weekly` cuma menarik `status=finished`, jadi tabel
- * `matches` tidak pernah punya fixture yang belum main. Akibatnya analisis
- * pre-match tidak bisa relies pada jadwal lokal.
+ * Rancangan: fixture punya umur pendek (laga selesai → dibuang), sementara
+ * `thestats_dataset.db` akumulatif. Jadi upcoming TIDAK masuk ke dataset utama.
  *
- * Keamanannya (WAJIB, jangan dibalik):
- * - Script ini TIDAK menulis `team_match_logs` (belum ada statistik pasca-laga).
- * - Semua pembaca `matches` untuk konteks analisis memfilter
- *   `status='finished' AND home_score IS NOT NULL` + cutoff tanggal
- *   (lihat `getLocalRecentMatches` / `getLocalH2HMatches`), jadi baris
- *   `scheduled` tidak pernah sampai ke model quant maupun ke LLM.
+ *   1. script ini mengisi store upcoming (7 request, horizon 30 hari)
+ *   2. katalog `/api/matches` membaca store ini, API hanya fallback
+ *   3. `scripts/promote-upcoming-to-telemetry.ts` memindahkan match yang selesai
+ *      ke dataset utama sebagai telemetry, lalu menghapus baris upcoming
  *
- * Idempotent (upsert). Aman dijalankan berulang.
- * Jalankan: npx tsx scripts/sync-upcoming-fixtures.ts [hari]  (default 30)
+ * `--migrate`: memindahkan baris `status != 'finished'` yang terlanjur ada di
+ * `matches` (dari versi lama rancangan) ke store baru, lalu menghapusnya dari
+ * dataset utama. Sekali jalan.
+ *
+ * Jalankan: npx tsx scripts/sync-upcoming-fixtures.ts [hari] [--migrate]
  */
 try {
   if (typeof (process as any).loadEnvFile === "function") {
@@ -21,20 +21,17 @@ try {
   }
 } catch {}
 
-try {
-  if (typeof (process as any).loadEnvFile === "function") {
-    (process as any).loadEnvFile(".env.local");
-  }
-} catch {}
-
 import { TARGET_COMPETITIONS } from "../lib/thestats-competitions";
-import { getTheStatsDb, upsertTeam, upsertMatch } from "../lib/db/thestats-dataset";
+import { getTheStatsDb } from "../lib/db/thestats-dataset";
+import { upsertUpcomingFixtures, countUpcoming, type UpcomingFixture } from "../lib/db/upcoming-fixtures";
 
-const DAYS_AHEAD = Number(process.argv[2]) || 30;
-const HORIZON_DAYS = 30; // TheStatsAPI tidak punya filter tanggal di endpoint list → tarik 30, potong lokal
+const DO_MIGRATE = process.argv.includes("--migrate");
+const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const DAYS_AHEAD = Number(positional[0]) || 30;
+const HORIZON_DAYS = 30; // endpoint list tidak punya filter tanggal → tarik 30, potong lokal
 const API_BASE = "https://api.thestatsapi.com/api";
 const PER_PAGE = 100;
-const RATE_PAUSE_MS = 600; // ≈100 request/menit, di bawah limit 120/menit
+const RATE_PAUSE_MS = 600; // ≈100 req/menit, di bawah limit 120/menit
 
 const db = getTheStatsDb();
 const apiKey = process.env.STATS_API_KEY;
@@ -44,12 +41,8 @@ if (!apiKey) {
 }
 
 const now = Date.now();
-const cutoff = new Date(now + HORIZON_DAYS * 24 * 60 * 60 * 1000).toISOString();
-let inserted = 0;
-let skippedPast = 0;
-let requests = 0;
-
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+let requests = 0;
 
 async function fetchList(competitionId: string, page: number): Promise<any[]> {
   const url =
@@ -74,12 +67,57 @@ async function fetchList(competitionId: string, page: number): Promise<any[]> {
   return [];
 }
 
+/** Migrasi sekali: pindahkan fixture lama dari dataset utama ke store baru. */
+function migrateFromDataset() {
+  const rows = db
+    .prepare(`
+      SELECT m.match_id, m.competition_id, m.utc_date, m.status,
+             m.home_team_id, m.away_team_id, ht.name AS home_name, at.name AS away_name
+      FROM matches m
+      LEFT JOIN teams ht ON ht.team_id = m.home_team_id
+      LEFT JOIN teams at ON at.team_id = m.away_team_id
+      WHERE m.status != 'finished'
+    `)
+    .all() as any[];
+
+  if (rows.length === 0) {
+    console.log("[migrate] Tidak ada baris scheduled di dataset utama — migrasi tidak perlu.");
+    return;
+  }
+
+  const payload: UpcomingFixture[] = rows.map((r) => ({
+    match_id: r.match_id,
+    competition_id: r.competition_id ?? null,
+    competition_name: TARGET_COMPETITIONS[r.competition_id ?? ""]?.name ?? null,
+    utc_date: r.utc_date,
+    status: r.status ?? null,
+    home_team_id: r.home_team_id ?? null,
+    home_team_name: r.home_name ?? null,
+    away_team_id: r.away_team_id ?? null,
+    away_team_name: r.away_name ?? null,
+  }));
+  upsertUpcomingFixtures(payload);
+
+  // Dataset utama harus bebas fixture: hapus setelah tersalin.
+  const del = db.prepare("DELETE FROM matches WHERE match_id = ? AND status != 'finished'");
+  let removed = 0;
+  for (const r of rows) removed += Number(del.run(r.match_id).changes);
+
+  console.log(`[migrate] ${payload.length} fixture dipindah ke upcoming_fixtures.db, ${removed} baris dihapus dari dataset utama.`);
+}
+
 async function main() {
-  console.log(`🔮 [FIXTURE UPCOMING] Jadwal ${DAYS_AHEAD} hari ke depan (tarik ${HORIZON_DAYS} hari, potong lokal)`);
+  if (DO_MIGRATE) {
+    migrateFromDataset();
+  }
+
+  console.log(`🔮 [FIXTURE UPCOMING] Jadwal ${DAYS_AHEAD} hari ke depan → upcoming_fixtures.db`);
+  let total = 0;
+  let outside = 0;
 
   for (const comp of Object.values(TARGET_COMPETITIONS)) {
+    const batch: UpcomingFixture[] = [];
     let page = 1;
-    let compInserted = 0;
     while (page <= 3) {
       const matches = await fetchList(comp.id, page);
       if (matches.length === 0) break;
@@ -88,48 +126,42 @@ async function main() {
         if (!utc) continue;
         const ms = Date.parse(utc);
         if (Number.isNaN(ms)) continue;
-        // Hanya masa depan, dan hanya dalam horizon yang diminta.
-        if (ms < now) { skippedPast++; continue; }
-        if (ms > now + DAYS_AHEAD * 24 * 60 * 60 * 1000) { skippedPast++; continue; }
-
-        const home = m.home_team;
-        const away = m.away_team;
-        if (!home?.id || !away?.id) continue;
-
-        // Tim harus ada lebih dulu (FK matches → teams).
-        upsertTeam({ team_id: String(home.id), name: home.name ?? String(home.id) });
-        upsertTeam({ team_id: String(away.id), name: away.name ?? String(away.id) });
-        upsertMatch({
+        if (ms < now || ms > now + DAYS_AHEAD * 24 * 60 * 60 * 1000) {
+          outside++;
+          continue;
+        }
+        batch.push({
           match_id: String(m.id),
           competition_id: comp.id,
-          season: String(m.season_id ?? comp.seasonName ?? comp.seasonName),
+          competition_name: m.competition_name ?? comp.name,
           utc_date: utc,
           status: String(m.status ?? "scheduled"),
-          home_team_id: String(home.id),
-          away_team_id: String(away.id),
+          stage_name: m.stage_name ?? null,
+          home_team_id: m.home_team?.id != null ? String(m.home_team.id) : null,
+          home_team_name: m.home_team?.name ?? null,
+          away_team_id: m.away_team?.id != null ? String(m.away_team.id) : null,
+          away_team_name: m.away_team?.name ?? null,
+          venue: m.venue ?? null,
+          is_neutral: m.is_neutral ? 1 : 0,
+          odds_available: m.odds_available ? 1 : 0,
+          xg_available: m.xg_available ? 1 : 0,
         });
-        compInserted++;
       }
       if (matches.length < PER_PAGE) break;
       page++;
       await sleep(RATE_PAUSE_MS);
     }
-    inserted += compInserted;
-    console.log(`-> ${comp.name}: ${compInserted} fixture masuk (total ${inserted})`);
+    upsertUpcomingFixtures(batch);
+    total += batch.length;
+    console.log(`-> ${comp.name}: ${batch.length} fixture (total ${total})`);
     await sleep(RATE_PAUSE_MS);
   }
 
-  const total = (db.prepare("SELECT count(*) AS c FROM matches").get() as any).c as number;
-  const upcoming = (
-    db.prepare("SELECT count(*) AS c FROM matches WHERE utc_date > datetime('now') AND status != 'finished'").get() as any
-  ).c as number;
   console.log(`\n🎉 [FIXTURE SYNC SELESAI]`);
-  console.log(`- Fixture Dipasang      : ${inserted}`);
-  console.log(`- Dilewati (di luar ${DAYS_AHEAD} hari): ${skippedPast}`);
+  console.log(`- Fixture di store     : ${total} ditulis, ${countUpcoming()} total tersimpan`);
+  console.log(`- Dilewati (di luar ${DAYS_AHEAD} hari): ${outside}`);
   console.log(`- Total Request API    : ${requests}`);
-  console.log(`- Total match di DB    : ${total} (${upcoming} akan datang)`);
-  console.log(`\nCatatan: baris scheduled TIDAK punya team_match_logs, dan pembaca konteks`);
-  console.log(`memfilter status='finished' — jadi tidak bisa bocor ke model/LLM.`);
+  console.log(`- Di dataset utama    : ${(db.prepare("SELECT count(*) AS c FROM matches WHERE status != 'finished'").get() as any).c} baris scheduled (harus 0)`);
 }
 
 main().catch((err) => {

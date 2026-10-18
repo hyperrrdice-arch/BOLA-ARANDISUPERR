@@ -6,9 +6,10 @@ import {
   upsertTeamMatchLog,
   type TeamRecord,
   type SquadPlayerRecord,
-  type MatchMetaRecord,
-  type TeamMatchLogRecord,
 } from "../lib/db/thestats-dataset";
+// Mapping stats → baris DB dipakai modul shared (sama dengan skrip promosi
+// upcoming), supaya 60+ kolom tidak diduplikasi di dua tempat.
+import { mapStatsToTelemetry } from "../lib/stats-log-mapper";
 import {
   saveRawPayload,
   getRawPayload,
@@ -146,116 +147,15 @@ export async function syncWeeklyDelta(daysLookback: number = 8) {
       const statsData = statsRes?.data || null;
       const lineupsData = lineupsRes?.data || null;
 
-      const homeScore = Number(m.score?.home ?? m.home_score ?? 0);
-      const awayScore = Number(m.score?.away ?? m.away_score ?? 0);
+      const mapped = mapStatsToTelemetry({ m, stats: statsData, competitionId: comp.id, seasonName: comp.seasonName });
+      if (!mapped) {
+        console.warn(`  ?? Mapping telemetry gagal untuk ${matchId} � dilewati.`);
+        continue;
+      }
 
-      upsertMatch({
-        match_id: matchId,
-        competition_id: comp.id,
-        season: comp.seasonName,
-        utc_date: m.utc_date,
-        status: m.status,
-        home_team_id: homeId,
-        away_team_id: awayId,
-        home_score: homeScore,
-        away_score: awayScore,
-      });
-
-      const homeResult: "W" | "D" | "L" = homeScore > awayScore ? "W" : homeScore === awayScore ? "D" : "L";
-      const awayResult: "W" | "D" | "L" = awayScore > homeScore ? "W" : homeScore === awayScore ? "D" : "L";
-
-      const ov = statsData?.overview;
-      const sh = statsData?.shots;
-      const att = statsData?.attack;
-      const pass = statsData?.passes;
-      const du = statsData?.duels;
-      const def = statsData?.defending;
-      const gk = statsData?.goalkeeping;
-      const npxg = statsData?.np_expected_goals;
-      const rawJsonStr = statsData ? JSON.stringify(statsData) : null;
-
-      // Home Log
-      const homeLog: TeamMatchLogRecord = {
-        log_id: `${matchId}_${homeId}`,
-        match_id: matchId,
-        team_id: homeId,
-        opponent_id: awayId,
-        venue: "HOME",
-        match_date: m.utc_date ? m.utc_date.slice(0, 10) : "",
-        season: comp.seasonName,
-        result: homeResult,
-        goals_for: homeScore,
-        goals_against: awayScore,
-        xg_for: ov?.expected_goals?.all?.home ?? statsData?.xg?.home ?? null,
-        xg_against: ov?.expected_goals?.all?.away ?? statsData?.xg?.away ?? null,
-        npxg_for: npxg?.all?.home ?? null,
-        npxg_against: npxg?.all?.away ?? null,
-        shots_for: sh?.total_shots?.all?.home ?? ov?.total_shots?.all?.home ?? null,
-        shots_against: sh?.total_shots?.all?.away ?? ov?.total_shots?.all?.away ?? null,
-        shots_on_target_for: sh?.shots_on_target?.all?.home ?? ov?.shots_on_target?.all?.home ?? null,
-        shots_on_target_against: sh?.shots_on_target?.all?.away ?? ov?.shots_on_target?.all?.away ?? null,
-        big_chances_for: ov?.big_chances?.all?.home ?? null,
-        big_chances_against: ov?.big_chances?.all?.away ?? null,
-        touches_in_penalty_area_for: att?.touches_in_penalty_area?.all?.home ?? null,
-        touches_in_penalty_area_against: att?.touches_in_penalty_area?.all?.away ?? null,
-        possession_pct: ov?.ball_possession?.all?.home ?? null,
-        passes_accurate_for: ov?.accurate_passes?.all?.home ?? pass?.accurate_passes?.all?.home ?? null,
-        passes_accurate_against: ov?.accurate_passes?.all?.away ?? pass?.accurate_passes?.all?.away ?? null,
-        accurate_crosses_for: pass?.accurate_crosses?.all?.home ?? null,
-        accurate_crosses_against: pass?.accurate_crosses?.all?.away ?? null,
-        aerial_duels_pct_for: du?.aerial_duels_percentage?.all?.home ?? null,
-        aerial_duels_pct_against: du?.aerial_duels_percentage?.all?.away ?? null,
-        corners_for: ov?.corner_kicks?.all?.home ?? null,
-        corners_against: ov?.corner_kicks?.all?.away ?? null,
-        yellow_cards: ov?.yellow_cards?.all?.home ?? null,
-        red_cards: ov?.red_cards?.all?.home ?? null,
-        saves_for: gk?.saves?.all?.home ?? ov?.goalkeeper_saves?.all?.home ?? null,
-        saves_against: gk?.saves?.all?.away ?? ov?.goalkeeper_saves?.all?.away ?? null,
-        raw_stats_json: rawJsonStr,
-      };
-
-      // Away Log
-      const awayLog: TeamMatchLogRecord = {
-        log_id: `${matchId}_${awayId}`,
-        match_id: matchId,
-        team_id: awayId,
-        opponent_id: homeId,
-        venue: "AWAY",
-        match_date: m.utc_date ? m.utc_date.slice(0, 10) : "",
-        season: comp.seasonName,
-        result: awayResult,
-        goals_for: awayScore,
-        goals_against: homeScore,
-        xg_for: ov?.expected_goals?.all?.away ?? statsData?.xg?.away ?? null,
-        xg_against: ov?.expected_goals?.all?.home ?? statsData?.xg?.home ?? null,
-        npxg_for: npxg?.all?.away ?? null,
-        npxg_against: npxg?.all?.home ?? null,
-        shots_for: sh?.total_shots?.all?.away ?? ov?.total_shots?.all?.away ?? null,
-        shots_against: sh?.total_shots?.all?.home ?? ov?.total_shots?.all?.home ?? null,
-        shots_on_target_for: sh?.shots_on_target?.all?.away ?? ov?.shots_on_target?.all?.away ?? null,
-        shots_on_target_against: sh?.shots_on_target?.all?.home ?? ov?.shots_on_target?.all?.home ?? null,
-        big_chances_for: ov?.big_chances?.all?.away ?? null,
-        big_chances_against: ov?.big_chances?.all?.home ?? null,
-        touches_in_penalty_area_for: att?.touches_in_penalty_area?.all?.away ?? null,
-        touches_in_penalty_area_against: att?.touches_in_penalty_area?.all?.home ?? null,
-        possession_pct: ov?.ball_possession?.all?.away ?? null,
-        passes_accurate_for: ov?.accurate_passes?.all?.away ?? pass?.accurate_passes?.all?.away ?? null,
-        passes_accurate_against: ov?.accurate_passes?.all?.home ?? pass?.accurate_passes?.all?.home ?? null,
-        accurate_crosses_for: pass?.accurate_crosses?.all?.away ?? null,
-        accurate_crosses_against: pass?.accurate_crosses?.all?.home ?? null,
-        aerial_duels_pct_for: du?.aerial_duels_percentage?.all?.away ?? null,
-        aerial_duels_pct_against: du?.aerial_duels_percentage?.all?.home ?? null,
-        corners_for: ov?.corner_kicks?.all?.away ?? null,
-        corners_against: ov?.corner_kicks?.all?.home ?? null,
-        yellow_cards: ov?.yellow_cards?.all?.away ?? null,
-        red_cards: ov?.red_cards?.all?.away ?? null,
-        saves_for: gk?.saves?.all?.away ?? ov?.goalkeeper_saves?.all?.away ?? null,
-        saves_against: gk?.saves?.all?.home ?? ov?.goalkeeper_saves?.all?.home ?? null,
-        raw_stats_json: rawJsonStr,
-      };
-
-      upsertTeamMatchLog(homeLog);
-      upsertTeamMatchLog(awayLog);
+      upsertMatch(mapped.match);
+      upsertTeamMatchLog(mapped.homeLog);
+      upsertTeamMatchLog(mapped.awayLog);
       newMatchesSynced++;
       newLogsSynced += 2;
     }

@@ -14,6 +14,7 @@ import {
   getLocalRecentMatches,
   getLocalH2HMatches,
 } from "../lib/db/thestats-dataset";
+import { countUpcoming, getUpcomingDb } from "../lib/db/upcoming-fixtures";
 
 let passed = 0;
 let failed = 0;
@@ -31,14 +32,27 @@ const db = getTheStatsDb();
 
 console.log("=== TEST GUARD FIXTURE UPCOMING ===\n");
 
-// 0. Prekondisi: memang ada fixture scheduled di DB.
-const upcoming = db
-  .prepare(`
-    SELECT count(*) AS c FROM matches
-    WHERE status != 'finished' AND utc_date > datetime('now')
-  `)
+// 0. Invariant: dataset utama bebas fixture; fixture hidup di store terpisah.
+// (Setelah migrasi Plan-B final, matches lokal TIDAK menyimpan scheduled.)
+const scheduledInDataset = db
+  .prepare("SELECT count(*) AS c FROM matches WHERE status != 'finished'")
   .get() as { c: number };
-assert(upcoming.c > 0, `fixture scheduled ada di DB (${upcoming.c} baris) — guarded test berarti`);
+assert(
+  scheduledInDataset.c === 0,
+  `dataset utama bebas fixture scheduled (ditemukan ${scheduledInDataset.c})`
+);
+assert(countUpcoming() > 0, `fixture ada di store terpisah (${countUpcoming()} baris)`);
+
+// Helper tim uji: pilih dari store upcoming (tim dengan fixture terbanyak).
+const upcoming = getUpcomingDb()
+  .prepare(`
+    SELECT home_team_id AS team_id, count(*) AS n
+    FROM upcoming_fixtures
+    WHERE utc_date > datetime('now')
+    GROUP BY home_team_id ORDER BY n DESC LIMIT 1
+  `)
+  .get() as { team_id: string; n: number } | undefined;
+assert(!!upcoming, `pilih tim uji dari store upcoming (${upcoming?.team_id})`);
 
 // 1. team_match_logs TIDAK boleh punya baris untuk match scheduled.
 const logLeak = db
@@ -51,33 +65,14 @@ const logLeak = db
 assert(logLeak.c === 0, `tidak ada team_match_logs untuk match scheduled (ditemukan ${logLeak.c})`);
 
 // 2. getLocalRecentMatches: untuk tim yang punya fixture, output hanya finished + skor nyata.
-const team = db
-  .prepare(`
-    SELECT m.home_team_id AS team_id, count(*) AS upcoming_n
-    FROM matches m
-    WHERE m.status != 'finished' AND m.utc_date > datetime('now')
-    GROUP BY m.home_team_id
-    ORDER BY upcoming_n DESC LIMIT 1
-  `)
-  .get() as { team_id: string; upcoming_n: number };
-assert(!!team, `pilih tim uji dengan fixture terbanyak (${team?.team_id}, ${team?.upcoming_n} fixture)`);
+const team = upcoming;
+assert(!!team, `pilih tim uji dengan fixture terbanyak (${team?.team_id}, ${team?.n} fixture)`);
 
 const recent = getLocalRecentMatches(team.team_id, 6);
 assert(recent.length > 0, `form list tidak kosong untuk tim uji (${recent.length} match)`);
 assert(
   recent.every((m) => m.status === "finished" && m.score.home !== null && m.score.away !== null),
   "SEMUA baris form berstatus finished + skor terisi (tidak ada 0-0 palsu dari fixture)"
-);
-const scheduledIds = new Set(
-  (
-    db
-      .prepare("SELECT match_id FROM matches WHERE status != 'finished' AND utc_date > datetime('now')")
-      .all() as { match_id: string }[]
-  ).map((r) => r.match_id)
-);
-assert(
-  recent.every((m) => !scheduledIds.has(m.id)),
-  "tidak ada match scheduled yang bocor ke form list"
 );
 
 // 3. Cutoff tanggal: sebelum tanggal pertama di DB → 0 baris (nanti baris muncul).
@@ -91,10 +86,10 @@ assert(
 );
 
 // 4. H2H: pilih dua tim yang punya fixture, pastikan output tetap finished.
-const pair = db
+const pair = getUpcomingDb()
   .prepare(`
     SELECT home_team_id AS a, away_team_id AS b
-    FROM matches WHERE status != 'finished' AND utc_date > datetime('now')
+    FROM upcoming_fixtures WHERE utc_date > datetime('now')
     LIMIT 1
   `)
   .get() as { a: string; b: string } | undefined;
