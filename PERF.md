@@ -116,31 +116,38 @@ Koreksi catatan sebelumnya: angka "171 KB" adalah **pembanding yang tidak sah** 
 | `/api/odds` p95 | < 200ms | ✅ 9ms |
 | Initial JS | < 200KB on-wire | ⚠️ 194KB (mepet) |
 | CSS | < 50KB | ✅ 4.1KB |
-| LCP `/` | ≤ 2.5s | ✅ **681 ms** (Lighthouse desktop) → SSR katalog tidak dikerjakan |
+| LCP `/` | ≤ 2.5s | ✅ desktop **483 ms** · ⚠️ mobile+4×CPU **2459 ms** (lolos 41 ms) → SSR katalog tidak dikerjakan, lever = render delay |
 
-## LCP & Core Web Vitals (Lighthouse 12, headless Chrome, desktop preset, throttling `simulate`)
+## LCP & Core Web Vitals (Chrome DevTools MCP — trace nyata, bukan simulasi)
 
-Diukur 18 Okt 2026 di prod local `next start -p 3100`, build perf terakhir.
+Diukur 18 Okt 2026 terhadap prod lokal `next start -p 3100`, build perf terakhir. Dua kondisi: desktop tanpa throttle, dan kasus terburuk (mobile 390×844 + Fast 3G + CPU 4×).
 
-| Metrik | Nilai | Target | Status |
+| Metrik | Desktop 1440×900 | Mobile 390×844 · Fast 3G · CPU 4× | Target |
 |---|---|---|---|
-| Performance score | **91** | ≥ 90 | ✅ |
-| **LCP** | **681 ms** | ≤ 2.5s | ✅ |
-| CLS | **0.015** | ≤ 0.1 | ✅ |
-| TBT | 213 ms | — | — |
-| FCP | 350 ms | — | — |
-| Speed Index | 1416 ms | — | — |
-| Server response (root doc) | 20 ms | — | ✅ |
+| **LCP** | **483 ms** ✅ | **2459 ms** ⚠️ (lolos 41 ms) | ≤ 2.5s |
+| LCP breakdown — TTFB | 33 ms | 22 ms | — |
+| LCP breakdown — render delay | 450 ms | **2437 ms (99.1% LCP)** | — |
+| CLS | 0.01 ✅ | 0.00 ✅ | ≤ 0.1 |
 
-LCP element = `<p>` deskripsi katalog (`max-w-3xl`), **bukan skeleton loader**. Jadi hipotesis lama "paint pertama cuma skeleton karena katalog di-fetch setelah hidrasi" **tidak terbukti di LCP** — elemen terbesar ada di HTML awal.
+Cross-check Lighthouse 12 (desktop, throttling `simulate`): skor **91**, LCP 681 ms, TBT 213 ms, FCP 350 ms, root doc 20 ms — konsisten.
 
-**Keputusan Task 8: LCP ≤ 2.5s → SSR katalog TIDAK dikerjakan.** Ditutup sebagai bukan masalah, sesuai aturan putusan di rencana. Catatan: preset desktop (sesuai sifat app: terminal quant desktop). Preset mobile belum dijalankan.
+LCP element = `<p>` deskripsi katalog (teks, **bukan** resource jaringan). Jadi biaya LCP **bukan** network (TTFB 22–33 ms) melainkan **render delay**: main thread sibuk parse/eksekusi JS + nunggu CSS render-blocking sebelum teks boleh cat.
 
-### Temuan baru dari trace (belum dikerjakan)
+**Keputusan Task 8:** desktop 483 ms ✅, mobile-terthrottle 2459 ms lolos tipis → **SSR katalog tidak dikerjakan** (belum terbukti perlu). Tapi klaim lama "paint pertama cuma skeleton" **tetap tidak terbukti** — elemen terbesar sudah ada di HTML awal. Lever yang benar kalau mau margin di mobile = **turunkan render delay**, bukan SSR.
 
-1. **`/api/matches` dikirim TANPA kompresi** — 36 KB transfer / 36 KB resource (rasio 1.01), sementara semua chunk JS/CSS di app yang sama gzip (rasio 0.2–0.32). Lighthouse memperkirakan **30 KB terbuang** hanya di endpoint ini. `/api/agent` (payload ~21 KB) dan `/api/odds` memakai jalur `Response.json()` yang sama, jadi kena juga. Ini masalah **delivery**, bukan bentuk data (payload sudah ramping: 97 match × 11 field).
-2. **49 KB JS tidak terpakai di layar katalog** — dua chunk terberat (71 KB dan 48 KB transfer) masing-masing 26 KB dan 23 KB tidak terpakai saat belum ada match dipilih, karena kartu-kartu analisis (`QuantEngineCard`, `SyndicateDebateCard`, `TheStatsOddsComparisonCard`, …) diimpor eager di `app/page.tsx` padahal cuma dipakai setelah match diklik. Kandidat `next/dynamic` selektif.
-3. Font: 4 file woff2 = **83 KB** transfer (29+23+16+15). Kandidat: preload hanya yang di atas fold. Prioritas rendah.
+Bukti pendukung dari trace: dari 8 chunk (656 KB raw), Lighthouse menandai **49 KB tidak terpakai** di layar katalog — kartu analisis (`QuantEngineCard`, `SyndicateDebateCard`, `TheStatsOddsComparisonCard`) diimpor eager di `app/page.tsx` padahal baru dipakai setelah match diklik. JS itu tetap di-parse/eksekusi saat hidrasi, dan itulah yang menggigit di CPU 4×.
+
+### Temuan baru dari trace & inspeksi (belum dikerjakan)
+
+1. **`/api/matches` dikirim TANPA kompresi.** Terkonfirmasi dua sumber independen:
+   - Lighthouse: 36 KB transfer / 36 KB resource (rasio 1.01), **30 KB terbuang**, sementara semua chunk JS/CSS di app yang sama gzip (rasio 0.2–0.32).
+   - Chrome DevTools (`get_network_request`): response header `/api/matches` cuma `content-type: application/json` + `transfer-encoding: chunked` — **nol `content-encoding`**. Chunk JS di navigasi yang sama: `content-encoding: gzip`.
+   `/api/agent` (payload ~21 KB) dan `/api/odds` lewat `Response.json()` yang sama, jadi kena juga. Masalah **delivery**, bukan bentuk data (payload sudah ramping: 97 match × 11 field).
+2. **49 KB JS tidak terpakai di layar katalog** — dua chunk terberat (71 KB & 48 KB transfer) masing-masing 26 KB & 23 KB tidak terpakai sebelum match dipilih, karena kartu analisis diimpor eager. Kandidat `next/dynamic`.
+3. Font: 4 file woff2 = **83 KB** transfer (29+23+16+15). Prioritas rendah.
+4. **Console tidak bersih — 1 issue a11y** (bukan perf): "A form field element should have an id or name attribute" (input pencarian di `FilterToolbar`). Dicatat di sini, belum diperbaiki.
+
+Catatan metode: trace mentah (`chrome-trace-*.json.gz`, ~5.7 MB) dan screenshot DevTools sudah dihapus setelah angkanya dictat di dokumen ini — bukan artefak yang disimpan di repo.
 
 ## Langkah berikutnya (butuh keputusan user, bukan eksekusi sepihak)
 
