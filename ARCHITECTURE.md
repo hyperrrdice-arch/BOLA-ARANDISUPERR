@@ -253,17 +253,38 @@ Semua jalur operasional:
 ### 9.2 `data/upcoming_fixtures.db` — katalog fixture (umur pendek, disposable)
 
 Store terpisah dari `thestats_dataset.db` (pola yang sama dengan snapshot: lifecycle
-berbeda → file berbeda). Isinya fixture 30 hari ke depan (246 baris, 7 liga target).
+berbeda → file berbeda). Isinya **378 fixture** horizon penuh (sampai **2026-11-29**,
+7 liga target + `competition_catalog` 208 kompetisi). Horizon ini bukan pilihan kita:
+TheStatsAPI hanya menyediakan ±6 minggu fixture ke depan, dan itu batas kerasnya.
 Siklus hidup: diisi `scripts/sync-upcoming-fixtures.ts` → dibaca katalog
 `/api/matches` (offline-first, API hanya fallback) → match selesai →
 `scripts/promote-upcoming-to-telemetry.ts` menarik telemetry-nya ke dataset utama
 lalu **menghapus barisnya** di sini. Dataset utama tidak pernah menyimpan baris
 `scheduled` (invariant diuji `scripts/test-upcoming-guard.ts`).
 
-> 📌 **Ekspansi coverage berjalan** (lihat `tasks/plan-data-coverage.md`): kuota
-> TheStatsAPI yang tersisa dipakai memperluas window fixture ini semaksimal mungkin +
-> pre-pull odds, karena API berhenti setelah kuota habis sampai app menghasilkan
-> pendapatan. Setelah itu katalog hanya bisa bertumbuh dari data yang sudah distok.
+### 9.3 Masa beku online (18 Okt 2026): inventaris yang harus menggantikan API
+
+TheStatsAPI **mati permanen** — kunci ditolak dengan `403 KEY_REVOKED: "API key has
+no active subscription plan"` (terverifikasi 18 Okt 2026 ~15:05 UTC, beberapa menit
+sebelum kuota berakhir). Semua yang masih hidup sesudah itu wajib dilayani dari data
+yang sudah distok:
+
+| Kebutuhan | Sumber lokal | Status |
+|---|---|---|
+| Katalog fixture | `upcoming_fixtures.db` 378 baris s/d 2026-11-29 + `competition_catalog` 208 | ✅ 200 OK tanpa API (dibuktikan live saat API 403) |
+| Harga odds | `match_odds_history` (`thestats_dataset.db`) 378 baris anchor, 112 terisi | ⚠️ data ada, **`/api/odds` belum membaca tabel ini** — kartu odds kosong sampai route disentuh reviewer |
+| Lineup | vault `lineups_{matchId}` — 20/24 laga 18 Okt tersimpan | ⚠️ 4 laga terakhir gagal ditarik (API mati) |
+| Telemetri | `team_match_logs` 2.348 baris (1.174 match) | ✅ naik 2,7× dalam sesi pembakaran kuota |
+| Cedera/skuat | vault `injuries_*` / `players_*` 127 tim | ✅ snapshot bertanggal, tapi **tidak bisa di-refresh** lagi |
+
+Aturan main selama masa beku: **jangan panggil API di jalur render** — katalog, odds,
+dan form wajib dilayani dari store; `statsFetch` kini gagal cepat dengan pesan
+"AKSES API MATI" supaya tidak ada retry sia-sia.
+
+> 📌 Laporan lengkap + item yang gagal karena API mati:
+> `tasks/todo-data-coverage.md`. Pengaman offline: `lib/stats-fetch.ts`
+> (pacing 5s di bawah limit nyata **12 req/menit** dari header `x-ratelimit-*`),
+> `lib/api-budget.ts` (counter disinkronkan header `x-monthly-quota-remaining`).
 
 ---
 
@@ -305,7 +326,9 @@ Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build
 - **Katalog fixture offline-first** — ✅ selesai: `/api/matches` membaca `data/upcoming_fixtures.db`, API hanya fallback (§9.2)
 - **Lifecycle fixture otomatis** — ✅ selesai: `sync:upcoming` (isi) + `promote-upcoming-to-telemetry.ts` (match selesai → telemetry ke dataset utama → baris dihapus)
 - **Evaluasi outcome berjalan** — lengkapi: tarik `match_outcomes` otomatis per jadwal (`sync-match-outcomes.ts` via cron), accumulate ≥100 snapshot evaluable, lalu pakai angka Brier/log-loss/P-L untuk kalibrasi ulang ratings & confidence
-- **Ekspansi coverage data** — berjalan: bakar sisa kuota TheStatsAPI untuk katalog fixture + odds pre-pull + telemetri (`tasks/plan-data-coverage.md`); setelah kuota habis, API mati sampai app menghasilkan pendapatan
+- **Ekspansi coverage data** — ✅ selesai insofar mungkin (18 Okt 2026): katalog fixture 378 s/d 2026-11-29, odds anchor 378 baris, telemetri 434 → 1.174 match, lalu API **mati permanen** (`403 KEY_REVOKED`). Sisa pekerjaan online (bulk stats 1.623 match, 4 lineup, odds historis, refresh cedera) **tidak bisa dikejar lagi** — lihat §9.3 + `tasks/todo-data-coverage.md`
+- **🔴 Prioritas berikutnya (sisi app, bukan DB):** wire `/api/odds` ke tabel `match_odds_history` — data anchor sudah tersimpan 112 fixture, route masih online-only sehingga kartu odds kosong selama periode kering. Perlu persetujuan karena file-nya milik reviewer/scoped agent lain
+- **Jalur data alternatif untuk periode beku** — kalau kuota mati terlalu lama: ganti sumber fixture/odds (mis. RapidAPI 1xBet `RAPIDAPI_1XBET_KEY` sudah ada di env) agar katalog & harga tetap bisa di-refresh
 - **Trigger otonom** (cron per kickoff) — saat ini analisis dipicu klik user
 - `query_odds_dislocation` & `run_special_markets` sebagai tool planner terpisah (saat ini masuk paket quant)
 - Sisa polish UI: struktur katalog (grid kartu identik), radius/tokens menyeluruh

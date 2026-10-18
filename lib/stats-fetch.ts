@@ -98,6 +98,16 @@ export async function statsFetch<T = any>(
           continue;
         }
         const body = await res.text().catch(() => "");
+        // 401/403 = kunci ditolak / langganan mati (terbukti 2026-10-18: KEY_REVOKED
+        // "API key has no active subscription plan"). Ini permanen — retry tidak berguna,
+        // dan setelah masa(key) habis tidak ada jalur data online sama sekali.
+        if (res.status === 401 || res.status === 403) {
+          throw new Error(
+            `[statsFetch] AKSES API MATI (HTTP ${res.status}) — ${path}: ${body.slice(0, 200)}\n` +
+              `  Kunci ditolak / langganan berakhir. Tidak ada request yang bisa dicoba lagi; ` +
+              `lanjutkan dari vault (data yang sudah ditarik tetap utuh).`
+          );
+        }
         throw new Error(`[statsFetch] ${path} ditolak permanen: ${lastErr} ${body.slice(0, 200)}`);
       }
 
