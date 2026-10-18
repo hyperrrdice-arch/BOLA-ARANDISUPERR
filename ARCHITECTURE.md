@@ -212,6 +212,16 @@ dengan EV positif pertama (aturan `hero.ev_teratas` di view), sedangkan
 (diturunkan dari teksnya, market yang disebut pertama). Keduanya punya hit rate
 sendiri di report — sering berbeda, jadi membandingkan keduanya itu inti evaluasi.
 
+### 9.2 `data/upcoming_fixtures.db` — katalog fixture (umur pendek, disposable)
+
+Store terpisah dari `thestats_dataset.db` (pola yang sama dengan snapshot: lifecycle
+berbeda → file berbeda). Isinya fixture 30 hari ke depan (246 baris, 7 liga target).
+Siklus hidup: diisi `scripts/sync-upcoming-fixtures.ts` → dibaca katalog
+`/api/matches` (offline-first, API hanya fallback) → match selesai →
+`scripts/promote-upcoming-to-telemetry.ts` menarik telemetry-nya ke dataset utama
+lalu **menghapus barisnya** di sini. Dataset utama tidak pernah menyimpan baris
+`scheduled` (invariant diuji `scripts/test-upcoming-guard.ts`).
+
 ---
 
 ## 10. Menjalankan & Menguji
@@ -226,6 +236,8 @@ npx tsx scripts/test-view-mapper.ts            # BFF: fidelitas angka, null juju
 npx tsx scripts/test-snapshot-db.ts            # DB snapshot: round-trip, VIEW, leakage guard
 npx tsx scripts/sync-match-outcomes.ts         # tarik hasil aktual (CLI, idempoten)
 npx tsx scripts/snapshot-report.ts             # report prediksi vs hasil (read-only)
+npx tsx scripts/sync-upcoming-fixtures.ts 30  # isi store fixture 30 hari ke depan (CLI)
+npx tsx scripts/promote-upcoming-to-telemetry.ts  # fixture selesai → telemetry (CLI)
 npx tsc --noEmit                   # typecheck
 npm run build                      # build produksi
 ```
