@@ -134,6 +134,7 @@ async function main() {
           match_id: String(m.id),
           competition_id: comp.id,
           competition_name: m.competition_name ?? comp.name,
+          competition_country: comp.country,
           utc_date: utc,
           status: String(m.status ?? "scheduled"),
           stage_name: m.stage_name ?? null,
