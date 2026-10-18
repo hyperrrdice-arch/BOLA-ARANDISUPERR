@@ -27,6 +27,66 @@
 
 ---
 
+## 🔍 RENCANA VERIFIKASI END-TO-END (menuntaskan item "Sisa")
+
+### Task E1: Setup — production server + match target
+**Acceptance:**
+- [ ] `next build` segar + `next start` hidup (production, bukan dev — lebih representatif)
+- [ ] `/api/matches` mengembalikan match nyata; 1 match dipilih sebagai target
+
+**Verification:** curl `/` = 200, `/api/matches` = 200 dengan match terisi
+
+### Task E2: Full run `/api/agent` (LLM penuh)
+**Acceptance:**
+- [ ] Request penuh selesai (timeout curl ≥ 15 menit; pipeline wajar 4-8 menit)
+- [ ] Response 200 + AnalysisView valid (lolos `AnalysisViewSchema`)
+
+**Verification:** response JSON tersimpan untuk audit E3-E5
+
+### Task E3: Audit anti-karangan angka
+**Acceptance:**
+- [ ] `value_bets[*].bookmaker_odds` SEMUA berasal dari `odds.market_odds` response — nol odds karangan (1.88/1.95/fair-odds-model)
+- [ ] Odds pasar absen → entry market itu TIDAK ada di value_bets; `recommended_odds` null
+- [ ] Probabilitas hero = salinan 1:1 dari quant (cross-check vs `quant_engine.dixon_coles`)
+- [ ] Invariant skala: λ ≈ leagueAvg×atk×def×homeAdv dari ratings, probs 1X2 jumlah ≈ 1
+- [ ] Tidak ada `0.00`/`0%` palsu untuk field yang absen — semua "—"/null
+- [ ] xPTS memakai `home_xpts`/`away_xpts`
+
+**Verification:** script audit node assert semua poin di atas (runnable check)
+
+### Task E4: Audit grounding LLM (anti-halusinasi)
+**Acceptance:**
+- [ ] `is_strictly_grounded` konsisten: false ⇔ ada persona `source: "fallback_template"` / ada teks prefix "[Template fallback"
+- [ ] Semua thesis/alasan tanpa prefix template = output model asli; yang fallback WAJIB ber-prefix
+- [ ] Angka faktual di editorial (wasit kartu, form) cocok dengan field intel yang sama (cross-check spot ≥ 5 angka)
+- [ ] `stop_with_verdict` tidak membawa angka quant baru (schema melarang)
+
+**Verification:** script audit node + pembacaan manual spot-check
+
+### Task E5: Audit persistensi snapshot + cache
+**Acceptance:**
+- [ ] Baris `analysis_snapshots` terisi: `is_grounded`/`is_fallback` benar, `recommended_odds` = odds pasar asli atau NULL
+- [ ] Request kedua → `x-analysis-cache: hit`, payload identik, TANPA run ulang
+- [ ] Run fallback (kalau terjadi) TIDAK diservis dari cache
+
+**Verification:** query DB read-only + curl kedua dibandingkan
+
+### Checkpoint E2E
+- [x] Semua assert E3-E5 lolos
+- [x] Ringkasan hasil ke user dengan bukti (angka, bukan klaim)
+
+## ✅ VERIFIKASI E2E SELESAI (2026-10-18) — SEMUA HIJAU
+
+**Run nyata:** Osasuna vs Racing (`mt_899827593`) via `next start` production — HTTP 200 dalam **375.8s** (pipeline penuh: dispatcher → planner loop → 5 persona sindikat → editorial → verdict).
+
+**E3 Anti-karangan (7/7):** 3 value bet, semua `bookmaker_odds` terlacak ke odds pasar response · odds karangan 1.88 tidak ada · prob hero salinan 1:1 quant · probs 1X2 jumlah ≈ 1 · nol "0.00/0.0%" palsu · xPTS pakai kontrak `home_xpts/away_xpts` · `recommended_odds` snapshot = 1.95 (odds pasar asli Osasuna).
+**E4 Anti-halusinasi (4/4):** `is_strictly_grounded=true` konsisten (4 persona output model asli, nol prefix template) · **semua desimal di prose LLM terlacak ke data/derivasi sah** (11 unik) — 3 flag awal audit terbukti false positive setelah tracing provenance: `1.95` = odds asli, `-23.4%` = EV dari kelly.tabel, `49.3%` = derivasi `1/fair_odds 2.03`. LLM malah berhitung benar dari data (`1/0.5341 = 1.87` persis).
+**E5 Persistensi+cache (✓):** snapshot `is_grounded=1 is_fallback=0`, `recommended_odds=1.95` dari pasar nyata, outcome masih null (laga belum main ✓) · request kedua `x-analysis-cache: hit`, payload identik byte-level tanpa run ulang.
+
+**Catatan audit:** 2 temuan awal script audit gwa sendiri salah (regex tanda minus tidak simetris + cek literal 1.95 yang kebetulan = odds asli) — diperbaiki, bukan bug aplikasi. Server production masih hidup di `localhost:3210` untuk inspeksi manual.
+
+---
+
 ## Task 1: Cache snapshot menolak view fallback + marker grounded ke client
 
 **Description:** View hasil jalur fallback (berisi template karangan) di-persist lalu diservis dari cache 10 menit tanpa marker. Fix: `getFreshSnapshot` hanya mengembalikan baris `is_fallback = 0 AND is_grounded = 1`; hasil fallback tetap tersimpan ke history tapi tidak jadi sumber cache; `is_strictly_grounded` dibawa ke root `AnalysisView`.
