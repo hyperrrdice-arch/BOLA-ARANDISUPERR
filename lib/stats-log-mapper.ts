@@ -41,8 +41,13 @@ export function mapStatsToTelemetry(args: {
   const awayId = m.away_team?.id != null ? String(m.away_team.id) : m.away_team_id != null ? String(m.away_team_id) : null;
   if (!homeId || !awayId || !m.utc_date) return null;
 
-  const homeScore = Number(m.score?.home ?? m.home_score ?? 0);
-  const awayScore = Number(m.score?.away ?? m.away_score ?? 0);
+  const homeScoreRaw = m.score?.home ?? m.home_score ?? null;
+  const awayScoreRaw = m.score?.away ?? m.away_score ?? null;
+  const homeScore = homeScoreRaw != null ? Number(homeScoreRaw) : NaN;
+  const awayScore = awayScoreRaw != null ? Number(awayScoreRaw) : NaN;
+  // Skor/status wajib dari sumber. Absen → skip baris, JANGAN karang 0-0/"finished"
+  // (kontrak baris 8; default karangan pernah memalsukan form/H2H — audit 2026-10-18).
+  if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore) || m.status == null) return null;
   const matchDate = m.utc_date.slice(0, 10);
 
   const ov = stats?.overview;
@@ -79,7 +84,7 @@ export function mapStatsToTelemetry(args: {
     competition_id: competitionId,
     season: seasonName,
     utc_date: m.utc_date,
-    status: String(m.status ?? "finished"),
+    status: String(m.status),
     home_team_id: homeId,
     away_team_id: awayId,
     home_score: homeScore,

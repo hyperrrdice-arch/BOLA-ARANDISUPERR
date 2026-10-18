@@ -225,8 +225,15 @@ async function main() {
     const homeReds = statsData?.defending?.red_cards?.home ?? null;
     const awayReds = statsData?.defending?.red_cards?.away ?? null;
 
-    const homeScore = Number(m.score?.home ?? m.home_score ?? 0);
-    const awayScore = Number(m.score?.away ?? m.away_score ?? 0);
+    // Skor wajib dari sumber; absen → lewati baris, JANGAN karang 0-0 (audit 2026-10-18)
+    const homeScoreRaw = m.score?.home ?? m.home_score ?? null;
+    const awayScoreRaw = m.score?.away ?? m.away_score ?? null;
+    if (homeScoreRaw == null || awayScoreRaw == null) {
+      console.warn(`  -> Skor tidak tersedia untuk ${matchId} — dilewati (bukan 0 karangan).`);
+      continue;
+    }
+    const homeScore = Number(homeScoreRaw);
+    const awayScore = Number(awayScoreRaw);
 
     // Simpan metadata pertandingan
     upsertMatch({

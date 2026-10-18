@@ -67,6 +67,23 @@ assert(homeLog.venue === "HOME" && awayLog.venue === "AWAY", "venue benar");
 assert(homeLog.possession_pct !== 0 || homeLog.possession_pct === null, "possession 0 tidak boleh karangan");
 assert(homeLog.shots_on_target_for === null || homeLog.shots_on_target_for <= homeLog.shots_for, "sot <= shots");
 
+// Kontrak jujur: skor/status absen → return null (bukan 0-0 / "finished" karangan).
+const noScore = { ...mRow, home_score: null, away_score: null };
+assert(
+  mapStatsToTelemetry({ m: noScore, stats, competitionId: mRow.competition_id, seasonName: mRow.season }) === null,
+  "skor keduanya absen → return null (bukan 0-0)"
+);
+const oneScoreMissing = { ...mRow, away_score: null };
+assert(
+  mapStatsToTelemetry({ m: oneScoreMissing, stats, competitionId: mRow.competition_id, seasonName: mRow.season }) === null,
+  "salah satu skor absen → return null"
+);
+const noStatus = { ...mRow, status: null };
+assert(
+  mapStatsToTelemetry({ m: noStatus, stats, competitionId: mRow.competition_id, seasonName: mRow.season }) === null,
+  "status absen → return null (bukan 'finished' karangan)"
+);
+
 vault.close();
 console.log(`\n=== ${passed} lulus, ${failed} gagal ===`);
 process.exit(failed > 0 ? 1 : 0);
