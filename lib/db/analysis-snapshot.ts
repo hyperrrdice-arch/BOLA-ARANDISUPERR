@@ -277,16 +277,18 @@ export function ensureSnapshotSchema(db: DatabaseSync): void {
         CASE WHEN o.home_goals IS NULL OR o.away_goals IS NULL THEN NULL
              WHEN o.home_goals + o.away_goals > 2.5 THEN 1 ELSE 0
         END AS actual_over_2_5,
-        -- NULL = key belum dipetakan (BUKAN salah); 0.5 = push (AH DNB imbang)
+        -- NULL = key belum dipetakan (BUKAN salah); 0.5 = push (AH DNB imbang).
+        -- Skor NULL → NULL (jangan dihitung menang/kalah — audit 2026-10-18).
         CASE
+          WHEN o.home_goals IS NULL OR o.away_goals IS NULL THEN NULL
           WHEN s.recommended_market_key IS NULL OR s.recommended_market_key = '' THEN NULL
           WHEN s.recommended_market_key = '1X2_HOME' THEN CASE WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = '1X2_DRAW' THEN CASE WHEN o.home_goals = o.away_goals THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = '1X2_AWAY' THEN CASE WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = 'BTTS_YES' THEN CASE WHEN o.home_goals > 0 AND o.away_goals > 0 THEN 1 ELSE 0 END
-          WHEN s.recommended_market_key = 'BTTS_NO' THEN CASE WHEN COALESCE(o.home_goals, 0) = 0 OR COALESCE(o.away_goals, 0) = 0 THEN 1 ELSE 0 END
-          WHEN s.recommended_market_key = 'O25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) > 2.5 THEN 1 ELSE 0 END
-          WHEN s.recommended_market_key = 'U25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) <= 2.5 THEN 1 ELSE 0 END
+          WHEN s.recommended_market_key = 'BTTS_NO' THEN CASE WHEN o.home_goals = 0 OR o.away_goals = 0 THEN 1 ELSE 0 END
+          WHEN s.recommended_market_key = 'O25' THEN CASE WHEN o.home_goals + o.away_goals > 2.5 THEN 1 ELSE 0 END
+          WHEN s.recommended_market_key = 'U25' THEN CASE WHEN o.home_goals + o.away_goals <= 2.5 THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = 'AH_DNB_HOME' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
           WHEN s.recommended_market_key = 'AH_DNB_AWAY' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
           ELSE NULL
@@ -294,14 +296,15 @@ export function ensureSnapshotSchema(db: DatabaseSync): void {
         -- Sama seperti hit_recommended, tapi untuk rekomendasi PANEL (arbiter).
         -- NULL = key belum dipetakan / panel tidak menyebut market yang dikenal.
         CASE
+          WHEN o.home_goals IS NULL OR o.away_goals IS NULL THEN NULL
           WHEN s.panel_market_key IS NULL OR s.panel_market_key = '' THEN NULL
           WHEN s.panel_market_key = '1X2_HOME' THEN CASE WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
           WHEN s.panel_market_key = '1X2_DRAW' THEN CASE WHEN o.home_goals = o.away_goals THEN 1 ELSE 0 END
           WHEN s.panel_market_key = '1X2_AWAY' THEN CASE WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
           WHEN s.panel_market_key = 'BTTS_YES' THEN CASE WHEN o.home_goals > 0 AND o.away_goals > 0 THEN 1 ELSE 0 END
-          WHEN s.panel_market_key = 'BTTS_NO' THEN CASE WHEN COALESCE(o.home_goals, 0) = 0 OR COALESCE(o.away_goals, 0) = 0 THEN 1 ELSE 0 END
-          WHEN s.panel_market_key = 'O25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) > 2.5 THEN 1 ELSE 0 END
-          WHEN s.panel_market_key = 'U25' THEN CASE WHEN COALESCE(o.home_goals, 0) + COALESCE(o.away_goals, 0) <= 2.5 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'BTTS_NO' THEN CASE WHEN o.home_goals = 0 OR o.away_goals = 0 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'O25' THEN CASE WHEN o.home_goals + o.away_goals > 2.5 THEN 1 ELSE 0 END
+          WHEN s.panel_market_key = 'U25' THEN CASE WHEN o.home_goals + o.away_goals <= 2.5 THEN 1 ELSE 0 END
           WHEN s.panel_market_key = 'AH_DNB_HOME' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals > o.away_goals THEN 1 ELSE 0 END
           WHEN s.panel_market_key = 'AH_DNB_AWAY' THEN CASE WHEN o.home_goals = o.away_goals THEN 0.5 WHEN o.home_goals < o.away_goals THEN 1 ELSE 0 END
           ELSE NULL
@@ -551,10 +554,13 @@ export function getFreshSnapshot(
   maxAgeMs: number
 ): FreshSnapshot | null {
   const db = getSnapshotDb();
+  // Hanya sajikan run yang grounded dan TIDAK fallback: view template/jalur degradasi
+  // tetap tersimpan (history/audit), tapi tidak boleh jadi sumber cache.
   const row = db.prepare(`
     SELECT snapshot_id, view_json, duration_ms, captured_utc, lead_time_minutes
     FROM analysis_snapshots
     WHERE match_id = ? AND cache_key_hint = ?
+      AND is_fallback = 0 AND is_grounded = 1
     ORDER BY snapshot_id DESC
     LIMIT 1
   `).get(matchId, cacheKeyHint) as
@@ -644,27 +650,29 @@ export function upsertOutcome(input: MatchOutcomeInput): void {
       ht_home_goals = excluded.ht_home_goals,
       ht_away_goals = excluded.ht_away_goals,
       ftr = excluded.ftr,
-      xg_home = excluded.xg_home,
-      xg_away = excluded.xg_away,
-      npxg_home = excluded.npxg_home,
-      npxg_away = excluded.npxg_away,
-      shots_home = excluded.shots_home,
-      shots_away = excluded.shots_away,
-      sot_home = excluded.sot_home,
-      sot_away = excluded.sot_away,
-      corners_home = excluded.corners_home,
-      corners_away = excluded.corners_away,
-      cards_home = excluded.cards_home,
-      cards_away = excluded.cards_away,
-      possession_home = excluded.possession_home,
-      closing_odds_home = excluded.closing_odds_home,
-      closing_odds_draw = excluded.closing_odds_draw,
-      closing_odds_away = excluded.closing_odds_away,
-      closing_over_2_5 = excluded.closing_over_2_5,
-      closing_under_2_5 = excluded.closing_under_2_5,
-      stats_json = excluded.stats_json,
+      -- Kolom statistik/enrichment: refresh yang lebih miskin TIDAK boleh menimpa
+      -- data terisi dengan NULL (audit 2026-10-18). Goals/status tetap authoritative.
+      xg_home = COALESCE(excluded.xg_home, xg_home),
+      xg_away = COALESCE(excluded.xg_away, xg_away),
+      npxg_home = COALESCE(excluded.npxg_home, npxg_home),
+      npxg_away = COALESCE(excluded.npxg_away, npxg_away),
+      shots_home = COALESCE(excluded.shots_home, shots_home),
+      shots_away = COALESCE(excluded.shots_away, shots_away),
+      sot_home = COALESCE(excluded.sot_home, sot_home),
+      sot_away = COALESCE(excluded.sot_away, sot_away),
+      corners_home = COALESCE(excluded.corners_home, corners_home),
+      corners_away = COALESCE(excluded.corners_away, corners_away),
+      cards_home = COALESCE(excluded.cards_home, cards_home),
+      cards_away = COALESCE(excluded.cards_away, cards_away),
+      possession_home = COALESCE(excluded.possession_home, possession_home),
+      closing_odds_home = COALESCE(excluded.closing_odds_home, closing_odds_home),
+      closing_odds_draw = COALESCE(excluded.closing_odds_draw, closing_odds_draw),
+      closing_odds_away = COALESCE(excluded.closing_odds_away, closing_odds_away),
+      closing_over_2_5 = COALESCE(excluded.closing_over_2_5, closing_over_2_5),
+      closing_under_2_5 = COALESCE(excluded.closing_under_2_5, closing_under_2_5),
+      stats_json = COALESCE(excluded.stats_json, stats_json),
       source = excluded.source,
-      closing_source = excluded.closing_source
+      closing_source = COALESCE(excluded.closing_source, closing_source)
   `).run(
     input.match_id,
     new Date().toISOString(),

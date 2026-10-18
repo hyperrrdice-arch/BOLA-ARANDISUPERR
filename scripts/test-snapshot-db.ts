@@ -63,6 +63,8 @@ const snapshotId = insertSnapshot({
   away_team: "Tamu FC",
   kickoff_utc: kickoffPre,
   cache_key_hint: "hint_1",
+  is_grounded: 1,
+  is_fallback: 0,
   verdict: "PASS",
   confidence: "HIGH",
   recommended_market: "Kandang FC Menang (1X2)",
@@ -111,6 +113,8 @@ const snapshotIdOld = insertSnapshot({
   match_id: `${PREFIX}OLD`,
   kickoff_utc: kickoffPre,
   cache_key_hint: "hint_1",
+  is_grounded: 1,
+  is_fallback: 0,
   view_json: JSON.stringify({ ringkasan: { verdict: "BASI" } }),
 });
 assert(snapshotIdOld > 0, "insertSnapshot tanpa kolom opsional berhasil (kolom ringkas boleh NULL)");
@@ -125,6 +129,8 @@ const snapshotIdLive = insertSnapshot({
   match_id: `${PREFIX}LIVE`,
   kickoff_utc: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
   cache_key_hint: "hint_1",
+  is_grounded: 1,
+  is_fallback: 0,
   view_json: JSON.stringify({ ringkasan: { verdict: "LIVE" } }),
 });
 assert(snapshotIdLive > 0, "snapshot live tetap disimpan (jujur)");
@@ -237,7 +243,47 @@ const metrics = getSnapshotMetrics();
 assert(metrics.snapshotsCount >= 4, `metrics menghitung snapshot (>=4, dapat ${metrics.snapshotsCount})`);
 assert(metrics.bytes > 0, "metrics bytes terisi");
 
-// 12. Bersihkan di akhir (baris test TIDAK boleh tinggal di korpus pribadi).
+// 12. Guard jujur: finished TANPA skor → hit NULL (bukan menang/kalah karangan).
+insertSnapshot({
+  match_id: `${PREFIX}NOSCORE`,
+  kickoff_utc: kickoffPre,
+  cache_key_hint: "hint_1",
+  is_grounded: 1,
+  is_fallback: 0,
+  recommended_market_key: "U25",
+  panel_market_key: "BTTS_NO",
+  view_json: JSON.stringify({ ringkasan: { verdict: "NOSCORE" } }),
+});
+upsertOutcome({ match_id: `${PREFIX}NOSCORE`, status: "finished", source: "local_sqlite" });
+const evalNoScore = db.prepare("SELECT * FROM v_snapshot_eval WHERE match_id = ?").get(`${PREFIX}NOSCORE`) as
+  | { actual_result: string | null; hit_recommended: number | null; hit_panel: number | null }
+  | undefined;
+assert(evalNoScore?.actual_result === null, "skor NULL → actual_result NULL");
+assert(evalNoScore?.hit_recommended === null, "skor NULL → hit_recommended NULL (U25 tidak dihitung menang)");
+assert(evalNoScore?.hit_panel === null, "skor NULL → hit_panel NULL (BTTS_NO tidak dihitung menang)");
+
+// 13. Refresh lebih miskin tidak menimpa statistik terisi dengan NULL (upsertOutcome COALESCE).
+assert(getOutcome(`${PREFIX}A`)?.xg_home === 1.8, "refresh tanpa xg TIDAK menimpa xg_home 1.8 dengan NULL");
+
+// 14. Cache tidak menyervis run fallback / tidak grounded (marker jujur ke client).
+const snapFallback = insertSnapshot({
+  match_id: `${PREFIX}FB`,
+  kickoff_utc: kickoffPre,
+  cache_key_hint: "hint_1",
+  is_grounded: 0,
+  is_fallback: 1,
+  view_json: JSON.stringify({ ringkasan: { verdict: "FALLBACK" } }),
+});
+assert(snapFallback > 0, "snapshot fallback tetap tersimpan (history/audit)");
+assert(getFreshSnapshot(`${PREFIX}FB`, "hint_1", TTL) === null, "run fallback TIDAK dilayani cache");
+const fbRow = db.prepare("SELECT snapshot_id FROM analysis_snapshots WHERE match_id = ?").get(`${PREFIX}FB`);
+assert(fbRow !== undefined, "baris fallback tetap ada di DB (append-only)");
+insertSnapshot({ match_id: `${PREFIX}FB2`, kickoff_utc: kickoffPre, cache_key_hint: "hint_1", is_grounded: 1, is_fallback: 1, view_json: "{}" });
+assert(getFreshSnapshot(`${PREFIX}FB2`, "hint_1", TTL) === null, "fallback=1 ditolak walau grounded=1");
+insertSnapshot({ match_id: `${PREFIX}FB3`, kickoff_utc: kickoffPre, cache_key_hint: "hint_1", is_grounded: 0, is_fallback: 0, view_json: "{}" });
+assert(getFreshSnapshot(`${PREFIX}FB3`, "hint_1", TTL) === null, "grounded=0 ditolak walau fallback=0");
+
+// 15. Bersihkan di akhir (baris test TIDAK boleh tinggal di korpus pribadi).
 cleanup();
 const after = getSnapshotMetrics();
 console.log(`\n=== ${passed} lulus, ${failed} gagal (sisa baris test: ${after.snapshotsCount} total snapshot) ===`);

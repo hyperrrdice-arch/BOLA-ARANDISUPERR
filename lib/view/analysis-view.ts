@@ -201,6 +201,9 @@ export const AnalysisViewSchema = z.object({
   debat: DebatViewSchema,
   thinking: ThinkingViewSchema,
   markets: z.any().nullable(),
+  // Penanda jujur: false = ada bagian yang tidak grounded (fallback/template).
+  // Client WAJIB bisa membedakan hasil degradasi dari analisis penuh.
+  is_strictly_grounded: z.boolean(),
 });
 
 export type AnalysisView = z.infer<typeof AnalysisViewSchema>;
@@ -521,6 +524,8 @@ export function mapPipelineToView(input: {
     debat,
     thinking,
     markets: null,
+    // Unknown = tidak grounded (konservatif & jujur) — jangan pernah klaim grounded tanpa bukti
+    is_strictly_grounded: a.data_integrity_audit?.is_strictly_grounded === true,
   };
 
   // Validasi Zod fail-fast agar deterministik & tidak ada field cacat

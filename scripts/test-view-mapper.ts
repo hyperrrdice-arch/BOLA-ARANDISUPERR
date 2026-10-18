@@ -365,6 +365,17 @@ assert(view.ringkasan.prediksi === "1-1", "prediksi terpetakan");
 assert(view.ringkasan.keyakinan === "Sedang", "keyakinan ternormalisasi");
 assert(view.ringkasan.integrity.gaps.includes("lineups"), "gaps dari trace");
 
+console.log("MARKER JUJUR (is_strictly_grounded):");
+assert(view.is_strictly_grounded === true, "is_strictly_grounded=true saat audit grounded");
+const viewNotGrounded = mapPipelineToView({
+  analisis: {
+    ...fixtureAnalisis,
+    data_integrity_audit: { ...fixtureAnalisis.data_integrity_audit, is_strictly_grounded: false },
+  } as unknown as z.infer<typeof AnalysisSchema>,
+  plannerTrace: fixtureTrace,
+});
+assert(viewNotGrounded.is_strictly_grounded === false, "is_strictly_grounded=false saat audit tidak grounded");
+
 // ============================================================================
 // SUMMARY
 // ============================================================================
