@@ -5,3 +5,4 @@ cd /d "%~dp0.."
 echo ==== sweep %date% %time% ==== >> data\sweep.log
 npx.cmd tsx scripts/prepull-match-odds.ts >> data\sweep.log 2>&1
 npx.cmd tsx scripts/promote-upcoming-to-telemetry.ts >> data\sweep.log 2>&1
+npx.cmd tsx scripts/bulk-stats-history.ts >> data\sweep.log 2>&1

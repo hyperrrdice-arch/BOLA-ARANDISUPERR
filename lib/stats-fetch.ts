@@ -8,22 +8,23 @@
  *   (d) 404 = data memang tidak ada → return null (bukan error, jangan diimputasi)
  */
 import { getRawPayload, saveRawPayload } from "./db/thestats-vault";
-import { recordRequests, guardBudget } from "./api-budget";
+import { recordRequests, guardBudget, recordQuotaRemaining } from "./api-budget";
 
 const API_BASE = "https://api.thestatsapi.com/api";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// ── Pacing adaptif (rate limit API ternyata jauh lebih ketat dari 120/menit) ──
-// 429 → jarak antar request membesar; sukses → mengecil lagi pelan (AIMD).
-// Tanpa ini request saling tabrak → 429 beruntun → throughput ~2/menit (terukur).
-const BASE_GAP_MS = 1500;
+// ── Pacing adaptif — LIMIT NYATA 12 request/menit (dari header x-ratelimit-limit) ──
+// Asumsi lama 120/menit salah → 429 di mana-mana. Pacing 5s (+1s jeda di script)
+// ≈ 9-10/menit, di bawah limit. 429 → jarak membesar; sukses → mengecil pelan (AIMD).
+const BASE_GAP_MS = 5000;
 let adaptiveGapMs = BASE_GAP_MS;
 let nextAllowedAt = 0;
 
 async function pace(): Promise<void> {
   const wait = nextAllowedAt - Date.now();
   if (wait > 0) await sleep(wait);
-  nextAllowedAt = Date.now() + adaptiveGapMs;
+  // Jitter ±15% supaya tidak nempel di batas jendela rate limit.
+  nextAllowedAt = Date.now() + Math.round(adaptiveGapMs * (0.9 + Math.random() * 0.3));
 }
 
 export interface StatsFetchOpts {
@@ -72,13 +73,19 @@ export async function statsFetch<T = any>(
         signal: AbortSignal.timeout(30_000),
       });
 
+      // Sinkron sisa kuota bulanan dari header (kebenaran utama budget).
+      const quotaRem = res.headers.get("x-monthly-quota-remaining");
+      if (quotaRem) recordQuotaRemaining(Number(quotaRem));
+
       if (res.status === 404) return null; // data memang tidak ada — jangan dikarang
       if (res.status === 429) {
-        // Rate limit: jarak adaptif membesar + backoff — jangan skip (user: retry!).
+        // Rate limit: hormati header reset + jarak adaptif membesar — jangan skip.
         adaptiveGapMs = Math.min(60_000, Math.round(adaptiveGapMs * 1.6));
-        const waitMs = Math.min(60_000, 3000 * 2 ** (attempt - 1));
+        const reset = Number(res.headers.get("x-ratelimit-reset") ?? 0);
+        const waitUntilReset = reset > 0 ? Math.max(0, reset * 1000 - Date.now() + 1500) : 0;
+        const waitMs = Math.max(waitUntilReset, Math.min(60_000, 3000 * 2 ** (attempt - 1)));
         lastErr = "HTTP 429 rate limit";
-        console.warn(`⚠️ 429 ${path} — tunggu ${waitMs / 1000}s (percobaan ${attempt}/${maxRetries})`);
+        console.warn(`⚠️ 429 ${path} — tunggu ${Math.round(waitMs / 1000)}s (percobaan ${attempt}/${maxRetries})`);
         await sleep(waitMs);
         continue;
       }

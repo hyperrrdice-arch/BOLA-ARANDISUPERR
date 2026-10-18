@@ -35,7 +35,7 @@ import { remainingBudget, API_BUDGET_TOTAL } from "../lib/api-budget";
 
 const SEASON_2526_START = "2025-08-01";
 const SEASON_2627_START = "2026-08-01";
-const RATE_PAUSE_MS = 1000;
+const RATE_PAUSE_MS = 0; // pacing dipegang statsFetch (limit nyata 12 req/menit)
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const seasonOf = (utc: string) => (utc >= SEASON_2627_START ? "2026/2027" : "2025/2026");
 
