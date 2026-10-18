@@ -23,7 +23,13 @@ try {
 
 import { TARGET_COMPETITIONS } from "../lib/thestats-competitions";
 import { getTheStatsDb } from "../lib/db/thestats-dataset";
-import { upsertUpcomingFixtures, countUpcoming, type UpcomingFixture } from "../lib/db/upcoming-fixtures";
+import {
+  upsertUpcomingFixtures,
+  countUpcoming,
+  upsertCompetitions,
+  countCompetitions,
+  type UpcomingFixture,
+} from "../lib/db/upcoming-fixtures";
 import { statsFetch } from "../lib/stats-fetch";
 import { remainingBudget, API_BUDGET_TOTAL } from "../lib/api-budget";
 
@@ -91,10 +97,35 @@ function migrateFromDataset() {
   console.log(`[migrate] ${payload.length} fixture dipindah ke upcoming_fixtures.db, ${removed} baris dihapus dari dataset utama.`);
 }
 
+/** Snapshot kamus kompetisi (4 halaman) → `competition_catalog` — nama liga hidup tanpa API. */
+async function syncCompetitionCatalog(): Promise<number> {
+  const rows: { competition_id: string; name: string | null; country: string | null; payload: unknown }[] = [];
+  for (let page = 1; page <= 4; page++) {
+    const json: any = await statsFetch(
+      "/football/competitions",
+      { per_page: 100, page },
+      `compcat_p${page}`,
+      "competitions",
+      { maxAgeMs: 24 * 3600 * 1000 }
+    );
+    const data: any[] = Array.isArray(json?.data) ? json.data : [];
+    if (data.length === 0) break;
+    for (const c of data) {
+      if (!c?.id) continue;
+      rows.push({ competition_id: String(c.id), name: c.name ?? null, country: c.country ?? null, payload: c });
+    }
+    await sleep(RATE_PAUSE_MS);
+  }
+  return upsertCompetitions(rows);
+}
+
 async function main() {
   if (DO_MIGRATE) {
     migrateFromDataset();
   }
+
+  const catCount = await syncCompetitionCatalog();
+  console.log(`📚 [KATALOG KOMPETISI] ${catCount} kompetisi ditulis (total ${countCompetitions()} di catalog)`);
 
   console.log(`🔮 [FIXTURE UPCOMING] Jadwal ${DAYS_AHEAD} hari ke depan → upcoming_fixtures.db`);
   let total = 0;

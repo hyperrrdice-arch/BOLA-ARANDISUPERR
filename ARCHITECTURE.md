@@ -93,7 +93,9 @@ Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self
 | `scripts/sync-weekly-telemetry.ts`, `ingest-*.ts` | Ingestion data mingguan/multi-liga (CLI manual) |
 | `scripts/calibrate-ratings.ts`, `backtest-dixon-coles.ts` | Kalibrasi rating + backtest harness (workstream kuantitatif) |
 | `scripts/test-planner-tool-calling.ts`, `test-planner-loop.ts` | Runnable check pipeline agent |
-| `scripts/test-view-mapper.ts` | Runnable check BFF: fixture wajib lolos `AnalysisSchema`, assert skala angka, null jujur, anti-kebocoran field mentah |
+| `scripts/test-view-mapper.ts` | Runnable check BFF: fixture wajib lolos `AnalysisSchema`, assert skala angka, null jujur, anti-kebocoran field mentah, marker `is_strictly_grounded` |
+| `scripts/test-quant-scale.ts`, `test-value-bets.ts` | Runnable check quant: kontrak skala λ=G·α·β·γ, kalibrasi ratings per liga (Σλ≈Σx, Σμ≈Σy), vig throw odds invalid, value bet hanya dari odds pasar nyata |
+| `scripts/test-snapshot-db.ts`, `test-stats-mapper.ts`, `test-upcoming-guard.ts`, `test-http-json.ts`, `test-stats-cache.ts` | Runnable check data layer: cache snapshot tolak fallback, eval skor NULL, mapper anti-karangan, guard fixture scheduled, gzip/JSON, negative-cache |
 | `archive/` | Sisa pipeline lama, komponen terpotong (`archive/legacy-components/`), eksplorasi one-off (lihat `archive/README.md`) |
 
 ---
@@ -135,6 +137,9 @@ Loop = `plan → act → evaluate → re-plan`, hard cap **8 step** (`PLANNER_MA
 4. **Evaluasi oleh code** — coverage & trigger re-plan dihitung Zod/numerik, bukan klaim LLM
 5. **Multi-model jangan diseragamkan** — kesalahan antar vendor tidak berkorelasi; itu nilai cross-check-nya
 6. **Fail-fast eksplisit** — data inti hilang → HTTP 500 + `plannerTrace`, bukan output palsu
+7. **Value bet hanya dari odds pasar nyata** — tanpa odds pasar, TIDAK ada value bet untuk market itu; odds karangan (1.95/1.88/fair-odds model) menghasilkan EV/stake/`recommended_odds` yang tidak dimiliki bandar mana pun. Market tanpa field odds (BTTS, AH DNB) dilewati sampai sumbernya tersedia
+8. **Setiap LLM call ber-timeout** — 180s per percobaan (`callModelWithFallback`), plafon loop planner 30 menit (tool debat sah lama); tanpa ini klien yang hold koneksi menggantungkan run tanpa batas
+9. **Anti-leakage fail-closed** — cutoff waktu form/H2H lokal butuh `utc_date` valid; kalau absen, sumber lokal dilewati total, bukan membuka query tanpa batas waktu
 
 ---
 
@@ -150,6 +155,8 @@ odds       : dislocation {ringkasan_1x2, asian_handicap, over_under, btts, pasar
 debat      : consensus, supreme, persona[] (terlipat per persona), dual_bench
 thinking   : steps[] {step, tool, alasan, trigger, coverage}, stop_reason, durasi_ms
 markets    : null (on-demand dari /api/betting)
+is_strictly_grounded : true = analisis penuh; false = ada bagian fallback/template
+             (marker jujur — WAJIB ditampilkan ke user, jangan disembunyikan)
 ```
 
 Aturan frontend:
@@ -185,6 +192,7 @@ Semua bisa dioverride lewat env (lihat `.env.example`).
 - **SQLite lokal** (`lib/db/`): `thestats-dataset`, `team-telemetry`, `thestats-vault`, `sqlite-master`, `upcoming-fixtures`, `analysis-snapshot`
 - **`data/calibrated_ratings.json`** — hasil kalibrasi rating (James-Stein shrinkage) dari `scripts/calibrate-ratings.ts`
 - Tier-1 offline diprioritaskan: fetch online hanya fallback bila SQLite kosong
+- **Semua baris telemetri lewat `lib/stats-log-mapper.ts`** — skor/status absen → baris **dilewati** dengan warning, TIDAK PERNAH dikarang jadi 0-0/"finished". Akumulasi statistik (xG, shots, dll.) memakai counter per sisi: data absen → nilai `null` + sample size mengecil, bukan dihitung 0
 
 **Peta 4 DB lokal** (semua di `data/`, semua di-gitignore):
 
@@ -214,6 +222,18 @@ dan dua VIEW evaluasi (`v_snapshot_eval`, `v_snapshot_eval_market`) yang menyari
 > data test ber-prefix di `scripts/test-snapshot-db.ts`. Backup manual bila perlu:
 > `sqlite3 data/analysis_snapshots.db ".backup data/backup-snapshots-YYYY.db"`.
 
+**Kontrak integritas snapshot (audit 18 Okt 2026):**
+- **Cache menolak degradasi** — `getFreshSnapshot` hanya mengembalikan baris
+  `is_fallback = 0 AND is_grounded = 1`. Hasil fallback/template tetap tersimpan
+  (history/audit) tapi TIDAK PERNAH diservis sebagai analisis segar.
+- **`v_snapshot_eval` jujur saat skor NULL** — `hit_recommended`/`hit_panel` bernilai
+  `NULL` (belum dinilai), bukan menang/kalah karangan. `actual_result` juga NULL.
+- **`upsertOutcome` tidak menimpa dengan NULL** — refresh yang lebih miskin mempertahankan
+  kolom statistik lama (`COALESCE`); goals/status tetap authoritative (boleh dikoreksi).
+- **Konvensi market key: `deriveMarketKey` = sumber tunggal** — `market_key` di VIEW SQL
+  adalah mirror-nya; ekuivalensi JS↔SQL diuji `test-snapshot-db.ts`. Kalau aturan diubah,
+  ubah KEDUA sisi atau test akan merah.
+
 Skema ini menggantikan tabel `analysis_runs` yang dulu hidup di `thestats_dataset.db`
 (DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `DB SNAPSHOT.md`.
 Operasional: `scripts/sync-match-outcomes.ts` (tarik hasil aktual, lokal dulu),
@@ -240,6 +260,11 @@ Siklus hidup: diisi `scripts/sync-upcoming-fixtures.ts` → dibaca katalog
 lalu **menghapus barisnya** di sini. Dataset utama tidak pernah menyimpan baris
 `scheduled` (invariant diuji `scripts/test-upcoming-guard.ts`).
 
+> 📌 **Ekspansi coverage berjalan** (lihat `tasks/plan-data-coverage.md`): kuota
+> TheStatsAPI yang tersisa dipakai memperluas window fixture ini semaksimal mungkin +
+> pre-pull odds, karena API berhenti setelah kuota habis sampai app menghasilkan
+> pendapatan. Setelah itu katalog hanya bisa bertumbuh dari data yang sudah distok.
+
 ---
 
 ## 10. Menjalankan & Menguji
@@ -251,7 +276,13 @@ npm run ingest:multileague         # ingest multi-liga
 npx tsx scripts/test-planner-tool-calling.ts   # gate native tool-calling model planner
 npx tsx scripts/test-planner-loop.ts           # loop + coverage evaluator (mock tools)
 npx tsx scripts/test-view-mapper.ts            # BFF: fidelitas angka, null jujur, anti-leak
-npx tsx scripts/test-snapshot-db.ts            # DB snapshot: round-trip, VIEW, leakage guard
+npx tsx scripts/test-snapshot-db.ts            # DB snapshot: round-trip, VIEW, leakage guard, eval NULL
+npx tsx scripts/test-quant-scale.ts            # kontrak skala quant + kalibrasi ratings per liga
+npx tsx scripts/test-value-bets.ts             # value bet hanya dari odds pasar nyata
+npx tsx scripts/test-stats-mapper.ts           # mapper anti-karangan (skor/status absen → null)
+npx tsx scripts/test-upcoming-guard.ts         # fixture scheduled tidak bocor ke telemetri
+npx tsx scripts/verify-tier1-offline-quant.ts  # integrasi tier-1 offline + quant multi-liga
+npx tsx scripts/verify-foundation-phase-a.ts   # regresi foundation phase A
 npx tsx scripts/sync-match-outcomes.ts         # tarik hasil aktual (CLI, idempoten)
 npx tsx scripts/snapshot-report.ts             # report prediksi vs hasil (read-only)
 npx tsx scripts/sync-upcoming-fixtures.ts 30  # isi store fixture 30 hari ke depan (CLI)
@@ -274,6 +305,34 @@ Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build
 - **Katalog fixture offline-first** — ✅ selesai: `/api/matches` membaca `data/upcoming_fixtures.db`, API hanya fallback (§9.2)
 - **Lifecycle fixture otomatis** — ✅ selesai: `sync:upcoming` (isi) + `promote-upcoming-to-telemetry.ts` (match selesai → telemetry ke dataset utama → baris dihapus)
 - **Evaluasi outcome berjalan** — lengkapi: tarik `match_outcomes` otomatis per jadwal (`sync-match-outcomes.ts` via cron), accumulate ≥100 snapshot evaluable, lalu pakai angka Brier/log-loss/P-L untuk kalibrasi ulang ratings & confidence
+- **Ekspansi coverage data** — berjalan: bakar sisa kuota TheStatsAPI untuk katalog fixture + odds pre-pull + telemetri (`tasks/plan-data-coverage.md`); setelah kuota habis, API mati sampai app menghasilkan pendapatan
 - **Trigger otonom** (cron per kickoff) — saat ini analisis dipicu klik user
 - `query_odds_dislocation` & `run_special_markets` sebagai tool planner terpisah (saat ini masuk paket quant)
 - Sisa polish UI: struktur katalog (grid kartu identik), radius/tokens menyeluruh
+
+---
+
+## 12. Status Model & Batasan Terukur (audit Okt 2026)
+
+Hasil backtest jujur out-of-sample — **bahan keputusan pemakaian, jangan diabaikan**:
+
+| Metrik | Angka | Arti |
+|---|---|---|
+| Log-Loss 1X2 model (6.528 match) | **1.0306** | Punya skill vs baseline naive (1.0771) |
+| Log-Loss closing line (vig dibuang) | **0.9949** | Model **kalah dari pasar** — gap 0.036 ≈ harga informasi yang tidak kita punya (lineup, uang tajam) |
+| Fusion telemetri (Track C) | 0.9641 vs pasar 0.9736 | Paritas statistik (p=0.348) — tidak signifikan |
+| Special markets (corners/cards) | Brier 0.30 vs base rate ~0.25 | **Tidak ada skill** setelah leakage dibetulkan |
+| Simulasi Kelly (6.133 pick) | semua strategi bangkrut | "Edge" 1X2 vs closing = ilusi |
+
+Implikasi arsitektur: app adalah **decision-support** (ringkasan data, deteksi dislokasi harga, transparansi sumber, konteks lineup/cedera) — **bukan mesin pilih taruhan** melawan closing line. Kelas edge yang belum teruji: *asymmetric info* (kabar lineup/cedera lebih awal dari harga). Monitoring: response dengan `is_strictly_grounded: false` = pipeline sedang degradasi — jangan pakai output hari itu.
+
+**Debt teknis terbuka (diketahui, belum diperbaiki):**
+- `lib/agent/planner.ts` — saat odds pasar absen, fallback `vig_stripping` masih mengarang `overround 1.055 / margin 5.5%`
+- `app/api/agent/route.tsx` — `topEv` fallback ke value bet pertama walau EV negatif → `recommended_*` bisa terisi pick minus-EV (baca `stake_pct`/EV, jangan anggap "layak bet")
+- Cache snapshot tanpa single-flight (2 request paralel = 2 pipeline penuh); `cache_key_hint` terfragmentasi (match sama beda hint = beda baris)
+- `lib/db/analysis-snapshot.ts` 745 baris — aturan market key punya 2 sumber (SQL VIEW + `deriveMarketKey`), dijaga test ekuivalensi tapi tetap duplikasi
+- Output teks LLM tidak di-Zod per field (angka aman — sudah diaudit closed-world per run)
+- Rate limiter in-memory (reset saat restart; cukup pemakaian pribadi, bukan publik)
+- Nit: `gzip;q=0` diabaikan `lib/http-json.ts`; `scripts/ingest-rich-telemetry-pl.ts` kandidat dead code; `scripts/` belum masuk typecheck CI
+
+Audit E2E 18 Okt 2026 (run live Osasuna vs Racing, 375 detik): nol angka karangan, semua desimal prose LLM terlacak ke data/derivasi sah, cache jujur (`hit`, payload identik). Detail eksekusi: `tasks/todo-phase-integrity.md`.

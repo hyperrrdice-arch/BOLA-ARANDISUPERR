@@ -189,3 +189,65 @@ export function countUpcoming(): number {
   const db = getUpcomingDb();
   return (db.prepare("SELECT count(*) AS c FROM upcoming_fixtures").get() as { c: number }).c;
 }
+
+// ─────────────────────── Katalog kompetisi (snapshot) ───────────────────────
+// Snapshot `/football/competitions` — nama liga tetap hidup saat API mati.
+// Disposable & rebuildable, jadi se-rumah dengan upcoming_fixtures.db.
+
+export interface CompetitionCatalogRow {
+  competition_id: string;
+  name: string | null;
+  country: string | null;
+  payload: unknown;
+}
+
+export function upsertCompetitions(rows: CompetitionCatalogRow[]): number {
+  if (rows.length === 0) return 0;
+  const db = getUpcomingDb();
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS competition_catalog (
+      competition_id TEXT PRIMARY KEY,
+      name TEXT,
+      country TEXT,
+      payload_json TEXT,
+      fetched_utc TEXT NOT NULL
+    )
+  `);
+  const stmt = db.prepare(`
+    INSERT INTO competition_catalog (competition_id, name, country, payload_json, fetched_utc)
+    VALUES (:competition_id, :name, :country, :payload_json, :fetched_utc)
+    ON CONFLICT(competition_id) DO UPDATE SET
+      name = excluded.name,
+      country = excluded.country,
+      payload_json = excluded.payload_json,
+      fetched_utc = excluded.fetched_utc
+  `);
+  const now = new Date().toISOString();
+  const tx = db.prepare("BEGIN");
+  tx.run();
+  try {
+    for (const r of rows) {
+      stmt.run({
+        competition_id: r.competition_id,
+        name: r.name,
+        country: r.country,
+        payload_json: JSON.stringify(r.payload ?? null),
+        fetched_utc: now,
+      });
+    }
+    db.prepare("COMMIT").run();
+  } catch (err) {
+    db.prepare("ROLLBACK").run();
+    throw err;
+  }
+  return rows.length;
+}
+
+export function countCompetitions(): number {
+  const db = getUpcomingDb();
+  try {
+    return (db.prepare("SELECT count(*) AS c FROM competition_catalog").get() as { c: number }).c;
+  } catch {
+    return 0;
+  }
+}
