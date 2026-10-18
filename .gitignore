@@ -53,6 +53,8 @@ data/football_master.db*
 data/thestats_dataset.db*
 # katalog fixture: data runtime, disposable (sync-upcoming-fixtures.ts)
 data/upcoming_fixtures.db*
+# penghitung request API (runtime counter, lokal)
+data/api-budget.json
 # snapshot analisis: data pribadi append-only, tak bisa di-rebuild (DB SNAPSHOT.md)
 data/analysis_snapshots.db*
 *.db-shm

@@ -24,47 +24,32 @@ try {
 import { TARGET_COMPETITIONS } from "../lib/thestats-competitions";
 import { getTheStatsDb } from "../lib/db/thestats-dataset";
 import { upsertUpcomingFixtures, countUpcoming, type UpcomingFixture } from "../lib/db/upcoming-fixtures";
+import { statsFetch } from "../lib/stats-fetch";
+import { remainingBudget, API_BUDGET_TOTAL } from "../lib/api-budget";
 
 const DO_MIGRATE = process.argv.includes("--migrate");
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const DAYS_AHEAD = Number(positional[0]) || 30;
-const HORIZON_DAYS = 30; // endpoint list tidak punya filter tanggal → tarik 30, potong lokal
-const API_BASE = "https://api.thestatsapi.com/api";
 const PER_PAGE = 100;
-const RATE_PAUSE_MS = 600; // ≈100 req/menit, di bawah limit 120/menit
+const RATE_PAUSE_MS = 1000; // pacing aman (~60 req/menit, jauh di bawah limit)
+const LISTING_MAX_AGE = 6 * 3600 * 1000; // listing boleh di-cache 6 jam (dedupe vault)
+const MAX_PAGES = 30; // pagar: 3.000 fixture per kompetisi lebih dari cukup
 
 const db = getTheStatsDb();
-const apiKey = process.env.STATS_API_KEY;
-if (!apiKey) {
-  console.error("[CRITICAL] STATS_API_KEY tidak ada di .env.local — sync dibatalkan.");
-  process.exit(1);
-}
 
 const now = Date.now();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-let requests = 0;
 
+/** Listing satu halaman — vault-dedupe + retry gigih (throw kalau benar-benar gagal). */
 async function fetchList(competitionId: string, page: number): Promise<any[]> {
-  const url =
-    `${API_BASE}/football/matches?competition_id=${competitionId}` +
-    `&status=scheduled&per_page=${PER_PAGE}&page=${page}`;
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    requests++;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
-    if (res.status === 429) {
-      const waitMs = 2000 * attempt;
-      console.warn(`⚠️ 429 — tunggu ${waitMs / 1000}s (percobaan ${attempt}/4)`);
-      await sleep(waitMs);
-      continue;
-    }
-    if (!res.ok) {
-      console.warn(`⚠️ HTTP ${res.status} untuk ${competitionId} — dilewati.`);
-      return [];
-    }
-    const json: any = await res.json();
-    return Array.isArray(json?.data) ? json.data : [];
-  }
-  return [];
+  const json = await statsFetch(
+    "/football/matches",
+    { competition_id: competitionId, status: "scheduled", per_page: PER_PAGE, page },
+    `upc_list_${competitionId}_p${page}`,
+    "matches",
+    { maxAgeMs: LISTING_MAX_AGE }
+  );
+  return Array.isArray(json?.data) ? json.data : [];
 }
 
 /** Migrasi sekali: pindahkan fixture lama dari dataset utama ke store baru. */
@@ -114,11 +99,12 @@ async function main() {
   console.log(`🔮 [FIXTURE UPCOMING] Jadwal ${DAYS_AHEAD} hari ke depan → upcoming_fixtures.db`);
   let total = 0;
   let outside = 0;
+  let horizonDate: string | null = null; // tanggal kickoff paling jauh yang API berikan
 
   for (const comp of Object.values(TARGET_COMPETITIONS)) {
     const batch: UpcomingFixture[] = [];
     let page = 1;
-    while (page <= 3) {
+    while (page <= MAX_PAGES) {
       const matches = await fetchList(comp.id, page);
       if (matches.length === 0) break;
       for (const m of matches) {
@@ -126,6 +112,7 @@ async function main() {
         if (!utc) continue;
         const ms = Date.parse(utc);
         if (Number.isNaN(ms)) continue;
+        if (!horizonDate || utc > horizonDate) horizonDate = utc;
         if (ms < now || ms > now + DAYS_AHEAD * 24 * 60 * 60 * 1000) {
           outside++;
           continue;
@@ -161,7 +148,8 @@ async function main() {
   console.log(`\n🎉 [FIXTURE SYNC SELESAI]`);
   console.log(`- Fixture di store     : ${total} ditulis, ${countUpcoming()} total tersimpan`);
   console.log(`- Dilewati (di luar ${DAYS_AHEAD} hari): ${outside}`);
-  console.log(`- Total Request API    : ${requests}`);
+  console.log(`- Horizon API          : kickoff terjauh = ${horizonDate ?? "(tidak ada)"}`);
+  console.log(`- Sisa budget request  : ${remainingBudget()} dari ${API_BUDGET_TOTAL}`);
   console.log(`- Di dataset utama    : ${(db.prepare("SELECT count(*) AS c FROM matches WHERE status != 'finished'").get() as any).c} baris scheduled (harus 0)`);
 }
 
