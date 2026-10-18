@@ -10,6 +10,21 @@
 
 **Sisa:** uji manual 1 run `/api/agent` penuh (butuh kredit LLM provider) → verifikasi snapshot terisi marker di live. Phase 3 (Task 9-11) + deferred menunggu perintah.
 
+## ✅ PHASE 3 SELESAI (2026-10-18) — commit `cb293df`, `15a811e`
+
+**Run verification Phase 2 (sebelum Phase 3):** test-planner-loop (LLM asli) ✓ · test-value-bets baru 7/7 ✓ · fix ISO terbukti live (probe: 1 kandidat vs 0 dengan query lama) · `sync-match-outcomes` run nyata (skip jujur saat scheduled) · promote `--dry-run` bersih · migrate `--dry-run` bersih · battery penuh hijau.
+
+**Task 9:** test fresh-clone-safe (skip dengan pesan saat store/fixture absen — tidak ada lagi TypeError mid-run), assert corpus global → assert baris uji, dead code test dibersihkan (`earliest`, import `AnalysisViewSchema`), `asserts cond` signature.
+**Task 10:** komentar LCP `page.tsx` dikoreksi ke fakta PERF.md (delivery −11KB, LCP tidak berubah) · mojibake `sync-weekly-telemetry` · kolom `hit_rate` mati dihapus · `Boolean()` flags `matches/route` (2 tier) · `http-json` byte-length + Vary case-insensitive · comment-end `thestats-dataset`.
+**Task 11:** `sync-match-outcomes` benar-benar memanggil `deriveMarketKey` (komentarnya dulu bohong) + guard ekuivalensi JS↔SQL di `test-snapshot-db` (48/48).
+
+**Verifikasi final Phase 3:** `tsc` bersih · `next build` ✓ · 48/48 snapshot-db · 53/53 view-mapper · 19/19 stats-mapper · 10/10 upcoming-guard · http-json 12/12 · lint delta nol.
+
+**Deferred / butuh keputusan user:**
+- `scripts/ingest-rich-telemetry-pl.ts` — hapus (kandidat mati) atau dipakai lagi?
+- Nit gzip `q=0` diabaikan (browser jarang kirim) — belum diperbaiki.
+- Typecheck `scripts/` di CI.
+
 ---
 
 ## Task 1: Cache snapshot menolak view fallback + marker grounded ke client
