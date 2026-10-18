@@ -18,7 +18,7 @@ import { countUpcoming, getUpcomingDb } from "../lib/db/upcoming-fixtures";
 
 let passed = 0;
 let failed = 0;
-function assert(cond: boolean, label: string) {
+function assert(cond: boolean, label: string): asserts cond {
   if (cond) {
     passed++;
     console.log(`  ✅ ${label}`);
@@ -31,6 +31,13 @@ function assert(cond: boolean, label: string) {
 const db = getTheStatsDb();
 
 console.log("=== TEST GUARD FIXTURE UPCOMING ===\n");
+
+// Fixture store kosong = environment (jalankan sync:upcoming dulu), BUKAN regresi.
+// Skip dengan pesan jelas alih-alih crash TypeError di tengah test.
+if (countUpcoming() === 0) {
+  console.log("SKIP: store upcoming_fixtures kosong — jalankan `npm run sync:upcoming` lalu ulangi test ini.");
+  process.exit(0);
+}
 
 // 0. Invariant: dataset utama bebas fixture; fixture hidup di store terpisah.
 // (Setelah migrasi Plan-B final, matches lokal TIDAK menyimpan scheduled.)
@@ -53,6 +60,11 @@ const upcoming = getUpcomingDb()
   `)
   .get() as { team_id: string; n: number } | undefined;
 assert(!!upcoming, `pilih tim uji dari store upcoming (${upcoming?.team_id})`);
+if (!upcoming) {
+  console.error("FAIL: tidak ada tim uji di store upcoming (query kosong) — tidak bisa lanjut.");
+  console.log(`\n=== ${passed} lulus, ${failed} gagal ===`);
+  process.exit(1);
+}
 
 // 1. team_match_logs TIDAK boleh punya baris untuk match scheduled.
 const logLeak = db
@@ -66,7 +78,6 @@ assert(logLeak.c === 0, `tidak ada team_match_logs untuk match scheduled (ditemu
 
 // 2. getLocalRecentMatches: untuk tim yang punya fixture, output hanya finished + skor nyata.
 const team = upcoming;
-assert(!!team, `pilih tim uji dengan fixture terbanyak (${team?.team_id}, ${team?.n} fixture)`);
 
 const recent = getLocalRecentMatches(team.team_id, 6);
 assert(recent.length > 0, `form list tidak kosong untuk tim uji (${recent.length} match)`);
@@ -76,7 +87,6 @@ assert(
 );
 
 // 3. Cutoff tanggal: sebelum tanggal pertama di DB → 0 baris (nanti baris muncul).
-const earliest = db.prepare("SELECT min(utc_date) AS d FROM matches").get() as { d: string };
 const tooEarly = getLocalRecentMatches(team.team_id, 6, "2000-01-01T00:00:00Z");
 assert(tooEarly.length === 0, "cutoff sebelum seluruh riwayat → 0 baris (tidak ada leakage)");
 const withCutoff = getLocalRecentMatches(team.team_id, 6, new Date().toISOString());

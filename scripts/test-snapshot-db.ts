@@ -17,6 +17,7 @@ import {
   getSnapshotMetrics,
   upsertOutcome,
   getOutcome,
+  deriveMarketKey,
 } from "../lib/db/analysis-snapshot";
 
 let passed = 0;
@@ -208,6 +209,21 @@ const unmappedRow = db.prepare(`
 `).get(`${PREFIX}A`) as { c: number };
 assert(unmappedRow.c === 0, "tidak ada market belum-dipetakan di fixture ini");
 
+// 8b. Ekuivalensi JS <-> SQL: deriveMarketKey (dipakai route & sync-outcomes) harus
+// SELALU sepakat dengan market_key hasil VIEW. Kalau dua sumber ini drift, closing
+// odds/salah atribusi terjadi diam-diam (audit 2026-10-18 — dulu ada 3 salinan).
+const vbRowsA = JSON.parse(
+  (db.prepare("SELECT value_bets_json FROM analysis_snapshots WHERE match_id = ?").get(`${PREFIX}A`) as { value_bets_json: string }).value_bets_json
+) as Array<{ market_name: string; selection: string }>;
+const jsKeysA = vbRowsA
+  .map((b) => deriveMarketKey(b.market_name, b.selection, "Kandang FC", "Tamu FC"))
+  .sort();
+const sqlKeysA = marketRows.map((r) => r.market_key).sort();
+assert(
+  JSON.stringify(jsKeysA) === JSON.stringify(sqlKeysA),
+  `deriveMarketKey JS ≡ market_key VIEW [${jsKeysA.join(",")}]`
+);
+
 // 9. Market yang TIDAK dikenal -> market_key/market_hit NULL (belum dipetakan, bukan salah).
 insertSnapshot({
   match_id: `${PREFIX}MAP`,
@@ -240,7 +256,9 @@ assert(getOutcome(`${PREFIX}A`)?.source === "online_api", "upsert me-refresh sou
 
 // 11. Metrics.
 const metrics = getSnapshotMetrics();
-assert(metrics.snapshotsCount >= 4, `metrics menghitung snapshot (>=4, dapat ${metrics.snapshotsCount})`);
+const testRows = (db.prepare("SELECT count(*) AS c FROM analysis_snapshots WHERE match_id LIKE ?").get(`${PREFIX}%`) as { c: number }).c;
+assert(testRows >= 4, `baris uji tersimpan (>=4, dapat ${testRows})`);
+assert(metrics.snapshotsCount >= testRows, `metrics menghitung minimal baris uji (${metrics.snapshotsCount} >= ${testRows})`);
 assert(metrics.bytes > 0, "metrics bytes terisi");
 
 // 12. Guard jujur: finished TANPA skor → hit NULL (bukan menang/kalah karangan).

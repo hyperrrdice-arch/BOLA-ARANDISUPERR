@@ -13,7 +13,6 @@
  */
 import {
   mapPipelineToView,
-  AnalysisViewSchema,
   type AnalysisView,
 } from "../lib/view/analysis-view";
 import { AnalysisSchema, PlannerTraceSchema } from "../lib/agent/schemas";
