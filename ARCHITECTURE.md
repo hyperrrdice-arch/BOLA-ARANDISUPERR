@@ -196,6 +196,8 @@ Semua bisa dioverride lewat env (lihat `.env.example`).
 | `analysis_snapshots.db` | 4 snapshot analisis + 3 outcome (§9.1) | ❌ **tidak bisa** | ❌ append-only |
 | `upcoming_fixtures.db` | 246 fixture 30 hari (§9.2) | ✅ sync ulang | ✅ disposable |
 
+**Perintah rebuild** (fresh clone / DB terhapus): `npx.cmd tsx scripts/sync-weekly-telemetry.ts 400` — argumen = hari lookback; default `8` hanya mengambil delta mingguan, **bukan** membangun ulang riwayat musim. Consumer lokal (`getLocalH2HMatches`/`getLocalRecentMatches`) memberi `console.warn` saat tabel kosong supaya degradasi tidak pernah diam-diam.
+
 `football_master.db` = **prior** (α/β attack/defense dari fitting 22rb match, materialisasi di `calibrated_ratings.json`); `thestats_dataset.db` = **observasi** season berjalan (n di shrinkage `w = n/(n+κ)`). Keduanya beda ID space (nama tim vs `mt_*`) — jembatannya `lib/quant/team-normalizer.ts`.
 
 ### 9.1 `data/analysis_snapshots.db` — riwayat analisis (data pribadi, APPEND-ONLY)

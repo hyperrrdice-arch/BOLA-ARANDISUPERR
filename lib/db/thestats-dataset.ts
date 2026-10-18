@@ -551,8 +551,25 @@ export function getDatabaseMetrics() {
  * Mengambil H2H lokal dari thestats_dataset.db (Tier-1 Offline SQLite)
  * Memformat output sesuai RawMatchSchema / stats-validator.ts
  */
+// Dataset tidak di-commit (lihat PERF.md) → fresh clone bisa berisi DB kosong.
+// Jangan diam: sekali per proses, beri tahu bahwa data lokal absen + cara rebuild.
+let warnedEmptyDataset = false;
+function warnIfDatasetEmpty(): void {
+  if (warnedEmptyDataset) return;
+  const db = getTheStatsDb();
+  const row = db.prepare("SELECT count(*) AS c FROM matches").get() as { c: number };
+  if (row.c === 0) {
+    warnedEmptyDataset = true;
+    console.warn(
+      "[thestats-dataset] Tabel matches KOSONG — H2H/form lokal tidak tersedia " +
+        "(degradasi diam-diam dihindari). Rebuild: npx.cmd tsx scripts/sync-weekly-telemetry.ts 400 — lihat ARCHITECTURE.md."
+    );
+  }
+}
+
 export function getLocalH2HMatches(teamA: string, teamB: string, limit: number = 6, beforeDate?: string) {
   const db = getTheStatsDb();
+  warnIfDatasetEmpty();
   const teamAId = resolveLocalTeamId(teamA);
   const teamBId = resolveLocalTeamId(teamB);
   // HANYA match yang benar-benar selesai: baris `scheduled` (fixture 30 hari
@@ -596,6 +613,7 @@ export function getLocalH2HMatches(teamA: string, teamB: string, limit: number =
  */
 export function getLocalRecentMatches(team: string, limit: number = 6, beforeDate?: string) {
   const db = getTheStatsDb();
+  warnIfDatasetEmpty();
   const teamId = resolveLocalTeamId(team);
   // Sama seperti H2H: hanya match selesai + skor terisi, dan opsional cutoff
   // tanggal. Tanpa ini, form akan menghitung fixture yang belum main.
