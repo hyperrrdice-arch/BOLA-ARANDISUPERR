@@ -33,13 +33,14 @@
 **Description:** Agregat `first_half/second_half_xg_for/against` per tim (6 laga): label SLOW_STARTER / SECOND_HALF_TEAM / SEIMBANG + selisih. Tampil sebagai baris bukti + konteks prompt. Jujur tier saat sampel tipis.
 
 **Acceptance criteria:**
-- [ ] 2 tim contoh diverifikasi manual dari logs
-- [ ] Tier INSUFFICIENT_DATA saat <3 log berskor babak
-- [ ] Prob/fair tidak berubah (konteks only)
+- [x] 2 tim contoh diverifikasi (Barca SECOND_HALF_TEAM, Villa FAST_STARTER — head cek independen: label sama di varian window, magnitude beda definisi window didokumentasi)
+- [x] Tier INSUFFICIENT_DATA + null saat <3 log (bukan 0)
+- [x] Prob/fair tidak berubah (guard hitung-ulang identik di test)
 
 **Verification:**
-- [ ] Runnable baru `test-half-profile.ts`
-- [ ] tsc + build hijau
+- [x] `test-half-profile.ts` 59/59 (dijalankan ulang head: hijau)
+- [x] `test-view-mapper` 53/53 + `test-value-bets` 7/7 + `test-master-backfill` 62/62 (regresi akumulasi)
+- [x] tsc exit 0 · backend only (nol sentuh components/)
 
 **Dependencies:** None
 
@@ -54,12 +55,13 @@
 **Description:** Delta goals/xG-for last-3 vs last-6 per tim → panah momentum (NAIK/TURUN/DATAR) + magnitude. Baris bukti + konteks prompt, tier jujur.
 
 **Acceptance criteria:**
-- [ ] Arah panah benar di 3 contoh (naik/turun/datar)
-- [ ] Tidak mengubah prob/fair
+- [x] 3 arah benar (Liverpool NAIK +1.67, Dortmund TURUN −1.67, Palace DATAR +0.33 — head cek independen Liverpool cocok)
+- [x] Ambang eksplisit (FLAT 0.34 gol, xG konfirmasi-only) + tier jujur
+- [x] Prob/fair tidak berubah (guard identik)
 
 **Verification:**
-- [ ] Runnable baru `test-momentum.ts`
-- [ ] tsc + build hijau
+- [x] `test-momentum.ts` 73/73 (dijalankan ulang head: hijau)
+- [x] Regresi: half 59/59, view 53/53, value 7/7, backfill 62/62 · tsc exit 0 · backend only
 
 **Dependencies:** None
 
@@ -70,7 +72,11 @@
 **Estimated scope:** S
 
 ### Checkpoint: Matchup
-- [ ] 3 sinyal tampil ringkas + tier jujur · live 1 analisis · tsc+build hijau · review user
+- [x] 3 sinyal tampil ringkas + tier jujur · live Liverpool-Villarreal pamer half+momentum · tsc+build hijau · review user
+
+**Ablasi sqrt(Q) UCL (19 Okt, paired n=50): UNDECIDED.** Log-loss ON 0.9236 vs OFF 0.9520 (Δ dalam noise 2SE), liga split 4-3. Heuristik dipertahankan + label unvalidated. JANGAN re-run buta — trigger: n≥100 (musim UCL jalan + refresh CSV). Script: `scripts/ablate-ucl-scaling.ts`.
+
+**Temuan UCL (bug pipeline, 19 Okt — di luar scope depth tapi blokir hasil):** semua laga UCL antar tim top-5 jatuh ke prior + telemetri dibuang. Akar: `findTeamRatingForUCL` cek key map (E0/SP1/I1/D1/F1) sehingga justru 5 liga utama dilewati; early-return juga buang `homeTelemetry`. Fix: cek values (div kasta kedua) + fixture basi 2 test (Genk berasumsi tanpa data → isolasi `homeTelemetry: null`). Bukti before→after Liverpool-Villarreal: λ 2.95/μ 3.06 prior-only grounded=false → λ 2.00/μ 1.79 observed 6/6 grounded=true. Regresi: quant-scale, tier1 15/15, foundation 47/47, view 53/53, build sukses.
 
 ## Task 4: Panel kalibrasi Bet365 (read-only)
 
