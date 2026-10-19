@@ -14,6 +14,8 @@ import {
   getShrunkMatchParameters,
 } from "@/lib/quant";
 import { generateSpecialMarketsPackage } from "@/lib/quant/special-markets-engine";
+import { getTeamHalfProfile, HALF_PROFILE_WINDOW, type HalfMatchup } from "@/lib/quant/half-profile";
+import { getTeamMomentum, MOMENTUM_WINDOW, type MomentumMatchup } from "@/lib/quant/momentum";
 import { getTeamRollingTelemetry } from "@/lib/db/team-telemetry";
 import {
   orchestrate5AgentSyndicate,
@@ -52,6 +54,12 @@ export interface QuantEngineBundle {
     vig_stripping: Record<string, any> | null;
     value_bets: ValueBetEvaluation[];
     special_markets: ReturnType<typeof generateSpecialMarketsPackage> | null;
+    // Task 2 offline-depth: profil tempo babak 1 vs 2 — KONTEKS ONLY.
+    // DILARANG dipakai mengubah dixon_coles / vig_stripping / value_bets.
+    half_profile: HalfMatchup;
+    // Task 3 offline-depth: momentum gol/xG last-3 vs matches 4-6 — KONTEKS ONLY.
+    // DILARANG dipakai mengubah dixon_coles / vig_stripping / value_bets.
+    momentum: MomentumMatchup;
     luck_metrics: any;
     calibration_metadata: Record<string, any>;
   };
@@ -156,6 +164,20 @@ export function buildQuantPackage(
       })
     : null;
 
+  // Profil tempo babak 1 vs 2 (Task 2 offline-depth, KONTEKS ONLY — angka ini
+  // tidak masuk perhitungan Dixon-Coles / Shin / Kelly di bawah).
+  const halfProfile: HalfMatchup = {
+    home: getTeamHalfProfile(homeTeamName, HALF_PROFILE_WINDOW, today),
+    away: getTeamHalfProfile(awayTeamName, HALF_PROFILE_WINDOW, today),
+  };
+
+  // Momentum gol/xG last-3 vs matches 4-6 (Task 3 offline-depth, KONTEKS ONLY —
+  // angka ini tidak masuk perhitungan Dixon-Coles / Shin / Kelly di bawah).
+  const momentum: MomentumMatchup = {
+    home: getTeamMomentum(homeTeamName, MOMENTUM_WINDOW, today),
+    away: getTeamMomentum(awayTeamName, MOMENTUM_WINDOW, today),
+  };
+
   const quantPackage = {
     dixon_coles: {
       lambda_home_xg: dcOutput.lambda,
@@ -181,6 +203,8 @@ export function buildQuantPackage(
       : null,
     value_bets: valueBets,
     special_markets: specialMarkets,
+    half_profile: halfProfile,
+    momentum,
     luck_metrics: shrunkParams.metadata?.luckMetrics,
     calibration_metadata: {
       is_calibrated: shrunkParams.isCalibrated,

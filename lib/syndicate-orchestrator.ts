@@ -78,6 +78,8 @@ export interface SyndicateDebateResult {
 }
 
 import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
+import { formatHalfMatchupParagraph, type HalfMatchup } from "./quant/half-profile";
+import { formatMomentumMatchupParagraph, type MomentumMatchup } from "./quant/momentum";
 
 const BASE_URL = getNineRouterBaseUrl();
 const API_KEY = getNineRouterApiKey();
@@ -305,6 +307,27 @@ export async function orchestrate5AgentSyndicate(params: {
     `Sebut sebagai konteks probabilitas saja, dan prioritaskan rekomendasi hanya pada pasar yang memang tercantum di daftar EV di bawah.\n`
   ) : "";
 
+  // Task 2 offline-depth: konteks tempo babak 1 vs 2 (KONTEKS ONLY — 1 paragraf,
+  // DILARANG dipakai mengubah probabilitas/fair odds; string kosong = prompt identik).
+  const halfProfile = quantPackage?.half_profile as HalfMatchup | undefined;
+  const halfStr = halfProfile
+    ? formatHalfMatchupParagraph(
+        halfProfile,
+        intel.pertandingan?.tim_kandang,
+        intel.pertandingan?.tim_tamu
+      )
+    : "";
+  // Task 3 offline-depth: konteks momentum last-3 vs matches 4-6 (KONTEKS ONLY —
+  // 1 paragraf, DILARANG dipakai mengubah probabilitas/fair odds; string kosong
+  // = prompt identik).
+  const momentum = quantPackage?.momentum as MomentumMatchup | undefined;
+  const momentumStr = momentum
+    ? formatMomentumMatchupParagraph(
+        momentum,
+        intel.pertandingan?.tim_kandang,
+        intel.pertandingan?.tim_tamu
+      )
+    : "";
   // Detail Faktual Skuad & Pertemuan (Anti-Halusinasi)
   const homeXI = intel.lineups?.is_available && Array.isArray(intel.lineups.home_starting_xi) && intel.lineups.home_starting_xi.length > 0
     ? intel.lineups.home_starting_xi.map((p: any) => `${p.name} (${p.pos || "P"})`).join(", ")
@@ -358,6 +381,8 @@ export async function orchestrate5AgentSyndicate(params: {
     `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n` +
     specialMarketsStr + "\n" +
     luckStr + "\n" +
+    (halfStr ? `${halfStr}\n` : "") +
+    (momentumStr ? `${momentumStr}\n` : "") +
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   if (process.env.PIPELINE_DEBUG) {

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import type { Analysis } from "@/lib/agent/schemas";
 import type { PlannerTrace } from "@/lib/agent/schemas";
+import { formatHalfEvidenceRow, type HalfMatchup } from "@/lib/quant/half-profile";
+import { formatMomentumEvidenceRow, type MomentumMatchup } from "@/lib/quant/momentum";
 
 /**
  * ============================================================================
@@ -370,6 +372,34 @@ export function mapPipelineToView(input: {
       value: topScoreStr,
     },
   ].slice(0, 5);
+
+  // Task 2 offline-depth: profil tempo babak sebagai baris bukti, TETAP ≤5.
+  // Hanya saat half_profile ada + minimal satu tim cukup data; baris yang
+  // diganti = "Ekspektasi Total Gol" (redundan: ≈ jumlah Proyeksi xG di baris 1,
+  // angka aslinya tetap utuh di detail.metode.dixon_coles). Tanpa half_profile
+  // (fixture lama) output identik seperti sebelumnya — prob/fair tak tersentuh.
+  const halfProfile = (q as any)?.half_profile as HalfMatchup | undefined;
+  const halfRow = halfProfile
+    ? formatHalfEvidenceRow(halfProfile, a.pertandingan?.tim_kandang, a.pertandingan?.tim_tamu)
+    : null;
+  if (halfRow) {
+    bukti[3] = halfRow;
+  }
+
+  // Task 3 offline-depth: momentum last-3 vs matches 4-6 sebagai baris bukti,
+  // TETAP ≤5. Baris yang diganti = paling redundan yang tersisa: bila half
+  // sudah menempati slot "Ekspektasi Total Gol", yang diganti = "Skor Paling
+  // Mungkin" (probabilitas satu scoreline, paling tidak actionable); bila half
+  // absen, yang diganti = "Ekspektasi Total Gol" (≅ jumlah Proyeksi xG baris 1).
+  // Tanpa momentum (fixture lama / kedua tim tipis) output identik seperti
+  // sebelumnya — prob/fair tak tersentuh.
+  const momentum = (q as any)?.momentum as MomentumMatchup | undefined;
+  const momentumRow = momentum
+    ? formatMomentumEvidenceRow(momentum, a.pertandingan?.tim_kandang, a.pertandingan?.tim_tamu)
+    : null;
+  if (momentumRow) {
+    bukti[halfRow ? 4 : 3] = momentumRow;
+  }
 
   const detail: z.infer<typeof KuantitatifDetailSchema> = {
     kelly: {
