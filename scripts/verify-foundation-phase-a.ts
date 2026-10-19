@@ -104,13 +104,16 @@ assert("La Liga pakai gamma SP1 (bukan EPL)", Math.abs(laliga.homeAdvantage - (d
 
 // ---------------------------------------------------------------------------
 console.log("\n[5] Shrinkage weight memakai jumlah laga form");
-// h2h sengaja tidak dilewatkan; homeSampleN=3 form -> w = 3/(3+16)
+// h2h sengaja tidak dilewatkan; homeSampleN=3 form -> w = 3/(3+16).
+// homeTelemetry dipaksa null agar deterministik (Genk kini punya log riil
+// sejak backfill Task 1 — tanpa ini ia masuk cabang goals κ=14).
 const shrink3 = getShrunkMatchParameters({
   homeTeam: "Genk",
   awayTeam: "Standard",
   leagueHint: "belgian first division a",
   liveHomeFormGoalsAvg: 1.5,
   liveAwayFormGoalsAvg: 1.2,
+  homeTelemetry: null,
   homeSampleN: 3,
   awaySampleN: 3,
 });
@@ -121,11 +124,13 @@ assert(
   `dapat ${shrink3.shrinkageWeights.home}`
 );
 
-// tanpa telemetry & tanpa form -> w = 0 (prior makro sepenuhnya)
+// tanpa telemetry & tanpa form -> w = 0 (prior makro sepenuhnya).
+// homeTelemetry dipaksa null (alasan sama seperti di atas).
 const shrink0 = getShrunkMatchParameters({
   homeTeam: "Genk",
   awayTeam: "Standard",
   leagueHint: "belgian first division a",
+  homeTelemetry: null,
   homeSampleN: 0,
   awaySampleN: 0,
 });
@@ -133,8 +138,8 @@ assert("w.home === 0 saat n=0", shrink0.shrinkageWeights.home === 0, `dapat ${sh
 
 // ---------------------------------------------------------------------------
 console.log("\n[6] isEstimatedTelemetry: observed_goals bukan estimasi");
-// Genk tidak ada di thestats_dataset.db (hanya 7 target league) -> tanpa telemetry
-// -> macro_prior_only -> memang estimasi. Yang kita uji: flag true HANYA di sini.
+// Genk kini punya log (backfill Task 1), tapi shrink3 memaksa homeTelemetry
+// null → macro_prior_only → memang estimasi. Yang kita uji: flag true HANYA di sini.
 assert(
   "tanpa telemetry -> isEstimatedTelemetry true",
   shrink3.metadata?.isEstimatedTelemetry === true,

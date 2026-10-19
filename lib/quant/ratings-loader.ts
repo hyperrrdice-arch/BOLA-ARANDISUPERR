@@ -184,12 +184,17 @@ const SECOND_DIVISION_MAP: Record<string, string> = {
  * Mencari rating klub untuk kompetisi kontinental UCL melintasi semua liga utama
  * dengan penskalaan koefisien kualitas liga UEFA Q(L)
  */
+// Divisi kasta kedua (nilai map) dilewati di pencarian UCL: tim UCL dicari di
+// liga domestik utama. (Sebelumnya memeriksa key map sehingga justru 5 liga
+// utama E0/SP1/I1/D1/F1 yang dilewati — semua laga UCL antar tim top-5 jatuh
+// ke prior + telemetri lokal dibuang.)
+const SECOND_DIVS = new Set(Object.values(SECOND_DIVISION_MAP));
 export function findTeamRatingForUCL(
   data: CalibratedRatingsFile,
   normalizedTeam: string
 ): { rating: TeamRating; source: "primary_league"; domesticDiv: string } | null {
   for (const [div, league] of Object.entries(data.leagues)) {
-    if (SECOND_DIVISION_MAP[div] || !UEFA_LEAGUE_COEFFICIENT[div]) continue;
+    if (SECOND_DIVS.has(div) || !UEFA_LEAGUE_COEFFICIENT[div]) continue;
     if (league.teams[normalizedTeam]) {
       const raw = league.teams[normalizedTeam];
       const q = UEFA_LEAGUE_COEFFICIENT[div] || 0.80;

@@ -115,11 +115,14 @@ async function main() {
   assert(`Weight goals form memakai kappa=14.0 (w=${expectedWeightGoals})`, shrinkWithGoals.shrinkageWeights.home === expectedWeightGoals, `dapat ${shrinkWithGoals.shrinkageWeights.home}`);
 
   // C. Fallback Macro Prior (kappa = 16.0)
-  // Tim non-dataset (Genk) tanpa telemetry DB: w = 3 / (3 + 16) = 3/19 ≈ 0.158
+  // Isolasi deterministik: Genk ter-rating di B1 (lolos early-return) tapi
+  // homeTelemetry dipaksa null + homeSampleN=3 → w = 3/(3+16) = 3/19 ≈ 0.158.
+  // (Dulu mengandalkan "Genk tanpa telemetry DB" — basi sejak backfill Task 1.)
   const shrinkFallback = getShrunkMatchParameters({
     homeTeam: "Genk",
-    awayTeam: "Standard",
+    awayTeam: "Standard Liege",
     leagueHint: "belgian first division a",
+    homeTelemetry: null,
     homeSampleN: 3,
   });
   const expectedWeightFallback = Number((3 / (3 + 16.0)).toFixed(3));
