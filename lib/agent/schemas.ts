@@ -124,7 +124,7 @@ export const AnalysisSchema = z.object({
         draw: z.number(),
         away: z.number(),
       }),
-    }),
+    }).nullable(),
     value_bets: z.array(
       z.object({
         market_name: z.string(),

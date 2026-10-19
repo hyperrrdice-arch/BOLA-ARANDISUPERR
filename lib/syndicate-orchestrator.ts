@@ -273,7 +273,7 @@ export async function orchestrate5AgentSyndicate(params: {
     : "Bursa odds pasar belum tersedia";
 
   // CATATAN: key di quantPackage adalah `vig_stripping` (lihat route.tsx).
-  const vigData = quantPackage?.vig_stripping ?? quantPackage?.shin_vig;
+  const vigData = quantPackage?.vig_stripping;
   const shinStr = vigData
     ? `Shin Vig-Stripping: Fair Home=${vigData.fair_odds?.home} | Draw=${vigData.fair_odds?.draw} | Away=${vigData.fair_odds?.away} (Margin Bandar: ${(vigData.margin_percentage ?? 0).toFixed(1)}%)`
     : "";

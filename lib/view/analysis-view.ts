@@ -311,7 +311,7 @@ export function mapPipelineToView(input: {
 
   // 3. KUANTITATIF SECTION
   const valueBets = Array.isArray(q?.value_bets) ? q.value_bets : [];
-  const topEv = valueBets.find((vb) => vb.is_positive_ev) || (valueBets.length > 0 ? valueBets[0] : null);
+  const topEv = valueBets.find((vb) => vb.is_positive_ev) ?? null;
 
   const hero: z.infer<typeof KuantitatifHeroSchema> = {
     prob: {

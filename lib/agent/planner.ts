@@ -49,19 +49,14 @@ import { evaluateCoverage, type CoverageReport } from "./coverage";
 export interface QuantEngineBundle {
   quantPackage: {
     dixon_coles: Record<string, any>;
-    vig_stripping: Record<string, any>;
+    vig_stripping: Record<string, any> | null;
     value_bets: ValueBetEvaluation[];
     special_markets: ReturnType<typeof generateSpecialMarketsPackage> | null;
     luck_metrics: any;
     calibration_metadata: Record<string, any>;
   };
   dcOutput: ReturnType<typeof calculateDixonColes>;
-  vigOutput: ReturnType<typeof stripVigShin> | {
-    overround: number;
-    margin_percentage: number;
-    fair_odds: { home: number; draw: number; away: number };
-    fair_prob: { home: number; draw: number; away: number };
-  };
+  vigOutput: ReturnType<typeof stripVigShin> | null;
   hLast: number | null;
   dLast: number | null;
   aLast: number | null;
@@ -114,7 +109,8 @@ export function buildQuantPackage(
   const dLast = intel.market_odds.draw_last;
   const aLast = intel.market_odds.away_last;
 
-  // Odds pasar rusak/absen → cabang model-only (tanpa method_used), JANGAN karang prob pasar
+  // Odds pasar rusak/absen → null (model-only). JANGAN karang overround/margin:
+  // margin fiktif mengalir ke prompt sindikat sebagai fakta pasar.
   const vigOutput: QuantEngineBundle["vigOutput"] = (() => {
     if (hLast && dLast && aLast) {
       try {
@@ -124,12 +120,7 @@ export function buildQuantPackage(
       }
     }
     return null;
-  })() ?? {
-    overround: 1.055,
-    margin_percentage: 5.5,
-    fair_odds: dcOutput.fair_odds,
-    fair_prob: { home: dcOutput.prob_home_win, draw: dcOutput.prob_draw, away: dcOutput.prob_away_win },
-  };
+  })();
 
   // Value bet WAJIB membandingkan probabilitas model dengan odds pasar NYATA.
   // Tanpa odds pasar → tidak ada value bet untuk market itu. JANGAN karang odds
@@ -181,11 +172,13 @@ export function buildQuantPackage(
       clean_sheet: dcOutput.clean_sheet,
       expected_points: dcOutput.expected_points,
     },
-    vig_stripping: {
-      overround: vigOutput.overround,
-      margin_percentage: vigOutput.margin_percentage,
-      fair_odds: vigOutput.fair_odds,
-    },
+    vig_stripping: vigOutput
+      ? {
+          overround: vigOutput.overround,
+          margin_percentage: vigOutput.margin_percentage,
+          fair_odds: vigOutput.fair_odds,
+        }
+      : null,
     value_bets: valueBets,
     special_markets: specialMarkets,
     luck_metrics: shrunkParams.metadata?.luckMetrics,

@@ -108,7 +108,7 @@ export function buildEditorialPrompts(params: {
   intel: VerifiedMatchIntelligence;
   quantPackage: any;
   dcOutput: ReturnType<typeof calculateDixonColes>;
-  vigOutput: EditorialVigData;
+  vigOutput: EditorialVigData | null;
   hLast: number | null | undefined;
   dLast: number | null | undefined;
   aLast: number | null | undefined;
@@ -187,7 +187,7 @@ export function buildEditorialPrompts(params: {
     `    "pergerakan_smart_money": "Aliran dana pasar stabil"\n` +
     `  },\n` +
     `  "probabilitas_pasar": ${
-      hLast && dLast && aLast
+      hLast && dLast && aLast && vigOutput
         ? JSON.stringify({
             kandang: Math.round(vigOutput.fair_prob.home * 100),
             seri: Math.round(vigOutput.fair_prob.draw * 100),

@@ -82,9 +82,7 @@ function persistSnapshot(args: {
   // boleh meninggalkan snapshot hasil separuh jadi.
   if (args.signal?.aborted) return;
   try {
-    const topEv =
-      args.valueBets.find((vb) => vb.is_positive_ev) ||
-      (args.valueBets.length > 0 ? args.valueBets[0] : null);
+    const topEv = args.valueBets.find((vb) => vb.is_positive_ev) ?? null;
     const homeTeam = args.intel?.pertandingan?.tim_kandang ?? null;
     const awayTeam = args.intel?.pertandingan?.tim_tamu ?? null;
     const dj = args.syndicateDebate?.dual_judgement;
@@ -400,7 +398,7 @@ export async function GET(req: Request) {
       pergerakan_smart_money: rawObj?.bursa_pasar?.pergerakan_smart_money || "Aliran dana stabil.",
       ...(rawObj?.bursa_pasar || {}),
     },
-    probabilitas_pasar: rawObj?.probabilitas_pasar ?? (hLast && dLast && aLast ? {
+    probabilitas_pasar: rawObj?.probabilitas_pasar ?? (hLast && dLast && aLast && vigOutput ? {
       kandang: Math.round(vigOutput.fair_prob.home * 100),
       seri: Math.round(vigOutput.fair_prob.draw * 100),
       tandang: Math.round(vigOutput.fair_prob.away * 100),
