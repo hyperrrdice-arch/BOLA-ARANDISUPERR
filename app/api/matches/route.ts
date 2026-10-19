@@ -1,7 +1,7 @@
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
 import { format1xBetLeagueName } from "@/lib/league-constants";
 import { jsonResponse } from "@/lib/http-json";
-import { getUpcomingInWindow } from "@/lib/db/upcoming-fixtures";
+import { getUpcomingInWindow, getUpcomingMaxDate } from "@/lib/db/upcoming-fixtures";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -59,6 +59,8 @@ export async function GET(req: Request) {
         total: localMatches.length,
         matches: localMatches,
         leagues: Array.from(localLeagueMap.values()).sort((a, b) => b.count - a.count),
+        offline: true,
+        catalog_max_utc: getUpcomingMaxDate(),
         cacheMetrics: { ...getStatsCacheMetrics(), upcomingSource: "local_sqlite" },
       });
     }
@@ -76,6 +78,23 @@ export async function GET(req: Request) {
     ]);
 
     if (json.error) {
+      // API mati (401/403 = key revoked/expired) → degradasi jujur: 200 kosong dari
+      // store lokal, bukan 500. Error lain (network/transien) tetap 500 agar ketahuan.
+      const errStr = String((json as any)?.error ?? "");
+      const errCode = String((json as any)?.code ?? "");
+      const isAuthDead = /401|403/.test(errStr) || /KEY_REVOKED|UNAUTHORIZED|FORBIDDEN/i.test(errCode);
+      if (isAuthDead) {
+        return jsonResponse(req, {
+          hours,
+          total: 0,
+          matches: [],
+          leagues: [],
+          offline: true,
+          catalog_max_utc: getUpcomingMaxDate(),
+          message: "AKSES API MATI — tidak ada fixture lokal di window ini",
+          cacheMetrics: { ...getStatsCacheMetrics(), upcomingSource: "local_sqlite_empty" },
+        });
+      }
       return jsonResponse(
         req,
         {
@@ -182,6 +201,8 @@ export async function GET(req: Request) {
       total: filtered.length,
       matches: filtered,
       leagues: activeLeagues,
+      offline: false,
+      catalog_max_utc: null,
       cacheMetrics: getStatsCacheMetrics(),
     });
   } catch (error) {

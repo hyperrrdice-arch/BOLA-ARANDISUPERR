@@ -1,6 +1,7 @@
 import { jsonResponse } from "@/lib/http-json";
 import { z } from "zod";
 import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
+import { getMatchOddsAnchor } from "@/lib/db/thestats-dataset";
 import {
   TheStatsOddsComparisonData,
   BookmakerOddsComparisonItem,
@@ -21,6 +22,8 @@ const RawBookmakerSchema = z
   .object({
     id: z.union([z.string(), z.number()]).optional().nullable(),
     name: z.string().optional().nullable(),
+    // Payload anchor lokal memakai key `bookmaker` (string), upstream memakai `name`.
+    bookmaker: z.union([z.string(), z.object({ name: z.string().optional().nullable() }).passthrough()]).optional().nullable(),
     markets: z
       .object({
         match_odds: z
@@ -75,6 +78,20 @@ function parsePricePoint(rawPoint: unknown): {
   };
 }
 
+function resolveBookmakerName(rawBm: any, index: number): string {
+  if (typeof rawBm?.name === "string" && rawBm.name.trim()) return rawBm.name;
+  if (typeof rawBm?.bookmaker === "string" && rawBm.bookmaker.trim()) return rawBm.bookmaker;
+  if (typeof rawBm?.bookmaker?.name === "string" && rawBm.bookmaker.name.trim()) return rawBm.bookmaker.name;
+  return `Bookmaker ${index + 1}`;
+}
+
+function extractRawList(payload: any): any[] {
+  const data = payload?.data ?? payload;
+  if (Array.isArray(data?.bookmakers)) return data.bookmakers;
+  if (Array.isArray(data)) return data;
+  return [];
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const matchId = searchParams.get("match_id");
@@ -87,18 +104,25 @@ export async function GET(req: Request) {
   }
 
   try {
-    // 15 menit RAM cache (atau 10 menit jika kickoff dekat)
-    const rawRes = await cachedStatsGet(
-      `/football/matches/${encodeURIComponent(matchId)}/odds`,
-      {},
-      15 * 60 * 1000
-    );
+    // Tier-1 offline: anchor lokal (match_odds_history) — 0 request keluar.
+    // Upstream hanya fallback saat match belum pernah di-pull.
+    let rawList: any[] = [];
+    let source: "local_anchor" | "upstream" = "upstream";
+    let capturedUtc: string | null = null;
 
-    if (rawRes?.error) {
+    const anchor = getMatchOddsAnchor(matchId);
+    if (anchor && anchor.has_odds && anchor.payload) {
+      rawList = extractRawList(anchor.payload);
+      source = "local_anchor";
+      capturedUtc = anchor.captured_utc;
+    } else if (anchor && !anchor.has_odds) {
+      // Dinyatakan kosong eksplisit saat penarikan — jangan buang request upstream.
       return jsonResponse(req, {
         match_id: matchId,
         is_available: false,
-        message: "Data belum tersedia dari TheStatsAPI",
+        message: "Odds tidak tersedia untuk laga ini (dinyatakan kosong saat penarikan anchor)",
+        source: "local_anchor_empty",
+        captured_utc: anchor.captured_utc,
         bookmakers: [],
         best_odds: null,
         averages: {
@@ -115,19 +139,51 @@ export async function GET(req: Request) {
       } satisfies TheStatsOddsComparisonData & {
         cache_metrics: ReturnType<typeof getStatsCacheMetrics>;
       });
-    }
+    } else {
+      // 15 menit RAM cache (atau 10 menit jika kickoff dekat)
+      const rawRes = await cachedStatsGet(
+        `/football/matches/${encodeURIComponent(matchId)}/odds`,
+        {},
+        15 * 60 * 1000
+      );
 
-    const rawList = Array.isArray(rawRes?.data?.bookmakers)
-      ? rawRes.data.bookmakers
-      : Array.isArray(rawRes?.data)
-      ? rawRes.data
-      : [];
+      if (rawRes?.error) {
+        return jsonResponse(req, {
+          match_id: matchId,
+          is_available: false,
+          message: "Data belum tersedia (API tidak terjangkau, tidak ada anchor lokal)",
+          source: "upstream_error",
+          captured_utc: null,
+          bookmakers: [],
+          best_odds: null,
+          averages: {
+            home: null,
+            draw: null,
+            away: null,
+            over_2_5: null,
+            under_2_5: null,
+            average_margin_1x2: null,
+          },
+          lowest_margin_bookmaker: null,
+          timestamp: new Date().toISOString(),
+          cache_metrics: getStatsCacheMetrics(),
+        } satisfies TheStatsOddsComparisonData & {
+          cache_metrics: ReturnType<typeof getStatsCacheMetrics>;
+        });
+      }
+
+      rawList = extractRawList(rawRes);
+    }
 
     if (rawList.length === 0) {
       return jsonResponse(req, {
         match_id: matchId,
         is_available: false,
-        message: "Data belum tersedia dari TheStatsAPI",
+        message: source === "local_anchor"
+          ? "Anchor lokal kosong untuk laga ini"
+          : "Data belum tersedia dari TheStatsAPI",
+        source: source === "local_anchor" ? "local_anchor" : "upstream_empty",
+        captured_utc: capturedUtc,
         bookmakers: [],
         best_odds: null,
         averages: {
@@ -151,7 +207,7 @@ export async function GET(req: Request) {
     for (let i = 0; i < rawList.length; i++) {
       const parsedItem = RawBookmakerSchema.safeParse(rawList[i]);
       const rawBm = parsedItem.success ? parsedItem.data : rawList[i];
-      const name = rawBm?.name || `Bookmaker ${i + 1}`;
+      const name = resolveBookmakerName(rawBm, i);
 
       const mo = rawBm?.markets?.match_odds;
       const homePoint = parsePricePoint(mo?.home);
@@ -285,7 +341,13 @@ export async function GET(req: Request) {
     } = {
       match_id: matchId,
       is_available: bookmakers.length > 0,
-      message: bookmakers.length > 0 ? undefined : "Data belum tersedia dari TheStatsAPI",
+      message: bookmakers.length > 0
+        ? source === "local_anchor"
+          ? `Odds anchor lokal (ditarik ${capturedUtc}, bukan closing)`
+          : undefined
+        : "Data belum tersedia dari TheStatsAPI",
+      source,
+      captured_utc: capturedUtc,
       bookmakers,
       best_odds: {
         home: bestHome,

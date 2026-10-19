@@ -285,7 +285,7 @@ export function TheStatsOddsComparisonCard({
         <div className="p-5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-2 text-xs font-mono">
           <div className="flex items-center gap-2 text-[#0a0a0a] font-bold">
             <AlertCircleIcon size={14} className="text-[#737373]" />
-            <span>Data belum tersedia dari TheStatsAPI</span>
+            <span>{data.message || "Data belum tersedia dari TheStatsAPI"}</span>
           </div>
           <p className="text-[#737373] text-[13px] leading-relaxed font-sans">
             Bandar resmi internasional belum merilis garis odds lengkap untuk laga ini, atau match
@@ -302,6 +302,11 @@ export function TheStatsOddsComparisonCard({
             <span className="font-semibold text-[#0a0a0a]">
               Harga Terbaik Tersedia (Best Available Price)
             </span>
+            {data.source === "local_anchor" && data.captured_utc && (
+              <span className="text-[#737373]">
+                Anchor lokal {data.captured_utc.slice(0, 10)} · bukan closing
+              </span>
+            )}
             {lowestMarginBm && (
               <span className="text-[#737373]">
                 Bandar Paling Menguntungkan:{" "}

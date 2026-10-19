@@ -120,7 +120,7 @@ export interface QuantEngineData {
     overround: number;
     margin_percentage: number;
     fair_odds: { home: number; draw: number; away: number };
-  };
+  } | null;
   value_bets: ValueBetItem[];
   calibration_metadata?: {
     is_calibrated: boolean;
@@ -332,6 +332,8 @@ export interface TheStatsOddsComparisonData {
   match_id: string;
   is_available: boolean;
   message?: string;
+  source?: string;
+  captured_utc?: string | null;
   bookmakers: BookmakerOddsComparisonItem[];
   best_odds: {
     home: BestOddsSelection | null;

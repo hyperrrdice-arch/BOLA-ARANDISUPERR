@@ -159,6 +159,20 @@ export function getUpcomingInWindow(fromMs: number, hours: number, competitionId
   return rows;
 }
 
+/** Tanggal fixture terjauh di seluruh katalog (untuk banner kedaluwarsa). */
+export function getUpcomingMaxDate(): string | null {
+  const db = getUpcomingDb();
+  const r = db.prepare("SELECT max(utc_date) AS m FROM upcoming_fixtures").get() as any;
+  return typeof r?.m === "string" ? r.m : null;
+}
+
+/** Baris fixture tunggal by match_id (Task 7 offline intel). */
+export function getUpcomingByMatchId(matchId: string): UpcomingRow | null {
+  const db = getUpcomingDb();
+  const r = db.prepare("SELECT * FROM upcoming_fixtures WHERE match_id = ? LIMIT 1").get(matchId) as UpcomingRow | undefined;
+  return r ?? null;
+}
+
 /** Baris yang kickoff-nya sudah lewat — kandidat promosi ke dataset utama. */
 export function getDueFixtures(nowMs: number = Date.now()): UpcomingRow[] {
   const db = getUpcomingDb();

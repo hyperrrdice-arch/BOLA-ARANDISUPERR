@@ -14,6 +14,8 @@ interface MatchCatalogViewProps {
   onRetry: () => void;
   hours: number;
   hasSearchQuery: boolean;
+  offline?: boolean;
+  catalogMaxUtc?: string | null;
 }
 
 export function MatchCatalogView({
@@ -24,7 +26,12 @@ export function MatchCatalogView({
   onRetry,
   hours,
   hasSearchQuery,
+  offline,
+  catalogMaxUtc,
 }: MatchCatalogViewProps) {
+  const remainingDays = catalogMaxUtc
+    ? Math.max(0, Math.ceil((new Date(catalogMaxUtc).getTime() - Date.now()) / 86_400_000))
+    : null;
   return (
     <section className="space-y-5">
       {/* Page Title & Intro */}
@@ -82,10 +89,22 @@ export function MatchCatalogView({
         </div>
       )}
 
+      {/* OFFLINE BANNER — data lokal, ada tanggal kedaluwarsa */}
+      {!loading && !error && offline && catalogMaxUtc && (
+        <div className="px-4 py-2.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] text-[12px] font-mono text-[#737373] flex items-center gap-2">
+          <RadioIcon size={13} className="text-[#0a0a0a] shrink-0" />
+          <span>
+            Data offline s/d {catalogMaxUtc.slice(0, 10)} — sisa {remainingDays} hari. API mati, katalog disajikan dari database lokal.
+          </span>
+        </div>
+      )}
+
       {/* Empty State */}
       {!loading && !error && matches.length === 0 && (
         <div className="p-12 text-center text-[13px] text-[#737373] rounded-[24px] bg-white border border-[#e5e5e5] font-sans">
-          Tidak ada pertandingan terjadwal dalam rentang {hours} jam ke depan
+          {offline
+            ? `Katalog lokal habis di rentang ${hours} jam ke depan — bukan error. Coba rentang lebih panjang atau tunggu sinkronisasi berikutnya.`
+            : `Tidak ada pertandingan terjadwal dalam rentang ${hours} jam ke depan`}
           {hasSearchQuery ? " yang sesuai dengan kriteria pencarian." : "."}
         </div>
       )}

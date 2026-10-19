@@ -509,6 +509,32 @@ export function countMatchOdds(): { rows: number; withOdds: number } {
   return { rows: r?.n ?? 0, withOdds: r?.w ?? 0 };
 }
 
+/**
+ * Anchor odds lokal terbaru untuk 1 match (Task 2 offline-survival).
+ * Return null = belum pernah di-pull; {has_odds:false} = dinyatakan kosong eksplisit.
+ */
+export function getMatchOddsAnchor(matchId: string): {
+  captured_utc: string;
+  has_odds: boolean;
+  payload: unknown;
+} | null {
+  const db = getTheStatsDb();
+  const row = db.prepare(`
+    SELECT captured_utc, has_odds, payload_json FROM match_odds_history
+    WHERE match_id = ? ORDER BY captured_utc DESC LIMIT 1
+  `).get(matchId) as any;
+  if (!row) return null;
+  let payload: unknown = null;
+  if (row.payload_json) {
+    try {
+      payload = JSON.parse(row.payload_json);
+    } catch {
+      payload = null;
+    }
+  }
+  return { captured_utc: row.captured_utc, has_odds: row.has_odds === 1, payload };
+}
+
 export function getTeamRecentLogs(teamId: string, limit: number = 6): TeamMatchLogRecord[] {
   const db = getTheStatsDb();
   const stmt = db.prepare(`

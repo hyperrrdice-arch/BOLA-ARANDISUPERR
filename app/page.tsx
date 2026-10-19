@@ -79,6 +79,8 @@ export default function Home() {
     Array<{ id: string; name: string; count: number }>
   >([]);
   const [sortBy, setSortBy] = useState<"time" | "name">("time");
+  const [catalogOffline, setCatalogOffline] = useState<boolean>(false);
+  const [catalogMaxUtc, setCatalogMaxUtc] = useState<string | null>(null);
 
   const [selectedMatch, setSelectedMatch] = useState<MatchItem | null>(null);
   const [analyzing, setAnalyzing] = useState<boolean>(false);
@@ -127,6 +129,8 @@ export default function Home() {
       if (isStale()) return;
       setMatches(json.matches ?? []);
       setActiveLeagues(json.leagues ?? []);
+      setCatalogOffline(json.offline === true);
+      setCatalogMaxUtc(typeof json.catalog_max_utc === "string" ? json.catalog_max_utc : null);
     } catch (e) {
       if (isStale()) return;
       setMatchError(e instanceof Error ? e.message : String(e));
@@ -366,6 +370,8 @@ export default function Home() {
               onRetry={() => fetchUpcomingMatches(hours)}
               hours={hours}
               hasSearchQuery={Boolean(searchQuery.trim())}
+              offline={catalogOffline}
+              catalogMaxUtc={catalogMaxUtc}
             />
           </div>
         )}
