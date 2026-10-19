@@ -155,6 +155,12 @@ export interface TeamMatchLogRecord {
   substitutes_ids?: string | null; // JSON string array
   raw_stats_json?: string | null; // 100% Raw stats payload backup
   created_at?: string;
+
+  // 9. Tag tambalan master (Task 1 offline-depth, nullable; NULL = baris API legacy).
+  // Skema lama tak berubah bentuk — pipeline baca apa adanya.
+  source?: string | null; // 'master' untuk baris dari football_master.db
+  data_tier?: string | null; // 'MASTER_PARTIAL' = kolom parsial (skor/shots/xG/HT), tanpa telemetri granular
+  xg_source?: string | null; // 'master' bila sel xG baris legacy diisi dari master via COALESCE
 }
 
 let dbInstance: DatabaseSync | null = null;
@@ -338,6 +344,11 @@ export function getTheStatsDb(): DatabaseSync {
       raw_stats_json TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
+      -- Tag tambalan master (Task 1 offline-depth, nullable; NULL = baris API legacy)
+      source TEXT,
+      data_tier TEXT,
+      xg_source TEXT,
+
       FOREIGN KEY (match_id) REFERENCES matches(match_id) ON DELETE CASCADE,
       FOREIGN KEY (team_id) REFERENCES teams(team_id),
       FOREIGN KEY (opponent_id) REFERENCES teams(team_id)
@@ -361,6 +372,15 @@ export function getTheStatsDb(): DatabaseSync {
     );
     CREATE INDEX IF NOT EXISTS idx_moh_match ON match_odds_history(match_id);
   `);
+
+  // Migrasi ringan Task 1 offline-depth: DB lama (dibuat sebelum kolom tag ada)
+  // dapat 3 kolom nullable di atas tanpa menyentuh kolom lama.
+  for (const col of ["source", "data_tier", "xg_source"] as const) {
+    const has = db
+      .prepare("SELECT 1 AS ok FROM pragma_table_info('team_match_logs') WHERE name = ?")
+      .get(col) as { ok: number } | undefined;
+    if (!has) db.exec(`ALTER TABLE team_match_logs ADD COLUMN ${col} TEXT`);
+  }
 
   dbInstance = db;
   return dbInstance;

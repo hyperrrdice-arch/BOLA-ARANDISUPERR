@@ -95,6 +95,9 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "cordoba": "Cordoba CF",
   "malaga": "Malaga CF",
   "eldense": "CD Eldense",
+  // Master short forms (SP1): "Santander" = Racing, "La Coruna" tanpa aksen/Deportivo
+  "santander": "Racing de Santander",
+  "la coruna": "Deportivo La Coruna",
 
   // Italian Serie A & Serie B
   "inter": "Inter Milan",
@@ -192,6 +195,14 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "munster": "Preussen Munster",
   "regensburg": "Jahn Regensburg",
   "ulm": "SSV Ulm 1846",
+  // Master short forms (D1, diverifikasi ke teams 1-1): nama master → nama tm_* persis
+  "ein frankfurt": "Eintracht Frankfurt",
+  "werder bremen": "SV Werder Bremen",
+  "schalke 04": "FC Schalke 04",
+  "bayer leverkusen": "Bayer 04 Leverkusen",
+  "borussia monchengladbach": "Borussia M'gladbach",
+  "tsg 1899 hoffenheim": "TSG Hoffenheim",
+  "sv elversberg": "SV 07 Elversberg",
 
   // French Ligue 1 & Ligue 2
   "paris sg": "Paris Saint-Germain",
@@ -233,9 +244,11 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "troyes": "ESTAC Troyes",
   "red star": "Red Star FC",
   "martigues": "FC Martigues",
+  // Master long form (F1): "Stade Brestois 29" ↔ tm_* "Stade Brestois"
+  "stade brestois": "Stade Brestois 29",
 
   // Dutch Eredivisie & Portuguese Primeira Liga
-  "ajax": "Ajax",
+  "ajax": "AFC Ajax",
   "psv": "PSV Eindhoven",
   "feyenoord": "Feyenoord",
   "az": "AZ Alkmaar",
@@ -243,8 +256,10 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "utrecht": "FC Utrecht",
   "benfica": "SL Benfica",
   "porto": "FC Porto",
-  "sporting lisbon": "Sporting CP",
-  "sporting cp": "Sporting CP",
+  "sporting lisbon": "Sp Lisbon",
+  "sporting cp": "Sp Lisbon",
+  "sp lisbon": "Sp Lisbon",
+  "sporting": "Sp Lisbon",
   "braga": "SC Braga",
   "celtic": "Celtic",
   "rangers": "Rangers",
@@ -252,6 +267,15 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "fenerbahce": "Fenerbahce",
   "besiktas": "Besiktas",
   "olympiakos": "Olympiacos",
+  "olympiacos": "Olympiacos",
+  "olympiacos fc": "Olympiacos",
+  "club brugge": "Club Brugge",
+  "club brugge kv": "Club Brugge",
+  "heart of midlothian": "Hearts",
+  "hearts": "Hearts",
+  "royale union saint-gilloise": "St. Gilloise",
+  "union saint-gilloise": "St. Gilloise",
+  "st. gilloise": "St. Gilloise",
   "panathinaikos": "Panathinaikos",
   "aek": "AEK Athens",
   "paok": "PAOK",
