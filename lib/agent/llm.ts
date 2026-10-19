@@ -1,5 +1,6 @@
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { VOICE_GUIDE } from "@/lib/llm/voice-guide";
 import type { VerifiedMatchIntelligence } from "@/lib/stats-validator";
 import type { calculateDixonColes } from "@/lib/quant";
 import { EDITORIAL } from "@/lib/llm/models";
@@ -32,9 +33,9 @@ export const nineRouter = createOpenAI({
 
 export const MODEL_DEFAULT = EDITORIAL.MODEL_DEFAULT;
 
-// Batas tunggu per percobaan model (konsisten dengan jalur sindikat 180s). Tanpa ini,
+// Batas tunggu per percobaan model: editorial ikut tier judge 120s (R1). Tanpa ini,
 // klien yang hold koneksi bisa menggantungkan run planner/editorial tanpa batas.
-export const MODEL_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS) || 180_000;
+export const MODEL_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS) || 120_000;
 
 /** Gabungkan signal klien dengan timeout tunggu — dipakai SEMUA pemanggilan generateText. */
 export function withModelTimeout(signal?: AbortSignal): AbortSignal {
@@ -116,7 +117,9 @@ export function buildEditorialPrompts(params: {
 }): { systemPrompt: string; userPrompt: string } {
   const { intel, quantPackage, dcOutput, vigOutput, hLast, dLast, aLast, today } = params;
 
+  // Voice guide di-PREPEND; kontrak JSON tetap PALING AKHIR (baris terakhir builder).
   const systemPrompt =
+    VOICE_GUIDE + "\n\n" +
     `Kamu adalah CHIEF RISK OFFICER (ARBITER KEPALA) Sindikat Olahraga Enterprise Tier-1.\n` +
     `Hari analisis: ${today}.\n\n` +
     `ATURAN MUTLAK CLOSED-WORLD GROUNDING (ZERO HALLUCINATION DIRECTIVE):\n` +

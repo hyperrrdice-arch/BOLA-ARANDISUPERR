@@ -11,7 +11,7 @@ import type { PlannerRunState } from "./planner";
 /** Trigger re-plan: field kosong baru boleh memicu fetch_missing_intel sekali. */
 export const MAX_FETCH_ATTEMPTS = 2;
 
-/** Consensus di bawah level ini dianggap lemah -> boleh 1x ronde debat tambahan. */
+/** Consensus di bawah level ini dianggap lemah -> wajib dibahas editorial (R1-only, tanpa ronde debat tambahan). */
 export const WEAK_CONSENSUS_LEVELS = ["SPLIT_DECISION", "DISSENT"] as const;
 
 /** Dislocation odds: EV absolut di atas threshold ini wajib ditandai. */
@@ -72,15 +72,16 @@ export function evaluateCoverage(state: PlannerRunState): CoverageReport {
     );
   }
 
-  // Trigger 2: consensus lemah -> ronde debat tambahan (maks 1x)
+  // Trigger 2 (R1-only): consensus lemah dicatat sebagai trigger editorial,
+  // BUKAN ronde debat tambahan — debat cap 1 ronde, tie-break deterministik
+  // di resolveSupremeConsensus yang menangani SPLIT/DISSENT.
   const consensus = state.debate?.dual_judgement?.consensus_level;
   if (
     consensus &&
-    (WEAK_CONSENSUS_LEVELS as readonly string[]).includes(consensus) &&
-    state.debateRounds <= 1
+    (WEAK_CONSENSUS_LEVELS as readonly string[]).includes(consensus)
   ) {
     replan_triggers.push(
-      `CONSENSUS_LEMAH: ${consensus} — jalankan run_syndicate_debate sekali lagi (ronde ${state.debateRounds + 1}/2)`
+      `CONSENSUS_LEMAH: ${consensus} — debat R1-only (tanpa ronde tambahan); pastikan editorial membahas ketidaksepakatan hakim ini`
     );
   }
 

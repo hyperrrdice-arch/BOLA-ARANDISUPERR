@@ -429,6 +429,7 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
     run_syndicate_debate: tool({
       description:
         "Jalankan debat 5 persona multi-model (Bull/Neutral/Bear + Dual Judgement + Arbiter). " +
+        "R1-only: 1 ronde saja; J2 sequential menanggapi vonis J1. " +
         "WAJIB dalam setiap analisis, setelah run_quant_package. Mengembalikan consensus_level dan verdict panel.",
       inputSchema: StepInputSchema,
       execute: async (input, { abortSignal }) => {
@@ -437,8 +438,8 @@ export function createPlannerTools(state: PlannerRunState): ToolSet {
         if (!state.fetchResult || !state.quant) {
           return withCoverage(state, stepRef, { error: "Jalankan check_data_integrity dan run_quant_package dulu." }, t0);
         }
-        if (state.debateRounds >= 2) {
-          return withCoverage(state, stepRef, { error: "Batas ronde debat (2) tercapai. Lanjut ke stop_with_verdict." }, t0);
+        if (state.debateRounds >= 1) {
+          return withCoverage(state, stepRef, { error: "Debat sudah 1 ronde (R1-only). Lanjut ke stop_with_verdict." }, t0);
         }
         state.debateRounds++;
         try {

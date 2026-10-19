@@ -78,6 +78,7 @@ export interface SyndicateDebateResult {
 }
 
 import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
+import { VOICE_GUIDE } from "./llm/voice-guide";
 import { formatHalfMatchupParagraph, type HalfMatchup } from "./quant/half-profile";
 import { formatMomentumMatchupParagraph, type MomentumMatchup } from "./quant/momentum";
 
@@ -94,14 +95,22 @@ const MODEL_JUDGEMENT_2 = SYNDICATE.MODEL_JUDGEMENT_2;
 /**
  * Anggaran waktu percobaan ulang setelah satu model gagal/timeout.
  * Retry sengaja tetap memakai model yang sama (independensi vendor adalah guardrail),
- * tapi TIDAK boleh memakai timeout penuh lagi: worst case per model jadi 180s + 60s.
+ * tapi TIDAK boleh memakai timeout penuh lagi: worst case per model jadi timeout per-tier + 60s.
  */
-const RETRY_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_RETRY_TIMEOUT_MS) || 60000);
+export const RETRY_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_RETRY_TIMEOUT_MS) || 60000);
+
+/**
+ * Timeout per-tier (R1): persona 90s, judge 120s, retry tetap 60s.
+ * Timeout = fallback template jujur (mekanisme sudah ada), bukan retry membabi-buta.
+ */
+export const PERSONA_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_PERSONA_TIMEOUT_MS) || 90000);
+export const JUDGE_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_JUDGE_TIMEOUT_MS) || 120000);
 
 /**
  * Resilient HTTP Native Fetcher untuk 9Router
  * Menangani non-streaming JSON, SSE delta chunks, serta format Atria wrapped response.
- * Unrestricted limits: 16384 max tokens, 180s timeout untuk extended thinking models.
+ * Unrestricted limits: 16384 max tokens, timeout per-tier (persona 90s / judge 120s)
+ * untuk extended thinking models.
  */
 async function call9RouterDirect(
   targetModel: string,
@@ -211,8 +220,8 @@ async function call9RouterDirect(
     if (signal?.aborted) throw primaryErr;
 
     // Retry tetap model yang sama demi independensi vendor, tapi dengan anggaran waktu
-    // terpisah (RETRY_TIMEOUT_MS). Sebelumnya retry memakai timeout penuh 180s sehingga
-    // worst case satu model = 360s (teramati 226s) — plan-perf Task 5.
+    // terpisah (RETRY_TIMEOUT_MS). Retry memakai anggaran sendiri sehingga
+    // worst case satu model = timeout per-tier + 60s — plan-perf Task 5.
     console.warn(`[9Router] Percobaan 1 model ${targetModel} gagal (${(primaryErr as Error).message}), mencoba ulang model yang sama untuk menjaga independensi...`);
     try {
       const retryText = await tryCall(targetModel, RETRY_TIMEOUT_MS, signal);
@@ -247,6 +256,121 @@ function safeExtractJSON<T>(text: string, fallback: T): { data: T; usedFallback:
 
 // Penanda jujur untuk konten template degradasi, agar UI bisa membedakan dari output model asli.
 const FALLBACK_PREFIX = "[Template fallback — bukan output model asli] ";
+
+/**
+ * Builder system prompt persona + judge (R1). VOICE_GUIDE di-PREPEND ke semua
+ * prompt; kontrak JSON tetap PALING AKHIR di tiap prompt. Diekstrak jadi builder
+ * supaya bisa diuji tanpa memanggil model (scripts/test-debate-r1.ts).
+ * Isi prompt identik dengan versi inline sebelumnya + voice guide.
+ */
+export function buildBullSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }"
+  );
+}
+
+export function buildNeutralSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }"
+  );
+}
+
+export function buildBearSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }"
+  );
+}
+
+export function buildJudge1SystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }"
+  );
+}
+
+export function buildJudge2SystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Wajib nyatakan eksplisit SETUJU atau BANTAH terhadap vonis Hakim 1 yang dilampirkan di prompt user, kasih alasan, dan sebut risiko yang dilewatkan Hakim 1. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }"
+  );
+}
+
+/** Snapshot minimal vonis J1 yang wajib ditanggapi J2 (SETUJU/BANTAH) — R1 sequential. */
+export interface Judge1Snapshot {
+  verdict_summary: string;
+  recommended_market: string;
+  confidence_tier: string;
+  key_reasoning?: string;
+}
+
+/** User prompt J2 = ringkasan debat + vonis J1 (output J1 masuk ke prompt J2). */
+export function buildJudge2UserPrompt(debateSummary: string, j1: Judge1Snapshot): string {
+  return (
+    debateSummary +
+    `\nVONIS HAKIM 1 YANG WAJIB DITANGGAPI (nyatakan eksplisit SETUJU atau BANTAH + alasan + risiko yang dilewatkan Hakim 1):\n` +
+    `- Verdict: ${j1.verdict_summary}\n` +
+    `- Market: ${j1.recommended_market}\n` +
+    `- Tier: ${j1.confidence_tier}\n` +
+    `- Reasoning: ${j1.key_reasoning || "-"}\n`
+  );
+}
+
+type ConsensusLevel = "UNANIMOUS" | "CONCURRING" | "SPLIT_DECISION" | "DISSENT";
+type ConfidenceTier = "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID";
+
+/**
+ * Tie-break deterministik — PERTAHANKAN apa adanya (dipindah verbatim dari Stage 3).
+ * Tidak menyentuh probabilitas/fair odds: hanya pasar + tier + stake.
+ */
+export function resolveSupremeConsensus(
+  judgement1: Pick<SingleJudgement, "recommended_market" | "confidence_tier" | "model">,
+  judgement2: Pick<SingleJudgement, "recommended_market" | "confidence_tier" | "model">
+): { consensusLevel: ConsensusLevel; finalTier: ConfidenceTier; finalStake: string; supremeVerdict: string } {
+  let consensusLevel: ConsensusLevel = "CONCURRING";
+  const market1Clean = judgement1.recommended_market.toLowerCase().trim();
+  const market2Clean = judgement2.recommended_market.toLowerCase().trim();
+
+  if (judgement1.confidence_tier === "PASS_AVOID" || judgement2.confidence_tier === "PASS_AVOID") {
+    consensusLevel = "DISSENT";
+  } else if (market1Clean === market2Clean) {
+    if (judgement1.confidence_tier === judgement2.confidence_tier) {
+      consensusLevel = "UNANIMOUS";
+    } else {
+      consensusLevel = "CONCURRING";
+    }
+  } else {
+    consensusLevel = "SPLIT_DECISION";
+  }
+
+  // Kelly stake fraction based on consensus
+  let finalStake = "1.5% Bankroll (Quarter Kelly)";
+  let finalTier = judgement1.confidence_tier;
+
+  if (consensusLevel === "UNANIMOUS") {
+    finalTier = judgement1.confidence_tier === "A_HIGH_VALUE" ? "A_HIGH_VALUE" : "B_MODERATE";
+    finalStake = finalTier === "A_HIGH_VALUE" ? "2.5% Bankroll (Quarter Kelly High Edge)" : "1.75% Bankroll";
+  } else if (consensusLevel === "DISSENT") {
+    finalTier = "PASS_AVOID";
+    finalStake = "0.0% (PASS / No Bet)";
+  } else if (consensusLevel === "SPLIT_DECISION") {
+    finalTier = "C_LEAN";
+    finalStake = "0.75% Bankroll (Reduced Allocation)";
+  }
+
+  const supremeVerdict =
+    consensusLevel === "UNANIMOUS"
+      ? `KONSENSUS BULAT (UNANIMOUS): Kedua hakim (${judgement1.model} & ${judgement2.model}) sepakat penuh pada pasar ${judgement1.recommended_market} dengan keyakinan ${finalTier.replace("_", " ")}.`
+      : consensusLevel === "CONCURRING"
+      ? `KONSENSUS KONKUREN: Kedua hakim mendukung arah yang sama pada ${judgement1.recommended_market} dengan penekanan risiko yang saling melengkapi.`
+      : consensusLevel === "SPLIT_DECISION"
+      ? `SPLIT DECISION: Hakim 1 memilih ${judgement1.recommended_market} sementara Hakim 2 condong ke ${judgement2.recommended_market}. Alokasi stake dipotong separuh demi manajemen risiko.`
+      : `DISSENT / DISAGREEMENT: Terdapat pertentangan risiko signifikan antar hakim. Rekomendasi: PASS (Hindari taruhan).`;
+
+  return { consensusLevel, finalTier, finalStake, supremeVerdict };
+}
 
 /**
  * Main 5-Agent Multi-Model Orchestration Pipeline
@@ -386,7 +510,7 @@ export async function orchestrate5AgentSyndicate(params: {
     `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
 
   if (process.env.PIPELINE_DEBUG) {
-    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, 180s limit]...`);
+    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, persona 90s]...`);
   }
   const t0 = Date.now();
 
@@ -403,10 +527,10 @@ export async function orchestrate5AgentSyndicate(params: {
       // 1. Bull Analyst (MODEL_BULL)
       call9RouterDirect(
         MODEL_BULL,
-        "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }",
+        buildBullSystemPrompt(),
         matchContext,
         16384,
-        180000,
+        PERSONA_TIMEOUT_MS,
         signal
       )
     ),
@@ -414,10 +538,10 @@ export async function orchestrate5AgentSyndicate(params: {
       // 2. Neutral Analyst (MODEL_NEUTRAL)
       call9RouterDirect(
         MODEL_NEUTRAL,
-        "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }",
+        buildNeutralSystemPrompt(),
         matchContext,
         16384,
-        180000,
+        PERSONA_TIMEOUT_MS,
         signal
       )
     ),
@@ -425,10 +549,10 @@ export async function orchestrate5AgentSyndicate(params: {
       // 3. Bear Auditor (MODEL_BEAR)
       call9RouterDirect(
         MODEL_BEAR,
-        "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }",
+        buildBearSystemPrompt(),
         matchContext,
         16384,
-        180000,
+        PERSONA_TIMEOUT_MS,
         signal
       )
     ),
@@ -502,9 +626,9 @@ export async function orchestrate5AgentSyndicate(params: {
     source: bearSubstituted ? "fallback_template" : "model",
   };
 
-  // STAGE 2: DUAL JUDICIAL BENCH IN PARALLEL
+  // STAGE 2: DUAL JUDICIAL BENCH — R1-only SEQUENTIAL (J1 dulu, J2 menanggapi J1).
   if (process.env.PIPELINE_DEBUG) {
-    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, 180s limit]...`);
+    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench sequential (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, judge 120s]...`);
   }
   const t1 = Date.now();
 
@@ -515,34 +639,46 @@ export async function orchestrate5AgentSyndicate(params: {
     `2. Neutral Case (${neutralCase.model}): ${neutralCase.thesis} (Equilibrium: ${neutralCase.equilibrium_assessment})\n` +
     `3. Bear Case (${bearCase.model}): ${bearCase.thesis} (Audit: ${bearCase.vulnerability_audit})\n`;
 
-  const [j1Timed, j2Timed] = await Promise.all([
-    // Judgement 1 (MODEL_JUDGEMENT_1) - Chief Quant & CRO Arbiter
-    timed(call9RouterDirect(
-      MODEL_JUDGEMENT_1,
-      "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string }",
-      debateSummary,
-      16384,
-      180000,
-      signal
-    )),
-    // Judgement 2 (MODEL_JUDGEMENT_2) - Cross-Arbiter
-    timed(call9RouterDirect(
-      MODEL_JUDGEMENT_2,
-      "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string }",
-      debateSummary,
-      16384,
-      180000,
-      signal
-    )),
-  ]);
+  const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
+
+  // Judgement 1 (MODEL_JUDGEMENT_1) - Chief Quant & CRO Arbiter — jalan DULU.
+  const j1Timed = await timed(call9RouterDirect(
+    MODEL_JUDGEMENT_1,
+    buildJudge1SystemPrompt(),
+    debateSummary,
+    16384,
+    JUDGE_TIMEOUT_MS,
+    signal
+  ));
+
+  // R1-only: J2 SEQUENTIAL — output J1 (verdict+market+tier+reasoning) masuk prompt J2.
+  // Parse ringan khusus prompt; parse penuh tetap di bawah (hasilnya identik).
+  const j1Early = safeExtractJSON<Partial<SingleJudgement>>(j1Timed.value.text, {
+    verdict_summary: "",
+    recommended_market: "",
+    key_reasoning: "",
+  });
+  const j1Snap: Judge1Snapshot = {
+    verdict_summary: j1Early.data.verdict_summary || j1Timed.value.text.slice(0, 500),
+    recommended_market: j1Early.data.recommended_market || defaultRecommendedMarket,
+    confidence_tier: j1Early.data.confidence_tier || "?",
+    key_reasoning: j1Early.data.key_reasoning || "",
+  };
+  // Judgement 2 (MODEL_JUDGEMENT_2) - Cross-Arbiter — wajib SETUJU/BANTAH eksplisit.
+  const j2Timed = await timed(call9RouterDirect(
+    MODEL_JUDGEMENT_2,
+    buildJudge2SystemPrompt(),
+    buildJudge2UserPrompt(debateSummary, j1Snap),
+    16384,
+    JUDGE_TIMEOUT_MS,
+    signal
+  ));
 
   const stage2Ms = Date.now() - t1;
   const j1Raw = j1Timed.value;
   const j2Raw = j2Timed.value;
 
   console.log(`[Syndicate] Stage 2 selesai dalam ${stage2Ms}ms.`);
-
-  const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
 
   const j1DefaultVerdict = "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol.";
   const { data: j1Parsed, usedFallback: j1ParseFailed } = safeExtractJSON<Partial<SingleJudgement>>(j1Raw.text, {
@@ -595,46 +731,8 @@ export async function orchestrate5AgentSyndicate(params: {
     source: j2Substituted ? "fallback_template" : "model",
   };
 
-  // STAGE 3: SUPREME CONSENSUS SYNTHESIS
-  let consensusLevel: "UNANIMOUS" | "CONCURRING" | "SPLIT_DECISION" | "DISSENT" = "CONCURRING";
-  const market1Clean = judgement1.recommended_market.toLowerCase().trim();
-  const market2Clean = judgement2.recommended_market.toLowerCase().trim();
-
-  if (judgement1.confidence_tier === "PASS_AVOID" || judgement2.confidence_tier === "PASS_AVOID") {
-    consensusLevel = "DISSENT";
-  } else if (market1Clean === market2Clean) {
-    if (judgement1.confidence_tier === judgement2.confidence_tier) {
-      consensusLevel = "UNANIMOUS";
-    } else {
-      consensusLevel = "CONCURRING";
-    }
-  } else {
-    consensusLevel = "SPLIT_DECISION";
-  }
-
-  // Kelly stake fraction based on consensus
-  let finalStake = "1.5% Bankroll (Quarter Kelly)";
-  let finalTier = judgement1.confidence_tier;
-
-  if (consensusLevel === "UNANIMOUS") {
-    finalTier = judgement1.confidence_tier === "A_HIGH_VALUE" ? "A_HIGH_VALUE" : "B_MODERATE";
-    finalStake = finalTier === "A_HIGH_VALUE" ? "2.5% Bankroll (Quarter Kelly High Edge)" : "1.75% Bankroll";
-  } else if (consensusLevel === "DISSENT") {
-    finalTier = "PASS_AVOID";
-    finalStake = "0.0% (PASS / No Bet)";
-  } else if (consensusLevel === "SPLIT_DECISION") {
-    finalTier = "C_LEAN";
-    finalStake = "0.75% Bankroll (Reduced Allocation)";
-  }
-
-  const supremeVerdict =
-    consensusLevel === "UNANIMOUS"
-      ? `KONSENSUS BULAT (UNANIMOUS): Kedua hakim (${judgement1.model} & ${judgement2.model}) sepakat penuh pada pasar ${judgement1.recommended_market} dengan keyakinan ${finalTier.replace("_", " ")}.`
-      : consensusLevel === "CONCURRING"
-      ? `KONSENSUS KONKUREN: Kedua hakim mendukung arah yang sama pada ${judgement1.recommended_market} dengan penekanan risiko yang saling melengkapi.`
-      : consensusLevel === "SPLIT_DECISION"
-      ? `SPLIT DECISION: Hakim 1 memilih ${judgement1.recommended_market} sementara Hakim 2 condong ke ${judgement2.recommended_market}. Alokasi stake dipotong separuh demi manajemen risiko.`
-      : `DISSENT / DISAGREEMENT: Terdapat pertentangan risiko signifikan antar hakim. Rekomendasi: PASS (Hindari taruhan).`;
+  // STAGE 3: SUPREME CONSENSUS SYNTHESIS (deterministik — via resolver, JANGAN diubah).
+  const { consensusLevel, finalTier, finalStake, supremeVerdict } = resolveSupremeConsensus(judgement1, judgement2);
 
   const dualJudgement: DualJudgement = {
     judgement_1: judgement1,

@@ -76,6 +76,12 @@
 
 **Ablasi sqrt(Q) UCL (19 Okt, paired n=50): UNDECIDED.** Log-loss ON 0.9236 vs OFF 0.9520 (Δ dalam noise 2SE), liga split 4-3. Heuristik dipertahankan + label unvalidated. JANGAN re-run buta — trigger: n≥100 (musim UCL jalan + refresh CSV). Script: `scripts/ablate-ucl-scaling.ts`.
 
+### Paket R1-only + voice-guide (19 Okt, worker, head-verified)
+- Debat cap 1 ronde (`planner.ts`), J2 sequential lihat output J1, tie-break deterministik utuh, timeout persona 90s/judge 120s/retry 60s, `VOICE_GUIDE` di semua prompt (kontrak JSON tetap akhir).
+- Trigger `CONSENSUS_LEMAH` di `coverage.ts` diluruskan: editorial wajib bahas, bukan ronde tambahan.
+- Verifikasi: `test-debate-r1.ts` 38/38 + momentum 73/73 + half 59/59 + view 53/53 + tsc 0. Live Liverpool-Villarreal (code baru, hot-reload): wall 304s vs baseline 536s — pemain lambatnya qwen J2 (120s timeout + 60s retry, dua-duanya jebol → fallback jujur).
+- Caveat jujur: J2 fallback default ngikut pasar J1 → UNANIMOUS naik by-construction. Belum diubah (ngubah perilaku konsensus = keputusan lo dulu).
+
 **Temuan UCL (bug pipeline, 19 Okt — di luar scope depth tapi blokir hasil):** semua laga UCL antar tim top-5 jatuh ke prior + telemetri dibuang. Akar: `findTeamRatingForUCL` cek key map (E0/SP1/I1/D1/F1) sehingga justru 5 liga utama dilewati; early-return juga buang `homeTelemetry`. Fix: cek values (div kasta kedua) + fixture basi 2 test (Genk berasumsi tanpa data → isolasi `homeTelemetry: null`). Bukti before→after Liverpool-Villarreal: λ 2.95/μ 3.06 prior-only grounded=false → λ 2.00/μ 1.79 observed 6/6 grounded=true. Regresi: quant-scale, tier1 15/15, foundation 47/47, view 53/53, build sukses.
 
 ## Task 4: Panel kalibrasi Bet365 (read-only)
