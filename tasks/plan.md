@@ -1,62 +1,60 @@
-# Implementation Plan: Dashboard Overhaul — Enteng, Anti-Tumpuk, Verdict-First
+# Implementation Plan: Offline Survival + 1xBet 500/mo (TheStatsAPI mati)
 
 ## Overview
 
-Redesain UI dashboard di atas pipeline planner loop (ARCHITECTURE.md Okt 2026). Empat kerjaan: (1) buang section redundan, (2) alur enteng (payload kecil, loading jujur), (3) **anti-tumpuk** — susun ulang kepadatan informasi tiap view supaya enak dibaca (keluhan utama: tab model matematis bikin pusing), (4) naikkan kualitas visual (lint: 387 FAIL; inspect: 10 FAIL / 4 WARN) dengan brand terminal dipertahankan.
+TheStatsAPI mati permanen (`403 KEY_REVOKED`, 18 Okt 2026). App hidup dari stok lokal: `upcoming_fixtures.db` 378 fixture s/d **2026-11-29** + `competition_catalog` 208, `match_odds_history` 378 baris (112 terisi), telemetri 1.174 match / 2.348 log, vault 1.991 payload. Satu-satunya API berbayar tersisa: 1xBet via RapidAPI, **500 req/bulan (~16/hari)**. Plan ini bikin app (1) 100% offline-first di jalur render, (2) 1xBet hemat kuota + degradasi jujur, (3) tetap jujur setelah katalog kedaluwarsa 29 Nov. Plan dashboard lama (Tasks 6-13) digantikan atas persetujuan user 19 Okt 2026 — file lama sudah di-archive di git history.
 
-Bukti audit: 216× `font-mono`, 201 micro-label, 204 hairline, 101 shadow, body 12px, first screen tanpa fokus; duplikat data antar kartu (EV/stake 3×, dual bench 2×, faktor_kunci 2×); tab matematika = 4 panel bertumpuk (~940 baris) semua terbuka tanpa hierarki; `rawLineups`+`audit`+`plannerTrace` dikirim tapi tak dibaca client.
+## Architecture Decisions
 
-## Design Decisions
-
-1. **Anti-tumpuk — satu elemen dominan per view.** Tiap layar/tab punya tepat SATU hal yang besar (angka keputusan utama), sisanya pendukung. Yang bukan pendukung langsung → terlipat.
-2. **Progressive disclosure dua level.** Yang terbuka default: ringkasan besar + maks 5 baris bukti. Metode perhitungan, turunan (λ/μ, margin, sample), argumen panjang, tabel >5 baris → accordion/`<details>` terlipat dengan judul informatif ("Cara angka ini dihitung", "Lihat 14 pasar lainnya").
-3. **Hierarki angka.** Keputusan (verdict, skor, probabilitas utama, EV teratas) = display size; angka bukti = body 14–16px; metrik turunan = kecil tapi tetap ≥12px. Jangan semua angka sama rata.
-4. **Verdict-first.** Tab default "Ringkasan": PASS/NO BET + prediksi + keyakinan terbaca ≤1 layar sebelum angka detail.
-5. **Brand terminal dipertahankan, mono data-only.** Mono untuk angka/tabel/ID (tabular figures), prose & label pakai text face, body naik ke 14–16px. Deviation skill dicatat + `--allow mono`.
-6. **Komponen terpotong → `archive/legacy-components/`** (jangan delete, konsisten PLAN-D).
-7. **Kontrak API aman.** `rawLineups` tak dikirim kecuali `?debug=1` (konsumen 0, schema tetap). `plannerTrace` justru di-render sebagai kuitansi.
-8. **App screen, bukan landing page.** Motion cukup state change; `prefers-reduced-motion` dihormati; lantai "4 gambar" skill tidak berlaku untuk dashboard data.
+- **Jalur render dilarang sentuh TheStatsAPI.** `/api/matches`, `/api/odds`, `/api/agent` serve dari SQLite/vault. 403 = serve local, bukan retry. Alasan: API mati, retry = sia-sia + latency.
+- **Odds anchor lokal adalah sumber odds.** `/api/odds` baca `match_odds_history` dulu (kolom `has_odds`, `captured_utc`), upstream hanya fallback yang saat ini selalu gagal. Kartu kosong padahal data ada = bug P1.
+- **1xBet on-demand, tanpa cache persisten.** API kemungkinan diganti — jangan investasi SQLite/disk cache + counter. Cukup: lazy env (tanpa key → degradasi jujur, bukan crash) + markets hanya via klik user (larang preload/polling). `lib/1xbet.ts` in-memory apa adanya, tidak diutak-atik.
+- **Angka jujur tetap berlaku offline.** P0 integrity (`topEv` minus-EV, `vig 1.055` karangan) tidak hilang karena API mati — pipeline offline tetap bisa sajikan pick minus-EV / margin fiksi. Fix bareng di plan ini.
+- **Kedaluwarsa katalog eksplisit.** Setelah 2026-11-29 katalog menipis → kosong. Bukan crash, bukan data karangan: banner tanggal-batas + empty state + jalur alternatif (spike, bukan implementasi).
 
 ## Task List
 
-### Phase 1: Buang Redundansi
-- [ ] Task 1: CUT `MarketOddsOverviewCard` (duplikat OddsDislocationBar, sering kosong, kartu gelap nyasar) — `pergerakan_smart_money` pindah ke OddsDislocationBar
-- [ ] Task 2: MERGE `DualThinkingConclusionCard` (100% kembar Stage 2) ke `SyndicateDebateCard`
-- [ ] Task 3: MERGE `KellyMatrixCard` ke `QuantEngineCard` + pangkas `DeepMathEvidenceCard` (285ln → panel metode terlipat)
-- [ ] Task 4: `faktor_kunci` dirender 1×
+### Phase 1: Freeze offline (0 req keluar)
+- [ ] Task 1: Inventaris + tanggal kedaluwarsa
+- [ ] Task 2: Wire /api/odds ke match_odds_history
 
-### ✅ Checkpoint Phase 1: build+tsc hijau · nol duplikat · info identik (diff screenshot)
+### Checkpoint: Offline dasar
+- [ ] Katalog + odds tersaji tanpa 1 pun call TheStatsAPI (matikan key / mock 403, assert 200)
 
-### Phase 2: Alur Enteng + Anti-Tumpuk (inti revisi)
-- [ ] Task 5: Tab 5→4: **Ringkasan** (default) · **Kuantitatif** · **Odds** · **Debat**; markets 1xBet/Scanner on-demand
-- [ ] Task 6: **Restack Kuantitatif**: satu bintang (prob 1X2 + fair odds + EV teratas display-size) → baris bukti ≤5 → sisanya terlipat (simulator Kelly, metode DC/Shin/Shrinkage, tabel panjang)
-- [ ] Task 7: **Restack Debat verdict-first**: consensus/supreme besar di atas, argumen Bull/Neutral/Bear + dual bench dalam accordion per persona
-- [ ] Task 8: Loading jujur (elapsed timer, tanpa checklist palsu) + receipt `plannerTrace` di Ringkasan
-- [ ] Task 9: Payload & fetch enteng: `rawLineups` butuh `?debug=1`; cache `/api/odds`; `next/dynamic` tab berat
-- [ ] Task 10: Horizon 72h di FilterToolbar
+### Phase 2: 1xBet hemat (≤16/hari)
+- [ ] Task 3: 1xBet degradasi ringan (lazy env + on-demand only, tanpa cache persisten)
+- [ ] Task 4: Matches anti-API + empty-after-expiry UX
 
-### ✅ Checkpoint Phase 2: run nyata end-to-end · tiap view 1 elemen dominan · accordion berfungsi · keputusan ≤1 layar
+### Checkpoint: Kuota aman
+- [ ] Restart server = 0 re-spend 1xBet · klik markets 2× = 1 spend · tanpa key = degradasi jujur, bukan crash
 
-### Phase 3: Visual & Tipografi
-- [ ] Task 11: Tokens & konsistensi: radius/padding/error tone 1 standar, hapus 101 shadow statis + 204 hairline dekoratif (tabel asli tetap boleh bergaris)
-- [ ] Task 12: Katalog & header: buang noise operator ("SISTEM SIAP TEMPUR", cache stats), fix wrap mobile, heading display-size, body 12→14/16px, micro-label → sentence case, mono data-only
-- [ ] Task 13: Gate `lint.mjs`+`inspect.mjs` + critique (maks 3 ronde), `--allow mono` untuk data
+### Phase 3: Integritas + lifecycle
+- [ ] Task 5: P0 integrity offline (topEv null + vig model_only)
+- [ ] Task 6: Lifecycle promote + spike API alternatif (read-only)
+- [ ] Task 7: Offline intel minimal (/api/agent hidup tanpa API)
 
-### ✅ Checkpoint Final: inspect tanpa FAIL · 390px layak · build+tsc hijau · test-planner lulus
+### Checkpoint: Final
+- [ ] tsc + build hijau · semua runnable check hijau · banner 29 Nov tampil · spend 1xBet tercatat
+- [ ] Live /api/agent 200 untuk fixture ber-odds (bukti angka→analisis end-to-end)
 
-## Risks & Mitigasi
+## Risks and Mitigations
 
-| Risiko | Dampak | Mitigasi |
+| Risk | Impact | Mitigation |
 |---|---|---|
-| Info jadi "tersembunyi" setelah disclosure | Sedang | Judul accordion informatif + jumlah item; audit: semua field yang tampil hari ini masih tercapai ≤1 klik |
-| Kontrak response berubah (payload trim) | Sedang | `rawLineups` tetap di schema, dibelakangi flag; key yang dikonsumsi UI tak disentuh |
-| page.tsx raksasa (110KB+) saat dirombak | Sedang | Slice per task, build check tiap task |
-| Identitas terminal hilang | Rendah | `--keep palette,type`, mono untuk data |
+| Katalog kosong setelah 2026-11-29 | Tinggi | Task 4: banner + empty state jujur; Task 6: spike alternatif, bukan janji |
+| 500/mo jebol oleh scan otomatis | Tinggi | Task 3: persistent cache + manual-trigger only + counter; larang preload/polling |
+| `requireEnv` 1xBet crash saat key absen | Med | Task 3: lazy load + degradasi jujur |
+| Odds anchor dikira closing | Med | Selalu tampilkan `captured_utc` + label "anchor, bukan closing" |
+| Fix integrity ubah tampilan rekomendasi | Rendah | `recommended_*` NULL saat nol +EV = by design; user sudah setuju |
 
 ## Open Questions
-1. Panel terlipat pakai `<details>` native (recommended, tanpa JS state) atau accordion custom yang match style?
-2. Debated persona: terlipat per persona (recommended) atau cukup 3 kolom ringkas + klik untuk detail?
+
+- Budget 1xBet 500/mo dibagi berapa untuk markets vs pencarian liga? (usulan: 80% markets on-demand, 20% league/match resolve)
+- Setelah 29 Nov: terima katalog kosong sementara, atau langsung eksekusi salah satu kandidat API alternatif dari Task 6?
+- `analysis_snapshots.db` tetap append-only selama fase ini? (usulan: ya)
 
 ## Catatan
-- Tasks di `tasks/todo.md`. Plan lama digeser: `tasks/plan-phase-quant-calibration.md`.
-- Audit visual: `.taste-skill/inspect/` (report.json + screenshot 3 lebar).
+
+- Tasks di `tasks/todo.md` (overwrite atas persetujuan user; plan dashboard lama ada di git history).
+- Dilarang mengarang data: skor absen → skip, odds absen → `is_available:false`, bukan 0/0.00.
+- Jangan jalankan `next build` bareng `next dev` (bug Next.js, ARCH §10).
