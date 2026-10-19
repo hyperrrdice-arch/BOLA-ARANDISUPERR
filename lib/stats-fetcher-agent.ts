@@ -10,7 +10,35 @@ import {
   getLocalH2HMatches,
   getLocalRecentMatches,
   getLocalSquadInjuries,
+  getMatchOddsAnchor,
 } from "@/lib/db/thestats-dataset";
+import { getUpcomingByMatchId } from "@/lib/db/upcoming-fixtures";
+
+/**
+ * Rakit matchRes + oddsRes offline dari store lokal (Task 7, versi minimal).
+ * Return null = match tak dikenal lokal → pemanggil tetap throw jujur.
+ * Bentuk payload disamakan dengan respons API (validator baca `.data`).
+ */
+function buildOfflineMatchRes(matchId: string): { matchRes: any; oddsRes: any } | null {
+  const row = getUpcomingByMatchId(matchId);
+  if (!row) return null;
+  const matchRes = {
+    data: {
+      id: row.match_id,
+      utc_date: row.utc_date,
+      status: row.status || "scheduled",
+      competition_id: row.competition_id,
+      competition_name: row.competition_name,
+      venue: row.venue || null,
+      home_team: { id: row.home_team_id, name: row.home_team_name },
+      away_team: { id: row.away_team_id, name: row.away_team_name },
+    },
+    source: "offline_sqlite",
+  };
+  const anchor = getMatchOddsAnchor(matchId);
+  const oddsRes = anchor && anchor.has_odds && anchor.payload ? anchor.payload : null;
+  return { matchRes, oddsRes };
+}
 
 
 /**
@@ -180,12 +208,48 @@ export async function fetchAndValidateMatchIntelligence(
     ttlMs: number
   ) => cachedStatsGet(path, params, ttlMs, signal);
 
-  // 1. Ambil Match Dasar (Cache 15 menit)
-  const matchRes = await get(`/football/matches/${safeMatchId}`, {}, 15 * 60 * 1000);
-  const matchData = matchRes?.data || null;
+  // Endpoint OPSIONAL tidak boleh membunuh intel: gagal (key hilang/API mati) →
+  // null → validator menandai unavailable + missing registry (Task 7 offline).
+  // Hanya match dasar yang strict (throw → fallback offline → throw jujur).
+  const safeGet = (
+    path: string,
+    params: Record<string, string | number | boolean | undefined>,
+    ttlMs: number
+  ): Promise<any> => {
+    try {
+      return get(path, params, ttlMs).catch(() => null);
+    } catch {
+      return Promise.resolve(null);
+    }
+  };
+
+  // 1. Ambil Match Dasar (Cache 15 menit). Offline-first (Task 7):
+  // live gagal (API mati / key hilang) + baris fixture lokal ada → rakit intel
+  // dari upcoming_fixtures + odds anchor. Tanpa baris lokal → throw jujur.
+  let matchRes: any = null;
+  let matchData: any = null;
+  let matchError: string | null = null;
+  let offlineOddsRes: any = null;
+  let offlineIntel = false;
+  try {
+    matchRes = await get(`/football/matches/${safeMatchId}`, {}, 15 * 60 * 1000);
+    matchData = matchRes?.data || null;
+    if (!matchData) matchError = matchRes?.message || "Data pertandingan tidak ditemukan di TheStatsAPI";
+  } catch (err) {
+    matchError = err instanceof Error ? err.message : String(err);
+  }
 
   if (!matchData) {
-    throw new Error(matchRes?.message || "Data pertandingan tidak ditemukan di TheStatsAPI");
+    const offline = buildOfflineMatchRes(matchId);
+    if (offline) {
+      matchRes = offline.matchRes;
+      matchData = matchRes.data;
+      offlineOddsRes = offline.oddsRes;
+      offlineIntel = true;
+      matchError = null;
+    } else {
+      throw new Error(`Data pertandingan ${matchId} tidak ditemukan di sumber live maupun lokal (live: ${matchError})`);
+    }
   }
 
   const kickoffDate = new Date(matchData.utc_date || Date.now());
@@ -209,6 +273,9 @@ export async function fetchAndValidateMatchIntelligence(
   const ttlMs = decision.cache_ttl_minutes * 60 * 1000;
   const endpointsCalled: string[] = [`/football/matches/${safeMatchId}`];
   const endpointsSkipped: string[] = [];
+  if (offlineIntel) {
+    endpointsCalled.push("upcoming_fixtures+match_odds_history (offline SQLite)");
+  }
 
   // 3. Eksekusi panggilan secara selektif & paralel
   const promises: {
@@ -224,14 +291,14 @@ export async function fetchAndValidateMatchIntelligence(
 
   if (decision.fetch_referee) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/referee`);
-    promises.refRes = get(`/football/matches/${safeMatchId}/referee`, {}, ttlMs);
+    promises.refRes = safeGet(`/football/matches/${safeMatchId}/referee`, {}, ttlMs);
   } else {
     endpointsSkipped.push("referee");
   }
 
   if (decision.fetch_lineups) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/lineups`);
-    promises.lineupsRes = get(`/football/matches/${safeMatchId}/lineups`, {}, ttlMs);
+    promises.lineupsRes = safeGet(`/football/matches/${safeMatchId}/lineups`, {}, ttlMs);
   } else {
     endpointsSkipped.push("lineups (kickoff > 2.5 jam)");
   }
@@ -261,7 +328,7 @@ export async function fetchAndValidateMatchIntelligence(
     promises.h2hRes = Promise.resolve({ data: localH2H, source: "offline_sqlite" });
   } else if (decision.fetch_h2h && homeTeamId) {
     endpointsCalled.push(`/football/matches (h2h pool online fallback)`);
-    promises.h2hRes = get(
+    promises.h2hRes = safeGet(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 30 },
       ttlMs
@@ -277,12 +344,12 @@ export async function fetchAndValidateMatchIntelligence(
     promises.awayRecentRes = Promise.resolve({ data: localAwayRecent, source: "offline_sqlite" });
   } else if (homeTeamId && awayTeamId) {
     endpointsCalled.push("/football/matches (recent home/away online fallback)");
-    promises.homeRecentRes = get(
+    promises.homeRecentRes = safeGet(
       "/football/matches",
       { status: "finished", team_id: homeTeamId, sort: "-utc_date", per_page: 6 },
       ttlMs
     );
-    promises.awayRecentRes = get(
+    promises.awayRecentRes = safeGet(
       "/football/matches",
       { status: "finished", team_id: awayTeamId, sort: "-utc_date", per_page: 6 },
       ttlMs
@@ -296,12 +363,12 @@ export async function fetchAndValidateMatchIntelligence(
     promises.awayInjuriesRes = Promise.resolve({ data: localAwayInjuries, source: "offline_sqlite" });
   } else if (decision.fetch_injuries && homeTeamId && awayTeamId) {
     endpointsCalled.push("injuries-suspensions (online fallback)");
-    promises.homeInjuriesRes = get(
+    promises.homeInjuriesRes = safeGet(
       `/football/teams/${homeTeamId}/injuries-suspensions`,
       { current: true },
       ttlMs
     );
-    promises.awayInjuriesRes = get(
+    promises.awayInjuriesRes = safeGet(
       `/football/teams/${awayTeamId}/injuries-suspensions`,
       { current: true },
       ttlMs
@@ -310,9 +377,12 @@ export async function fetchAndValidateMatchIntelligence(
     endpointsSkipped.push("injuries (laga masih jauh / selesai)");
   }
 
-  if (decision.fetch_odds) {
+  if (offlineOddsRes) {
+    endpointsSkipped.push("odds (offline anchor SQLite)");
+    promises.oddsRes = Promise.resolve(offlineOddsRes);
+  } else if (decision.fetch_odds) {
     endpointsCalled.push(`/football/matches/${safeMatchId}/odds`);
-    promises.oddsRes = get(
+    promises.oddsRes = safeGet(
       `/football/matches/${safeMatchId}/odds`,
       { bookmaker: "bet365,pinnacle" },
       ttlMs

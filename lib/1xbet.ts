@@ -27,10 +27,24 @@ function setInCache<T>(key: string, data: T, ttlMs: number = 60 * 60 * 1000): vo
   });
 }
 
-const HOST = requireEnv("RAPIDAPI_1XBET_HOST");
-const KEY = requireEnv("RAPIDAPI_1XBET_KEY");
+function getHost(): string {
+  return requireEnv("RAPIDAPI_1XBET_HOST");
+}
+
+function getKey(): string {
+  return requireEnv("RAPIDAPI_1XBET_KEY");
+}
+
+/** Cek tanpa throw — untuk degradasi jujur saat API diganti/belum dikonfigurasi. */
+export function is1xBetConfigured(): boolean {
+  const h = process.env.RAPIDAPI_1XBET_HOST;
+  const k = process.env.RAPIDAPI_1XBET_KEY;
+  return !!h?.trim() && !!k?.trim();
+}
 
 async function fetch1xBetRaw(endpoint: string): Promise<any> {
+  const HOST = getHost();
+  const KEY = getKey();
   const url = `https://${HOST}${endpoint}`;
   const res = await fetch(url, {
     headers: {

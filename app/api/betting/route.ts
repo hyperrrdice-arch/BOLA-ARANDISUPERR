@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 import { z } from "zod";
-import { get1xBetMarketsV2, find1xBetMatch } from "@/lib/1xbet";
+import { get1xBetMarketsV2, find1xBetMatch, is1xBetConfigured } from "@/lib/1xbet";
 import { nineRouter } from "@/lib/agent/llm";
 import { checkRateLimit, clientKeyFromReq, tooManyResponse } from "@/lib/rate-limit";
 
@@ -75,6 +75,16 @@ export const BettingAdviceSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    // API bisa diganti kapan saja — tanpa key = degradasi jujur, bukan crash.
+    if (!is1xBetConfigured()) {
+      return Response.json(
+        {
+          status: "unavailable",
+          message: "API 1xBet belum dikonfigurasi (RAPIDAPI_1XBET_KEY/HOST kosong). Isi key atau ganti sumber pasar.",
+        },
+        { status: 503 }
+      );
+    }
     // Rate limit anti-DoS: tiap hit bakar LLM call ganda + kuota 1xBet 500 req/bulan
     const rl = checkRateLimit(
       clientKeyFromReq(req),
@@ -250,6 +260,16 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    if (!is1xBetConfigured()) {
+      return Response.json(
+        {
+          status: "unavailable",
+          message: "API 1xBet belum dikonfigurasi (RAPIDAPI_1XBET_KEY/HOST kosong). Isi key atau ganti sumber pasar.",
+          markets: [],
+        },
+        { status: 503 }
+      );
+    }
     const { searchParams } = new URL(req.url);
     const matchId = searchParams.get("match_id");
     const homeTeam = searchParams.get("home");
