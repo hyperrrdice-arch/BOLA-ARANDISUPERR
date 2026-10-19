@@ -121,49 +121,49 @@ export function TheStatsOddsComparisonCard({
     highlightLabel = "Best"
   ) {
     if (!point.last_seen) {
-      return <span className="text-zinc-600 font-mono text-[11px]">-</span>;
+      return <span className="text-zinc-600 font-sans text-[11px]">-</span>;
     }
 
     const hasDiff = point.diff !== null && Math.abs(point.diff) >= 0.01;
     const isUp = (point.diff ?? 0) > 0;
 
     return (
-      <div className="flex flex-col items-center justify-center gap-0.5 font-mono tabular-nums">
+      <div className="flex flex-col items-center justify-center gap-0.5 font-sans tabular-nums">
         <div className="flex items-center gap-1.5">
           <span
             className={`text-xs font-bold px-2 py-0.5 rounded-[18px] transition-colors ${
               isBest
-                ? "bg-[#0a0a0a] text-white font-extrabold"
-                : "text-[#0a0a0a] hover:bg-[#fafafa]"
+                ? "bg-[#b8b0ff] text-[#17131f] font-extrabold"
+                : "text-[#f4f4f6] hover:bg-[#1b1b29]"
             }`}
           >
             {point.last_seen.toFixed(2)}
           </span>
           {isBest && (
-            <span className="text-[11px] font-bold tracking-tight text-white bg-[#0a0a0a] px-1.5 py-0.5 rounded-[18px]">
+            <span className="text-[11px] font-bold tracking-tight text-[#17131f] bg-[#b8b0ff] px-1.5 py-0.5 rounded-[18px]">
               {highlightLabel}
             </span>
           )}
         </div>
 
         {showDeltas && point.opening && hasDiff && (
-          <div className="flex items-center gap-1 text-[11px] text-[#737373]">
-            <span className="text-[#a3a3a3] line-through">
+          <div className="flex items-center gap-1 text-[11px] text-[#a2a2b5]">
+            <span className="text-[#8e8ea3] line-through">
               {point.opening.toFixed(2)}
             </span>
             <span
               className={`inline-flex items-center font-semibold text-[11px] ${
-                isUp ? "text-[#0a0a0a]" : "text-[#737373]"
+                isUp ? "text-[#f4f4f6]" : "text-[#a2a2b5]"
               }`}
             >
               {isUp ? (
                 <>
-                  <TrendingUpIcon size={10} className="mr-0.5 text-[#0a0a0a]" />+
+                  <TrendingUpIcon size={10} className="mr-0.5 text-[#f4f4f6]" />+
                   {point.diff?.toFixed(2)}
                 </>
               ) : (
                 <>
-                  <TrendingDownIcon size={10} className="mr-0.5 text-[#737373]" />
+                  <TrendingDownIcon size={10} className="mr-0.5 text-[#a2a2b5]" />
                   {point.diff?.toFixed(2)}
                 </>
               )}
@@ -175,25 +175,25 @@ export function TheStatsOddsComparisonCard({
   }
 
   return (
-    <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-6 text-[#0a0a0a]">
+    <div className="p-6 rounded-[18px] bg-[#14141f] border border-[#262636] space-y-6 text-[#f4f4f6]">
       {/* CARD HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-[#737373] bg-[#fafafa] px-2.5 py-1 rounded-[18px] border border-[#e5e5e5]">
+            <span className="text-[11px] font-sans text-[#a2a2b5] bg-[#1b1b29] px-2.5 py-1 rounded-[18px] border border-[#262636]">
               TheStatsAPI Feed • Multi-Bookmaker Orderbook
             </span>
-            <span className="text-[11px] font-mono text-[#737373]">
+            <span className="text-[11px] font-sans text-[#a2a2b5]">
               Match ID: {matchId}
             </span>
           </div>
-          <h3 className="text-sm sm:text-base font-bold text-[#0a0a0a] font-mono tracking-tight mt-1">
+          <h3 className="text-sm sm:text-base font-bold text-[#f4f4f6] font-sans tracking-tight mt-1">
             Komparasi Odds Multi-Bandar Resmi
           </h3>
-          <p className="text-xs text-[#737373] font-mono mt-0.5">
+          <p className="text-xs text-[#a2a2b5] font-sans mt-0.5">
             {homeTeam} vs {awayTeam}
             {formattedKickoff && (
-              <span className="text-[#a3a3a3] ml-2">• {formattedKickoff}</span>
+              <span className="text-[#8e8ea3] ml-2">• {formattedKickoff}</span>
             )}
           </p>
         </div>
@@ -202,7 +202,7 @@ export function TheStatsOddsComparisonCard({
           <button
             onClick={() => fetchOddsData(true)}
             disabled={loading}
-            className="px-3.5 py-2 rounded-[18px] bg-white hover:bg-[#fafafa] text-xs font-mono text-[#0a0a0a] border border-[#e5e5e5] transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="px-3.5 py-2 rounded-[18px] bg-[#14141f] hover:bg-[#1b1b29] text-xs font-sans text-[#f4f4f6] border border-[#262636] transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             <RefreshCwIcon size={12} className={loading ? "animate-spin" : ""} />
             <span>{loading ? "Memperbarui..." : "Perbarui Odds"}</span>
@@ -211,14 +211,14 @@ export function TheStatsOddsComparisonCard({
       </div>
 
       {/* FILTER & TOGGLE STRIP */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-        <div className="flex items-center gap-1 bg-[#fafafa] p-1 rounded-[18px] border border-[#e5e5e5]">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
+        <div className="flex items-center gap-1 bg-[#1b1b29] p-1 rounded-[18px] border border-[#262636]">
           <button
             onClick={() => setFilterMode("all")}
             className={`px-3 py-1.5 rounded-[18px] transition-colors text-[11px] cursor-pointer ${
               filterMode === "all"
-                ? "bg-white text-[#0a0a0a] font-bold border border-[#e5e5e5]"
-                : "text-[#737373] hover:text-[#0a0a0a]"
+                ? "bg-[#14141f] text-[#f4f4f6] font-bold border border-[#262636]"
+                : "text-[#a2a2b5] hover:text-[#f4f4f6]"
             }`}
           >
             Semua Pasar (1X2 &amp; O/U)
@@ -227,8 +227,8 @@ export function TheStatsOddsComparisonCard({
             onClick={() => setFilterMode("1x2")}
             className={`px-3 py-1.5 rounded-[18px] transition-colors text-[11px] cursor-pointer ${
               filterMode === "1x2"
-                ? "bg-white text-[#0a0a0a] font-bold border border-[#e5e5e5]"
-                : "text-[#737373] hover:text-[#0a0a0a]"
+                ? "bg-[#14141f] text-[#f4f4f6] font-bold border border-[#262636]"
+                : "text-[#a2a2b5] hover:text-[#f4f4f6]"
             }`}
           >
             Hanya 1X2
@@ -237,20 +237,20 @@ export function TheStatsOddsComparisonCard({
             onClick={() => setFilterMode("ou")}
             className={`px-3 py-1.5 rounded-[18px] transition-colors text-[11px] cursor-pointer ${
               filterMode === "ou"
-                ? "bg-white text-[#0a0a0a] font-bold border border-[#e5e5e5]"
-                : "text-[#737373] hover:text-[#0a0a0a]"
+                ? "bg-[#14141f] text-[#f4f4f6] font-bold border border-[#262636]"
+                : "text-[#a2a2b5] hover:text-[#f4f4f6]"
             }`}
           >
             Hanya Over/Under 2.5
           </button>
         </div>
 
-        <label className="flex items-center gap-2 text-[11px] text-[#737373] cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-[11px] text-[#a2a2b5] cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showDeltas}
             onChange={(e) => setShowDeltas(e.target.checked)}
-            className="rounded border-[#e5e5e5] bg-white text-[#0a0a0a] accent-[#0a0a0a]"
+            className="rounded border-[#262636] bg-[#14141f] text-[#f4f4f6] accent-[#0a0a0a]"
           />
           <span>Tampilkan Pergerakan Opening vs Last Seen</span>
         </label>
@@ -258,12 +258,12 @@ export function TheStatsOddsComparisonCard({
 
       {/* LOADING STATE */}
       {loading && !data && (
-        <div className="p-8 text-center space-y-3 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5]">
-          <div className="inline-block w-6 h-6 border-2 border-[#e5e5e5] border-t-[#0a0a0a] rounded-full animate-spin" />
-          <p className="text-[13px] text-[#0a0a0a] font-sans font-medium">
+        <div className="p-8 text-center space-y-3 rounded-[18px] bg-[#1b1b29] border border-[#262636]">
+          <div className="inline-block w-6 h-6 border-2 border-[#262636] border-t-[#0a0a0a] rounded-full animate-spin" />
+          <p className="text-[13px] text-[#f4f4f6] font-sans font-medium">
             Mengambil data perbandingan odds TheStatsAPI...
           </p>
-          <p className="text-[13px] text-[#737373] font-sans">
+          <p className="text-[13px] text-[#a2a2b5] font-sans">
             Verifikasi kuota RAM cache &amp; kalkulasi overround bandar
           </p>
         </div>
@@ -271,23 +271,23 @@ export function TheStatsOddsComparisonCard({
 
       {/* ERROR STATE */}
       {error && !loading && (
-        <div className="p-4 rounded-[18px] bg-[#fef2f2] border border-[#fecaca] text-xs text-[#991b1b] flex items-start gap-2.5">
-          <AlertCircleIcon size={16} className="text-[#e7000b] shrink-0 mt-0.5" />
+        <div className="p-4 rounded-[18px] bg-[#2a161c] border border-[#5c2430] text-xs text-[#fda4af] flex items-start gap-2.5">
+          <AlertCircleIcon size={16} className="text-[#fb4d5e] shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-[#991b1b] font-mono">Gagal Memuat Komparasi Odds</p>
-            <p className="text-[13px] text-[#b91c1c] font-sans">{error}</p>
+            <p className="font-bold text-[#fda4af] font-sans">Gagal Memuat Komparasi Odds</p>
+            <p className="text-[13px] text-[#fda4af] font-sans">{error}</p>
           </div>
         </div>
       )}
 
       {/* ZERO FABRICATION / CLOSED-WORLD NOTICE */}
       {data && (!data.is_available || bookmakers.length === 0) && !loading && (
-        <div className="p-5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-2 text-xs font-mono">
-          <div className="flex items-center gap-2 text-[#0a0a0a] font-bold">
-            <AlertCircleIcon size={14} className="text-[#737373]" />
+        <div className="p-5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-2 text-xs font-sans">
+          <div className="flex items-center gap-2 text-[#f4f4f6] font-bold">
+            <AlertCircleIcon size={14} className="text-[#a2a2b5]" />
             <span>{data.message || "Data belum tersedia dari TheStatsAPI"}</span>
           </div>
-          <p className="text-[#737373] text-[13px] leading-relaxed font-sans">
+          <p className="text-[#a2a2b5] text-[13px] leading-relaxed font-sans">
             Bandar resmi internasional belum merilis garis odds lengkap untuk laga ini, atau match
             berada di luar jangkauan coverage TheStatsAPI. Sesuai mandat Closed-World Assumption
             (CWA), data tidak difabrikasi secara sintetis.
@@ -298,19 +298,19 @@ export function TheStatsOddsComparisonCard({
       {/* BEST AVAILABLE PRICE HERO GRID */}
       {data && data.is_available && bookmakers.length > 0 && bestOdds && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-mono text-[#737373]">
-            <span className="font-semibold text-[#0a0a0a]">
+          <div className="flex items-center justify-between text-[11px] font-sans text-[#a2a2b5]">
+            <span className="font-semibold text-[#f4f4f6]">
               Harga Terbaik Tersedia (Best Available Price)
             </span>
             {data.source === "local_anchor" && data.captured_utc && (
-              <span className="text-[#737373]">
+              <span className="text-[#a2a2b5]">
                 Anchor lokal {data.captured_utc.slice(0, 10)} · bukan closing
               </span>
             )}
             {lowestMarginBm && (
-              <span className="text-[#737373]">
+              <span className="text-[#a2a2b5]">
                 Bandar Paling Menguntungkan:{" "}
-                <strong className="text-[#0a0a0a] underline decoration-[#a3a3a3]">
+                <strong className="text-[#f4f4f6] underline decoration-[#8e8ea3]">
                   {lowestMarginBm.name}
                 </strong>{" "}
                 (Margin: {lowestMarginBm.margin.toFixed(1)}%)
@@ -318,77 +318,77 @@ export function TheStatsOddsComparisonCard({
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 font-mono">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 font-sans">
             {/* Best Home */}
-            <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-              <span className="text-[11px] text-[#737373] block">
+            <div className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-1">
+              <span className="text-[11px] text-[#a2a2b5] block">
                 1 (Kandang)
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-[#0a0a0a] tabular-nums">
+                <span className="text-2xl font-bold text-[#f4f4f6] tabular-nums">
                   {bestOdds.home?.price ? bestOdds.home.price.toFixed(2) : "-"}
                 </span>
-                <span className="text-[11px] text-[#737373] truncate">
+                <span className="text-[11px] text-[#a2a2b5] truncate">
                   {bestOdds.home?.bookmaker || "-"}
                 </span>
               </div>
             </div>
 
             {/* Best Draw */}
-            <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-              <span className="text-[11px] text-[#737373] block">
+            <div className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-1">
+              <span className="text-[11px] text-[#a2a2b5] block">
                 X (Seri)
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-[#0a0a0a] tabular-nums">
+                <span className="text-2xl font-bold text-[#f4f4f6] tabular-nums">
                   {bestOdds.draw?.price ? bestOdds.draw.price.toFixed(2) : "-"}
                 </span>
-                <span className="text-[11px] text-[#737373] truncate">
+                <span className="text-[11px] text-[#a2a2b5] truncate">
                   {bestOdds.draw?.bookmaker || "-"}
                 </span>
               </div>
             </div>
 
             {/* Best Away */}
-            <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-              <span className="text-[11px] text-[#737373] block">
+            <div className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-1">
+              <span className="text-[11px] text-[#a2a2b5] block">
                 2 (Tamu)
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-[#0a0a0a] tabular-nums">
+                <span className="text-2xl font-bold text-[#f4f4f6] tabular-nums">
                   {bestOdds.away?.price ? bestOdds.away.price.toFixed(2) : "-"}
                 </span>
-                <span className="text-[11px] text-[#737373] truncate">
+                <span className="text-[11px] text-[#a2a2b5] truncate">
                   {bestOdds.away?.bookmaker || "-"}
                 </span>
               </div>
             </div>
 
             {/* Best Over 2.5 */}
-            <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-              <span className="text-[11px] text-[#737373] block">
+            <div className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-1">
+              <span className="text-[11px] text-[#a2a2b5] block">
                 Over 2.5 Gol
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-[#0a0a0a] tabular-nums">
+                <span className="text-2xl font-bold text-[#f4f4f6] tabular-nums">
                   {bestOdds.over_2_5?.price ? bestOdds.over_2_5.price.toFixed(2) : "-"}
                 </span>
-                <span className="text-[11px] text-[#737373] truncate">
+                <span className="text-[11px] text-[#a2a2b5] truncate">
                   {bestOdds.over_2_5?.bookmaker || "-"}
                 </span>
               </div>
             </div>
 
             {/* Best Under 2.5 */}
-            <div className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-1 col-span-2 sm:col-span-1">
-              <span className="text-[11px] text-[#737373] block">
+            <div className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-1 col-span-2 sm:col-span-1">
+              <span className="text-[11px] text-[#a2a2b5] block">
                 Under 2.5 Gol
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-[#0a0a0a] tabular-nums">
+                <span className="text-2xl font-bold text-[#f4f4f6] tabular-nums">
                   {bestOdds.under_2_5?.price ? bestOdds.under_2_5.price.toFixed(2) : "-"}
                 </span>
-                <span className="text-[11px] text-[#737373] truncate">
+                <span className="text-[11px] text-[#a2a2b5] truncate">
                   {bestOdds.under_2_5?.bookmaker || "-"}
                 </span>
               </div>
@@ -399,10 +399,10 @@ export function TheStatsOddsComparisonCard({
 
       {/* COMPARISON DATA TABLE */}
       {data && data.is_available && bookmakers.length > 0 && (
-        <div className="overflow-x-auto rounded-[18px] border border-[#e5e5e5] bg-white">
-          <table className="w-full text-left border-collapse text-xs font-mono">
+        <div className="overflow-x-auto rounded-[18px] border border-[#262636] bg-[#14141f]">
+          <table className="w-full min-w-[560px] text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-[#e5e5e5] bg-[#fafafa] text-[#737373] text-[11px]">
+              <tr className="border-b border-[#262636] bg-[#1b1b29] text-[#a2a2b5] text-[11px]">
                 <th className="py-3 px-3.5 font-semibold">Bandar (Bookmaker)</th>
 
                 {(filterMode === "all" || filterMode === "1x2") && (
@@ -427,7 +427,7 @@ export function TheStatsOddsComparisonCard({
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#e5e5e5] text-[#0a0a0a]">
+            <tbody className="divide-y divide-[#262636] text-[#f4f4f6]">
               {bookmakers.map((b) => {
                 const isHomeBest =
                   Boolean(bestOdds?.home?.price) &&
@@ -446,9 +446,9 @@ export function TheStatsOddsComparisonCard({
                   b.total_goals_2_5.under.last_seen === bestOdds?.under_2_5?.price;
 
                 return (
-                  <tr key={b.id} className="hover:bg-[#fafafa] transition-colors">
-                    <td className="py-3 px-3.5 font-medium text-[#0a0a0a] flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#737373]" />
+                  <tr key={b.id} className="hover:bg-[#1b1b29] transition-colors">
+                    <td className="py-3 px-3.5 font-medium text-[#f4f4f6] flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4a4a61]" />
                       <span>{b.name}</span>
                     </td>
 
@@ -468,17 +468,17 @@ export function TheStatsOddsComparisonCard({
                             <span
                               className={`text-[11px] tabular-nums font-semibold ${
                                 b.margin_1x2 && b.margin_1x2 <= 3.5
-                                  ? "text-[#0a0a0a] underline decoration-[#737373]"
-                                  : "text-[#737373]"
+                                  ? "text-[#f4f4f6] underline decoration-[#737373]"
+                                  : "text-[#a2a2b5]"
                               }`}
                             >
                               {b.overround_1x2.toFixed(1)}%{" "}
-                              <span className="text-[11px] text-[#a3a3a3] font-normal">
+                              <span className="text-[11px] text-[#8e8ea3] font-normal">
                                 ({b.margin_1x2?.toFixed(1)}% vig)
                               </span>
                             </span>
                           ) : (
-                            <span className="text-[#a3a3a3]">-</span>
+                            <span className="text-[#8e8ea3]">-</span>
                           )}
                         </td>
                       </>
@@ -497,17 +497,17 @@ export function TheStatsOddsComparisonCard({
                             <span
                               className={`text-[11px] tabular-nums font-semibold ${
                                 b.margin_ou && b.margin_ou <= 4.0
-                                  ? "text-[#0a0a0a] underline decoration-[#737373]"
-                                  : "text-[#737373]"
+                                  ? "text-[#f4f4f6] underline decoration-[#737373]"
+                                  : "text-[#a2a2b5]"
                               }`}
                             >
                               {b.overround_ou.toFixed(1)}%{" "}
-                              <span className="text-[11px] text-[#a3a3a3] font-normal">
+                              <span className="text-[11px] text-[#8e8ea3] font-normal">
                                 ({b.margin_ou?.toFixed(1)}% vig)
                               </span>
                             </span>
                           ) : (
-                            <span className="text-[#a3a3a3]">-</span>
+                            <span className="text-[#8e8ea3]">-</span>
                           )}
                         </td>
                       </>
@@ -520,23 +520,23 @@ export function TheStatsOddsComparisonCard({
             {/* KONSENSUS / RATA-RATA PASAR FOOTER */}
             {averages && (
               <tfoot>
-                <tr className="border-t-2 border-[#e5e5e5] bg-[#fafafa] text-[#0a0a0a] font-bold">
-                  <td className="py-3 px-3.5 text-[11px] text-[#0a0a0a]">
+                <tr className="border-t-2 border-[#262636] bg-[#1b1b29] text-[#f4f4f6] font-bold">
+                  <td className="py-3 px-3.5 text-[11px] text-[#f4f4f6]">
                     Konsensus Rata-Rata Pasar
                   </td>
 
                   {(filterMode === "all" || filterMode === "1x2") && (
                     <>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#0a0a0a]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#f4f4f6]">
                         {averages.home ? averages.home.toFixed(2) : "-"}
                       </td>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#0a0a0a]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#f4f4f6]">
                         {averages.draw ? averages.draw.toFixed(2) : "-"}
                       </td>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#0a0a0a]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#f4f4f6]">
                         {averages.away ? averages.away.toFixed(2) : "-"}
                       </td>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#737373] text-[11px]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#a2a2b5] text-[11px]">
                         {averages.average_margin_1x2
                           ? `Avg Vig: ${averages.average_margin_1x2.toFixed(1)}%`
                           : "-"}
@@ -546,13 +546,13 @@ export function TheStatsOddsComparisonCard({
 
                   {(filterMode === "all" || filterMode === "ou") && (
                     <>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#0a0a0a]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#f4f4f6]">
                         {averages.over_2_5 ? averages.over_2_5.toFixed(2) : "-"}
                       </td>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#0a0a0a]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#f4f4f6]">
                         {averages.under_2_5 ? averages.under_2_5.toFixed(2) : "-"}
                       </td>
-                      <td className="py-3 px-3 text-center tabular-nums text-[#737373] text-[11px]">
+                      <td className="py-3 px-3 text-center tabular-nums text-[#a2a2b5] text-[11px]">
                         -
                       </td>
                     </>
@@ -565,14 +565,14 @@ export function TheStatsOddsComparisonCard({
       )}
 
       {/* FOOTER AUDIT NOTES */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 text-[11px] font-mono text-[#737373]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 text-[11px] font-sans text-[#a2a2b5]">
         <div className="flex items-center gap-2">
-          <CheckCircleIcon size={12} className="text-[#0a0a0a]" />
+          <CheckCircleIcon size={12} className="text-[#f4f4f6]" />
           <span>Deterministik Zod Sanitized • Anti-Hallucination Safe</span>
         </div>
         <span>
           Rumus Margin:{" "}
-          <code className="text-[#0a0a0a] font-mono font-medium">
+          <code className="text-[#f4f4f6] font-sans font-medium">
             Overround = (1/O₁ + 1/O₂ + 1/O₃) - 1
           </code>
         </span>

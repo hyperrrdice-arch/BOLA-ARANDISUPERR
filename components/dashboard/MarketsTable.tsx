@@ -87,7 +87,7 @@ export function MarketsTable({ markets }: MarketsTableProps) {
   const [page, setPage] = useState<number>(1);
   const pageSize = 30;
 
-  // Filtered 500+ Markets
+  // Filtered Markets (hasil pindaian manual)
   const filteredMarkets = useMemo(() => {
     let list = markets;
 
@@ -125,7 +125,7 @@ export function MarketsTable({ markets }: MarketsTableProps) {
       <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           {/* Category Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none font-mono text-xs">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none font-sans text-xs">
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat;
               return (
@@ -137,8 +137,8 @@ export function MarketsTable({ markets }: MarketsTableProps) {
                   }}
                   className={`px-3 py-1.5 rounded-[18px] text-[11px] font-medium transition-colors shrink-0 cursor-pointer ${
                     isActive
-                      ? "bg-[#0a0a0a] text-white font-bold"
-                      : "bg-[#fafafa] text-[#737373] hover:text-[#0a0a0a] border border-[#e5e5e5]"
+                      ? "bg-[#b8b0ff] text-[#17131f] font-bold"
+                      : "bg-[#1b1b29] text-[#a2a2b5] hover:text-[#f4f4f6] border border-[#262636]"
                   }`}
                 >
                   {cat}
@@ -148,7 +148,7 @@ export function MarketsTable({ markets }: MarketsTableProps) {
           </div>
 
           {/* Quick Search Input */}
-          <div className="relative w-full sm:w-64 shrink-0 font-mono">
+          <div className="relative w-full sm:w-64 shrink-0 font-sans">
             <input
               type="text"
               placeholder="Cari pasar, line (mis: 2.5), atau opsi..."
@@ -157,12 +157,12 @@ export function MarketsTable({ markets }: MarketsTableProps) {
                 setSearchQuery(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-[#fafafa] text-[#0a0a0a] placeholder-[#737373] px-3.5 py-1.5 rounded-[18px] border border-[#e5e5e5] focus:outline-none focus:border-[#0a0a0a] text-[13px]"
+              className="w-full bg-[#1b1b29] text-[#f4f4f6] placeholder-[#a2a2b5] px-3.5 py-1.5 rounded-[18px] border border-[#262636] focus:outline-none focus:border-[#b8b0ff] text-[13px]"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#0a0a0a] text-xs cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a2a2b5] hover:text-[#f4f4f6] text-xs cursor-pointer"
               >
                 ×
               </button>
@@ -171,14 +171,14 @@ export function MarketsTable({ markets }: MarketsTableProps) {
         </div>
 
         {/* Counter Indicator */}
-        <div className="flex items-center justify-between text-[11px] font-mono text-[#737373]">
+        <div className="flex items-center justify-between text-[11px] font-sans text-[#a2a2b5]">
           <span>
             Menampilkan{" "}
-            <strong className="text-[#0a0a0a] font-bold tabular-nums">
+            <strong className="text-[#f4f4f6] font-bold tabular-nums">
               {filteredMarkets.length}
             </strong>{" "}
             dari{" "}
-            <strong className="text-[#0a0a0a] tabular-nums">{markets.length}</strong> bursa pasar
+            <strong className="text-[#f4f4f6] tabular-nums">{markets.length}</strong> bursa pasar
             {activeCategory !== "Semua" ? ` (Kategori: ${activeCategory})` : ""}
           </span>
           {totalPages > 1 && (
@@ -189,33 +189,33 @@ export function MarketsTable({ markets }: MarketsTableProps) {
         </div>
       </div>
 
-      {/* 3. GRID 500+ BURSA PASAR 1XBET */}
+      {/* 3. GRID BURSA PASAR 1XBET */}
       {paginatedMarkets.length > 0 ? (
         <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-mono">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-sans">
             {paginatedMarkets.map((m) => {
               const oddsKeys = Object.keys(m.odds || {});
               return (
                 <div
                   key={`mkt-${m.market_id}-${m.name}-${m.base ?? "nobase"}`}
-                  className="p-3.5 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] hover:border-[#0a0a0a]/30 transition-colors space-y-2.5 flex flex-col justify-between"
+                  className="p-3.5 rounded-[18px] bg-[#1b1b29] border border-[#262636] hover:border-[#b8b0ff]/30 transition-colors space-y-2.5 flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-1 text-[11px] text-[#737373] pb-1">
-                      <span className="truncate font-semibold text-[#737373]">
+                    <div className="flex items-center justify-between gap-1 text-[11px] text-[#a2a2b5] pb-1">
+                      <span className="truncate font-semibold text-[#a2a2b5]">
                         {classifyMarket(m.name)}
                       </span>
-                      <span className="shrink-0 tabular-nums text-[#a3a3a3]">
+                      <span className="shrink-0 tabular-nums text-[#8e8ea3]">
                         ID: {m.market_id}
                       </span>
                     </div>
 
                     <div className="flex items-baseline justify-between gap-2 mt-1.5">
-                      <h6 className="text-xs font-bold text-[#0a0a0a] leading-tight">
+                      <h6 className="text-xs font-bold text-[#f4f4f6] leading-tight">
                         {m.name}
                       </h6>
                       {m.base !== null && m.base !== undefined && (
-                        <span className="text-[11px] bg-white px-2 py-0.5 rounded-[18px] text-[#0a0a0a] font-bold border border-[#e5e5e5] shrink-0 tabular-nums">
+                        <span className="text-[11px] bg-[#14141f] px-2 py-0.5 rounded-[18px] text-[#f4f4f6] font-bold border border-[#262636] shrink-0 tabular-nums">
                           Line: {m.base}
                         </span>
                       )}
@@ -238,12 +238,12 @@ export function MarketsTable({ markets }: MarketsTableProps) {
                         return (
                           <div
                             key={key}
-                            className="p-2 rounded-[18px] bg-white border border-[#e5e5e5] text-center flex flex-col justify-center"
+                            className="p-2 rounded-[18px] bg-[#14141f] border border-[#262636] text-center flex flex-col justify-center"
                           >
-                            <span className="text-[11px] text-[#737373] truncate block">
+                            <span className="text-[11px] text-[#a2a2b5] truncate block">
                               {key}
                             </span>
-                            <span className="text-xs font-bold text-[#0a0a0a] tabular-nums">
+                            <span className="text-xs font-bold text-[#f4f4f6] tabular-nums">
                               {typeof price === "number" ? price.toFixed(2) : price}
                             </span>
                           </div>
@@ -258,21 +258,21 @@ export function MarketsTable({ markets }: MarketsTableProps) {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-3 font-mono text-xs">
+            <div className="flex items-center justify-center gap-2 pt-3 font-sans text-xs">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-[18px] bg-[#14141f] hover:bg-[#1b1b29] text-[#f4f4f6] border border-[#262636] disabled:opacity-30 cursor-pointer"
               >
                 ← Sebelumnya
               </button>
-              <span className="text-[#737373] px-2">
-                Halaman <strong className="text-[#0a0a0a]">{page}</strong> / {totalPages}
+              <span className="text-[#a2a2b5] px-2">
+                Halaman <strong className="text-[#f4f4f6]">{page}</strong> / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3.5 py-1.5 rounded-[18px] bg-white hover:bg-[#fafafa] text-[#0a0a0a] border border-[#e5e5e5] disabled:opacity-30 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-[18px] bg-[#14141f] hover:bg-[#1b1b29] text-[#f4f4f6] border border-[#262636] disabled:opacity-30 cursor-pointer"
               >
                 Selanjutnya →
               </button>
@@ -280,13 +280,13 @@ export function MarketsTable({ markets }: MarketsTableProps) {
           )}
         </div>
       ) : (
-        <div className="p-8 text-center space-y-2 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] font-mono text-xs text-[#737373]">
-          <p className="text-[#0a0a0a] font-semibold">
+        <div className="p-8 text-center space-y-2 rounded-[18px] bg-[#1b1b29] border border-[#262636] font-sans text-xs text-[#a2a2b5]">
+          <p className="text-[#f4f4f6] font-semibold">
             {markets.length === 0
               ? "Belum ada pasar 1xBet yang dimuat."
               : "Tidak ada pasar yang cocok dengan filter atau kata kunci pencarian Anda."}
           </p>
-          <p className="text-[13px] text-[#737373] font-sans">
+          <p className="text-[13px] text-[#a2a2b5] font-sans">
             {markets.length === 0
               ? "Klik 'Pindai Pasar 1xBet' atau masukkan Match ID 1xBet secara manual."
               : "Coba ubah kategori filter atau hapus kata kunci pencarian."}

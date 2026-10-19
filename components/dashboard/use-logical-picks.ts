@@ -85,7 +85,7 @@ export function useLogicalPicks({
       return picks;
     }
 
-    // Algoritma Closed-World Quant Matching dari Katalog 500+ Markets
+    // Algoritma Closed-World Quant Matching dari katalog markets hasil scan
     // 1. Cek Pasar Utama 1X2
     const m1x2 = markets.find((m) => m.name.toLowerCase() === "1x2" || m.market_id === 1);
     if (m1x2 && m1x2.odds) {

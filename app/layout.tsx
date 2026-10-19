@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Football Agent // Quant Terminal",
+  title: "MENCARI UANG DARI PARLAY // Quant Terminal",
   description: "Pre-match tactical football analytics, Dixon-Coles quant engine & multi-agent syndicate debate.",
 };
 
@@ -27,7 +27,13 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#f5f5f5] text-[#0a0a0a] selection:bg-[#0a0a0a] selection:text-[#fafafa]">
+      <body className="min-h-full flex flex-col bg-[#0a0a12] text-[#f4f4f6] selection:bg-[#b8b0ff] selection:text-[#17131f]">
+        <a
+          href="#konten-utama"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-[12px] focus:bg-[#b8b0ff] focus:text-[#17131f] focus:text-xs focus:font-bold"
+        >
+          Lewati ke konten utama
+        </a>
         {children}
       </body>
     </html>

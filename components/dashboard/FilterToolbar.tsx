@@ -64,7 +64,7 @@ export function FilterToolbar({
   }, []);
 
   return (
-    <div className="p-5 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4">
+    <div className="p-5 rounded-[18px] bg-[#14141f] border border-[#262636] space-y-4">
       {/* Top Row: Search Input & Horizon & Sort & Refresh */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Box with keyboard shortcut chip */}
@@ -75,7 +75,7 @@ export function FilterToolbar({
             placeholder="Cari tim atau liga (tekan '/' atau ⌘K)..." aria-label="Cari tim atau liga"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full bg-[#f5f5f5] focus:bg-white text-[#0a0a0a] placeholder-[#737373] px-4 py-2 pr-16 rounded-[18px] border border-transparent focus:border-[#e5e5e5] text-[13px] font-mono focus:outline-none transition-colors"
+            className="w-full bg-[#1b1b29] focus:bg-[#14141f] text-[#f4f4f6] placeholder-[#a2a2b5] px-4 py-2 pr-16 rounded-[18px] border border-transparent focus:border-[#262636] text-[13px] font-sans focus:outline-none transition-colors"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
             {localSearch ? (
@@ -86,12 +86,12 @@ export function FilterToolbar({
                   setLocalSearch("");
                   onSearchChange("");
                 }}
-                className="pointer-events-auto text-xs text-[#737373] hover:text-[#0a0a0a] px-1"
+                className="pointer-events-auto text-xs text-[#a2a2b5] hover:text-[#f4f4f6] px-1"
               >
                 ×
               </button>
             ) : (
-              <kbd className="px-1.5 py-0.5 rounded-[6px] bg-white border border-[#e5e5e5] text-[11px] font-mono text-[#737373]">
+              <kbd className="px-1.5 py-0.5 rounded-[6px] bg-[#14141f] border border-[#262636] text-[11px] font-sans text-[#a2a2b5]">
                 /
               </kbd>
             )}
@@ -101,15 +101,15 @@ export function FilterToolbar({
         {/* Controls: Time Horizon & Sorting & Refresh */}
         <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
           {/* Time Horizon Selector */}
-          <div className="flex items-center rounded-[18px] border border-[#e5e5e5] bg-[#f5f5f5] p-0.5 text-xs font-mono">
+          <div className="flex items-center rounded-[18px] border border-[#262636] bg-[#1b1b29] p-0.5 text-xs font-sans">
             {[12, 24, 48, 72].map((h) => (
               <button
                 key={h}
                 onClick={() => onHoursChange(h)}
                 className={`px-3 py-1 rounded-[18px] text-xs font-medium transition-colors cursor-pointer ${
                   hours === h
-                    ? "bg-[#0a0a0a] text-white font-semibold"
-                    : "text-[#737373] hover:text-[#0a0a0a]"
+                    ? "bg-[#b8b0ff] text-[#17131f] font-semibold"
+                    : "text-[#a2a2b5] hover:text-[#f4f4f6]"
                 }`}
               >
                 {h}h
@@ -119,13 +119,13 @@ export function FilterToolbar({
 
           {/* Sort Toggle */}
           {onSortChange && (
-            <div className="flex items-center rounded-[18px] border border-[#e5e5e5] bg-[#f5f5f5] p-0.5 text-xs font-mono">
+            <div className="flex items-center rounded-[18px] border border-[#262636] bg-[#1b1b29] p-0.5 text-xs font-sans">
               <button
                 onClick={() => onSortChange("time")}
                 className={`px-3 py-1 rounded-[18px] text-[11px] transition-colors cursor-pointer ${
                   sortBy === "time"
-                    ? "bg-[#0a0a0a] text-white font-semibold"
-                    : "text-[#737373] hover:text-[#0a0a0a]"
+                    ? "bg-[#b8b0ff] text-[#17131f] font-semibold"
+                    : "text-[#a2a2b5] hover:text-[#f4f4f6]"
                 }`}
                 title="Urutkan berdasarkan Kick-off"
               >
@@ -135,8 +135,8 @@ export function FilterToolbar({
                 onClick={() => onSortChange("name")}
                 className={`px-3 py-1 rounded-[18px] text-[11px] transition-colors cursor-pointer ${
                   sortBy === "name"
-                    ? "bg-[#0a0a0a] text-white font-semibold"
-                    : "text-[#737373] hover:text-[#0a0a0a]"
+                    ? "bg-[#b8b0ff] text-[#17131f] font-semibold"
+                    : "text-[#a2a2b5] hover:text-[#f4f4f6]"
                 }`}
                 title="Urutkan berdasarkan Nama Tim"
               >
@@ -149,7 +149,7 @@ export function FilterToolbar({
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="px-3.5 py-1.5 rounded-[18px] bg-[#f5f5f5] hover:bg-[#ebebeb] text-[#0a0a0a] hover:text-black border border-[#e5e5e5] text-xs font-mono font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-[18px] bg-[#1b1b29] hover:bg-[#232334] text-[#f4f4f6] hover:text-[#f4f4f6] border border-[#262636] text-xs font-sans font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             title="Muat ulang pertandingan"
           >
             <RefreshCwIcon size={12} className={loading ? "animate-spin" : ""} />
@@ -158,14 +158,14 @@ export function FilterToolbar({
         </div>
       </div>
 
-      {/* League Filter Pills with fluid selection */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-mono scrollbar-thin">
+      {/* League Filter Pills — mobile saja; desktop pakai sidebar liga */}
+      <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1 text-xs font-sans scrollbar-thin">
         <button
           onClick={() => onCompetitionChange("ALL")}
           className={`px-3.5 py-1 rounded-[18px] text-xs font-medium shrink-0 transition-colors cursor-pointer border ${
             selectedCompetitionId === "ALL"
-              ? "bg-[#0a0a0a] text-white border-[#0a0a0a] font-semibold"
-              : "bg-[#f5f5f5] hover:bg-[#ebebeb] text-[#171717] border-[#e5e5e5]"
+              ? "bg-[#b8b0ff] text-[#17131f] border-[#b8b0ff] font-semibold"
+              : "bg-[#1b1b29] hover:bg-[#232334] text-[#e8e8ef] border-[#262636]"
           }`}
         >
           Semua Liga
@@ -179,16 +179,16 @@ export function FilterToolbar({
               onClick={() => onCompetitionChange(lg.id)}
               className={`px-3.5 py-1 rounded-[18px] text-xs font-medium shrink-0 flex items-center gap-1.5 transition-colors cursor-pointer border ${
                 isSelected
-                  ? "bg-[#0a0a0a] text-white border-[#0a0a0a] font-semibold"
-                  : "bg-[#f5f5f5] hover:bg-[#ebebeb] text-[#171717] border-[#e5e5e5]"
+                  ? "bg-[#b8b0ff] text-[#17131f] border-[#b8b0ff] font-semibold"
+                  : "bg-[#1b1b29] hover:bg-[#232334] text-[#e8e8ef] border-[#262636]"
               }`}
             >
               <span>{lg.name}</span>
               <span
-                className={`px-1.5 py-0.5 rounded-[18px] text-[11px] font-mono tabular-nums ${
+                className={`px-1.5 py-0.5 rounded-[18px] text-[11px] font-sans tabular-nums ${
                   isSelected
                     ? "bg-zinc-800 text-white"
-                    : "bg-white text-[#0a0a0a] border border-[#e5e5e5]"
+                    : "bg-[#14141f] text-[#f4f4f6] border border-[#262636]"
                 }`}
               >
                 {lg.count}

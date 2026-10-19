@@ -12,18 +12,30 @@ import {
 import type { AnalysisView } from "@/lib/view/analysis-view";
 import { FilterToolbar } from "@/components/dashboard/FilterToolbar";
 import { MatchCatalogView } from "@/components/dashboard/MatchCatalogView";
-import { MatchTickerStrip } from "@/components/dashboard/MatchTickerStrip";
 import type { AnalysisTabKey } from "@/components/dashboard/SidebarNav";
 import dynamic from "next/dynamic";
+
+// Fallback ringan saat chunk lazy belum tiba (dynamic ssr:false di bawah).
+function ChunkFallback() {
+  return (
+    <div
+      className="p-5 rounded-[18px] bg-[#14141f] border border-[#262636] animate-pulse space-y-3"
+      aria-hidden="true"
+    >
+      <div className="h-4 bg-[#1b1b29] rounded w-1/3" />
+      <div className="h-3 bg-[#1b1b29] rounded w-2/3" />
+    </div>
+  );
+}
 
 // Pasar 1xBet/Scanner = on-demand (butuh scan manual) → lazy, bukan masuk bundle awal.
 const OneXBetDeepMarketsCard = dynamic(
   () => import("@/components/dashboard/OneXBetDeepMarketsCard").then((m) => m.OneXBetDeepMarketsCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const BettingScannerCard = dynamic(
   () => import("@/components/dashboard/BettingScannerCard").then((m) => m.BettingScannerCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 
 // Kartu-kartu analisis cuma dipakai SETELAH match dipilih, tapi sebelumnya diimpor eager
@@ -33,39 +45,39 @@ const BettingScannerCard = dynamic(
 // paint pertama, jadi dipisah dari bundle awal mengikuti pola OneXBet di atas.
 const MatchHeaderCard = dynamic(
   () => import("@/components/dashboard/MatchHeaderCard").then((m) => m.MatchHeaderCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const SidebarNav = dynamic(
   () => import("@/components/dashboard/SidebarNav").then((m) => m.SidebarNav),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const ThinkingPlannerCard = dynamic(
   () => import("@/components/dashboard/ThinkingPlannerCard").then((m) => m.ThinkingPlannerCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const DataIntegrityShield = dynamic(
   () => import("@/components/dashboard/DataIntegrityShield").then((m) => m.DataIntegrityShield),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const StatsAndSplitsCard = dynamic(
   () => import("@/components/dashboard/StatsAndSplitsCard").then((m) => m.StatsAndSplitsCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const QuantEngineCard = dynamic(
   () => import("@/components/dashboard/QuantEngineCard").then((m) => m.QuantEngineCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const TheStatsOddsComparisonCard = dynamic(
   () => import("@/components/dashboard/TheStatsOddsComparisonCard").then((m) => m.TheStatsOddsComparisonCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const OddsDislocationBar = dynamic(
   () => import("@/components/dashboard/OddsDislocationBar").then((m) => m.OddsDislocationBar),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 const SyndicateDebateCard = dynamic(
   () => import("@/components/dashboard/SyndicateDebateCard").then((m) => m.SyndicateDebateCard),
-  { ssr: false }
+  { ssr: false, loading: () => <ChunkFallback /> }
 );
 
 export default function Home() {
@@ -114,9 +126,17 @@ export default function Home() {
     const start = Date.now();
     const timer = setInterval(() => {
       setElapsedMs(Date.now() - start);
-    }, 100);
+    }, 1000);
     return () => clearInterval(timer);
   }, [analyzing]);
+
+  // Focus management: hasil siap → fokus ke vonis; kembali → fokus ke judul katalog
+  // (di handleBackToList). preventScroll: posisi sudah di atas via scrollTo.
+  useEffect(() => {
+    if (data && !analyzing) {
+      document.getElementById("vonis-utama")?.focus({ preventScroll: true });
+    }
+  }, [data, analyzing]);
 
   // Ambil daftar laga terjadwal. `isStale` = callback cek apakah permintaan sudah usang.
   async function fetchUpcomingMatches(selectedHours: number, isStale: () => boolean = () => false) {
@@ -195,7 +215,8 @@ export default function Home() {
     setShowMarkets(false);
     setActiveTab("ringkasan");
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
 
     // Batalkan run sebelumnya (kalau masih jalan) sebelum memulai yang baru.
     analysisAbort.current?.abort();
@@ -238,10 +259,12 @@ export default function Home() {
     setBettingResult(null);
     setManual1xBetId("");
     setShowManualInput(false);
+    window.setTimeout(() => {
+      document.getElementById("katalog-judul")?.focus({ preventScroll: true });
+    }, 0);
   }
 
-  async function trigger1xBetAnalysis(customId?: string) {
-    if (!selectedMatch) return;
+  async function trigger1xBetAnalysis(customId?: string) {    if (!selectedMatch) return;
     const reqId = ++bettingReqId.current;
     const match = selectedMatch;
     setBettingLoading(true);
@@ -298,56 +321,59 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-svh bg-[#f5f5f5] text-[#0a0a0a] flex flex-col font-sans">
-      {/* HEADER & TELEMETRY STRIP */}
-      <header className="sticky top-0 z-40 w-full bg-[#ffffff]/95 backdrop-blur-md">
-        {/* System Telemetry Bar */}
-        <div className="bg-[#fafafa] py-1 px-4 sm:px-6">
-          <div className="max-w-[1280px] mx-auto flex items-center text-[11px] font-mono tabular-nums text-[#525252] truncate">
-            <span className="truncate">
-              <strong className="text-[#737373]">{matches.length}</strong> laga ·{" "}
-              <strong className="text-[#737373]">
-                {activeLeagues.length > 0 ? activeLeagues.length : 7}
-              </strong>{" "}
-              liga · WIB (UTC+7)
-            </span>
-          </div>
-        </div>
-
-        {/* Command Navigation Row */}
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-3 text-xs font-mono">
+    <main id="konten-utama" className="min-h-svh bg-[#0a0a12] text-[#f4f4f6] flex flex-col font-sans">
+      {/* HEADER 1 BARIS */}
+      <header className="sticky top-0 z-40 w-full bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#262636]">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="font-bold text-[#0a0a0a] tracking-tight text-xs truncate">
-              BOLA-ARANDISUPERR Quant Terminal
+            <span className="font-bold text-[#f4f4f6] tracking-tight text-sm truncate">
+              MENCARI UANG DARI PARLAY
             </span>
-            <span className="text-[#e5e5e5] hidden sm:inline">/</span>
-            <span className="text-[#737373] text-[11px] hidden sm:inline">
-              Deterministic Intelligence v2.0
+            <span className="text-[#a2a2b5] text-[11px] hidden md:inline">
+              Quant Terminal v2.0
             </span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[18px] text-[11px] bg-[#f5f5f5] border border-[#e5e5e5] text-[#171717] font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" />
-              TheStatsAPI Live Feed
-            </span>
-          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-[#1b1b29] border border-[#262636] text-[#e8e8ef] font-medium shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#b8b0ff]" />
+            {catalogOffline ? "Mode Offline — Data Lokal" : "Katalog Lokal"}
+          </span>
         </div>
-
-        {/* HORIZONTAL MATCH TICKER STRIP */}
-        <MatchTickerStrip
-          matches={filteredMatches}
-          selectedMatchId={selectedMatch?.id ?? null}
-          onSelectMatch={runAnalysis}
-          loading={loadingMatches}
-        />
       </header>
 
       {/* WORKSPACE MAIN CONTAINER */}
       <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 py-6 space-y-5 flex-1">
         {/* TAMPILAN 1: KATALOG PERTANDINGAN */}
         {!selectedMatch && (
-          <div className="space-y-5">
+          <div className="flex gap-5 items-start">
+            {/* SIDEBAR LIGA (desktop) */}
+            <aside className="hidden lg:block w-60 shrink-0 rounded-[18px] bg-[#14141f] border border-[#262636] p-4 space-y-1 sticky top-[76px]">
+              <p className="text-xs font-semibold text-[#f4f4f6] px-2 pb-2">Liga</p>
+              <button
+                onClick={() => setSelectedCompetitionId("ALL")}
+                aria-pressed={selectedCompetitionId === "ALL"}
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[12px] text-xs cursor-pointer transition-colors ${selectedCompetitionId === "ALL" ? "bg-[#b8b0ff] text-[#17131f] font-semibold" : "text-[#e8e8ef] hover:bg-[#1b1b29]"}`}
+              >
+                Semua Liga
+                <span className="tabular-nums">{matches.length}</span>
+              </button>
+              {activeLeagues.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => setSelectedCompetitionId(l.id)}
+                  aria-pressed={selectedCompetitionId === l.id}
+                  className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-[12px] text-xs cursor-pointer transition-colors ${selectedCompetitionId === l.id ? "bg-[#b8b0ff] text-[#17131f] font-semibold" : "text-[#e8e8ef] hover:bg-[#1b1b29]"}`}
+                >
+                  <span className="truncate text-left">{l.name}</span>
+                  <span className="tabular-nums shrink-0">{l.count}</span>
+                </button>
+              ))}
+              <p className="text-[11px] text-[#a2a2b5] px-2 pt-3 tabular-nums">
+                {matches.length} laga · {activeLeagues.length} liga · WIB (UTC+7)
+              </p>
+            </aside>
+
+            <div className="flex-1 min-w-0 space-y-5">
             <FilterToolbar
               hours={hours}
               onHoursChange={setHours}
@@ -373,6 +399,7 @@ export default function Home() {
               offline={catalogOffline}
               catalogMaxUtc={catalogMaxUtc}
             />
+            </div>
           </div>
         )}
 
@@ -391,21 +418,21 @@ export default function Home() {
 
             {/* LIVE ELAPSED LOADING BAR (TIMER JUJUR) */}
             {analyzing && (
-              <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4 font-mono">
+              <div role="status" aria-live="polite" className="p-6 rounded-[18px] bg-[#14141f] border border-[#262636] space-y-4 font-sans">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#0a0a0a] animate-ping shrink-0" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#b8b0ff] animate-ping shrink-0" />
                     <div>
-                      <h2 className="text-sm font-semibold text-[#0a0a0a]">
+                      <h2 className="text-sm font-semibold text-[#f4f4f6]">
                         Menganalisis Data Pertandingan...
                       </h2>
-                      <p className="text-xs text-[#737373] mt-0.5">
+                      <p className="text-xs text-[#a2a2b5] mt-0.5">
                         {selectedMatch.home_team.name} vs {selectedMatch.away_team.name}
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-[18px] text-xs font-bold bg-[#fafafa] border border-[#e5e5e5] text-[#0a0a0a] tabular-nums">
-                    {(elapsedMs / 1000).toFixed(1)}s
+                  <span className="px-3 py-1 rounded-[18px] text-xs font-bold bg-[#1b1b29] border border-[#262636] text-[#f4f4f6] tabular-nums">
+                    {Math.floor(elapsedMs / 1000)}s
                   </span>
                 </div>
 
@@ -413,30 +440,35 @@ export default function Home() {
                   <div className="mono-loading-bar" />
                 </div>
 
-                <p className="text-[13px] text-[#737373] font-sans">
+                <p className="text-[13px] text-[#a2a2b5] font-sans">
                   Analisis berjalan penuh di server — tipikal 2–7 menit, lebih lama bila debat sindikat masuk ronde 2.
                 </p>
 
-                <div className="flex items-center justify-between text-xs text-[#737373] pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#a2a2b5] pt-1">
                   <span>Pipeline: Ingestion &rarr; Quant Bivariate &rarr; Adversarial Debate &rarr; Verdict</span>
-                  <span className="animate-pulse text-[#0a0a0a] font-semibold">Berjalan...</span>
+                  <button
+                    onClick={handleBackToList}
+                    className="px-3 py-1.5 rounded-full bg-[#1b1b29] border border-[#262636] text-[#f4f4f6] font-semibold hover:border-[#b8b0ff] transition-colors cursor-pointer"
+                  >
+                    Batalkan Analisis
+                  </button>
                 </div>
               </div>
             )}
 
             {/* ERROR STATE */}
             {agentError && (
-              <div className="p-5 rounded-[24px] border border-[#e7000b]/20 bg-[#e7000b]/5 text-[#0a0a0a] text-xs">
+              <div role="alert" className="p-5 rounded-[18px] border border-[#fb4d5e]/20 bg-[#fb4d5e]/5 text-[#f4f4f6] text-xs">
                 <div className="flex items-start gap-2.5">
-                  <AlertCircleIcon size={16} className="shrink-0 mt-0.5 text-[#e7000b]" />
+                  <AlertCircleIcon size={16} className="shrink-0 mt-0.5 text-[#fb4d5e]" />
                   <div>
-                    <h3 className="font-semibold text-xs text-[#e7000b]">
+                    <h3 className="font-semibold text-xs text-[#fb4d5e]">
                       Gagal Menjalankan Analisis Laga
                     </h3>
-                    <p className="text-[13px] text-[#737373] mt-0.5 font-sans">{agentError}</p>
+                    <p className="text-[13px] text-[#a2a2b5] mt-0.5 font-sans">{agentError}</p>
                     <button
                       onClick={() => runAnalysis(selectedMatch)}
-                      className="mt-2.5 px-3 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-[#171717] text-white text-xs font-medium transition-colors cursor-pointer"
+                      className="mt-2.5 px-3 py-1.5 rounded-[18px] bg-[#b8b0ff] hover:bg-[#cdc6ff] text-[#17131f] text-xs font-medium transition-colors cursor-pointer"
                     >
                       Coba Analisis Ulang
                     </button>
@@ -464,43 +496,33 @@ export default function Home() {
                 <div className="flex-1 min-w-0 w-full space-y-5">
                   {/* TAB 1: RINGKASAN & VONIS (VERDICT-FIRST DEFAULT) */}
                   {activeTab === "ringkasan" && (
-                    <div className="space-y-5">
-                      {/* Top Verdict Banner */}
-                      <div className="p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-4 font-mono">
-                        <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
-                          <div className="flex items-center gap-2">
-                            <CheckCircleIcon size={16} className="text-[#0a0a0a]" />
-                            <h3 className="font-bold text-xs sm:text-sm text-[#0a0a0a]">
-                              Vonis Utama &amp; Konsensus Laga
-                            </h3>
-                          </div>
-                          <span className="px-2.5 py-0.5 rounded-[18px] text-[11px] font-bold flat-tag-zinc">
-                            Keyakinan: {data.ringkasan.keyakinan}
-                          </span>
+                    <div role="tabpanel" id="panel-ringkasan" aria-labelledby="tab-ringkasan" tabIndex={0} className="space-y-5">
+                      {/* Alasan & faktor kunci (vonis sudah menyatu di header) */}
+                      <div className="p-6 rounded-[18px] bg-[#14141f] border border-[#262636] space-y-4 font-sans">
+                        <div className="flex items-center gap-2">
+                          <CheckCircleIcon size={16} className="text-[#f4f4f6]" />
+                          <h3 className="font-bold text-xs sm:text-sm text-[#f4f4f6]">
+                            Alasan &amp; Faktor Kunci
+                          </h3>
                         </div>
 
-                        <div className="space-y-2">
-                          <h2 className="text-xl sm:text-2xl font-bold text-[#0a0a0a] font-sans">
-                            {data.ringkasan.verdict}
-                          </h2>
-                          <p className="text-[13px] text-[#171717] leading-relaxed font-sans">
-                            {data.ringkasan.alasan}
-                          </p>
-                        </div>
+                        <p className="text-[13px] text-[#e8e8ef] leading-relaxed font-sans">
+                          {data.ringkasan.alasan}
+                        </p>
 
                         {/* Checklist Faktor Kunci */}
                         {data.ringkasan.faktor_kunci.length > 0 && (
                           <div className="pt-1 space-y-2">
-                            <span className="text-[11px] text-[#737373] block font-semibold">
+                            <span className="text-[11px] text-[#a2a2b5] block font-semibold">
                               Faktor Kunci Penentu Pertandingan:
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {data.ringkasan.faktor_kunci.map((f, i) => (
                                 <div
                                   key={i}
-                                  className="flex items-start gap-2 p-2.5 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#171717]"
+                                  className="flex items-start gap-2 p-2.5 rounded-[14px] bg-[#1b1b29] border border-[#262636] text-xs text-[#e8e8ef]"
                                 >
-                                  <CheckCircleIcon size={13} className="text-[#0a0a0a] shrink-0 mt-0.5" />
+                                  <CheckCircleIcon size={13} className="text-[#f4f4f6] shrink-0 mt-0.5" />
                                   <span className="font-sans leading-relaxed text-[13px]">{f}</span>
                                 </div>
                               ))}
@@ -508,6 +530,32 @@ export default function Home() {
                           </div>
                         )}
                       </div>
+
+                      {/* Pick #1 — satu-satunya panel accent; jujur bila tidak ada +EV */}
+                      {data.kuantitatif.hero.ev_teratas ? (
+                        <div className="p-5 rounded-[18px] bg-[#b8b0ff] text-[#17131f] space-y-1.5 font-sans">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[11px] font-extrabold tracking-wide">
+                              PICK #1 · EDGE TERATAS MODEL
+                            </span>
+                            <span className="text-[11px] font-bold tabular-nums">
+                              {data.kuantitatif.hero.ev_teratas.ev_percentage} EV
+                            </span>
+                          </div>
+                          <p className="text-xl sm:text-2xl font-bold leading-tight">
+                            {data.kuantitatif.hero.ev_teratas.selection}
+                          </p>
+                          <p className="text-xs font-medium tabular-nums">
+                            {data.kuantitatif.hero.ev_teratas.market} · Odds{" "}
+                            {data.kuantitatif.hero.ev_teratas.odds.toFixed(2)} · Fair{" "}
+                            {data.kuantitatif.hero.ev_teratas.fair_odds.toFixed(2)}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="px-4 py-3 rounded-[18px] bg-[#14141f] border border-[#262636] text-xs text-[#a2a2b5] font-sans">
+                          Tidak ada +EV pada laga ini — rekomendasi: No Bet / Pass.
+                        </div>
+                      )}
 
                       {/* Section Thinking Planner Trace */}
                       <ThinkingPlannerCard thinking={data.thinking} />
@@ -519,7 +567,7 @@ export default function Home() {
                             setShowMarkets(true);
                             setActiveTab("odds");
                           }}
-                          className="w-full p-3.5 rounded-[20px] bg-white border border-[#e5e5e5] text-xs font-semibold text-[#0a0a0a] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                          className="w-full p-3.5 rounded-[20px] bg-[#14141f] border border-[#262636] text-xs font-semibold text-[#f4f4f6] hover:bg-[#1b1b29] transition-colors cursor-pointer"
                         >
                           Buka Pemindaian Pasar 1xBet →
                         </button>
@@ -539,7 +587,7 @@ export default function Home() {
 
                   {/* TAB 2: MODEL KUANTITATIF */}
                   {activeTab === "kuantitatif" && (
-                    <div className="space-y-5">
+                    <div role="tabpanel" id="panel-kuantitatif" aria-labelledby="tab-kuantitatif" tabIndex={0} className="space-y-5">
                       <QuantEngineCard
                         kuantitatif={data.kuantitatif}
                         homeTeam={data.match.home}
@@ -550,7 +598,7 @@ export default function Home() {
 
                   {/* TAB 3: BURSA & DISLOKASI */}
                   {activeTab === "odds" && (
-                    <div className="space-y-5">
+                    <div role="tabpanel" id="panel-odds" aria-labelledby="tab-odds" tabIndex={0} className="space-y-5">
                       <TheStatsOddsComparisonCard
                         matchId={selectedMatch.id}
                         homeTeam={data.match.home}
@@ -601,7 +649,7 @@ export default function Home() {
                       ) : (
                         <button
                           onClick={() => setShowMarkets(true)}
-                          className="w-full p-4 rounded-[20px] bg-white border border-[#e5e5e5] text-xs font-semibold text-[#0a0a0a] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                          className="w-full p-4 rounded-[20px] bg-[#14141f] border border-[#262636] text-xs font-semibold text-[#f4f4f6] hover:bg-[#1b1b29] transition-colors cursor-pointer"
                         >
                           Buka Pemindaian Pasar 1xBet (butuh scan manual) →
                         </button>
@@ -611,7 +659,7 @@ export default function Home() {
 
                   {/* TAB 4: SIDANG SINDIKAT */}
                   {activeTab === "debat" && (
-                    <div className="space-y-5">
+                    <div role="tabpanel" id="panel-debat" aria-labelledby="tab-debat" tabIndex={0} className="space-y-5">
                       <SyndicateDebateCard debat={data.debat} />
                     </div>
                   )}

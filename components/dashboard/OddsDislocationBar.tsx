@@ -45,12 +45,12 @@ export function OddsDislocationBar({
   onTriggerScan,
   bettingLoading = false,
 }: OddsDislocationBarProps) {
-  // Normalisasi data dari odds view atau fallback bursaPasar
-  const market1x2 = odds?.dislocation?.ringkasan_1x2 || bursaPasar?.ringkasan_1x2 || "1X2 Aktif";
-  const marketAH = odds?.dislocation?.asian_handicap || bursaPasar?.asian_handicap || "Seimbang (AH 0.0)";
-  const marketOU = odds?.dislocation?.over_under || bursaPasar?.over_under || "Line Aktif (2.5)";
-  const marketBTTS = odds?.dislocation?.btts || bursaPasar?.btts || "Tersedia";
-  const smartMoneyText = odds?.smart_money || bursaPasar?.pergerakan_smart_money || "Aliran likuiditas pasar terpantau stabil.";
+  // Normalisasi data dari odds view atau fallback bursaPasar — tanpa karangan.
+  const market1x2 = odds?.dislocation?.ringkasan_1x2 || bursaPasar?.ringkasan_1x2 || null;
+  const marketAH = odds?.dislocation?.asian_handicap || bursaPasar?.asian_handicap || null;
+  const marketOU = odds?.dislocation?.over_under || bursaPasar?.over_under || null;
+  const marketBTTS = odds?.dislocation?.btts || bursaPasar?.btts || null;
+  const smartMoneyText = odds?.smart_money || bursaPasar?.pergerakan_smart_money || null;
 
   // Parsing atau penentuan odds consensus benchmark (TheStatsAPI/Bet365)
   const benchmarkOdds = useMemo(() => {
@@ -58,7 +58,7 @@ export function OddsDislocationBar({
       return odds.dislocation.benchmarks;
     }
 
-    const text = market1x2;
+    const text = market1x2 ?? "";
     const matches = text.match(/(\d+\.\d{2})/g);
     if (matches && matches.length >= 3) {
       return {
@@ -95,7 +95,7 @@ export function OddsDislocationBar({
   // Model Fair Odds dari Dixon-Coles Poisson Engine
   const modelFair = odds?.dislocation?.fair || quantData?.dixon_coles?.fair_odds;
 
-  // 1xBet Live Odds jika sudah discan
+  // Odds 1xBet hasil scan manual (hanya ada setelah pindai)
   const oneXBetOdds = useMemo(() => {
     if (bettingResult?.sample_markets && Array.isArray(bettingResult.sample_markets)) {
       const m1x2 = bettingResult.sample_markets.find(
@@ -180,17 +180,17 @@ export function OddsDislocationBar({
   ], [homeTeam, awayTeam, modelFair, benchmarkOdds, oneXBetOdds, quantData]);
 
   return (
-    <div className="p-5 sm:p-6 rounded-[24px] bg-white border border-[#e5e5e5] space-y-5 text-[#0a0a0a] font-mono text-xs">
+    <div className="p-5 sm:p-6 rounded-[18px] bg-[#14141f] border border-[#262636] space-y-5 text-[#f4f4f6] font-sans text-xs">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CoinsIcon size={16} className="text-[#0a0a0a]" />
-            <h3 className="text-xs sm:text-sm font-bold text-[#0a0a0a] tracking-tight">
+            <CoinsIcon size={16} className="text-[#f4f4f6]" />
+            <h3 className="text-xs sm:text-sm font-bold text-[#f4f4f6] tracking-tight">
               Bursa Odds, Dislokasi Pasar &amp; Efisiensi Harga
             </h3>
           </div>
-          <p className="text-[13px] text-[#737373] font-sans">
+          <p className="text-[13px] text-[#a2a2b5] font-sans">
             Kompilasi pasar utama bursa global serta deteksi anomali harga (+EV) terhadap model matematis deterministik.
           </p>
         </div>
@@ -200,7 +200,7 @@ export function OddsDislocationBar({
             <button
               onClick={onTriggerScan}
               disabled={bettingLoading}
-              className="px-3.5 py-1.5 rounded-[18px] bg-[#0a0a0a] hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-[18px] bg-[#b8b0ff] hover:bg-[#b8b0ff] text-[#17131f] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {bettingLoading ? (
                 <>
@@ -210,7 +210,7 @@ export function OddsDislocationBar({
               ) : (
                 <>
                   <ArrowUpRightIcon size={12} />
-                  <span>{oneXBetOdds ? "Refresh 1xBet Feed" : "Scan 1xBet Live Feed"}</span>
+                  <span>{oneXBetOdds ? "Perbarui Odds 1xBet" : "Pindai Pasar 1xBet"}</span>
                 </>
               )}
             </button>
@@ -220,47 +220,47 @@ export function OddsDislocationBar({
 
       {/* 4-GRID SUMMARY PASAR (TERINTEGRASI DARI MARKET ODDS OVERVIEW CARD) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-        <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[11px] text-[#737373] block font-semibold">
+        <div className="p-3 rounded-[14px] bg-[#1b1b29] border border-[#262636] space-y-1">
+          <span className="text-[11px] text-[#a2a2b5] block font-semibold">
             1X2 Match Odds
           </span>
-          <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
-            {market1x2}
+          <p className="text-[#f4f4f6] text-xs font-semibold leading-relaxed tabular-nums">
+            {market1x2 ?? <span className="text-[#a2a2b5] font-normal">Data tidak tersedia</span>}
           </p>
         </div>
 
-        <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[11px] text-[#737373] block font-semibold">
+        <div className="p-3 rounded-[14px] bg-[#1b1b29] border border-[#262636] space-y-1">
+          <span className="text-[11px] text-[#a2a2b5] block font-semibold">
             Asian Handicap
           </span>
-          <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
-            {marketAH}
+          <p className="text-[#f4f4f6] text-xs font-semibold leading-relaxed tabular-nums">
+            {marketAH ?? <span className="text-[#a2a2b5] font-normal">Data tidak tersedia</span>}
           </p>
         </div>
 
-        <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[11px] text-[#737373] block font-semibold">
+        <div className="p-3 rounded-[14px] bg-[#1b1b29] border border-[#262636] space-y-1">
+          <span className="text-[11px] text-[#a2a2b5] block font-semibold">
             Total Goals (O/U)
           </span>
-          <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
-            {marketOU}
+          <p className="text-[#f4f4f6] text-xs font-semibold leading-relaxed tabular-nums">
+            {marketOU ?? <span className="text-[#a2a2b5] font-normal">Data tidak tersedia</span>}
           </p>
         </div>
 
-        <div className="p-3 rounded-[14px] bg-[#fafafa] border border-[#e5e5e5] space-y-1">
-          <span className="text-[11px] text-[#737373] block font-semibold">
+        <div className="p-3 rounded-[14px] bg-[#1b1b29] border border-[#262636] space-y-1">
+          <span className="text-[11px] text-[#a2a2b5] block font-semibold">
             BTTS (Kedua Tim Gol)
           </span>
-          <p className="text-[#0a0a0a] text-xs font-semibold leading-relaxed tabular-nums">
-            {marketBTTS}
+          <p className="text-[#f4f4f6] text-xs font-semibold leading-relaxed tabular-nums">
+            {marketBTTS ?? <span className="text-[#a2a2b5] font-normal">Data tidak tersedia</span>}
           </p>
         </div>
       </div>
 
       {/* Odds Comparison Tri-Panel */}
       <div className="space-y-2">
-        <span className="text-[11px] text-[#737373] block font-semibold">
-          Evaluasi Dislokasi 1X2 (Model Fair vs Bursa Real-Time):
+        <span className="text-[11px] text-[#a2a2b5] block font-semibold">
+          Evaluasi Dislokasi 1X2 (Model Fair vs Bursa Anchor):
         </span>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {outcomes.map((item) => {
@@ -271,14 +271,14 @@ export function OddsDislocationBar({
             return (
               <div
                 key={item.key}
-                className="p-4 rounded-[18px] bg-[#fafafa] border border-[#e5e5e5] space-y-3"
+                className="p-4 rounded-[18px] bg-[#1b1b29] border border-[#262636] space-y-3"
               >
                 <div className="flex items-center justify-between pb-1">
                   <div>
-                    <span className="text-[11px] text-[#737373] block font-mono">
+                    <span className="text-[11px] text-[#a2a2b5] block font-sans">
                       Pilihan {item.label}
                     </span>
-                    <strong className="text-xs font-bold text-[#0a0a0a] block truncate max-w-[170px]">
+                    <strong className="text-xs font-bold text-[#f4f4f6] block truncate max-w-[170px]">
                       {item.team}
                     </strong>
                   </div>
@@ -291,42 +291,67 @@ export function OddsDislocationBar({
 
                 <div className="space-y-1.5 text-xs tabular-nums">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#737373]">Dixon-Coles Fair:</span>
-                    <strong className="text-[#0a0a0a]">
+                    <span className="text-[11px] text-[#a2a2b5]">Dixon-Coles Fair:</span>
+                    <strong className="text-[#f4f4f6]">
                       {item.fair != null ? item.fair.toFixed(2) : "-"}
                     </strong>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#737373]">TheStatsAPI (Consensus):</span>
-                    <span className="text-[#0a0a0a] font-medium">
+                    <span className="text-[11px] text-[#a2a2b5]">TheStatsAPI (Anchor):</span>
+                    <span className="text-[#f4f4f6] font-medium">
                       {item.bench != null ? item.bench.toFixed(2) : "-"}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#737373]">1xBet Live Market:</span>
-                    <span className={item.oneX ? "text-[#0a0a0a] font-bold" : "text-[#737373]"}>
+                    <span className="text-[11px] text-[#a2a2b5]">1xBet (Pindai Manual):</span>
+                    <span className={item.oneX ? "text-[#f4f4f6] font-bold" : "text-[#a2a2b5]"}>
                       {item.oneX != null ? item.oneX.toFixed(2) : "(Belum Scan)"}
                     </span>
                   </div>
 
                   <div className="pt-1 flex items-center justify-between">
-                    <span className="text-[11px] text-[#737373]">Dislocation Delta:</span>
+                    <span className="text-[11px] text-[#a2a2b5]">Dislocation Delta:</span>
                     {delta !== null ? (
                       <span
                         className={`px-2 py-0.5 rounded-[14px] text-[11px] font-bold ${
                           isPositive
-                            ? "bg-[#10b981]/10 text-[#059669] border border-[#10b981]/30"
-                            : "bg-[#f43f5e]/10 text-[#e11d48] border border-[#f43f5e]/30"
+                            ? "bg-[#34d399]/10 text-[#34d399] border border-[#34d399]/30"
+                            : "bg-[#fb7185]/10 text-[#fb7185] border border-[#fb7185]/30"
                         }`}
                       >
                         {isPositive ? `+${delta.toFixed(1)}% Edge` : `${delta.toFixed(1)}% Disadv`}
                       </span>
                     ) : (
-                      <span className="text-[11px] text-[#737373]">-</span>
+                      <span className="text-[11px] text-[#a2a2b5]">-</span>
                     )}
                   </div>
+
+                  {/* Bar horizontal model vs pasar (skala dari data nyata) */}
+                  {item.fair != null && activeBookieOdds != null && (() => {
+                    const scale = Math.max(item.fair, activeBookieOdds);
+                    if (!Number.isFinite(scale) || scale <= 0) return null;
+                    return (
+                      <div className="space-y-1 pt-0.5 tabular-nums" aria-hidden="true">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-[#a2a2b5] w-8 shrink-0">Fair</span>
+                          <div className="h-1.5 flex-1 rounded-full bg-[#14141f] overflow-hidden">
+                            <div style={{ width: `${(item.fair / scale) * 100}%` }} className="h-full bg-[#b8b0ff]" />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-[#a2a2b5] w-8 shrink-0">Bursa</span>
+                          <div className="h-1.5 flex-1 rounded-full bg-[#14141f] overflow-hidden">
+                            <div
+                              style={{ width: `${(activeBookieOdds / scale) * 100}%` }}
+                              className={`h-full ${isPositive ? "bg-[#34d399]" : "bg-[#fb7185]"}`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             );
@@ -336,13 +361,13 @@ export function OddsDislocationBar({
 
       {/* Smart Money Movement Bar */}
       {smartMoneyText && (
-        <div className="p-4 rounded-[16px] bg-[#fafafa] border border-[#e5e5e5] flex items-start gap-2.5 text-xs">
-          <TrendingUpIcon size={15} className="text-[#0a0a0a] shrink-0 mt-0.5" />
+        <div className="p-4 rounded-[16px] bg-[#1b1b29] border border-[#262636] flex items-start gap-2.5 text-xs">
+          <TrendingUpIcon size={15} className="text-[#f4f4f6] shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <span className="text-[11px] text-[#0a0a0a] font-bold block">
+            <span className="text-[11px] text-[#f4f4f6] font-bold block">
               Aliran Likuiditas Smart Money &amp; Pergerakan Line Bursa
             </span>
-            <p className="text-[#737373] leading-relaxed font-sans text-[13px]">
+            <p className="text-[#a2a2b5] leading-relaxed font-sans text-[13px]">
               {smartMoneyText}
             </p>
           </div>
