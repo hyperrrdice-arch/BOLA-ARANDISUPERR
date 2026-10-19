@@ -47,6 +47,22 @@ TheStatsAPI mati permanen (`403 KEY_REVOKED`, 18 Okt 2026). App hidup dari stok 
 | Odds anchor dikira closing | Med | Selalu tampilkan `captured_utc` + label "anchor, bukan closing" |
 | Fix integrity ubah tampilan rekomendasi | Rendah | `recommended_*` NULL saat nol +EV = by design; user sudah setuju |
 
+## Spike API alternatif (Task 6, 19 Okt 2026 — read-only, terverifikasi docs resmi)
+
+| Aspek | The Odds API ⭐ pilihan 1 | API-Football (pelengkap) | football-data.co.uk CSV (sudah di DB!) |
+|---|---|---|---|
+| Fixture/katalog | `/events` per liga = GRATIS 0 kuota (id, home/away, commence_time) | `/fixtures` free 100 req/hari | Terverifikasi isi `football_master.db` 19 Okt: **28.922 match**, 16 div, musim 21/22–26/27 |
+| Odds 1X2 | `/odds` h2h region `eu` = 1 kredit (cover **1xBet + Pinnacle**, terverifikasi halaman bookmaker resmi) | Odds = API terpisah BERBAYAR | Musim 26/27: **Bet365 1.078/1.078 penuh**, Pinnacle 0 (kolom ada, kosong musim ini) |
+| Skor/outcome | `/scores?daysFrom=3` = 2 kredit → ganti `promote` + `sync:outcomes` | `/fixtures?status=FT` (free) | 1.078/1.078 finished + skor + xG, max date **2026-10-14** (5 hari basi, CSV free bisa di-refresh ulang kapan saja) |
+| Lineup/cedera | TIDAK ADA | ADA (lineups, injuries — free) | TIDAK ADA (tapi ada shots, wasit, HT, max O/U 2.5) |
+| Kuota gratis | ±500 kredit/bln (**verifikasi saat daftar**, header `x-requests-remaining` konfirmasi runtime) | 100 req/hari (**verifikasi**, halaman pricing block bot 19 Okt) | 10 req/mnt, tanpa odds |
+| Estimasi spend | Katalog 7 liga 0 + odds h2h 7/hari (~210/bln) + scores tiap 3 hari (~140/bln) ≈ 350/bln < 500 ✓ | Lineup/cedera laga H-1 saja, <20/hari ✓ | — |
+| Adapter (nanti) | Mapper: events→upcoming_fixtures, odds h2h→match_odds_history, scores→match_outcomes | Mapper: fixtures/lines/injuries → Tier-1 | Mapper fixtures saja |
+
+Rekomendasi: daftar The Odds API (gratis) → Task adapter M (1 mapper + sync script, pola vault+budget `lib/stats-fetch.ts` yang sudah ada). API-Football free daftar juga sebagai sumber lineup/cedera (100/hari cukup untuk laga H-1). football-data.org hanya bila butuh fixture Eropa top cepat tanpa odds.
+
+Lifecycle (perintah + jadwal): `npm run sync:upcoming` (isi) → `npx tsx scripts/promote-upcoming-to-telemetry.ts --dry-run` (cek) → tanpa flag (eksekusi) → `npm run sync:outcomes` (hasil). Dry-run 19 Okt: 24 fixture lewat jadwal, 0 terpromote — telemetry finished tidak ada di lokal dan API mati, jadi lifecycle TERBLOKIR API sampai kandidat di atas aktif. Jadwal usulan: promote tiap pagi (laga semalam), outcomes tiap 6 jam matchday.
+
 ## Open Questions
 
 - Budget 1xBet 500/mo dibagi berapa untuk markets vs pencarian liga? (usulan: 80% markets on-demand, 20% league/match resolve)

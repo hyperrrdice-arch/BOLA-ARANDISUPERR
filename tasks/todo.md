@@ -109,7 +109,7 @@
 - [x] Throwaway 8/8: vig null + value kosong saat odds absen; tidak crash saat odds rusak; schema terima null; hero + shin_kelly null (file dihapus)
 - [x] Regresi lama hijau: `test-value-bets` 7/7, `test-view-mapper` 53/53, `test-quant-scale` OK, `test-odds-anchor` 8/8 (akumulasi Tasks 2-5)
 - [x] tsc exit 0 (1 error ketangkap saat kerja: type `vig_stripping` belum nullable → fix) + build sukses
-- [ ] `test-planner-loop` butuh gateway LLM live (9Router localhost:20128 mati — connection refused, limitasi environment, bukan regresi; gagal di API call sebelum menyentuh code Task 5)
+- [x] `test-planner-loop` + `tool-calling` lulus setelah gateway nyala (loop live OK, NATIVE_OK 36s)
 
 **Dependencies:** Task 2 (butuh odds lokal jujur dulu)
 
@@ -126,14 +126,14 @@
 **Description:** (a) Pastikan lifecycle jalan manual: `sync:upcoming` isi → `promote-upcoming-to-telemetry.ts` (selesai → telemetry → hapus baris) → `sync:outcomes`. Dokumenkan perintah + jadwal. (b) Spike 1-2 kandidat pengganti fixture/odds (bukan implementasi): catat coverage, harga, limit, format. Output: tabel keputusan di plan, tanpa code adapter.
 
 **Acceptance criteria:**
-- [ ] Perintah lifecycle terdokumentasi + 1 run promote kering berhasil (atau dinyatakan tidak ada yang bisa dipromote)
-- [ ] Tabel kandidat: nama, gratis/berbayar, limit, cocok untuk fixture? odds? (minimal 2 kandidat)
-- [ ] Rekomendasi next-step eksplisit (tetap offline / eksekusi kandidat X)
+- [x] Perintah lifecycle terdokumentasi + promote dry-run: 24 fixture lewat jadwal, 0 terpromote (telemetry finished tak ada di lokal/API mati — TERBLOKIR API, bukan bug)
+- [x] Tabel kandidat di plan (The Odds API + API-Football + football-data.org, diverifikasi docs resmi utk kandidat 1)
+- [x] Rekomendasi next-step eksplisit: daftar Odds API → adapter events/odds/scores; API-Football free pelengkap lineup/cedera
 
 **Verification:**
-- [ ] Log run promote / dry-run terlampir
-- [ ] Tidak ada file `lib/`/`app/` berubah di Task 6 (spike only — cek `git status`)
-- [ ] `verify-tier1` + `verify-foundation` hijau (tidak regresi)
+- [x] Log promote dry-run: 24 dicek, 0 promote, 0 hapus, exit 0
+- [x] Tidak ada file `lib/`/`app/` berubah di Task 6 (hanya tasks/plan.md + todo.md — agent git bisa verifikasi)
+- [x] `verify-tier1` 15/15 + `verify-foundation` 47/47 hijau (tidak regresi)
 
 **Dependencies:** Task 1
 
