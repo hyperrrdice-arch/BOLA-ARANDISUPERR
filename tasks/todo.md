@@ -161,7 +161,7 @@
 - [x] `scripts/test-offline-intel.ts` (permanen) 10/10: tim + odds anchor + form lokal, lineup/wasit null jujur, match-detail live 0 hit, unknown throw
 - [x] Live audit angka: prob sum 1.0000, fair 3.92≈1/0.2554, EV 0.4679×2.3-1=+7.6% ✓, konsensus pasar 28/31/42 konsisten vig, debate R2 terpicu SPLIT sesuai desain
 - [x] Regresi: mapper 19/19, guard 10/10, value-bets 7/7, tsc 0, build sukses
-- [ ] Nama cedera di verdict (Almqvist dkk dari snapshot skuad lokal 11 Okt — stale 8 hari, belum di-spot-check per nama)
+- [x] Nama cedera di verdict teraudit ke DB 6/6 persis (Almqvist calf, Caviglia hernia, Elphege appendicitis, Fortini muscle, Ndiaye knock dtd, İlkhan muscle dtd — `team_squads` 19 Okt)
 
 **Dependencies:** Task 2 (odds anchor), Task 5 (vig null)
 
