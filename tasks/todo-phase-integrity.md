@@ -215,7 +215,7 @@
 
 ## Task 7: Odds karangan tidak boleh jadi `recommended_odds`
 
-**Description:** `planner.ts:141,148` (`|| 1.95`, `1.88`) menghasilkan EV/stake dari odds karangan yang terpersist ke snapshot. Market odds absen → `bookmaker_odds` null + exclude dari pick `recommended_*`, ATAU tambah kolom `odds_source: "market" | "proxy"`. Kunci kontraknya di DB SNAPSHOT.md (Open Questions).
+**Description:** `planner.ts:141,148` (`|| 1.95`, `1.88`) menghasilkan EV/stake dari odds karangan yang terpersist ke snapshot. Market odds absen → `bookmaker_odds` null + exclude dari pick `recommended_*`, ATAU tambah kolom `odds_source: "market" | "proxy"`. Kunci kontraknya di docs/db-snapshot.md (Open Questions).
 
 **Acceptance criteria:**
 - [ ] `recommended_odds` hanya terisi dari odds pasar nyata
@@ -227,7 +227,7 @@
 - [ ] Snapshot tanpa market odds → `recommended_odds IS NULL`
 
 **Dependencies:** Task 2 (file yang sama)
-**Files:** `lib/agent/planner.ts`, `lib/db/analysis-snapshot.ts`, `DB SNAPSHOT.md`
+**Files:** `lib/agent/planner.ts`, `lib/db/analysis-snapshot.ts`, `docs/db-snapshot.md`
 **Scope:** S
 
 ---

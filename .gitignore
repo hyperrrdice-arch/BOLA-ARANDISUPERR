@@ -55,7 +55,7 @@ data/thestats_dataset.db*
 data/upcoming_fixtures.db*
 # penghitung request API (runtime counter, lokal)
 data/api-budget.json
-# snapshot analisis: data pribadi append-only, tak bisa di-rebuild (DB SNAPSHOT.md)
+# snapshot analisis: data pribadi append-only, tak bisa di-rebuild (docs/db-snapshot.md)
 data/analysis_snapshots.db*
 *.db-shm
 *.db-wal

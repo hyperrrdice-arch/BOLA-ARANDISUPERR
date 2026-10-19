@@ -3,7 +3,7 @@
  *
  * File DB terpisah: `data/analysis_snapshots.db` (di-gitignore). TIDAK bisa
  * di-rebuild tanpa menjalankan ulang LLM — jangan pernah DELETE/DROP di jalur
- * produksi. Kontrak lengkap: `DB SNAPSHOT.md`.
+ * produksi. Kontrak lengkap: `docs/db-snapshot.md`.
  *
  * - `analysis_snapshots`: hasil pipeline kita, append-only, superset dari
  *   mantan tabel `analysis_runs` (cache + korpus evaluasi).

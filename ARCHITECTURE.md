@@ -235,7 +235,7 @@ dan dua VIEW evaluasi (`v_snapshot_eval`, `v_snapshot_eval_market`) yang menyari
   ubah KEDUA sisi atau test akan merah.
 
 Skema ini menggantikan tabel `analysis_runs` yang dulu hidup di `thestats_dataset.db`
-(DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `DB SNAPSHOT.md`.
+(DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `docs/db-snapshot.md`.
 Operasional: `scripts/sync-match-outcomes.ts` (tarik hasil aktual, lokal dulu),
 `scripts/snapshot-report.ts` (report read-only),
 `scripts/backfill-panel-market.ts` (isi kolom `panel_market*` untuk baris lama).

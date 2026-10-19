@@ -96,4 +96,4 @@ Review ulang diff `4e260ec..HEAD` (29 commit, 44 file, +4401 baris — snapshot 
 ## Open Questions
 - [ ] Task 4: commit ulang snapshot DB (reproducible) vs dokumentasi perintah rebuild (repo ramping)? — butuh keputusan user
 - [ ] `ingest-rich-telemetry-pl.ts` — hapus (kandidat mati) atau dipakai lagi? — konfirmasi user sebelum hapus
-- [ ] Kontrak DB SNAPSHOT.md T2a soal `topEv` fallback ke EV negatif — key tetap terisi atau null? Perlu dikunci.
+- [ ] Kontrak docs/db-snapshot.md T2a soal `topEv` fallback ke EV negatif — key tetap terisi atau null? Perlu dikunci.
