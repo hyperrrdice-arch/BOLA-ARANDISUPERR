@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Analysis } from "@/lib/agent/schemas";
 import type { PlannerTrace } from "@/lib/agent/schemas";
+import { applyFallbackGuard } from "@/lib/quant/fallback-guard";
 import { formatHalfEvidenceRow, type HalfMatchup } from "@/lib/quant/half-profile";
 import { formatMomentumEvidenceRow, type MomentumMatchup } from "@/lib/quant/momentum";
 
@@ -195,6 +196,30 @@ export const ThinkingViewSchema = z.object({
     .optional(),
 });
 
+export const DataQualitySchema = z.object({
+  home_source: z.string().nullable(),
+  away_source: z.string().nullable(),
+  is_fallback_involved: z.boolean(),
+});
+
+export const FallbackGuardSchema = z.object({
+  skipped: z.boolean(),
+  reason: z.string(),
+  edge: z.number().nullable(),
+  threshold: z.number(),
+  original_verdict: z.string(),
+  original_pick: z
+    .object({
+      market_name: z.string(),
+      selection: z.string(),
+      bookmaker_odds: z.number(),
+      fair_odds: z.number(),
+      ev_percentage: z.string(),
+    })
+    .nullable(),
+  fallback_side: z.enum(["home", "away", "both"]).nullable(),
+});
+
 export const AnalysisViewSchema = z.object({
   match: MatchViewSchema,
   ringkasan: RingkasanViewSchema,
@@ -206,6 +231,10 @@ export const AnalysisViewSchema = z.object({
   // Penanda jujur: false = ada bagian yang tidak grounded (fallback/template).
   // Client WAJIB bisa membedakan hasil degradasi dari analisis penuh.
   is_strictly_grounded: z.boolean(),
+  // Task 1 parlay-pivot (additive): guard fallback-source + flag kualitas data.
+  // Field lama (ringkasan.verdict, pick) tidak dihapus — aslinya tercatat di fallback_guard.
+  data_quality: DataQualitySchema.optional(),
+  fallback_guard: FallbackGuardSchema.optional(),
 });
 
 export type AnalysisView = z.infer<typeof AnalysisViewSchema>;
@@ -297,8 +326,19 @@ export function mapPipelineToView(input: {
     a.prediksi.hasil ||
     "PASS_NO_BET";
 
-  const ringkasan: z.infer<typeof RingkasanViewSchema> = {
+  // Task 1 parlay-pivot: guard fallback-source deterministik (bukan LLM).
+  // Quant frozen — guard hanya membaca calibration_metadata + value_bets,
+  // tidak menghitung ulang prob/fair. Pick lama tercatat di fallback_guard.
+  const guard = applyFallbackGuard({
+    calibration: (q as any)?.calibration_metadata ?? null,
+    valueBets: Array.isArray(q?.value_bets) ? q.value_bets : [],
     verdict: verdictText,
+    homeTeam: a.pertandingan.tim_kandang,
+    awayTeam: a.pertandingan.tim_tamu,
+  });
+
+  const ringkasan: z.infer<typeof RingkasanViewSchema> = {
+    verdict: guard.verdict,
     prediksi: a.prediksi.hasil,
     keyakinan: formatCapitalKeyakinan(a.prediksi.keyakinan),
     alasan: a.prediksi.alasan,
@@ -556,6 +596,8 @@ export function mapPipelineToView(input: {
     markets: null,
     // Unknown = tidak grounded (konservatif & jujur) — jangan pernah klaim grounded tanpa bukti
     is_strictly_grounded: a.data_integrity_audit?.is_strictly_grounded === true,
+    data_quality: guard.data_quality,
+    fallback_guard: guard.fallback_guard,
   };
 
   // Validasi Zod fail-fast agar deterministik & tidak ada field cacat
