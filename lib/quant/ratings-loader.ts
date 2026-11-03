@@ -694,9 +694,15 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   }
 
   // Parameter shrinkage James-Stein: w_i = n_i / (n_i + kappa_i)
-  // Bimodal Kappa: kappa = 8.0 jika observed_xg (varians rendah), 14.0 jika observed_goals, 16.0 fallback
-  const kappaHome = homeTelemetrySource === "thestats_observed_xg" ? 8.0 : (homeTelemetrySource === "thestats_observed_goals" ? 14.0 : 16.0);
-  const kappaAway = awayTelemetrySource === "thestats_observed_xg" ? 8.0 : (awayTelemetrySource === "thestats_observed_goals" ? 14.0 : 16.0);
+  // Bimodal Kappa: kappa = 16.0 jika observed_xg, 28.0 jika observed_goals, 32.0 fallback.
+  // Nilai awal (8/14/16, asumsi tanpa fit) DIGANDAKAN berdasarkan validasi
+  // walk-forward out-of-sample Fase 3 (scripts/backtest-walkforward.ts,
+  // tasks/oos-results.json): skala κ ×2 terpilih di lipatan validasi V2 dan
+  // terkonfirmasi di held-out — log-loss jalur blend 1,0340 → 1,0205,
+  // slope kalibrasi 0,631 → 0,953. Telemetri 6 laga terbukti terlalu
+  // berisik untuk bobot sebesar asumsi lama.
+  const kappaHome = homeTelemetrySource === "thestats_observed_xg" ? 16.0 : (homeTelemetrySource === "thestats_observed_goals" ? 28.0 : 32.0);
+  const kappaAway = awayTelemetrySource === "thestats_observed_xg" ? 16.0 : (awayTelemetrySource === "thestats_observed_goals" ? 28.0 : 32.0);
 
   const wHome = (nHome + kappaHome) > 0 ? nHome / (nHome + kappaHome) : 0;
   const wAway = (nAway + kappaAway) > 0 ? nAway / (nAway + kappaAway) : 0;

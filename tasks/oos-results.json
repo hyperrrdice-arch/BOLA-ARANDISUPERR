@@ -1,0 +1,1848 @@
+{
+  "generated_at": "2026-11-03T20:13:28.190Z",
+  "scope": {
+    "min_matches": 120,
+    "leagues": 63,
+    "matches": 44210,
+    "definition": "liga registry league_calibration berstatus calibrated/partial dengan >= MIN_MATCHES match selesai",
+    "out_of_scope_leagues": 19,
+    "out_of_scope_reference_all_folds": {
+      "baseline": {
+        "n": 10961,
+        "logloss": 1.4035,
+        "brier": 0.8295,
+        "ece": 0.2283,
+        "slope": 10977741.678
+      },
+      "naive": {
+        "n": 10961,
+        "logloss": 1.0406,
+        "brier": 0.6281,
+        "ece": 0.0247,
+        "slope": 0.989
+      }
+    }
+  },
+  "folds": "V1 train[0,55%)->test[55,70%); V2 train[0,70%)->test[70,85%); H train[0,85%)->test[85,100%) — H tidak pernah dipakai tuning",
+  "levelA": {
+    "validation": {
+      "hl180|rho:zero|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0385,
+        "brier": 0.6225,
+        "ece": 0.0301,
+        "slope": 0.613
+      },
+      "hl180|rho:zero|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0302,
+        "brier": 0.6177,
+        "ece": 0.0176,
+        "slope": 0.762
+      },
+      "hl180|rho:zero|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0282,
+        "brier": 0.6165,
+        "ece": 0.011,
+        "slope": 0.862
+      },
+      "hl180|rho:zero|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0273,
+        "brier": 0.6163,
+        "ece": 0.013,
+        "slope": 1.042
+      },
+      "hl180|rho:g-0.03|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0385,
+        "brier": 0.6223,
+        "ece": 0.0286,
+        "slope": 0.612
+      },
+      "hl180|rho:g-0.03|kfit:5": {
+        "n": 13260,
+        "logloss": 1.03,
+        "brier": 0.6176,
+        "ece": 0.0163,
+        "slope": 0.759
+      },
+      "hl180|rho:g-0.03|kfit:10": {
+        "n": 13260,
+        "logloss": 1.028,
+        "brier": 0.6164,
+        "ece": 0.0102,
+        "slope": 0.859
+      },
+      "hl180|rho:g-0.03|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0271,
+        "brier": 0.6162,
+        "ece": 0.01,
+        "slope": 1.038
+      },
+      "hl180|rho:g-0.08|kfit:0": {
+        "n": 13260,
+        "logloss": 1.039,
+        "brier": 0.6224,
+        "ece": 0.0283,
+        "slope": 0.609
+      },
+      "hl180|rho:g-0.08|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0304,
+        "brier": 0.6177,
+        "ece": 0.0162,
+        "slope": 0.755
+      },
+      "hl180|rho:g-0.08|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0283,
+        "brier": 0.6165,
+        "ece": 0.011,
+        "slope": 0.854
+      },
+      "hl180|rho:g-0.08|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0273,
+        "brier": 0.6164,
+        "ece": 0.012,
+        "slope": 1.031
+      },
+      "hl180|rho:fitted|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0391,
+        "brier": 0.6227,
+        "ece": 0.0293,
+        "slope": 0.603
+      },
+      "hl180|rho:fitted|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0306,
+        "brier": 0.6179,
+        "ece": 0.0186,
+        "slope": 0.739
+      },
+      "hl180|rho:fitted|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0285,
+        "brier": 0.6167,
+        "ece": 0.0127,
+        "slope": 0.828
+      },
+      "hl180|rho:fitted|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0276,
+        "brier": 0.6166,
+        "ece": 0.01,
+        "slope": 0.98
+      },
+      "hl365|rho:zero|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0374,
+        "brier": 0.6219,
+        "ece": 0.0279,
+        "slope": 0.63
+      },
+      "hl365|rho:zero|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0296,
+        "brier": 0.6173,
+        "ece": 0.0151,
+        "slope": 0.788
+      },
+      "hl365|rho:zero|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0279,
+        "brier": 0.6163,
+        "ece": 0.0103,
+        "slope": 0.894
+      },
+      "hl365|rho:zero|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0274,
+        "brier": 0.6163,
+        "ece": 0.0138,
+        "slope": 1.085
+      },
+      "hl365|rho:g-0.03|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0374,
+        "brier": 0.6218,
+        "ece": 0.0268,
+        "slope": 0.628
+      },
+      "hl365|rho:g-0.03|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0295,
+        "brier": 0.6172,
+        "ece": 0.0138,
+        "slope": 0.785
+      },
+      "hl365|rho:g-0.03|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0277,
+        "brier": 0.6162,
+        "ece": 0.0088,
+        "slope": 0.891
+      },
+      "hl365|rho:g-0.03|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0271,
+        "brier": 0.6162,
+        "ece": 0.011,
+        "slope": 1.081
+      },
+      "hl365|rho:g-0.08|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0379,
+        "brier": 0.6219,
+        "ece": 0.025,
+        "slope": 0.626
+      },
+      "hl365|rho:g-0.08|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0298,
+        "brier": 0.6173,
+        "ece": 0.0139,
+        "slope": 0.78
+      },
+      "hl365|rho:g-0.08|kfit:10": {
+        "n": 13260,
+        "logloss": 1.028,
+        "brier": 0.6163,
+        "ece": 0.0096,
+        "slope": 0.885
+      },
+      "hl365|rho:g-0.08|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0273,
+        "brier": 0.6164,
+        "ece": 0.0127,
+        "slope": 1.073
+      },
+      "hl365|rho:fitted|kfit:0": {
+        "n": 13260,
+        "logloss": 1.038,
+        "brier": 0.6221,
+        "ece": 0.0276,
+        "slope": 0.62
+      },
+      "hl365|rho:fitted|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0299,
+        "brier": 0.6174,
+        "ece": 0.0162,
+        "slope": 0.765
+      },
+      "hl365|rho:fitted|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0282,
+        "brier": 0.6165,
+        "ece": 0.0101,
+        "slope": 0.859
+      },
+      "hl365|rho:fitted|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0276,
+        "brier": 0.6166,
+        "ece": 0.0121,
+        "slope": 1.021
+      },
+      "hl730|rho:zero|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0379,
+        "brier": 0.6223,
+        "ece": 0.0275,
+        "slope": 0.631
+      },
+      "hl730|rho:zero|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0301,
+        "brier": 0.6176,
+        "ece": 0.0154,
+        "slope": 0.79
+      },
+      "hl730|rho:zero|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0285,
+        "brier": 0.6166,
+        "ece": 0.0108,
+        "slope": 0.897
+      },
+      "hl730|rho:zero|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0279,
+        "brier": 0.6167,
+        "ece": 0.0136,
+        "slope": 1.09
+      },
+      "hl730|rho:g-0.03|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0379,
+        "brier": 0.6222,
+        "ece": 0.0275,
+        "slope": 0.629
+      },
+      "hl730|rho:g-0.03|kfit:5": {
+        "n": 13260,
+        "logloss": 1.03,
+        "brier": 0.6175,
+        "ece": 0.014,
+        "slope": 0.788
+      },
+      "hl730|rho:g-0.03|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0283,
+        "brier": 0.6165,
+        "ece": 0.0089,
+        "slope": 0.894
+      },
+      "hl730|rho:g-0.03|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0277,
+        "brier": 0.6166,
+        "ece": 0.0107,
+        "slope": 1.086
+      },
+      "hl730|rho:g-0.08|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0384,
+        "brier": 0.6223,
+        "ece": 0.0253,
+        "slope": 0.626
+      },
+      "hl730|rho:g-0.08|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0304,
+        "brier": 0.6176,
+        "ece": 0.0142,
+        "slope": 0.783
+      },
+      "hl730|rho:g-0.08|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0286,
+        "brier": 0.6167,
+        "ece": 0.0104,
+        "slope": 0.888
+      },
+      "hl730|rho:g-0.08|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0279,
+        "brier": 0.6168,
+        "ece": 0.0121,
+        "slope": 1.078
+      },
+      "hl730|rho:fitted|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0384,
+        "brier": 0.6225,
+        "ece": 0.0277,
+        "slope": 0.622
+      },
+      "hl730|rho:fitted|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0305,
+        "brier": 0.6178,
+        "ece": 0.015,
+        "slope": 0.767
+      },
+      "hl730|rho:fitted|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0287,
+        "brier": 0.6168,
+        "ece": 0.0102,
+        "slope": 0.863
+      },
+      "hl730|rho:fitted|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0281,
+        "brier": 0.6169,
+        "ece": 0.01,
+        "slope": 1.027
+      },
+      "hlinf|rho:zero|kfit:0": {
+        "n": 13260,
+        "logloss": 1.039,
+        "brier": 0.6231,
+        "ece": 0.0284,
+        "slope": 0.626
+      },
+      "hlinf|rho:zero|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0312,
+        "brier": 0.6183,
+        "ece": 0.0157,
+        "slope": 0.785
+      },
+      "hlinf|rho:zero|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0294,
+        "brier": 0.6173,
+        "ece": 0.0099,
+        "slope": 0.892
+      },
+      "hlinf|rho:zero|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0288,
+        "brier": 0.6173,
+        "ece": 0.0121,
+        "slope": 1.085
+      },
+      "hlinf|rho:g-0.03|kfit:0": {
+        "n": 13260,
+        "logloss": 1.039,
+        "brier": 0.623,
+        "ece": 0.028,
+        "slope": 0.625
+      },
+      "hlinf|rho:g-0.03|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0311,
+        "brier": 0.6182,
+        "ece": 0.0147,
+        "slope": 0.783
+      },
+      "hlinf|rho:g-0.03|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0293,
+        "brier": 0.6172,
+        "ece": 0.0088,
+        "slope": 0.889
+      },
+      "hlinf|rho:g-0.03|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0286,
+        "brier": 0.6172,
+        "ece": 0.0094,
+        "slope": 1.08
+      },
+      "hlinf|rho:g-0.08|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0395,
+        "brier": 0.6231,
+        "ece": 0.0261,
+        "slope": 0.622
+      },
+      "hlinf|rho:g-0.08|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0314,
+        "brier": 0.6183,
+        "ece": 0.0142,
+        "slope": 0.777
+      },
+      "hlinf|rho:g-0.08|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0296,
+        "brier": 0.6173,
+        "ece": 0.0107,
+        "slope": 0.883
+      },
+      "hlinf|rho:g-0.08|kfit:20": {
+        "n": 13260,
+        "logloss": 1.0288,
+        "brier": 0.6174,
+        "ece": 0.0114,
+        "slope": 1.073
+      },
+      "hlinf|rho:fitted|kfit:0": {
+        "n": 13260,
+        "logloss": 1.0395,
+        "brier": 0.6232,
+        "ece": 0.0283,
+        "slope": 0.618
+      },
+      "hlinf|rho:fitted|kfit:5": {
+        "n": 13260,
+        "logloss": 1.0315,
+        "brier": 0.6185,
+        "ece": 0.0157,
+        "slope": 0.763
+      },
+      "hlinf|rho:fitted|kfit:10": {
+        "n": 13260,
+        "logloss": 1.0297,
+        "brier": 0.6175,
+        "ece": 0.0104,
+        "slope": 0.859
+      },
+      "hlinf|rho:fitted|kfit:20": {
+        "n": 13260,
+        "logloss": 1.029,
+        "brier": 0.6175,
+        "ece": 0.009,
+        "slope": 1.024
+      }
+    },
+    "naive_validation": {
+      "n": 13260,
+      "logloss": 1.072,
+      "brier": 0.6485,
+      "ece": 0.0044,
+      "slope": 0.819
+    },
+    "winner": "hl365|rho:zero|kfit:10",
+    "baseline": "hl365|rho:zero|kfit:0",
+    "heldout": {
+      "baseline": {
+        "n": 6660,
+        "logloss": 1.0503,
+        "brier": 0.6206,
+        "ece": 0.0187,
+        "slope": 0.534
+      },
+      "winner": {
+        "n": 6660,
+        "logloss": 1.0298,
+        "brier": 0.616,
+        "ece": 0.0096,
+        "slope": 0.864
+      },
+      "naive": {
+        "n": 6660,
+        "logloss": 1.0737,
+        "brier": 0.6498,
+        "ece": 0.0053,
+        "slope": 0.575
+      }
+    },
+    "heldout_per_tier": {
+      "AS": {
+        "baseline": {
+          "n": 762,
+          "logloss": 1.0364,
+          "brier": 0.6201,
+          "ece": 0.0445,
+          "slope": 0.669
+        },
+        "winner": {
+          "n": 762,
+          "logloss": 1.0394,
+          "brier": 0.6238,
+          "ece": 0.041,
+          "slope": 1.023
+        },
+        "naive": {
+          "n": 762,
+          "logloss": 1.0905,
+          "brier": 0.6611,
+          "ece": 0.0253,
+          "slope": 0.514
+        }
+      },
+      "OTHER": {
+        "baseline": {
+          "n": 309,
+          "logloss": 1.1781,
+          "brier": 0.6672,
+          "ece": 0.0918,
+          "slope": 0.15
+        },
+        "winner": {
+          "n": 309,
+          "logloss": 0.998,
+          "brier": 0.5962,
+          "ece": 0.0359,
+          "slope": 1.031
+        },
+        "naive": {
+          "n": 309,
+          "logloss": 1.085,
+          "brier": 0.6568,
+          "ece": 0.0166,
+          "slope": 0.961
+        }
+      },
+      "EU3": {
+        "baseline": {
+          "n": 578,
+          "logloss": 1.0505,
+          "brier": 0.6327,
+          "ece": 0.033,
+          "slope": 1.238
+        },
+        "winner": {
+          "n": 578,
+          "logloss": 1.0494,
+          "brier": 0.632,
+          "ece": 0.0205,
+          "slope": 1.485
+        },
+        "naive": {
+          "n": 578,
+          "logloss": 1.0685,
+          "brier": 0.6462,
+          "ece": 0.0154,
+          "slope": 1.209
+        }
+      },
+      "EU1": {
+        "baseline": {
+          "n": 2546,
+          "logloss": 1.0265,
+          "brier": 0.5946,
+          "ece": 0.0259,
+          "slope": 0.579
+        },
+        "winner": {
+          "n": 2546,
+          "logloss": 0.9996,
+          "brier": 0.592,
+          "ece": 0.0272,
+          "slope": 0.802
+        },
+        "naive": {
+          "n": 2546,
+          "logloss": 1.0673,
+          "brier": 0.6457,
+          "ece": 0.0123,
+          "slope": 0.11
+        }
+      },
+      "EU2": {
+        "baseline": {
+          "n": 1153,
+          "logloss": 1.0712,
+          "brier": 0.647,
+          "ece": 0.0262,
+          "slope": 0.697
+        },
+        "winner": {
+          "n": 1153,
+          "logloss": 1.0671,
+          "brier": 0.6446,
+          "ece": 0.0191,
+          "slope": 0.804
+        },
+        "naive": {
+          "n": 1153,
+          "logloss": 1.0728,
+          "brier": 0.6494,
+          "ece": 0.0148,
+          "slope": 0.256
+        }
+      },
+      "AM": {
+        "baseline": {
+          "n": 1312,
+          "logloss": 1.049,
+          "brier": 0.6312,
+          "ece": 0.028,
+          "slope": 0.743
+        },
+        "winner": {
+          "n": 1312,
+          "logloss": 1.048,
+          "brier": 0.6306,
+          "ece": 0.0218,
+          "slope": 0.814
+        },
+        "naive": {
+          "n": 1312,
+          "logloss": 1.077,
+          "brier": 0.6514,
+          "ece": 0.0162,
+          "slope": 0.324
+        }
+      }
+    },
+    "heldout_per_league": {
+      "sm:1007": {
+        "tier": "AS",
+        "winner": {
+          "n": 42,
+          "logloss": 1.0008,
+          "brier": 0.5992,
+          "ece": 0.1201,
+          "slope": null
+        },
+        "naive": {
+          "n": 42,
+          "logloss": 1.1208,
+          "brier": 0.6815,
+          "ece": 0.0609,
+          "slope": null
+        }
+      },
+      "sm:1034": {
+        "tier": "AS",
+        "winner": {
+          "n": 99,
+          "logloss": 1.0972,
+          "brier": 0.6671,
+          "ece": 0.0652,
+          "slope": null
+        },
+        "naive": {
+          "n": 99,
+          "logloss": 1.1165,
+          "brier": 0.6777,
+          "ece": 0.0705,
+          "slope": null
+        }
+      },
+      "sm:1073": {
+        "tier": "AS",
+        "winner": {
+          "n": 61,
+          "logloss": 1.0923,
+          "brier": 0.664,
+          "ece": 0.1416,
+          "slope": null
+        },
+        "naive": {
+          "n": 61,
+          "logloss": 1.0589,
+          "brier": 0.6396,
+          "ece": 0.0397,
+          "slope": null
+        }
+      },
+      "sm:1085": {
+        "tier": "AS",
+        "winner": {
+          "n": 43,
+          "logloss": 1.0999,
+          "brier": 0.6613,
+          "ece": 0.1245,
+          "slope": null
+        },
+        "naive": {
+          "n": 43,
+          "logloss": 1.1105,
+          "brier": 0.6771,
+          "ece": 0.0779,
+          "slope": null
+        }
+      },
+      "sm:1088": {
+        "tier": "AS",
+        "winner": {
+          "n": 43,
+          "logloss": 1.1301,
+          "brier": 0.6809,
+          "ece": 0.1172,
+          "slope": null
+        },
+        "naive": {
+          "n": 43,
+          "logloss": 1.0682,
+          "brier": 0.648,
+          "ece": 0.0404,
+          "slope": null
+        }
+      },
+      "sm:1107": {
+        "tier": "OTHER",
+        "winner": {
+          "n": 57,
+          "logloss": 0.8912,
+          "brier": 0.516,
+          "ece": 0.117,
+          "slope": null
+        },
+        "naive": {
+          "n": 57,
+          "logloss": 1.005,
+          "brier": 0.5988,
+          "ece": 0.051,
+          "slope": null
+        }
+      },
+      "sm:12": {
+        "tier": "EU3",
+        "winner": {
+          "n": 191,
+          "logloss": 1.0497,
+          "brier": 0.631,
+          "ece": 0.0362,
+          "slope": null
+        },
+        "naive": {
+          "n": 191,
+          "logloss": 1.0862,
+          "brier": 0.6584,
+          "ece": 0.0195,
+          "slope": null
+        }
+      },
+      "sm:1356": {
+        "tier": "AS",
+        "winner": {
+          "n": 54,
+          "logloss": 1.1634,
+          "brier": 0.713,
+          "ece": 0.1196,
+          "slope": null
+        },
+        "naive": {
+          "n": 54,
+          "logloss": 1.1257,
+          "brier": 0.6821,
+          "ece": 0.0751,
+          "slope": null
+        }
+      },
+      "sm:14": {
+        "tier": "EU3",
+        "winner": {
+          "n": 192,
+          "logloss": 1.0806,
+          "brier": 0.6537,
+          "ece": 0.0941,
+          "slope": null
+        },
+        "naive": {
+          "n": 192,
+          "logloss": 1.0783,
+          "brier": 0.6513,
+          "ece": 0.0744,
+          "slope": null
+        }
+      },
+      "sm:17": {
+        "tier": "EU3",
+        "winner": {
+          "n": 195,
+          "logloss": 1.0195,
+          "brier": 0.6122,
+          "ece": 0.0654,
+          "slope": null
+        },
+        "naive": {
+          "n": 195,
+          "logloss": 1.0416,
+          "brier": 0.6292,
+          "ece": 0.0505,
+          "slope": null
+        }
+      },
+      "sm:181": {
+        "tier": "EU1",
+        "winner": {
+          "n": 69,
+          "logloss": 0.9999,
+          "brier": 0.5965,
+          "ece": 0.0803,
+          "slope": null
+        },
+        "naive": {
+          "n": 69,
+          "logloss": 1.0344,
+          "brier": 0.6225,
+          "ece": 0.0586,
+          "slope": null
+        }
+      },
+      "sm:208": {
+        "tier": "EU1",
+        "winner": {
+          "n": 107,
+          "logloss": 0.9436,
+          "brier": 0.5591,
+          "ece": 0.0772,
+          "slope": null
+        },
+        "naive": {
+          "n": 107,
+          "logloss": 1.0447,
+          "brier": 0.6297,
+          "ece": 0.0383,
+          "slope": null
+        }
+      },
+      "sm:211": {
+        "tier": "EU2",
+        "winner": {
+          "n": 83,
+          "logloss": 0.9847,
+          "brier": 0.585,
+          "ece": 0.0773,
+          "slope": null
+        },
+        "naive": {
+          "n": 83,
+          "logloss": 1.0489,
+          "brier": 0.6349,
+          "ece": 0.0492,
+          "slope": null
+        }
+      },
+      "sm:229": {
+        "tier": "EU1",
+        "winner": {
+          "n": 101,
+          "logloss": 0.9131,
+          "brier": 0.5389,
+          "ece": 0.0884,
+          "slope": null
+        },
+        "naive": {
+          "n": 101,
+          "logloss": 1.0705,
+          "brier": 0.6477,
+          "ece": 0.0259,
+          "slope": null
+        }
+      },
+      "sm:244": {
+        "tier": "EU1",
+        "winner": {
+          "n": 63,
+          "logloss": 0.9644,
+          "brier": 0.5737,
+          "ece": 0.0985,
+          "slope": null
+        },
+        "naive": {
+          "n": 63,
+          "logloss": 1.0251,
+          "brier": 0.6151,
+          "ece": 0.0625,
+          "slope": null
+        }
+      },
+      "sm:262": {
+        "tier": "EU1",
+        "winner": {
+          "n": 98,
+          "logloss": 0.9909,
+          "brier": 0.5927,
+          "ece": 0.0759,
+          "slope": null
+        },
+        "naive": {
+          "n": 98,
+          "logloss": 1.0799,
+          "brier": 0.6546,
+          "ece": 0.0211,
+          "slope": null
+        }
+      },
+      "sm:271": {
+        "tier": "EU1",
+        "winner": {
+          "n": 70,
+          "logloss": 0.9998,
+          "brier": 0.5964,
+          "ece": 0.0877,
+          "slope": null
+        },
+        "naive": {
+          "n": 70,
+          "logloss": 1.066,
+          "brier": 0.6434,
+          "ece": 0.0397,
+          "slope": null
+        }
+      },
+      "sm:274": {
+        "tier": "EU1",
+        "winner": {
+          "n": 70,
+          "logloss": 1.5105,
+          "brier": 0.7838,
+          "ece": 0.1872,
+          "slope": null
+        },
+        "naive": {
+          "n": 70,
+          "logloss": 1.1296,
+          "brier": 0.6848,
+          "ece": 0.0899,
+          "slope": null
+        }
+      },
+      "sm:292": {
+        "tier": "EU1",
+        "winner": {
+          "n": 78,
+          "logloss": 1.0766,
+          "brier": 0.647,
+          "ece": 0.0557,
+          "slope": null
+        },
+        "naive": {
+          "n": 78,
+          "logloss": 1.0778,
+          "brier": 0.6533,
+          "ece": 0.0144,
+          "slope": null
+        }
+      },
+      "sm:301": {
+        "tier": "EU1",
+        "winner": {
+          "n": 104,
+          "logloss": 0.9781,
+          "brier": 0.5808,
+          "ece": 0.0628,
+          "slope": null
+        },
+        "naive": {
+          "n": 104,
+          "logloss": 1.047,
+          "brier": 0.6318,
+          "ece": 0.0235,
+          "slope": null
+        }
+      },
+      "sm:304": {
+        "tier": "EU2",
+        "winner": {
+          "n": 107,
+          "logloss": 1.0738,
+          "brier": 0.6506,
+          "ece": 0.0813,
+          "slope": null
+        },
+        "naive": {
+          "n": 107,
+          "logloss": 1.0918,
+          "brier": 0.6623,
+          "ece": 0.0242,
+          "slope": null
+        }
+      },
+      "sm:325": {
+        "tier": "EU1",
+        "winner": {
+          "n": 81,
+          "logloss": 0.9297,
+          "brier": 0.5441,
+          "ece": 0.0796,
+          "slope": null
+        },
+        "naive": {
+          "n": 81,
+          "logloss": 1.0563,
+          "brier": 0.6375,
+          "ece": 0.0547,
+          "slope": null
+        }
+      },
+      "sm:372": {
+        "tier": "EU1",
+        "winner": {
+          "n": 81,
+          "logloss": 0.94,
+          "brier": 0.5537,
+          "ece": 0.0909,
+          "slope": null
+        },
+        "naive": {
+          "n": 81,
+          "logloss": 1.0693,
+          "brier": 0.6487,
+          "ece": 0.0372,
+          "slope": null
+        }
+      },
+      "sm:384": {
+        "tier": "EU1",
+        "winner": {
+          "n": 129,
+          "logloss": 0.9401,
+          "brier": 0.5508,
+          "ece": 0.0815,
+          "slope": null
+        },
+        "naive": {
+          "n": 129,
+          "logloss": 1.0592,
+          "brier": 0.6416,
+          "ece": 0.0714,
+          "slope": null
+        }
+      },
+      "sm:387": {
+        "tier": "EU2",
+        "winner": {
+          "n": 132,
+          "logloss": 1.0716,
+          "brier": 0.6459,
+          "ece": 0.0443,
+          "slope": null
+        },
+        "naive": {
+          "n": 132,
+          "logloss": 1.086,
+          "brier": 0.6579,
+          "ece": 0.02,
+          "slope": null
+        }
+      },
+      "sm:444": {
+        "tier": "EU1",
+        "winner": {
+          "n": 102,
+          "logloss": 0.9649,
+          "brier": 0.5719,
+          "ece": 0.0939,
+          "slope": null
+        },
+        "naive": {
+          "n": 102,
+          "logloss": 1.0527,
+          "brier": 0.6373,
+          "ece": 0.0428,
+          "slope": null
+        }
+      },
+      "sm:45": {
+        "tier": "EU1",
+        "winner": {
+          "n": 48,
+          "logloss": 0.8651,
+          "brier": 0.502,
+          "ece": 0.1071,
+          "slope": null
+        },
+        "naive": {
+          "n": 48,
+          "logloss": 1.0796,
+          "brier": 0.6543,
+          "ece": 0.0214,
+          "slope": null
+        }
+      },
+      "sm:453": {
+        "tier": "EU1",
+        "winner": {
+          "n": 110,
+          "logloss": 1.0127,
+          "brier": 0.6047,
+          "ece": 0.0564,
+          "slope": null
+        },
+        "naive": {
+          "n": 110,
+          "logloss": 1.0495,
+          "brier": 0.6327,
+          "ece": 0.0159,
+          "slope": null
+        }
+      },
+      "sm:462": {
+        "tier": "EU1",
+        "winner": {
+          "n": 106,
+          "logloss": 1.0009,
+          "brier": 0.5983,
+          "ece": 0.0576,
+          "slope": null
+        },
+        "naive": {
+          "n": 106,
+          "logloss": 1.0789,
+          "brier": 0.6543,
+          "ece": 0.0403,
+          "slope": null
+        }
+      },
+      "sm:465": {
+        "tier": "EU2",
+        "winner": {
+          "n": 104,
+          "logloss": 1.0757,
+          "brier": 0.6519,
+          "ece": 0.075,
+          "slope": null
+        },
+        "naive": {
+          "n": 104,
+          "logloss": 1.0646,
+          "brier": 0.6442,
+          "ece": 0.0397,
+          "slope": null
+        }
+      },
+      "sm:474": {
+        "tier": "EU1",
+        "winner": {
+          "n": 112,
+          "logloss": 0.9762,
+          "brier": 0.5782,
+          "ece": 0.0757,
+          "slope": null
+        },
+        "naive": {
+          "n": 112,
+          "logloss": 1.0335,
+          "brier": 0.6208,
+          "ece": 0.0666,
+          "slope": null
+        }
+      },
+      "sm:486": {
+        "tier": "EU1",
+        "winner": {
+          "n": 88,
+          "logloss": 1.0348,
+          "brier": 0.6217,
+          "ece": 0.0845,
+          "slope": null
+        },
+        "naive": {
+          "n": 88,
+          "logloss": 1.1044,
+          "brier": 0.6703,
+          "ece": 0.0479,
+          "slope": null
+        }
+      },
+      "sm:501": {
+        "tier": "EU1",
+        "winner": {
+          "n": 79,
+          "logloss": 1.0264,
+          "brier": 0.6165,
+          "ece": 0.0983,
+          "slope": null
+        },
+        "naive": {
+          "n": 79,
+          "logloss": 1.0868,
+          "brier": 0.6606,
+          "ece": 0.0653,
+          "slope": null
+        }
+      },
+      "sm:564": {
+        "tier": "EU1",
+        "winner": {
+          "n": 131,
+          "logloss": 0.9522,
+          "brier": 0.5612,
+          "ece": 0.0555,
+          "slope": null
+        },
+        "naive": {
+          "n": 131,
+          "logloss": 1.0518,
+          "brier": 0.6341,
+          "ece": 0.0179,
+          "slope": null
+        }
+      },
+      "sm:567": {
+        "tier": "EU2",
+        "winner": {
+          "n": 161,
+          "logloss": 1.0315,
+          "brier": 0.6203,
+          "ece": 0.0315,
+          "slope": null
+        },
+        "naive": {
+          "n": 161,
+          "logloss": 1.0668,
+          "brier": 0.645,
+          "ece": 0.0161,
+          "slope": null
+        }
+      },
+      "sm:573": {
+        "tier": "EU1",
+        "winner": {
+          "n": 105,
+          "logloss": 1.035,
+          "brier": 0.6227,
+          "ece": 0.0808,
+          "slope": null
+        },
+        "naive": {
+          "n": 105,
+          "logloss": 1.0747,
+          "brier": 0.6526,
+          "ece": 0.0516,
+          "slope": null
+        }
+      },
+      "sm:591": {
+        "tier": "EU1",
+        "winner": {
+          "n": 80,
+          "logloss": 1.0465,
+          "brier": 0.6308,
+          "ece": 0.0621,
+          "slope": null
+        },
+        "naive": {
+          "n": 80,
+          "logloss": 1.0712,
+          "brier": 0.6508,
+          "ece": 0.057,
+          "slope": null
+        }
+      },
+      "sm:600": {
+        "tier": "EU1",
+        "winner": {
+          "n": 111,
+          "logloss": 1.0039,
+          "brier": 0.5995,
+          "ece": 0.0895,
+          "slope": null
+        },
+        "naive": {
+          "n": 111,
+          "logloss": 1.036,
+          "brier": 0.6246,
+          "ece": 0.0464,
+          "slope": null
+        }
+      },
+      "sm:603": {
+        "tier": "EU2",
+        "winner": {
+          "n": 135,
+          "logloss": 1.1489,
+          "brier": 0.7051,
+          "ece": 0.1192,
+          "slope": null
+        },
+        "naive": {
+          "n": 135,
+          "logloss": 1.1165,
+          "brier": 0.6801,
+          "ece": 0.0682,
+          "slope": null
+        }
+      },
+      "sm:609": {
+        "tier": "EU1",
+        "winner": {
+          "n": 84,
+          "logloss": 0.9054,
+          "brier": 0.5322,
+          "ece": 0.0591,
+          "slope": null
+        },
+        "naive": {
+          "n": 84,
+          "logloss": 1.0799,
+          "brier": 0.654,
+          "ece": 0.0246,
+          "slope": null
+        }
+      },
+      "sm:636": {
+        "tier": "AM",
+        "winner": {
+          "n": 204,
+          "logloss": 1.0592,
+          "brier": 0.6396,
+          "ece": 0.0331,
+          "slope": null
+        },
+        "naive": {
+          "n": 204,
+          "logloss": 1.0903,
+          "brier": 0.6607,
+          "ece": 0.0268,
+          "slope": null
+        }
+      },
+      "sm:648": {
+        "tier": "AM",
+        "winner": {
+          "n": 164,
+          "logloss": 0.9894,
+          "brier": 0.5896,
+          "ece": 0.0412,
+          "slope": null
+        },
+        "naive": {
+          "n": 164,
+          "logloss": 1.0448,
+          "brier": 0.6286,
+          "ece": 0.0176,
+          "slope": null
+        }
+      },
+      "sm:651": {
+        "tier": "AM",
+        "winner": {
+          "n": 168,
+          "logloss": 1.0057,
+          "brier": 0.601,
+          "ece": 0.0463,
+          "slope": null
+        },
+        "naive": {
+          "n": 168,
+          "logloss": 1.0584,
+          "brier": 0.6381,
+          "ece": 0.0335,
+          "slope": null
+        }
+      },
+      "sm:663": {
+        "tier": "AM",
+        "winner": {
+          "n": 103,
+          "logloss": 1.0339,
+          "brier": 0.6241,
+          "ece": 0.0606,
+          "slope": null
+        },
+        "naive": {
+          "n": 103,
+          "logloss": 1.0712,
+          "brier": 0.6477,
+          "ece": 0.0146,
+          "slope": null
+        }
+      },
+      "sm:672": {
+        "tier": "AM",
+        "winner": {
+          "n": 188,
+          "logloss": 1.0218,
+          "brier": 0.6154,
+          "ece": 0.0557,
+          "slope": null
+        },
+        "naive": {
+          "n": 188,
+          "logloss": 1.0668,
+          "brier": 0.6448,
+          "ece": 0.017,
+          "slope": null
+        }
+      },
+      "sm:72": {
+        "tier": "EU1",
+        "winner": {
+          "n": 108,
+          "logloss": 1.027,
+          "brier": 0.6201,
+          "ece": 0.1261,
+          "slope": null
+        },
+        "naive": {
+          "n": 108,
+          "logloss": 1.1184,
+          "brier": 0.683,
+          "ece": 0.082,
+          "slope": null
+        }
+      },
+      "sm:74": {
+        "tier": "EU2",
+        "winner": {
+          "n": 134,
+          "logloss": 1.0192,
+          "brier": 0.6117,
+          "ece": 0.0564,
+          "slope": null
+        },
+        "naive": {
+          "n": 134,
+          "logloss": 1.0285,
+          "brier": 0.6195,
+          "ece": 0.0366,
+          "slope": null
+        }
+      },
+      "sm:743": {
+        "tier": "AM",
+        "winner": {
+          "n": 122,
+          "logloss": 1.1128,
+          "brier": 0.6733,
+          "ece": 0.1022,
+          "slope": null
+        },
+        "naive": {
+          "n": 122,
+          "logloss": 1.1142,
+          "brier": 0.6785,
+          "ece": 0.0672,
+          "slope": null
+        }
+      },
+      "sm:770": {
+        "tier": "AM",
+        "winner": {
+          "n": 132,
+          "logloss": 1.0811,
+          "brier": 0.6528,
+          "ece": 0.0505,
+          "slope": null
+        },
+        "naive": {
+          "n": 132,
+          "logloss": 1.0833,
+          "brier": 0.6561,
+          "ece": 0.0066,
+          "slope": null
+        }
+      },
+      "sm:779": {
+        "tier": "AM",
+        "winner": {
+          "n": 231,
+          "logloss": 1.0797,
+          "brier": 0.65,
+          "ece": 0.0688,
+          "slope": null
+        },
+        "naive": {
+          "n": 231,
+          "logloss": 1.0891,
+          "brier": 0.6592,
+          "ece": 0.0375,
+          "slope": null
+        }
+      },
+      "sm:8": {
+        "tier": "EU1",
+        "winner": {
+          "n": 128,
+          "logloss": 1.0393,
+          "brier": 0.623,
+          "ece": 0.0644,
+          "slope": null
+        },
+        "naive": {
+          "n": 128,
+          "logloss": 1.0959,
+          "brier": 0.6638,
+          "ece": 0.0368,
+          "slope": null
+        }
+      },
+      "sm:806": {
+        "tier": "OTHER",
+        "winner": {
+          "n": 79,
+          "logloss": 0.95,
+          "brier": 0.5634,
+          "ece": 0.0967,
+          "slope": null
+        },
+        "naive": {
+          "n": 79,
+          "logloss": 1.1041,
+          "brier": 0.6709,
+          "ece": 0.0422,
+          "slope": null
+        }
+      },
+      "sm:82": {
+        "tier": "EU1",
+        "winner": {
+          "n": 103,
+          "logloss": 1.0212,
+          "brier": 0.6126,
+          "ece": 0.0718,
+          "slope": null
+        },
+        "naive": {
+          "n": 103,
+          "logloss": 1.0602,
+          "brier": 0.6406,
+          "ece": 0.0248,
+          "slope": null
+        }
+      },
+      "sm:830": {
+        "tier": "OTHER",
+        "winner": {
+          "n": 94,
+          "logloss": 0.9959,
+          "brier": 0.5942,
+          "ece": 0.0769,
+          "slope": null
+        },
+        "naive": {
+          "n": 94,
+          "logloss": 1.0931,
+          "brier": 0.6631,
+          "ece": 0.0283,
+          "slope": null
+        }
+      },
+      "sm:85": {
+        "tier": "EU2",
+        "winner": {
+          "n": 106,
+          "logloss": 1.0591,
+          "brier": 0.6388,
+          "ece": 0.0524,
+          "slope": null
+        },
+        "naive": {
+          "n": 106,
+          "logloss": 1.0618,
+          "brier": 0.6402,
+          "ece": 0.0426,
+          "slope": null
+        }
+      },
+      "sm:860": {
+        "tier": "OTHER",
+        "winner": {
+          "n": 79,
+          "logloss": 1.1291,
+          "brier": 0.6913,
+          "ece": 0.0925,
+          "slope": null
+        },
+        "naive": {
+          "n": 79,
+          "logloss": 1.1142,
+          "brier": 0.6772,
+          "ece": 0.0528,
+          "slope": null
+        }
+      },
+      "sm:9": {
+        "tier": "EU2",
+        "winner": {
+          "n": 191,
+          "logloss": 1.099,
+          "brier": 0.6646,
+          "ece": 0.0506,
+          "slope": null
+        },
+        "naive": {
+          "n": 191,
+          "logloss": 1.0793,
+          "brier": 0.6535,
+          "ece": 0.0127,
+          "slope": null
+        }
+      },
+      "sm:902": {
+        "tier": "AS",
+        "winner": {
+          "n": 77,
+          "logloss": 1.0092,
+          "brier": 0.6051,
+          "ece": 0.0864,
+          "slope": null
+        },
+        "naive": {
+          "n": 77,
+          "logloss": 1.0923,
+          "brier": 0.6626,
+          "ece": 0.023,
+          "slope": null
+        }
+      },
+      "sm:938": {
+        "tier": "AS",
+        "winner": {
+          "n": 47,
+          "logloss": 0.985,
+          "brier": 0.581,
+          "ece": 0.1264,
+          "slope": null
+        },
+        "naive": {
+          "n": 47,
+          "logloss": 1.0965,
+          "brier": 0.6646,
+          "ece": 0.0318,
+          "slope": null
+        }
+      },
+      "sm:944": {
+        "tier": "AS",
+        "winner": {
+          "n": 108,
+          "logloss": 0.9479,
+          "brier": 0.5577,
+          "ece": 0.1099,
+          "slope": null
+        },
+        "naive": {
+          "n": 108,
+          "logloss": 1.0828,
+          "brier": 0.6561,
+          "ece": 0.0111,
+          "slope": null
+        }
+      },
+      "sm:959": {
+        "tier": "AS",
+        "winner": {
+          "n": 61,
+          "logloss": 0.9405,
+          "brier": 0.5554,
+          "ece": 0.0876,
+          "slope": null
+        },
+        "naive": {
+          "n": 61,
+          "logloss": 1.0693,
+          "brier": 0.6488,
+          "ece": 0.0332,
+          "slope": null
+        }
+      },
+      "sm:968": {
+        "tier": "AS",
+        "winner": {
+          "n": 20,
+          "logloss": 0.9765,
+          "brier": 0.5779,
+          "ece": 0.1464,
+          "slope": null
+        },
+        "naive": {
+          "n": 20,
+          "logloss": 1.052,
+          "brier": 0.6335,
+          "ece": 0.0942,
+          "slope": null
+        }
+      },
+      "sm:989": {
+        "tier": "AS",
+        "winner": {
+          "n": 107,
+          "logloss": 1.056,
+          "brier": 0.6359,
+          "ece": 0.0575,
+          "slope": null
+        },
+        "naive": {
+          "n": 107,
+          "logloss": 1.0788,
+          "brier": 0.6526,
+          "ece": 0.0266,
+          "slope": null
+        }
+      }
+    }
+  },
+  "levelB": {
+    "validation_V2": {
+      "production(hl365,rho0,kx1)": {
+        "n": 6629,
+        "logloss": 1.0356,
+        "brier": 0.6214,
+        "ece": 0.0336,
+        "slope": 0.682
+      },
+      "baseline kx0.5": {
+        "n": 6629,
+        "logloss": 1.0438,
+        "brier": 0.6268,
+        "ece": 0.0438,
+        "slope": 0.612
+      },
+      "baseline kx2": {
+        "n": 6629,
+        "logloss": 1.0342,
+        "brier": 0.6202,
+        "ece": 0.028,
+        "slope": 0.698
+      },
+      "winner kx1": {
+        "n": 6629,
+        "logloss": 1.0286,
+        "brier": 0.6173,
+        "ece": 0.0261,
+        "slope": 0.833
+      },
+      "winner kx0.5": {
+        "n": 6629,
+        "logloss": 1.0396,
+        "brier": 0.6245,
+        "ece": 0.0398,
+        "slope": 0.674
+      },
+      "winner kx2": {
+        "n": 6629,
+        "logloss": 1.0249,
+        "brier": 0.6148,
+        "ece": 0.0195,
+        "slope": 0.936
+      }
+    },
+    "selected": {
+      "label": "winner kx2",
+      "params": "hl365|rho:zero|kfit:10",
+      "kappaScale": 2
+    },
+    "heldout": {
+      "production(hl365,rho0,kx1)": {
+        "n": 6660,
+        "logloss": 1.034,
+        "brier": 0.6136,
+        "ece": 0.0246,
+        "slope": 0.631
+      },
+      "winner kx2": {
+        "n": 6660,
+        "logloss": 1.0205,
+        "brier": 0.6105,
+        "ece": 0.0188,
+        "slope": 0.953
+      }
+    }
+  },
+  "closing_line": {
+    "matches_pre_kickoff": 0,
+    "unparseable": 0,
+    "out_of_model_scope": 0,
+    "closing": {
+      "n": 0,
+      "logloss": null,
+      "brier": null,
+      "ece": 0,
+      "slope": null
+    },
+    "model_baseline_same_subset": {
+      "n": 0,
+      "logloss": null,
+      "brier": null,
+      "ece": 0,
+      "slope": null
+    },
+    "model_winner_same_subset": {
+      "n": 0,
+      "logloss": null,
+      "brier": null,
+      "ece": 0,
+      "slope": null
+    }
+  },
+  "sample_floor_buckets": {
+    "<250": {
+      "leagues": 4,
+      "n": 148,
+      "llModel": 157.4536,
+      "llNaive": 161.7977,
+      "lose": 1
+    },
+    "500-900": {
+      "leagues": 28,
+      "n": 3138,
+      "llModel": 3207.2351,
+      "llNaive": 3366.9933,
+      "lose": 2
+    },
+    "250-500": {
+      "leagues": 21,
+      "n": 1489,
+      "llModel": 1521.9434,
+      "llNaive": 1603.0016999999998,
+      "lose": 4
+    },
+    ">900": {
+      "leagues": 10,
+      "n": 1885,
+      "llModel": 1971.556,
+      "llNaive": 2019.2309999999998,
+      "lose": 2
+    }
+  },
+  "runtime_seconds": 40.3
+}

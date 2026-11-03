@@ -45,6 +45,19 @@ const RHO_MODE = (() => {
   const hit = args.find((a) => a.startsWith("--rho-mode="));
   return hit ? hit.split("=")[1] : "zero";
 })();
+/**
+ * Shrinkage fit: attack/defense tiap tim di-shrink log-space menuju 1,0
+ * dengan bobot n_tim/(n_tim+κ). Default κ=10 DIPILIH walk-forward
+ * out-of-sample (Fase 3, tasks/oos-results.json): held-out log-loss
+ * 1,0503 → 1,0298 dan ECE 0,0187 → 0,0096 vs tanpa shrinkage. Memperbaiki
+ * ledakan skala IPF pada tim bermatch sedikit (promosi/degradasi).
+ * --shrink-kappa=0 menonaktifkan (perilaku pra-Fase-3).
+ */
+const SHRINK_KAPPA = (() => {
+  const hit = args.find((a) => a.startsWith("--shrink-kappa="));
+  const v = hit ? Number(hit.split("=")[1]) : 10;
+  return Number.isFinite(v) && v >= 0 ? v : 10;
+})();
 
 // Rumus Poisson-log + tau Dixon-Coles diambil dari modul kanonis
 // lib/quant/dixon-coles.ts (poissonLogProb / tauAdjustment) — jangan
@@ -144,6 +157,24 @@ function fitLeague(matches: MatchRow[], nowMs: number, halfLifeDays: number = HA
     if (ma > 0) for (let t = 0; t < T; t++) attack[t] /= ma;
     if (md > 0) for (let t = 0; t < T; t++) defense[t] /= md;
     if (maxDelta < 1e-7) break;
+  }
+  // Shrinkage fit (lihat SHRINK_KAPPA): diterapkan SEBELUM uji skala dan
+  // penulisan ratings — parameter yang diuji gerbang = parameter tersaji.
+  if (SHRINK_KAPPA > 0) {
+    const counts = new Float64Array(T);
+    for (let i = 0; i < n; i++) { counts[hi[i]]++; counts[ai[i]]++; }
+    const shrinkArr = (arr: Float64Array) => {
+      let sum = 0;
+      for (let t = 0; t < T; t++) {
+        const wgt = counts[t] / (counts[t] + SHRINK_KAPPA);
+        arr[t] = Math.exp(Math.log(Math.max(1e-6, arr[t])) * wgt);
+        sum += arr[t];
+      }
+      const mean = sum / T;
+      if (mean > 0) for (let t = 0; t < T; t++) arr[t] /= mean;
+    };
+    shrinkArr(attack);
+    shrinkArr(defense);
   }
   const attackMap = new Map<string, number>();
   const defenseMap = new Map<string, number>();
@@ -329,9 +360,21 @@ function main() {
     // Lantai sampel gerbang OOS: demosi hanya bila bukti held-out cukup
     // (n >= 20) — sampel lebih kecil tidak cukup kuat untuk menjatuhkan
     // status, dan dicatat sebagai belum teruji, bukan lolos/gagal.
-    if (status === "calibrated" && oos && oos.n >= 20 && oos.heldout_logloss >= oos.naive_logloss) {
+    // Kebijakan tangga: calibrated yang gagal OOS → partial; partial yang
+    // gagal OOS → uncalibrated (diblokir) — model yang tidak mengalahkan
+    // baseline naive secara out-of-sample tidak boleh tersaji sama sekali.
+    const oosFail = !!oos && oos.n >= 20 && oos.heldout_logloss >= oos.naive_logloss;
+    if (oosFail && status === "calibrated") {
       status = "partial";
       oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → diturunkan ke partial.`;
+    } else if (oosFail) {
+      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → DIBLOKIR (uncalibrated).`;
+      delete ratings.leagues[`SM${leagueId.slice(3)}`];
+      insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
+        coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
+        `Lolos gerbang skala/cakupan sebagai partial, gugur di gerbang bukti.` + oosNote);
+      nUncal += 1;
+      continue;
     } else if (oos && oos.n >= 20) {
       oosNote = ` Gerbang OOS lolos: log-loss held-out ${oos.heldout_logloss.toFixed(4)} < naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}).`;
     } else if (oos) {
@@ -339,9 +382,6 @@ function main() {
     }
     if (status === "calibrated") nCal += 1; else nPart += 1;
 
-    // Hanya liga 'calibrated' yang masuk JSON (himpunan yang boleh disajikan
-    // tanpa flag). Fit 'partial' hidup di registry sebagai audit dan bisa
-    // direproduksi kapan pun dengan menjalankan ulang skrip ini.
     const key = `SM${leagueId.slice(3)}`;
     const perTeam = new Map<string, { matchesCount: number; goalsScored: number; goalsConceded: number; lastMatchDate: string }>();
     for (const m of matches) {
@@ -382,7 +422,7 @@ function main() {
       calibrationDate: nowIso.slice(0, 10),
       source: "sportmonks-fit",
       calibrationStatus: status,
-      fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}`,
+      fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}+shrink-${SHRINK_KAPPA}`,
       teams: teamsJson,
     };
     insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, status, matches.length, teamSet.size,
