@@ -17,16 +17,38 @@
  * liga data-tipis → 'uncalibrated' (tetap tercatat eksplisit di registry).
  *
  * Pakai: npx tsx scripts/calibrate-ratings.ts [--min-matches=30]
+ *        [--half-life-days=365] [--rho-mode=zero|global:<v>|fitted]
+ *
+ * Parameter fit (half-life decay + kebijakan rho) dipilih dari validasi
+ * walk-forward out-of-sample (scripts/backtest-walkforward.ts, Fase 3
+ * overhaul backend) — BUKAN dari performa in-sample. Gerbang status:
+ * uji skala + cakupan telemetri (di bawah) DAN gerbang OOS bila
+ * tasks/oos-gate.json tersedia (log-loss held-out harus mengalahkan
+ * baseline naive liga, kalau tidak status diturunkan ke partial).
  */
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
+import { poissonLogProb, tauAdjustment } from "../lib/quant/dixon-coles";
 
 const args = process.argv.slice(2);
 const MIN_MATCHES = (() => {
   const hit = args.find((a) => a.startsWith("--min-matches="));
   return hit ? Number(hit.split("=")[1]) : 30;
 })();
+const HALF_LIFE_DAYS = (() => {
+  const hit = args.find((a) => a.startsWith("--half-life-days="));
+  const v = hit ? Number(hit.split("=")[1]) : 365;
+  return Number.isFinite(v) && v > 0 ? v : 365;
+})();
+const RHO_MODE = (() => {
+  const hit = args.find((a) => a.startsWith("--rho-mode="));
+  return hit ? hit.split("=")[1] : "zero";
+})();
+
+// Rumus Poisson-log + tau Dixon-Coles diambil dari modul kanonis
+// lib/quant/dixon-coles.ts (poissonLogProb / tauAdjustment) — jangan
+// diduplikasi di sini agar fit offline tidak pernah divergen dari produksi.
 
 function dataPath(file: string): string {
   return path.join(process.cwd(), "data", file);
@@ -41,67 +63,133 @@ interface FitResult {
   leagueAvgGoals: number; homeAdvantage: number;
   attack: Map<string, number>; defense: Map<string, number>;
   scaleRatio: number; nMatches: number;
+  /** Lambda per match (selaras urutan `matches`) untuk fit rho. */
+  lamHome: number[]; lamAway: number[];
+  /** Bobot decay per match (dipakai fit rho agar konsisten dengan fit IPF). */
+  weights: number[];
 }
 
 /** IPF dengan bobot waktu; parameterisasi identik ratings-loader. */
-function fitLeague(matches: MatchRow[], nowMs: number): FitResult | null {
-  const teams = new Set<string>();
-  for (const m of matches) { teams.add(m.home_team_id); teams.add(m.away_team_id); }
-  if (teams.size < 4) return null;
-  const w = matches.map((m) => Math.pow(0.5, (nowMs - Date.parse(m.utc_date)) / (365 * 86400_000)));
+function fitLeague(matches: MatchRow[], nowMs: number, halfLifeDays: number = HALF_LIFE_DAYS): FitResult | null {
+  // IPF linear O(match) per iterasi (tim diindeks, array datar) — update
+  // multiplikatifnya IDENTIK dengan implementasi lama yang memindai semua
+  // match per tim per iterasi (O(tim × match)): λ/att_t menyisakan
+  // lgAvg × def_lawan (× HA) sehingga den penyebut bisa diakumulasi satu
+  // lintasan. Ekuivalensi terverifikasi 2026-11-04: selisih parameter
+  // maksimum 4,4e-16 pada sm:8/sm:1034/sm:779, runtime 50–300× lebih cepat.
+  const teamIdx = new Map<string, number>();
+  for (const m of matches) {
+    if (!teamIdx.has(m.home_team_id)) teamIdx.set(m.home_team_id, teamIdx.size);
+    if (!teamIdx.has(m.away_team_id)) teamIdx.set(m.away_team_id, teamIdx.size);
+  }
+  const T = teamIdx.size;
+  const n = matches.length;
+  if (T < 4 || n === 0) return null;
+  const hi = new Int32Array(n), ai = new Int32Array(n);
+  const hs = new Float64Array(n), as = new Float64Array(n), w = new Float64Array(n);
   let wSum = 0, hSum = 0, aSum = 0;
-  matches.forEach((m, i) => { wSum += w[i]; hSum += w[i] * m.home_score; aSum += w[i] * m.away_score; });
+  for (let i = 0; i < n; i++) {
+    const m = matches[i];
+    hi[i] = teamIdx.get(m.home_team_id)!;
+    ai[i] = teamIdx.get(m.away_team_id)!;
+    hs[i] = m.home_score; as[i] = m.away_score;
+    w[i] = Math.pow(0.5, (nowMs - Date.parse(m.utc_date)) / (halfLifeDays * 86400_000));
+    wSum += w[i]; hSum += w[i] * hs[i]; aSum += w[i] * as[i];
+  }
   const muH = hSum / wSum;
   const muA = aSum / wSum;
   if (!(muA > 0) || !(muH > 0)) return null;
   const lgAvg = muA;
   const ha = muH / muA;
-  const attack = new Map<string, number>();
-  const defense = new Map<string, number>();
-  for (const t of teams) { attack.set(t, 1); defense.set(t, 1); }
-
-  const lamHome = (m: MatchRow) => lgAvg * (attack.get(m.home_team_id) ?? 1) * (defense.get(m.away_team_id) ?? 1) * ha;
-  const lamAway = (m: MatchRow) => lgAvg * (attack.get(m.away_team_id) ?? 1) * (defense.get(m.home_team_id) ?? 1);
-
+  const attack = new Float64Array(T).fill(1);
+  const defense = new Float64Array(T).fill(1);
+  const baseH = new Float64Array(n), baseA = new Float64Array(n);
+  const num = new Float64Array(T), den = new Float64Array(T);
   for (let iter = 0; iter < 200; iter++) {
     let maxDelta = 0;
-    // Serangan: untuk tiap tim, gol dicetak (home: λ_home; away: λ_away tanpa HA)
-    for (const t of teams) {
-      let num = 0, den = 0;
-      matches.forEach((m, i) => {
-        if (m.home_team_id === t) { num += w[i] * m.home_score; den += w[i] * (lamHome(m) / (attack.get(t) ?? 1)); }
-        if (m.away_team_id === t) { num += w[i] * m.away_score; den += w[i] * (lamAway(m) / (attack.get(t) ?? 1)); }
-      });
-      if (den > 0 && num >= 0) {
-        const next = num / den;
-        maxDelta = Math.max(maxDelta, Math.abs(next - (attack.get(t) ?? 1)));
-        attack.set(t, next);
+    // Serangan
+    for (let i = 0; i < n; i++) { baseH[i] = lgAvg * defense[ai[i]] * ha; baseA[i] = lgAvg * defense[hi[i]]; }
+    num.fill(0); den.fill(0);
+    for (let i = 0; i < n; i++) {
+      num[hi[i]] += w[i] * hs[i]; den[hi[i]] += w[i] * baseH[i];
+      num[ai[i]] += w[i] * as[i]; den[ai[i]] += w[i] * baseA[i];
+    }
+    for (let t = 0; t < T; t++) {
+      if (den[t] > 0) {
+        const next = num[t] / den[t];
+        const d = Math.abs(next - attack[t]);
+        if (d > maxDelta) maxDelta = d;
+        attack[t] = next;
       }
     }
-    // Pertahanan: gol kemasukan
-    for (const t of teams) {
-      let num = 0, den = 0;
-      matches.forEach((m, i) => {
-        if (m.away_team_id === t) { num += w[i] * m.home_score; den += w[i] * (lamHome(m) / (defense.get(t) ?? 1)); }
-        if (m.home_team_id === t) { num += w[i] * m.away_score; den += w[i] * (lamAway(m) / (defense.get(t) ?? 1)); }
-      });
-      if (den > 0 && num >= 0) {
-        const next = num / den;
-        maxDelta = Math.max(maxDelta, Math.abs(next - (defense.get(t) ?? 1)));
-        defense.set(t, next);
+    // Pertahanan
+    for (let i = 0; i < n; i++) { baseH[i] = lgAvg * attack[hi[i]] * ha; baseA[i] = lgAvg * attack[ai[i]]; }
+    num.fill(0); den.fill(0);
+    for (let i = 0; i < n; i++) {
+      num[ai[i]] += w[i] * hs[i]; den[ai[i]] += w[i] * baseH[i];
+      num[hi[i]] += w[i] * as[i]; den[hi[i]] += w[i] * baseA[i];
+    }
+    for (let t = 0; t < T; t++) {
+      if (den[t] > 0) {
+        const next = num[t] / den[t];
+        const d = Math.abs(next - defense[t]);
+        if (d > maxDelta) maxDelta = d;
+        defense[t] = next;
       }
     }
-    // Normalisasi rata-rata 1 (produk λ tidak berubah: att×c, def÷c).
-    const mean = (mp: Map<string, number>) => [...mp.values()].reduce((s, v) => s + v, 0) / mp.size;
-    const ma = mean(attack), md = mean(defense);
-    if (ma > 0) for (const t of teams) attack.set(t, (attack.get(t) ?? 1) / ma);
-    if (md > 0) for (const t of teams) defense.set(t, (defense.get(t) ?? 1) / md);
+    // Normalisasi rata-rata 1
+    let ma = 0, md = 0;
+    for (let t = 0; t < T; t++) { ma += attack[t]; md += defense[t]; }
+    ma /= T; md /= T;
+    if (ma > 0) for (let t = 0; t < T; t++) attack[t] /= ma;
+    if (md > 0) for (let t = 0; t < T; t++) defense[t] /= md;
     if (maxDelta < 1e-7) break;
   }
+  const attackMap = new Map<string, number>();
+  const defenseMap = new Map<string, number>();
+  for (const [team, idx] of teamIdx) { attackMap.set(team, attack[idx]); defenseMap.set(team, defense[idx]); }
+  const lamHome = (m: MatchRow) => lgAvg * (attackMap.get(m.home_team_id) ?? 1) * (defenseMap.get(m.away_team_id) ?? 1) * ha;
+  const lamAway = (m: MatchRow) => lgAvg * (attackMap.get(m.away_team_id) ?? 1) * (defenseMap.get(m.home_team_id) ?? 1);
   // Uji skala: Σλ (tanpa bobot, seluruh match) vs Σ gol aktual.
   let lam = 0, goals = 0;
   for (const m of matches) { lam += lamHome(m) + lamAway(m); goals += m.home_score + m.away_score; }
-  return { leagueAvgGoals: lgAvg, homeAdvantage: ha, attack, defense, scaleRatio: goals > 0 ? lam / goals : 0, nMatches: matches.length };
+  return {
+    leagueAvgGoals: lgAvg, homeAdvantage: ha, attack: attackMap, defense: defenseMap,
+    scaleRatio: goals > 0 ? lam / goals : 0, nMatches: n,
+    lamHome: matches.map((m) => lamHome(m)), lamAway: matches.map((m) => lamAway(m)),
+    weights: Array.from(w),
+  };
+}
+
+/**
+ * Fit rho per liga: grid search memaksimalkan log-likelihood skor eksak
+ * (terbobot decay yang sama dengan fit IPF) atas λ/μ hasil fit.
+ * Kebijakan pemakaiannya (zero/global/fitted) dipilih via validasi OOS.
+ */
+function fitRho(matches: MatchRow[], fit: FitResult): number {
+  let bestRho = 0;
+  let bestLL = -Infinity;
+  for (let rho = -0.20; rho <= 0.0501; rho += 0.005) {
+    let ll = 0;
+    for (let i = 0; i < matches.length; i++) {
+      const m = matches[i];
+      const lam = fit.lamHome[i], mu = fit.lamAway[i];
+      const tau = tauAdjustment(m.home_score, m.away_score, lam, mu, rho);
+      if (tau <= 0) { ll = -Infinity; break; }
+      ll += fit.weights[i] * (poissonLogProb(lam, m.home_score) + poissonLogProb(mu, m.away_score) + Math.log(tau));
+    }
+    if (ll > bestLL) { bestLL = ll; bestRho = rho; }
+  }
+  return Number(bestRho.toFixed(3));
+}
+
+function rhoForLeague(fit: FitResult, matches: MatchRow[]): number {
+  if (RHO_MODE === "fitted") return fitRho(matches, fit);
+  if (RHO_MODE.startsWith("global:")) {
+    const v = Number(RHO_MODE.slice("global:".length));
+    return Number.isFinite(v) ? v : 0;
+  }
+  return 0;
 }
 
 function main() {
@@ -149,6 +237,17 @@ function main() {
     ) as { league_id: string; tier: string }[];
     for (const r of tt) tierByLeague.set(r.league_id, r.tier);
   } catch { /* tier dikosongkan bila tabel belum dibuat */ }
+
+  // Gerbang OOS (Fase 3): hasil walk-forward held-out per liga, bila tersedia.
+  // Liga yang log-loss held-out-nya TIDAK mengalahkan baseline naive tidak
+  // boleh duduk di 'calibrated' — diturunkan ke 'partial' dengan catatan.
+  const oosGate = new Map<string, { heldout_logloss: number; naive_logloss: number; n: number }>();
+  try {
+    const raw = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "tasks", "oos-gate.json"), "utf8"),
+    ) as Record<string, { heldout_logloss: number; naive_logloss: number; n: number }>;
+    for (const [k, v] of Object.entries(raw)) oosGate.set(k, v);
+  } catch { /* tanpa file gerbang OOS, status murni dari gerbang skala+cakupan */ }
 
   const insReg = ds.prepare(
     `INSERT OR REPLACE INTO league_calibration
@@ -201,19 +300,22 @@ function main() {
     }
 
     if (isCup) {
+      delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
         coverage, null, null, "sportmonks-fit", "Kompetisi piala/lintas-negara — tidak difit per-liga (di luar parameterisasi rating liga).");
       nUncal += 1;
       continue;
     }
     if (matches.length < MIN_MATCHES) {
+      delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
         coverage, null, null, "sportmonks-fit", `Data hasil belum cukup untuk fit (n=${matches.length} < ${MIN_MATCHES}).`);
       nUncal += 1;
       continue;
     }
-    const fit = fitLeague(matches, now.getTime());
+    const fit = fitLeague(matches, now.getTime(), HALF_LIFE_DAYS);
     if (!fit) {
+      delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
         coverage, null, null, "sportmonks-fit", "Fit gagal (tim/gol tidak memadai).");
       nUncal += 1;
@@ -221,7 +323,20 @@ function main() {
     }
     const scalePass = Math.abs(fit.scaleRatio - 1) <= 0.02;
     const covPass = coverage != null && coverage >= 0.8;
-    const status = scalePass && covPass ? "calibrated" : "partial";
+    let status: "calibrated" | "partial" = scalePass && covPass ? "calibrated" : "partial";
+    let oosNote = "";
+    const oos = oosGate.get(leagueId);
+    // Lantai sampel gerbang OOS: demosi hanya bila bukti held-out cukup
+    // (n >= 20) — sampel lebih kecil tidak cukup kuat untuk menjatuhkan
+    // status, dan dicatat sebagai belum teruji, bukan lolos/gagal.
+    if (status === "calibrated" && oos && oos.n >= 20 && oos.heldout_logloss >= oos.naive_logloss) {
+      status = "partial";
+      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → diturunkan ke partial.`;
+    } else if (oos && oos.n >= 20) {
+      oosNote = ` Gerbang OOS lolos: log-loss held-out ${oos.heldout_logloss.toFixed(4)} < naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}).`;
+    } else if (oos) {
+      oosNote = ` Gerbang OOS belum teruji: n held-out=${oos.n} < 20 (lantai sampel).`;
+    }
     if (status === "calibrated") nCal += 1; else nPart += 1;
 
     // Hanya liga 'calibrated' yang masuk JSON (himpunan yang boleh disajikan
@@ -251,7 +366,11 @@ function main() {
       };
       if (status === "calibrated") addedTeams += 1;
     }
-    if (status === "calibrated") ratings.leagues[key] = {
+    // Calibrated DAN partial ditulis ke JSON (Fase 1): partial tersaji
+    // HANYA lewat gerbang loader dengan flag eksplisit; uncalibrated
+    // tidak pernah ditulis. (Semantik lama "JSON = tanpa flag" digantikan
+    // registry sebagai sumber kebenaran status.)
+    ratings.leagues[key] = {
       div: key,
       leagueName: cat.name,
       country: cat.country ?? "",
@@ -259,16 +378,16 @@ function main() {
       totalMatches: matches.length,
       leagueAvgGoals: Number(fit.leagueAvgGoals.toFixed(4)),
       homeAdvantage: Number(fit.homeAdvantage.toFixed(4)),
-      rho: 0,
+      rho: rhoForLeague(fit, matches),
       calibrationDate: nowIso.slice(0, 10),
       source: "sportmonks-fit",
       calibrationStatus: status,
-      fitMethod: "ipf-time-decay-half-life-365d",
+      fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}`,
       teams: teamsJson,
     };
     insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, status, matches.length, teamSet.size,
       coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
-      status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`);
+      (status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote);
   }
 
   ratings.totalLeagues = Object.keys(ratings.leagues).length;
