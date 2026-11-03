@@ -1,4 +1,5 @@
 import { getTheStatsDb, getTeamRecentLogs, TeamMatchLogRecord } from "../db/thestats-dataset";
+import { resolveTeamId } from "../db/team-telemetry";
 
 export interface TeamLuckMetrics {
   team_id: string;
@@ -35,18 +36,9 @@ export function calculateTeamLuckMetrics(
 ): TeamLuckMetrics {
   const db = getTheStatsDb();
 
-  // Resolusi team_id jika input berupa nama tim
-  let resolvedTeamId = teamIdOrName;
-  if (!resolvedTeamId.startsWith("tm_")) {
-    const row = db
-      .prepare(
-        `SELECT team_id FROM teams WHERE LOWER(name) = LOWER(?) OR LOWER(short_name) = LOWER(?) LIMIT 1`
-      )
-      .get(teamIdOrName, teamIdOrName) as { team_id: string } | undefined;
-    if (row) {
-      resolvedTeamId = row.team_id;
-    }
-  }
+  // Resolusi team_id jika input berupa nama tim — resolver bersama
+  // (deterministik saat nama bertabrakan; dulu query LIMIT 1 privat di sini).
+  const resolvedTeamId = resolveTeamId(teamIdOrName);
 
   let query = `
     SELECT * FROM team_match_logs 

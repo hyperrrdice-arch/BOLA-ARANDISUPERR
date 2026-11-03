@@ -79,23 +79,47 @@ export interface TeamSquadTelemetry {
   has_verified_injury_data: boolean;
 }
 
+const resolveTeamIdCache = new Map<string, string>();
+
 /**
- * Helper resolusi team_id baik dari ID langsung ('tm_9145') maupun nama klub ('Arsenal')
+ * Helper resolusi team_id baik dari ID langsung ('tm_9145') maupun nama klub ('Arsenal').
+ *
+ * Nama tim TIDAK unik di tabel teams (85 nama dipakai >1 team_id lintas
+ * ruang ID). Dulu LIMIT 1 tanpa ORDER BY = pilihan arbitrer — telemetri
+ * tim lain bisa terbaca sebagai milik tim ini. Sekarang deterministik:
+ * kandidat dengan log terbanyak di team_match_logs menang; seri →
+ * team_id terkecil. (Resolusi sadar-kompetisi ada di jalur loader:
+ * getTheStatsTeamId dengan konteks divisi.)
  */
 export function resolveTeamId(teamIdOrName: string): string {
   if (!teamIdOrName) return teamIdOrName;
   if (teamIdOrName.startsWith("tm_")) return teamIdOrName;
+  const cached = resolveTeamIdCache.get(teamIdOrName);
+  if (cached) return cached;
+  let resolved = teamIdOrName;
   try {
     const db = getTheStatsDb();
-    const row = db.prepare(`
-      SELECT team_id FROM teams 
+    const rows = db.prepare(`
+      SELECT team_id FROM teams
       WHERE lower(name) = lower(?) OR lower(short_name) = lower(?)
-      LIMIT 1
-    `).get(teamIdOrName, teamIdOrName) as { team_id: string } | undefined;
-    return row ? row.team_id : teamIdOrName;
+    `).all(teamIdOrName, teamIdOrName) as unknown as { team_id: string }[];
+    if (rows.length === 1) {
+      resolved = rows[0].team_id;
+    } else if (rows.length > 1) {
+      const ids = rows.map((r) => r.team_id);
+      const placeholders = ids.map(() => "?").join(",");
+      const best = db.prepare(`
+        SELECT team_id, COUNT(*) AS c FROM team_match_logs
+        WHERE team_id IN (${placeholders})
+        GROUP BY team_id ORDER BY c DESC, team_id ASC LIMIT 1
+      `).get(...ids) as unknown as { team_id: string } | undefined;
+      resolved = best?.team_id ?? [...ids].sort()[0];
+    }
   } catch {
-    return teamIdOrName;
+    resolved = teamIdOrName;
   }
+  resolveTeamIdCache.set(teamIdOrName, resolved);
+  return resolved;
 }
 
 export const COMPETITION_AVG_GOALS: Record<string, number> = {
@@ -117,6 +141,50 @@ export const DIV_TO_COMPETITION_ID: Record<string, string> = {
   N1: "comp_3809",
   UCL: "comp_3498",
 };
+
+/** Divisi ratings → competition_id di store hasil (semua ruang ID). */
+export function competitionIdForDiv(div: string | null | undefined): string | null {
+  if (!div) return null;
+  const d = div.trim().toUpperCase();
+  if (DIV_TO_COMPETITION_ID[d]) return DIV_TO_COMPETITION_ID[d];
+  const m = d.match(/^SM(\d+)$/);
+  if (m) return `sm:${m[1]}`;
+  return null;
+}
+
+let measuredCompAvg: Map<string, number> | null = null;
+
+/**
+ * Rata-rata gol per tim per match per kompetisi, DIHITUNG dari store hasil
+ * (dataset.matches, hanya laga selesai berskor) — menggantikan konstanta
+ * tulisan tangan untuk semua kompetisi di luar 7 entri legacy di atas.
+ * Return null bila kompetisi tak dikenal / belum ada hasil terukur.
+ */
+export function getCompetitionAvgGoals(competitionId: string | null | undefined): number | null {
+  if (!competitionId) return null;
+  if (!measuredCompAvg) {
+    measuredCompAvg = new Map();
+    try {
+      const db = getTheStatsDb();
+      const rows = db
+        .prepare(
+          `SELECT competition_id, AVG((home_score + away_score) / 2.0) AS avg_goals
+           FROM matches
+           WHERE status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
+           GROUP BY competition_id`
+        )
+        .all() as unknown as { competition_id: string; avg_goals: number }[];
+      for (const r of rows) {
+        if (Number.isFinite(r.avg_goals) && r.avg_goals > 0) measuredCompAvg.set(r.competition_id, r.avg_goals);
+      }
+    } catch {
+      // DB belum tersedia: peta kosong, pemanggil jatuh ke konstanta legacy.
+    }
+  }
+  const measured = measuredCompAvg.get(competitionId);
+  if (measured !== undefined) return measured;
+  return COMPETITION_AVG_GOALS[competitionId] ?? null;
+}
 
 /**
  * Mengambil log laga pra-pertandingan (Anti-Data Leakage)
@@ -206,9 +274,12 @@ export function getTeamRollingTelemetry(
 
   const n = logs.length;
 
-  // Resolusi bobot target liga untuk normalisasi xG
-  const targetCompId = targetDivCode ? DIV_TO_COMPETITION_ID[targetDivCode.toUpperCase()] : undefined;
-  const targetAvgGoals = targetCompId ? (COMPETITION_AVG_GOALS[targetCompId] || 1.48) : 1.48;
+  // Resolusi bobot target liga untuk normalisasi xG.
+  // Rata-rata gol kompetisi kini TERUKUR dari store hasil (semua ruang ID:
+  // comp_* legacy + sm:* Sportmonks); 1.48 hanya fallback terakhir bila
+  // kompetisi target benar-benar tidak punya hasil terukur.
+  const targetCompId = targetDivCode ? competitionIdForDiv(targetDivCode) : null;
+  const targetAvgGoals = (targetCompId ? getCompetitionAvgGoals(targetCompId) : null) ?? 1.48;
 
   // Akumulator metrik aktual
   let totalGoalsFor = 0;
@@ -247,10 +318,12 @@ export function getTeamRollingTelemetry(
     formArr.push(log.result);
 
     // Weighted Normalization factor untuk xG (EPL vs UCL dll.)
+    // Rata-rata kompetisi log kini juga terukur dari store (bukan hanya
+    // 7 konstanta legacy); kompetisi tak terukur → bobot 1.0 (netral).
     let xgWeight = 1.0;
     if (log.competition_id && targetCompId && log.competition_id !== targetCompId) {
-      const logCompAvg = COMPETITION_AVG_GOALS[log.competition_id] || targetAvgGoals;
-      if (logCompAvg > 0) {
+      const logCompAvg = getCompetitionAvgGoals(log.competition_id);
+      if (logCompAvg && logCompAvg > 0) {
         xgWeight = Number((targetAvgGoals / logCompAvg).toFixed(3));
       }
     }

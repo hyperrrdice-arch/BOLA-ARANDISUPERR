@@ -2,8 +2,13 @@ import path from "node:path";
 import fs from "node:fs";
 import { normalizeTeamName } from "./team-normalizer";
 import { getTheStatsDb } from "../db/thestats-dataset";
-import { getTeamRollingTelemetry, type TeamRollingTelemetry } from "../db/team-telemetry";
+import {
+  getTeamRollingTelemetry,
+  competitionIdForDiv,
+  type TeamRollingTelemetry,
+} from "../db/team-telemetry";
 import { evaluateMatchupLuck, type MatchupLuckSignal } from "./luck-regression";
+import { getLeagueGate, competitionIdToDiv, type CalibrationStatus } from "./league-gate";
 
 export interface TeamRating {
   name: string;
@@ -25,6 +30,10 @@ export interface LeagueCalibratedParameters {
   homeAdvantage: number;
   rho: number;
   calibrationDate: string;
+  /** Additive (fit Sportmonks): sumber fit + status gerbang saat ditulis. */
+  source?: string;
+  calibrationStatus?: CalibrationStatus;
+  fitMethod?: string;
   teams: Record<string, TeamRating>;
 }
 
@@ -66,6 +75,10 @@ export interface ShrunkMatchParameters {
     isEstimatedTelemetry?: boolean;
     preMatchCutoff?: string;
     luckMetrics?: MatchupLuckSignal;
+    /** Status gerbang kalibrasi dari registry league_calibration (Fase 1). */
+    calibrationStatus?: CalibrationStatus;
+    /** Alasan gerbang (wajib terbaca saat partial/blokir — tidak ada penyajian diam-diam). */
+    calibrationGate?: string;
   };
 }
 
@@ -195,8 +208,9 @@ export function findTeamRatingForUCL(
 ): { rating: TeamRating; source: "primary_league"; domesticDiv: string } | null {
   for (const [div, league] of Object.entries(data.leagues)) {
     if (SECOND_DIVS.has(div) || !UEFA_LEAGUE_COEFFICIENT[div]) continue;
-    if (league.teams[normalizedTeam]) {
-      const raw = league.teams[normalizedTeam];
+    const found = lookupTeamRating(data, div, normalizedTeam);
+    if (found) {
+      const raw = found;
       const q = UEFA_LEAGUE_COEFFICIENT[div] || 0.80;
       const adjustedAttack = Number((raw.attack * Math.sqrt(q)).toFixed(3));
       const adjustedDefense = Number((raw.defense / Math.sqrt(q)).toFixed(3));
@@ -238,6 +252,13 @@ export function loadCalibratedRatings(): CalibratedRatingsFile | null {
 
 export function resolveDivCode(leagueHint?: string): string | null {
   if (!leagueHint) return null;
+
+  // Hint berbentuk ID kompetisi Sportmonks ('sm:8') atau kode divisi SM
+  // ('SM8') — ruang ID baru pasca sprint; resolver lama tidak mengenalnya.
+  const smDiv = competitionIdToDiv(leagueHint);
+  if (smDiv) return smDiv;
+  if (/^SM\d+$/i.test(leagueHint.trim())) return leagueHint.trim().toUpperCase();
+
   const clean = leagueHint.trim().toLowerCase();
   if (LEAGUE_ALIAS_TO_DIV[clean]) return LEAGUE_ALIAS_TO_DIV[clean];
 
@@ -267,6 +288,109 @@ export function resolveDivCode(leagueHint?: string): string | null {
 }
 
 /**
+ * Resolusi divisi SADAR-TIM (Fase 1). Nama liga saja ambigu — "Premier
+ * League" ada di ≥6 negara, "Serie A"/"Super League"/"Primera Division"
+ * juga bertabrakan. Bila hint menghasilkan >1 kandidat divisi yang ada di
+ * file ratings, kandidat DISARING oleh keanggotaan kedua tim: divisi yang
+ * memuat kedua tim menang; seri → kandidat pertama (urutan alias legacy
+ * didahulukan demi kontinuitas perilaku pra-sprint untuk 7 liga tumpang).
+ */
+export function resolveDivForMatch(
+  data: CalibratedRatingsFile,
+  leagueHint: string | null | undefined,
+  homeTeam: string,
+  awayTeam: string
+): string | null {
+  if (!leagueHint) return null;
+  const candidates: string[] = [];
+  const push = (d: string | null | undefined) => {
+    if (d && data.leagues[d] && !candidates.includes(d)) candidates.push(d);
+  };
+
+  push(competitionIdToDiv(leagueHint));
+  const clean = leagueHint.trim().toLowerCase();
+  push(LEAGUE_ALIAS_TO_DIV[clean]);
+  const upper = leagueHint.trim().toUpperCase();
+  push(upper);
+  const dotIdx = clean.indexOf(".");
+  if (dotIdx > 0 && dotIdx < clean.length - 1) {
+    push(LEAGUE_ALIAS_TO_DIV[clean.slice(dotIdx + 1).trim()]);
+  }
+  for (const [div, league] of Object.entries(data.leagues)) {
+    const leagueName = league.leagueName?.trim().toLowerCase();
+    if (leagueName && leagueName === clean) push(div);
+  }
+
+  if (candidates.length === 0) return resolveDivCode(leagueHint);
+  if (candidates.length === 1) return candidates[0];
+
+  const normHome = normalizeTeamName(homeTeam);
+  const normAway = normalizeTeamName(awayTeam);
+  let best = candidates[0];
+  let bestScore = -1;
+  for (const div of candidates) {
+    const score =
+      (lookupTeamRating(data, div, normHome) ? 1 : 0) + (lookupTeamRating(data, div, normAway) ? 1 : 0);
+    if (score > bestScore) {
+      bestScore = score;
+      best = div;
+    }
+  }
+  // Nama ambigu + TIDAK ada kandidat yang memuat salah satu tim = nama
+  // tidak bisa dipercaya (mis. "Premier League" Ghana → E0 Inggris akan
+  // meminjam parameter liga yang salah). Lebih jujur: tanpa divisi.
+  // Kandidat TUNGGAL dengan skor 0 tetap dipakai (nama unik; timnya saja
+  // yang baru/promosi — parameter liganya tetap benar).
+  if (bestScore === 0 && candidates.length > 1) return null;
+  return best;
+}
+
+/**
+ * Indeks kunci tim per divisi: normalize(kunci JSON) → kunci JSON aktual.
+ *
+ * Kunci JSON ditulis dari nama sumber (football-data untuk legacy,
+ * Sportmonks untuk SM) sedangkan pencarian memakai nama yang sudah
+ * dinormalisasi dari sumber LAIN (TheStats/SM) — bentuknya bisa berbeda
+ * ("Werder Bremen" vs "SV Werder Bremen"). Indeks ini menjembatani kedua
+ * bentuk lewat normalizer yang sama, tanpa menulis ulang file ratings.
+ */
+const teamKeyIndexCache = new WeakMap<CalibratedRatingsFile, Map<string, Map<string, string>>>();
+
+function teamKeyIndex(data: CalibratedRatingsFile, div: string): Map<string, string> | null {
+  let perFile = teamKeyIndexCache.get(data);
+  if (!perFile) {
+    perFile = new Map();
+    teamKeyIndexCache.set(data, perFile);
+  }
+  let idx = perFile.get(div);
+  if (!idx) {
+    const league = data.leagues[div];
+    if (!league) return null;
+    idx = new Map();
+    for (const key of Object.keys(league.teams)) {
+      const nk = normalizeTeamName(key);
+      if (!idx.has(nk)) idx.set(nk, key);
+    }
+    perFile.set(div, idx);
+  }
+  return idx;
+}
+
+/** Ambil rating tim dari satu divisi dengan toleransi bentuk nama (lihat indeks di atas). */
+export function lookupTeamRating(
+  data: CalibratedRatingsFile,
+  div: string,
+  normalizedTeam: string
+): TeamRating | null {
+  const league = data.leagues[div];
+  if (!league) return null;
+  if (league.teams[normalizedTeam]) return league.teams[normalizedTeam];
+  const idx = teamKeyIndex(data, div);
+  const actualKey = idx?.get(normalizedTeam);
+  return actualKey ? league.teams[actualKey] : null;
+}
+
+/**
  * Mencari rating tim di liga utama, atau di divisi kasta kedua jika tim promosi
  */
 export function findTeamRating(
@@ -274,53 +398,102 @@ export function findTeamRating(
   div: string,
   normalizedTeam: string
 ): { rating: TeamRating; source: "primary_league" | "second_division_promoted" } | null {
-  const league = data.leagues[div];
-
   // 1. Cek langsung di divisi utama
-  if (league?.teams[normalizedTeam]) {
-    return { rating: league.teams[normalizedTeam], source: "primary_league" };
+  const direct = lookupTeamRating(data, div, normalizedTeam);
+  if (direct) {
+    return { rating: direct, source: "primary_league" };
   }
 
   // 2. Cek di kasta kedua (jika tim promosi)
   const secondDiv = SECOND_DIVISION_MAP[div];
-  if (secondDiv && data.leagues[secondDiv]?.teams[normalizedTeam]) {
-    const rawSecondRating = data.leagues[secondDiv].teams[normalizedTeam];
+  const secondRating = secondDiv ? lookupTeamRating(data, secondDiv, normalizedTeam) : null;
+  if (secondDiv && secondRating) {
     // Terapkan diskon konversi liga: attack didiskon 15%, defense dinaikkan 20%
     const adjustedRating: TeamRating = {
-      ...rawSecondRating,
-      attack: Number((rawSecondRating.attack * 0.85).toFixed(3)),
-      defense: Number((rawSecondRating.defense * 1.20).toFixed(3)),
+      ...secondRating,
+      attack: Number((secondRating.attack * 0.85).toFixed(3)),
+      defense: Number((secondRating.defense * 1.20).toFixed(3)),
     };
     return { rating: adjustedRating, source: "second_division_promoted" };
   }
 
-  // 3. Fallback pencarian lintas liga
+  // 3. Fallback pencarian lintas liga.
+  // Liga berstatus partial TIDAK boleh dipinjam diam-diam lewat jalur ini —
+  // ratings partial hanya sah tersaji di liganya sendiri, dengan flag.
   for (const [otherDiv, otherLeague] of Object.entries(data.leagues)) {
     if (otherDiv === div || otherDiv === secondDiv) continue;
-    if (otherLeague.teams[normalizedTeam]) {
-      return { rating: otherLeague.teams[normalizedTeam], source: "second_division_promoted" };
+    if (otherLeague.calibrationStatus && otherLeague.calibrationStatus !== "calibrated") continue;
+    const found = lookupTeamRating(data, otherDiv, normalizedTeam);
+    if (found) {
+      return { rating: found, source: "second_division_promoted" };
     }
   }
 
   return null;
 }
 
-let theStatsTeamMap: Map<string, string> | null = null;
+let theStatsTeamMap: Map<string, string[]> | null = null;
+const teamIdPickCache = new Map<string, string | null>();
 
-function getTheStatsTeamId(teamName: string): string | null {
+function getTheStatsTeamIds(teamName: string): string[] {
   if (!theStatsTeamMap) {
     theStatsTeamMap = new Map();
     try {
       const db = getTheStatsDb();
       const rows = db.prepare("SELECT team_id, name FROM teams").all() as { team_id: string; name: string }[];
       for (const r of rows) {
-        theStatsTeamMap.set(normalizeTeamName(r.name).toLowerCase(), r.team_id);
+        const key = normalizeTeamName(r.name).toLowerCase();
+        const arr = theStatsTeamMap.get(key) ?? [];
+        if (!arr.includes(r.team_id)) arr.push(r.team_id);
+        theStatsTeamMap.set(key, arr);
       }
     } catch {
       // Ignore jika database belum tersedia
     }
   }
-  return theStatsTeamMap.get(normalizeTeamName(teamName).toLowerCase()) || null;
+  return theStatsTeamMap.get(normalizeTeamName(teamName).toLowerCase()) ?? [];
+}
+
+/**
+ * Resolusi nama → team_id SADAR TABRAKAN (Fase 1). Tabel teams memuat nama
+ * yang sama untuk >1 team_id (mis. "Inter Miami CF" ×3 lintas ruang ID).
+ * Dulu: last-wins/LIMIT 1 acak → telemetri tim lain bisa terbaca sebagai
+ * milik tim ini. Sekarang: kandidat dipilih yang punya log terbanyak di
+ * kompetisi divisi target; tanpa konteks divisi → log terbanyak overall.
+ */
+function getTheStatsTeamId(teamName: string, div?: string): string | null {
+  const ids = getTheStatsTeamIds(teamName);
+  if (ids.length === 0) return null;
+  if (ids.length === 1) return ids[0];
+
+  const cacheKey = `${normalizeTeamName(teamName).toLowerCase()}|${div ?? ""}`;
+  if (teamIdPickCache.has(cacheKey)) return teamIdPickCache.get(cacheKey) ?? null;
+
+  let picked: string | null = null;
+  try {
+    const db = getTheStatsDb();
+    const compId = div ? competitionIdForDiv(div) : null;
+    const placeholders = ids.map(() => "?").join(",");
+    const pick = (restrictComp: boolean): string | null => {
+      const sql = restrictComp
+        ? `SELECT l.team_id AS tid, COUNT(*) AS c FROM team_match_logs l
+           JOIN matches m ON l.match_id = m.match_id
+           WHERE l.team_id IN (${placeholders}) AND m.competition_id = ?
+           GROUP BY l.team_id ORDER BY c DESC LIMIT 1`
+        : `SELECT team_id AS tid, COUNT(*) AS c FROM team_match_logs
+           WHERE team_id IN (${placeholders})
+           GROUP BY team_id ORDER BY c DESC LIMIT 1`;
+      const row = (
+        restrictComp ? db.prepare(sql).get(...ids, compId) : db.prepare(sql).get(...ids)
+      ) as { tid: string } | undefined;
+      return row?.tid ?? null;
+    };
+    picked = (compId ? pick(true) : null) ?? pick(false) ?? ids[0];
+  } catch {
+    picked = ids[0];
+  }
+  teamIdPickCache.set(cacheKey, picked);
+  return picked;
 }
 
 export interface ShrunkMatchParametersOptions {
@@ -347,8 +520,15 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const ratingsData = loadCalibratedRatings();
   // JANGAN fallback ke E0: liga tak dikenal harus dilaporkan sebagai tidak terkalibrasi,
   // bukan diam-diam memakai parameter Premier League.
-  const resolvedDiv = resolveDivCode(options.leagueHint);
+  // Resolusi sadar-tim: nama liga yang bertabrakan antar negara disaring
+  // oleh keanggotaan kedua tim di divisi kandidat (Fase 1).
+  const resolvedDiv = ratingsData
+    ? resolveDivForMatch(ratingsData, options.leagueHint, options.homeTeam, options.awayTeam)
+    : resolveDivCode(options.leagueHint);
   const divCode = resolvedDiv || "UNKNOWN";
+
+  // Gerbang kalibrasi (registry league_calibration) — sumber kebenaran status.
+  const gate = divCode !== "UNKNOWN" && divCode !== "UCL" ? getLeagueGate(divCode) : null;
 
   // Default fallback jika data JSON tidak tersedia sama sekali
   const defaultFallback: ShrunkMatchParameters = {
@@ -371,6 +551,8 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       observedXgSamples: { home: 0, away: 0 },
       isEstimatedTelemetry: true,
       preMatchCutoff: options.matchDateCutoff,
+      calibrationStatus: gate?.status ?? "unknown",
+      calibrationGate: gate?.reason,
     },
   };
 
@@ -394,6 +576,23 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     return defaultFallback;
   }
 
+  // BLOKIR EKSPLISIT: liga berstatus uncalibrated di registry tidak boleh
+  // disajikan walau entri JSON-nya ada (defense-in-depth; jalur normalnya
+  // calibrate-ratings.ts memang tidak menulis liga uncalibrated ke JSON).
+  if (gate?.status === "uncalibrated") {
+    return {
+      ...defaultFallback,
+      metadata: {
+        ...(defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>),
+        div: divCode,
+        leagueName: gate.leagueName ?? league.leagueName,
+        calibrationStatus: "uncalibrated",
+        calibrationGate: gate.reason,
+      },
+    };
+  }
+  const gateStatus: CalibrationStatus = gate?.status ?? league.calibrationStatus ?? "unknown";
+
   const homeResolved = isUCL
     ? findTeamRatingForUCL(ratingsData, normHome)
     : findTeamRating(ratingsData, divCode, normHome);
@@ -408,6 +607,12 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       homeAdvantage: Number.isFinite(league.homeAdvantage) && league.homeAdvantage > 0 ? league.homeAdvantage : 1.15,
       leagueAvgGoals: Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : 1.35,
       rho: Number.isFinite(league.rho) ? league.rho : -0.04,
+      metadata: {
+        ...(defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>),
+        leagueName: league.leagueName,
+        calibrationStatus: gateStatus,
+        calibrationGate: gate?.reason,
+      },
     };
   }
 
@@ -424,7 +629,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   let awayTelem = options.awayTelemetry;
 
   if (homeTelem === undefined) {
-    const homeId = getTheStatsTeamId(options.homeTeam);
+    const homeId = getTheStatsTeamId(options.homeTeam, divCode);
     if (homeId) {
       try {
         homeTelem = getTeamRollingTelemetry(homeId, 6, options.matchDateCutoff, divCode);
@@ -435,7 +640,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   }
 
   if (awayTelem === undefined) {
-    const awayId = getTheStatsTeamId(options.awayTeam);
+    const awayId = getTheStatsTeamId(options.awayTeam, divCode);
     if (awayId) {
       try {
         awayTelem = getTeamRollingTelemetry(awayId, 6, options.matchDateCutoff, divCode);
@@ -544,6 +749,8 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       isEstimatedTelemetry: homeTelemetrySource === "macro_prior_only" || awayTelemetrySource === "macro_prior_only",
       preMatchCutoff: options.matchDateCutoff,
       luckMetrics: luckSignal,
+      calibrationStatus: gateStatus,
+      calibrationGate: gate?.reason,
     },
   };
 }

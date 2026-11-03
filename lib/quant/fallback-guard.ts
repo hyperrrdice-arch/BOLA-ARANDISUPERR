@@ -12,6 +12,8 @@
  *   point backend, tanpa sentuhan components/ atau app/.
  */
 
+import { getLeagueGate, divToLeagueId, type CalibrationStatus } from "./league-gate";
+
 export const FALLBACK_MIN_EDGE = 0.50;
 
 /** Batas bobot shrinkage di bawahnya sampel xG dianggap tidak kredibel. */
@@ -141,10 +143,42 @@ export interface DataQualityFlag {
   is_fallback_involved: boolean;
 }
 
+export interface CalibrationGateFlag {
+  status: CalibrationStatus;
+  league_id: string | null;
+  div: string | null;
+  reason: string;
+}
+
 export interface FallbackGuardResult {
   verdict: string;
   fallback_guard: FallbackGuardFlag;
   data_quality: DataQualityFlag;
+  /** Status gerbang kalibrasi liga dari registry (Fase 1) — flag eksplisit ke view. */
+  calibration_gate: CalibrationGateFlag;
+}
+
+/**
+ * Baca status gerbang dari registry berdasarkan divisi di calibration_metadata.
+ * Registry adalah sumber kebenaran; bila divisi tak terdaftar / registry tak
+ * terbaca → status 'unknown' dengan alasan eksplisit (BUKAN dianggap calibrated).
+ */
+export function detectCalibrationGate(calibration: unknown): CalibrationGateFlag {
+  const divRaw = readKey(calibration, "div");
+  const div = typeof divRaw === "string" ? divRaw : null;
+  const gate = getLeagueGate(div);
+  if (gate) {
+    return { status: gate.status, league_id: gate.leagueId, div: gate.div, reason: gate.reason };
+  }
+  return {
+    status: "unknown",
+    league_id: divToLeagueId(div),
+    div,
+    reason:
+      div && div !== "UNKNOWN"
+        ? `Divisi ${div} tidak ditemukan di registry league_calibration — status kalibrasi tidak terverifikasi.`
+        : "Liga tidak teridentifikasi — status kalibrasi tidak diketahui.",
+  };
 }
 
 function fmtPct(edge: number): string {
@@ -168,6 +202,7 @@ export function applyFallbackGuard(input: {
 }): FallbackGuardResult {
   const { calibration, valueBets, verdict, homeTeam, awayTeam } = input;
   const det = detectFallbackSource(calibration);
+  const calibration_gate = detectCalibrationGate(calibration);
   const data_quality: DataQualityFlag = {
     home_source: det.homeSource,
     away_source: det.awaySource,
@@ -203,6 +238,7 @@ export function applyFallbackGuard(input: {
         edge: guardEdgeOf(top),
       },
       data_quality,
+      calibration_gate,
     };
   }
 
@@ -217,6 +253,7 @@ export function applyFallbackGuard(input: {
         edge: null,
       },
       data_quality,
+      calibration_gate,
     };
   }
 
@@ -231,6 +268,7 @@ export function applyFallbackGuard(input: {
       verdict: `SKIP — ${reason} (pick model ${original_pick?.selection ?? "?"} bukan rekomendasi).`,
       fallback_guard: { ...base, skipped: true, reason, edge: null },
       data_quality,
+      calibration_gate,
     };
   }
 
@@ -246,6 +284,7 @@ export function applyFallbackGuard(input: {
         `${original_pick?.market_name ?? "?"} @${original_pick?.bookmaker_odds ?? "?"} bukan rekomendasi).`,
       fallback_guard: { ...base, skipped: true, reason, edge },
       data_quality,
+      calibration_gate,
     };
   }
 
@@ -263,5 +302,6 @@ export function applyFallbackGuard(input: {
       edge,
     },
     data_quality,
+    calibration_gate,
   };
 }

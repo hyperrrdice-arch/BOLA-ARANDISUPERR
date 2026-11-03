@@ -218,6 +218,14 @@ export const DataQualitySchema = z.object({
   is_fallback_involved: z.boolean(),
 });
 
+/** Gerbang kalibrasi liga (Fase 1): status registry league_calibration per divisi. */
+export const CalibrationGateSchema = z.object({
+  status: z.enum(["calibrated", "partial", "uncalibrated", "unknown"]),
+  league_id: z.string().nullable(),
+  div: z.string().nullable(),
+  reason: z.string(),
+});
+
 /** SM-2 additive: panel banding predictions Sportmonks (bukan model kita). */
 export const SmPredictionPanelSchema = z.object({
   type: z.string(),
@@ -258,6 +266,8 @@ export const AnalysisViewSchema = z.object({
   // Field lama (ringkasan.verdict, pick) tidak dihapus — aslinya tercatat di fallback_guard.
   data_quality: DataQualitySchema.optional(),
   fallback_guard: FallbackGuardSchema.optional(),
+  /** Fase 1 (additive): status gerbang kalibrasi liga — partial/uncalibrated wajib terlihat. */
+  calibration_gate: CalibrationGateSchema.optional(),
   /** SM-2 additive: panel banding Sportmonks AI. Null = tanpa data SM (offline seperti sebelumnya). */
   sm_predictions: z.array(SmPredictionPanelSchema).nullable().optional(),
 });
@@ -661,6 +671,7 @@ export function mapPipelineToView(input: {
     is_strictly_grounded: a.data_integrity_audit?.is_strictly_grounded === true,
     data_quality: guard.data_quality,
     fallback_guard: guard.fallback_guard,
+    calibration_gate: guard.calibration_gate,
     sm_predictions: smPredictions,
   };
 

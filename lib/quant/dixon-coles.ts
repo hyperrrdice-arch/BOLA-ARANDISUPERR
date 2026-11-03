@@ -108,10 +108,23 @@ function poissonProb(lambda: number, k: number): number {
 }
 
 /**
+ * Log-space Poisson PMF — diekspor untuk fitting offline (likelihood skor
+ * eksak di scripts/calibrate-ratings.ts + scripts/backtest-walkforward.ts)
+ * agar rumusnya tidak diduplikasi di luar modul kanonis ini.
+ */
+export function poissonLogProb(lambda: number, k: number): number {
+  if (lambda <= 0) return k === 0 ? 0 : -Infinity;
+  let logFact = 0;
+  for (let i = 2; i <= k; i++) logFact += Math.log(i);
+  return k * Math.log(lambda) - lambda - logFact;
+}
+
+/**
  * Dixon-Coles low score adjustment factor tau(x, y, lambda, mu, rho)
  * Adjusts low-scoring correlation for (0,0), (0,1), (1,0), (1,1)
+ * Diekspor untuk fitting offline (fit rho) — lihat poissonLogProb.
  */
-function tauAdjustment(x: number, y: number, lambda: number, mu: number, rho: number): number {
+export function tauAdjustment(x: number, y: number, lambda: number, mu: number, rho: number): number {
   if (x === 0 && y === 0) {
     return Math.max(0, 1 - lambda * mu * rho);
   } else if (x === 0 && y === 1) {
