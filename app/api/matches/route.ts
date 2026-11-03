@@ -1,0 +1,215 @@
+import { cachedStatsGet, getStatsCacheMetrics } from "@/lib/stats-cache";
+import { format1xBetLeagueName } from "@/lib/league-constants";
+import { jsonResponse } from "@/lib/http-json";
+import { getUpcomingInWindow, getUpcomingMaxDate } from "@/lib/db/upcoming-fixtures";
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const hours = Math.min(Math.max(Number(searchParams.get("hours")) || 12, 1), 48);
+  const competitionId = searchParams.get("competition_id") || undefined;
+
+  const now = new Date();
+  const maxTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+
+  // Ambil date_from (hari ini) dan date_to (2 hari ke depan untuk mencakup jendela jam)
+  const dateFrom = now.toISOString().slice(0, 10);
+  const futureDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+  const dateTo = futureDate.toISOString().slice(0, 10);
+
+  const queryParams: Record<string, string> = {
+    status: "scheduled",
+    sort: "utc_date",
+    date_from: dateFrom,
+    date_to: dateTo,
+    per_page: "100",
+  };
+  if (competitionId) {
+    queryParams.competition_id = competitionId;
+  }
+
+  try {
+    // Tier-1: store fixture lokal (diisi `npm run sync:upcoming`).
+    // Kalau store punya fixture di jendela ini → 0 panggilan TheStatsAPI.
+    // Store kosong / window tak ter-cover → fallback API (perilaku lama).
+    const localRows = getUpcomingInWindow(now.getTime(), hours, competitionId);
+    if (localRows.length > 0) {
+      const localLeagueMap = new Map<string, { id: string; name: string; count: number }>();
+      const localMatches = localRows.map((m) => {
+        const compId = String(m.competition_id ?? "");
+        const standardName = format1xBetLeagueName(m.competition_name ?? "", m.competition_country ?? undefined);
+        const existing = localLeagueMap.get(compId);
+        if (existing) existing.count += 1;
+        else localLeagueMap.set(compId, { id: compId, name: standardName, count: 1 });
+        return {
+          id: m.match_id,
+          utc_date: m.utc_date,
+          competition_id: compId,
+          competition_name: standardName,
+          home_team: { id: m.home_team_id, name: m.home_team_name },
+          away_team: { id: m.away_team_id, name: m.away_team_name },
+          venue: m.venue || null,
+          is_neutral: Boolean(m.is_neutral),
+          odds_available: Boolean(m.odds_available),
+          xg_available: Boolean(m.xg_available),
+          shotmap_available: false, // tidak disimpan di store upcoming
+        };
+      });
+      return jsonResponse(req, {
+        hours,
+        total: localMatches.length,
+        matches: localMatches,
+        leagues: Array.from(localLeagueMap.values()).sort((a, b) => b.count - a.count),
+        offline: true,
+        catalog_max_utc: getUpcomingMaxDate(),
+        cacheMetrics: { ...getStatsCacheMetrics(), upcomingSource: "local_sqlite" },
+      });
+    }
+
+    // 1. Jadwal laga (cache 10 menit) + kamus kompetisi (cache 24 jam) dalam SATU gelombang.
+    // Sebelumnya jadwal di-await sendirian lalu kompetisi menyusul → dua round-trip upstream
+    // di jalur dingin (terukur 1.03s). Kelimanya independen, jadi satu Promise.all.
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const [json, compsP1, compsP2, compsP3, compsP4] = await Promise.all([
+      cachedStatsGet("/football/matches", queryParams, 10 * 60 * 1000),
+      cachedStatsGet("/football/competitions", { per_page: 100, page: 1 }, DAY_MS),
+      cachedStatsGet("/football/competitions", { per_page: 100, page: 2 }, DAY_MS),
+      cachedStatsGet("/football/competitions", { per_page: 100, page: 3 }, DAY_MS),
+      cachedStatsGet("/football/competitions", { per_page: 100, page: 4 }, DAY_MS),
+    ]);
+
+    if (json.error) {
+      // API mati (401/403 = key revoked/expired) → degradasi jujur: 200 kosong dari
+      // store lokal, bukan 500. Error lain (network/transien) tetap 500 agar ketahuan.
+      const errStr = String((json as any)?.error ?? "");
+      const errCode = String((json as any)?.code ?? "");
+      const isAuthDead = /401|403/.test(errStr) || /KEY_REVOKED|UNAUTHORIZED|FORBIDDEN/i.test(errCode);
+      if (isAuthDead) {
+        return jsonResponse(req, {
+          hours,
+          total: 0,
+          matches: [],
+          leagues: [],
+          offline: true,
+          catalog_max_utc: getUpcomingMaxDate(),
+          message: "AKSES API MATI — tidak ada fixture lokal di window ini",
+          cacheMetrics: { ...getStatsCacheMetrics(), upcomingSource: "local_sqlite_empty" },
+        });
+      }
+      return jsonResponse(
+        req,
+        {
+          error: json.message || `HTTP ${json.error}: Gagal mengambil jadwal pertandingan`,
+        },
+        { status: 500 }
+      );
+    }
+
+    const competitionMap = new Map<string, { id: string; name: string; country?: string | null }>();
+    const allComps = [
+      ...(Array.isArray(compsP1?.data) ? compsP1.data : []),
+      ...(Array.isArray(compsP2?.data) ? compsP2.data : []),
+      ...(Array.isArray(compsP3?.data) ? compsP3.data : []),
+      ...(Array.isArray(compsP4?.data) ? compsP4.data : []),
+    ];
+    for (const c of allComps) {
+      if (c?.id) {
+        competitionMap.set(String(c.id), {
+          id: String(c.id),
+          name: c.name,
+          country: c.country,
+        });
+      }
+    }
+
+    const rawMatches = json?.data || [];
+
+    // Filter pertandingan yang kickoff-nya berada dalam rentang [sekarang, sekarang + hours]
+    const leagueMap = new Map<string, { id: string; name: string; count: number }>();
+
+    // Bentuk mentah item dari TheStatsAPI (tidak tervalidasi di sini; hanya dipakai untuk mapping).
+    type RawMatch = {
+      id: string | number;
+      utc_date: string;
+      competition_id?: string | number | null;
+      competition_name?: string | null;
+      stage_name?: string | null;
+      home_team?: { id?: string | number | null; name?: string | null } | null;
+      away_team?: { id?: string | number | null; name?: string | null } | null;
+      venue?: string | null;
+      is_neutral?: boolean | null;
+      odds_available?: boolean | null;
+      xg_available?: boolean | null;
+      shotmap_available?: boolean | null;
+    };
+
+    const filtered = rawMatches
+      .filter((m: RawMatch) => {
+        if (!m.utc_date) return false;
+        const kickoff = new Date(m.utc_date);
+        return kickoff >= now && kickoff <= maxTime;
+      })
+      .map((m: RawMatch) => {
+        const compId = String(m.competition_id || "");
+        const compMeta = competitionMap.get(compId);
+
+        // Format nama kompetisi mengikuti standar 1xBet: "<Country>. <League Name>" atau "<Tournament Name>"
+        const standardName = format1xBetLeagueName(
+          compMeta?.name || m.competition_name || m.stage_name,
+          compMeta?.country
+        );
+
+        // Agregasi jumlah laga per kompetisi untuk filter pills & dropdown
+        if (compId) {
+          const existing = leagueMap.get(compId);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            leagueMap.set(compId, {
+              id: compId,
+              name: standardName,
+              count: 1,
+            });
+          }
+        }
+
+        return {
+          id: m.id,
+          utc_date: m.utc_date,
+          competition_id: compId,
+          competition_name: standardName,
+          home_team: {
+            id: m.home_team?.id,
+            name: m.home_team?.name,
+          },
+          away_team: {
+            id: m.away_team?.id,
+            name: m.away_team?.name,
+          },
+          venue: m.venue || null,
+          is_neutral: Boolean(m.is_neutral),
+          odds_available: Boolean(m.odds_available),
+          xg_available: Boolean(m.xg_available),
+          shotmap_available: m.shotmap_available ?? false,
+        };
+      });
+
+    // Urutkan daftar liga aktif berdasarkan jumlah pertandingan terbanyak
+    const activeLeagues = Array.from(leagueMap.values()).sort((a, b) => b.count - a.count);
+
+    return jsonResponse(req, {
+      hours,
+      total: filtered.length,
+      matches: filtered,
+      leagues: activeLeagues,
+      offline: false,
+      catalog_max_utc: null,
+      cacheMetrics: getStatsCacheMetrics(),
+    });
+  } catch (error) {
+    return jsonResponse(
+      req,
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}

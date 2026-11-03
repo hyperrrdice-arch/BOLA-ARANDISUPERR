@@ -1,0 +1,1157 @@
+[
+  {
+    "league_id": 1413697,
+    "league_name": "Enhanced Daily Specials",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/949e90f82a4fc130124ed7e54d4c33f2.png"
+  },
+  {
+    "league_id": 118587,
+    "league_name": "UEFA Champions League",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/86b3049b3592a71249e7cc77927822d4.png"
+  },
+  {
+    "league_id": 2706692,
+    "league_name": "UEFA Champions League. Team vs Player",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/266f3f36d26e5bad3657ddf5e91fe299.png"
+  },
+  {
+    "league_id": 1796709,
+    "league_name": "UEFA Champions League. Statistics Round",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/2a60448cbe2969f9d589c47fe44cb24b.png"
+  },
+  {
+    "league_id": 118593,
+    "league_name": "UEFA Europa League",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/52ccc7a2015c783627fbd4d5b4e11049.png"
+  },
+  {
+    "league_id": 2252762,
+    "league_name": "UEFA Conference League",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/1e55bf5aae5d34b662c2a624598cebca.png"
+  },
+  {
+    "league_id": 1706694,
+    "league_name": "UEFA Nations League",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/c65c824cf2133b0b52b37be9745a4bef.png"
+  },
+  {
+    "league_id": 21317,
+    "league_name": "Africa Cup of Nations",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/0179f995c76fc3fd0f44eff98e733497.png"
+  },
+  {
+    "league_id": 142091,
+    "league_name": "Copa Libertadores",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/28c6f25b0e6f0fc46b77d1229f2c6174.png"
+  },
+  {
+    "league_id": 2591609,
+    "league_name": "Copa Libertadores. Statistics play-off round",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/467213909708304e86783b10379ab375.png"
+  },
+  {
+    "league_id": 1528791,
+    "league_name": "Copa Sudamericana",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/c586eabe75656e084078298c94a8b64b.png"
+  },
+  {
+    "league_id": 2591611,
+    "league_name": "Copa Sudamericana. Statistics play-off round",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/03bce0128e60f5bce1ea4d18600671f1.png"
+  },
+  {
+    "league_id": 2740174,
+    "league_name": "AFC Champions League Elite",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/ec0799190ba8c65d0662a7897dc7c035.png"
+  },
+  {
+    "league_id": 38317,
+    "league_name": "CAF Champions League",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/341f98d0c2428fc0247472c82ca8b073.png"
+  },
+  {
+    "league_id": 125983,
+    "league_name": "Friendlies. National Teams",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/67c99e5ba00bd37c0f23009e360af972.png"
+  },
+  {
+    "league_id": 1170111,
+    "league_name": "Africa Cup of Nations U20",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/8b6fb00606a8c41912630f1ca5b464cf.png"
+  },
+  {
+    "league_id": 77263,
+    "league_name": "Olympics. Women",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/b8a73c9cd9405a2915d23ee17f66b17a.png"
+  },
+  {
+    "league_id": 1131987,
+    "league_name": "Friendlies. National Teams. Women",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/a7c0a3f3f092dc12e4cac4934e509662.png"
+  },
+  {
+    "league_id": 119237,
+    "league_name": "England. League Cup"
+  },
+  {
+    "league_id": 88637,
+    "league_name": "England. Premier League"
+  },
+  {
+    "league_id": 2809690,
+    "league_name": "England. Premier League. Team vs Player"
+  },
+  {
+    "league_id": 105759,
+    "league_name": "England. Championship"
+  },
+  {
+    "league_id": 1697018,
+    "league_name": "England. Championship. Statistics Round"
+  },
+  {
+    "league_id": 13709,
+    "league_name": "England. League One"
+  },
+  {
+    "league_id": 2181070,
+    "league_name": "England. League One. Statistics Round"
+  },
+  {
+    "league_id": 24637,
+    "league_name": "England. League Two"
+  },
+  {
+    "league_id": 1256221,
+    "league_name": "England. National League"
+  },
+  {
+    "league_id": 98293,
+    "league_name": "England. Football League Trophy"
+  },
+  {
+    "league_id": 119235,
+    "league_name": "Germany DFB Pokal"
+  },
+  {
+    "league_id": 2466851,
+    "league_name": "Germany DFB Pokal. Statistics Round"
+  },
+  {
+    "league_id": 96463,
+    "league_name": "Germany. Bundesliga"
+  },
+  {
+    "league_id": 109313,
+    "league_name": "Germany. 2. Bundesliga"
+  },
+  {
+    "league_id": 2039012,
+    "league_name": "Germany. 2. Bundesliga. Statistics Round"
+  },
+  {
+    "league_id": 127733,
+    "league_name": "Spain. La Liga"
+  },
+  {
+    "league_id": 2809583,
+    "league_name": "Spain. La Liga. Team vs Player"
+  },
+  {
+    "league_id": 27687,
+    "league_name": "Spain. Segunda Division"
+  },
+  {
+    "league_id": 110163,
+    "league_name": "Italy. Serie A"
+  },
+  {
+    "league_id": 7067,
+    "league_name": "Italy. Serie B"
+  },
+  {
+    "league_id": 1648359,
+    "league_name": "Italy. Serie B. Statistics Round"
+  },
+  {
+    "league_id": 176125,
+    "league_name": "Russian Cup"
+  },
+  {
+    "league_id": 2897029,
+    "league_name": "Russian Cup. RPL Path. Statistics Round"
+  },
+  {
+    "league_id": 3052396,
+    "league_name": "Russian Cup. Path of regions. Statistics Round"
+  },
+  {
+    "league_id": 225733,
+    "league_name": "Russia. Premier League"
+  },
+  {
+    "league_id": 30079,
+    "league_name": "Russia. Premier League. Statistics Round"
+  },
+  {
+    "league_id": 2421233,
+    "league_name": "Russian Championship. League 1"
+  },
+  {
+    "league_id": 2425380,
+    "league_name": "Russian Championship. League 1. Statistics Round"
+  },
+  {
+    "league_id": 12821,
+    "league_name": "France. Ligue 1"
+  },
+  {
+    "league_id": 1551267,
+    "league_name": "France. Ligue 1. Statistics Round"
+  },
+  {
+    "league_id": 12829,
+    "league_name": "France. Ligue 2"
+  },
+  {
+    "league_id": 2018750,
+    "league_name": "Netherlands. Eredivisie"
+  },
+  {
+    "league_id": 2027184,
+    "league_name": "Netherlands. Eredivisie. Statistics Round"
+  },
+  {
+    "league_id": 2018747,
+    "league_name": "Netherlands. Eerste Divisie"
+  },
+  {
+    "league_id": 3007689,
+    "league_name": "Portugal. Primeira Liga"
+  },
+  {
+    "league_id": 11113,
+    "league_name": "Turkey. SuperLiga"
+  },
+  {
+    "league_id": 2905446,
+    "league_name": "Australia. A League"
+  },
+  {
+    "league_id": 119599,
+    "league_name": "Argentina. Primera Division"
+  },
+  {
+    "league_id": 26031,
+    "league_name": "Austria. Bundesliga"
+  },
+  {
+    "league_id": 119577,
+    "league_name": "Copa Argentina"
+  },
+  {
+    "league_id": 120013,
+    "league_name": "Brazil. Copa do Brasil"
+  },
+  {
+    "league_id": 1268397,
+    "league_name": "Brazil. Campeonato Brasileiro. Serie A"
+  },
+  {
+    "league_id": 57265,
+    "league_name": "Brazil. Campeonato Brasileiro. Serie B"
+  },
+  {
+    "league_id": 119457,
+    "league_name": "Greek Cup"
+  },
+  {
+    "league_id": 8777,
+    "league_name": "Greece. SuperLeague"
+  },
+  {
+    "league_id": 8773,
+    "league_name": "Denmark. Superliga"
+  },
+  {
+    "league_id": 147087,
+    "league_name": "Egypt. Premier League"
+  },
+  {
+    "league_id": 150983,
+    "league_name": "Copa Colombia"
+  },
+  {
+    "league_id": 214147,
+    "league_name": "Colombia. Categoria Primera A"
+  },
+  {
+    "league_id": 2306111,
+    "league_name": "Mexico. Liga MX"
+  },
+  {
+    "league_id": 1793471,
+    "league_name": "Norway. Eliteserien"
+  },
+  {
+    "league_id": 27731,
+    "league_name": "Poland. Ekstraklasa"
+  },
+  {
+    "league_id": 16819,
+    "league_name": "Saudi Arabia. Saudi Professional League"
+  },
+  {
+    "league_id": 1371789,
+    "league_name": "Sweden. Superettan"
+  },
+  {
+    "league_id": 828065,
+    "league_name": "USA. MLS"
+  },
+  {
+    "league_id": 27707,
+    "league_name": "Czech Republic. Chance Liga"
+  },
+  {
+    "league_id": 212425,
+    "league_name": "Sweden. Allsvenskan"
+  },
+  {
+    "league_id": 13521,
+    "league_name": "Scotland. Premier League"
+  },
+  {
+    "league_id": 2004053,
+    "league_name": "Scotland. Premier League. Statistics Round"
+  },
+  {
+    "league_id": 281713,
+    "league_name": "Scotland. Championship"
+  },
+  {
+    "league_id": 30467,
+    "league_name": "South Korea. K League 1"
+  },
+  {
+    "league_id": 2093300,
+    "league_name": "South Korea. K League 1. Statistics Round"
+  },
+  {
+    "league_id": 118737,
+    "league_name": "Japan. J-League"
+  },
+  {
+    "league_id": 1910046,
+    "league_name": "Japan. J-League. Statistics Round"
+  },
+  {
+    "league_id": 1377703,
+    "league_name": "Friendly Club Tournament",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/07ed2af3f8cb5c2455391d1bacaa1a6c.png"
+  },
+  {
+    "league_id": 67559,
+    "league_name": "Club Friendlies",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/05bc2c6ed5eaf747ff173891889841d1.png"
+  },
+  {
+    "league_id": 1154247,
+    "league_name": "Friendlies U23. National Teams. Women",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/1dd5f12ec306833deb4ba2d32d4969e6.png"
+  },
+  {
+    "league_id": 1133667,
+    "league_name": "Friendlies U19. National Teams. Women",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/62598d510627a45682169af49947b189.png"
+  },
+  {
+    "league_id": 28645,
+    "league_name": "Algeria. Ligue 1"
+  },
+  {
+    "league_id": 926931,
+    "league_name": "Antigua and Barbuda. Premier Division"
+  },
+  {
+    "league_id": 955407,
+    "league_name": "Argentina. Primera B Metropolitana"
+  },
+  {
+    "league_id": 1201047,
+    "league_name": "Argentina. Primera B Metropolitana. Reserve League"
+  },
+  {
+    "league_id": 2922491,
+    "league_name": "Argentina. Primera B Nacional"
+  },
+  {
+    "league_id": 329719,
+    "league_name": "Argentina. Primera C Metropolitana"
+  },
+  {
+    "league_id": 969945,
+    "league_name": "Argentina. Torneo Argentino A"
+  },
+  {
+    "league_id": 1767519,
+    "league_name": "Argentina. Torneo Regional Federal"
+  },
+  {
+    "league_id": 51125,
+    "league_name": "Armenia. First League"
+  },
+  {
+    "league_id": 40053,
+    "league_name": "Armenia. Premier League"
+  },
+  {
+    "league_id": 2979441,
+    "league_name": "Australia. A League. Women"
+  },
+  {
+    "league_id": 104509,
+    "league_name": "Australian Championship"
+  },
+  {
+    "league_id": 2191612,
+    "league_name": "Austria. Second League"
+  },
+  {
+    "league_id": 1015483,
+    "league_name": "Belarus. Premier League"
+  },
+  {
+    "league_id": 2869549,
+    "league_name": "Bolivia. Primera Division"
+  },
+  {
+    "league_id": 2460991,
+    "league_name": "Brazil. Campeonato Carioca B2"
+  },
+  {
+    "league_id": 2433114,
+    "league_name": "Brazil. Campeonato Carioca U20. Women"
+  },
+  {
+    "league_id": 2641151,
+    "league_name": "Brazil. Campeonato Paulista. U20"
+  },
+  {
+    "league_id": 2042549,
+    "league_name": "Brazil. Campeonato Piauiense. Women"
+  },
+  {
+    "league_id": 1808063,
+    "league_name": "Brazil. Campeonato Potiguar. 2nd Division"
+  },
+  {
+    "league_id": 2003739,
+    "league_name": "Brazil. Goiano Cup U20"
+  },
+  {
+    "league_id": 957753,
+    "league_name": "Brazil. Goiano. Division 2"
+  },
+  {
+    "league_id": 185615,
+    "league_name": "Brazilian Cup. Women"
+  },
+  {
+    "league_id": 2924971,
+    "league_name": "Bulgaria. First League"
+  },
+  {
+    "league_id": 1298619,
+    "league_name": "Bulgaria. Second League"
+  },
+  {
+    "league_id": 2939260,
+    "league_name": "Burkina Faso"
+  },
+  {
+    "league_id": 1924563,
+    "league_name": "Canada. Premier League"
+  },
+  {
+    "league_id": 58345,
+    "league_name": "Chile. Primera B"
+  },
+  {
+    "league_id": 28298,
+    "league_name": "Chile. Primera Division"
+  },
+  {
+    "league_id": 178771,
+    "league_name": "Chile. Segunda"
+  },
+  {
+    "league_id": 209499,
+    "league_name": "China. Second League"
+  },
+  {
+    "league_id": 58043,
+    "league_name": "China. Super League"
+  },
+  {
+    "league_id": 1909582,
+    "league_name": "China. Super League. Statistics Round"
+  },
+  {
+    "league_id": 214149,
+    "league_name": "Colombia. Categoria Primera B"
+  },
+  {
+    "league_id": 28665,
+    "league_name": "Costa Rica. Primera Division"
+  },
+  {
+    "league_id": 415883,
+    "league_name": "Costa Rica. Segunda Division"
+  },
+  {
+    "league_id": 2439504,
+    "league_name": "Croatia. 2. NL"
+  },
+  {
+    "league_id": 27735,
+    "league_name": "Croatia. HNL"
+  },
+  {
+    "league_id": 2042728,
+    "league_name": "Croatia. HNL. Statistics Round"
+  },
+  {
+    "league_id": 12505,
+    "league_name": "Cyprus. First Division"
+  },
+  {
+    "league_id": 30465,
+    "league_name": "Czech Republic. 2 Liga"
+  },
+  {
+    "league_id": 39969,
+    "league_name": "Denmark. 1st Division"
+  },
+  {
+    "league_id": 52591,
+    "league_name": "Denmark. 2nd Division"
+  },
+  {
+    "league_id": 1261677,
+    "league_name": "Dominican Republic Championship"
+  },
+  {
+    "league_id": 276999,
+    "league_name": "Ecuador. Serie A"
+  },
+  {
+    "league_id": 76129,
+    "league_name": "El Salvador. Primera Division"
+  },
+  {
+    "league_id": 305457,
+    "league_name": "England. Isthmian League"
+  },
+  {
+    "league_id": 1256219,
+    "league_name": "England. National League South"
+  },
+  {
+    "league_id": 34711,
+    "league_name": "England. Northern Premier League"
+  },
+  {
+    "league_id": 2438917,
+    "league_name": "England. Premier League Cup U21"
+  },
+  {
+    "league_id": 1800014,
+    "league_name": "England. Southern Premier League. Central"
+  },
+  {
+    "league_id": 1800476,
+    "league_name": "England. Southern Premier League. South"
+  },
+  {
+    "league_id": 316897,
+    "league_name": "England. Superleague. Women"
+  },
+  {
+    "league_id": 228159,
+    "league_name": "Estonia. Esiliiga"
+  },
+  {
+    "league_id": 33033,
+    "league_name": "Estonia. Meistriliiga"
+  },
+  {
+    "league_id": 1554897,
+    "league_name": "Finland. Veikkausliiga"
+  },
+  {
+    "league_id": 206667,
+    "league_name": "Finland. Ykkonen. Division 1"
+  },
+  {
+    "league_id": 2682770,
+    "league_name": "Finland. Ykkosliiga"
+  },
+  {
+    "league_id": 3063164,
+    "league_name": "France. Ligue 3"
+  },
+  {
+    "league_id": 3076272,
+    "league_name": "France. Ligue 3. Statistics Round"
+  },
+  {
+    "league_id": 2250298,
+    "league_name": "Georgia. League 4"
+  },
+  {
+    "league_id": 1063345,
+    "league_name": "Germany. 2. Bundesliga. Women"
+  },
+  {
+    "league_id": 2579233,
+    "league_name": "Germany. 3. Liga"
+  },
+  {
+    "league_id": 2815131,
+    "league_name": "Germany. 3. Liga. Statistics Round"
+  },
+  {
+    "league_id": 2016280,
+    "league_name": "Germany. Bavaria. Landesliga. Center"
+  },
+  {
+    "league_id": 28041,
+    "league_name": "Germany. Oberliga Hamburg"
+  },
+  {
+    "league_id": 115787,
+    "league_name": "Germany. Oberliga Westfalen"
+  },
+  {
+    "league_id": 78495,
+    "league_name": "Germany. Regionalliga Bayern"
+  },
+  {
+    "league_id": 28351,
+    "league_name": "Germany. Regionalliga North"
+  },
+  {
+    "league_id": 3087796,
+    "league_name": "Gibraltar Championship"
+  },
+  {
+    "league_id": 1693884,
+    "league_name": "Greece. League 3"
+  },
+  {
+    "league_id": 2008375,
+    "league_name": "Greece. SuperLeague 2"
+  },
+  {
+    "league_id": 1794524,
+    "league_name": "Guatemala. Liga Nacional"
+  },
+  {
+    "league_id": 985923,
+    "league_name": "Guatemala. Primera Division de Ascenso"
+  },
+  {
+    "league_id": 1905833,
+    "league_name": "Guatemala. Segunda Division"
+  },
+  {
+    "league_id": 84603,
+    "league_name": "Honduras. Liga Nacional"
+  },
+  {
+    "league_id": 2365598,
+    "league_name": "Honduras. Liga Nacional. Reserve League"
+  },
+  {
+    "league_id": 2765014,
+    "league_name": "Hong Kong. Premier League U22"
+  },
+  {
+    "league_id": 30213,
+    "league_name": "Hungary. NB I"
+  },
+  {
+    "league_id": 56283,
+    "league_name": "Hungary. NB II"
+  },
+  {
+    "league_id": 31504,
+    "league_name": "Iceland. Urvalsdeild"
+  },
+  {
+    "league_id": 330475,
+    "league_name": "India. Bangalore. Super Division"
+  },
+  {
+    "league_id": 1122087,
+    "league_name": "India. Super League"
+  },
+  {
+    "league_id": 11249,
+    "league_name": "Indonesia. Super League"
+  },
+  {
+    "league_id": 54221,
+    "league_name": "Iran. Azadegan League"
+  },
+  {
+    "league_id": 32887,
+    "league_name": "Iran. Pro League"
+  },
+  {
+    "league_id": 29975,
+    "league_name": "Ireland. Division 1"
+  },
+  {
+    "league_id": 119445,
+    "league_name": "Ireland. Premier League"
+  },
+  {
+    "league_id": 100443,
+    "league_name": "Israel State Cup"
+  },
+  {
+    "league_id": 887225,
+    "league_name": "Israel. Liga Alef. North"
+  },
+  {
+    "league_id": 27921,
+    "league_name": "Israel. Liga Leumit"
+  },
+  {
+    "league_id": 41199,
+    "league_name": "Israel. Premier League"
+  },
+  {
+    "league_id": 93879,
+    "league_name": "Italy. Campionato Nazionale Primavera"
+  },
+  {
+    "league_id": 2616356,
+    "league_name": "Italy. Serie C. Group A"
+  },
+  {
+    "league_id": 2616244,
+    "league_name": "Italy. Serie C. Group B"
+  },
+  {
+    "league_id": 2616243,
+    "league_name": "Italy. Serie C. Group C"
+  },
+  {
+    "league_id": 2365172,
+    "league_name": "Ivory Coast. League 2"
+  },
+  {
+    "league_id": 118745,
+    "league_name": "Jamaica. National Premier League"
+  },
+  {
+    "league_id": 30005,
+    "league_name": "Japan. J-League Division 2"
+  },
+  {
+    "league_id": 1228283,
+    "league_name": "Japan. League Cup. Women"
+  },
+  {
+    "league_id": 1367051,
+    "league_name": "Jordan Championship U20"
+  },
+  {
+    "league_id": 50365,
+    "league_name": "Kazakhstan. 1st Division"
+  },
+  {
+    "league_id": 1217107,
+    "league_name": "Kazakhstan. League 2"
+  },
+  {
+    "league_id": 33021,
+    "league_name": "Kazakhstan. Premier League"
+  },
+  {
+    "league_id": 1174103,
+    "league_name": "Kenya. Premier League"
+  },
+  {
+    "league_id": 2792081,
+    "league_name": "Kosovo. Superleague U19"
+  },
+  {
+    "league_id": 1183069,
+    "league_name": "Kyrgyzstan Championship. Higher League"
+  },
+  {
+    "league_id": 120501,
+    "league_name": "Latvia. Virsliga"
+  },
+  {
+    "league_id": 605255,
+    "league_name": "Libya. Premier League"
+  },
+  {
+    "league_id": 55427,
+    "league_name": "Lithuania Championship. League 1"
+  },
+  {
+    "league_id": 656519,
+    "league_name": "Mauritania. Championnat D1"
+  },
+  {
+    "league_id": 1410375,
+    "league_name": "Mexico. Division 4"
+  },
+  {
+    "league_id": 2953078,
+    "league_name": "Mexico. Liga Premier. Serie A"
+  },
+  {
+    "league_id": 2126323,
+    "league_name": "Mexico. Liga de Expansion MX"
+  },
+  {
+    "league_id": 2745235,
+    "league_name": "Montenegro. Second League U19"
+  },
+  {
+    "league_id": 31429,
+    "league_name": "Morocco. Botola"
+  },
+  {
+    "league_id": 2024817,
+    "league_name": "Netherlands Championship U19"
+  },
+  {
+    "league_id": 918823,
+    "league_name": "Nicaragua Championship"
+  },
+  {
+    "league_id": 2135258,
+    "league_name": "Nicaragua Championship. Division 2"
+  },
+  {
+    "league_id": 11463,
+    "league_name": "Northern Ireland. IFA Premiership"
+  },
+  {
+    "league_id": 2888694,
+    "league_name": "Northern Ireland. IFA Premiership. Statistics Round"
+  },
+  {
+    "league_id": 31508,
+    "league_name": "Norway. Adeccoligaen"
+  },
+  {
+    "league_id": 1640263,
+    "league_name": "Norway. Division 3. Group 2"
+  },
+  {
+    "league_id": 1640271,
+    "league_name": "Norway. Division 3. Group 6"
+  },
+  {
+    "league_id": 208075,
+    "league_name": "Norway. Division 4"
+  },
+  {
+    "league_id": 3013766,
+    "league_name": "Norway. Division 5"
+  },
+  {
+    "league_id": 28427,
+    "league_name": "Panama. Liga Panamena de Futbol"
+  },
+  {
+    "league_id": 58309,
+    "league_name": "Paraguay. Division Intermedia"
+  },
+  {
+    "league_id": 2578797,
+    "league_name": "Paraguay. Fourth Division"
+  },
+  {
+    "league_id": 55479,
+    "league_name": "Paraguay. Primera Division"
+  },
+  {
+    "league_id": 43721,
+    "league_name": "Paraguay. Reserve League"
+  },
+  {
+    "league_id": 2892390,
+    "league_name": "Peru. Liga 1"
+  },
+  {
+    "league_id": 62893,
+    "league_name": "Peru. Liga 2"
+  },
+  {
+    "league_id": 30693,
+    "league_name": "Poland Championship. Liga 1"
+  },
+  {
+    "league_id": 40311,
+    "league_name": "Poland Championship. Liga 2"
+  },
+  {
+    "league_id": 1794797,
+    "league_name": "Portugal Championship U23"
+  },
+  {
+    "league_id": 17555,
+    "league_name": "Portugal. Segunda Liga"
+  },
+  {
+    "league_id": 2317636,
+    "league_name": "Puerto-Rico. National League"
+  },
+  {
+    "league_id": 47513,
+    "league_name": "Qatar Championship"
+  },
+  {
+    "league_id": 2523883,
+    "league_name": "Qatar Championship U20"
+  },
+  {
+    "league_id": 1884157,
+    "league_name": "Republic of North Macedonia. First League"
+  },
+  {
+    "league_id": 11121,
+    "league_name": "Romania. Liga 1"
+  },
+  {
+    "league_id": 2012419,
+    "league_name": "Romania. Liga 1. Statistics Round"
+  },
+  {
+    "league_id": 33251,
+    "league_name": "Romania. Liga 2"
+  },
+  {
+    "league_id": 2574962,
+    "league_name": "Russian Championship. League 2. Division A. Silver"
+  },
+  {
+    "league_id": 2577533,
+    "league_name": "Russian Championship. League 2. Division B. Group 2"
+  },
+  {
+    "league_id": 1705090,
+    "league_name": "Saint Kitts and Nevis Championship"
+  },
+  {
+    "league_id": 1672590,
+    "league_name": "Saudi Arabia Championship U21"
+  },
+  {
+    "league_id": 245547,
+    "league_name": "Saudi Arabia. Division 1"
+  },
+  {
+    "league_id": 281719,
+    "league_name": "Scotland. League One"
+  },
+  {
+    "league_id": 281717,
+    "league_name": "Scotland. League Two"
+  },
+  {
+    "league_id": 913849,
+    "league_name": "Serbia Championship U19"
+  },
+  {
+    "league_id": 166963,
+    "league_name": "Serbia. 1st League"
+  },
+  {
+    "league_id": 30035,
+    "league_name": "Serbia. SuperLiga"
+  },
+  {
+    "league_id": 831037,
+    "league_name": "Sierra Leone. Premier League"
+  },
+  {
+    "league_id": 2446307,
+    "league_name": "Simon Bolivar Cup"
+  },
+  {
+    "league_id": 2903318,
+    "league_name": "Singapore. Premier League"
+  },
+  {
+    "league_id": 41523,
+    "league_name": "Slovakia. Liga 2"
+  },
+  {
+    "league_id": 27701,
+    "league_name": "Slovakia. Super League"
+  },
+  {
+    "league_id": 2043450,
+    "league_name": "Slovakia. Super League. Statistics Round"
+  },
+  {
+    "league_id": 30049,
+    "league_name": "Slovenia. League 1"
+  },
+  {
+    "league_id": 2103539,
+    "league_name": "Slovenia. League 1. Statistics Round"
+  },
+  {
+    "league_id": 904117,
+    "league_name": "Slovenian Championship U19"
+  },
+  {
+    "league_id": 90523,
+    "league_name": "South Africa. Premier Soccer League"
+  },
+  {
+    "league_id": 33137,
+    "league_name": "South Korea. K League 2"
+  },
+  {
+    "league_id": 2094144,
+    "league_name": "South Korea. K League 2. Statistics Round"
+  },
+  {
+    "league_id": 2282697,
+    "league_name": "Spain. Primera Division RFEF. Group 1"
+  },
+  {
+    "league_id": 2282698,
+    "league_name": "Spain. Primera Division RFEF. Group 2"
+  },
+  {
+    "league_id": 124885,
+    "league_name": "Spain. Primera Division. Women"
+  },
+  {
+    "league_id": 44797,
+    "league_name": "Sweden. Division 1"
+  },
+  {
+    "league_id": 3101370,
+    "league_name": "Sweden. Elite League Cup"
+  },
+  {
+    "league_id": 2903712,
+    "league_name": "Sweden. Superettan U19"
+  },
+  {
+    "league_id": 1323331,
+    "league_name": "Tajikistan Cup"
+  },
+  {
+    "league_id": 2190933,
+    "league_name": "Tanzania. Premier League Zanzibar"
+  },
+  {
+    "league_id": 1391737,
+    "league_name": "Thailand. 3rd Division"
+  },
+  {
+    "league_id": 2921062,
+    "league_name": "Turkey. PAF League U19"
+  },
+  {
+    "league_id": 40017,
+    "league_name": "Turkey. TFF 1. Lig"
+  },
+  {
+    "league_id": 37511,
+    "league_name": "Turkey. TFF 3. Lig"
+  },
+  {
+    "league_id": 1839809,
+    "league_name": "UAE Cup U21"
+  },
+  {
+    "league_id": 88211,
+    "league_name": "UEFA Regions Cup",
+    "logo": "https://v3.traincdn.com/sfiles/logo-champ/41f7515419b6cc248bd1f8c03d699d28.png"
+  },
+  {
+    "league_id": 2373449,
+    "league_name": "USA. MLS Next Pro"
+  },
+  {
+    "league_id": 190409,
+    "league_name": "USA. NWSL. Women"
+  },
+  {
+    "league_id": 57723,
+    "league_name": "USA. USL"
+  },
+  {
+    "league_id": 1898445,
+    "league_name": "USA. USL League One"
+  },
+  {
+    "league_id": 2745875,
+    "league_name": "USA. USL. SuperLiga. Women"
+  },
+  {
+    "league_id": 120009,
+    "league_name": "Ukraine Cup"
+  },
+  {
+    "league_id": 38369,
+    "league_name": "Ukraine. First League"
+  },
+  {
+    "league_id": 29949,
+    "league_name": "Ukraine. Premier League"
+  },
+  {
+    "league_id": 44527,
+    "league_name": "Ukraine. Second League"
+  },
+  {
+    "league_id": 52183,
+    "league_name": "Uruguay. Primera Division"
+  },
+  {
+    "league_id": 29597,
+    "league_name": "Uruguay. Reserve League"
+  },
+  {
+    "league_id": 28585,
+    "league_name": "Uruguay. Segunda Division"
+  },
+  {
+    "league_id": 1922243,
+    "league_name": "Uzbekistan. Pro League"
+  },
+  {
+    "league_id": 289119,
+    "league_name": "Venezuela. Primera Division"
+  },
+  {
+    "league_id": 939273,
+    "league_name": "Venezuela. Segunda Division"
+  },
+  {
+    "league_id": 164275,
+    "league_name": "Vietnam Championship. Women"
+  },
+  {
+    "league_id": 1791926,
+    "league_name": "China. Champions League"
+  }
+]

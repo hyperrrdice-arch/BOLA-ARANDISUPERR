@@ -1,0 +1,160 @@
+API Documentation
+Overview
+This API provides access to 1xBet data including sports, leagues, matches, and results. The API supports multiple languages and different modes of operation (line and feed) where line is for pre-match events and live is for in-game or live events.
+
+Make sure that you are consistent when using the mode specifier for example when you get games from a league using the live mode specifier you'd have to use it that live specifier to get the game market else you'd get a 404 error.
+
+Common Parameters
+lng (optional): Language code for responses (default: "en")
+mode: Operation mode ("line" or "live") - handled internally
+Endpoints
+Sports
+1. List All Sports
+GET /sports
+
+Lists all available sports with their IDs and names.
+
+Query Parameters:
+
+virtual (optional): Boolean flag to include virtual sports
+Response Example:
+
+{
+    "status": "success",
+    "data": [
+        {
+            "name": "Football",
+            "id": 1
+        }
+    ]
+}
+2. Get Specific Sport
+GET /sports/{sport_id}
+
+Returns detailed information about a specific sport including its leagues.
+
+Response Example:
+
+{
+    "status": "success",
+    "data": {
+        "id": 1,
+        "name": "Football",
+        "leagues": [
+            {
+                "id": 123,
+                "name": "Premier League"
+            }
+        ]
+    }
+}
+3. Get Leagues for Sport
+GET /sports/{sport_id}/leagues
+
+Returns all leagues for a specific sport.
+
+Query Parameters:
+
+country (optional): Filter leagues by country name
+Matches
+1. List Matches
+GET /matches
+
+Lists all matches for a given league and sport.
+
+Required Query Parameters:
+
+league_id: ID of the league
+sport_id: ID of the sport
+2. Get Specific Match
+GET /matches/{match_id}
+
+Returns detailed information about a specific match.
+
+Query Parameters:
+
+v2_market (optional): Boolean flag for v2 market data format
+3. Get Match Markets
+GET /matches/{match_id}/markets
+
+Returns markets available for a specific match.
+
+Query Parameters:
+
+ids (optional): Comma-separated list of market IDs to filter (max 20)
+limit (optional): Maximum number of events to return
+4. Get Match Markets V2
+GET /matches/{match_id}/markets_v2
+
+Returns markets in V2 format for a specific match.
+
+Results
+Get League Results
+GET /results/{league_id}
+
+Returns match results for a specific league within a time period.
+
+Required Query Parameters:
+
+start_date: Unix timestamp for start of period in seconds
+end_date: Unix timestamp for end of period in seconds
+Constraints:
+
+Time interval must be between 1 minute and 2 days
+Both start_date and end_date are required
+Response Example:
+
+{
+    "status": "success",
+    "data": [
+        {
+            "id": "123",
+            "league_id": "456",
+            "league_name": "Premier League",
+            "team1": "Team A",
+            "team2": "Team B",
+            "team1_logo": "https://v3.traincdn.com/sfiles/logo_teams/...",
+            "team2_logo": "https://v3.traincdn.com/sfiles/logo_teams/...",
+            "score": "2-1",
+            "dateStart": "1632145200",
+            "events": []
+        }
+    ]
+}
+Error Handling
+All endpoints return errors in the following format:
+
+{
+    "status": "error",
+    "message": "Error description"
+}
+Common HTTP Status Codes
+200: Success
+400: Bad Request (missing or invalid parameters)
+404: Resource Not Found
+500: Internal Server Error
+Notes
+All successful responses follow the format: {"status": "success", "data": ...}
+The API supports multiple languages through the lng parameter
+Market data is available in two versions through separate endpoints
+Market v2
+This data format groups the market by market name and base; see below for reference.
+
+		{
+			"base": null,
+			"market_id": 8,
+			"name": "Double Chance",
+			"odds": {
+				"AWAY Or X": 1.922,
+				"HOME Or AWAY": 1.296,
+				"HOME Or X": 1.289
+			}
+		},
+		{
+			"base": -3.5,
+			"market_id": 2,
+			"name": "Handicap",
+			"odds": {
+				"Handicap HOME ": 14.5
+			}
+		},

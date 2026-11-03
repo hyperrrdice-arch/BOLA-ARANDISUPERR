@@ -1,0 +1,38 @@
+{
+  "N": 303,
+  "unfindable": 102,
+  "marketShin": {
+    "logLoss": 0.947,
+    "brier": 0.561
+  },
+  "productionBimodal": {
+    "logLoss": 0.9007,
+    "brier": 0.5288,
+    "pairedDeltaVsMarket": {
+      "meanDiff": -0.04624,
+      "ciLower": -0.07995,
+      "ciUpper": -0.01471,
+      "pValue": 0.006
+    }
+  },
+  "ablationFixedKappa8": {
+    "logLoss": 0.8996,
+    "brier": 0.5285,
+    "pairedDeltaVsMarket": {
+      "meanDiff": -0.04733,
+      "ciLower": -0.08031,
+      "ciUpper": -0.01549,
+      "pValue": 0.004
+    }
+  },
+  "ablationFixedKappa16": {
+    "logLoss": 0.8999,
+    "brier": 0.5285,
+    "pairedDeltaVsMarket": {
+      "meanDiff": -0.04701,
+      "ciLower": -0.08014,
+      "ciUpper": -0.01572,
+      "pValue": 0.004
+    }
+  }
+}

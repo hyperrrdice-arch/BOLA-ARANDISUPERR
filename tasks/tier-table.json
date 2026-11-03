@@ -1,0 +1,765 @@
+[
+ {
+  "league_id": "sm:1007",
+  "name": "Indian Super League",
+  "country": "India",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1034",
+  "name": "K League 1",
+  "country": "South Korea",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1073",
+  "name": "V-League",
+  "country": "Vietnam",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1082",
+  "name": "Friendly International",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1085",
+  "name": "AFC Champions League Elite",
+  "country": "Asia",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1088",
+  "name": "AFC Champions League Two",
+  "country": "Asia",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:109",
+  "name": "DFB Pokal",
+  "country": "Germany",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1101",
+  "name": "Club Friendlies 1",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1107",
+  "name": "CAF Champions League",
+  "country": "Africa",
+  "tier": "OTHER",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1116",
+  "name": "Copa Sudamericana",
+  "country": "South America",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1122",
+  "name": "Copa Libertadores",
+  "country": "South America",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1128",
+  "name": "Super Cup",
+  "country": "Belgium",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:12",
+  "name": "League One",
+  "country": "England",
+  "tier": "EU3",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1251",
+  "name": "Super Cup",
+  "country": "Spain",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1328",
+  "name": "UEFA Super Cup",
+  "country": "Europe",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1353",
+  "name": "Eredivisie Playoffs",
+  "country": "Netherlands",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1356",
+  "name": "A-League Men",
+  "country": "Australia",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1371",
+  "name": "UEFA Europa League Play-offs",
+  "country": "Belgium",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:14",
+  "name": "League Two",
+  "country": "England",
+  "tier": "EU3",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1419",
+  "name": "UEFA Women's Champions League",
+  "country": "Europe",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1452",
+  "name": "FIFA Intercontinental Cup",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:163",
+  "name": "Bundesliga Play-offs",
+  "country": "Germany",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1659",
+  "name": "Superliga Play-offs",
+  "country": "Denmark",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:166",
+  "name": "2. Bundesliga Play-offs",
+  "country": "Germany",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1666",
+  "name": "Premier League Play-offs",
+  "country": "South Africa",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1673",
+  "name": "Ligue 1 Play-offs",
+  "country": "France",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1674",
+  "name": "Ligue 2 Play-offs",
+  "country": "France",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1678",
+  "name": "Pro League Play-offs",
+  "country": "Saudi Arabia",
+  "tier": "AS",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1681",
+  "name": "Super League Play-offs",
+  "country": "Switzerland",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1691",
+  "name": "Premier League - Playoffs",
+  "country": "Ukraine",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:17",
+  "name": "Enterprise National League",
+  "country": "England",
+  "tier": "EU3",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1750",
+  "name": "Veikkausliiga Play-offs",
+  "country": "Finland",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1753",
+  "name": "Allsvenskan Play-offs",
+  "country": "Sweden",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1760",
+  "name": "Eliteserien Play-offs",
+  "country": "Norway",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:1768",
+  "name": "J1 League Play-offs",
+  "country": "Japan",
+  "tier": "AS",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:181",
+  "name": "Admiral Bundesliga",
+  "country": "Austria",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:1932",
+  "name": "Super League - Playoffs",
+  "country": "Greece",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:2",
+  "name": "Champions League",
+  "country": "Europe",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:208",
+  "name": "Pro League",
+  "country": "Belgium",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:211",
+  "name": "Challenger Pro League",
+  "country": "Belgium",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:2286",
+  "name": "Europa Conference League",
+  "country": "Europe",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:229",
+  "name": "First League",
+  "country": "Bulgaria",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:23",
+  "name": "Community Shield",
+  "country": "England",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:24",
+  "name": "FA Cup",
+  "country": "England",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:244",
+  "name": "1. HNL",
+  "country": "Croatia",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:2450",
+  "name": "Club Friendlies 2",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:2451",
+  "name": "Club Friendlies 3",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:2452",
+  "name": "Club Friendlies 4",
+  "country": "World",
+  "tier": "OTHER",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:262",
+  "name": "Chance Liga",
+  "country": "Czech Republic",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:27",
+  "name": "Carabao Cup",
+  "country": "England",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:271",
+  "name": "Superliga",
+  "country": "Denmark",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:274",
+  "name": "First Division",
+  "country": "Denmark",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:292",
+  "name": "Veikkausliiga",
+  "country": "Finland",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:301",
+  "name": "Ligue 1",
+  "country": "France",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:304",
+  "name": "Ligue 2",
+  "country": "France",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:307",
+  "name": "Coupe de France",
+  "country": "France",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:310",
+  "name": "Coupe de la Ligue",
+  "country": "France",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:325",
+  "name": "Super League",
+  "country": "Greece",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:372",
+  "name": "Ligat ha'Al",
+  "country": "Israel",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:384",
+  "name": "Serie A",
+  "country": "Italy",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:387",
+  "name": "Serie B",
+  "country": "Italy",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:390",
+  "name": "Coppa Italia",
+  "country": "Italy",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:444",
+  "name": "Eliteserien",
+  "country": "Norway",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:45",
+  "name": "Women's Super League",
+  "country": "England",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:453",
+  "name": "Ekstraklasa",
+  "country": "Poland",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:462",
+  "name": "Liga Portugal",
+  "country": "Portugal",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:465",
+  "name": "Liga Portugal 2",
+  "country": "Portugal",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:468",
+  "name": "Taça De Portugal",
+  "country": "Portugal",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:474",
+  "name": "Superliga",
+  "country": "Romania",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:486",
+  "name": "Premier League",
+  "country": "Russia",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:495",
+  "name": "Premier League Play-offs",
+  "country": "Russia",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:5",
+  "name": "Europa League",
+  "country": "Europe",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:501",
+  "name": "Premiership",
+  "country": "Scotland",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:513",
+  "name": "Premiership Play-Offs",
+  "country": "Scotland",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:564",
+  "name": "La Liga",
+  "country": "Spain",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:567",
+  "name": "La Liga 2",
+  "country": "Spain",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:570",
+  "name": "Copa Del Rey",
+  "country": "Spain",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:573",
+  "name": "Allsvenskan",
+  "country": "Sweden",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:591",
+  "name": "Super League",
+  "country": "Switzerland",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:600",
+  "name": "Super Lig",
+  "country": "Turkey",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:603",
+  "name": "1. Lig",
+  "country": "Turkey",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:609",
+  "name": "Premier League",
+  "country": "Ukraine",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:636",
+  "name": "Liga Profesional de Fútbol",
+  "country": "Argentina",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:648",
+  "name": "Serie A",
+  "country": "Brazil",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:651",
+  "name": "Serie B",
+  "country": "Brazil",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:654",
+  "name": "Copa do Brasil",
+  "country": "Brazil",
+  "tier": "AM",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:663",
+  "name": "Primera Division",
+  "country": "Chile",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:672",
+  "name": "Liga BetPlay",
+  "country": "Colombia",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:72",
+  "name": "Eredivisie",
+  "country": "Netherlands",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:74",
+  "name": "Eerste Divisie",
+  "country": "Netherlands",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:743",
+  "name": "Liga MX",
+  "country": "Mexico",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:770",
+  "name": "Primera Division",
+  "country": "Uruguay",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:779",
+  "name": "Major League Soccer",
+  "country": "United States",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:78",
+  "name": "KNVB Beker",
+  "country": "Netherlands",
+  "tier": "EUCUP",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:8",
+  "name": "Premier League",
+  "country": "England",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:806",
+  "name": "Premier League",
+  "country": "South Africa",
+  "tier": "OTHER",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:82",
+  "name": "Bundesliga",
+  "country": "Germany",
+  "tier": "EU1",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:830",
+  "name": "Premier League",
+  "country": "Egypt",
+  "tier": "OTHER",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:85",
+  "name": "2. Bundesliga",
+  "country": "Germany",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:860",
+  "name": "Botola Pro",
+  "country": "Morocco",
+  "tier": "OTHER",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:9",
+  "name": "Championship",
+  "country": "England",
+  "tier": "EU2",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:902",
+  "name": "Persian Gulf Pro League",
+  "country": "Iran",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:938",
+  "name": "Stars League",
+  "country": "Qatar",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:944",
+  "name": "Pro League",
+  "country": "Saudi Arabia",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:950",
+  "name": "Kings Cup",
+  "country": "Saudi Arabia",
+  "tier": "AS",
+  "class": "cup"
+ },
+ {
+  "league_id": "sm:959",
+  "name": "UAE Pro League",
+  "country": "United Arab Emirates",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:968",
+  "name": "J1 League",
+  "country": "Japan",
+  "tier": "AS",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:983",
+  "name": "Canadian Soccer League",
+  "country": "Canada",
+  "tier": "AM",
+  "class": "league"
+ },
+ {
+  "league_id": "sm:989",
+  "name": "Super League",
+  "country": "China",
+  "tier": "AS",
+  "class": "league"
+ }
+]

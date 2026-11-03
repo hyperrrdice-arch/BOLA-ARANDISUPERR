@@ -1,0 +1,1018 @@
+/**
+ * Enterprise 5-Agent Multi-Model Syndicate Orchestrator
+ *
+ * Mengkoordinasikan 5 Model AI Berbeda via 9Router:
+ * - Bull Analyst: bai/glm-5.3-flash (Offensive momentum, xG upside)
+ * - Neutral Analyst: bai/deepseek-v4.1-flash (Empirical equilibrium, market consensus)
+ * - Bear Auditor: ag/gemini-3.8-flash-medium (Defensive fragility, trap lines, downside risk)
+ * - Judgement 1: ag/gemini-3.8-flash-high (Chief Quantitative & Risk Arbiter)
+ * - Judgement 2: atria/Atria-Dawn-Preview (Independent Synthesizer & Cross-Arbiter)
+ * - Supreme Consensus Engine (Unanimous, Concurring, Split Decision)
+ */
+
+export interface BullCase {
+  model: string;
+  thesis: string;
+  key_drivers: string[];
+  tactical_edge: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
+}
+
+export interface NeutralCase {
+  model: string;
+  thesis: string;
+  empirical_drivers: string[];
+  equilibrium_assessment: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
+}
+
+export interface BearCase {
+  model: string;
+  thesis: string;
+  trap_warnings: string[];
+  vulnerability_audit: string;
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
+}
+
+export interface SingleJudgement {
+  model: string;
+  title: string;
+  verdict_summary: string;
+  confidence_tier: "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID";
+  recommended_market: string;
+  key_reasoning?: string;
+  alternative_perspective?: string;
+  /** Opsi parlay berangka (maks 3, lewat rankParlayOptions). Absen = judge lama. */
+  parlay_options?: ParlayOption[];
+  /** "fallback_template" = konten template hasil degradasi, BUKAN output model. */
+  source?: "model" | "fallback_template";
+}
+
+/** Satu opsi parlay: peran + angka prob + status harga + 1 kalimat + kondisi batal. */
+export type ParlayRole = "leg_aman" | "jebakan" | "value_spekulatif" | "skip";
+export type ParlayPriceStatus = "value" | "wajar" | "kemahalan" | "tanpa_harga";
+
+export interface ParlayOption {
+  peran: ParlayRole;
+  market: string;
+  selection: string;
+  /** Probabilitas desimal 0-1, disalin dari konteks quant (bukan dihitung ulang). */
+  prob: number;
+  price_status: ParlayPriceStatus;
+  /** Tepat 1 kalimat. */
+  kalimat: string;
+  /** Syarat eksplisit yang membatalkan opsi ("batal bila ..."). */
+  kondisi_batal: string;
+  source?: "model" | "quant_baseline" | "fallback_template";
+}
+
+export interface DualJudgement {
+  judgement_1: SingleJudgement;
+  judgement_2: SingleJudgement;
+  consensus_level: "UNANIMOUS" | "CONCURRING" | "SPLIT_DECISION" | "DISSENT";
+  supreme_verdict: string;
+  final_recommended_market: string;
+  final_confidence_tier: "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID";
+  final_stake_fraction: string;
+  /** Ranking deterministik opsi parlay (maks 3). Pick lama di atas tetap utuh. */
+  parlay_options?: ParlayOption[];
+}
+
+export interface SyndicateDebateResult {
+  bull_case: BullCase;
+  neutral_case: NeutralCase;
+  bear_case: BearCase;
+  dual_judgement: DualJudgement;
+  arbiter_verdict: {
+    model: string;
+    chief_risk_officer_synthesis: string;
+    confidence_tier: "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID";
+    recommended_market: string;
+    recommended_stake_fraction: string;
+  };
+  /** true = ada bagian yang diisi template fallback, bukan output model asli. */
+  is_fabricated_fallback?: boolean;
+  /** Atribusi latensi debat: total per stage + per persona (ms). */
+  stage_timings?: Record<string, number>;
+}
+
+import { getNineRouterApiKey, getNineRouterBaseUrl, SYNDICATE } from "./llm/models";
+import { VOICE_GUIDE } from "./llm/voice-guide";
+import { FALLBACK_MIN_EDGE, detectFallbackSource, topPositiveEvPick, guardEdgeOf } from "./quant/fallback-guard";
+import { formatHalfMatchupParagraph, type HalfMatchup } from "./quant/half-profile";
+import { formatMomentumMatchupParagraph, type MomentumMatchup } from "./quant/momentum";
+
+const BASE_URL = getNineRouterBaseUrl();
+const API_KEY = getNineRouterApiKey();
+
+const MODEL_DEFAULT = SYNDICATE.MODEL_DEFAULT;
+const MODEL_BULL = SYNDICATE.MODEL_BULL;
+const MODEL_NEUTRAL = SYNDICATE.MODEL_NEUTRAL;
+const MODEL_BEAR = SYNDICATE.MODEL_BEAR;
+const MODEL_JUDGEMENT_1 = SYNDICATE.MODEL_JUDGEMENT_1;
+const MODEL_JUDGEMENT_2 = SYNDICATE.MODEL_JUDGEMENT_2;
+
+/**
+ * Anggaran waktu percobaan ulang setelah satu model gagal/timeout.
+ * Retry sengaja tetap memakai model yang sama (independensi vendor adalah guardrail),
+ * tapi TIDAK boleh memakai timeout penuh lagi: worst case per model jadi timeout per-tier + 60s.
+ */
+export const RETRY_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_RETRY_TIMEOUT_MS) || 60000);
+
+/**
+ * Timeout per-tier (R1): persona 90s, judge 120s, retry tetap 60s.
+ * Timeout = fallback template jujur (mekanisme sudah ada), bukan retry membabi-buta.
+ */
+export const PERSONA_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_PERSONA_TIMEOUT_MS) || 90000);
+export const JUDGE_TIMEOUT_MS = Math.max(5000, Number(process.env.SYNDICATE_JUDGE_TIMEOUT_MS) || 120000);
+
+/**
+ * Resilient HTTP Native Fetcher untuk 9Router
+ * Menangani non-streaming JSON, SSE delta chunks, serta format Atria wrapped response.
+ * Unrestricted limits: 16384 max tokens, timeout per-tier (persona 90s / judge 120s)
+ * untuk extended thinking models.
+ */
+async function call9RouterDirect(
+  targetModel: string,
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number = 16384,
+  timeoutMs: number = 180000,
+  signal?: AbortSignal
+): Promise<{ text: string; modelUsed: string }> {
+  const tryCall = async (model: string, callTimeoutMs: number, externalSignal?: AbortSignal) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error("timeout")), callTimeoutMs);
+    // Abort kalau SALAH SATU terpicu: timeout model, atau client sudah disconnect.
+    const merged =
+      externalSignal && typeof AbortSignal.any === "function"
+        ? AbortSignal.any([controller.signal, externalSignal])
+        : controller.signal;
+
+    const messages = [];
+    if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+    messages.push({ role: "user", content: userPrompt });
+
+    const isNativeThinkingModel = model.includes("thinking") && !model.startsWith("bai/");
+    const requestPayload: any = {
+      model,
+      messages,
+      max_tokens: maxTokens,
+      temperature: 0.2,
+      stream: false,
+    };
+
+    // Mode Thinking Ultra untuk model penalaran native
+    if (isNativeThinkingModel) {
+      requestPayload.reasoning_effort = "high";
+      requestPayload.thinking = { type: "enabled", budget_tokens: 32768 };
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify(requestPayload),
+        signal: merged,
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
+      }
+
+      const raw = await res.text();
+      let extracted = "";
+
+      // Bersihkan trailing data: [DONE] jika ada
+      let cleanRaw = raw.replace(/data:\s*\[DONE\]\s*$/, "").trim();
+
+      // 1. Cek Server-Sent Events (SSE) murni
+      if (cleanRaw.startsWith("data:")) {
+        const lines = cleanRaw.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ") && !line.includes("[DONE]")) {
+            try {
+              const p = JSON.parse(line.slice(6));
+              const delta = p.choices?.[0]?.delta?.content;
+              if (delta) extracted += delta;
+            } catch {}
+          }
+        }
+      }
+
+      // 2. Cek JSON standar OpenAI/9Router
+      if (!extracted) {
+        try {
+          const json = JSON.parse(cleanRaw);
+          extracted = json.choices?.[0]?.message?.content || "";
+          
+          // Jika content kosong tetapi ada reasoning_content, gunakan cuplikan reasoning sebagai fallback cerdas
+          if (!extracted && json.choices?.[0]?.message?.reasoning_content) {
+            extracted = json.choices[0].message.reasoning_content;
+          }
+        } catch {
+          // Format Atria / nested JSON regex
+          const match = cleanRaw.match(/"content"\s*:\s*"([^"]+)"/);
+          if (match && match[1]) {
+            extracted = match[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+          } else {
+            extracted = cleanRaw;
+          }
+        }
+      }
+
+      return extracted.trim();
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  // Upaya pemanggilan model tanpa substitusi Gemini (Anti-Bias Garansi Independensi Model)
+  try {
+    const text = await tryCall(targetModel, timeoutMs, signal);
+    return { text, modelUsed: targetModel };
+  } catch (primaryErr) {
+    // Client hilang → tidak ada gunanya mengulang (dan tidak boleh menahan run 8 menit).
+    if (signal?.aborted) throw primaryErr;
+
+    // Retry tetap model yang sama demi independensi vendor, tapi dengan anggaran waktu
+    // terpisah (RETRY_TIMEOUT_MS). Retry memakai anggaran sendiri sehingga
+    // worst case satu model = timeout per-tier + 60s — plan-perf Task 5.
+    console.warn(`[9Router] Percobaan 1 model ${targetModel} gagal (${(primaryErr as Error).message}), mencoba ulang model yang sama untuk menjaga independensi...`);
+    try {
+      const retryText = await tryCall(targetModel, RETRY_TIMEOUT_MS, signal);
+      return { text: retryText, modelUsed: targetModel };
+    } catch (retryErr) {
+      if (signal?.aborted) throw retryErr;
+      console.error(`[9Router] Model ${targetModel} tetap gagal setelah retry: ${(retryErr as Error).message}`);
+      return {
+        text: `Analisis model ${targetModel} mengalami kendala respon: ${(retryErr as Error).message}`,
+        modelUsed: targetModel,
+      };
+    }
+  }
+}
+
+/**
+ * Ekstraksi JSON aman dari respons teks LLM.
+ * `usedFallback: true` = konten hasil parse gagal → objek fallback (berisi template).
+ */
+function safeExtractJSON<T>(text: string, fallback: T): { data: T; usedFallback: boolean } {
+  try {
+    const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return { data: JSON.parse(jsonMatch[0]) as T, usedFallback: false };
+    }
+    return { data: fallback, usedFallback: true };
+  } catch {
+    return { data: fallback, usedFallback: true };
+  }
+}
+
+// Penanda jujur untuk konten template degradasi, agar UI bisa membedakan dari output model asli.
+const FALLBACK_PREFIX = "[Template fallback — bukan output model asli] ";
+
+/**
+ * Builder system prompt persona + judge (R1). VOICE_GUIDE di-PREPEND ke semua
+ * prompt; kontrak JSON tetap PALING AKHIR di tiap prompt. Diekstrak jadi builder
+ * supaya bisa diuji tanpa memanggil model (scripts/test-debate-r1.ts).
+ * Isi prompt identik dengan versi inline sebelumnya + voice guide.
+ */
+export function buildBullSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Bull Analyst di sindikat taruhan bola. Gaya bahasa lo santai, tajam, pake bahasa tongkrongan/analis bola pro (gw/lo). Dilarang kaku kayak robot, dilarang lebay/hiperbola ('luar biasa', 'spektakuler', 'patut dicatat'), dan jangan pake template klise AI ('Berikut adalah...'). Fokus bangun tesis ofensif tajam: kenapa tim ini punya peluang jebol gawang atau ngunci kemenangan. Sisipkan fakta/data (selisih xG, efisiensi tembakan, rekor gol kandang, starting XI resmi) secara natural dan mengalir di narasi, BUKAN list poin kering. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup yang tidak tertulis di konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"key_drivers\": [ string, string ], \"tactical_edge\": string }"
+  );
+}
+
+export function buildNeutralSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Neutral Analyst di sindikat taruhan bola. Gaya bahasa lo santai, realistis, objektif (gw/lo). Buang semua bumbu promosi atau hiperbola lebay. Tugas lo ngebedah ekuilibrium pasar dan angka probabilitas wajar tanpa bias tim mana pun. Sisipkan fakta empiris (keseimbangan Poisson, tren regresi kandang-tandang, gap xG tipis) secara natural di obrolan lo. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang fakta skuad di luar konteks. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"empirical_drivers\": [ string, string ], \"equilibrium_assessment\": string }"
+  );
+}
+
+export function buildBearSystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Bear Auditor di sindikat taruhan bola. Jalankan penalaran internal mendalam secara komprehensif sebelum mengambil kesimpulan. Lo sosok yang sangat skeptis, jeli ngeliat skenario terburuk, celah bahaya lini belakang, dan jebakan bandar (trap line). Pake gaya santai tongkrongan analis pro (gw/lo), dilarang kaku dan dilarang lebay. Bongkar kerapuhan pertahanan, potensi kebobolan transisi, atau odds bandar yang kemurahan/overvalued. Sisipkan data xGA, tren kebobolan menit akhir, faktor kelelahan, atau regresi xG luck secara mengalir di narasi. ATURAN GROUNDING: Wajib hanya rujuk data konteks nyata (Starting XI, cedera, H2H, xG). Dilarang mengarang pemain cedera/lineup fiktif. Format output WAJIB JSON VALID murni: { \"thesis\": string, \"trap_warnings\": [ string, string ], \"vulnerability_audit\": string }"
+  );
+}
+
+export function buildJudge1SystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Hakim 1: Chief Quantitative & Risk Arbiter di sindikat taruhan. Gaya bahasa santai, tegas, to-the-point khas kepala analis sindikat (gw/lo). Dilarang lebay dan dilarang basa-basi klise. Sintesis perdebatan Bull vs Neutral vs Bear dengan angka Dixon-Coles xG dan evaluasi nilai pasar (+EV). Selipkan bukti angka secara implisit di narasi vonis lo. Putuskan pasar paling masuk akal dengan proteksi modal ketat. ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. " +
+    "TUGAS PARLAY (target pemain mix parlay): susun MAKS 3 opsi berangka — leg_aman (prob tertinggi) + jebakan/value_spekulatif (longshot menggoda, apalagi di data tipis) + skip (jangan sentuh) bila perlu. " +
+    "Tiap opsi WAJIB: prob desimal dari konteks + status harga (value/wajar/kemahalan/tanpa_harga) + 1 kalimat + kondisi batal eksplisit (\"batal bila ...\"). " +
+    "Aturan \"no number, no scenario\": opsi tanpa angka prob atau tanpa kondisi batal = BUKAN opsi valid, jangan keluarkan. " +
+    "Headline (recommended_market + verdict_summary) = leg_aman; longshot di data tipis (fallback) maks label jebakan, jangan pernah jadi headline. " +
+    "Harga absen = status tanpa_harga + \"pantau, jangan bet\", dilarang karang odds. " +
+    "Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"key_reasoning\": string, \"parlay_options\": [ { \"peran\": \"leg_aman\" | \"jebakan\" | \"value_spekulatif\" | \"skip\", \"market\": string, \"selection\": string, \"prob\": number, \"price_status\": \"value\" | \"wajar\" | \"kemahalan\" | \"tanpa_harga\", \"kalimat\": string, \"kondisi_batal\": string } ] }"
+  );
+}
+
+export function buildJudge2SystemPrompt(): string {
+  return (
+    VOICE_GUIDE + "\n\n" +
+    "Lo adalah Hakim 2: Independent Synthesizer & Cross-Arbiter di sindikat taruhan. Jalankan penalaran internal mendalam sebelum menyimpulkan. Gaya bahasa santai, independen, kritis (gw/lo). Tugas lo nguji balik kesimpulan Hakim 1 dan nimbang apakah ada bias konfirmasi atau risiko laten yang terlewat. Wajib nyatakan eksplisit SETUJU atau BANTAH terhadap vonis Hakim 1 yang dilampirkan di prompt user, kasih alasan, dan sebut risiko yang dilewatkan Hakim 1. Nyatakan apakah lo sepakat bulat, sepakat konkuren, atau beda pandangan, sambil nyelipin pertimbangan data handicapping secara natural di narasi. " +
+    "TUGAS PARLAY: uji TIAP opsi parlay Hakim 1 satu per satu — angkanya prob + kondisi batalnya masuk akal atau tidak; nyatakan per opsi TERIMA atau TOLAK + alasan 1 kalimat. " +
+    "Opsi pengganti hanya boleh diusul bila berangka lengkap (prob + status harga + 1 kalimat + kondisi batal), tetap MAKS 3 total, aturan \"no number, no scenario\" berlaku. " +
+    "ATURAN GROUNDING: Putusan wajib berpijak pada data konteks nyata, lineup terkonfirmasi, dan angka quant valid. Format output WAJIB JSON VALID murni: { \"verdict_summary\": string, \"confidence_tier\": \"A_HIGH_VALUE\" | \"B_MODERATE\" | \"C_LEAN\" | \"PASS_AVOID\", \"recommended_market\": string, \"alternative_perspective\": string, \"parlay_options\": [ { \"peran\": \"leg_aman\" | \"jebakan\" | \"value_spekulatif\" | \"skip\", \"market\": string, \"selection\": string, \"prob\": number, \"price_status\": \"value\" | \"wajar\" | \"kemahalan\" | \"tanpa_harga\", \"kalimat\": string, \"kondisi_batal\": string } ] }"
+  );
+}
+
+/** Snapshot minimal vonis J1 yang wajib ditanggapi J2 (SETUJU/BANTAH) — R1 sequential. */
+export interface Judge1Snapshot {
+  verdict_summary: string;
+  recommended_market: string;
+  confidence_tier: string;
+  key_reasoning?: string;
+  /** Opsi parlay J1 (mentah, belum ranking) — J2 wajib uji tiap opsi. */
+  parlay_options?: ParlayOption[];
+}
+
+/** User prompt J2 = ringkasan debat + vonis J1 (output J1 masuk ke prompt J2). */
+export function buildJudge2UserPrompt(debateSummary: string, j1: Judge1Snapshot): string {
+  const base =
+    debateSummary +
+    `\nVONIS HAKIM 1 YANG WAJIB DITANGGAPI (nyatakan eksplisit SETUJU atau BANTAH + alasan + risiko yang dilewatkan Hakim 1):\n` +
+    `- Verdict: ${j1.verdict_summary}\n` +
+    `- Market: ${j1.recommended_market}\n` +
+    `- Tier: ${j1.confidence_tier}\n` +
+    `- Reasoning: ${j1.key_reasoning || "-"}\n`;
+  // Opsi hanya ditempel bila J1 mengeluarkannya; tanpa opsi = output identik versi lama.
+  if (!Array.isArray(j1.parlay_options) || j1.parlay_options.length === 0) return base;
+  const lines = j1.parlay_options
+    .slice(0, 3)
+    .map(
+      (o, i) =>
+        `${i + 1}. [${(o as ParlayOption).peran}] ${(o as ParlayOption).market} — ${(o as ParlayOption).selection} | prob=${(o as ParlayOption).prob} | harga=${(o as ParlayOption).price_status} | "${(o as ParlayOption).kalimat}" | Batal: ${(o as ParlayOption).kondisi_batal}`
+    )
+    .join("\n");
+  return base + `OPSI PARLAY HAKIM 1 YANG WAJIB DIUJI SATU PER SATU (per opsi: TERIMA atau TOLAK + alasan 1 kalimat):\n${lines}\n`;
+}
+
+type ConsensusLevel = "UNANIMOUS" | "CONCURRING" | "SPLIT_DECISION" | "DISSENT";
+type ConfidenceTier = "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID";
+
+/**
+ * Tie-break deterministik — PERTAHANKAN apa adanya (dipindah verbatim dari Stage 3).
+ * Tidak menyentuh probabilitas/fair odds: hanya pasar + tier + stake.
+ */
+export function resolveSupremeConsensus(
+  judgement1: Pick<SingleJudgement, "recommended_market" | "confidence_tier" | "model">,
+  judgement2: Pick<SingleJudgement, "recommended_market" | "confidence_tier" | "model">
+): { consensusLevel: ConsensusLevel; finalTier: ConfidenceTier; finalStake: string; supremeVerdict: string } {
+  let consensusLevel: ConsensusLevel = "CONCURRING";
+  const market1Clean = judgement1.recommended_market.toLowerCase().trim();
+  const market2Clean = judgement2.recommended_market.toLowerCase().trim();
+
+  if (judgement1.confidence_tier === "PASS_AVOID" || judgement2.confidence_tier === "PASS_AVOID") {
+    consensusLevel = "DISSENT";
+  } else if (market1Clean === market2Clean) {
+    if (judgement1.confidence_tier === judgement2.confidence_tier) {
+      consensusLevel = "UNANIMOUS";
+    } else {
+      consensusLevel = "CONCURRING";
+    }
+  } else {
+    consensusLevel = "SPLIT_DECISION";
+  }
+
+  // Kelly stake fraction based on consensus
+  let finalStake = "1.5% Bankroll (Quarter Kelly)";
+  let finalTier = judgement1.confidence_tier;
+
+  if (consensusLevel === "UNANIMOUS") {
+    finalTier = judgement1.confidence_tier === "A_HIGH_VALUE" ? "A_HIGH_VALUE" : "B_MODERATE";
+    finalStake = finalTier === "A_HIGH_VALUE" ? "2.5% Bankroll (Quarter Kelly High Edge)" : "1.75% Bankroll";
+  } else if (consensusLevel === "DISSENT") {
+    finalTier = "PASS_AVOID";
+    finalStake = "0.0% (PASS / No Bet)";
+  } else if (consensusLevel === "SPLIT_DECISION") {
+    finalTier = "C_LEAN";
+    finalStake = "0.75% Bankroll (Reduced Allocation)";
+  }
+
+  const supremeVerdict =
+    consensusLevel === "UNANIMOUS"
+      ? `KONSENSUS BULAT (UNANIMOUS): Kedua hakim (${judgement1.model} & ${judgement2.model}) sepakat penuh pada pasar ${judgement1.recommended_market} dengan keyakinan ${finalTier.replace("_", " ")}.`
+      : consensusLevel === "CONCURRING"
+      ? `KONSENSUS KONKUREN: Kedua hakim mendukung arah yang sama pada ${judgement1.recommended_market} dengan penekanan risiko yang saling melengkapi.`
+      : consensusLevel === "SPLIT_DECISION"
+      ? `SPLIT DECISION: Hakim 1 memilih ${judgement1.recommended_market} sementara Hakim 2 condong ke ${judgement2.recommended_market}. Alokasi stake dipotong separuh demi manajemen risiko.`
+      : `DISSENT / DISAGREEMENT: Terdapat pertentangan risiko signifikan antar hakim. Rekomendasi: PASS (Hindari taruhan).`;
+
+  return { consensusLevel, finalTier, finalStake, supremeVerdict };
+}
+
+/**
+ * Ranking deterministik opsi parlay — "no number, no scenario" sebagai kode.
+ * Opsi tanpa prob angka / tanpa kondisi batal / peran tak dikenal = DITOLAK
+ * (bukan diperbaiki). Urut peran leg_aman > value_spekulatif > jebakan > skip,
+ * lalu prob desc, lalu market asc. Cap MAX_PARLAY_OPTIONS. Pure + tanpa mutasi.
+ */
+export const MAX_PARLAY_OPTIONS = 3;
+
+const PARLAY_ROLE_RANK: Record<ParlayRole, number> = {
+  leg_aman: 0,
+  value_spekulatif: 1,
+  jebakan: 2,
+  skip: 3,
+};
+
+const PARLAY_ROLES: ReadonlySet<string> = new Set(["leg_aman", "jebakan", "value_spekulatif", "skip"]);
+const PARLAY_PRICES: ReadonlySet<string> = new Set(["value", "wajar", "kemahalan", "tanpa_harga"]);
+
+export function isValidParlayOption(o: unknown): o is ParlayOption {
+  if (o === null || typeof o !== "object") return false;
+  const r = o as Record<string, unknown>;
+  return (
+    typeof r.peran === "string" && PARLAY_ROLES.has(r.peran) &&
+    typeof r.market === "string" && r.market.trim().length > 0 &&
+    typeof r.selection === "string" && r.selection.trim().length > 0 &&
+    typeof r.prob === "number" && Number.isFinite(r.prob) && r.prob >= 0 && r.prob <= 1 &&
+    typeof r.price_status === "string" && PARLAY_PRICES.has(r.price_status) &&
+    typeof r.kalimat === "string" && r.kalimat.trim().length > 0 &&
+    typeof r.kondisi_batal === "string" && r.kondisi_batal.trim().length > 0
+  );
+}
+
+export function rankParlayOptions(cands: unknown): ParlayOption[] {
+  if (!Array.isArray(cands)) return [];
+  const seen = new Set<string>();
+  const out: ParlayOption[] = [];
+  for (const c of cands) {
+    if (!isValidParlayOption(c)) continue;
+    const key = `${c.peran}|${c.market.trim()}|${c.selection.trim()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ ...c });
+  }
+  out.sort(
+    (a, b) =>
+      PARLAY_ROLE_RANK[a.peran] - PARLAY_ROLE_RANK[b.peran] ||
+      b.prob - a.prob ||
+      (a.market < b.market ? -1 : a.market > b.market ? 1 : 0)
+  );
+  return out.slice(0, MAX_PARLAY_OPTIONS);
+}
+
+function isFiniteNum(x: unknown): x is number {
+  return typeof x === "number" && Number.isFinite(x);
+}
+
+function priceStatusOf(bet: { is_positive_ev?: unknown; expected_value?: unknown; ev_percentage?: unknown; bookmaker_odds?: unknown } | null): ParlayPriceStatus {
+  if (!bet || !isFiniteNum(bet.bookmaker_odds)) return "tanpa_harga";
+  if (bet.is_positive_ev === true) return "value";
+  const edge = guardEdgeOf(bet as { expected_value?: unknown; ev_percentage?: unknown; is_positive_ev?: unknown });
+  if (edge === null || !Number.isFinite(edge)) return "tanpa_harga";
+  return edge >= -0.05 ? "wajar" : "kemahalan";
+}
+
+function fmtPct1(x: number): string {
+  return `${(x * 100).toFixed(1)}%`;
+}
+
+/** Tebak sisi 1X2 dari teks selection ("Sporting Menang"→home, "Hasil Imbang (Draw)"→draw). */
+function selectionSide(selection: unknown, homeTeam: string, awayTeam: string): "home" | "draw" | "away" | null {
+  if (typeof selection !== "string") return null;
+  const s = selection.toLowerCase();
+  if (homeTeam && s.includes(homeTeam.toLowerCase())) return "home";
+  if (awayTeam && s.includes(awayTeam.toLowerCase())) return "away";
+  if (s.includes("imbang") || s.includes("draw") || s.includes("seri")) return "draw";
+  return null;
+}
+
+export interface QuantParlayInput {
+  homeTeam: string;
+  awayTeam: string;
+  probHome?: number | null;
+  probDraw?: number | null;
+  probAway?: number | null;
+  fairHome?: number | null;
+  fairDraw?: number | null;
+  fairAway?: number | null;
+  valueBets: unknown;
+  calibration: unknown;
+}
+
+/**
+ * Baseline opsi parlay deterministik dari angka quant + guard fallback.
+ * HANYA membaca (prob/fair/EV disalin, tidak dihitung ulang — quant frozen).
+ * Tanpa prob 1X2 = [] ("no number, no scenario"). Dipakai sebagai jangkar
+ * headline + jebakan saat opsi LLM absen/invalid, dan untuk replay offline.
+ */
+export function buildQuantParlayBaseline(input: QuantParlayInput): ParlayOption[] {
+  const { homeTeam, awayTeam } = input;
+  if (!isFiniteNum(input.probHome) || !isFiniteNum(input.probDraw) || !isFiniteNum(input.probAway)) return [];
+  const probs = { home: input.probHome, draw: input.probDraw, away: input.probAway };
+  const fairs = { home: input.fairHome ?? null, draw: input.fairDraw ?? null, away: input.fairAway ?? null };
+  const labels = {
+    home: `${homeTeam} Menang`,
+    draw: "Hasil Imbang (Draw)",
+    away: `${awayTeam} Menang`,
+  };
+  const order: Array<"home" | "draw" | "away"> = ["home", "draw", "away"];
+  order.sort((a, b) => probs[b] - probs[a]);
+  const legKey = order[0];
+
+  const bets = Array.isArray(input.valueBets) ? input.valueBets : [];
+  const betFor = (side: "home" | "draw" | "away") =>
+    bets.find((b) => b !== null && typeof b === "object" && selectionSide((b as Record<string, unknown>).selection, homeTeam, awayTeam) === side) as Record<string, unknown> | undefined;
+
+  const legBet = betFor(legKey) ?? null;
+  const legPrice = priceStatusOf(legBet as { is_positive_ev?: unknown; expected_value?: unknown; ev_percentage?: unknown; bookmaker_odds?: unknown } | null);
+  const opts: ParlayOption[] = [
+    {
+      peran: "leg_aman",
+      market: "1X2",
+      selection: labels[legKey],
+      prob: probs[legKey],
+      price_status: legPrice,
+      kalimat: `Leg teraman ${labels[legKey]} — prob ${fmtPct1(probs[legKey])} tertinggi, harga ${legPrice}.`,
+      kondisi_batal: `Batal bila lineup inti berubah dari konfirmasi atau harga pasar jatuh jauh dari fair ${fairs[legKey] ?? "tak tersedia"}.`,
+      source: "quant_baseline",
+    },
+  ];
+
+  // Longshot +EV di luar leg aman: jebakan bila guard SKIP / non-fallback rapuh,
+  // value_spekulatif bila lolos guard tapi angka sisi fallback belum stabil.
+  const top = topPositiveEvPick(input.valueBets);
+  const topSide = top ? selectionSide((top as Record<string, unknown>).selection, homeTeam, awayTeam) : null;
+  if (top && topSide && topSide !== legKey) {
+    const det = detectFallbackSource(input.calibration);
+    const edge = guardEdgeOf(top);
+    const skipped = det.involved && (edge === null || !Number.isFinite(edge) || (edge as number) < FALLBACK_MIN_EDGE);
+    const peran: ParlayRole = skipped ? "jebakan" : det.involved ? "value_spekulatif" : "jebakan";
+    const topProb = isFiniteNum((top as Record<string, unknown>).model_probability)
+      ? ((top as Record<string, unknown>).model_probability as number)
+      : probs[topSide];
+    const topSel = String((top as Record<string, unknown>).selection ?? "?");
+    const topMarket = String((top as Record<string, unknown>).market_name ?? "1X2");
+    const evStr = edge !== null && Number.isFinite(edge) ? fmtPct1(edge as number) : "tak terukur";
+    const thinNote = det.involved
+      ? `sisi ${det.fallbackSide === "both" ? "kedua tim" : det.fallbackSide === "home" ? `kandang (${homeTeam})` : `tamu (${awayTeam})`} cuma data fallback (0 sampel xG)`
+      : `prob cuma ${fmtPct1(topProb)}`;
+    opts.push({
+      peran,
+      market: topMarket,
+      selection: topSel,
+      prob: topProb,
+      price_status: priceStatusOf(top as { is_positive_ev?: unknown; expected_value?: unknown; ev_percentage?: unknown; bookmaker_odds?: unknown }),
+      kalimat:
+        peran === "jebakan"
+          ? `Jebakan parlay ${topSel} — edge ${evStr} di ${thinNote}, bukan leg utama.`
+          : `Spekulasi kecil ${topSel} — edge ${evStr} tapi ${thinNote} sehingga belum stabil.`,
+      kondisi_batal: `Batal bila butuh kepastian — ${thinNote}; lewati bila ragu atau harga turun ke bawah ${(top as Record<string, unknown>).bookmaker_odds ?? "pasar"}.`,
+      source: "quant_baseline",
+    });
+    // Guard SKIP = opsi skip eksplisit untuk value play yang ditahan.
+    if (skipped) {
+      opts.push({
+        peran: "skip",
+        market: topMarket,
+        selection: topSel,
+        prob: topProb,
+        price_status: priceStatusOf(top as { is_positive_ev?: unknown; expected_value?: unknown; ev_percentage?: unknown; bookmaker_odds?: unknown }),
+        kalimat: `Skip single ${topSel} — guard menahan value play (edge ${evStr} di bawah ambang ${Math.round(FALLBACK_MIN_EDGE * 100)}% pada ${thinNote}).`,
+        kondisi_batal: `Batal (boleh masuk) bila refresh menunjukkan kedua sisi terkalibrasi penuh dan edge ${evStr} bertahan ≥${Math.round(FALLBACK_MIN_EDGE * 100)}%.`,
+        source: "quant_baseline",
+      });
+    }
+  }
+
+  return rankParlayOptions(opts);
+}
+
+/**
+ * Main 5-Agent Multi-Model Orchestration Pipeline
+ */
+export async function orchestrate5AgentSyndicate(params: {
+  matchSummary: string;
+  intel: any;
+  quantPackage: any;
+  luckSignal?: any;
+  signal?: AbortSignal;
+}): Promise<SyndicateDebateResult> {
+  const { matchSummary, intel, quantPackage, signal } = params;
+
+  // Format evaluasi Value Bet (+EV) & Kelly untuk diinjeksi ke prompt LLM
+  const valueBetsSummary = Array.isArray(quantPackage?.value_bets) && quantPackage.value_bets.length > 0
+    ? quantPackage.value_bets
+        .map(
+          (b: any) =>
+            `- [${b.market_name}] ${b.selection}: Odds Pasar=${b.bookmaker_odds} vs Fair Model=${b.fair_odds} | EV=${b.ev_percentage} | Sizing Kelly=${b.recommended_stake_percentage}%`
+        )
+        .join("\n")
+    : "Belum ada value bet: odds pasar tidak tersedia untuk market mana pun (jangan karang).";
+
+  const marketOddsStr = intel.market_odds?.is_available || intel.market_odds?.home_last
+    ? `Bursa Live (${intel.market_odds.bookmaker || "Pasar"}): Home=${intel.market_odds.home_last} | Draw=${intel.market_odds.draw_last} | Away=${intel.market_odds.away_last} | O2.5=${intel.market_odds.total_goals_over_2_5 || "N/A"}`
+    : "Bursa odds pasar belum tersedia";
+
+  // CATATAN: key di quantPackage adalah `vig_stripping` (lihat route.tsx).
+  const vigData = quantPackage?.vig_stripping;
+  const shinStr = vigData
+    ? `Shin Vig-Stripping: Fair Home=${vigData.fair_odds?.home} | Draw=${vigData.fair_odds?.draw} | Away=${vigData.fair_odds?.away} (Margin Bandar: ${(vigData.margin_percentage ?? 0).toFixed(1)}%)`
+    : "";
+
+  const dc = quantPackage?.dixon_coles;
+  const homeXG = dc?.lambda_home_xg ?? 1.35;
+  const awayXG = dc?.mu_away_xg ?? 1.15;
+  const homeProb = Math.round((dc?.prob_home_win ?? 0.45) * 100);
+  const drawProb = Math.round((dc?.prob_draw ?? 0.27) * 100);
+  const awayProb = Math.round((dc?.prob_away_win ?? 0.28) * 100);
+  const fairHome = dc?.fair_odds?.home ?? 2.2;
+  const fairDraw = dc?.fair_odds?.draw ?? 3.4;
+  const fairAway = dc?.fair_odds?.away ?? 3.5;
+  const over25Prob = Math.round((dc?.over_2_5_prob ?? 0.52) * 100);
+  const bttsProb = Math.round((dc?.btts_yes_prob ?? 0.50) * 100);
+  const dnbHomeProb = Math.round((dc?.asian_handicap?.ah_0_0_dnb?.home_prob ?? 0.5) * 100);
+  const dnbFair = dc?.asian_handicap?.ah_0_0_dnb?.fair_odds_home ?? 2.0;
+
+  const sm = quantPackage?.special_markets;
+  const specialMarketsStr = sm ? (
+    `\nDATA PASAR KHUSUS (SPECIAL MARKETS THESTATSAPI DATASET):\n` +
+    `- Pasar Headed Goal: P(Gol Sundulan >= 1)=${Math.round(sm.headed_goal.prob_at_least_one_header * 100)}% (Fair Odds Yes=${sm.headed_goal.fair_odds_yes} vs No=${sm.headed_goal.fair_odds_no}) | Status: ${sm.headed_goal.confidence_tier} (Sampel: ${sm.headed_goal.observed_aerial_samples.home} kandang, ${sm.headed_goal.observed_aerial_samples.away} tamu)\n` +
+    `- Pasar Corners: Total Ekspektasi=${sm.corners.expected_total_corners} | Over 9.5=${Math.round(sm.corners.over_9_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_9_5}) | Over 10.5=${Math.round(sm.corners.over_10_5_prob * 100)}% (Fair: ${sm.corners.fair_odds_over_10_5}) | Status: ${sm.corners.confidence_tier}${sm.corners.is_estimated ? " (ESTIMASI: pakai rata-rata liga, bukan data terukur)" : ""}\n` +
+    `- Pasar Kartu: Total Ekspektasi=${sm.cards.expected_total_cards} | Over 3.5 Cards=${Math.round(sm.cards.over_3_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_3_5}) | Over 4.5 Cards=${Math.round(sm.cards.over_4_5_prob * 100)}% (Fair: ${sm.cards.fair_odds_over_4_5}) | Status: ${sm.cards.confidence_tier}${sm.cards.is_estimated ? " (ESTIMASI: pakai rata-rata liga, bukan data terukur)" : ""}\n` +
+    (sm.passing_dominance?.home_expected_passes ? `- Distribusi Passing: Kandang=${sm.passing_dominance.home_expected_passes} vs Tamu=${sm.passing_dominance.away_expected_passes} akurat/laga\n` : "") +
+    `PERINGATAN PASAR KHUSUS: Angka di atas HANYA fair odds model, BUKAN rekomendasi value. ` +
+    `Odds pasar 1xBet untuk pasar ini TIDAK tersedia di payload ini, jadi Expected Value (EV) tidak dapat dihitung. ` +
+    `DILARANG mengklaim pasar khusus ini punya "+EV", "edge", atau "value". ` +
+    `Sebut sebagai konteks probabilitas saja, dan prioritaskan rekomendasi hanya pada pasar yang memang tercantum di daftar EV di bawah.\n`
+  ) : "";
+
+  // Task 2 offline-depth: konteks tempo babak 1 vs 2 (KONTEKS ONLY — 1 paragraf,
+  // DILARANG dipakai mengubah probabilitas/fair odds; string kosong = prompt identik).
+  const halfProfile = quantPackage?.half_profile as HalfMatchup | undefined;
+  const halfStr = halfProfile
+    ? formatHalfMatchupParagraph(
+        halfProfile,
+        intel.pertandingan?.tim_kandang,
+        intel.pertandingan?.tim_tamu
+      )
+    : "";
+  // Task 3 offline-depth: konteks momentum last-3 vs matches 4-6 (KONTEKS ONLY —
+  // 1 paragraf, DILARANG dipakai mengubah probabilitas/fair odds; string kosong
+  // = prompt identik).
+  const momentum = quantPackage?.momentum as MomentumMatchup | undefined;
+  const momentumStr = momentum
+    ? formatMomentumMatchupParagraph(
+        momentum,
+        intel.pertandingan?.tim_kandang,
+        intel.pertandingan?.tim_tamu
+      )
+    : "";
+  // Detail Faktual Skuad & Pertemuan (Anti-Halusinasi)
+  const homeXI = intel.lineups?.is_available && Array.isArray(intel.lineups.home_starting_xi) && intel.lineups.home_starting_xi.length > 0
+    ? intel.lineups.home_starting_xi.map((p: any) => `${p.name} (${p.pos || "P"})`).join(", ")
+    : "Lineup belum resmi diumumkan (analisis berbasis unit taktis kolektif)";
+
+  const awayXI = intel.lineups?.is_available && Array.isArray(intel.lineups.away_starting_xi) && intel.lineups.away_starting_xi.length > 0
+    ? intel.lineups.away_starting_xi.map((p: any) => `${p.name} (${p.pos || "P"})`).join(", ")
+    : "Lineup belum resmi diumumkan (analisis berbasis unit taktis kolektif)";
+
+  const homeInjuries = Array.isArray(intel.injuries?.home_injuries) && intel.injuries.home_injuries.length > 0
+    ? intel.injuries.home_injuries.join("; ")
+    : "Tidak ada laporan cedera resmi";
+
+  const awayInjuries = Array.isArray(intel.injuries?.away_injuries) && intel.injuries.away_injuries.length > 0
+    ? intel.injuries.away_injuries.join("; ")
+    : "Tidak ada laporan cedera resmi";
+
+  const h2hMeetings = Array.isArray(intel.h2h_history?.recent_meetings) && intel.h2h_history.recent_meetings.length > 0
+    ? intel.h2h_history.recent_meetings.map((m: any) => `${m.date}: ${m.home} ${m.score} ${m.away}`).join(" | ")
+    : "Tidak ada catatan pertemuan langsung baru";
+
+  // Injeksi Sinyal Keberuntungan xG (Luck Regression)
+  const lm = quantPackage?.calibration_metadata?.luckMetrics || quantPackage?.luck_metrics || params.luckSignal;
+  const luckStr = lm ? (
+    `\nMETRIK REGRESI xG & KEBERUNTUNGAN TIM (LUCK SIGNAL):\n` +
+    `- Disparitas Keberuntungan: ${lm.luck_disparity > 0 ? "+" : ""}${Number(lm.luck_disparity).toFixed(2)}\n` +
+    `- Kandang (${lm.home?.team_id || "Home"}): Status=${lm.home?.status || "NEUTRAL"} | Finishing Luck=${(lm.home?.finishing_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.home?.finishing_luck_per_match ?? 0).toFixed(2)} gol/laga | Def Luck=${(lm.home?.defensive_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.home?.defensive_luck_per_match ?? 0).toFixed(2)}\n` +
+    `- Tamu (${lm.away?.team_id || "Away"}): Status=${lm.away?.status || "NEUTRAL"} | Finishing Luck=${(lm.away?.finishing_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.away?.finishing_luck_per_match ?? 0).toFixed(2)} gol/laga | Def Luck=${(lm.away?.defensive_luck_per_match ?? 0) > 0 ? "+" : ""}${Number(lm.away?.defensive_luck_per_match ?? 0).toFixed(2)}\n` +
+    (lm.market_bias_warning ? `- PERINGATAN BIAS PASAR: ${lm.market_bias_warning}\n` : "") +
+    `- Sudut Pandang Bull: ${lm.agentic_tactical_thesis?.bull_angle || "N/A"}\n` +
+    `- Sudut Pandang Bear: ${lm.agentic_tactical_thesis?.bear_angle || "N/A"}\n`
+  ) : "";
+
+  const matchContext =
+    `Pertandingan: ${intel.pertandingan.tim_kandang} vs ${intel.pertandingan.tim_tamu} (${intel.pertandingan.kompetisi})\n` +
+    `Waktu: ${intel.pertandingan.waktu} | Venue: ${intel.pertandingan.venue}\n` +
+    `${marketOddsStr}\n` +
+    (shinStr ? `${shinStr}\n` : "") +
+    `Dixon-Coles xG: Home=${homeXG} vs Away=${awayXG}\n` +
+    `True 1X2 Probs: Home=${homeProb}% | Draw=${drawProb}% | Away=${awayProb}%\n` +
+    `Fair 1X2 Odds: Home=${fairHome} | Draw=${fairDraw} | Away=${fairAway}\n` +
+    `Over 2.5 Prob: ${over25Prob}% | BTTS Yes: ${bttsProb}%\n` +
+    `Asian Handicap DNB: Home ${dnbHomeProb}% (Fair: ${dnbFair})\n` +
+    `Lineup Status: ${intel.lineups?.status_label || "belum_tersedia"}\n` +
+    `- Starting XI Kandang: ${homeXI}\n` +
+    `- Starting XI Tamu: ${awayXI}\n` +
+    `Laporan Cedera/Absen:\n` +
+    `- Kandang: ${homeInjuries}\n` +
+    `- Tamu: ${awayInjuries}\n` +
+    `Histori H2H: ${h2hMeetings}\n` +
+    `Form: Kandang=${intel.form_split.home_form_summary} | Tamu=${intel.form_split.away_form_summary}\n` +
+    specialMarketsStr + "\n" +
+    luckStr + "\n" +
+    (halfStr ? `${halfStr}\n` : "") +
+    (momentumStr ? `${momentumStr}\n` : "") +
+    `ANALISIS NILAI PASAR (+EV) & KELLY SIZING DARI ENGINE KUANTITATIF:\n${valueBetsSummary}`;
+
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[Syndicate] Memulai Stage 1: Debat Tri-Agent Paralel (Bull: ${MODEL_BULL}, Neutral: ${MODEL_NEUTRAL}, Bear: ${MODEL_BEAR}) [unrestricted tokens: 16384, persona 90s]...`);
+  }
+  const t0 = Date.now();
+
+  /** Bungkus promise supaya durasi per model bisa diatribusi (bukan cuma total stage). */
+  const timed = async <T,>(p: Promise<T>): Promise<{ value: T; ms: number }> => {
+    const start = Date.now();
+    const value = await p;
+    return { value, ms: Date.now() - start };
+  };
+
+  // STAGE 1: TRI-AGENT ADVERSARIAL DEBATE IN PARALLEL
+  const [bullTimed, neutralTimed, bearTimed] = await Promise.all([
+    timed(
+      // 1. Bull Analyst (MODEL_BULL)
+      call9RouterDirect(
+        MODEL_BULL,
+        buildBullSystemPrompt(),
+        matchContext,
+        16384,
+        PERSONA_TIMEOUT_MS,
+        signal
+      )
+    ),
+    timed(
+      // 2. Neutral Analyst (MODEL_NEUTRAL)
+      call9RouterDirect(
+        MODEL_NEUTRAL,
+        buildNeutralSystemPrompt(),
+        matchContext,
+        16384,
+        PERSONA_TIMEOUT_MS,
+        signal
+      )
+    ),
+    timed(
+      // 3. Bear Auditor (MODEL_BEAR)
+      call9RouterDirect(
+        MODEL_BEAR,
+        buildBearSystemPrompt(),
+        matchContext,
+        16384,
+        PERSONA_TIMEOUT_MS,
+        signal
+      )
+    ),
+  ]);
+
+  const stage1Ms = Date.now() - t0;
+  const [bullRaw, neutralRaw, bearRaw] = [bullTimed.value, neutralTimed.value, bearTimed.value];
+
+  console.log(`[Syndicate] Stage 1 selesai dalam ${stage1Ms}ms.`);
+
+  const isErrText = (t?: string) => !t || t.includes("mengalami kendala respon") || t.length < 20;
+
+  const defaultBullThesis = "Peluang ofensif menguntungkan tuan rumah dengan momentum xG yang solid.";
+  const { data: bullParsed, usedFallback: bullParseFailed } = safeExtractJSON<Partial<BullCase>>(bullRaw.text, {
+    thesis: isErrText(bullRaw.text) ? defaultBullThesis : bullRaw.text,
+    key_drivers: ["Momentum xG ofensif di atas rata-rata liga", "Efisiensi ruang tembak lini depan"],
+    tactical_edge: "Keunggulan duel sayap dan transisi cepat",
+  });
+
+  const defaultNeutralThesis = "Distribusi statistik menunjukkan ekuilibrium harga pasar yang proporsional.";
+  const { data: neutralParsed, usedFallback: neutralParseFailed } = safeExtractJSON<Partial<NeutralCase>>(neutralRaw.text, {
+    thesis: isErrText(neutralRaw.text) ? defaultNeutralThesis : neutralRaw.text,
+    empirical_drivers: ["Keseimbangan probabilitas wajar Poisson", "Regresi performa kandang vs tandang"],
+    equilibrium_assessment: "Margin selisih xG tipis mengindikasikan pertandingan ketat berimbang",
+  });
+
+  const defaultBearThesis = "Waspadai kerapuhan pertahanan transisi dan odds pasar yang overvalued.";
+  const { data: bearParsed, usedFallback: bearParseFailed } = safeExtractJSON<Partial<BearCase>>(bearRaw.text, {
+    thesis: isErrText(bearRaw.text) ? defaultBearThesis : bearRaw.text,
+    trap_warnings: ["Harga bandar terlalu pendek untuk tim favorit", "Risiko kebobolan dari serangan balik cepat"],
+    vulnerability_audit: "Konsesi xGA tinggi pada 20 menit akhir laga",
+  });
+
+  // Konten template hanya boleh tampil dengan penanda jujur, tidak pernah menyamar jadi output model
+  const bullThesisIsTemplate = bullParseFailed ? isErrText(bullRaw.text) : isErrText(bullParsed.thesis);
+  const bullSubstituted =
+    bullParseFailed || bullThesisIsTemplate || !bullParsed.tactical_edge ||
+    !Array.isArray(bullParsed.key_drivers) || bullParsed.key_drivers.length === 0;
+
+  const bullCase: BullCase = {
+    model: bullRaw.modelUsed,
+    thesis: bullThesisIsTemplate ? FALLBACK_PREFIX + defaultBullThesis : (bullParsed.thesis as string),
+    key_drivers: Array.isArray(bullParsed.key_drivers) && bullParsed.key_drivers.length > 0 ? bullParsed.key_drivers : ["Momentum serang aktif"],
+    tactical_edge: bullParsed.tactical_edge || "Keunggulan taktis terkonfirmasi.",
+    source: bullSubstituted ? "fallback_template" : "model",
+  };
+
+  const neutralThesisIsTemplate = neutralParseFailed ? isErrText(neutralRaw.text) : isErrText(neutralParsed.thesis);
+  const neutralSubstituted =
+    neutralParseFailed || neutralThesisIsTemplate || !neutralParsed.equilibrium_assessment ||
+    !Array.isArray(neutralParsed.empirical_drivers) || neutralParsed.empirical_drivers.length === 0;
+
+  const neutralCase: NeutralCase = {
+    model: neutralRaw.modelUsed,
+    thesis: neutralThesisIsTemplate ? FALLBACK_PREFIX + defaultNeutralThesis : (neutralParsed.thesis as string),
+    empirical_drivers: Array.isArray(neutralParsed.empirical_drivers) && neutralParsed.empirical_drivers.length > 0 ? neutralParsed.empirical_drivers : ["Empirical balance"],
+    equilibrium_assessment: neutralParsed.equilibrium_assessment || "Keseimbangan pasar wajar.",
+    source: neutralSubstituted ? "fallback_template" : "model",
+  };
+
+  const bearThesisIsTemplate = bearParseFailed ? isErrText(bearRaw.text) : isErrText(bearParsed.thesis);
+  const bearSubstituted =
+    bearParseFailed || bearThesisIsTemplate || !bearParsed.vulnerability_audit ||
+    !Array.isArray(bearParsed.trap_warnings) || bearParsed.trap_warnings.length === 0;
+
+  const bearCase: BearCase = {
+    model: bearRaw.modelUsed,
+    thesis: bearThesisIsTemplate ? FALLBACK_PREFIX + defaultBearThesis : (bearParsed.thesis as string),
+    trap_warnings: Array.isArray(bearParsed.trap_warnings) && bearParsed.trap_warnings.length > 0 ? bearParsed.trap_warnings : ["Waspada volatilitas odds"],
+    vulnerability_audit: bearParsed.vulnerability_audit || "Audit risiko terkonfirmasi.",
+    source: bearSubstituted ? "fallback_template" : "model",
+  };
+
+  // STAGE 2: DUAL JUDICIAL BENCH — R1-only SEQUENTIAL (J1 dulu, J2 menanggapi J1).
+  if (process.env.PIPELINE_DEBUG) {
+    console.log(`[Syndicate] Memulai Stage 2: Dual Judicial Bench sequential (J1: ${MODEL_JUDGEMENT_1}, J2: ${MODEL_JUDGEMENT_2}) [unrestricted tokens: 16384, judge 120s]...`);
+  }
+  const t1 = Date.now();
+
+  const debateSummary =
+    `DATA KUANTITATIF:\n${matchContext}\n\n` +
+    `ARGUMEN DEBAT TRI-AGENT:\n` +
+    `1. Bull Case (${bullCase.model}): ${bullCase.thesis} (Edge: ${bullCase.tactical_edge})\n` +
+    `2. Neutral Case (${neutralCase.model}): ${neutralCase.thesis} (Equilibrium: ${neutralCase.equilibrium_assessment})\n` +
+    `3. Bear Case (${bearCase.model}): ${bearCase.thesis} (Audit: ${bearCase.vulnerability_audit})\n`;
+
+  const defaultRecommendedMarket = (dc?.over_2_5_prob ?? 0) > 0.55 ? "Over 2.5 Goals" : "Asian Handicap 0.0";
+
+  // Judgement 1 (MODEL_JUDGEMENT_1) - Chief Quant & CRO Arbiter — jalan DULU.
+  const j1Timed = await timed(call9RouterDirect(
+    MODEL_JUDGEMENT_1,
+    buildJudge1SystemPrompt(),
+    debateSummary,
+    16384,
+    JUDGE_TIMEOUT_MS,
+    signal
+  ));
+
+  // R1-only: J2 SEQUENTIAL — output J1 (verdict+market+tier+reasoning) masuk prompt J2.
+  // Parse ringan khusus prompt; parse penuh tetap di bawah (hasilnya identik).
+  const j1Early = safeExtractJSON<Partial<SingleJudgement>>(j1Timed.value.text, {
+    verdict_summary: "",
+    recommended_market: "",
+    key_reasoning: "",
+  });
+  const j1Snap: Judge1Snapshot = {
+    verdict_summary: j1Early.data.verdict_summary || j1Timed.value.text.slice(0, 500),
+    recommended_market: j1Early.data.recommended_market || defaultRecommendedMarket,
+    confidence_tier: j1Early.data.confidence_tier || "?",
+    key_reasoning: j1Early.data.key_reasoning || "",
+    parlay_options: Array.isArray((j1Early.data as { parlay_options?: unknown }).parlay_options)
+      ? ((j1Early.data as { parlay_options?: unknown }).parlay_options as ParlayOption[])
+      : [],
+  };
+  // Judgement 2 (MODEL_JUDGEMENT_2) - Cross-Arbiter — wajib SETUJU/BANTAH eksplisit.
+  const j2Timed = await timed(call9RouterDirect(
+    MODEL_JUDGEMENT_2,
+    buildJudge2SystemPrompt(),
+    buildJudge2UserPrompt(debateSummary, j1Snap),
+    16384,
+    JUDGE_TIMEOUT_MS,
+    signal
+  ));
+
+  const stage2Ms = Date.now() - t1;
+  const j1Raw = j1Timed.value;
+  const j2Raw = j2Timed.value;
+
+  console.log(`[Syndicate] Stage 2 selesai dalam ${stage2Ms}ms.`);
+
+  const j1DefaultVerdict = "Berdasarkan kalibrasi Dixon-Coles xG dan evaluasi vig, pasar Over/Under menyajikan ekspektasi nilai paling terkontrol.";
+  const { data: j1Parsed, usedFallback: j1ParseFailed } = safeExtractJSON<Partial<SingleJudgement>>(j1Raw.text, {
+    verdict_summary: isErrText(j1Raw.text) ? j1DefaultVerdict : j1Raw.text,
+    confidence_tier: "B_MODERATE",
+    recommended_market: defaultRecommendedMarket,
+    key_reasoning: "Peluang quant terkonfirmasi dengan deviasi harga bandar yang positif.",
+  });
+
+  const j2DefaultVerdict = "Menyetujui evaluasi risiko: hindari taruhan langsung 1X2 dan prioritaskan perlindungan modal pada garis handicap atau total gol.";
+  const { data: j2Parsed, usedFallback: j2ParseFailed } = safeExtractJSON<Partial<SingleJudgement>>(j2Raw.text, {
+    verdict_summary: isErrText(j2Raw.text) ? j2DefaultVerdict : j2Raw.text,
+    confidence_tier: "B_MODERATE",
+    recommended_market: j1Parsed.recommended_market || defaultRecommendedMarket,
+    alternative_perspective: "Pendekatan independen mengonfirmasi probabilitas selisih gol tipis.",
+  });
+
+  const validateTier = (t?: string): "A_HIGH_VALUE" | "B_MODERATE" | "C_LEAN" | "PASS_AVOID" | undefined => {
+    if (t === "A_HIGH_VALUE" || t === "B_MODERATE" || t === "C_LEAN" || t === "PASS_AVOID") return t;
+    return undefined;
+  };
+
+  const j1VerdictIsTemplate = j1ParseFailed ? isErrText(j1Raw.text) : isErrText(j1Parsed.verdict_summary);
+  const j1Substituted =
+    j1ParseFailed || j1VerdictIsTemplate || !validateTier(j1Parsed.confidence_tier) ||
+    !j1Parsed.key_reasoning || !j1Parsed.recommended_market;
+
+  const judgement1: SingleJudgement = {
+    model: j1Raw.modelUsed,
+    title: "Chief Quantitative & Risk Arbiter",
+    verdict_summary: j1VerdictIsTemplate ? FALLBACK_PREFIX + j1DefaultVerdict : (j1Parsed.verdict_summary as string),
+    confidence_tier: validateTier(j1Parsed.confidence_tier) ?? "B_MODERATE",
+    recommended_market: j1Parsed.recommended_market || "Over 2.5 Goals",
+    key_reasoning: j1Parsed.key_reasoning || "Dixon-Coles xG alignment.",
+    source: j1Substituted ? "fallback_template" : "model",
+  };
+
+  const j2VerdictIsTemplate = j2ParseFailed ? isErrText(j2Raw.text) : isErrText(j2Parsed.verdict_summary);
+  const j2Substituted =
+    j2ParseFailed || j2VerdictIsTemplate || !validateTier(j2Parsed.confidence_tier) ||
+    !j2Parsed.alternative_perspective;
+
+  const judgement2: SingleJudgement = {
+    model: j2Raw.modelUsed,
+    title: "Independent Cross-Audit Arbiter",
+    verdict_summary: j2VerdictIsTemplate ? FALLBACK_PREFIX + j2DefaultVerdict : (j2Parsed.verdict_summary as string),
+    confidence_tier: validateTier(j2Parsed.confidence_tier) ?? "B_MODERATE",
+    recommended_market: j2Parsed.recommended_market || judgement1.recommended_market,
+    alternative_perspective: j2Parsed.alternative_perspective || "Verifikasi silang argumen independen.",
+    source: j2Substituted ? "fallback_template" : "model",
+  };
+
+  // STAGE 3: SUPREME CONSENSUS SYNTHESIS (deterministik — via resolver, JANGAN diubah).
+  const { consensusLevel, finalTier, finalStake, supremeVerdict } = resolveSupremeConsensus(judgement1, judgement2);
+
+  // Opsi parlay: jangkar baseline quant (headline aman) + opsi LLM J1/J2 yang
+  // lolos validasi "no number, no scenario", ranking deterministik, cap 3.
+  // Pick lama (market/tier/stake) tidak tersentuh — field ini murni additive.
+  const tagModel = (raw: unknown): ParlayOption[] =>
+    (Array.isArray(raw) ? raw : []).map((o) => ({ ...(o as ParlayOption), source: "model" as const }));
+  const quantBaseline = buildQuantParlayBaseline({
+    homeTeam: intel.pertandingan?.tim_kandang ?? "?",
+    awayTeam: intel.pertandingan?.tim_tamu ?? "?",
+    probHome: dc?.prob_home_win,
+    probDraw: dc?.prob_draw,
+    probAway: dc?.prob_away_win,
+    fairHome: dc?.fair_odds?.home,
+    fairDraw: dc?.fair_odds?.draw,
+    fairAway: dc?.fair_odds?.away,
+    valueBets: quantPackage?.value_bets,
+    calibration: (quantPackage as { calibration_metadata?: unknown } | undefined)?.calibration_metadata ?? null,
+  });
+
+  const dualJudgement: DualJudgement = {
+    judgement_1: judgement1,
+    judgement_2: judgement2,
+    consensus_level: consensusLevel,
+    supreme_verdict: supremeVerdict,
+    final_recommended_market: judgement1.recommended_market,
+    final_confidence_tier: finalTier,
+    final_stake_fraction: finalStake,
+    parlay_options: rankParlayOptions([
+      ...quantBaseline,
+      ...tagModel((j1Parsed as { parlay_options?: unknown }).parlay_options),
+      ...tagModel((j2Parsed as { parlay_options?: unknown }).parlay_options),
+    ]),
+  };
+
+  return {
+    bull_case: bullCase,
+    neutral_case: neutralCase,
+    bear_case: bearCase,
+    dual_judgement: dualJudgement,
+    stage_timings: {
+      stage_1_ms: stage1Ms,
+      stage_2_ms: stage2Ms,
+      bull_ms: bullTimed.ms,
+      neutral_ms: neutralTimed.ms,
+      bear_ms: bearTimed.ms,
+      judgement_1_ms: j1Timed.ms,
+      judgement_2_ms: j2Timed.ms,
+    },
+    is_fabricated_fallback: bullSubstituted || neutralSubstituted || bearSubstituted || j1Substituted || j2Substituted,
+    arbiter_verdict: {
+      model: `${judgement1.model} + ${judgement2.model}`,
+      chief_risk_officer_synthesis: supremeVerdict,
+      confidence_tier: finalTier,
+      recommended_market: judgement1.recommended_market,
+      recommended_stake_fraction: finalStake,
+    },
+  };
+}

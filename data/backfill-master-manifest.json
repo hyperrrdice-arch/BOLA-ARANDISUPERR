@@ -1,0 +1,757 @@
+{
+  "generated_at": "2026-10-19T08:57:58.343Z",
+  "dry_run": false,
+  "gate": {
+    "threshold": 0.8,
+    "coverage": {
+      "E0": {
+        "dataset": 23,
+        "hit": 23,
+        "cov": 1,
+        "misses": []
+      },
+      "SP1": {
+        "dataset": 23,
+        "hit": 21,
+        "cov": 0.9130434782608695,
+        "misses": [
+          "Racing de Santander",
+          "Deportivo La Coruña"
+        ]
+      },
+      "I1": {
+        "dataset": 23,
+        "hit": 23,
+        "cov": 1,
+        "misses": []
+      },
+      "D1": {
+        "dataset": 21,
+        "hit": 14,
+        "cov": 0.6666666666666666,
+        "misses": [
+          "SV Werder Bremen",
+          "Eintracht Frankfurt",
+          "FC Schalke 04",
+          "Bayer 04 Leverkusen",
+          "Borussia M'gladbach",
+          "TSG Hoffenheim",
+          "SV 07 Elversberg"
+        ]
+      },
+      "F1": {
+        "dataset": 23,
+        "hit": 20,
+        "cov": 0.8695652173913043,
+        "misses": [
+          "Red Star FC",
+          "Stade Brestois",
+          "Rodez AF"
+        ]
+      },
+      "N1": {
+        "dataset": 26,
+        "hit": 9,
+        "cov": 0.34615384615384615,
+        "misses": [
+          "SC Heerenveen",
+          "Roda JC Kerkrade",
+          "Almere City FC",
+          "SC Cambuur",
+          "FC Groningen",
+          "Willem II Tilburg",
+          "PEC Zwolle",
+          "Heracles Almelo",
+          "Fortuna Sittard",
+          "AFC Ajax",
+          "FC Den Bosch",
+          "RKC Waalwijk",
+          "ADO Den Haag",
+          "De Graafschap",
+          "FC Volendam",
+          "NEC Nijmegen",
+          "SC Telstar"
+        ]
+      }
+    },
+    "stopped_divs": [
+      "D1",
+      "N1"
+    ],
+    "stopped_source": [
+      "D1",
+      "N1",
+      "D2"
+    ]
+  },
+  "snapshot": {
+    "counts": {
+      "teams": 195,
+      "matches": 1174,
+      "logs": 2348,
+      "xgNull": 226
+    },
+    "checksumLogsProtected": "f1ed4f44010bb09616baac74d81d56188c4492f69485ac1592fdcc27e93acbb2",
+    "checksumMatches": "64ce8b55c0e6317a7c853c27131a098a4b433b71849fc8299286390afcaacffd",
+    "checksumTeams": "b4ad8c3719411fefbbd9bde169e27cb1ae827f045e6963e16dd92404c588cdd0",
+    "team_counts": {
+      "tm_00453": 2,
+      "tm_007490": 1,
+      "tm_01119": 26,
+      "tm_01158": 16,
+      "tm_0181115": 4,
+      "tm_02198": 8,
+      "tm_02219": 2,
+      "tm_02413": 16,
+      "tm_02484": 12,
+      "tm_02555": 20,
+      "tm_0256": 16,
+      "tm_02599": 21,
+      "tm_02792": 4,
+      "tm_029137": 13,
+      "tm_02924": 19,
+      "tm_02943": 20,
+      "tm_02978": 16,
+      "tm_038733": 2,
+      "tm_0406": 23,
+      "tm_04732": 19,
+      "tm_04741": 2,
+      "tm_05877": 4,
+      "tm_05888": 4,
+      "tm_08322": 4,
+      "tm_0836": 16,
+      "tm_1002": 19,
+      "tm_10033": 4,
+      "tm_10401": 18,
+      "tm_10419": 6,
+      "tm_10458": 17,
+      "tm_10474": 8,
+      "tm_10956": 2,
+      "tm_11910": 16,
+      "tm_15093": 6,
+      "tm_1552": 16,
+      "tm_15641": 16,
+      "tm_15731": 17,
+      "tm_15810": 8,
+      "tm_15885": 20,
+      "tm_160814": 19,
+      "tm_1662": 17,
+      "tm_1772": 16,
+      "tm_17744": 2,
+      "tm_20116": 21,
+      "tm_20131": 11,
+      "tm_20175": 7,
+      "tm_20291": 13,
+      "tm_20677": 8,
+      "tm_20721": 16,
+      "tm_20809": 11,
+      "tm_20832": 18,
+      "tm_25152": 4,
+      "tm_25506": 10,
+      "tm_25550": 17,
+      "tm_25567": 18,
+      "tm_25581": 16,
+      "tm_26302": 18,
+      "tm_26373": 15,
+      "tm_26389": 17,
+      "tm_26561": 2,
+      "tm_2674": 16,
+      "tm_26919": 4,
+      "tm_26936": 6,
+      "tm_28881": 2,
+      "tm_2905815": 6,
+      "tm_2954": 6,
+      "tm_29826": 4,
+      "tm_3039": 21,
+      "tm_3498": 16,
+      "tm_36675": 9,
+      "tm_37201": 18,
+      "tm_37240": 12,
+      "tm_37258": 18,
+      "tm_37262": 20,
+      "tm_37445": 27,
+      "tm_37804": 15,
+      "tm_37885": 16,
+      "tm_3809": 10,
+      "tm_38512": 19,
+      "tm_38524": 9,
+      "tm_38578": 9,
+      "tm_38581": 17,
+      "tm_38765": 4,
+      "tm_40658": 17,
+      "tm_42581": 2,
+      "tm_44984": 10,
+      "tm_459777": 2,
+      "tm_46107": 18,
+      "tm_46156": 19,
+      "tm_46224": 19,
+      "tm_4643": 18,
+      "tm_46488": 20,
+      "tm_4649576": 2,
+      "tm_46499": 8,
+      "tm_47798": 2,
+      "tm_47840": 2,
+      "tm_47976": 17,
+      "tm_487821": 2,
+      "tm_5104": 9,
+      "tm_5130": 18,
+      "tm_51322": 18,
+      "tm_51366": 18,
+      "tm_51388": 18,
+      "tm_51862": 2,
+      "tm_51897": 6,
+      "tm_51921": 18,
+      "tm_51959": 21,
+      "tm_52213": 8,
+      "tm_52257": 2,
+      "tm_52627": 19,
+      "tm_52648": 2,
+      "tm_5290": 17,
+      "tm_5753193": 4,
+      "tm_58267": 4,
+      "tm_58433": 2,
+      "tm_58813": 16,
+      "tm_58884": 19,
+      "tm_59131": 2,
+      "tm_6115": 7,
+      "tm_62226": 16,
+      "tm_62238": 16,
+      "tm_63833": 4,
+      "tm_63899": 9,
+      "tm_63920": 2,
+      "tm_64056": 24,
+      "tm_64068": 12,
+      "tm_64315": 10,
+      "tm_64398": 16,
+      "tm_64513": 19,
+      "tm_64529": 17,
+      "tm_64584": 18,
+      "tm_64612": 21,
+      "tm_64681": 29,
+      "tm_64842": 2,
+      "tm_6573": 10,
+      "tm_6686": 8,
+      "tm_690832": 2,
+      "tm_73004": 6,
+      "tm_73026": 17,
+      "tm_73047": 17,
+      "tm_73052": 17,
+      "tm_73664": 23,
+      "tm_73673": 27,
+      "tm_73725": 20,
+      "tm_73740": 21,
+      "tm_73909": 15,
+      "tm_74434": 21,
+      "tm_74493": 17,
+      "tm_757932": 2,
+      "tm_76152": 4,
+      "tm_79130": 2,
+      "tm_79161": 18,
+      "tm_79196": 20,
+      "tm_7937035": 6,
+      "tm_7938": 19,
+      "tm_7994772": 4,
+      "tm_8091": 17,
+      "tm_83002": 4,
+      "tm_83353": 16,
+      "tm_83365": 3,
+      "tm_83394": 19,
+      "tm_8366658": 2,
+      "tm_83796": 4,
+      "tm_85207": 11,
+      "tm_85290": 19,
+      "tm_8531": 19,
+      "tm_8557956": 10,
+      "tm_89026": 6,
+      "tm_89295": 2,
+      "tm_89592": 15,
+      "tm_89646": 7,
+      "tm_89774": 20,
+      "tm_89783": 21,
+      "tm_89808": 2,
+      "tm_91010": 20,
+      "tm_91026": 21,
+      "tm_91047": 18,
+      "tm_9145": 24,
+      "tm_91602": 2,
+      "tm_91646": 8,
+      "tm_93034": 6,
+      "tm_93670": 6,
+      "tm_9416418": 2,
+      "tm_9694192": 4,
+      "tm_97303": 6,
+      "tm_9731828": 2,
+      "tm_97714": 16,
+      "tm_97723": 7,
+      "tm_97782": 7,
+      "tm_9825": 7,
+      "tm_98299": 24,
+      "tm_98394": 9,
+      "tm_98476": 17,
+      "tm_98487": 21,
+      "tm_98708": 2
+    }
+  },
+  "result": {
+    "xg_null_before": 226,
+    "xg_fills": 0,
+    "filled_ids": [],
+    "thin_before": 51,
+    "patched": [
+      {
+        "team_id": "tm_007490",
+        "name": "Red Star FC",
+        "before": 1,
+        "added": 5,
+        "div": "F2"
+      },
+      {
+        "team_id": "tm_17744",
+        "name": "Royale Union Saint-Gilloise",
+        "before": 2,
+        "added": 4,
+        "div": "B1"
+      },
+      {
+        "team_id": "tm_459777",
+        "name": "Rodez AF",
+        "before": 2,
+        "added": 4,
+        "div": "F2"
+      },
+      {
+        "team_id": "tm_47798",
+        "name": "Olympiacos FC",
+        "before": 2,
+        "added": 4,
+        "div": "G1"
+      },
+      {
+        "team_id": "tm_51862",
+        "name": "Heart of Midlothian",
+        "before": 2,
+        "added": 4,
+        "div": "SC0"
+      },
+      {
+        "team_id": "tm_89808",
+        "name": "Club Brugge KV",
+        "before": 2,
+        "added": 4,
+        "div": "B1"
+      },
+      {
+        "team_id": "tm_91602",
+        "name": "FC Porto",
+        "before": 2,
+        "added": 4,
+        "div": "P1"
+      },
+      {
+        "team_id": "tm_98708",
+        "name": "Celtic",
+        "before": 2,
+        "added": 4,
+        "div": "SC0"
+      },
+      {
+        "team_id": "tm_83365",
+        "name": "Saint-Étienne",
+        "before": 3,
+        "added": 3,
+        "div": "F2"
+      },
+      {
+        "team_id": "tm_10033",
+        "name": "AEK Athens",
+        "before": 4,
+        "added": 2,
+        "div": "G1"
+      },
+      {
+        "team_id": "tm_26919",
+        "name": "Galatasaray",
+        "before": 4,
+        "added": 2,
+        "div": "T1"
+      }
+    ],
+    "unbridgeable": [
+      {
+        "team_id": "tm_00453",
+        "name": "FK Sutjeska Nikšić",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_02219",
+        "name": "FC Thun",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_038733",
+        "name": "Floriana FC",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_04741",
+        "name": "Roda JC Kerkrade",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_10956",
+        "name": "Górnik Zabrze",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_26561",
+        "name": "Lech Poznań",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_28881",
+        "name": "The New Saints",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_42581",
+        "name": "FK Borac Banja Luka",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_4649576",
+        "name": "FC Drita",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_47840",
+        "name": "Omonia Nicosia",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_487821",
+        "name": "SP Tre Fiori",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_52257",
+        "name": "Shakhtar Donetsk",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_52648",
+        "name": "FC Den Bosch",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_58433",
+        "name": "ETO FC Győr",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_59131",
+        "name": "FK Vardar Skopje",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_63920",
+        "name": "Flora Tallinn",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_64842",
+        "name": "SK Slavia Praha",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_690832",
+        "name": "Inter Club d'Escaldes",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_757932",
+        "name": "Atert Bissen",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_79130",
+        "name": "De Graafschap",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_8366658",
+        "name": "Riga FC",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_89295",
+        "name": "AC Sparta Praha",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_9416418",
+        "name": "ML Vitebsk",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_9731828",
+        "name": "FC Petrocub Hîncesti",
+        "before": 2,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_0181115",
+        "name": "Lincoln Red Imps",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_02792",
+        "name": "KuPS",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_05877",
+        "name": "Larne FC",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_05888",
+        "name": "Klaksvíkar Ítróttarfelag",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_08322",
+        "name": "Viking FK",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_25152",
+        "name": "SK Sturm Graz",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_29826",
+        "name": "AGF",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_38765",
+        "name": "Shamrock Rovers",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_5753193",
+        "name": "Universitatea Craiova",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_58267",
+        "name": "Mjällby AIF",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_63833",
+        "name": "RKC Waalwijk",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_76152",
+        "name": "FK Crvena zvezda",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_7994772",
+        "name": "KF Egnatia",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_83002",
+        "name": "Víkingur Reykjavík",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_83796",
+        "name": "LASK",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      },
+      {
+        "team_id": "tm_9694192",
+        "name": "FC Iberia 1999",
+        "before": 4,
+        "reason": "tak ada nama padan di 16 div master (liga kecil/kualifikasi)"
+      }
+    ],
+    "new_logs": 75,
+    "new_matches": 39,
+    "stub_teams": [
+      {
+        "team_id": "tm_master_clermont_foot",
+        "name": "Clermont Foot"
+      },
+      {
+        "team_id": "tm_master_ea_guingamp",
+        "name": "EA Guingamp"
+      },
+      {
+        "team_id": "tm_master_stade_lavallois",
+        "name": "Stade Lavallois"
+      },
+      {
+        "team_id": "tm_master_stade_de_reims",
+        "name": "Stade de Reims"
+      },
+      {
+        "team_id": "tm_master_oud_heverlee_leuven",
+        "name": "Oud-Heverlee Leuven"
+      },
+      {
+        "team_id": "tm_master_antwerp",
+        "name": "Antwerp"
+      },
+      {
+        "team_id": "tm_master_lommel_sk",
+        "name": "Lommel SK"
+      },
+      {
+        "team_id": "tm_master_charleroi",
+        "name": "Charleroi"
+      },
+      {
+        "team_id": "tm_master_nancy",
+        "name": "Nancy"
+      },
+      {
+        "team_id": "tm_master_grenoble_foot_38",
+        "name": "Grenoble Foot 38"
+      },
+      {
+        "team_id": "tm_master_panathinaikos",
+        "name": "Panathinaikos"
+      },
+      {
+        "team_id": "tm_master_levadeiakos",
+        "name": "Levadeiakos"
+      },
+      {
+        "team_id": "tm_master_ofi_crete",
+        "name": "OFI Crete"
+      },
+      {
+        "team_id": "tm_master_volos_nfc",
+        "name": "Volos NFC"
+      },
+      {
+        "team_id": "tm_master_st_mirren",
+        "name": "St Mirren"
+      },
+      {
+        "team_id": "tm_master_kilmarnock",
+        "name": "Kilmarnock"
+      },
+      {
+        "team_id": "tm_master_falkirk",
+        "name": "Falkirk"
+      },
+      {
+        "team_id": "tm_master_dundee",
+        "name": "Dundee"
+      },
+      {
+        "team_id": "tm_master_raal_la_louviere",
+        "name": "RAAL La Louviere"
+      },
+      {
+        "team_id": "tm_master_genk",
+        "name": "Genk"
+      },
+      {
+        "team_id": "tm_master_maritimo",
+        "name": "Maritimo"
+      },
+      {
+        "team_id": "tm_master_sl_benfica",
+        "name": "SL Benfica"
+      },
+      {
+        "team_id": "tm_master_casa_pia",
+        "name": "Casa Pia"
+      },
+      {
+        "team_id": "tm_master_moreirense",
+        "name": "Moreirense"
+      },
+      {
+        "team_id": "tm_master_motherwell",
+        "name": "Motherwell"
+      },
+      {
+        "team_id": "tm_master_rangers",
+        "name": "Rangers"
+      },
+      {
+        "team_id": "tm_master_st_johnstone",
+        "name": "St Johnstone"
+      },
+      {
+        "team_id": "tm_master_us_dunkerque",
+        "name": "US Dunkerque"
+      },
+      {
+        "team_id": "tm_master_kasimpasa",
+        "name": "Kasimpasa"
+      },
+      {
+        "team_id": "tm_master_trabzonspor",
+        "name": "Trabzonspor"
+      }
+    ]
+  },
+  "post": {
+    "counts": {
+      "teams": 225,
+      "matches": 1213,
+      "logs": 2423,
+      "xgNull": 226
+    },
+    "checks_ok": true,
+    "untagged_master_logs": 0,
+    "legacy_tagged": 0
+  }
+}
