@@ -22,8 +22,13 @@ Jembatan antar ruang ID:
 - `sm_id_map` (upcoming DB): fixture SM → match `mt_` bila sudah ada di katalog lama (jembatan lama selalu menang).
 - `lib/quant/team-normalizer.ts` (`normalizeTeamName` + kamus alias): nama tim lintas sumber → kunci ratings.
 - `teams` (dataset): nama → team_id untuk telemetri. ⚠️ **Nama tidak unik**:
-  85 nama dipakai >1 team_id (mis. `Inter Miami CF` ×3, `Al Ahli` ×2) —
-  resolusi nama→ID tanpa konteks liga bisa mengambil tim yang salah.
+  9 grup nama persis dipakai >1 team_id (mis. `Al Ahli` ×2), dan 37 grup
+  bertabrakan setelah normalisasi nama — ruang kunci yang benar-benar
+  dipakai peta nama→ID (mis. Real Betis, SV Werder Bremen, Celta Vigo
+  masing-masing ×2) — resolusi nama→ID tanpa konteks liga bisa mengambil
+  tim yang salah. (Koreksi 4 Nov: draf awal dokumen ini menyebut "85
+  nama, Inter Miami CF ×3" — angka dan contoh itu SALAH, tidak ada di
+  tabel; angka di atas terukur ulang langsung dari `teams`.)
 
 ## 1. Alur katalog (daftar pertandingan)
 
@@ -122,7 +127,8 @@ yang menyalin prediksi ke jalur odds).
    `COMPETITION_AVG_GOALS[sm:*]` undefined → fallback ke target itu sendiri).
 3. **Resolusi tim dari nama tanpa konteks** (`ratings-loader.getTheStatsTeamId`,
    `team-telemetry.resolveTeamId`, `luck-regression`): `LIMIT 1`/last-wins
-   atas 85 nama tim ganda → telemetri tim lain bisa terbaca sebagai milik tim ini.
+   atas nama-nama tim yang bertabrakan (9 grup nama persis, 37 grup
+   ternormalisasi) → telemetri tim lain bisa terbaca sebagai milik tim ini.
 4. **Ratings partial tidak tersaji & tanpa alasan**: liga `partial` (36)
    tidak ada di JSON → loader jatuh ke `defaultFallback` generik
    (isCalibrated=false) tanpa membedakan "liga partial terukur" vs "liga

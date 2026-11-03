@@ -455,8 +455,9 @@ function getTheStatsTeamIds(teamName: string): string[] {
 }
 
 /**
- * Resolusi nama → team_id SADAR TABRAKAN (Fase 1). Tabel teams memuat nama
- * yang sama untuk >1 team_id (mis. "Inter Miami CF" ×3 lintas ruang ID).
+ * Resolusi nama → team_id SADAR TABRAKAN (Fase 1). Tabel teams memuat
+ * nama yang bertabrakan antar team_id — 9 grup nama persis, 37 grup
+ * setelah normalisasi (mis. "Al Ahli" ×2; Real Betis ×2 ternormalisasi).
  * Dulu: last-wins/LIMIT 1 acak → telemetri tim lain bisa terbaca sebagai
  * milik tim ini. Sekarang: kandidat dipilih yang punya log terbanyak di
  * kompetisi divisi target; tanpa konteks divisi → log terbanyak overall.

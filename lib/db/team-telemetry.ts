@@ -84,8 +84,9 @@ const resolveTeamIdCache = new Map<string, string>();
 /**
  * Helper resolusi team_id baik dari ID langsung ('tm_9145') maupun nama klub ('Arsenal').
  *
- * Nama tim TIDAK unik di tabel teams (85 nama dipakai >1 team_id lintas
- * ruang ID). Dulu LIMIT 1 tanpa ORDER BY = pilihan arbitrer — telemetri
+ * Nama tim TIDAK unik di tabel teams (9 grup nama persis >1 team_id;
+ * 37 grup bertabrakan setelah normalisasi nama). Dulu LIMIT 1 tanpa
+ * ORDER BY = pilihan arbitrer — telemetri
  * tim lain bisa terbaca sebagai milik tim ini. Sekarang deterministik:
  * kandidat dengan log terbanyak di team_match_logs menang; seri →
  * team_id terkecil. (Resolusi sadar-kompetisi ada di jalur loader:
