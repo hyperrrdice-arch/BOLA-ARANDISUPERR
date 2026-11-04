@@ -878,8 +878,20 @@ function closingLineProbs(payloadJson: string): [number, number, number] | null 
       if (idx >= 0 && v !== undefined && Number.isFinite(v) && v > 1) triple[idx] = v;
     }
     if (triple.every((v) => v !== null)) {
-      const fair = stripVigShin(triple as [number, number, number]);
-      return [fair[0], fair[1], fair[2]];
+      // PERBAIKAN (rekalibrasi 2026-11-04): stripVigShin menerima TIGA
+      // skalar (home, draw, away) dan mengembalikan fair_prob{home,draw,
+      // away} — pemanggilan lama mengoper satu tuple sebagai argumen
+      // tunggal dan membaca hasilnya sebagai array. Bug laten: baris ini
+      // tidak pernah tereksekusi selama benchmark closing line n=0
+      // (Fase 3); tangkapan odds baru membuatnya terpicu dan menghentikan
+      // harness SEBELUM oos-gate.json ditulis. Payload cacat → null
+      // (dihitung tak-terparse oleh pemanggil), bukan crash.
+      try {
+        const fair = stripVigShin(triple[0]!, triple[1]!, triple[2]!);
+        return [fair.fair_prob.home, fair.fair_prob.draw, fair.fair_prob.away];
+      } catch {
+        return null;
+      }
     }
   }
   return null;

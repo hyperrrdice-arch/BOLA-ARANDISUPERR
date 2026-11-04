@@ -1,6 +1,6 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-04T11:09:29.794Z",
+  "compiledAt": "2026-11-04T11:28:08.166Z",
   "totalLeagues": 73,
   "totalTeams": 1898,
   "leagues": {
@@ -16600,7 +16600,7 @@
       "rho": 0,
       "calibrationDate": "2026-11-04",
       "source": "sportmonks-fit",
-      "calibrationStatus": "calibrated",
+      "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
       "canonicalId": "sm:1085",
       "teams": {
