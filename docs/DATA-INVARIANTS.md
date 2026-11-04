@@ -103,6 +103,13 @@ konsumen standings WAJIB mentolerir join kosong.
 premium-history dari endpoint `/odds/premium*`.
 Audit: **PASS** — (a) hanya 3 tabel sm_*; (b) himpunan source tepat
 {NULL, 'sportmonks'}; (c) baris premium = 0 (endpoint memang kosong).
+**Amendemen 2026-11-05 (mode bebas Sportmonks, keputusan owner):**
+himpunan `source` yang sah di (b) bertambah satu — `'football-data'`
+(feed gratis football-data.co.uk; barisnya odds sungguhan dari CSV,
+bukan predictions). Substansi invarian tidak berubah: tetap **tidak
+ada** baris odds yang bersumber dari predictions. Keadaan pasca-ubah
+terverifikasi di `tasks/free-mode-report.md`: source ∈ {NULL,
+'sportmonks', 'football-data'}, baris bersumber predictions = 0.
 
 **INV-15 · Statistik absen = NULL, bukan karangan.**
 Kolom statistik yang tidak tersedia dari sumber disimpan NULL
