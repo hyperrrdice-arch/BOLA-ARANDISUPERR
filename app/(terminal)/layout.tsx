@@ -1,5 +1,6 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import Nav from "../../components/Nav";
+import Nav, { NavStatic } from "../../components/Nav";
 
 export default function TerminalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +15,9 @@ export default function TerminalLayout({ children }: { children: React.ReactNode
           </Link>
         </div>
         <div className="px-2 pb-3 md:py-2">
-          <Nav />
+          <Suspense fallback={<NavStatic />}>
+            <Nav />
+          </Suspense>
         </div>
         <div className="hidden md:block px-4 mt-6">
           <p className="text-[11px] leading-relaxed text-faint font-mono">

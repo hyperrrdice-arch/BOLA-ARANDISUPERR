@@ -9,6 +9,25 @@ const ITEMS = [
   { href: "/bukti", label: "Ledger Bukti" },
 ];
 
+/** Versi statis tanpa hook — fallback Suspense agar kerangka halaman bisa
+ *  di-prerender (Cache Components) sementara status aktif menyusul. */
+export function NavStatic() {
+  return (
+    <nav aria-label="Navigasi terminal" className="flex md:flex-col gap-1 overflow-x-auto">
+      {ITEMS.map((it) => (
+        <Link
+          key={it.href}
+          href={it.href}
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm whitespace-nowrap text-mid-gray"
+        >
+          <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-faint/50" />
+          {it.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
 export default function Nav() {
   const path = usePathname();
   return (
