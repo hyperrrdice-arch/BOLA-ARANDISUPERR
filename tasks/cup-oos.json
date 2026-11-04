@@ -1,0 +1,942 @@
+{
+  "generated_at": "2026-11-04T11:47:25.966Z",
+  "protocol": "walk-forward per kompetisi: fit domestik + δ hanya dari data sebelum musim uji; naive = base rate kandang/tandang latih kompetisi; rho=0; leg-2 = proksi pertemuan kedua venue-tertukar",
+  "gate": {
+    "calibrated": "n_rated>=100, coverage>=0.80, LL<naive, slope in [0.70,1.30]",
+    "partial": "n_rated>=30, coverage>=0.50, LL<naive, gagal satu kriteria calibrated",
+    "uncalibrated": "sisanya (termasuk LL>=naive atau bukti tak cukup)"
+  },
+  "competitions": {
+    "sm:2": {
+      "graph": "europe",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-07-08T15:00:00.000Z",
+          "nTest": 272,
+          "nRated": 162,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-07-07T16:00:00.000Z",
+          "nTest": 143,
+          "nRated": 76,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 415,
+      "nRated": 238,
+      "coverage": 0.5734939759036145,
+      "model": {
+        "n": 238,
+        "logLoss": 0.9825,
+        "brier": 0.582,
+        "slope": 1.121
+      },
+      "naive": {
+        "n": 238,
+        "logLoss": 1.0399,
+        "brier": 0.6268,
+        "slope": 1.084
+      },
+      "leg2": {
+        "model": {
+          "n": 36,
+          "logLoss": 1.0011,
+          "brier": 0.5957,
+          "slope": 0.965
+        },
+        "naive": {
+          "n": 36,
+          "logLoss": 1.0303,
+          "brier": 0.6173,
+          "slope": 1.212
+        }
+      },
+      "status": "partial",
+      "reason": "Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80."
+    },
+    "sm:5": {
+      "graph": "europe",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-07-10T16:00:00.000Z",
+          "nTest": 255,
+          "nRated": 198,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-07-09T16:00:00.000Z",
+          "nTest": 128,
+          "nRated": 66,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 383,
+      "nRated": 264,
+      "coverage": 0.6892950391644909,
+      "model": {
+        "n": 264,
+        "logLoss": 0.9912,
+        "brier": 0.5879,
+        "slope": 1.022
+      },
+      "naive": {
+        "n": 264,
+        "logLoss": 1.0455,
+        "brier": 0.6307,
+        "slope": 1.05
+      },
+      "leg2": {
+        "model": {
+          "n": 45,
+          "logLoss": 0.9494,
+          "brier": 0.5589,
+          "slope": 1.376
+        },
+        "naive": {
+          "n": 45,
+          "logLoss": 0.9957,
+          "brier": 0.5957,
+          "slope": 1.603
+        }
+      },
+      "status": "partial",
+      "reason": "Mengalahkan naive (LL 0.9912 < 1.0455) tapi belum calibrated: cakupan 0.69 < 0.80."
+    },
+    "sm:2286": {
+      "graph": "europe",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-07-08T16:00:00.000Z",
+          "nTest": 381,
+          "nRated": 115,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-07-07T17:15:00.000Z",
+          "nTest": 266,
+          "nRated": 73,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 647,
+      "nRated": 188,
+      "coverage": 0.29057187017001546,
+      "model": {
+        "n": 188,
+        "logLoss": 0.9956,
+        "brier": 0.5939,
+        "slope": 0.89
+      },
+      "naive": {
+        "n": 188,
+        "logLoss": 1.0788,
+        "brier": 0.6534,
+        "slope": 0.665
+      },
+      "leg2": {
+        "model": {
+          "n": 57,
+          "logLoss": 0.878,
+          "brier": 0.5105,
+          "slope": 1.452
+        },
+        "naive": {
+          "n": 57,
+          "logLoss": 1.0317,
+          "brier": 0.6195,
+          "slope": 1.082
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Cakupan tim ter-rate terlalu rendah: 0.29 < 0.50 (n_rated=188/647) walau LL 0.9956 < naive 1.0788."
+    },
+    "sm:24": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-01T18:45:00.000Z",
+          "nTest": 811,
+          "nRated": 74,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-07T18:30:00.000Z",
+          "nTest": 723,
+          "nRated": 5,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 1534,
+      "nRated": 79,
+      "coverage": 0.051499348109517604,
+      "model": {
+        "n": 79,
+        "logLoss": 0.8511,
+        "brier": 0.4863,
+        "slope": 1.182
+      },
+      "naive": {
+        "n": 79,
+        "logLoss": 0.9689,
+        "brier": 0.5838,
+        "slope": 2.325
+      },
+      "leg2": {
+        "model": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        },
+        "naive": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Cakupan tim ter-rate terlalu rendah: 0.05 < 0.50 (n_rated=79/1534) walau LL 0.8511 < naive 0.9689."
+    },
+    "sm:27": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-05T18:45:00.000Z",
+          "nTest": 73,
+          "nRated": 69,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-03T18:30:00.000Z",
+          "nTest": 68,
+          "nRated": 67,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 141,
+      "nRated": 136,
+      "coverage": 0.9645390070921985,
+      "model": {
+        "n": 136,
+        "logLoss": 0.8074,
+        "brier": 0.4568,
+        "slope": 1.47
+      },
+      "naive": {
+        "n": 136,
+        "logLoss": 0.9741,
+        "brier": 0.5916,
+        "slope": 1.974
+      },
+      "leg2": {
+        "model": {
+          "n": 2,
+          "logLoss": 0.6938,
+          "brier": 0.376,
+          "slope": null
+        },
+        "naive": {
+          "n": 2,
+          "logLoss": 0.7066,
+          "brier": 0.3875,
+          "slope": null
+        }
+      },
+      "status": "partial",
+      "reason": "Mengalahkan naive (LL 0.8074 < 0.9741) tapi belum calibrated: slope 1.47 di luar [0.70, 1.30]."
+    },
+    "sm:307": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-11-14T19:00:00.000Z",
+          "nTest": 149,
+          "nRated": 22,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-10-31T18:00:00.000Z",
+          "nTest": 1,
+          "nRated": 0,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 150,
+      "nRated": 22,
+      "coverage": 0.14666666666666667,
+      "model": {
+        "n": 22,
+        "logLoss": 0.9625,
+        "brier": 0.5542,
+        "slope": 1.096
+      },
+      "naive": {
+        "n": 22,
+        "logLoss": 1.1028,
+        "brier": 0.6725,
+        "slope": 0.466
+      },
+      "leg2": {
+        "model": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        },
+        "naive": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Bukti OOS tidak cukup: n_rated=22 < 30 (total laga uji 150, cakupan 0.15)."
+    },
+    "sm:468": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-30T10:00:00.000Z",
+          "nTest": 120,
+          "nRated": 13,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-29T10:00:00.000Z",
+          "nTest": 92,
+          "nRated": 3,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 212,
+      "nRated": 16,
+      "coverage": 0.07547169811320754,
+      "model": {
+        "n": 16,
+        "logLoss": 0.9548,
+        "brier": 0.5569,
+        "slope": 1.176
+      },
+      "naive": {
+        "n": 16,
+        "logLoss": 1.0043,
+        "brier": 0.6094,
+        "slope": 2.425
+      },
+      "leg2": {
+        "model": {
+          "n": 1,
+          "logLoss": 1.428,
+          "brier": 0.8669,
+          "slope": null
+        },
+        "naive": {
+          "n": 1,
+          "logLoss": 1.4284,
+          "brier": 0.8702,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Bukti OOS tidak cukup: n_rated=16 < 30 (total laga uji 212, cakupan 0.08)."
+    },
+    "sm:78": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-09-02T18:00:00.000Z",
+          "nTest": 86,
+          "nRated": 23,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-09-01T18:00:00.000Z",
+          "nTest": 64,
+          "nRated": 8,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 150,
+      "nRated": 31,
+      "coverage": 0.20666666666666667,
+      "model": {
+        "n": 31,
+        "logLoss": 1.0957,
+        "brier": 0.6271,
+        "slope": 0.504
+      },
+      "naive": {
+        "n": 31,
+        "logLoss": 0.9418,
+        "brier": 0.5734,
+        "slope": 4.948
+      },
+      "leg2": {
+        "model": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        },
+        "naive": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Model offset TIDAK mengalahkan base rate naive secara OOS: LL 1.0957 >= naive 0.9418 (n=31)."
+    },
+    "sm:570": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-09-27T14:30:00.000Z",
+          "nTest": 108,
+          "nRated": 29,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-09-26T16:00:00.000Z",
+          "nTest": 46,
+          "nRated": 0,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 154,
+      "nRated": 29,
+      "coverage": 0.18831168831168832,
+      "model": {
+        "n": 29,
+        "logLoss": 1.0107,
+        "brier": 0.6019,
+        "slope": 0.965
+      },
+      "naive": {
+        "n": 29,
+        "logLoss": 1.0353,
+        "brier": 0.6136,
+        "slope": 0.661
+      },
+      "leg2": {
+        "model": {
+          "n": 2,
+          "logLoss": 0.9766,
+          "brier": 0.5691,
+          "slope": null
+        },
+        "naive": {
+          "n": 2,
+          "logLoss": 1.7504,
+          "brier": 1.1225,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Bukti OOS tidak cukup: n_rated=29 < 30 (total laga uji 154, cakupan 0.19)."
+    },
+    "sm:109": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-15T16:00:00.000Z",
+          "nTest": 49,
+          "nRated": 26,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-21T16:00:00.000Z",
+          "nTest": 41,
+          "nRated": 18,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 90,
+      "nRated": 44,
+      "coverage": 0.4888888888888889,
+      "model": {
+        "n": 44,
+        "logLoss": 0.7724,
+        "brier": 0.4387,
+        "slope": 2.278
+      },
+      "naive": {
+        "n": 44,
+        "logLoss": 0.9632,
+        "brier": 0.5696,
+        "slope": 1.008
+      },
+      "leg2": {
+        "model": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        },
+        "naive": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Cakupan tim ter-rate terlalu rendah: 0.49 < 0.50 (n_rated=44/90) walau LL 0.7724 < naive 0.9632."
+    },
+    "sm:390": {
+      "graph": "europe",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-09T18:30:00.000Z",
+          "nTest": 33,
+          "nRated": 27,
+          "reference": "sm:8"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-08T18:30:00.000Z",
+          "nTest": 23,
+          "nRated": 16,
+          "reference": "sm:8"
+        }
+      ],
+      "nTest": 56,
+      "nRated": 43,
+      "coverage": 0.7678571428571429,
+      "model": {
+        "n": 43,
+        "logLoss": 0.7042,
+        "brier": 0.3736,
+        "slope": 1.557
+      },
+      "naive": {
+        "n": 43,
+        "logLoss": 0.7584,
+        "brier": 0.4134,
+        "slope": 1.437
+      },
+      "leg2": {
+        "model": {
+          "n": 1,
+          "logLoss": 0.3965,
+          "brier": 0.1614,
+          "slope": null
+        },
+        "naive": {
+          "n": 1,
+          "logLoss": 0.4497,
+          "brier": 0.1972,
+          "slope": null
+        }
+      },
+      "status": "partial",
+      "reason": "Mengalahkan naive (LL 0.7042 < 0.7584) tapi belum calibrated: n_rated=43 < 100; cakupan 0.77 < 0.80; slope 1.557 di luar [0.70, 1.30]."
+    },
+    "sm:1122": {
+      "graph": "conmebol",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025",
+          "boundary": "2025-02-05T00:30:00.000Z",
+          "nTest": 148,
+          "nRated": 55,
+          "reference": "sm:648"
+        },
+        {
+          "season": "2026",
+          "boundary": "2026-02-04T00:30:00.000Z",
+          "nTest": 140,
+          "nRated": 59,
+          "reference": "sm:648"
+        }
+      ],
+      "nTest": 288,
+      "nRated": 114,
+      "coverage": 0.3958333333333333,
+      "model": {
+        "n": 114,
+        "logLoss": 1.0885,
+        "brier": 0.6545,
+        "slope": 0.564
+      },
+      "naive": {
+        "n": 114,
+        "logLoss": 1.069,
+        "brier": 0.6463,
+        "slope": 0.71
+      },
+      "leg2": {
+        "model": {
+          "n": 53,
+          "logLoss": 1.016,
+          "brier": 0.6083,
+          "slope": 0.966
+        },
+        "naive": {
+          "n": 53,
+          "logLoss": 1.0144,
+          "brier": 0.6071,
+          "slope": 1.125
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Model offset TIDAK mengalahkan base rate naive secara OOS: LL 1.0885 >= naive 1.069 (n=114)."
+    },
+    "sm:1116": {
+      "graph": "conmebol",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025",
+          "boundary": "2025-03-05T00:30:00.000Z",
+          "nTest": 143,
+          "nRated": 68,
+          "reference": "sm:648"
+        },
+        {
+          "season": "2026",
+          "boundary": "2026-03-03T22:00:00.000Z",
+          "nTest": 147,
+          "nRated": 64,
+          "reference": "sm:648"
+        }
+      ],
+      "nTest": 290,
+      "nRated": 132,
+      "coverage": 0.45517241379310347,
+      "model": {
+        "n": 132,
+        "logLoss": 1.1012,
+        "brier": 0.6693,
+        "slope": 0.463
+      },
+      "naive": {
+        "n": 132,
+        "logLoss": 1.0771,
+        "brier": 0.6514,
+        "slope": 0.832
+      },
+      "leg2": {
+        "model": {
+          "n": 60,
+          "logLoss": 1.0875,
+          "brier": 0.6587,
+          "slope": 0.563
+        },
+        "naive": {
+          "n": 60,
+          "logLoss": 1.085,
+          "brier": 0.6575,
+          "slope": 0.706
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Model offset TIDAK mengalahkan base rate naive secara OOS: LL 1.1012 >= naive 1.0771 (n=132)."
+    },
+    "sm:654": {
+      "graph": "conmebol",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025",
+          "boundary": "2025-02-18T21:00:00.000Z",
+          "nTest": 95,
+          "nRated": 35,
+          "reference": "sm:648"
+        },
+        {
+          "season": "2026",
+          "boundary": "2026-02-18T19:00:00.000Z",
+          "nTest": 119,
+          "nRated": 49,
+          "reference": "sm:648"
+        }
+      ],
+      "nTest": 214,
+      "nRated": 84,
+      "coverage": 0.3925233644859813,
+      "model": {
+        "n": 84,
+        "logLoss": 0.9744,
+        "brier": 0.5852,
+        "slope": 1.015
+      },
+      "naive": {
+        "n": 84,
+        "logLoss": 1.0818,
+        "brier": 0.6551,
+        "slope": 1.826
+      },
+      "leg2": {
+        "model": {
+          "n": 36,
+          "logLoss": 0.9312,
+          "brier": 0.547,
+          "slope": 1.33
+        },
+        "naive": {
+          "n": 36,
+          "logLoss": 1.0416,
+          "brier": 0.6291,
+          "slope": 5.66
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Cakupan tim ter-rate terlalu rendah: 0.39 < 0.50 (n_rated=84/214) walau LL 0.9744 < naive 1.0818."
+    },
+    "sm:1085": {
+      "graph": "afc",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-12T11:35:00.000Z",
+          "nTest": 110,
+          "nRated": 47,
+          "reference": "sm:944"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-11T09:30:00.000Z",
+          "nTest": 64,
+          "nRated": 37,
+          "reference": "sm:944"
+        }
+      ],
+      "nTest": 174,
+      "nRated": 84,
+      "coverage": 0.4827586206896552,
+      "model": {
+        "n": 84,
+        "logLoss": 1.0109,
+        "brier": 0.6046,
+        "slope": 0.76
+      },
+      "naive": {
+        "n": 84,
+        "logLoss": 1.0501,
+        "brier": 0.6331,
+        "slope": 0.818
+      },
+      "leg2": {
+        "model": {
+          "n": 1,
+          "logLoss": 1.8845,
+          "brier": 1.1809,
+          "slope": null
+        },
+        "naive": {
+          "n": 1,
+          "logLoss": 1.452,
+          "brier": 0.9276,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Cakupan tim ter-rate terlalu rendah: 0.48 < 0.50 (n_rated=84/174) walau LL 1.0109 < naive 1.0501."
+    },
+    "sm:1088": {
+      "graph": "afc",
+      "kind": "continental",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-13T12:00:00.000Z",
+          "nTest": 117,
+          "nRated": 7,
+          "reference": "sm:944"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-12T15:00:00.000Z",
+          "nTest": 52,
+          "nRated": 6,
+          "reference": "sm:944"
+        }
+      ],
+      "nTest": 169,
+      "nRated": 13,
+      "coverage": 0.07692307692307693,
+      "model": {
+        "n": 13,
+        "logLoss": 0.8422,
+        "brier": 0.4867,
+        "slope": 1.396
+      },
+      "naive": {
+        "n": 13,
+        "logLoss": 1.1112,
+        "brier": 0.6742,
+        "slope": 0.312
+      },
+      "leg2": {
+        "model": {
+          "n": 2,
+          "logLoss": 1.0391,
+          "brier": 0.6153,
+          "slope": null
+        },
+        "naive": {
+          "n": 2,
+          "logLoss": 1.2642,
+          "brier": 0.7747,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Bukti OOS tidak cukup: n_rated=13 < 30 (total laga uji 169, cakupan 0.08)."
+    },
+    "sm:950": {
+      "graph": "afc",
+      "kind": "domestic",
+      "folds": [
+        {
+          "season": "2025/2026",
+          "boundary": "2025-08-31T16:00:00.000Z",
+          "nTest": 23,
+          "nRated": 13,
+          "reference": "sm:944"
+        },
+        {
+          "season": "2026/2027",
+          "boundary": "2026-08-16T16:15:00.000Z",
+          "nTest": 14,
+          "nRated": 6,
+          "reference": "sm:944"
+        }
+      ],
+      "nTest": 37,
+      "nRated": 19,
+      "coverage": 0.5135135135135135,
+      "model": {
+        "n": 19,
+        "logLoss": 0.6587,
+        "brier": 0.3576,
+        "slope": 3.153
+      },
+      "naive": {
+        "n": 19,
+        "logLoss": 0.9402,
+        "brier": 0.5622,
+        "slope": 5.46
+      },
+      "leg2": {
+        "model": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        },
+        "naive": {
+          "n": 0,
+          "logLoss": 0,
+          "brier": 0,
+          "slope": null
+        }
+      },
+      "status": "uncalibrated",
+      "reason": "Bukti OOS tidak cukup: n_rated=19 < 30 (total laga uji 37, cakupan 0.51)."
+    }
+  },
+  "connectivity": {
+    "europe": {
+      "leaguesInGraph": 80,
+      "leaguesWithFits": 35,
+      "identifiedLeagues": 34,
+      "thin": [],
+      "holes": [
+        "sm:211",
+        "sm:486"
+      ],
+      "anchorMatchesResolved": 1915
+    },
+    "conmebol": {
+      "leaguesInGraph": 18,
+      "leaguesWithFits": 6,
+      "identifiedLeagues": 6,
+      "thin": [],
+      "holes": [],
+      "anchorMatchesResolved": 512
+    },
+    "afc": {
+      "leaguesInGraph": 20,
+      "leaguesWithFits": 8,
+      "identifiedLeagues": 10,
+      "thin": [
+        {
+          "league": "sm:1007",
+          "anchors": 2
+        }
+      ],
+      "holes": [],
+      "anchorMatchesResolved": 263
+    }
+  },
+  "audit": {
+    "caf": {
+      "note": "Kompetisi CAF hadir di store tapi DI LUAR scope yang disetujui — tidak di-fit, menunggu keputusan owner.",
+      "competitions": {
+        "sm:1107": 378,
+        "sm:860 (Botola Pro, domestik Maroko)": 526,
+        "sm:830 (Premier League Mesir)": 625,
+        "sm:806 (Premier League Afrika Selatan)": 524
+      },
+      "cafChampionsLeagueCanonical": "sm:1107 (saat ini ter-fit sebagai liga, status partial — perilaku lama rekalibrasi)"
+    },
+    "womensChampionsLeague": {
+      "canonical": "sm:1419",
+      "matches": 369,
+      "bothTeamsInWomensFits": 3,
+      "note": "Ekosistem wanita terpisah dari graf pria; cakupan fit domestik wanita di store nyaris nol di luar WSL — tidak dilayani model offset pria (bahaya tabrakan nama klub pria/wanita dijaga: kompetisi ini tidak mendapat cup_model)."
+    },
+    "friendlies": {
+      "sm:1082 Friendly International": 917,
+      "sm:2451 Club Friendlies 3": 12624,
+      "sm:2452 Club Friendlies 4": 3056,
+      "sm:2450 Club Friendlies 2": 132,
+      "sm:1101 Club Friendlies 1": 299,
+      "note": "Friendly = laga ekshibisi (rotasi bebas, tanpa taruhan kompetitif) dan tim nasional tidak punya fit liga domestik — dikeluarkan dari jangkar maupun penyajian by design."
+    },
+    "intercontinental": {
+      "sm:1452 FIFA Intercontinental Cup": 10,
+      "note": "Lintas benua — tidak ada graf bersama; di luar model offset per-benua v1."
+    }
+  }
+}
