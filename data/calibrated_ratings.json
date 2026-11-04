@@ -1,6 +1,6 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-04T11:28:08.166Z",
+  "compiledAt": "2026-11-04T18:47:35.685Z",
   "totalLeagues": 72,
   "totalTeams": 1842,
   "leagues": {
@@ -17762,10 +17762,10 @@
   "canonical": {
     "registry": "data/league-canonical.json",
     "registryVersion": 1,
-    "registryGeneratedAt": "2026-11-04T10:53:47.861Z",
+    "registryGeneratedAt": "2026-11-04T11:33:04.775Z",
     "note": "keys are fit keys; canonicalId maps each fit to its canonical league",
     "cupOffsets": {
-      "fittedAt": "2026-11-04T12:17:04.974Z",
+      "fittedAt": "2026-11-04T18:48:24.510Z",
       "graphs": {
         "europe": {
           "reference": "sm:8",
@@ -17783,9 +17783,9 @@
         },
         "afc": {
           "reference": "sm:944",
-          "globalAvgGoals": 1.1714,
-          "cupHomeAdvantage": 1.2401,
-          "nAnchorMatches": 226,
+          "globalAvgGoals": 1.187,
+          "cupHomeAdvantage": 1.2394,
+          "nAnchorMatches": 227,
           "nLeaguesIdentified": 8
         }
       },
