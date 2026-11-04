@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:47:44.864Z",
+  "generated_at": "2026-11-04T20:50:49.740Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -17,38 +17,6 @@
       ],
       "aliases": [
         "Amedspor"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_andorra",
-      "name": "Andorra",
-      "country": "Spain",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_andorra",
-          "name_as_stored": "Andorra"
-        }
-      ],
-      "aliases": [
-        "Andorra"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_bayer-leverkusen",
-      "name": "Bayer Leverkusen",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_bayer-leverkusen",
-          "name_as_stored": "Leverkusen"
-        }
-      ],
-      "aliases": [
-        "Leverkusen"
       ],
       "contested_name": false
     },
@@ -129,22 +97,6 @@
       ],
       "aliases": [
         "Buyuksehyr"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_cambuur",
-      "name": "Cambuur",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_cambuur",
-          "name_as_stored": "Cambuur"
-        }
-      ],
-      "aliases": [
-        "Cambuur"
       ],
       "contested_name": false
     },
@@ -325,22 +277,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_groningen",
-      "name": "Groningen",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_groningen",
-          "name_as_stored": "Groningen"
-        }
-      ],
-      "aliases": [
-        "Groningen"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_guimaraes",
       "name": "Guimaraes",
       "country": "Portugal",
@@ -353,22 +289,6 @@
       ],
       "aliases": [
         "Guimaraes"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_heerenveen",
-      "name": "Heerenveen",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_heerenveen",
-          "name_as_stored": "Heerenveen"
-        }
-      ],
-      "aliases": [
-        "Heerenveen"
       ],
       "contested_name": false
     },
@@ -533,54 +453,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_sv-darmstadt-98",
-      "name": "SV Darmstadt 98",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_sv-darmstadt-98",
-          "name_as_stored": "Darmstadt"
-        }
-      ],
-      "aliases": [
-        "Darmstadt"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_telstar",
-      "name": "Telstar",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_telstar",
-          "name_as_stored": "Telstar"
-        }
-      ],
-      "aliases": [
-        "Telstar"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_tsg-1899-hoffenheim",
-      "name": "TSG 1899 Hoffenheim",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_tsg-1899-hoffenheim",
-          "name_as_stored": "Hoffenheim"
-        }
-      ],
-      "aliases": [
-        "Hoffenheim"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_vfl-bochum",
       "name": "VfL Bochum",
       "country": "Germany",
@@ -690,7 +562,13 @@
       "aliases": [
         "River Plate"
       ],
-      "contested_name": true
+      "contested_name": true,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:2837",
+          "reason": "River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:10008",
@@ -770,7 +648,13 @@
       "aliases": [
         "Melilla"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:238136",
+          "reason": "Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti."
+        }
+      ]
     },
     {
       "canonical_id": "sm:10024",
@@ -10643,7 +10527,13 @@
       "aliases": [
         "Ourense CF"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:94617",
+          "reason": "Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:132436",
@@ -19769,22 +19659,6 @@
         "Handsworth Parramore"
       ],
       "contested_name": false
-    },
-    {
-      "canonical_id": "sm:17837",
-      "name": "Al Ahli",
-      "country": "Asia",
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "17837",
-          "name_as_stored": "Al Ahli"
-        }
-      ],
-      "aliases": [
-        "Al Ahli"
-      ],
-      "contested_name": true
     },
     {
       "canonical_id": "sm:1785",
@@ -29624,7 +29498,13 @@
       "aliases": [
         "San Fernando CD"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:28207",
+          "reason": "San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda."
+        }
+      ]
     },
     {
       "canonical_id": "sm:208",
@@ -34763,22 +34643,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:230422",
-      "name": "Al-Ain",
-      "country": "Saudi Arabia",
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "230422",
-          "name_as_stored": "Al-Ain"
-        }
-      ],
-      "aliases": [
-        "Al-Ain"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "sm:230490",
       "name": "Mladost Lucani",
       "country": "World",
@@ -38949,15 +38813,25 @@
       "country": "Spain",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_andorra",
+          "name_as_stored": "Andorra"
+        },
+        {
           "system": "sportmonks",
           "team_id": "238115",
           "name_as_stored": "FC Andorra"
         }
       ],
       "aliases": [
+        "Andorra",
         "FC Andorra"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FC Andorra (Spanyol); baris fd cangkang nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:238124",
@@ -39005,7 +38879,13 @@
       "aliases": [
         "Melilla CD"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:10016",
+          "reason": "Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti."
+        }
+      ]
     },
     {
       "canonical_id": "sm:238145",
@@ -45594,22 +45474,6 @@
         "Kaizer Chiefs"
       ],
       "contested_name": false
-    },
-    {
-      "canonical_id": "sm:254165",
-      "name": "SL Benfica",
-      "country": "Portugal",
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "254165",
-          "name_as_stored": "CF Benfica"
-        }
-      ],
-      "aliases": [
-        "CF Benfica"
-      ],
-      "contested_name": true
     },
     {
       "canonical_id": "sm:254172",
@@ -54036,7 +53900,13 @@
       "aliases": [
         "Coria CF"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:28245",
+          "reason": "Coria CF = Coria del Río, Andalusia (berdiri 1923) vs CD Coria = Coria, Cáceres, Extremadura (berdiri 1960) — terverifikasi web (Wikipedia kedua klub)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:264232",
@@ -63328,7 +63198,13 @@
       "aliases": [
         "Celoricense"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:278222",
+          "reason": "Celoricense (entitas Campeonato de Portugal) vs SC Celoricense = Sporting Clube Celoricense, Celorico da Beira (berdiri 1948, liga distrik Guarda) — terverifikasi web (soccerzz/playmakerstats)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:277304",
@@ -63968,7 +63844,13 @@
       "aliases": [
         "SC Celoricense"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:277303",
+          "reason": "Celoricense (entitas Campeonato de Portugal) vs SC Celoricense = Sporting Clube Celoricense, Celorico da Beira (berdiri 1948, liga distrik Guarda) — terverifikasi web (soccerzz/playmakerstats)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:2783",
@@ -66656,7 +66538,13 @@
       "aliases": [
         "UD San Fernando"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:2079",
+          "reason": "San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda."
+        }
+      ]
     },
     {
       "canonical_id": "sm:282080",
@@ -66848,7 +66736,13 @@
       "aliases": [
         "CD Coria"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:26423",
+          "reason": "Coria CF = Coria del Río, Andalusia (berdiri 1923) vs CD Coria = Coria, Cáceres, Extremadura (berdiri 1960) — terverifikasi web (Wikipedia kedua klub)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:28249",
@@ -67270,7 +67164,13 @@
       "aliases": [
         "River Plate"
       ],
-      "contested_name": true
+      "contested_name": true,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:10002",
+          "reason": "River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:28370",
@@ -68816,9 +68716,13 @@
         }
       ],
       "aliases": [
-        "Mechelen"
+        "Mechelen",
+        "KV Mechelen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"KV Mechelen\" — Nama CSV football-data (divisi B1) untuk klub yang di SM tersimpan sebagai 'Mechelen' (id 2938, Belgia). Satu-satunya nama tak ter-resolve di tasks/free-import-unmatched.json run terakhir."
+      ]
     },
     {
       "canonical_id": "sm:294",
@@ -80032,7 +79936,13 @@
       "aliases": [
         "VfL Bremen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:82",
+          "reason": "'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub."
+        }
+      ]
     },
     {
       "canonical_id": "sm:4703",
@@ -80280,15 +80190,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_sv-darmstadt-98",
+          "name_as_stored": "Darmstadt"
+        },
+        {
           "system": "sportmonks",
           "team_id": "482",
           "name_as_stored": "Darmstadt 98"
         }
       ],
       "aliases": [
+        "Darmstadt",
         "Darmstadt 98"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Darmstadt 98 (Jerman); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:4823",
@@ -85308,8 +85228,18 @@
     {
       "canonical_id": "sm:605",
       "name": "SL Benfica",
-      "country": "Europe",
+      "country": "Portugal",
       "members": [
+        {
+          "system": "thestats",
+          "team_id": "tm_master_sl_benfica",
+          "name_as_stored": "SL Benfica"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "254165",
+          "name_as_stored": "CF Benfica"
+        },
         {
           "system": "sportmonks",
           "team_id": "605",
@@ -85317,9 +85247,16 @@
         }
       ],
       "aliases": [
-        "Benfica"
+        "Benfica",
+        "CF Benfica",
+        "SL Benfica"
       ],
-      "contested_name": true
+      "contested_name": true,
+      "resolution_notes": [
+        "PECAHAN ENTITAS SM, bukan klub lain: id 254165 (nama tersimpan 'CF Benfica') membawa match Eropa SL Benfica (UCL 26, UEL 9) + sebagian domestik; id 605 membawa domestik (Liga Portugal 68). Digabung ke 605, nama pakem 'SL Benfica'. BUKAN Clube Futebol Benfica.",
+        "Nama persis 'SL Benfica'; sisa master 2 match, digabung ke pembawa utama 605."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:6050",
@@ -91994,8 +91931,13 @@
     {
       "canonical_id": "sm:7780",
       "name": "Al Ain",
-      "country": "United Arab Emirates",
+      "country": "Saudi Arabia",
       "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "230422",
+          "name_as_stored": "Al-Ain"
+        },
         {
           "system": "sportmonks",
           "team_id": "7780",
@@ -92003,9 +91945,14 @@
         }
       ],
       "aliases": [
-        "Al Ain"
+        "Al Ain",
+        "Al-Ain"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Cangkang 1 match tanpa telemetri, nama 'Al-Ain' = Al Ain (UEA, id 7780 pembawa 77 match). Label negara 'Saudi Arabia' di cangkang itu keliru konteks."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:7786",
@@ -93403,7 +93350,13 @@
         "SV Werder Bremen",
         "Werder Bremen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:4701",
+          "reason": "'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub."
+        }
+      ]
     },
     {
       "canonical_id": "sm:820",
@@ -98513,7 +98466,13 @@
       "aliases": [
         "UD Ourense"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:132434",
+          "reason": "Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:9471",
@@ -99916,8 +99875,13 @@
     {
       "canonical_id": "sm:9908",
       "name": "Al Ahli",
-      "country": "Saudi Arabia",
+      "country": "Asia",
       "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "17837",
+          "name_as_stored": "Al Ahli"
+        },
         {
           "system": "sportmonks",
           "team_id": "9908",
@@ -99927,7 +99891,11 @@
       "aliases": [
         "Al Ahli"
       ],
-      "contested_name": true
+      "contested_name": true,
+      "resolution_notes": [
+        "Satu klub: Al-Ahli Saudi. Kedua id main di kompetisi yang sama (Saudi Pro sm:944 + ACL Elite sm:1085); 17837 cuma pecahan berlabel negara 'Asia'."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:9917",
@@ -100556,8 +100524,13 @@
     {
       "canonical_id": "tm_04732",
       "name": "SC Heerenveen",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_heerenveen",
+          "name_as_stored": "Heerenveen"
+        },
         {
           "system": "thestats",
           "team_id": "tm_04732",
@@ -100565,9 +100538,14 @@
         }
       ],
       "aliases": [
+        "Heerenveen",
         "SC Heerenveen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SC Heerenveen (Belanda); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_04741",
@@ -100732,8 +100710,13 @@
     {
       "canonical_id": "tm_10474",
       "name": "SC Cambuur",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_cambuur",
+          "name_as_stored": "Cambuur"
+        },
         {
           "system": "thestats",
           "team_id": "tm_10474",
@@ -100741,9 +100724,14 @@
         }
       ],
       "aliases": [
+        "Cambuur",
         "SC Cambuur"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SC Cambuur (Belanda); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_10956",
@@ -100988,8 +100976,13 @@
     {
       "canonical_id": "tm_20832",
       "name": "Bayer 04 Leverkusen",
-      "country": null,
+      "country": "Germany",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_bayer-leverkusen",
+          "name_as_stored": "Leverkusen"
+        },
         {
           "system": "thestats",
           "team_id": "tm_20832",
@@ -100997,9 +100990,14 @@
         }
       ],
       "aliases": [
-        "Bayer 04 Leverkusen"
+        "Bayer 04 Leverkusen",
+        "Leverkusen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Bayer 04 Leverkusen; fd nama pendek CSV, tm pembawa data (145 match)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_25152",
@@ -101084,8 +101082,13 @@
     {
       "canonical_id": "tm_26302",
       "name": "FC Groningen",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_groningen",
+          "name_as_stored": "Groningen"
+        },
         {
           "system": "thestats",
           "team_id": "tm_26302",
@@ -101093,9 +101096,14 @@
         }
       ],
       "aliases": [
-        "FC Groningen"
+        "FC Groningen",
+        "Groningen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FC Groningen (Belanda); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_26373",
@@ -102316,8 +102324,13 @@
     {
       "canonical_id": "tm_73909",
       "name": "TSG Hoffenheim",
-      "country": null,
+      "country": "Germany",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_tsg-1899-hoffenheim",
+          "name_as_stored": "Hoffenheim"
+        },
         {
           "system": "thestats",
           "team_id": "tm_73909",
@@ -102325,9 +102338,14 @@
         }
       ],
       "aliases": [
+        "Hoffenheim",
         "TSG Hoffenheim"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: TSG Hoffenheim (Jerman); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_74434",
@@ -102764,8 +102782,13 @@
     {
       "canonical_id": "tm_91047",
       "name": "SC Telstar",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_telstar",
+          "name_as_stored": "Telstar"
+        },
         {
           "system": "thestats",
           "team_id": "tm_91047",
@@ -102773,9 +102796,14 @@
         }
       ],
       "aliases": [
-        "SC Telstar"
+        "SC Telstar",
+        "Telstar"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SC Telstar (Belanda); fd nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "tm_9145",
@@ -103384,22 +103412,6 @@
         "Rangers"
       ],
       "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_sl_benfica",
-      "name": "SL Benfica",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_sl_benfica",
-          "name_as_stored": "SL Benfica"
-        }
-      ],
-      "aliases": [
-        "SL Benfica"
-      ],
-      "contested_name": true
     },
     {
       "canonical_id": "tm_master_st_johnstone",

@@ -40,7 +40,63 @@ interface CanonTeam {
   members: Member[];
   aliases: string[];
   contested_name: boolean;
+  resolution_notes?: string[];
+  distinct_from?: { canonical_id: string; reason: string }[];
 }
+
+/**
+ * KEPUTUSAN RESOLUSI FASE 3 (2026-11-05) — diputuskan dari bukti terukur
+ * (volume matches/logs/fixtures per id + kompetisi yang dimainkan) dan,
+ * untuk identitas klub yang ambigu, web search. Bukan tebak-tebakan:
+ * setiap pasangan membawa alasannya. Berlaku sebagai data di builder ini
+ * supaya registry bisa dibangun ulang kapan pun dengan hasil sama.
+ */
+const MERGE_PAIRS: [string, string, string][] = [
+  ["fd_andorra", "238115", "Satu klub: FC Andorra (Spanyol); baris fd cangkang nama pendek CSV."],
+  ["fd_bayer-leverkusen", "tm_20832", "Satu klub: Bayer 04 Leverkusen; fd nama pendek CSV, tm pembawa data (145 match)."],
+  ["fd_cambuur", "tm_10474", "Satu klub: SC Cambuur (Belanda); fd nama pendek CSV."],
+  ["fd_groningen", "tm_26302", "Satu klub: FC Groningen (Belanda); fd nama pendek CSV."],
+  ["fd_heerenveen", "tm_04732", "Satu klub: SC Heerenveen (Belanda); fd nama pendek CSV."],
+  ["fd_sv-darmstadt-98", "482", "Satu klub: Darmstadt 98 (Jerman); fd nama pendek CSV."],
+  ["fd_telstar", "tm_91047", "Satu klub: SC Telstar (Belanda); fd nama pendek CSV."],
+  ["fd_tsg-1899-hoffenheim", "tm_73909", "Satu klub: TSG Hoffenheim (Jerman); fd nama pendek CSV."],
+  ["254165", "605", "PECAHAN ENTITAS SM, bukan klub lain: id 254165 (nama tersimpan 'CF Benfica') membawa match Eropa SL Benfica (UCL 26, UEL 9) + sebagian domestik; id 605 membawa domestik (Liga Portugal 68). Digabung ke 605, nama pakem 'SL Benfica'. BUKAN Clube Futebol Benfica."],
+  ["tm_master_sl_benfica", "605", "Nama persis 'SL Benfica'; sisa master 2 match, digabung ke pembawa utama 605."],
+  ["17837", "9908", "Satu klub: Al-Ahli Saudi. Kedua id main di kompetisi yang sama (Saudi Pro sm:944 + ACL Elite sm:1085); 17837 cuma pecahan berlabel negara 'Asia'."],
+  ["230422", "7780", "Cangkang 1 match tanpa telemetri, nama 'Al-Ain' = Al Ain (UEA, id 7780 pembawa 77 match). Label negara 'Saudi Arabia' di cangkang itu keliru konteks."],
+];
+
+/** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */
+const DISTINCT_PAIRS: [string, string, string][] = [
+  ["10002", "2837", "River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar)."],
+  ["132434", "94617", "Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah)."],
+  ["2079", "28207", "San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda."],
+  ["26423", "28245", "Coria CF = Coria del Río, Andalusia (berdiri 1923) vs CD Coria = Coria, Cáceres, Extremadura (berdiri 1960) — terverifikasi web (Wikipedia kedua klub)."],
+  ["277303", "278222", "Celoricense (entitas Campeonato de Portugal) vs SC Celoricense = Sporting Clube Celoricense, Celorico da Beira (berdiri 1948, liga distrik Guarda) — terverifikasi web (soccerzz/playmakerstats)."],
+  ["10016", "238136", "Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti."],
+  ["4701", "82", "'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub."],
+];
+
+/** Nama eksternal tanpa baris teams yang sudah diputuskan pemiliknya. */
+const EXTRA_ALIASES: { name: string; member_id: string; reason: string }[] = [
+  { name: "KV Mechelen", member_id: "2938", reason: "Nama CSV football-data (divisi B1) untuk klub yang di SM tersimpan sebagai 'Mechelen' (id 2938, Belgia). Satu-satunya nama tak ter-resolve di tasks/free-import-unmatched.json run terakhir." },
+];
+
+/** Nama pakem yang menimpa hasil normalisasi untuk kanonik tertentu. */
+const NAME_OVERRIDES: Record<string, string> = {
+  "605": "SL Benfica",
+};
+
+/**
+ * Id kanonik paksa untuk grup hasil gabungan: id PEMBAWA UTAMA (volume
+ * data terbesar), bukan anggota SM pertama yang ketemu. Kunci = salah
+ * satu member id di grup itu.
+ */
+const CANONICAL_ID_OVERRIDES: Record<string, string> = {
+  "605": "sm:605", // SL Benfica: 605 pembawa domestik+utama, 254165 pecahan Eropa
+  "9908": "sm:9908", // Al-Ahli Saudi: 9908 pembawa 94 match, 17837 pecahan 28
+  "7780": "sm:7780", // Al Ain: 7780 pembawa 77 match, 230422 cangkang 1 match
+};
 
 function systemOf(teamId: string): System {
   if (/^\d+$/.test(teamId)) return "sportmonks";
@@ -105,6 +161,68 @@ function main() {
       contested_name: g.contested,
     });
   }
+  // --- Fase 3: terapkan keputusan resolusi (gabung terbukti + beda terbukti).
+  const byMember = () => {
+    const m = new Map<string, CanonTeam>();
+    for (const t of teams) for (const mb of t.members) m.set(mb.team_id, t);
+    return m;
+  };
+  const pickCanonical = (members: Member[]): string => {
+    for (const m of members) {
+      const forced = CANONICAL_ID_OVERRIDES[m.team_id];
+      if (forced) return forced;
+    }
+    const sm = members.find((m) => m.system === "sportmonks");
+    const tm = members.find((m) => m.system === "thestats");
+    return sm ? `sm:${sm.team_id}` : tm ? tm.team_id : members[0].team_id;
+  };
+  let mergesApplied = 0;
+  for (const [a, b, reason] of MERGE_PAIRS) {
+    const idx = byMember();
+    const ta = idx.get(a);
+    const tb = idx.get(b);
+    if (!ta || !tb || ta === tb) continue;
+    const members = [...ta.members, ...tb.members];
+    const survivor: CanonTeam = {
+      canonical_id: pickCanonical(members),
+      name: ta.name,
+      country: ta.country ?? tb.country,
+      members,
+      aliases: [...new Set([...ta.aliases, ...tb.aliases])].sort(),
+      contested_name: ta.contested_name || tb.contested_name,
+      resolution_notes: [...(ta.resolution_notes ?? []), ...(tb.resolution_notes ?? []), reason],
+      distinct_from: [...(ta.distinct_from ?? []), ...(tb.distinct_from ?? [])],
+    };
+    // Nama pakem: nama tersimpan anggota yang jadi id kanonik, dinormalisasi.
+    const canonMember =
+      members.find((m) => `sm:${m.team_id}` === survivor.canonical_id || m.team_id === survivor.canonical_id) ??
+      members.find((m) => m.system === "sportmonks");
+    survivor.name = normalizeTeamName(canonMember?.name_as_stored ?? survivor.name);
+    teams.splice(teams.indexOf(ta), 1);
+    teams.splice(teams.indexOf(tb), 1);
+    teams.push(survivor);
+    mergesApplied += 1;
+  }
+  for (const [memberId, display] of Object.entries(NAME_OVERRIDES)) {
+    const t = byMember().get(memberId);
+    if (t) t.name = display;
+  }
+  for (const [a, b, reason] of DISTINCT_PAIRS) {
+    const idx = byMember();
+    const ta = idx.get(a);
+    const tb = idx.get(b);
+    if (!ta || !tb || ta === tb) continue;
+    (ta.distinct_from ??= []).push({ canonical_id: tb.canonical_id, reason });
+    (tb.distinct_from ??= []).push({ canonical_id: ta.canonical_id, reason });
+  }
+  for (const ea of EXTRA_ALIASES) {
+    const t = byMember().get(ea.member_id);
+    if (t) {
+      if (!t.aliases.includes(ea.name)) t.aliases.push(ea.name);
+      (t.resolution_notes ??= []).push(`Alias eksternal diputuskan: "${ea.name}" — ${ea.reason}`);
+    }
+  }
+
   teams.sort((a, b) => a.canonical_id.localeCompare(b.canonical_id));
 
   // Kandidat pasangan mirip (TIDAK digabung): kunci longgar sama tapi beda grup.
@@ -146,6 +264,12 @@ function main() {
   lines.push(`- Grup lintas sistem (>1 sumber): **${multiSystem.length}**`);
   lines.push(`- Tim bernama sengketa (≥2 negara): **${contested.length}** entri`);
   lines.push(`- Pasangan kandidat mirip BELUM digabung: **${candidates.length}**`);
+  lines.push(`- Keputusan resolusi fase 3 diterapkan: **${mergesApplied} penggabungan terbukti**, **${DISTINCT_PAIRS.length} pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **${EXTRA_ALIASES.length} alias eksternal**.`);
+  lines.push("");
+  lines.push("## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)");
+  lines.push("");
+  for (const [a, b, r] of MERGE_PAIRS) lines.push(`- GABUNG \`${a}\` + \`${b}\` — ${r}`);
+  for (const [a, b, r] of DISTINCT_PAIRS) lines.push(`- BEDA \`${a}\` + \`${b}\` — ${r}`);
   lines.push("");
   lines.push("## Contoh grup lintas sistem");
   lines.push("");
@@ -162,7 +286,7 @@ function main() {
   lines.push("");
   fs.writeFileSync(REPORT, lines.join("\n"));
 
-  console.log(`teams sumber=${rows.length} kanonik=${teams.length} grup-tergabung=${merged.length} lintas-sistem=${multiSystem.length} sengketa=${contested.length} kandidat=${candidates.length}`);
+  console.log(`teams sumber=${rows.length} kanonik=${teams.length} grup-tergabung=${merged.length} lintas-sistem=${multiSystem.length} sengketa=${contested.length} kandidat=${candidates.length} resolusi-gabung=${mergesApplied}`);
   console.log(`tertulis: ${OUT} + ${REPORT}`);
 }
 
