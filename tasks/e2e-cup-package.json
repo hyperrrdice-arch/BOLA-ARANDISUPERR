@@ -1,0 +1,379 @@
+{
+  "meta": {
+    "run": "e2e-cup-ucl",
+    "generated_at": "2026-11-04T12:19:20.620Z",
+    "today_cutoff": "2026-11-04",
+    "competition_id": "sm:2",
+    "offline_only": true,
+    "model": "global-offset (fase kalibrasi piala): att*=att×e^δ, def*=def÷e^δ, basis globalAvg graf + cupHA graf",
+    "notes": [
+      "Seleksi programatik: fixture sm:2 mendatang pertama yang lolos jalur offset dengan kedua liga domestik calibrated.",
+      "Status kompetisi sm:2 sendiri = partial (bukti OOS tasks/cup-oos.json) — tersaji ber-flag lewat metadata.calibrationStatus, bukan disembunyikan."
+    ]
+  },
+  "selection": {
+    "attempts": [
+      {
+        "match_id": "sm_19872622",
+        "home": "Fenerbahçe",
+        "away": "Liverpool",
+        "verdict": "TERPILIH",
+        "home_league": "sm:600",
+        "home_delta": -0.4792,
+        "home_gate": "calibrated",
+        "away_league": "sm:8",
+        "away_delta": 0,
+        "away_gate": "calibrated",
+        "reason": "kedua liga domestik calibrated"
+      }
+    ],
+    "chosen_match_id": "sm_19872622"
+  },
+  "intel_pertandingan": {
+    "id": "sm_19872622",
+    "tim_kandang": "Fenerbahçe",
+    "tim_tamu": "Liverpool",
+    "waktu": "2026-11-04T17:45:00.000Z",
+    "kompetisi": "Champions League",
+    "venue": "Şükrü Saracoğlu Stadium",
+    "wasit": "Belum diumumkan",
+    "kickoff_jam_menuju": 5.4
+  },
+  "quant_pure": {
+    "dixon_coles": {
+      "lambda_home_xg": 1.41,
+      "mu_away_xg": 2.085,
+      "prob_home_win": 0.2582,
+      "prob_draw": 0.211,
+      "prob_away_win": 0.5308,
+      "fair_odds": {
+        "home": 3.87,
+        "draw": 4.74,
+        "away": 1.88
+      },
+      "over_2_5_prob": 0.6782,
+      "btts_yes_prob": 0.6619,
+      "expected_total_goals": 3.5,
+      "top_scorelines": [
+        {
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "prob": 9.3
+        },
+        {
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "prob": 8.9
+        },
+        {
+          "homeGoals": 0,
+          "awayGoals": 2,
+          "prob": 6.6
+        },
+        {
+          "homeGoals": 2,
+          "awayGoals": 2,
+          "prob": 6.6
+        },
+        {
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "prob": 6.5
+        },
+        {
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "prob": 6.3
+        }
+      ],
+      "asian_handicap": {
+        "ah_0_0_dnb": {
+          "home_prob": 0.3272,
+          "away_prob": 0.6728,
+          "fair_odds_home": 3.06,
+          "fair_odds_away": 1.49,
+          "push_prob": 0.211
+        },
+        "ah_minus_0_5": {
+          "home_cover": 0.2582,
+          "away_cover": 0.7418,
+          "fair_odds_home": 3.87,
+          "fair_odds_away": 1.35
+        },
+        "ah_minus_1_0": {
+          "home_cover": 0.1129,
+          "push_prob": 0.1453,
+          "away_cover": 0.7418,
+          "home_prob": 0.1321,
+          "away_prob": 0.8679,
+          "fair_odds_home": 7.57,
+          "fair_odds_away": 1.15
+        }
+      },
+      "clean_sheet": {
+        "home_clean_sheet_prob": 0.1243,
+        "away_clean_sheet_prob": 0.2441,
+        "home_win_to_nil_prob": 0.094,
+        "away_win_to_nil_prob": 0.2138
+      },
+      "expected_points": {
+        "home_xpts": 0.99,
+        "away_xpts": 1.8
+      }
+    },
+    "shrunk_params": {
+      "homeAttack": 1,
+      "homeDefense": 1.306,
+      "awayAttack": 1.268,
+      "awayDefense": 0.869,
+      "homeAdvantage": 1.289,
+      "leagueAvgGoals": 1.2588,
+      "rho": 0,
+      "shrinkageWeights": {
+        "home": 0,
+        "away": 0
+      },
+      "isCalibrated": true,
+      "metadata": {
+        "div": "sm:2",
+        "leagueName": "Champions League",
+        "homeSource": "primary_league",
+        "awaySource": "primary_league",
+        "macroPriorDate": "2026-11-04",
+        "telemetrySource": {
+          "home": "macro_prior_only",
+          "away": "macro_prior_only"
+        },
+        "observedXgSamples": {
+          "home": 0,
+          "away": 0
+        },
+        "isEstimatedTelemetry": true,
+        "preMatchCutoff": "2026-11-04",
+        "calibrationStatus": "partial",
+        "calibrationGate": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+        "leagueResolution": {
+          "canonicalId": "sm:2",
+          "fitSystem": "special",
+          "via": "cup-offset",
+          "note": "Model offset global graf europe: kandang dari sm:600 (δ=-0.4792), tamu dari sm:8 (δ=0)."
+        },
+        "cupOffset": {
+          "graph": "europe",
+          "competitionCanonicalId": "sm:2",
+          "homeLeagueCanonicalId": "sm:600",
+          "awayLeagueCanonicalId": "sm:8",
+          "homeFitDiv": "SM600",
+          "awayFitDiv": "SM8",
+          "homeDelta": -0.4792,
+          "awayDelta": 0,
+          "baseAvgGoals": 1.2588,
+          "baseAvgSource": "graph-global",
+          "cupHomeAdvantage": 1.289,
+          "neutralVenue": false,
+          "homeCandidates": 2,
+          "awayCandidates": 2
+        }
+      }
+    },
+    "calibration_metadata": {
+      "is_calibrated": true,
+      "div": "sm:2",
+      "league_name": "Champions League",
+      "home_source": "primary_league",
+      "away_source": "primary_league",
+      "shrinkage_weights": {
+        "home": 0,
+        "away": 0
+      },
+      "calibrated_home_advantage": 1.289,
+      "calibrated_league_avg_goals": 1.2588,
+      "macro_prior_date": "2026-11-04",
+      "telemetry_source": {
+        "home": "macro_prior_only",
+        "away": "macro_prior_only"
+      },
+      "observed_xg_samples": {
+        "home": 0,
+        "away": 0
+      },
+      "is_estimated_telemetry": true,
+      "pre_match_cutoff": "2026-11-04"
+    },
+    "cup_offset_metadata": {
+      "graph": "europe",
+      "competitionCanonicalId": "sm:2",
+      "homeLeagueCanonicalId": "sm:600",
+      "awayLeagueCanonicalId": "sm:8",
+      "homeFitDiv": "SM600",
+      "awayFitDiv": "SM8",
+      "homeDelta": -0.4792,
+      "awayDelta": 0,
+      "baseAvgGoals": 1.2588,
+      "baseAvgSource": "graph-global",
+      "cupHomeAdvantage": 1.289,
+      "neutralVenue": false,
+      "homeCandidates": 2,
+      "awayCandidates": 2
+    }
+  },
+  "trace": [
+    {
+      "stage": "0-seleksi",
+      "outputs": {
+        "candidates_examined": 1,
+        "attempts": [
+          {
+            "match_id": "sm_19872622",
+            "home": "Fenerbahçe",
+            "away": "Liverpool",
+            "verdict": "TERPILIH",
+            "home_league": "sm:600",
+            "home_delta": -0.4792,
+            "home_gate": "calibrated",
+            "away_league": "sm:8",
+            "away_delta": 0,
+            "away_gate": "calibrated",
+            "reason": "kedua liga domestik calibrated"
+          }
+        ]
+      },
+      "fallbacks": []
+    },
+    {
+      "stage": "1-intelligence",
+      "inputs": {
+        "matchId": "sm_19872622",
+        "competitionIdHint": "sm:2"
+      },
+      "outputs": {
+        "pertandingan": {
+          "id": "sm_19872622",
+          "tim_kandang": "Fenerbahçe",
+          "tim_tamu": "Liverpool",
+          "waktu": "2026-11-04T17:45:00.000Z",
+          "kompetisi": "Champions League",
+          "venue": "Şükrü Saracoğlu Stadium",
+          "wasit": "Belum diumumkan",
+          "kickoff_jam_menuju": 5.4
+        },
+        "market_odds": {
+          "is_available": false,
+          "home_last": null,
+          "draw_last": null,
+          "away_last": null,
+          "total_goals_over_2_5": null
+        },
+        "form_split": {
+          "home_form_summary": "Data split kandang terbatas",
+          "away_form_summary": "Data split tandang terbatas",
+          "home_goals_avg": 1.6,
+          "away_goals_avg": 1.25,
+          "home_form_sample_size": 0,
+          "away_form_sample_size": 0
+        }
+      },
+      "fallbacks": [
+        "market_odds 1X2 lokal = null (model-only, sesuai desain)",
+        "missing_data_registry: Data wasit resmi belum ditugaskan/tersedia | Lineup resmi belum diumumkan | Riwayat H2H masa lalu belum tercatat di database | Laporan cedera/suspensi resmi tidak ada atau kedua tim berkekuatan penuh | Odds pasar 1X2 resmi bet365/pinnacle belum tersedia"
+      ]
+    },
+    {
+      "stage": "2-quant-murni",
+      "inputs": {
+        "today": "2026-11-04"
+      },
+      "outputs": {
+        "lambda": 1.41,
+        "mu": 2.085,
+        "probs": {
+          "home": 0.2582,
+          "draw": 0.211,
+          "away": 0.5308
+        },
+        "shrunk_params": {
+          "homeAttack": 1,
+          "homeDefense": 1.306,
+          "awayAttack": 1.268,
+          "awayDefense": 0.869,
+          "homeAdvantage": 1.289,
+          "leagueAvgGoals": 1.2588,
+          "rho": 0,
+          "shrinkageWeights": {
+            "home": 0,
+            "away": 0
+          },
+          "isCalibrated": true,
+          "metadata": {
+            "div": "sm:2",
+            "leagueName": "Champions League",
+            "homeSource": "primary_league",
+            "awaySource": "primary_league",
+            "macroPriorDate": "2026-11-04",
+            "telemetrySource": {
+              "home": "macro_prior_only",
+              "away": "macro_prior_only"
+            },
+            "observedXgSamples": {
+              "home": 0,
+              "away": 0
+            },
+            "isEstimatedTelemetry": true,
+            "preMatchCutoff": "2026-11-04",
+            "calibrationStatus": "partial",
+            "calibrationGate": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+            "leagueResolution": {
+              "canonicalId": "sm:2",
+              "fitSystem": "special",
+              "via": "cup-offset",
+              "note": "Model offset global graf europe: kandang dari sm:600 (δ=-0.4792), tamu dari sm:8 (δ=0)."
+            },
+            "cupOffset": {
+              "graph": "europe",
+              "competitionCanonicalId": "sm:2",
+              "homeLeagueCanonicalId": "sm:600",
+              "awayLeagueCanonicalId": "sm:8",
+              "homeFitDiv": "SM600",
+              "awayFitDiv": "SM8",
+              "homeDelta": -0.4792,
+              "awayDelta": 0,
+              "baseAvgGoals": 1.2588,
+              "baseAvgSource": "graph-global",
+              "cupHomeAdvantage": 1.289,
+              "neutralVenue": false,
+              "homeCandidates": 2,
+              "awayCandidates": 2
+            }
+          }
+        },
+        "calibration_metadata": {
+          "is_calibrated": true,
+          "div": "sm:2",
+          "league_name": "Champions League",
+          "home_source": "primary_league",
+          "away_source": "primary_league",
+          "shrinkage_weights": {
+            "home": 0,
+            "away": 0
+          },
+          "calibrated_home_advantage": 1.289,
+          "calibrated_league_avg_goals": 1.2588,
+          "macro_prior_date": "2026-11-04",
+          "telemetry_source": {
+            "home": "macro_prior_only",
+            "away": "macro_prior_only"
+          },
+          "observed_xg_samples": {
+            "home": 0,
+            "away": 0
+          },
+          "is_estimated_telemetry": true,
+          "pre_match_cutoff": "2026-11-04"
+        }
+      },
+      "fallbacks": [
+        "vig_stripping = null (tidak ada odds pasar lokal valid → model-only)"
+      ]
+    }
+  ]
+}

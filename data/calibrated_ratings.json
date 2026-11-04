@@ -1,8 +1,8 @@
 {
   "version": "2.0-dixon-coles-mle",
   "compiledAt": "2026-11-04T11:28:08.166Z",
-  "totalLeagues": 73,
-  "totalTeams": 1898,
+  "totalLeagues": 72,
+  "totalTeams": 1842,
   "leagues": {
     "B1": {
       "div": "B1",
@@ -16589,527 +16589,6 @@
         }
       }
     },
-    "SM1085": {
-      "div": "SM1085",
-      "leagueName": "AFC Champions League Elite",
-      "country": "Asia",
-      "seasonCount": 3,
-      "totalMatches": 284,
-      "leagueAvgGoals": 1.2625,
-      "homeAdvantage": 1.3354,
-      "rho": 0,
-      "calibrationDate": "2026-11-04",
-      "source": "sportmonks-fit",
-      "calibrationStatus": "partial",
-      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
-      "canonicalId": "sm:1085",
-      "teams": {
-        "Al Gharafa": {
-          "name": "Al Gharafa",
-          "attack": 0.9938,
-          "defense": 1.1715,
-          "matchesCount": 21,
-          "goalsScored": 21,
-          "goalsConceded": 50,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Shabab Al Ahli Dubai": {
-          "name": "Shabab Al Ahli Dubai",
-          "attack": 1.3082,
-          "defense": 0.7125,
-          "matchesCount": 15,
-          "goalsScored": 22,
-          "goalsConceded": 19,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Al Ain": {
-          "name": "Al Ain",
-          "attack": 1.604,
-          "defense": 0.8324,
-          "matchesCount": 12,
-          "goalsScored": 25,
-          "goalsConceded": 25,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Sadd": {
-          "name": "Al Sadd",
-          "attack": 1.0881,
-          "defense": 0.8579,
-          "matchesCount": 22,
-          "goalsScored": 27,
-          "goalsConceded": 33,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Shorta": {
-          "name": "Al Shorta",
-          "attack": 0.8297,
-          "defense": 1.0609,
-          "matchesCount": 16,
-          "goalsScored": 13,
-          "goalsConceded": 37,
-          "lastMatchDate": "2026-02-16"
-        },
-        "Al Nassr": {
-          "name": "Al Nassr",
-          "attack": 1.6968,
-          "defense": 0.9122,
-          "matchesCount": 15,
-          "goalsScored": 35,
-          "goalsConceded": 17,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Esteghlal": {
-          "name": "Esteghlal",
-          "attack": 1.0437,
-          "defense": 0.655,
-          "matchesCount": 14,
-          "goalsScored": 14,
-          "goalsConceded": 15,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Al Ahli": {
-          "name": "Al Ahli",
-          "attack": 1.0115,
-          "defense": 0.8511,
-          "matchesCount": 4,
-          "goalsScored": 6,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Persepolis": {
-          "name": "Persepolis",
-          "attack": 0.8118,
-          "defense": 0.8411,
-          "matchesCount": 8,
-          "goalsScored": 6,
-          "goalsConceded": 10,
-          "lastMatchDate": "2025-02-17"
-        },
-        "Gwangju": {
-          "name": "Gwangju",
-          "attack": 1.1269,
-          "defense": 1.2338,
-          "matchesCount": 9,
-          "goalsScored": 15,
-          "goalsConceded": 18,
-          "lastMatchDate": "2025-04-25"
-        },
-        "Yokohama F. Marinos": {
-          "name": "Yokohama F. Marinos",
-          "attack": 1.1263,
-          "defense": 0.9783,
-          "matchesCount": 10,
-          "goalsScored": 27,
-          "goalsConceded": 12,
-          "lastMatchDate": "2025-04-26"
-        },
-        "Buriram United": {
-          "name": "Buriram United",
-          "attack": 0.7338,
-          "defense": 0.9015,
-          "matchesCount": 23,
-          "goalsScored": 21,
-          "goalsConceded": 27,
-          "lastMatchDate": "2026-10-28"
-        },
-        "Vissel Kobe": {
-          "name": "Vissel Kobe",
-          "attack": 0.9442,
-          "defense": 0.7508,
-          "matchesCount": 23,
-          "goalsScored": 42,
-          "goalsConceded": 22,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Shanghai Shenhua": {
-          "name": "Shanghai Shenhua",
-          "attack": 0.7928,
-          "defense": 1.2241,
-          "matchesCount": 18,
-          "goalsScored": 19,
-          "goalsConceded": 29,
-          "lastMatchDate": "2026-02-17"
-        },
-        "Pohang Steelers": {
-          "name": "Pohang Steelers",
-          "attack": 0.7816,
-          "defense": 1.4659,
-          "matchesCount": 10,
-          "goalsScored": 10,
-          "goalsConceded": 25,
-          "lastMatchDate": "2026-10-28"
-        },
-        "Pakhtakor": {
-          "name": "Pakhtakor",
-          "attack": 0.8372,
-          "defense": 0.9592,
-          "matchesCount": 15,
-          "goalsScored": 12,
-          "goalsConceded": 19,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Wasl": {
-          "name": "Al Wasl",
-          "attack": 1.1842,
-          "defense": 1.1537,
-          "matchesCount": 13,
-          "goalsScored": 16,
-          "goalsConceded": 24,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Rayyan": {
-          "name": "Al Rayyan",
-          "attack": 0.9564,
-          "defense": 0.8522,
-          "matchesCount": 10,
-          "goalsScored": 9,
-          "goalsConceded": 17,
-          "lastMatchDate": "2025-03-11"
-        },
-        "Al Hilal": {
-          "name": "Al Hilal",
-          "attack": 1.5631,
-          "defense": 0.6245,
-          "matchesCount": 24,
-          "goalsScored": 62,
-          "goalsConceded": 21,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Ulsan HD": {
-          "name": "Ulsan HD",
-          "attack": 0.667,
-          "defense": 1.1105,
-          "matchesCount": 15,
-          "goalsScored": 10,
-          "goalsConceded": 24,
-          "lastMatchDate": "2026-02-18"
-        },
-        "Kawasaki Frontale": {
-          "name": "Kawasaki Frontale",
-          "attack": 1.0121,
-          "defense": 0.7237,
-          "matchesCount": 11,
-          "goalsScored": 20,
-          "goalsConceded": 9,
-          "lastMatchDate": "2025-05-03"
-        },
-        "Shanghai Port": {
-          "name": "Shanghai Port",
-          "attack": 0.7817,
-          "defense": 1.3288,
-          "matchesCount": 22,
-          "goalsScored": 26,
-          "goalsConceded": 44,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Johor Darul Ta'zim": {
-          "name": "Johor Darul Ta'zim",
-          "attack": 0.8181,
-          "defense": 0.7493,
-          "matchesCount": 24,
-          "goalsScored": 34,
-          "goalsConceded": 23,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Central Coast Mariners": {
-          "name": "Central Coast Mariners",
-          "attack": 0.9365,
-          "defense": 1.407,
-          "matchesCount": 7,
-          "goalsScored": 8,
-          "goalsConceded": 18,
-          "lastMatchDate": "2025-02-18"
-        },
-        "Chengdu Rongcheng": {
-          "name": "Chengdu Rongcheng",
-          "attack": 0.8872,
-          "defense": 1.1378,
-          "matchesCount": 9,
-          "goalsScored": 10,
-          "goalsConceded": 11,
-          "lastMatchDate": "2026-02-17"
-        },
-        "True Bangkok United": {
-          "name": "True Bangkok United",
-          "attack": 0.2921,
-          "defense": 1.1636,
-          "matchesCount": 1,
-          "goalsScored": 0,
-          "goalsConceded": 3,
-          "lastMatchDate": "2025-08-12"
-        },
-        "Al Duhail": {
-          "name": "Al Duhail",
-          "attack": 1.4065,
-          "defense": 1.0542,
-          "matchesCount": 9,
-          "goalsScored": 19,
-          "goalsConceded": 18,
-          "lastMatchDate": "2026-02-16"
-        },
-        "Sepahan": {
-          "name": "Sepahan",
-          "attack": 1.0635,
-          "defense": 1.0652,
-          "matchesCount": 1,
-          "goalsScored": 2,
-          "goalsConceded": 3,
-          "lastMatchDate": "2025-08-12"
-        },
-        "Al Sharjah": {
-          "name": "Al Sharjah",
-          "attack": 0.9216,
-          "defense": 0.9622,
-          "matchesCount": 8,
-          "goalsScored": 8,
-          "goalsConceded": 16,
-          "lastMatchDate": "2026-02-16"
-        },
-        "Al Wahda": {
-          "name": "Al Wahda",
-          "attack": 1.0711,
-          "defense": 0.6957,
-          "matchesCount": 8,
-          "goalsScored": 11,
-          "goalsConceded": 7,
-          "lastMatchDate": "2026-02-16"
-        },
-        "Al Ittihad": {
-          "name": "Al Ittihad",
-          "attack": 1.4398,
-          "defense": 0.8842,
-          "matchesCount": 14,
-          "goalsScored": 31,
-          "goalsConceded": 19,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Nasaf": {
-          "name": "Nasaf",
-          "attack": 1.0698,
-          "defense": 1.0387,
-          "matchesCount": 8,
-          "goalsScored": 9,
-          "goalsConceded": 17,
-          "lastMatchDate": "2026-02-16"
-        },
-        "Melbourne City": {
-          "name": "Melbourne City",
-          "attack": 0.965,
-          "defense": 0.9276,
-          "matchesCount": 9,
-          "goalsScored": 10,
-          "goalsConceded": 8,
-          "lastMatchDate": "2026-03-03"
-        },
-        "Sanfrecce Hiroshima": {
-          "name": "Sanfrecce Hiroshima",
-          "attack": 0.9375,
-          "defense": 0.973,
-          "matchesCount": 10,
-          "goalsScored": 12,
-          "goalsConceded": 9,
-          "lastMatchDate": "2026-03-11"
-        },
-        "Machida Zelvia": {
-          "name": "Machida Zelvia",
-          "attack": 1.0304,
-          "defense": 0.6552,
-          "matchesCount": 12,
-          "goalsScored": 18,
-          "goalsConceded": 7,
-          "lastMatchDate": "2026-04-21"
-        },
-        "Seoul": {
-          "name": "Seoul",
-          "attack": 0.9193,
-          "defense": 1.0424,
-          "matchesCount": 10,
-          "goalsScored": 11,
-          "goalsConceded": 12,
-          "lastMatchDate": "2026-03-11"
-        },
-        "Gangwon": {
-          "name": "Gangwon",
-          "attack": 0.8251,
-          "defense": 0.9763,
-          "matchesCount": 10,
-          "goalsScored": 9,
-          "goalsConceded": 12,
-          "lastMatchDate": "2026-03-10"
-        },
-        "Tractor Sazi": {
-          "name": "Tractor Sazi",
-          "attack": 1.0001,
-          "defense": 0.7118,
-          "matchesCount": 13,
-          "goalsScored": 15,
-          "goalsConceded": 12,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Adelaide United": {
-          "name": "Adelaide United",
-          "attack": 0.2921,
-          "defense": 1.1242,
-          "matchesCount": 1,
-          "goalsScored": 0,
-          "goalsConceded": 2,
-          "lastMatchDate": "2026-08-11"
-        },
-        "Công an Hà Nội": {
-          "name": "Công an Hà Nội",
-          "attack": 1.011,
-          "defense": 1.2784,
-          "matchesCount": 5,
-          "goalsScored": 6,
-          "goalsConceded": 7,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Al Hussein": {
-          "name": "Al Hussein",
-          "attack": 0.2921,
-          "defense": 1.1671,
-          "matchesCount": 1,
-          "goalsScored": 0,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-08-11"
-        },
-        "Al Jazira": {
-          "name": "Al Jazira",
-          "attack": 0.9986,
-          "defense": 1.1312,
-          "matchesCount": 1,
-          "goalsScored": 1,
-          "goalsConceded": 4,
-          "lastMatchDate": "2026-08-11"
-        },
-        "Neftchi": {
-          "name": "Neftchi",
-          "attack": 1.026,
-          "defense": 0.9798,
-          "matchesCount": 4,
-          "goalsScored": 5,
-          "goalsConceded": 7,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Quwa Al Jawiya": {
-          "name": "Al Quwa Al Jawiya",
-          "attack": 1.014,
-          "defense": 1.1022,
-          "matchesCount": 4,
-          "goalsScored": 5,
-          "goalsConceded": 9,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Al Shamal SC": {
-          "name": "Al Shamal SC",
-          "attack": 1.0711,
-          "defense": 0.796,
-          "matchesCount": 4,
-          "goalsScored": 4,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Al-Qadsiah": {
-          "name": "Al-Qadsiah",
-          "attack": 1.1443,
-          "defense": 0.8651,
-          "matchesCount": 4,
-          "goalsScored": 9,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-11-02"
-        },
-        "Ratchaburi Mitrphol FC": {
-          "name": "Ratchaburi Mitrphol FC",
-          "attack": 1.0934,
-          "defense": 1.3642,
-          "matchesCount": 4,
-          "goalsScored": 6,
-          "goalsConceded": 10,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Gamba Osaka": {
-          "name": "Gamba Osaka",
-          "attack": 0.9461,
-          "defense": 0.9836,
-          "matchesCount": 3,
-          "goalsScored": 8,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-10-28"
-        },
-        "Daejeon Citizen": {
-          "name": "Daejeon Citizen",
-          "attack": 0.8089,
-          "defense": 1.0579,
-          "matchesCount": 4,
-          "goalsScored": 2,
-          "goalsConceded": 4,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Kyoto Sanga": {
-          "name": "Kyoto Sanga",
-          "attack": 0.7664,
-          "defense": 0.8789,
-          "matchesCount": 4,
-          "goalsScored": 6,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Kashima Antlers": {
-          "name": "Kashima Antlers",
-          "attack": 0.9594,
-          "defense": 0.7637,
-          "matchesCount": 3,
-          "goalsScored": 11,
-          "goalsConceded": 1,
-          "lastMatchDate": "2026-10-28"
-        },
-        "Newcastle Jets": {
-          "name": "Newcastle Jets",
-          "attack": 1.0914,
-          "defense": 1.6854,
-          "matchesCount": 4,
-          "goalsScored": 6,
-          "goalsConceded": 19,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Beijing Guoan": {
-          "name": "Beijing Guoan",
-          "attack": 1.0301,
-          "defense": 1.1964,
-          "matchesCount": 4,
-          "goalsScored": 10,
-          "goalsConceded": 10,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Jeonbuk Motors": {
-          "name": "Jeonbuk Motors",
-          "attack": 1.0993,
-          "defense": 1.0446,
-          "matchesCount": 4,
-          "goalsScored": 6,
-          "goalsConceded": 5,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Kashiwa Reysol": {
-          "name": "Kashiwa Reysol",
-          "attack": 0.934,
-          "defense": 0.815,
-          "matchesCount": 4,
-          "goalsScored": 8,
-          "goalsConceded": 3,
-          "lastMatchDate": "2026-11-03"
-        },
-        "Port FC": {
-          "name": "Port FC",
-          "attack": 1.2059,
-          "defense": 1.422,
-          "matchesCount": 4,
-          "goalsScored": 9,
-          "goalsConceded": 14,
-          "lastMatchDate": "2026-11-03"
-        }
-      }
-    },
     "SM1107": {
       "div": "SM1107",
       "leagueName": "CAF Champions League",
@@ -18284,6 +17763,102 @@
     "registry": "data/league-canonical.json",
     "registryVersion": 1,
     "registryGeneratedAt": "2026-11-04T10:53:47.861Z",
-    "note": "keys are fit keys; canonicalId maps each fit to its canonical league"
+    "note": "keys are fit keys; canonicalId maps each fit to its canonical league",
+    "cupOffsets": {
+      "fittedAt": "2026-11-04T12:17:04.974Z",
+      "graphs": {
+        "europe": {
+          "reference": "sm:8",
+          "globalAvgGoals": 1.2588,
+          "cupHomeAdvantage": 1.289,
+          "nAnchorMatches": 1857,
+          "nLeaguesIdentified": 33
+        },
+        "conmebol": {
+          "reference": "sm:648",
+          "globalAvgGoals": 0.8468,
+          "cupHomeAdvantage": 1.4164,
+          "nAnchorMatches": 512,
+          "nLeaguesIdentified": 6
+        },
+        "afc": {
+          "reference": "sm:944",
+          "globalAvgGoals": 1.1714,
+          "cupHomeAdvantage": 1.2401,
+          "nAnchorMatches": 226,
+          "nLeaguesIdentified": 8
+        }
+      },
+      "competitions": {
+        "sm:2": {
+          "graph": "europe",
+          "status": "partial"
+        },
+        "sm:5": {
+          "graph": "europe",
+          "status": "partial"
+        },
+        "sm:2286": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:1122": {
+          "graph": "conmebol",
+          "status": "uncalibrated"
+        },
+        "sm:1116": {
+          "graph": "conmebol",
+          "status": "uncalibrated"
+        },
+        "sm:1085": {
+          "graph": "afc",
+          "status": "uncalibrated"
+        },
+        "sm:1088": {
+          "graph": "afc",
+          "status": "uncalibrated"
+        },
+        "sm:24": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:27": {
+          "graph": "europe",
+          "status": "partial"
+        },
+        "sm:307": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:468": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:78": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:570": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:109": {
+          "graph": "europe",
+          "status": "uncalibrated"
+        },
+        "sm:390": {
+          "graph": "europe",
+          "status": "partial"
+        },
+        "sm:654": {
+          "graph": "conmebol",
+          "status": "uncalibrated"
+        },
+        "sm:950": {
+          "graph": "afc",
+          "status": "uncalibrated"
+        }
+      }
+    }
   }
 }
