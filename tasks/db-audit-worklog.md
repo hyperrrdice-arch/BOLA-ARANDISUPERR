@@ -74,3 +74,9 @@ paralel — store telemetri TIDAK diubah isinya oleh audit ini.
 ## ⏳ dataset integrity_check — background (proc terpisah)
 ## ⏳ Worker: provenance map (tasks/audit-sections/provenance.md)
 ## ⏳ Worker: identity census (tasks/audit-sections/identity-census.md)
+
+## Penutup audit (5 Nov 2026)
+- Invarian: 18 — 14 PASS · 1 FAIL (INV-13) · 2 catatan desain (INV-15, INV-17) · INV-18 dataset UNVERIFIED (integrity_check tak rampung di bawah beban tulis bersamaan; 2 percobaan timeout). Penutup = proposal P-08.
+- Census identitas terverifikasi (query langsung koordinator): kembaran katalog tak terjembatani 0; duplikat hasil 50 grup intra-ruang, 0 lintas ruang; tabrakan ejaan tim 107 grup lintas sumber / 7 di dalam teams; nama→multi-id di teams 9 persis / 12 ternormalisasi. Tiga angka draf pekerja (audit-sections) terbukti salah dan dikoreksi — draf mentah TIDAK di-commit; rincian di laporan §8.
+- Deliverables: docs/DATABASE.md, docs/DATA-INVARIANTS.md, docs/AGENT-HANDOVER.md, docs/decisions/ADR-001..005, tasks/db-audit-report.md; koreksi drift di ARCHITECTURE.md + STRUCTURE.md; banner superseded docs/db-snapshot.md.
+- Nol mutasi store, nol kode diubah, nol indeks ditambah (ditimbang & ditolak eksplisit). File 🔒 hanya dibaca/di-grep. .env.local tidak dibuka. Nol panggilan API.

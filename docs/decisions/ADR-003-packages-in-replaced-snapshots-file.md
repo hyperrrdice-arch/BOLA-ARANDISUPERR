@@ -44,4 +44,4 @@ tetap sah. Tidak ada store paralel.
 - Paket menjadi sumber rujukan tunggal: pick live-run merujuk `packages.id` (audit: 483/483 tertaut, 0 menggantung).
 - Modul dorman `lib/db/analysis-snapshot.ts` BUKAN bagian dari keputusan ini dan tidak diubah: bila jalur planner lama dihidupkan, ia membuat ulang tabel lamanya dalam keadaan kosong di file yang sama (CREATE TABLE IF NOT EXISTS) tanpa mengganggu tabel paket — perilaku itu terdokumentasi di header `lib/picks/packages.ts` dan di `docs/DATABASE.md` §6, jadi kebangkitannya terlihat, bukan senyap.
 - `docs/db-snapshot.md` berubah status menjadi dokumen historis (kontrak era lama) — diberi banner superseded yang menunjuk ke ADR ini + `docs/DATABASE.md`.
-- Arsip legacy menjadi invarian beku (INV-14/INV-16 di kontrak): 21/81 baris, tidak boleh berubah.
+- Arsip legacy menjadi invarian beku (INV-16 di kontrak): 21/81 baris, tidak boleh berubah.

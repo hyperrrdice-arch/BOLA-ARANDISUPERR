@@ -1,5 +1,14 @@
 # DB SNAPSHOT
 
+> ⚠️ **SUPERSEDED (5 Nov 2026) — jangan jadikan kontrak kerja.**
+> Kontrak snapshot era LLM ini sudah tidak berlaku: atas keputusan
+> owner, `data/analysis_snapshots.db` **diganti menjadi store paket
+> kuant** (`packages`); 21 baris snapshot legacy + 81 outcomes-nya
+> diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`
+> (isinya masih persis kontrak di bawah — file ini dipertahankan
+> sebagai dokumen sejarah arsip itu). Kontrak yang hidup sekarang:
+> `docs/DATABASE.md` §6 + `docs/decisions/ADR-003-packages-in-replaced-snapshots-file.md`.
+
 Rencana penyimpanan permanen hasil analisis sebagai **data pribadi**, supaya setelah laga selesai statistik match itu bisa ditarik dan **dibandingkan dengan hasil analisisnya**.
 
 > **Status: EKSEKUSI OLEH AGENT BACKEND — tahap per tahap, review user tiap selesai tahap.** Dokumen ini adalah kontraknya.

@@ -34,7 +34,7 @@ football-agent/
 │                          rangkaian backend ini) 17 komponen kartu + types/
 │                          utils/use-logical-picks/motion
 ├── components/icons.tsx
-├── lib/                   seluruh logika backend (42 file tracked)
+├── lib/                   seluruh logika backend (46 file tracked)
 │   ├── agent/             🔒 READ-ONLY: planner.ts (loop + buildQuantPackage),
 │   │                      llm.ts (klien 9Router), schemas.ts (kontrak Zod),
 │   │                      coverage.ts (evaluator re-plan)
@@ -69,7 +69,7 @@ football-agent/
 │   │   │                          kompetisi terukur dari store
 │   │   ├── sqlite-master.ts       football_master.db
 │   │   ├── thestats-vault.ts      raw_api_vault
-│   │   └── analysis-snapshot.ts   🔒 akses snapshots (append-only)
+│   │   └── analysis-snapshot.ts   jalur dorman snapshot lama (store-nya diganti paket kuant 5 Nov 2026 — ADR-003)
 │   ├── odds/              sportmonks-adapter.ts (fetch + budget guard; render
 │   │                      tidak memanggil API), sportmonks-wire.ts (merge
 │   │                      odds/lineup/predictions berlabel sumber)
@@ -93,7 +93,7 @@ football-agent/
 └── .taste-skill/          konfigurasi design tooling (gitignored)
 ```
 
-## 2. Skrip per peran (`scripts/`, 15 file)
+## 2. Skrip per peran (`scripts/`, 23 file)
 
 **Ritme & rantai**
 - `daily-refresh.ts` — entrypoint rantai harian: catalog → odds →
@@ -150,7 +150,7 @@ football-agent/
 | `tasks/oos-results.json`, `tasks/oos-gate.json` | `scripts/backtest-walkforward.ts` | ✅ tracked |
 | `tasks/cup-oos.json` | `scripts/backtest-cup-offsets.ts` | ✅ tracked |
 | `tasks/e2e-run-1-package*.json`, `tasks/e2e-cup-package.json` | driver E2E | ✅ tracked |
-| 6 store SQLite di `data/` (±1,6 GB total) | skrip sync/capture/kalibrasi | ❌ gitignored — kecuali `thestats_raw_vault.db` yang terlanjur tracked dari era lama |
+| 7 store SQLite di `data/` (±1,6 GB total) | skrip sync/capture/kalibrasi | ❌ gitignored — kecuali `thestats_raw_vault.db` yang terlanjur tracked dari era lama |
 | `data/sm*.json/.jsonl`, state sync, `api-budget.json` | skrip sprint | ❌ gitignored (state runtime lokal) |
 
 Aturan main artefak: JSON terpadu adalah sumber kebenaran yang dibaca
@@ -167,8 +167,12 @@ Hash baseline: `tasks/backend-readonly-hashes.txt` (`sha256sum -c` =
   `lib/agent/coverage.ts`
 - `lib/syndicate-orchestrator.ts`
 - `lib/llm/models.ts`, `lib/llm/voice-guide.ts`
-- `lib/db/analysis-snapshot.ts` + `data/analysis_snapshots.db`
-  (append-only; jalur tulis satu-satunya = insert produksi app)
+- `lib/db/analysis-snapshot.ts` (kode dorman; path tidak berpindah)
+
+Status file data berubah 5 Nov 2026: `data/analysis_snapshots.db`
+**tidak lagi 🔒** — owner mencabut kunci append-only era lama dan file
+itu diganti menjadi store paket kuant (ADR-003); 21 baris legacy-nya
+diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`.
 
 Path di atas juga **tidak boleh berpindah**: planner mengimpornya
 persis dari lokasi ini, dan owner ingin sindikat bisa diaktifkan lagi

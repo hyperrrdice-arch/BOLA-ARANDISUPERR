@@ -143,7 +143,7 @@ flowchart TD
         DS[("thestats_dataset.db<br/>hasil, telemetri, odds history,<br/>konteks, registry kalibrasi")]
         MA[("football_master.db<br/>28.922 match legacy")]
         PR[("predictions.db<br/>TERISOLASI dari jalur odds")]
-        SN[("analysis_snapshots.db<br/>APPEND-ONLY")]
+        SN[("analysis_snapshots.db<br/>store paket kuant")]
         VA[("thestats_raw_vault.db<br/>payload mentah")]
     end
     subgraph ART["Artefak JSON terpadu (git-tracked)"]
@@ -183,32 +183,36 @@ flowchart TD
 ### 3.2 Store SQLite (angka per 4 Nov 2026, dibaca langsung dari store)
 
 Semua store di `data/`, semua **gitignored** (data runtime; bisa dibangun
-ulang dari API kecuali snapshots). Prinsip pemisahan file: **berdasarkan
+ulang dari API; pengecualian satu-satunya adalah arsip legacy beku di
+`archive/`). Prinsip pemisahan file: **berdasarkan
 fungsi saja** — bukan berdasarkan sumber atau benua (lihat §3.4).
 
 | Store | Isi kunci | Baris saat ini | Catatan |
 |---|---|---|---|
 | `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta | Disposable; horizon bergulir 60 hari dari ritme harian |
-| `thestats_dataset.db` (±1,5 GB) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.106; team_match_logs 85.505 (83.082 Sportmonks); teams 6.450; match_odds_history 4.021; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
+| `thestats_dataset.db` (±1,5 GB) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.114; team_match_logs 85.521 (83.098 Sportmonks); teams 6.450; match_odds_history 4.071; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
 | `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 | Prior historis fit legacy |
-| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 79 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
-| `analysis_snapshots.db` | `analysis_snapshots` (hasil pipeline + `view_json`), `match_outcomes`, VIEW `v_snapshot_eval*` | 21 snapshot; 81 outcomes | 🔒 **APPEND-ONLY, tidak bisa di-rebuild** (keluaran LLM nondeterministik). Jangan pernah DELETE/DROP; satu-satunya jalur tulis = insert produksi app sendiri. Cache menolak degradasi: hanya baris `is_fallback=0 AND is_grounded=1` yang diservis sebagai analisis segar |
-| `thestats_raw_vault.db` | `raw_api_vault` (payload mentah API) | 1.991 | Retensi payload mentah 90 hari bergulir (keputusan PRD) |
+| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 80 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
+| `analysis_snapshots.db` | `packages` (paket kuant per run: payload lengkap + provenance + cap waktu input), `meta` | 78 paket (audit 5 Nov 2026) | **Store paket kuant** — sejak 5 Nov 2026 menggantikan snapshot legacy atas keputusan owner (ADR-003); 21 baris legacy diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`. Satu baris per fixture per versi run; dirujuk pick ledger lewat `package_id`. Detail: `docs/DATABASE.md` §6 |
+| `thestats_raw_vault.db` | `raw_api_vault` (payload mentah API) | 1.991 | Beku sejak 18 Okt 2026 (API TheStats mati) — "retensi 90 hari bergulir" adalah maksud PRD, bukan keadaan; tidak ada penulis aktif |
 
 Ruang ID per sumber: match `mt_*` (TheStats) / `sm_<fixtureId>`
 (Sportmonks); kompetisi `comp_*` / `sm:<leagueId>`; tim `tm_*` / angka
 mentah SM sebagai string. Jembatan: `sm_id_map` (baris `mt_` yang sudah
 ada selalu menang atas pembuatan kembaran `sm_`), `teams` (nama → id),
 dan — sejak fase kanonik — registry identitas di §4. ⚠️ Nama tim tidak
-unik: 9 grup nama persis dan 37 grup ternormalisasi dipakai >1 team_id;
+unik: 9 grup nama persis dan 12 grup ternormalisasi dipakai >1 team_id
+(di tabel `teams`, terukur audit 5 Nov 2026); lintas sumber, 107 grup
+ejaan berbeda menunjuk tim yang sama — tim belum punya registry
+kanonik seperti liga (proposal P-05 di laporan audit);
 resolusi nama→ID wajib sadar konteks liga (sudah diterapkan di loader +
 resolver telemetri bersama: log terbanyak menang, seri → id terkecil).
 
 ### 3.3 Odds — `match_odds_history`
 
-4.021 tangkapan: 500 legacy (anchor TheStats, `source` NULL) + 3.521
+4.071 tangkapan: 500 legacy (anchor TheStats, `source` NULL) + 3.571
 Sportmonks, terdiri dari 3.383 `baseline` (tangkapan pertama fixture) +
-138 `scheduled` (titik jadwal). Payload disimpan tersaring ke market
+188 `scheduled` (titik jadwal). (Terukur audit 5 Nov 2026.) Payload disimpan tersaring ke market
 utama (payload mentah penuh bisa ±2,3 MB/fixture). Fixture tanpa odds
 terbit dicatat `has_odds = 0` — jujur kosong, bukan hilang. Backfill
 premium history = **0 baris**: semua endpoint `/odds/premium*`
@@ -220,8 +224,10 @@ tercatat; mekanisme `capture_kind='backfill'` siap bila endpoint hidup.
 - **`data/league-canonical.json`** — registry identitas liga (§4).
   Dihasilkan `scripts/build-league-canonical.ts` dari store lokal.
 - **`data/calibrated_ratings.json`** — output fit: **72 entri liga /
-  1.842 tim** (28 berlabel `calibrated`, 28 berlabel `partial`, 16
-  legacy), setiap entri membawa `canonicalId`, plus blok metadata
+  1.842 tim** (56 kunci SM + 16 divisi legacy; status registry hasil
+  join kanonik, terukur audit 5 Nov 2026: kunci SM 28 calibrated /
+  28 partial, divisi legacy 11 calibrated / 5 partial), setiap entri
+  membawa `canonicalId`, plus blok metadata
   `canonical` (registry + versi + `generated_at`) dan blok
   `canonical.cupOffsets` (model piala, §6). Dihasilkan
   `scripts/calibrate-ratings.ts`; blok `cupOffsets` ditanam
@@ -232,7 +238,7 @@ kebenaran per jenis data. Graf benua model piala adalah **data di dalam
 artefak yang sama** (field per liga), bukan file per benua — memecah
 file akan menciptakan masalah routing baru persis seperti yang baru
 dibereskan di §4. DB SQLite terpisah hanya berdasarkan fungsi/siklus
-hidup (katalog disposable vs snapshots append-only vs predictions
+hidup (katalog disposable vs store paket terversi vs predictions
 terisolasi).
 
 ---
@@ -757,8 +763,12 @@ yang berguna dijalankan.
    adanya; helper tampilan sadar skala; field absen → `null` / "—".
 3. **Predictions terisolasi** — tidak ada jalur dari `predictions.db`
    ke `match_odds_history` / jalur odds kuant; panel banding berlabel saja.
-4. **Snapshots append-only** — tidak ada DELETE/DROP; jalur tulis hanya
-   insert produksi app; cache menolak baris fallback/tak-grounded.
+4. **Store paket menggantikan snapshots** — sejak keputusan owner
+   5 Nov 2026 (ADR-003), `data/analysis_snapshots.db` adalah store
+   paket kuant (satu baris per fixture per versi run, dirujuk ledger
+   lewat `package_id`); disiplin append-only era lama tidak berlaku
+   lagi untuk file ini, dan 21 baris legacy-nya beku di arsip
+   `archive/analysis_snapshots-legacy-2026-10.db` (INV-16).
 5. **Gerbang tidak dilonggarkan diam-diam** — toleransi skala 2%,
    definisi cakupan gerbang piala, dan ambang OOS adalah pradaftar;
    mengubahnya = keputusan owner tercatat.
@@ -770,8 +780,9 @@ yang berguna dijalankan.
 8. **Perbandingan pasar hanya dari odds pasar nyata** (dan lihat
    caveat kesegaran §7.4).
 9. **File 🔒 tidak disentuh** — planner, llm, schemas, coverage,
-   syndicate-orchestrator, `lib/llm/*`, `lib/db/analysis-snapshot.ts`,
-   `data/analysis_snapshots.db`. Hash baseline:
+   syndicate-orchestrator, `lib/llm/*`, `lib/db/analysis-snapshot.ts`
+   (kode dorman; `data/analysis_snapshots.db` bukan lagi 🔒 sejak
+   ADR-003). Hash baseline:
    `tasks/backend-readonly-hashes.txt` (terverifikasi 8/8 di setiap
    fase).
 10. **Tidak ada panggilan API di jalur render** — semua baca dari store
