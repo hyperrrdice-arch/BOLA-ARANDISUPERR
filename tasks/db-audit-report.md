@@ -256,3 +256,30 @@ tidak di-commit; angka terverifikasi hidup di worklog + laporan ini.
   dokumen audit yang tidak dihasilkan query audit ini; tiga angka
   draf pekerja + dua kelalaian provenance tertangkap justru karena
   diverifikasi ulang (§8).
+
+---
+
+## Addendum — koreksi provenance terlambat (terverifikasi koordinator)
+
+Draf provenance pekerja tiba setelah laporan utama; distribusi
+sumbernya mengonfirmasi angka audit (tml sportmonks 83.098 ·
+matches sm_ 68.901/mt_ 1.174/mas* 39 · odds SM 3.571 · katalog
+sm_ 3.392/mt_ 378 · vault 1.991 · trigger paket 70/4/4). Dua hal
+layak dicatat permanen:
+
+- **F-13 (S3, informasional — bukan cacat)**: registry
+  `league_calibration` saat ini berisi source sportmonks-fit 92 /
+  legacy-csv-fit 16 / cup-offset 17 dan **nol baris source
+  'canonical'**, padahal `calibrate-ratings.ts` punya langkah
+  membangun-ulang baris itu. Terverifikasi dari kode (baris 651–703):
+  baris 'canonical' hanya disisipkan untuk liga kanonik yang **belum**
+  punya baris utama berkunci canonical_id — saat ini semua target
+  sudah punya, jadi langkah itu menyisipkan 0 dan DELETE-nya no-op
+  **by design**. Konsekuensi dokumenter: kalimat provenance awal
+  audit ("menulis ulang seluruh baris") terlalu longgar — mekanisme
+  sebenarnya INSERT OR REPLACE berkunci; sudah diperbaiki di
+  `docs/DATABASE.md` §12. Jalur saji tidak terpengaruh (gerbang
+  membaca baris utama via canonical_id).
+- Baris telemetri source NULL (2.348) terukur **seluruhnya**
+  match_id `mt_*` — konsisten dengan label "era TheStats"; dicatat
+  di `docs/DATABASE.md` §3.

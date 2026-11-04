@@ -114,7 +114,7 @@ log_id PK; match_id, team_id, opponent_id, venue, match_date, season,
 result, goals_for/against, xg_for/against, npxg, xG per babak,
 shots/blokir/dalam-luar kotak, …, `source`, `xg_source`, payload
 turunan lain.
-- source: **sportmonks 83,098** / NULL 2,348 (era TheStats) / 'master' 75.
+- source: **sportmonks 83,098** / NULL 2,348 (era TheStats — terukur audit: seluruhnya match_id `mt_*`) / 'master' 75.
 - distinct match 42,762; distinct team 5,497; rentang match_date 2024-12-28 → 2026-11-04.
 - **xg_for NULL di 49,076 baris (57,4%)** — cakupan xG memang parsial; jalur gol adalah fallback yang sah.
 - FK terdefinisi: 3. Yatim terukur: match_id ∉ matches = 0; team_id ∉ teams = 0.
@@ -305,7 +305,7 @@ INSERT/UPDATE/DELETE/CREATE pada tabel itu hari ini.
 | dataset.team_match_logs | backfill-telemetry + langkah finalizer di `scripts/daily-refresh.ts` (INSERT OR IGNORE) | `lib/quant/ratings-loader.ts`, `lib/db/team-telemetry.ts` (satu instance koneksi bersama via `lib/db/thestats-dataset.ts`) |
 | dataset.teams | ⚠️ fungsi repo `upsertTeam` (`lib/db/thestats-dataset.ts:393`) **tanpa satu pun pemanggil di repo** — tabel tidak dirawat kode aktif | ratings-loader, cup-offset-fit, team-telemetry, backfill-telemetry |
 | dataset.match_odds_history | `scripts/capture-odds.ts` | jalur wire/loader (odds lokal untuk paket), skrip backtest |
-| dataset.league_calibration | `scripts/calibrate-ratings.ts` (**menulis ulang seluruh baris tiap run**) + `scripts/fit-global-offsets.ts` (17 baris cup-offset) | `lib/quant/league-gate.ts` |
+| dataset.league_calibration | `scripts/calibrate-ratings.ts` — baris utama via **INSERT OR REPLACE** berkunci league_id (fit SM ditulis source 'sportmonks-fit'); langkah turunan source='canonical' membangun ulang baris status untuk liga kanonik ber-fixture/fit **yang belum punya baris utama** — terukur saat ini **0 baris** karena semua target sudah punya baris utama (DELETE pembangun-ulangnya karenanya no-op by design) + `scripts/fit-global-offsets.ts` (17 baris cup-offset) | `lib/quant/league-gate.ts` |
 | dataset.standings / expected_lineups / prematch_news / h2h_cache | `scripts/sync-context.ts` | stats-fetcher-agent (intel offline); standings juga dibaca sync-context sendiri |
 | dataset.team_squads | fungsi repo upsert di modul dataset — **tanpa pemanggil aktif yang ditemukan** | `lib/db/team-telemetry.ts` (getTeamSquad → konteks skuad/cedera) |
 | predictions.* (3 tabel) | `scripts/sync-predictions.ts` (sm_predictions append per batch dengan skip kesegaran 20 jam; sm_value_bets + sm_predictability di-refresh dengan delete terlingkup) | `lib/odds/sportmonks-wire.ts` (panel berlabel), pick-slate (sm_prob), backfill-packages |
