@@ -93,11 +93,62 @@ const DISTINCT_PAIRS: [string, string, string][] = [
   ["277303", "278222", "Celoricense (entitas Campeonato de Portugal) vs SC Celoricense = Sporting Clube Celoricense, Celorico da Beira (berdiri 1948, liga distrik Guarda) — terverifikasi web (soccerzz/playmakerstats)."],
   ["10016", "238136", "Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti."],
   ["4701", "82", "'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub."],
+  ["18544", "84", "Qatar (tim NASIONAL, id 18544) vs Qatar SC (klub) — entitas berbeda kategori."],
 ];
 
 /** Nama eksternal tanpa baris teams yang sudah diputuskan pemiliknya. */
 const EXTRA_ALIASES: { name: string; member_id: string; reason: string }[] = [
   { name: "KV Mechelen", member_id: "2938", reason: "Nama CSV football-data (divisi B1) untuk klub yang di SM tersimpan sebagai 'Mechelen' (id 2938, Belgia). Satu-satunya nama tak ter-resolve di tasks/free-import-unmatched.json run terakhir." },
+  // Nama bentuk CSV football-data di fit legacy (data/calibrated_ratings.json)
+  // yang tidak sama persis dengan nama kanonik — diputuskan dari identitas
+  // klub (divisi + negara + keunikan nama), diukur 2026-11-05: 41 nama,
+  // 36 berjangkar di sini, 5 jadi entri legacy-only (LEGACY_ONLY_TEAMS).
+  { name: "Seraing", member_id: "1674", reason: "Bentuk pendek CSV untuk RFC Seraing (B1 Belgia)." },
+  { name: "Eupen", member_id: "2412", reason: "CSV 'Eupen' di B1 (kasta tertinggi) = KAS Eupen, bukan FC Eupen (entitas lain)." },
+  { name: "Beerschot VA", member_id: "2432", reason: "Bentuk CSV untuk K. Beerschot V.A. (B1)." },
+  { name: "RWD Molenbeek", member_id: "8307", reason: "RWD Molenbeek = RWDM Brussels (nama kini klub yang sama, B1)." },
+  { name: "TSG 1899 Hoffenheim", member_id: "2726", reason: "Bentuk CSV dengan tahun berdiri; kanonik TSG Hoffenheim." },
+  { name: "Bayer Leverkusen", member_id: "3321", reason: "Bentuk CSV tanpa '04'; kanonik Bayer 04 Leverkusen." },
+  { name: "Ein Frankfurt", member_id: "366", reason: "Singkatan CSV 'Ein' = Eintracht Frankfurt (bukan FSV Frankfurt)." },
+  { name: "SV Darmstadt 98", member_id: "482", reason: "Bentuk CSV dengan 'SV'; kanonik Darmstadt 98." },
+  { name: "Wehen", member_id: "3519", reason: "Bentuk pendek CSV untuk Wehen Wiesbaden." },
+  { name: "Huddersfield", member_id: "251", reason: "Bentuk pendek CSV untuk Huddersfield Town." },
+  { name: "Peterboro", member_id: "254", reason: "Singkatan CSV untuk Peterborough United." },
+  { name: "Rotherham", member_id: "138", reason: "Bentuk pendek CSV untuk Rotherham United." },
+  { name: "Wigan", member_id: "17", reason: "Bentuk pendek CSV untuk Wigan Athletic." },
+  { name: "Sheffield Weds", member_id: "56", reason: "Bentuk CSV untuk Sheffield Wednesday." },
+  { name: "Giannina", member_id: "542", reason: "Bentuk pendek CSV untuk PAS Giannina (G1 Yunani)." },
+  { name: "Athens Kallithea", member_id: "5406", reason: "Athens Kallithea FC = Kallithea (G1)." },
+  { name: "Larisa", member_id: "1089", reason: "Bentuk CSV untuk Larissa / AEL (G1)." },
+  { name: "Spal", member_id: "394", reason: "Ejaan CSV untuk SPAL (I2 Italia)." },
+  { name: "SSC Bari", member_id: "445", reason: "SSC Bari = entitas Bari 1908 di SM (I2)." },
+  { name: "Waalwijk", member_id: "814", reason: "Bentuk pendek CSV untuk RKC Waalwijk (N1)." },
+  { name: "Heracles", member_id: "1403", reason: "Bentuk pendek CSV untuk Heracles Almelo (N1)." },
+  { name: "Volendam", member_id: "2396", reason: "FC Volendam (N1) — bukan RKAV Volendam (amatir)." },
+  { name: "Portimonense", member_id: "1658", reason: "Portimonense kasta tertinggi = Portimonense SAD (P1). Entitas SC terpisah di divisi bawah." },
+  { name: "Belenenses", member_id: "258659", reason: "Nama CSV lintas era dijangkar ke CF Os Belenenses; era Belenenses SAD (2018+) tercatat sebagai ambiguitas nama yang sama di CSV." },
+  { name: "Pacos Ferreira", member_id: "1122", reason: "Ejaan CSV tanpa cedilla untuk Pacos de Ferreira (P1)." },
+  { name: "Santander", member_id: "9818", reason: "Bentuk pendek CSV untuk Racing de Santander (bukan tim II)." },
+  { name: "La Coruna", member_id: "tm_98394", reason: "Bentuk CSV untuk Deportivo La Coruna (bukan tim II)." },
+  { name: "Ibiza", member_id: "132590", reason: "Bentuk pendek CSV untuk UD Ibiza (SP2)." },
+  { name: "Amorebieta", member_id: "2055", reason: "Bentuk pendek CSV untuk SD Amorebieta (SP2)." },
+  { name: "Ferrol", member_id: "8396", reason: "Bentuk pendek CSV untuk Racing de Ferrol (SP2)." },
+  { name: "Karagumruk", member_id: "3990", reason: "Ejaan CSV tanpa diakritik untuk Fatih Karagumruk (T1)." },
+  { name: "Ad. Demirspor", member_id: "1039", reason: "Singkatan CSV untuk Adana Demirspor (T1) — bukan Adanaspor." },
+  { name: "Bodrumspor", member_id: "13924", reason: "Bodrumspor = Bodrum FK (nama kini klub yang sama, T1)." },
+];
+
+/**
+ * Klub yang HANYA ada di data legacy (fit divisi lama) dan tidak punya
+ * padanan di permukaan SM/TheStats/fixture mana pun — didaftarkan sebagai
+ * entri kanonik legacy-only supaya nama fit-nya punya rumah resmi.
+ */
+const LEGACY_ONLY_TEAMS: { stored: string; display: string; reason: string }[] = [
+  { stored: "Oostende", display: "KV Oostende", reason: "Hanya ada di fit legacy B1; tidak ada padanan 'Oostende' di permukaan lain." },
+  { stored: "Ionikos", display: "Ionikos", reason: "Hanya ada di fit legacy G1 (Ionikos Nikaia); tidak ada padanan di permukaan lain." },
+  { stored: "Pordenone", display: "Pordenone", reason: "Hanya ada di fit legacy I2; tidak ada padanan di permukaan lain." },
+  { stored: "Giresunspor", display: "Giresunspor", reason: "Hanya ada di fit legacy T1; tidak ada padanan di permukaan lain." },
+  { stored: "Villarreal B", display: "Villarreal B", reason: "Tim B Villarreal di fit legacy SP2; registry hanya punya tim utama Villarreal CF — TIDAK digabung ke tim utama." },
 ];
 
 /** Nama pakem yang menimpa hasil normalisasi untuk kanonik tertentu. */
@@ -162,9 +213,29 @@ function main() {
     const nm = nameById.get(sid);
     if (nm) {
       rows.push({ team_id: sid, name: nm, country: null });
+      knownIds.add(sid);
       standingsSurfaced += 1;
     } else {
       nameUnknownIds.push(sid);
+    }
+  }
+  // Permukaan fixture: id tim yang tampil bernama di katalog upcoming tapi
+  // tidak punya baris teams dan tidak dirujuk standings (kebanyakan tim
+  // TheStats mt_ dari kompetisi yang timnya tidak pernah diimpor ke
+  // dataset). Mereka tim nyata dengan fixture — didaftarkan dari bukti
+  // fixture dengan aturan grouping yang sama.
+  let fixtureSurfaced = 0;
+  {
+    const up2 = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
+    const fxRows = up2.prepare(
+      "SELECT home_team_id AS id, home_team_name AS nm FROM upcoming_fixtures UNION SELECT away_team_id, away_team_name FROM upcoming_fixtures",
+    ).all() as unknown as { id: string; nm: string }[];
+    up2.close();
+    for (const r of fxRows) {
+      if (!r.id || !r.nm || knownIds.has(r.id)) continue;
+      knownIds.add(r.id);
+      rows.push({ team_id: r.id, name: r.nm, country: null });
+      fixtureSurfaced += 1;
     }
   }
 
@@ -188,9 +259,13 @@ function main() {
 
   const teams: CanonTeam[] = [];
   for (const g of groups.values()) {
-    const members: Member[] = g.members.map((m) => ({
-      system: systemOf(m.team_id), team_id: m.team_id, name_as_stored: m.name,
-    }));
+    const seen = new Set<string>();
+    const members: Member[] = [];
+    for (const m of g.members) {
+      if (seen.has(m.team_id)) continue;
+      seen.add(m.team_id);
+      members.push({ system: systemOf(m.team_id), team_id: m.team_id, name_as_stored: m.name });
+    }
     const sm = members.find((m) => m.system === "sportmonks");
     const tm = members.find((m) => m.system === "thestats");
     const canonical_id = sm ? `sm:${sm.team_id}` : tm ? tm.team_id : members[0].team_id;
@@ -269,6 +344,19 @@ function main() {
     }
   }
 
+  // Entri legacy-only: klub yang hanya hidup di fit divisi lama.
+  for (const lt of LEGACY_ONLY_TEAMS) {
+    teams.push({
+      canonical_id: `legacy:${lt.stored.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      name: lt.display,
+      country: null,
+      members: [{ system: "other", team_id: `legacy-name:${lt.stored}`, name_as_stored: lt.stored }],
+      aliases: [lt.stored],
+      contested_name: false,
+      resolution_notes: [lt.reason],
+    });
+  }
+
   // Entri id-only untuk id standings yang namanya tidak ditemukan di
   // permukaan lokal mana pun — tetap terdaftar supaya setiap referensi
   // punya rumah di registry, dengan flag jujur name_unknown.
@@ -328,6 +416,7 @@ function main() {
   lines.push(`- Pasangan kandidat mirip BELUM digabung: **${candidates.length}**`);
   lines.push(`- Keputusan resolusi fase 3 diterapkan: **${mergesApplied} penggabungan terbukti**, **${DISTINCT_PAIRS.length} pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **${EXTRA_ALIASES.length} alias eksternal**.`);
   lines.push(`- Permukaan standings: **${standingsSurfaced} id** tanpa baris teams didaftarkan dari nama fixture; **${nameUnknownIds.length} id** terdaftar id-only (name_unknown: ${nameUnknownIds.join(", ") || "-"}). Cakupan standings sekarang penuh.`);
+  lines.push(`- Permukaan fixture: **${fixtureSurfaced} id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).`);
   lines.push("");
   lines.push("## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)");
   lines.push("");

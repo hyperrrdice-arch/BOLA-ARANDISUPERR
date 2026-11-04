@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:53:42.366Z",
+  "generated_at": "2026-11-04T20:55:23.787Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
     "fixtures": 3774,
-    "duplicate_groups": 165,
-    "twin_rows": 165,
-    "fixtures_with_unresolved_team": 100
+    "duplicate_groups": 168,
+    "twin_rows": 174,
+    "fixtures_with_unresolved_team": 0
   },
   "links": [
     {
@@ -834,6 +834,51 @@
       "twin_id": "mt_988973871",
       "canonical_id": "sm_19735102",
       "kickoff_utc": "2026-11-28T14:30:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902518",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902519",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902520",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902521",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902522",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902523",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902524",
+      "canonical_id": "sm_19902517",
+      "kickoff_utc": "2026-12-16T15:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902643",
+      "canonical_id": "sm_19674574",
+      "kickoff_utc": "2026-11-28T00:00:00.000Z"
+    },
+    {
+      "twin_id": "sm_19902644",
+      "canonical_id": "sm_19674575",
+      "kickoff_utc": "2026-11-28T00:00:00.000Z"
     }
   ]
 }

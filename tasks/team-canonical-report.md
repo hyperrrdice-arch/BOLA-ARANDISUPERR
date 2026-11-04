@@ -1,17 +1,18 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-04T20:53:40.996Z
+Dibangun: 2026-11-04T20:55:22.761Z
 
 ## Angka
 
-- Baris tim sumber (tabel teams): **6653**
-- Tim kanonik hasil: **6446**
-- Grup tergabung (>1 baris sumber): **200** (menyerap 210 baris ekstra)
+- Baris tim sumber (tabel teams): **6764**
+- Tim kanonik hasil: **6559**
+- Grup tergabung (>1 baris sumber): **202** (menyerap 213 baris ekstra)
 - Grup lintas sistem (>1 sumber): **187**
 - Tim bernama sengketa (≥2 negara): **4** entri
-- Pasangan kandidat mirip BELUM digabung: **7**
-- Keputusan resolusi fase 3 diterapkan: **26 penggabungan terbukti**, **7 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **1 alias eksternal**.
+- Pasangan kandidat mirip BELUM digabung: **8**
+- Keputusan resolusi fase 3 diterapkan: **26 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
 - Permukaan standings: **164 id** tanpa baris teams didaftarkan dari nama fixture; **3 id** terdaftar id-only (name_unknown: 828, 5632, 976). Cakupan standings sekarang penuh.
+- Permukaan fixture: **111 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
 
 ## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)
 
@@ -48,6 +49,7 @@ Dibangun: 2026-11-04T20:53:40.996Z
 - BEDA `277303` + `278222` — Celoricense (entitas Campeonato de Portugal) vs SC Celoricense = Sporting Clube Celoricense, Celorico da Beira (berdiri 1948, liga distrik Guarda) — terverifikasi web (soccerzz/playmakerstats).
 - BEDA `10016` + `238136` — Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti.
 - BEDA `4701` + `82` — 'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub.
+- BEDA `18544` + `84` — Qatar (tim NASIONAL, id 18544) vs Qatar SC (klub) — entitas berbeda kategori.
 
 ## Contoh grup lintas sistem
 
@@ -72,6 +74,7 @@ Dibangun: 2026-11-04T20:53:40.996Z
 - kunci "river plate": `sm:10002` River Plate  vs  `sm:2837` River Plate
 - kunci "melilla": `sm:10016` Melilla  vs  `sm:238136` Melilla CD
 - kunci "ourense": `sm:132434` Ourense CF  vs  `sm:94617` UD Ourense
+- kunci "qatar": `sm:18544` Qatar  vs  `sm:84` Qatar SC
 - kunci "san fernando": `sm:2079` San Fernando CD  vs  `sm:28207` UD San Fernando
 - kunci "coria": `sm:26423` Coria CF  vs  `sm:28245` CD Coria
 - kunci "celoricense": `sm:277303` Celoricense  vs  `sm:278222` SC Celoricense

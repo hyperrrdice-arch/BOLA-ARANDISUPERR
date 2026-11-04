@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:53:40.996Z",
+  "generated_at": "2026-11-04T20:55:22.761Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -325,6 +325,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_kv-mechelen",
+      "name": "KV Mechelen",
+      "country": null,
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_kv-mechelen",
+          "name_as_stored": "KV Mechelen"
+        }
+      ],
+      "aliases": [
+        "KV Mechelen"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_lincoln",
       "name": "Lincoln",
       "country": "England",
@@ -499,6 +515,101 @@
         "Zwolle"
       ],
       "contested_name": false
+    },
+    {
+      "canonical_id": "legacy:giresunspor",
+      "name": "Giresunspor",
+      "country": null,
+      "members": [
+        {
+          "system": "other",
+          "team_id": "legacy-name:Giresunspor",
+          "name_as_stored": "Giresunspor"
+        }
+      ],
+      "aliases": [
+        "Giresunspor"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Hanya ada di fit legacy T1; tidak ada padanan di permukaan lain."
+      ]
+    },
+    {
+      "canonical_id": "legacy:ionikos",
+      "name": "Ionikos",
+      "country": null,
+      "members": [
+        {
+          "system": "other",
+          "team_id": "legacy-name:Ionikos",
+          "name_as_stored": "Ionikos"
+        }
+      ],
+      "aliases": [
+        "Ionikos"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Hanya ada di fit legacy G1 (Ionikos Nikaia); tidak ada padanan di permukaan lain."
+      ]
+    },
+    {
+      "canonical_id": "legacy:oostende",
+      "name": "KV Oostende",
+      "country": null,
+      "members": [
+        {
+          "system": "other",
+          "team_id": "legacy-name:Oostende",
+          "name_as_stored": "Oostende"
+        }
+      ],
+      "aliases": [
+        "Oostende"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Hanya ada di fit legacy B1; tidak ada padanan 'Oostende' di permukaan lain."
+      ]
+    },
+    {
+      "canonical_id": "legacy:pordenone",
+      "name": "Pordenone",
+      "country": null,
+      "members": [
+        {
+          "system": "other",
+          "team_id": "legacy-name:Pordenone",
+          "name_as_stored": "Pordenone"
+        }
+      ],
+      "aliases": [
+        "Pordenone"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Hanya ada di fit legacy I2; tidak ada padanan di permukaan lain."
+      ]
+    },
+    {
+      "canonical_id": "legacy:villarreal-b",
+      "name": "Villarreal B",
+      "country": null,
+      "members": [
+        {
+          "system": "other",
+          "team_id": "legacy-name:Villarreal B",
+          "name_as_stored": "Villarreal B"
+        }
+      ],
+      "aliases": [
+        "Villarreal B"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Tim B Villarreal di fit legacy SP2; registry hanya punya tim utama Villarreal CF — TIDAK digabung ke tim utama."
+      ]
     },
     {
       "canonical_id": "sm:1",
@@ -823,6 +934,22 @@
       ],
       "aliases": [
         "Caxias"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:10081",
+      "name": "Marseille Endoume Catalans",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "10081",
+          "name_as_stored": "Marseille Endoume Catalans"
+        }
+      ],
+      "aliases": [
+        "Marseille Endoume Catalans"
       ],
       "contested_name": false
     },
@@ -1846,9 +1973,13 @@
         }
       ],
       "aliases": [
-        "Adana Demirspor"
+        "Adana Demirspor",
+        "Ad. Demirspor"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Ad. Demirspor\" — Singkatan CSV untuk Adana Demirspor (T1) — bukan Adanaspor."
+      ]
     },
     {
       "canonical_id": "sm:104",
@@ -3363,9 +3494,13 @@
         }
       ],
       "aliases": [
-        "Larissa"
+        "Larissa",
+        "Larisa"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Larisa\" — Bentuk CSV untuk Larissa / AEL (G1)."
+      ]
     },
     {
       "canonical_id": "sm:10890",
@@ -4301,9 +4436,13 @@
         }
       ],
       "aliases": [
-        "Paços de Ferreira"
+        "Paços de Ferreira",
+        "Pacos Ferreira"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Pacos Ferreira\" — Ejaan CSV tanpa cedilla untuk Pacos de Ferreira (P1)."
+      ]
     },
     {
       "canonical_id": "sm:11225",
@@ -6300,6 +6439,22 @@
       ],
       "aliases": [
         "Molde II"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:1196",
+      "name": "Stade Bordelais",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "1196",
+          "name_as_stored": "Stade Bordelais"
+        }
+      ],
+      "aliases": [
+        "Stade Bordelais"
       ],
       "contested_name": false
     },
@@ -10859,6 +11014,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:131795",
+      "name": "Paris 13 Atletico",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "131795",
+          "name_as_stored": "Paris 13 Atletico"
+        }
+      ],
+      "aliases": [
+        "Paris 13 Atletico"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:13182",
       "name": "Lipany",
       "country": "World",
@@ -11350,9 +11521,13 @@
         }
       ],
       "aliases": [
-        "UD Ibiza"
+        "UD Ibiza",
+        "Ibiza"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Ibiza\" — Bentuk pendek CSV untuk UD Ibiza (SP2)."
+      ]
     },
     {
       "canonical_id": "sm:132595",
@@ -12049,6 +12224,22 @@
       ],
       "aliases": [
         "Targu Secuiesc"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:132994",
+      "name": "Riviera",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "132994",
+          "name_as_stored": "Riviera"
+        }
+      ],
+      "aliases": [
+        "Riviera"
       ],
       "contested_name": false
     },
@@ -14069,9 +14260,13 @@
         }
       ],
       "aliases": [
-        "Rotherham United"
+        "Rotherham United",
+        "Rotherham"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Rotherham\" — Bentuk pendek CSV untuk Rotherham United."
+      ]
     },
     {
       "canonical_id": "sm:13805",
@@ -14218,6 +14413,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:1385",
+      "name": "Vitre",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "1385",
+          "name_as_stored": "Vitré"
+        }
+      ],
+      "aliases": [
+        "Vitré"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:13860",
       "name": "Kocaelispor",
       "country": "Turkey",
@@ -14262,6 +14473,22 @@
       ],
       "aliases": [
         "Houilles"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:138640",
+      "name": "Vire",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "138640",
+          "name_as_stored": "Vire"
+        }
+      ],
+      "aliases": [
+        "Vire"
       ],
       "contested_name": false
     },
@@ -14410,6 +14637,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:1389",
+      "name": "Frejus St-Raphael",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "1389",
+          "name_as_stored": "Fréjus St-Raphaël"
+        }
+      ],
+      "aliases": [
+        "Fréjus St-Raphaël"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:1391",
       "name": "Assyriska",
       "country": "World",
@@ -14437,9 +14680,13 @@
         }
       ],
       "aliases": [
-        "Bodrum FK"
+        "Bodrum FK",
+        "Bodrumspor"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Bodrumspor\" — Bodrumspor = Bodrum FK (nama kini klub yang sama, T1)."
+      ]
     },
     {
       "canonical_id": "sm:1393",
@@ -14623,9 +14870,13 @@
         }
       ],
       "aliases": [
-        "Heracles Almelo"
+        "Heracles Almelo",
+        "Heracles"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Heracles\" — Bentuk pendek CSV untuk Heracles Almelo (N1)."
+      ]
     },
     {
       "canonical_id": "sm:14039",
@@ -18602,9 +18853,13 @@
         }
       ],
       "aliases": [
-        "Portimonense SAD"
+        "Portimonense SAD",
+        "Portimonense"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Portimonense\" — Portimonense kasta tertinggi = Portimonense SAD (P1). Entitas SC terpisah di divisi bawah."
+      ]
     },
     {
       "canonical_id": "sm:165932",
@@ -18735,6 +18990,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:16675",
+      "name": "Siroco",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "16675",
+          "name_as_stored": "Siroco"
+        }
+      ],
+      "aliases": [
+        "Siroco"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:1668",
       "name": "Bodø / Glimt",
       "country": null,
@@ -18820,9 +19091,13 @@
         }
       ],
       "aliases": [
-        "RFC Seraing"
+        "RFC Seraing",
+        "Seraing"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Seraing\" — Bentuk pendek CSV untuk RFC Seraing (B1 Belgia)."
+      ]
     },
     {
       "canonical_id": "sm:1676",
@@ -19252,9 +19527,13 @@
         }
       ],
       "aliases": [
-        "Wigan Athletic"
+        "Wigan Athletic",
+        "Wigan"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Wigan\" — Bentuk pendek CSV untuk Wigan Athletic."
+      ]
     },
     {
       "canonical_id": "sm:17006",
@@ -21608,6 +21887,28 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:18544",
+      "name": "Qatar",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "18544",
+          "name_as_stored": "Qatar"
+        }
+      ],
+      "aliases": [
+        "Qatar"
+      ],
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:84",
+          "reason": "Qatar (tim NASIONAL, id 18544) vs Qatar SC (klub) — entitas berbeda kategori."
+        }
+      ]
+    },
+    {
       "canonical_id": "sm:18545",
       "name": "Libya",
       "country": "World",
@@ -23576,6 +23877,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:18773",
+      "name": "Eswatini",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "18773",
+          "name_as_stored": "Eswatini"
+        }
+      ],
+      "aliases": [
+        "Eswatini"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:18774",
       "name": "Chile",
       "country": "World",
@@ -23686,6 +24003,37 @@
         "Cameroon"
       ],
       "contested_name": false
+    },
+    {
+      "canonical_id": "sm:18781",
+      "name": "Andorra",
+      "country": "Spain",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_andorra",
+          "name_as_stored": "Andorra"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "18781",
+          "name_as_stored": "Andorra"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "238115",
+          "name_as_stored": "FC Andorra"
+        }
+      ],
+      "aliases": [
+        "Andorra",
+        "FC Andorra"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FC Andorra (Spanyol); baris fd cangkang nama pendek CSV."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:18783",
@@ -29826,6 +30174,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:2043",
+      "name": "Tourcoing USF",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "2043",
+          "name_as_stored": "Tourcoing USF"
+        }
+      ],
+      "aliases": [
+        "Tourcoing USF"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:20431",
       "name": "Germania",
       "country": "Netherlands",
@@ -29997,9 +30361,13 @@
         }
       ],
       "aliases": [
-        "SD Amorebieta"
+        "SD Amorebieta",
+        "Amorebieta"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Amorebieta\" — Bentuk pendek CSV untuk SD Amorebieta (SP2)."
+      ]
     },
     {
       "canonical_id": "sm:20554",
@@ -33106,6 +33474,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:22583",
+      "name": "Brive",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22583",
+          "name_as_stored": "Brive"
+        }
+      ],
+      "aliases": [
+        "Brive"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:22585",
       "name": "Longuenesse",
       "country": "France",
@@ -33134,6 +33518,22 @@
       ],
       "aliases": [
         "Alencon"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:22587",
+      "name": "Vermelles",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22587",
+          "name_as_stored": "Vermelles"
+        }
+      ],
+      "aliases": [
+        "Vermelles"
       ],
       "contested_name": false
     },
@@ -33778,6 +34178,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:22713",
+      "name": "Montlucon",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22713",
+          "name_as_stored": "Montlucon"
+        }
+      ],
+      "aliases": [
+        "Montlucon"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:2272",
       "name": "Lokomotiv G. Oryahovitsa",
       "country": "World",
@@ -34354,6 +34770,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:22815",
+      "name": "Tefana",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22815",
+          "name_as_stored": "Tefana"
+        }
+      ],
+      "aliases": [
+        "Tefana"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:228172",
       "name": "Mauerwerk",
       "country": "World",
@@ -34382,6 +34814,22 @@
       ],
       "aliases": [
         "Haringey Borough"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:228244",
+      "name": "SAG Cestas",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "228244",
+          "name_as_stored": "SAG Cestas"
+        }
+      ],
+      "aliases": [
+        "SAG Cestas"
       ],
       "contested_name": false
     },
@@ -34430,6 +34878,38 @@
       ],
       "aliases": [
         "Basford United"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:22831",
+      "name": "Chauny",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22831",
+          "name_as_stored": "Chauny"
+        }
+      ],
+      "aliases": [
+        "Chauny"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:22837",
+      "name": "Pays Neslois",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22837",
+          "name_as_stored": "Pays Neslois"
+        }
+      ],
+      "aliases": [
+        "Pays Neslois"
       ],
       "contested_name": false
     },
@@ -34642,6 +35122,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:22851",
+      "name": "Cheminots Paray",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22851",
+          "name_as_stored": "Cheminots Paray"
+        }
+      ],
+      "aliases": [
+        "Cheminots Paray"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:228516",
       "name": "Amal Tiznit",
       "country": "Morocco",
@@ -34814,6 +35310,22 @@
       ],
       "aliases": [
         "Crystal Palace W"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:22863",
+      "name": "Loon-Plage",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22863",
+          "name_as_stored": "Loon-Plage"
+        }
+      ],
+      "aliases": [
+        "Loon-Plage"
       ],
       "contested_name": false
     },
@@ -35106,6 +35618,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:228992",
+      "name": "Tarancon",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "228992",
+          "name_as_stored": "Tarancón"
+        }
+      ],
+      "aliases": [
+        "Tarancón"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:228994",
       "name": "Calamocha",
       "country": "Spain",
@@ -35182,6 +35710,22 @@
       ],
       "aliases": [
         "Hearts U21"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:22909",
+      "name": "Firminy",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22909",
+          "name_as_stored": "Firminy"
+        }
+      ],
+      "aliases": [
+        "Firminy"
       ],
       "contested_name": false
     },
@@ -35618,6 +36162,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:22996",
+      "name": "Stade Pontivy",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "22996",
+          "name_as_stored": "Stade Pontivy"
+        }
+      ],
+      "aliases": [
+        "Stade Pontivy"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:23",
       "name": "Reading",
       "country": "England",
@@ -35742,6 +36302,54 @@
       ],
       "aliases": [
         "Biars-Bretenoux"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:230547",
+      "name": "Entente Crest-Aouste",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "230547",
+          "name_as_stored": "Entente Crest-Aouste"
+        }
+      ],
+      "aliases": [
+        "Entente Crest-Aouste"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:230560",
+      "name": "Reipertswiller",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "230560",
+          "name_as_stored": "Reipertswiller"
+        }
+      ],
+      "aliases": [
+        "Reipertswiller"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:230564",
+      "name": "Riom",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "230564",
+          "name_as_stored": "Riom"
+        }
+      ],
+      "aliases": [
+        "Riom"
       ],
       "contested_name": false
     },
@@ -36040,6 +36648,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:23202",
+      "name": "Koetzingue",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23202",
+          "name_as_stored": "Koetzingue"
+        }
+      ],
+      "aliases": [
+        "Koetzingue"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:23209",
       "name": "Avenir Sportif de Gouzon",
       "country": "France",
@@ -36052,6 +36676,22 @@
       ],
       "aliases": [
         "Avenir Sportif de Gouzon"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:23212",
+      "name": "Tremblay",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23212",
+          "name_as_stored": "Tremblay"
+        }
+      ],
+      "aliases": [
+        "Tremblay"
       ],
       "contested_name": false
     },
@@ -36084,6 +36724,38 @@
       ],
       "aliases": [
         "AFC Kempston Rovers"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:23223",
+      "name": "Juventus Papus",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23223",
+          "name_as_stored": "Juventus Papus"
+        }
+      ],
+      "aliases": [
+        "Juventus Papus"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:23226",
+      "name": "Sundhoffen",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23226",
+          "name_as_stored": "Sundhoffen"
+        }
+      ],
+      "aliases": [
+        "Sundhoffen"
       ],
       "contested_name": false
     },
@@ -36196,6 +36868,22 @@
       ],
       "aliases": [
         "Gareji"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:23245",
+      "name": "Stade Tamponnaise",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23245",
+          "name_as_stored": "Stade Tamponnaise"
+        }
+      ],
+      "aliases": [
+        "Stade Tamponnaise"
       ],
       "contested_name": false
     },
@@ -36500,6 +37188,22 @@
       ],
       "aliases": [
         "St. Martin i.M."
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:23345",
+      "name": "Oberlauterbach",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "23345",
+          "name_as_stored": "Oberlauterbach"
+        }
+      ],
+      "aliases": [
+        "Oberlauterbach"
       ],
       "contested_name": false
     },
@@ -39974,32 +40678,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:238115",
-      "name": "FC Andorra",
-      "country": "Spain",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_andorra",
-          "name_as_stored": "Andorra"
-        },
-        {
-          "system": "sportmonks",
-          "team_id": "238115",
-          "name_as_stored": "FC Andorra"
-        }
-      ],
-      "aliases": [
-        "Andorra",
-        "FC Andorra"
-      ],
-      "contested_name": false,
-      "resolution_notes": [
-        "Satu klub: FC Andorra (Spanyol); baris fd cangkang nama pendek CSV."
-      ],
-      "distinct_from": []
-    },
-    {
       "canonical_id": "sm:238124",
       "name": "Atletico Paso",
       "country": "World",
@@ -40625,6 +41303,54 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:238778",
+      "name": "Saint-Pierre Milizac",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "238778",
+          "name_as_stored": "Saint-Pierre Milizac"
+        }
+      ],
+      "aliases": [
+        "Saint-Pierre Milizac"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:238785",
+      "name": "La Baule-Le Pouliguen",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "238785",
+          "name_as_stored": "La Baule-Le Pouliguen"
+        }
+      ],
+      "aliases": [
+        "La Baule-Le Pouliguen"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:238791",
+      "name": "Linas-Montlhery",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "238791",
+          "name_as_stored": "Linas-Montlhery"
+        }
+      ],
+      "aliases": [
+        "Linas-Montlhery"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:238797",
       "name": "Boulay",
       "country": "France",
@@ -40637,6 +41363,22 @@
       ],
       "aliases": [
         "Boulay"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:238799",
+      "name": "Vandœuvre",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "238799",
+          "name_as_stored": "Vandœuvre"
+        }
+      ],
+      "aliases": [
+        "Vandœuvre"
       ],
       "contested_name": false
     },
@@ -40685,6 +41427,22 @@
       ],
       "aliases": [
         "Rekord Bielsko-Biała"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:238832",
+      "name": "Nueillaubiers",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "238832",
+          "name_as_stored": "Nueillaubiers"
+        }
+      ],
+      "aliases": [
+        "Nueillaubiers"
       ],
       "contested_name": false
     },
@@ -41313,9 +42071,13 @@
         }
       ],
       "aliases": [
-        "FC Volendam"
+        "FC Volendam",
+        "Volendam"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Volendam\" — FC Volendam (N1) — bukan RKAV Volendam (amatir)."
+      ]
     },
     {
       "canonical_id": "sm:239618",
@@ -41665,9 +42427,13 @@
         }
       ],
       "aliases": [
-        "KAS Eupen"
+        "KAS Eupen",
+        "Eupen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Eupen\" — CSV 'Eupen' di B1 (kasta tertinggi) = KAS Eupen, bukan FC Eupen (entitas lain)."
+      ]
     },
     {
       "canonical_id": "sm:24133",
@@ -42033,9 +42799,13 @@
         }
       ],
       "aliases": [
-        "K. Beerschot V.A."
+        "K. Beerschot V.A.",
+        "Beerschot VA"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Beerschot VA\" — Bentuk CSV untuk K. Beerschot V.A. (B1)."
+      ]
     },
     {
       "canonical_id": "sm:24323",
@@ -44198,6 +44968,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:249096",
+      "name": "Saint Sebastien",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "249096",
+          "name_as_stored": "Saint Sébastien"
+        }
+      ],
+      "aliases": [
+        "Saint Sébastien"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:249111",
       "name": "Turnerschaft Ober-Roden",
       "country": "World",
@@ -45761,9 +46547,13 @@
         }
       ],
       "aliases": [
-        "Huddersfield Town"
+        "Huddersfield Town",
+        "Huddersfield"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Huddersfield\" — Bentuk pendek CSV untuk Huddersfield Town."
+      ]
     },
     {
       "canonical_id": "sm:2510",
@@ -46556,6 +47346,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:253457",
+      "name": "Union Cosnoise",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "253457",
+          "name_as_stored": "Union Cosnoise"
+        }
+      ],
+      "aliases": [
+        "Union Cosnoise"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:2535",
       "name": "Hacken",
       "country": "Europe",
@@ -46631,9 +47437,13 @@
         }
       ],
       "aliases": [
-        "Peterborough United"
+        "Peterborough United",
+        "Peterboro"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Peterboro\" — Singkatan CSV untuk Peterborough United."
+      ]
     },
     {
       "canonical_id": "sm:254043",
@@ -46989,6 +47799,22 @@
       ],
       "aliases": [
         "FA Tartu Kalev"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:255250",
+      "name": "Olympique Cayenne",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "255250",
+          "name_as_stored": "Olympique Cayenne"
+        }
+      ],
+      "aliases": [
+        "Olympique Cayenne"
       ],
       "contested_name": false
     },
@@ -50124,9 +50950,13 @@
         }
       ],
       "aliases": [
-        "CF Os Belenenses"
+        "CF Os Belenenses",
+        "Belenenses"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Belenenses\" — Nama CSV lintas era dijangkar ke CF Os Belenenses; era Belenenses SAD (2018+) tercatat sebagai ambiguitas nama yang sama di CSV."
+      ]
     },
     {
       "canonical_id": "sm:258780",
@@ -50998,6 +51828,38 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:259884",
+      "name": "Perros-Louannec",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "259884",
+          "name_as_stored": "Perros-Louannec"
+        }
+      ],
+      "aliases": [
+        "Perros-Louannec"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:259885",
+      "name": "Chatou",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "259885",
+          "name_as_stored": "Chatou"
+        }
+      ],
+      "aliases": [
+        "Chatou"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:259896",
       "name": "Raismes",
       "country": "France",
@@ -51142,6 +52004,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:260070",
+      "name": "Sporting Baie-Mahault",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "260070",
+          "name_as_stored": "Sporting Baie-Mahault"
+        }
+      ],
+      "aliases": [
+        "Sporting Baie-Mahault"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:2601",
       "name": "Sarpsborg 08",
       "country": "Norway",
@@ -51170,6 +52048,22 @@
       ],
       "aliases": [
         "Charlotte"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:260131",
+      "name": "TBC",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "260131",
+          "name_as_stored": "TBC"
+        }
+      ],
+      "aliases": [
+        "TBC"
       ],
       "contested_name": false
     },
@@ -54118,6 +55012,38 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:263140",
+      "name": "7th ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "263140",
+          "name_as_stored": "7th ranked"
+        }
+      ],
+      "aliases": [
+        "7th ranked"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:263141",
+      "name": "8th ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "263141",
+          "name_as_stored": "8th ranked"
+        }
+      ],
+      "aliases": [
+        "8th ranked"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:263154",
       "name": "First Vienna W",
       "country": "Europe",
@@ -55090,6 +56016,22 @@
       ],
       "aliases": [
         "Cercle Brugge"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:264103",
+      "name": "Horizon Patho",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "264103",
+          "name_as_stored": "Horizon Patho"
+        }
+      ],
+      "aliases": [
+        "Horizon Patho"
       ],
       "contested_name": false
     },
@@ -57603,6 +58545,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:266822",
+      "name": "Le Pays du Valois",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "266822",
+          "name_as_stored": "Le Pays du Valois"
+        }
+      ],
+      "aliases": [
+        "Le Pays du Valois"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:266824",
       "name": "Liancourt Clermont",
       "country": "France",
@@ -57631,6 +58589,38 @@
       ],
       "aliases": [
         "Pays de Cassel"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:266864",
+      "name": "3rd ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "266864",
+          "name_as_stored": "3rd ranked"
+        }
+      ],
+      "aliases": [
+        "3rd ranked"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:266889",
+      "name": "2nd ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "266889",
+          "name_as_stored": "2nd ranked"
+        }
+      ],
+      "aliases": [
+        "2nd ranked"
       ],
       "contested_name": false
     },
@@ -59289,6 +60279,22 @@
       ],
       "aliases": [
         "Les Sables"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:269701",
+      "name": "FC Montlouis",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "269701",
+          "name_as_stored": "FC Montlouis"
+        }
+      ],
+      "aliases": [
+        "FC Montlouis"
       ],
       "contested_name": false
     },
@@ -61357,11 +62363,13 @@
       ],
       "aliases": [
         "Hoffenheim",
-        "TSG Hoffenheim"
+        "TSG Hoffenheim",
+        "TSG 1899 Hoffenheim"
       ],
       "contested_name": false,
       "resolution_notes": [
-        "Satu klub: TSG Hoffenheim (Jerman); fd nama pendek CSV."
+        "Satu klub: TSG Hoffenheim (Jerman); fd nama pendek CSV.",
+        "Alias eksternal diputuskan: \"TSG 1899 Hoffenheim\" — Bentuk CSV dengan tahun berdiri; kanonik TSG Hoffenheim."
       ],
       "distinct_from": []
     },
@@ -66193,6 +67201,38 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:279143",
+      "name": "1st ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "279143",
+          "name_as_stored": "1st ranked"
+        }
+      ],
+      "aliases": [
+        "1st ranked"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:279144",
+      "name": "4th ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "279144",
+          "name_as_stored": "4th ranked"
+        }
+      ],
+      "aliases": [
+        "4th ranked"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:279158",
       "name": "Bandrele",
       "country": "France",
@@ -66225,6 +67265,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:279161",
+      "name": "6th ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "279161",
+          "name_as_stored": "6th ranked"
+        }
+      ],
+      "aliases": [
+        "6th ranked"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:279284",
       "name": "Schwabisch Hall",
       "country": "World",
@@ -66237,6 +67293,22 @@
       ],
       "aliases": [
         "Schwäbisch Hall"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:279289",
+      "name": "5th ranked",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "279289",
+          "name_as_stored": "5th ranked"
+        }
+      ],
+      "aliases": [
+        "5th ranked"
       ],
       "contested_name": false
     },
@@ -68213,6 +69285,11 @@
           "system": "sportmonks",
           "team_id": "28249",
           "name_as_stored": "Lourdes"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "282973",
+          "name_as_stored": "Lourdes"
         }
       ],
       "aliases": [
@@ -68265,6 +69342,22 @@
       ],
       "aliases": [
         "Cortes"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:28261",
+      "name": "Pamplona",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "28261",
+          "name_as_stored": "Pamplona"
+        }
+      ],
+      "aliases": [
+        "Pamplona"
       ],
       "contested_name": false
     },
@@ -68477,6 +69570,214 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:282946",
+      "name": "Tinteniac St Domineuc",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282946",
+          "name_as_stored": "Tinténiac St Domineuc"
+        }
+      ],
+      "aliases": [
+        "Tinténiac St Domineuc"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282947",
+      "name": "Saint-Die Kellermann",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282947",
+          "name_as_stored": "Saint-Dié Kellermann"
+        }
+      ],
+      "aliases": [
+        "Saint-Dié Kellermann"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282948",
+      "name": "Neuvillette-Jamin",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282948",
+          "name_as_stored": "Neuvillette-Jamin"
+        }
+      ],
+      "aliases": [
+        "Neuvillette-Jamin"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282950",
+      "name": "Massay",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282950",
+          "name_as_stored": "Massay"
+        }
+      ],
+      "aliases": [
+        "Massay"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282951",
+      "name": "Maisons-Alfort",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282951",
+          "name_as_stored": "Maisons-Alfort"
+        }
+      ],
+      "aliases": [
+        "Maisons-Alfort"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282952",
+      "name": "Val Yerres Crosne",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282952",
+          "name_as_stored": "Val Yerres Crosne"
+        }
+      ],
+      "aliases": [
+        "Val Yerres Crosne"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282953",
+      "name": "Montreuil-sur-Mer",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282953",
+          "name_as_stored": "Montreuil-sur-Mer"
+        }
+      ],
+      "aliases": [
+        "Montreuil-sur-Mer"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282954",
+      "name": "Stade Sotteville",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282954",
+          "name_as_stored": "Stade Sotteville"
+        }
+      ],
+      "aliases": [
+        "Stade Sotteville"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282955",
+      "name": "Fecamp",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282955",
+          "name_as_stored": "Fécamp"
+        }
+      ],
+      "aliases": [
+        "Fécamp"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282956",
+      "name": "Verson",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282956",
+          "name_as_stored": "Verson"
+        }
+      ],
+      "aliases": [
+        "Verson"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282957",
+      "name": "Violaines",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282957",
+          "name_as_stored": "Violaines"
+        }
+      ],
+      "aliases": [
+        "Violaines"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282958",
+      "name": "Montigny-les-Metz",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282958",
+          "name_as_stored": "Montigny-lès-Metz"
+        }
+      ],
+      "aliases": [
+        "Montigny-lès-Metz"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282959",
+      "name": "Talange",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282959",
+          "name_as_stored": "Talange"
+        }
+      ],
+      "aliases": [
+        "Talange"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:28296",
       "name": "Illescas",
       "country": "World",
@@ -68489,6 +69790,278 @@
       ],
       "aliases": [
         "Illescas"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282960",
+      "name": "Baume-les-Dames",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282960",
+          "name_as_stored": "Baume-les-Dames"
+        }
+      ],
+      "aliases": [
+        "Baume-les-Dames"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282961",
+      "name": "Metz ESAP",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282961",
+          "name_as_stored": "Metz ESAP"
+        }
+      ],
+      "aliases": [
+        "Metz ESAP"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282962",
+      "name": "Veauche",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282962",
+          "name_as_stored": "Veauche"
+        }
+      ],
+      "aliases": [
+        "Veauche"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282963",
+      "name": "St Paul en Jarez",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282963",
+          "name_as_stored": "St Paul en Jarez"
+        }
+      ],
+      "aliases": [
+        "St Paul en Jarez"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282965",
+      "name": "Chambery Savoie",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282965",
+          "name_as_stored": "Chambéry Savoie"
+        }
+      ],
+      "aliases": [
+        "Chambéry Savoie"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282966",
+      "name": "Chamois Niortais St Flo",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282966",
+          "name_as_stored": "Chamois Niortais St Flo"
+        }
+      ],
+      "aliases": [
+        "Chamois Niortais St Flo"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282967",
+      "name": "Rhone Crussol Foot",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282967",
+          "name_as_stored": "Rhône Crussol Foot"
+        }
+      ],
+      "aliases": [
+        "Rhône Crussol Foot"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282968",
+      "name": "Contres",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282968",
+          "name_as_stored": "Contres"
+        }
+      ],
+      "aliases": [
+        "Contres"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282969",
+      "name": "Puissalicon Magalas",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282969",
+          "name_as_stored": "Puissalicon Magalas"
+        }
+      ],
+      "aliases": [
+        "Puissalicon Magalas"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282970",
+      "name": "Claira / St Laurent",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282970",
+          "name_as_stored": "Claira / St Laurent"
+        }
+      ],
+      "aliases": [
+        "Claira / St Laurent"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282971",
+      "name": "Pont-de-Cheruy",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282971",
+          "name_as_stored": "Pont-de-Chéruy"
+        }
+      ],
+      "aliases": [
+        "Pont-de-Chéruy"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282972",
+      "name": "Stade Castelbourgeois",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282972",
+          "name_as_stored": "Stade Castelbourgeois"
+        }
+      ],
+      "aliases": [
+        "Stade Castelbourgeois"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282975",
+      "name": "Boulazac",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282975",
+          "name_as_stored": "Boulazac"
+        }
+      ],
+      "aliases": [
+        "Boulazac"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282976",
+      "name": "St Andre St Macaire",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282976",
+          "name_as_stored": "St André St Macaire"
+        }
+      ],
+      "aliases": [
+        "St André St Macaire"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282977",
+      "name": "OM Cambrai Amerique",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282977",
+          "name_as_stored": "OM Cambrai Amérique"
+        }
+      ],
+      "aliases": [
+        "OM Cambrai Amérique"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282996",
+      "name": "Racing Chambery",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282996",
+          "name_as_stored": "Racing Chambéry"
+        }
+      ],
+      "aliases": [
+        "Racing Chambéry"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:282997",
+      "name": "St Martin Tatinghem",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "282997",
+          "name_as_stored": "St Martin Tatinghem"
+        }
+      ],
+      "aliases": [
+        "St Martin Tatinghem"
       ],
       "contested_name": false
     },
@@ -69338,6 +70911,22 @@
       ],
       "aliases": [
         "SA Merignac"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:28756",
+      "name": "ES Buxerolles",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "28756",
+          "name_as_stored": "ES Buxerolles"
+        }
+      ],
+      "aliases": [
+        "ES Buxerolles"
       ],
       "contested_name": false
     },
@@ -73426,11 +75015,13 @@
       ],
       "aliases": [
         "Bayer 04 Leverkusen",
-        "Leverkusen"
+        "Leverkusen",
+        "Bayer Leverkusen"
       ],
       "contested_name": false,
       "resolution_notes": [
-        "Satu klub: Bayer 04 Leverkusen; fd nama pendek CSV, tm pembawa data (145 match)."
+        "Satu klub: Bayer 04 Leverkusen; fd nama pendek CSV, tm pembawa data (145 match).",
+        "Alias eksternal diputuskan: \"Bayer Leverkusen\" — Bentuk CSV tanpa '04'; kanonik Bayer 04 Leverkusen."
       ],
       "distinct_from": []
     },
@@ -74976,9 +76567,13 @@
         }
       ],
       "aliases": [
-        "Wehen Wiesbaden"
+        "Wehen Wiesbaden",
+        "Wehen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Wehen\" — Bentuk pendek CSV untuk Wehen Wiesbaden."
+      ]
     },
     {
       "canonical_id": "sm:3520",
@@ -75327,6 +76922,22 @@
       ],
       "aliases": [
         "Barcelona RO"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:3553",
+      "name": "Amneville",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "3553",
+          "name_as_stored": "Amneville"
+        }
+      ],
+      "aliases": [
+        "Amneville"
       ],
       "contested_name": false
     },
@@ -76377,9 +77988,13 @@
         }
       ],
       "aliases": [
-        "Eintracht Frankfurt"
+        "Eintracht Frankfurt",
+        "Ein Frankfurt"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Ein Frankfurt\" — Singkatan CSV 'Ein' = Eintracht Frankfurt (bukan FSV Frankfurt)."
+      ]
     },
     {
       "canonical_id": "sm:3663",
@@ -78306,9 +79921,13 @@
         }
       ],
       "aliases": [
-        "SPAL"
+        "SPAL",
+        "Spal"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Spal\" — Ejaan CSV untuk SPAL (I2 Italia)."
+      ]
     },
     {
       "canonical_id": "sm:3941",
@@ -78669,9 +80288,13 @@
         }
       ],
       "aliases": [
-        "Fatih Karagümrük"
+        "Fatih Karagümrük",
+        "Karagumruk"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Karagumruk\" — Ejaan CSV tanpa diakritik untuk Fatih Karagumruk (T1)."
+      ]
     },
     {
       "canonical_id": "sm:3992",
@@ -80940,9 +82563,13 @@
         }
       ],
       "aliases": [
-        "Bari 1908"
+        "Bari 1908",
+        "SSC Bari"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"SSC Bari\" — SSC Bari = entitas Bari 1908 di SM (I2)."
+      ]
     },
     {
       "canonical_id": "sm:4454",
@@ -82449,11 +84076,13 @@
       ],
       "aliases": [
         "Darmstadt",
-        "Darmstadt 98"
+        "Darmstadt 98",
+        "SV Darmstadt 98"
       ],
       "contested_name": false,
       "resolution_notes": [
-        "Satu klub: Darmstadt 98 (Jerman); fd nama pendek CSV."
+        "Satu klub: Darmstadt 98 (Jerman); fd nama pendek CSV.",
+        "Alias eksternal diputuskan: \"SV Darmstadt 98\" — Bentuk CSV dengan 'SV'; kanonik Darmstadt 98."
       ],
       "distinct_from": []
     },
@@ -84657,6 +86286,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:5400",
+      "name": "Balma",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "5400",
+          "name_as_stored": "Balma"
+        }
+      ],
+      "aliases": [
+        "Balma"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:5401",
       "name": "Garbarnia Krakow",
       "country": "World",
@@ -84700,9 +86345,13 @@
         }
       ],
       "aliases": [
-        "Kallithea"
+        "Kallithea",
+        "Athens Kallithea"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Athens Kallithea\" — Athens Kallithea FC = Kallithea (G1)."
+      ]
     },
     {
       "canonical_id": "sm:5419",
@@ -84732,9 +86381,13 @@
         }
       ],
       "aliases": [
-        "PAS Giannina"
+        "PAS Giannina",
+        "Giannina"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Giannina\" — Bentuk pendek CSV untuk PAS Giannina (G1 Yunani)."
+      ]
     },
     {
       "canonical_id": "sm:5421",
@@ -85516,9 +87169,13 @@
         }
       ],
       "aliases": [
-        "Sheffield Wednesday"
+        "Sheffield Wednesday",
+        "Sheffield Weds"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Sheffield Weds\" — Bentuk CSV untuk Sheffield Wednesday."
+      ]
     },
     {
       "canonical_id": "sm:5618",
@@ -91813,6 +93470,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:6908",
+      "name": "Sedan",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "6908",
+          "name_as_stored": "Sedan"
+        }
+      ],
+      "aliases": [
+        "Sedan"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:6911",
       "name": "Avellino",
       "country": "Italy",
@@ -92746,6 +94419,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:7069",
+      "name": "St-Pryve St-Hilaire",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "7069",
+          "name_as_stored": "St-Pryvé St-Hilaire"
+        }
+      ],
+      "aliases": [
+        "St-Pryvé St-Hilaire"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:708",
       "name": "Atalanta BC",
       "country": null,
@@ -92806,6 +94495,11 @@
         {
           "system": "sportmonks",
           "team_id": "7092",
+          "name_as_stored": "Rochefort"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "282964",
           "name_as_stored": "Rochefort"
         }
       ],
@@ -92880,6 +94574,22 @@
       ],
       "aliases": [
         "USSA Vertou"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:7125",
+      "name": "Avenir Foot Lozere",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "7125",
+          "name_as_stored": "Avenir Foot Lozere"
+        }
+      ],
+      "aliases": [
+        "Avenir Foot Lozere"
       ],
       "contested_name": false
     },
@@ -93040,6 +94750,22 @@
       ],
       "aliases": [
         "Central Español"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:7192",
+      "name": "Le Poire sur Vie VF",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "7192",
+          "name_as_stored": "Le Poire sur Vie VF"
+        }
+      ],
+      "aliases": [
+        "Le Poire sur Vie VF"
       ],
       "contested_name": false
     },
@@ -96459,9 +98185,13 @@
         }
       ],
       "aliases": [
-        "RKC Waalwijk"
+        "RKC Waalwijk",
+        "Waalwijk"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Waalwijk\" — Bentuk pendek CSV untuk RKC Waalwijk (N1)."
+      ]
     },
     {
       "canonical_id": "sm:8149",
@@ -97219,9 +98949,13 @@
         }
       ],
       "aliases": [
-        "RWDM Brussels"
+        "RWDM Brussels",
+        "RWD Molenbeek"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"RWD Molenbeek\" — RWD Molenbeek = RWDM Brussels (nama kini klub yang sama, B1)."
+      ]
     },
     {
       "canonical_id": "sm:8309",
@@ -97565,9 +99299,13 @@
         }
       ],
       "aliases": [
-        "Racing Ferrol"
+        "Racing Ferrol",
+        "Ferrol"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Ferrol\" — Bentuk pendek CSV untuk Racing de Ferrol (SP2)."
+      ]
     },
     {
       "canonical_id": "sm:84",
@@ -97583,7 +99321,13 @@
       "aliases": [
         "Qatar SC"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:18544",
+          "reason": "Qatar (tim NASIONAL, id 18544) vs Qatar SC (klub) — entitas berbeda kategori."
+        }
+      ]
     },
     {
       "canonical_id": "sm:840",
@@ -100523,6 +102267,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:922",
+      "name": "Olhanense",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "922",
+          "name_as_stored": "Olhanense"
+        }
+      ],
+      "aliases": [
+        "Olhanense"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:9225",
       "name": "PKKU",
       "country": "World",
@@ -101179,6 +102939,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9379",
+      "name": "Senlis",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9379",
+          "name_as_stored": "Senlis"
+        }
+      ],
+      "aliases": [
+        "Senlis"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:9383",
       "name": "Romorantin",
       "country": "France",
@@ -101319,6 +103095,22 @@
       ],
       "aliases": [
         "Sparta Lichtenberg"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9416",
+      "name": "CPBB Rennes",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9416",
+          "name_as_stored": "CPBB Rennes"
+        }
+      ],
+      "aliases": [
+        "CPBB Rennes"
       ],
       "contested_name": false
     },
@@ -101995,6 +103787,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9460",
+      "name": "Lannion",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9460",
+          "name_as_stored": "Lannion"
+        }
+      ],
+      "aliases": [
+        "Lannion"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:94617",
       "name": "UD Ourense",
       "country": "World",
@@ -102077,6 +103885,22 @@
       ],
       "aliases": [
         "MOL Fehérvár"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9483",
+      "name": "Limonest",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9483",
+          "name_as_stored": "Limonest"
+        }
+      ],
+      "aliases": [
+        "Limonest"
       ],
       "contested_name": false
     },
@@ -102273,6 +104097,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9529",
+      "name": "Anglet Genets",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9529",
+          "name_as_stored": "Anglet Genets"
+        }
+      ],
+      "aliases": [
+        "Anglet Genets"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:9531",
       "name": "Sanjoanense",
       "country": "Portugal",
@@ -102433,6 +104273,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9557",
+      "name": "TA Rennes",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9557",
+          "name_as_stored": "TA Rennes"
+        }
+      ],
+      "aliases": [
+        "TA Rennes"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:956",
       "name": "1. FC Nurnberg",
       "country": "Germany",
@@ -102497,6 +104353,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9573",
+      "name": "Saint-Omer",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9573",
+          "name_as_stored": "Saint-Omer"
+        }
+      ],
+      "aliases": [
+        "Saint-Omer"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:9574",
       "name": "Vesoul",
       "country": "France",
@@ -102509,6 +104381,22 @@
       ],
       "aliases": [
         "Vesoul"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9576",
+      "name": "Pontarlier",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9576",
+          "name_as_stored": "Pontarlier"
+        }
+      ],
+      "aliases": [
+        "Pontarlier"
       ],
       "contested_name": false
     },
@@ -102557,6 +104445,22 @@
       ],
       "aliases": [
         "JS Kabylie"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9595",
+      "name": "St Ouen l'Aumone",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9595",
+          "name_as_stored": "St Ouen l'Aumône"
+        }
+      ],
+      "aliases": [
+        "St Ouen l'Aumône"
       ],
       "contested_name": false
     },
@@ -102621,6 +104525,22 @@
       ],
       "aliases": [
         "Boavista"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9606",
+      "name": "Castanet",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9606",
+          "name_as_stored": "Castanet"
+        }
+      ],
+      "aliases": [
+        "Castanet"
       ],
       "contested_name": false
     },
@@ -102753,6 +104673,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9641",
+      "name": "Choisy au Bac",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9641",
+          "name_as_stored": "Choisy au Bac"
+        }
+      ],
+      "aliases": [
+        "Choisy au Bac"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:965",
       "name": "Matlock Town",
       "country": "England",
@@ -102865,6 +104801,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "sm:9678",
+      "name": "Cournon",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9678",
+          "name_as_stored": "Cournon"
+        }
+      ],
+      "aliases": [
+        "Cournon"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "sm:9682",
       "name": "Felgueiras 1932",
       "country": "Portugal",
@@ -102893,6 +104845,22 @@
       ],
       "aliases": [
         "Haguenau"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "sm:9692",
+      "name": "Racing Colombes 92",
+      "country": null,
+      "members": [
+        {
+          "system": "sportmonks",
+          "team_id": "9692",
+          "name_as_stored": "Racing Colombes 92"
+        }
+      ],
+      "aliases": [
+        "Racing Colombes 92"
       ],
       "contested_name": false
     },
@@ -103140,9 +105108,13 @@
       ],
       "aliases": [
         "Racing Santander",
-        "Racing de Santander"
+        "Racing de Santander",
+        "Santander"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"Santander\" — Bentuk pendek CSV untuk Racing de Santander (bukan tim II)."
+      ]
     },
     {
       "canonical_id": "sm:9822",
@@ -104349,9 +106321,13 @@
         }
       ],
       "aliases": [
-        "Deportivo La Coruña"
+        "Deportivo La Coruña",
+        "La Coruna"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Alias eksternal diputuskan: \"La Coruna\" — Bentuk CSV untuk Deportivo La Coruna (bukan tim II)."
+      ]
     },
     {
       "canonical_id": "tm_master_charleroi",
