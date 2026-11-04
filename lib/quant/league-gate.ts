@@ -3,10 +3,12 @@
  * (thestats_dataset.db) ke jalur analisis.
  *
  * Registry adalah sumber kebenaran status per liga (ditulis
- * scripts/calibrate-ratings.ts):
- *   calibrated   → boleh disajikan normal
- *   partial      → boleh disajikan HANYA dengan flag eksplisit
- *   uncalibrated → TIDAK boleh disajikan (blokir + alasan eksplisit)
+ * scripts/calibrate-ratings.ts). Keputusan owner 2026-11-05: status adalah
+ * LABEL, bukan gerbang pemblokir — semua status boleh disajikan selama
+ * fit-nya ada, dan status + alasannya wajib menempel sebagai label jujur:
+ *   calibrated   → disajikan normal
+ *   partial      → disajikan dengan flag eksplisit
+ *   uncalibrated → disajikan dengan flag eksplisit (bila fit tersedia)
  *
  * Modul ini murni membaca registry (cache per proses). Bila registry/DB
  * tidak tersedia, return null — pemanggil wajib menandai status
@@ -90,7 +92,7 @@ function reasonFor(row: RegistryRow): string {
   const bits: string[] = [];
   if (row.status === "calibrated") bits.push("Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia).");
   if (row.status === "partial") bits.push("Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh.");
-  if (row.status === "uncalibrated") bits.push("Liga UNCALIBRATED — analisis kuantitatif diblokir.");
+  if (row.status === "uncalibrated") bits.push("Liga UNCALIBRATED — tersaji berlabel jujur (gerbang = label, bukan blokir; keputusan owner 2026-11-05).");
   if (row.scale_ratio != null) bits.push(`rasio skala=${row.scale_ratio}`);
   if (row.telemetry_coverage != null) bits.push(`cakupan telemetri=${row.telemetry_coverage}`);
   if (row.notes) bits.push(row.notes);

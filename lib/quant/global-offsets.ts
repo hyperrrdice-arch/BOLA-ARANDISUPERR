@@ -15,9 +15,9 @@
  * metadata agar konsumen tahu tidak ada form live yang dipakai.
  *
  * Status kompetisi dibaca dari registry league_calibration lewat
- * league-gate (sumber kebenaran status): uncalibrated diblokir pemanggil
- * (ratings-loader) sebelum modul ini dipanggil; partial tersaji dengan
- * flag di metadata.calibrationStatus.
+ * league-gate (sumber kebenaran status): status — termasuk uncalibrated —
+ * adalah label (keputusan owner 2026-11-05), diteruskan pemanggil
+ * (ratings-loader) sebagai flag di metadata.calibrationStatus.
  */
 import { normalizeTeamName } from "./team-normalizer";
 import {

@@ -1,8 +1,8 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-04T18:47:35.685Z",
-  "totalLeagues": 72,
-  "totalTeams": 1842,
+  "compiledAt": "2026-11-04T20:05:46.686Z",
+  "totalLeagues": 80,
+  "totalTeams": 2109,
   "leagues": {
     "B1": {
       "div": "B1",
@@ -17757,108 +17757,2551 @@
           "lastMatchDate": "2026-10-03"
         }
       }
+    },
+    "SM14": {
+      "div": "SM14",
+      "leagueName": "League Two",
+      "country": "England",
+      "seasonCount": 3,
+      "totalMatches": 1277,
+      "leagueAvgGoals": 1.1573,
+      "homeAdvantage": 1.2271,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:14",
+      "teams": {
+        "Chesterfield": {
+          "name": "Chesterfield",
+          "attack": 1.1867,
+          "defense": 0.9878,
+          "matchesCount": 110,
+          "goalsScored": 169,
+          "goalsConceded": 136,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Swindon Town": {
+          "name": "Swindon Town",
+          "attack": 1.0979,
+          "defense": 1.0103,
+          "matchesCount": 106,
+          "goalsScored": 156,
+          "goalsConceded": 139,
+          "lastMatchDate": "2026-10-31"
+        },
+        "AFC Wimbledon": {
+          "name": "AFC Wimbledon",
+          "attack": 0.9392,
+          "defense": 0.6068,
+          "matchesCount": 49,
+          "goalsScored": 59,
+          "goalsConceded": 35,
+          "lastMatchDate": "2025-05-26"
+        },
+        "Colchester United": {
+          "name": "Colchester United",
+          "attack": 0.9386,
+          "defense": 0.9133,
+          "matchesCount": 105,
+          "goalsScored": 126,
+          "goalsConceded": 115,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Barrow": {
+          "name": "Barrow",
+          "attack": 0.8459,
+          "defense": 1.1669,
+          "matchesCount": 92,
+          "goalsScored": 97,
+          "goalsConceded": 128,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Crewe Alexandra": {
+          "name": "Crewe Alexandra",
+          "attack": 0.9837,
+          "defense": 0.9616,
+          "matchesCount": 106,
+          "goalsScored": 130,
+          "goalsConceded": 123,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Cheltenham Town": {
+          "name": "Cheltenham Town",
+          "attack": 1.0472,
+          "defense": 1.2907,
+          "matchesCount": 106,
+          "goalsScored": 136,
+          "goalsConceded": 174,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Newport County": {
+          "name": "Newport County",
+          "attack": 0.912,
+          "defense": 1.1888,
+          "matchesCount": 106,
+          "goalsScored": 120,
+          "goalsConceded": 170,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Doncaster Rovers": {
+          "name": "Doncaster Rovers",
+          "attack": 1.2428,
+          "defense": 0.8767,
+          "matchesCount": 46,
+          "goalsScored": 73,
+          "goalsConceded": 50,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Accrington Stanley": {
+          "name": "Accrington Stanley",
+          "attack": 0.9592,
+          "defense": 1.0308,
+          "matchesCount": 106,
+          "goalsScored": 123,
+          "goalsConceded": 144,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Fleetwood Town": {
+          "name": "Fleetwood Town",
+          "attack": 0.9796,
+          "defense": 1.007,
+          "matchesCount": 106,
+          "goalsScored": 135,
+          "goalsConceded": 136,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Grimsby Town": {
+          "name": "Grimsby Town",
+          "attack": 1.2126,
+          "defense": 0.9976,
+          "matchesCount": 107,
+          "goalsScored": 160,
+          "goalsConceded": 137,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Gillingham": {
+          "name": "Gillingham",
+          "attack": 0.901,
+          "defense": 1.1025,
+          "matchesCount": 106,
+          "goalsScored": 114,
+          "goalsConceded": 137,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Carlisle United": {
+          "name": "Carlisle United",
+          "attack": 0.8408,
+          "defense": 1.1614,
+          "matchesCount": 46,
+          "goalsScored": 44,
+          "goalsConceded": 71,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Harrogate Town": {
+          "name": "Harrogate Town",
+          "attack": 0.7368,
+          "defense": 1.085,
+          "matchesCount": 92,
+          "goalsScored": 82,
+          "goalsConceded": 129,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Bromley": {
+          "name": "Bromley",
+          "attack": 1.1573,
+          "defense": 0.8719,
+          "matchesCount": 92,
+          "goalsScored": 135,
+          "goalsConceded": 105,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Milton Keynes Dons": {
+          "name": "Milton Keynes Dons",
+          "attack": 1.2384,
+          "defense": 0.9017,
+          "matchesCount": 92,
+          "goalsScored": 138,
+          "goalsConceded": 111,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Bradford City": {
+          "name": "Bradford City",
+          "attack": 1.1011,
+          "defense": 0.8157,
+          "matchesCount": 46,
+          "goalsScored": 64,
+          "goalsConceded": 45,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Salford City": {
+          "name": "Salford City",
+          "attack": 1.1412,
+          "defense": 0.8979,
+          "matchesCount": 108,
+          "goalsScored": 152,
+          "goalsConceded": 124,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Port Vale": {
+          "name": "Port Vale",
+          "attack": 0.9369,
+          "defense": 0.8571,
+          "matchesCount": 58,
+          "goalsScored": 75,
+          "goalsConceded": 60,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Tranmere Rovers": {
+          "name": "Tranmere Rovers",
+          "attack": 0.9177,
+          "defense": 1.2,
+          "matchesCount": 106,
+          "goalsScored": 118,
+          "goalsConceded": 161,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Notts County": {
+          "name": "Notts County",
+          "attack": 1.1935,
+          "defense": 0.8484,
+          "matchesCount": 97,
+          "goalsScored": 146,
+          "goalsConceded": 103,
+          "lastMatchDate": "2026-05-25"
+        },
+        "Walsall": {
+          "name": "Walsall",
+          "attack": 1.11,
+          "defense": 0.9308,
+          "matchesCount": 108,
+          "goalsScored": 156,
+          "goalsConceded": 124,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Morecambe": {
+          "name": "Morecambe",
+          "attack": 0.7523,
+          "defense": 1.1816,
+          "matchesCount": 46,
+          "goalsScored": 40,
+          "goalsConceded": 72,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Barnet": {
+          "name": "Barnet",
+          "attack": 1.3177,
+          "defense": 0.9901,
+          "matchesCount": 59,
+          "goalsScored": 98,
+          "goalsConceded": 71,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Bristol Rovers": {
+          "name": "Bristol Rovers",
+          "attack": 0.9808,
+          "defense": 1.1255,
+          "matchesCount": 60,
+          "goalsScored": 73,
+          "goalsConceded": 88,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Cambridge United": {
+          "name": "Cambridge United",
+          "attack": 1.1101,
+          "defense": 0.6046,
+          "matchesCount": 46,
+          "goalsScored": 66,
+          "goalsConceded": 33,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Crawley Town": {
+          "name": "Crawley Town",
+          "attack": 0.8044,
+          "defense": 1.1777,
+          "matchesCount": 58,
+          "goalsScored": 57,
+          "goalsConceded": 89,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Oldham Athletic": {
+          "name": "Oldham Athletic",
+          "attack": 0.9883,
+          "defense": 0.8933,
+          "matchesCount": 60,
+          "goalsScored": 75,
+          "goalsConceded": 63,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Shrewsbury Town": {
+          "name": "Shrewsbury Town",
+          "attack": 0.8339,
+          "defense": 1.1701,
+          "matchesCount": 60,
+          "goalsScored": 59,
+          "goalsConceded": 91,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Rochdale": {
+          "name": "Rochdale",
+          "attack": 0.9714,
+          "defense": 1.3019,
+          "matchesCount": 14,
+          "goalsScored": 17,
+          "goalsConceded": 26,
+          "lastMatchDate": "2026-10-31"
+        },
+        "York City": {
+          "name": "York City",
+          "attack": 1.1989,
+          "defense": 1.1275,
+          "matchesCount": 14,
+          "goalsScored": 24,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Northampton Town": {
+          "name": "Northampton Town",
+          "attack": 0.6787,
+          "defense": 0.7695,
+          "matchesCount": 13,
+          "goalsScored": 9,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Exeter City": {
+          "name": "Exeter City",
+          "attack": 0.7429,
+          "defense": 0.6629,
+          "matchesCount": 14,
+          "goalsScored": 11,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Rotherham United": {
+          "name": "Rotherham United",
+          "attack": 1.0004,
+          "defense": 1.2847,
+          "matchesCount": 14,
+          "goalsScored": 18,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-10-31"
+        }
+      }
+    },
+    "SM274": {
+      "div": "SM274",
+      "leagueName": "First Division",
+      "country": "Denmark",
+      "seasonCount": 3,
+      "totalMatches": 462,
+      "leagueAvgGoals": 1.3242,
+      "homeAdvantage": 1.1103,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:274",
+      "teams": {
+        "B 93": {
+          "name": "B 93",
+          "attack": 0.9181,
+          "defense": 1.3463,
+          "matchesCount": 64,
+          "goalsScored": 86,
+          "goalsConceded": 119,
+          "lastMatchDate": "2026-05-30"
+        },
+        "Kolding IF": {
+          "name": "Kolding IF",
+          "attack": 0.8528,
+          "defense": 0.8384,
+          "matchesCount": 77,
+          "goalsScored": 89,
+          "goalsConceded": 85,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Hvidovre": {
+          "name": "Hvidovre",
+          "attack": 0.9954,
+          "defense": 0.8134,
+          "matchesCount": 77,
+          "goalsScored": 100,
+          "goalsConceded": 87,
+          "lastMatchDate": "2026-10-31"
+        },
+        "HB Køge": {
+          "name": "HB Køge",
+          "attack": 0.9078,
+          "defense": 1.1746,
+          "matchesCount": 77,
+          "goalsScored": 97,
+          "goalsConceded": 130,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Vendsyssel": {
+          "name": "Vendsyssel",
+          "attack": 0.7924,
+          "defense": 1.0675,
+          "matchesCount": 45,
+          "goalsScored": 49,
+          "goalsConceded": 70,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Roskilde": {
+          "name": "Roskilde",
+          "attack": 0.8809,
+          "defense": 1.2684,
+          "matchesCount": 32,
+          "goalsScored": 37,
+          "goalsConceded": 61,
+          "lastMatchDate": "2025-05-22"
+        },
+        "Esbjerg": {
+          "name": "Esbjerg",
+          "attack": 1.0356,
+          "defense": 1.0773,
+          "matchesCount": 77,
+          "goalsScored": 113,
+          "goalsConceded": 123,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Odense BK": {
+          "name": "Odense BK",
+          "attack": 1.4114,
+          "defense": 0.8494,
+          "matchesCount": 32,
+          "goalsScored": 69,
+          "goalsConceded": 35,
+          "lastMatchDate": "2025-05-23"
+        },
+        "Horsens": {
+          "name": "Horsens",
+          "attack": 0.9809,
+          "defense": 0.7637,
+          "matchesCount": 64,
+          "goalsScored": 91,
+          "goalsConceded": 75,
+          "lastMatchDate": "2026-05-31"
+        },
+        "Fredericia": {
+          "name": "Fredericia",
+          "attack": 1.225,
+          "defense": 0.6037,
+          "matchesCount": 45,
+          "goalsScored": 86,
+          "goalsConceded": 39,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Hillerød": {
+          "name": "Hillerød",
+          "attack": 0.9535,
+          "defense": 0.9639,
+          "matchesCount": 77,
+          "goalsScored": 113,
+          "goalsConceded": 101,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Hobro": {
+          "name": "Hobro",
+          "attack": 0.8346,
+          "defense": 1.0895,
+          "matchesCount": 77,
+          "goalsScored": 95,
+          "goalsConceded": 117,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Aalborg BK": {
+          "name": "Aalborg BK",
+          "attack": 0.944,
+          "defense": 1.0648,
+          "matchesCount": 45,
+          "goalsScored": 66,
+          "goalsConceded": 65,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Middelfart": {
+          "name": "Middelfart",
+          "attack": 0.7486,
+          "defense": 1.6089,
+          "matchesCount": 32,
+          "goalsScored": 32,
+          "goalsConceded": 77,
+          "lastMatchDate": "2026-05-30"
+        },
+        "Aarhus Fremad": {
+          "name": "Aarhus Fremad",
+          "attack": 0.886,
+          "defense": 0.7629,
+          "matchesCount": 45,
+          "goalsScored": 64,
+          "goalsConceded": 48,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Lyngby Boldklub": {
+          "name": "Lyngby Boldklub",
+          "attack": 1.3623,
+          "defense": 0.8817,
+          "matchesCount": 32,
+          "goalsScored": 69,
+          "goalsConceded": 36,
+          "lastMatchDate": "2026-05-31"
+        },
+        "Vejle Boldklub": {
+          "name": "Vejle Boldklub",
+          "attack": 1.2195,
+          "defense": 0.9403,
+          "matchesCount": 13,
+          "goalsScored": 25,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Akademisk Boldklub": {
+          "name": "Akademisk Boldklub",
+          "attack": 1.0513,
+          "defense": 0.8853,
+          "matchesCount": 13,
+          "goalsScored": 18,
+          "goalsConceded": 15,
+          "lastMatchDate": "2026-10-31"
+        }
+      }
+    },
+    "SM603": {
+      "div": "SM603",
+      "leagueName": "1. Lig",
+      "country": "Turkey",
+      "seasonCount": 3,
+      "totalMatches": 894,
+      "leagueAvgGoals": 1.2368,
+      "homeAdvantage": 1.288,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:603",
+      "teams": {
+        "Sakaryaspor": {
+          "name": "Sakaryaspor",
+          "attack": 0.8211,
+          "defense": 1.192,
+          "matchesCount": 75,
+          "goalsScored": 93,
+          "goalsConceded": 123,
+          "lastMatchDate": "2026-05-01"
+        },
+        "Keçiörengücü": {
+          "name": "Keçiörengücü",
+          "attack": 1.2742,
+          "defense": 0.8975,
+          "matchesCount": 90,
+          "goalsScored": 158,
+          "goalsConceded": 115,
+          "lastMatchDate": "2026-10-30"
+        },
+        "İstanbulspor": {
+          "name": "İstanbulspor",
+          "attack": 1.0081,
+          "defense": 1.0632,
+          "matchesCount": 90,
+          "goalsScored": 135,
+          "goalsConceded": 128,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Manisa FK": {
+          "name": "Manisa FK",
+          "attack": 1.0542,
+          "defense": 1.01,
+          "matchesCount": 89,
+          "goalsScored": 128,
+          "goalsConceded": 131,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Kocaelispor": {
+          "name": "Kocaelispor",
+          "attack": 1.2159,
+          "defense": 0.8432,
+          "matchesCount": 38,
+          "goalsScored": 68,
+          "goalsConceded": 41,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Gençlerbirliği": {
+          "name": "Gençlerbirliği",
+          "attack": 1.0643,
+          "defense": 0.6958,
+          "matchesCount": 38,
+          "goalsScored": 57,
+          "goalsConceded": 34,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Adanaspor": {
+          "name": "Adanaspor",
+          "attack": 0.6661,
+          "defense": 1.299,
+          "matchesCount": 38,
+          "goalsScored": 32,
+          "goalsConceded": 75,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Esenler Erokspor": {
+          "name": "Esenler Erokspor",
+          "attack": 1.186,
+          "defense": 0.7858,
+          "matchesCount": 89,
+          "goalsScored": 149,
+          "goalsConceded": 103,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Bandırmaspor": {
+          "name": "Bandırmaspor",
+          "attack": 0.9136,
+          "defense": 0.6948,
+          "matchesCount": 92,
+          "goalsScored": 123,
+          "goalsConceded": 93,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Erzurumspor FK": {
+          "name": "Erzurumspor FK",
+          "attack": 1.2224,
+          "defense": 0.582,
+          "matchesCount": 77,
+          "goalsScored": 135,
+          "goalsConceded": 60,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Boluspor": {
+          "name": "Boluspor",
+          "attack": 0.944,
+          "defense": 1.0883,
+          "matchesCount": 91,
+          "goalsScored": 135,
+          "goalsConceded": 129,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Iğdır FK": {
+          "name": "Iğdır FK",
+          "attack": 0.9901,
+          "defense": 0.7526,
+          "matchesCount": 89,
+          "goalsScored": 127,
+          "goalsConceded": 97,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Fatih Karagümrük": {
+          "name": "Fatih Karagümrük",
+          "attack": 1.0037,
+          "defense": 0.7166,
+          "matchesCount": 51,
+          "goalsScored": 71,
+          "goalsConceded": 52,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Amed SK": {
+          "name": "Amed SK",
+          "attack": 1.1659,
+          "defense": 0.7722,
+          "matchesCount": 76,
+          "goalsScored": 124,
+          "goalsConceded": 77,
+          "lastMatchDate": "2026-05-02"
+        },
+        "Ankaragücü": {
+          "name": "Ankaragücü",
+          "attack": 0.9345,
+          "defense": 0.9257,
+          "matchesCount": 38,
+          "goalsScored": 49,
+          "goalsConceded": 48,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Şanlıurfaspor": {
+          "name": "Şanlıurfaspor",
+          "attack": 0.8602,
+          "defense": 1.0054,
+          "matchesCount": 38,
+          "goalsScored": 45,
+          "goalsConceded": 55,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Ümraniyespor": {
+          "name": "Ümraniyespor",
+          "attack": 0.8843,
+          "defense": 0.8219,
+          "matchesCount": 88,
+          "goalsScored": 109,
+          "goalsConceded": 104,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Çorum FK": {
+          "name": "Çorum FK",
+          "attack": 1.0115,
+          "defense": 0.7778,
+          "matchesCount": 78,
+          "goalsScored": 113,
+          "goalsConceded": 85,
+          "lastMatchDate": "2026-05-11"
+        },
+        "Pendikspor": {
+          "name": "Pendikspor",
+          "attack": 0.9395,
+          "defense": 0.8481,
+          "matchesCount": 89,
+          "goalsScored": 115,
+          "goalsConceded": 109,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Yeni Malatyaspor": {
+          "name": "Yeni Malatyaspor",
+          "attack": 0.3767,
+          "defense": 2.286,
+          "matchesCount": 37,
+          "goalsScored": 14,
+          "goalsConceded": 150,
+          "lastMatchDate": "2025-05-10"
+        },
+        "Sivasspor": {
+          "name": "Sivasspor",
+          "attack": 0.872,
+          "defense": 0.8909,
+          "matchesCount": 50,
+          "goalsScored": 60,
+          "goalsConceded": 63,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Serik Belediyespor": {
+          "name": "Serik Belediyespor",
+          "attack": 0.816,
+          "defense": 1.3482,
+          "matchesCount": 38,
+          "goalsScored": 44,
+          "goalsConceded": 75,
+          "lastMatchDate": "2026-05-01"
+        },
+        "Hatayspor": {
+          "name": "Hatayspor",
+          "attack": 0.6652,
+          "defense": 1.681,
+          "matchesCount": 38,
+          "goalsScored": 33,
+          "goalsConceded": 102,
+          "lastMatchDate": "2026-05-01"
+        },
+        "Sarıyer SK": {
+          "name": "Sarıyer SK",
+          "attack": 0.8199,
+          "defense": 0.8628,
+          "matchesCount": 51,
+          "goalsScored": 58,
+          "goalsConceded": 62,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Vanspor FK": {
+          "name": "Vanspor FK",
+          "attack": 0.8961,
+          "defense": 0.9621,
+          "matchesCount": 51,
+          "goalsScored": 66,
+          "goalsConceded": 69,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Bodrum FK": {
+          "name": "Bodrum FK",
+          "attack": 1.1114,
+          "defense": 0.6937,
+          "matchesCount": 53,
+          "goalsScored": 90,
+          "goalsConceded": 51,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Adana Demirspor": {
+          "name": "Adana Demirspor",
+          "attack": 0.4994,
+          "defense": 2.4923,
+          "matchesCount": 38,
+          "goalsScored": 22,
+          "goalsConceded": 169,
+          "lastMatchDate": "2026-05-01"
+        },
+        "Mardin BB": {
+          "name": "Mardin BB",
+          "attack": 1.1232,
+          "defense": 0.7181,
+          "matchesCount": 13,
+          "goalsScored": 18,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Antalyaspor": {
+          "name": "Antalyaspor",
+          "attack": 1.1412,
+          "defense": 1.0026,
+          "matchesCount": 13,
+          "goalsScored": 19,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Muğlaspor": {
+          "name": "Muğlaspor",
+          "attack": 1.143,
+          "defense": 0.9841,
+          "matchesCount": 13,
+          "goalsScored": 18,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Bursaspor": {
+          "name": "Bursaspor",
+          "attack": 1.4864,
+          "defense": 0.6556,
+          "matchesCount": 13,
+          "goalsScored": 29,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Kayserispor": {
+          "name": "Kayserispor",
+          "attack": 1.5092,
+          "defense": 0.6104,
+          "matchesCount": 13,
+          "goalsScored": 32,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Batman Petrolspor": {
+          "name": "Batman Petrolspor",
+          "attack": 1.381,
+          "defense": 1.0402,
+          "matchesCount": 13,
+          "goalsScored": 26,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        }
+      }
+    },
+    "SM860": {
+      "div": "SM860",
+      "leagueName": "Botola Pro",
+      "country": "Morocco",
+      "seasonCount": 3,
+      "totalMatches": 526,
+      "leagueAvgGoals": 1.07,
+      "homeAdvantage": 1.0715,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:860",
+      "teams": {
+        "Difaâ El Jadida": {
+          "name": "Difaâ El Jadida",
+          "attack": 1.1683,
+          "defense": 1.1892,
+          "matchesCount": 66,
+          "goalsScored": 79,
+          "goalsConceded": 89,
+          "lastMatchDate": "2026-10-30"
+        },
+        "JS Soualem": {
+          "name": "JS Soualem",
+          "attack": 0.708,
+          "defense": 1.2126,
+          "matchesCount": 30,
+          "goalsScored": 21,
+          "goalsConceded": 42,
+          "lastMatchDate": "2025-05-11"
+        },
+        "Chabab Mohammédia": {
+          "name": "Chabab Mohammédia",
+          "attack": 0.514,
+          "defense": 1.723,
+          "matchesCount": 30,
+          "goalsScored": 13,
+          "goalsConceded": 71,
+          "lastMatchDate": "2025-05-12"
+        },
+        "FAR Rabat": {
+          "name": "FAR Rabat",
+          "attack": 1.3301,
+          "defense": 0.709,
+          "matchesCount": 64,
+          "goalsScored": 98,
+          "goalsConceded": 48,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Maghreb Fès": {
+          "name": "Maghreb Fès",
+          "attack": 1.1107,
+          "defense": 0.6631,
+          "matchesCount": 66,
+          "goalsScored": 79,
+          "goalsConceded": 51,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Wydad Casablanca": {
+          "name": "Wydad Casablanca",
+          "attack": 1.1287,
+          "defense": 0.889,
+          "matchesCount": 66,
+          "goalsScored": 90,
+          "goalsConceded": 64,
+          "lastMatchDate": "2026-10-31"
+        },
+        "UTS Rabat": {
+          "name": "UTS Rabat",
+          "attack": 0.9467,
+          "defense": 0.9688,
+          "matchesCount": 66,
+          "goalsScored": 65,
+          "goalsConceded": 78,
+          "lastMatchDate": "2026-10-30"
+        },
+        "FUS Rabat": {
+          "name": "FUS Rabat",
+          "attack": 1.0522,
+          "defense": 0.8905,
+          "matchesCount": 66,
+          "goalsScored": 88,
+          "goalsConceded": 66,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Raja Casablanca": {
+          "name": "Raja Casablanca",
+          "attack": 1.1188,
+          "defense": 0.6749,
+          "matchesCount": 65,
+          "goalsScored": 80,
+          "goalsConceded": 48,
+          "lastMatchDate": "2026-11-01"
+        },
+        "RSB Berkane": {
+          "name": "RSB Berkane",
+          "attack": 1.2576,
+          "defense": 0.6595,
+          "matchesCount": 65,
+          "goalsScored": 97,
+          "goalsConceded": 43,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Moghreb Tétouan": {
+          "name": "Moghreb Tétouan",
+          "attack": 0.6952,
+          "defense": 1.1529,
+          "matchesCount": 36,
+          "goalsScored": 27,
+          "goalsConceded": 49,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Olympic Safi": {
+          "name": "Olympic Safi",
+          "attack": 0.9149,
+          "defense": 1.0694,
+          "matchesCount": 60,
+          "goalsScored": 61,
+          "goalsConceded": 75,
+          "lastMatchDate": "2026-07-05"
+        },
+        "CODM Meknès": {
+          "name": "CODM Meknès",
+          "attack": 0.8994,
+          "defense": 0.981,
+          "matchesCount": 66,
+          "goalsScored": 60,
+          "goalsConceded": 81,
+          "lastMatchDate": "2026-11-01"
+        },
+        "CR Khemis Zemamra": {
+          "name": "CR Khemis Zemamra",
+          "attack": 0.9628,
+          "defense": 1.0739,
+          "matchesCount": 66,
+          "goalsScored": 67,
+          "goalsConceded": 78,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Hassania Agadir": {
+          "name": "Hassania Agadir",
+          "attack": 1.1038,
+          "defense": 1.1247,
+          "matchesCount": 66,
+          "goalsScored": 70,
+          "goalsConceded": 87,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Ittihad Tanger": {
+          "name": "Ittihad Tanger",
+          "attack": 0.9837,
+          "defense": 0.9462,
+          "matchesCount": 66,
+          "goalsScored": 70,
+          "goalsConceded": 75,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Olympique Dcheïra": {
+          "name": "Olympique Dcheïra",
+          "attack": 0.9822,
+          "defense": 1.0756,
+          "matchesCount": 30,
+          "goalsScored": 29,
+          "goalsConceded": 40,
+          "lastMatchDate": "2026-07-05"
+        },
+        "Kawkab Marrakech": {
+          "name": "Kawkab Marrakech",
+          "attack": 0.9337,
+          "defense": 0.7565,
+          "matchesCount": 36,
+          "goalsScored": 35,
+          "goalsConceded": 31,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Yacoub El Mansour": {
+          "name": "Yacoub El Mansour",
+          "attack": 1.1171,
+          "defense": 1.165,
+          "matchesCount": 30,
+          "goalsScored": 34,
+          "goalsConceded": 44,
+          "lastMatchDate": "2026-07-05"
+        },
+        "Amal Tiznit": {
+          "name": "Amal Tiznit",
+          "attack": 0.9814,
+          "defense": 1.2508,
+          "matchesCount": 6,
+          "goalsScored": 6,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Widad Témara": {
+          "name": "Widad Témara",
+          "attack": 1.0905,
+          "defense": 0.8243,
+          "matchesCount": 6,
+          "goalsScored": 7,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-11-01"
+        }
+      }
+    },
+    "SM1073": {
+      "div": "SM1073",
+      "leagueName": "V-League",
+      "country": "Vietnam",
+      "seasonCount": 3,
+      "totalMatches": 406,
+      "leagueAvgGoals": 1.2035,
+      "homeAdvantage": 1.1648,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1073",
+      "teams": {
+        "Hồng Lĩnh Hà Tĩnh": {
+          "name": "Hồng Lĩnh Hà Tĩnh",
+          "attack": 0.728,
+          "defense": 0.8007,
+          "matchesCount": 58,
+          "goalsScored": 48,
+          "goalsConceded": 56,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Nam Định": {
+          "name": "Nam Định",
+          "attack": 1.3194,
+          "defense": 0.8036,
+          "matchesCount": 58,
+          "goalsScored": 98,
+          "goalsConceded": 55,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Thanh Hoa FC": {
+          "name": "Thanh Hoa FC",
+          "attack": 0.9559,
+          "defense": 1.022,
+          "matchesCount": 58,
+          "goalsScored": 66,
+          "goalsConceded": 80,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Becamex Hồ Chí Minh": {
+          "name": "Becamex Hồ Chí Minh",
+          "attack": 1.0104,
+          "defense": 1.1821,
+          "matchesCount": 52,
+          "goalsScored": 62,
+          "goalsConceded": 83,
+          "lastMatchDate": "2026-06-07"
+        },
+        "Hà Nội": {
+          "name": "Hà Nội",
+          "attack": 1.393,
+          "defense": 0.92,
+          "matchesCount": 58,
+          "goalsScored": 101,
+          "goalsConceded": 65,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Quy Nhơn United": {
+          "name": "Quy Nhơn United",
+          "attack": 0.805,
+          "defense": 1.2132,
+          "matchesCount": 26,
+          "goalsScored": 22,
+          "goalsConceded": 43,
+          "lastMatchDate": "2025-06-22"
+        },
+        "Quảng Nam": {
+          "name": "Quảng Nam",
+          "attack": 0.9283,
+          "defense": 1.058,
+          "matchesCount": 26,
+          "goalsScored": 27,
+          "goalsConceded": 36,
+          "lastMatchDate": "2025-06-22"
+        },
+        "Hoàng Anh Gia Lai": {
+          "name": "Hoàng Anh Gia Lai",
+          "attack": 0.9623,
+          "defense": 1.1951,
+          "matchesCount": 58,
+          "goalsScored": 65,
+          "goalsConceded": 92,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Sông Lam Nghệ An": {
+          "name": "Sông Lam Nghệ An",
+          "attack": 0.9952,
+          "defense": 1.0281,
+          "matchesCount": 58,
+          "goalsScored": 60,
+          "goalsConceded": 81,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Đà Nẵng": {
+          "name": "Đà Nẵng",
+          "attack": 1.0442,
+          "defense": 1.1465,
+          "matchesCount": 58,
+          "goalsScored": 65,
+          "goalsConceded": 92,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Hải Phòng": {
+          "name": "Hải Phòng",
+          "attack": 1.1434,
+          "defense": 1.0416,
+          "matchesCount": 58,
+          "goalsScored": 78,
+          "goalsConceded": 73,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Công an Hà Nội": {
+          "name": "Công an Hà Nội",
+          "attack": 1.5066,
+          "defense": 0.714,
+          "matchesCount": 58,
+          "goalsScored": 112,
+          "goalsConceded": 49,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Công An Hồ Chí Minh": {
+          "name": "Công An Hồ Chí Minh",
+          "attack": 0.8321,
+          "defense": 0.9292,
+          "matchesCount": 58,
+          "goalsScored": 53,
+          "goalsConceded": 76,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Thể Công - Viettel": {
+          "name": "Thể Công - Viettel",
+          "attack": 1.2049,
+          "defense": 0.8705,
+          "matchesCount": 58,
+          "goalsScored": 88,
+          "goalsConceded": 60,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Ninh Bình": {
+          "name": "Ninh Bình",
+          "attack": 1.481,
+          "defense": 0.9735,
+          "matchesCount": 32,
+          "goalsScored": 65,
+          "goalsConceded": 40,
+          "lastMatchDate": "2026-10-30"
+        },
+        "PVF-CAND": {
+          "name": "PVF-CAND",
+          "attack": 0.8979,
+          "defense": 1.1338,
+          "matchesCount": 26,
+          "goalsScored": 26,
+          "goalsConceded": 44,
+          "lastMatchDate": "2026-06-07"
+        },
+        "Trường Tươi Đồng Nai": {
+          "name": "Trường Tươi Đồng Nai",
+          "attack": 0.0056,
+          "defense": 1.1419,
+          "matchesCount": 6,
+          "goalsScored": 0,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Bac Ninh": {
+          "name": "Bac Ninh",
+          "attack": 0.7867,
+          "defense": 0.8262,
+          "matchesCount": 6,
+          "goalsScored": 4,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-10-30"
+        }
+      }
+    },
+    "SM1085": {
+      "div": "SM1085",
+      "leagueName": "AFC Champions League Elite",
+      "country": "Asia",
+      "seasonCount": 3,
+      "totalMatches": 286,
+      "leagueAvgGoals": 1.2656,
+      "homeAdvantage": 1.3302,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "partial",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1085",
+      "teams": {
+        "Al Gharafa": {
+          "name": "Al Gharafa",
+          "attack": 0.9977,
+          "defense": 1.1583,
+          "matchesCount": 21,
+          "goalsScored": 21,
+          "goalsConceded": 50,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Shabab Al Ahli Dubai": {
+          "name": "Shabab Al Ahli Dubai",
+          "attack": 1.3121,
+          "defense": 0.7065,
+          "matchesCount": 15,
+          "goalsScored": 22,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Al Ain": {
+          "name": "Al Ain",
+          "attack": 1.6074,
+          "defense": 0.8253,
+          "matchesCount": 12,
+          "goalsScored": 25,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Sadd": {
+          "name": "Al Sadd",
+          "attack": 1.0923,
+          "defense": 0.848,
+          "matchesCount": 22,
+          "goalsScored": 27,
+          "goalsConceded": 33,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Shorta": {
+          "name": "Al Shorta",
+          "attack": 0.8327,
+          "defense": 1.0501,
+          "matchesCount": 16,
+          "goalsScored": 13,
+          "goalsConceded": 37,
+          "lastMatchDate": "2026-02-16"
+        },
+        "Al Nassr": {
+          "name": "Al Nassr",
+          "attack": 1.7056,
+          "defense": 0.9068,
+          "matchesCount": 15,
+          "goalsScored": 35,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Esteghlal": {
+          "name": "Esteghlal",
+          "attack": 1.0471,
+          "defense": 0.6493,
+          "matchesCount": 14,
+          "goalsScored": 14,
+          "goalsConceded": 15,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Al Ahli": {
+          "name": "Al Ahli",
+          "attack": 1.0135,
+          "defense": 0.8497,
+          "matchesCount": 4,
+          "goalsScored": 6,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Persepolis": {
+          "name": "Persepolis",
+          "attack": 0.814,
+          "defense": 0.8361,
+          "matchesCount": 8,
+          "goalsScored": 6,
+          "goalsConceded": 10,
+          "lastMatchDate": "2025-02-17"
+        },
+        "Gwangju": {
+          "name": "Gwangju",
+          "attack": 1.1319,
+          "defense": 1.2389,
+          "matchesCount": 9,
+          "goalsScored": 15,
+          "goalsConceded": 18,
+          "lastMatchDate": "2025-04-25"
+        },
+        "Yokohama F. Marinos": {
+          "name": "Yokohama F. Marinos",
+          "attack": 1.1071,
+          "defense": 0.9635,
+          "matchesCount": 10,
+          "goalsScored": 27,
+          "goalsConceded": 12,
+          "lastMatchDate": "2025-04-26"
+        },
+        "Buriram United": {
+          "name": "Buriram United",
+          "attack": 0.7017,
+          "defense": 0.8506,
+          "matchesCount": 24,
+          "goalsScored": 21,
+          "goalsConceded": 27,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Vissel Kobe": {
+          "name": "Vissel Kobe",
+          "attack": 0.931,
+          "defense": 0.7386,
+          "matchesCount": 23,
+          "goalsScored": 42,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Shanghai Shenhua": {
+          "name": "Shanghai Shenhua",
+          "attack": 0.7901,
+          "defense": 1.2228,
+          "matchesCount": 18,
+          "goalsScored": 19,
+          "goalsConceded": 29,
+          "lastMatchDate": "2026-02-17"
+        },
+        "Pohang Steelers": {
+          "name": "Pohang Steelers",
+          "attack": 0.9359,
+          "defense": 1.5648,
+          "matchesCount": 11,
+          "goalsScored": 13,
+          "goalsConceded": 28,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Pakhtakor": {
+          "name": "Pakhtakor",
+          "attack": 0.8398,
+          "defense": 0.9499,
+          "matchesCount": 15,
+          "goalsScored": 12,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Wasl": {
+          "name": "Al Wasl",
+          "attack": 1.1882,
+          "defense": 1.1435,
+          "matchesCount": 13,
+          "goalsScored": 16,
+          "goalsConceded": 24,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Rayyan": {
+          "name": "Al Rayyan",
+          "attack": 0.9584,
+          "defense": 0.8455,
+          "matchesCount": 10,
+          "goalsScored": 9,
+          "goalsConceded": 17,
+          "lastMatchDate": "2025-03-11"
+        },
+        "Al Hilal": {
+          "name": "Al Hilal",
+          "attack": 1.5693,
+          "defense": 0.6174,
+          "matchesCount": 24,
+          "goalsScored": 62,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Ulsan HD": {
+          "name": "Ulsan HD",
+          "attack": 0.6651,
+          "defense": 1.114,
+          "matchesCount": 15,
+          "goalsScored": 10,
+          "goalsConceded": 24,
+          "lastMatchDate": "2026-02-18"
+        },
+        "Kawasaki Frontale": {
+          "name": "Kawasaki Frontale",
+          "attack": 0.9987,
+          "defense": 0.7108,
+          "matchesCount": 11,
+          "goalsScored": 20,
+          "goalsConceded": 9,
+          "lastMatchDate": "2025-05-03"
+        },
+        "Shanghai Port": {
+          "name": "Shanghai Port",
+          "attack": 0.7778,
+          "defense": 1.3651,
+          "matchesCount": 22,
+          "goalsScored": 26,
+          "goalsConceded": 44,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Johor Darul Ta'zim": {
+          "name": "Johor Darul Ta'zim",
+          "attack": 0.805,
+          "defense": 0.7258,
+          "matchesCount": 24,
+          "goalsScored": 34,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Central Coast Mariners": {
+          "name": "Central Coast Mariners",
+          "attack": 0.9402,
+          "defense": 1.4178,
+          "matchesCount": 7,
+          "goalsScored": 8,
+          "goalsConceded": 18,
+          "lastMatchDate": "2025-02-18"
+        },
+        "Chengdu Rongcheng": {
+          "name": "Chengdu Rongcheng",
+          "attack": 0.8918,
+          "defense": 1.1428,
+          "matchesCount": 9,
+          "goalsScored": 10,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-02-17"
+        },
+        "True Bangkok United": {
+          "name": "True Bangkok United",
+          "attack": 0.292,
+          "defense": 1.1664,
+          "matchesCount": 1,
+          "goalsScored": 0,
+          "goalsConceded": 3,
+          "lastMatchDate": "2025-08-12"
+        },
+        "Al Duhail": {
+          "name": "Al Duhail",
+          "attack": 1.4101,
+          "defense": 1.0472,
+          "matchesCount": 9,
+          "goalsScored": 19,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-02-16"
+        },
+        "Sepahan": {
+          "name": "Sepahan",
+          "attack": 1.064,
+          "defense": 1.0682,
+          "matchesCount": 1,
+          "goalsScored": 2,
+          "goalsConceded": 3,
+          "lastMatchDate": "2025-08-12"
+        },
+        "Al Sharjah": {
+          "name": "Al Sharjah",
+          "attack": 0.924,
+          "defense": 0.9566,
+          "matchesCount": 8,
+          "goalsScored": 8,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-02-16"
+        },
+        "Al Wahda": {
+          "name": "Al Wahda",
+          "attack": 1.0737,
+          "defense": 0.6915,
+          "matchesCount": 8,
+          "goalsScored": 11,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-02-16"
+        },
+        "Al Ittihad": {
+          "name": "Al Ittihad",
+          "attack": 1.4454,
+          "defense": 0.8777,
+          "matchesCount": 14,
+          "goalsScored": 31,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Nasaf": {
+          "name": "Nasaf",
+          "attack": 1.0725,
+          "defense": 1.0327,
+          "matchesCount": 8,
+          "goalsScored": 9,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-02-16"
+        },
+        "Melbourne City": {
+          "name": "Melbourne City",
+          "attack": 0.9725,
+          "defense": 0.9328,
+          "matchesCount": 9,
+          "goalsScored": 10,
+          "goalsConceded": 8,
+          "lastMatchDate": "2026-03-03"
+        },
+        "Sanfrecce Hiroshima": {
+          "name": "Sanfrecce Hiroshima",
+          "attack": 0.9345,
+          "defense": 0.9728,
+          "matchesCount": 10,
+          "goalsScored": 12,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-03-11"
+        },
+        "Machida Zelvia": {
+          "name": "Machida Zelvia",
+          "attack": 1.0243,
+          "defense": 0.6524,
+          "matchesCount": 12,
+          "goalsScored": 18,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-04-21"
+        },
+        "Seoul": {
+          "name": "Seoul",
+          "attack": 0.9176,
+          "defense": 1.0447,
+          "matchesCount": 10,
+          "goalsScored": 11,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-03-11"
+        },
+        "Gangwon": {
+          "name": "Gangwon",
+          "attack": 0.8211,
+          "defense": 0.977,
+          "matchesCount": 10,
+          "goalsScored": 9,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-03-10"
+        },
+        "Tractor Sazi": {
+          "name": "Tractor Sazi",
+          "attack": 1.0041,
+          "defense": 0.7064,
+          "matchesCount": 13,
+          "goalsScored": 15,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Adelaide United": {
+          "name": "Adelaide United",
+          "attack": 0.292,
+          "defense": 1.1443,
+          "matchesCount": 1,
+          "goalsScored": 0,
+          "goalsConceded": 2,
+          "lastMatchDate": "2026-08-11"
+        },
+        "Công an Hà Nội": {
+          "name": "Công an Hà Nội",
+          "attack": 0.9578,
+          "defense": 1.2758,
+          "matchesCount": 5,
+          "goalsScored": 6,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Al Hussein": {
+          "name": "Al Hussein",
+          "attack": 0.292,
+          "defense": 1.1704,
+          "matchesCount": 1,
+          "goalsScored": 0,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-08-11"
+        },
+        "Al Jazira": {
+          "name": "Al Jazira",
+          "attack": 0.9991,
+          "defense": 1.1339,
+          "matchesCount": 1,
+          "goalsScored": 1,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-08-11"
+        },
+        "Neftchi": {
+          "name": "Neftchi",
+          "attack": 1.0272,
+          "defense": 0.9777,
+          "matchesCount": 4,
+          "goalsScored": 5,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Quwa Al Jawiya": {
+          "name": "Al Quwa Al Jawiya",
+          "attack": 1.016,
+          "defense": 1.1005,
+          "matchesCount": 4,
+          "goalsScored": 5,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Al Shamal SC": {
+          "name": "Al Shamal SC",
+          "attack": 1.0727,
+          "defense": 0.7944,
+          "matchesCount": 4,
+          "goalsScored": 4,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Al-Qadsiah": {
+          "name": "Al-Qadsiah",
+          "attack": 1.1466,
+          "defense": 0.8636,
+          "matchesCount": 4,
+          "goalsScored": 9,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-02"
+        },
+        "Ratchaburi Mitrphol FC": {
+          "name": "Ratchaburi Mitrphol FC",
+          "attack": 1.0815,
+          "defense": 1.3704,
+          "matchesCount": 4,
+          "goalsScored": 6,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Gamba Osaka": {
+          "name": "Gamba Osaka",
+          "attack": 0.9546,
+          "defense": 1.1134,
+          "matchesCount": 4,
+          "goalsScored": 11,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Daejeon Citizen": {
+          "name": "Daejeon Citizen",
+          "attack": 0.7997,
+          "defense": 1.0627,
+          "matchesCount": 4,
+          "goalsScored": 2,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Kyoto Sanga": {
+          "name": "Kyoto Sanga",
+          "attack": 0.7645,
+          "defense": 0.9084,
+          "matchesCount": 4,
+          "goalsScored": 6,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Kashima Antlers": {
+          "name": "Kashima Antlers",
+          "attack": 0.9176,
+          "defense": 0.6626,
+          "matchesCount": 4,
+          "goalsScored": 11,
+          "goalsConceded": 1,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Newcastle Jets": {
+          "name": "Newcastle Jets",
+          "attack": 1.035,
+          "defense": 1.6897,
+          "matchesCount": 4,
+          "goalsScored": 6,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Beijing Guoan": {
+          "name": "Beijing Guoan",
+          "attack": 1.017,
+          "defense": 1.1725,
+          "matchesCount": 4,
+          "goalsScored": 10,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Jeonbuk Motors": {
+          "name": "Jeonbuk Motors",
+          "attack": 1.1127,
+          "defense": 1.0534,
+          "matchesCount": 4,
+          "goalsScored": 6,
+          "goalsConceded": 5,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Kashiwa Reysol": {
+          "name": "Kashiwa Reysol",
+          "attack": 0.928,
+          "defense": 0.8119,
+          "matchesCount": 4,
+          "goalsScored": 8,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Port FC": {
+          "name": "Port FC",
+          "attack": 1.2224,
+          "defense": 1.4333,
+          "matchesCount": 4,
+          "goalsScored": 9,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-11-03"
+        }
+      }
+    },
+    "SM1088": {
+      "div": "SM1088",
+      "leagueName": "AFC Champions League Two",
+      "country": "Asia",
+      "seasonCount": 3,
+      "totalMatches": 290,
+      "leagueAvgGoals": 1.2979,
+      "homeAdvantage": 1.1654,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1088",
+      "teams": {
+        "East Bengal": {
+          "name": "East Bengal",
+          "attack": 0.9338,
+          "defense": 1.3029,
+          "matchesCount": 5,
+          "goalsScored": 6,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Altyn Asyr": {
+          "name": "Altyn Asyr",
+          "attack": 0.7104,
+          "defense": 1.4583,
+          "matchesCount": 7,
+          "goalsScored": 5,
+          "goalsConceded": 17,
+          "lastMatchDate": "2024-12-04"
+        },
+        "Al Ahli": {
+          "name": "Al Ahli",
+          "attack": 0.2957,
+          "defense": 0.9875,
+          "matchesCount": 1,
+          "goalsScored": 0,
+          "goalsConceded": 1,
+          "lastMatchDate": "2024-08-14"
+        },
+        "Al Kuwait": {
+          "name": "Al Kuwait",
+          "attack": 1.2446,
+          "defense": 1.2012,
+          "matchesCount": 11,
+          "goalsScored": 18,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Wihdat": {
+          "name": "Al Wihdat",
+          "attack": 0.7807,
+          "defense": 1.1797,
+          "matchesCount": 14,
+          "goalsScored": 16,
+          "goalsConceded": 25,
+          "lastMatchDate": "2025-12-24"
+        },
+        "Sepahan": {
+          "name": "Sepahan",
+          "attack": 0.9469,
+          "defense": 0.9128,
+          "matchesCount": 11,
+          "goalsScored": 19,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-02-11"
+        },
+        "Istiqlol Dushanbe": {
+          "name": "Istiqlol Dushanbe",
+          "attack": 0.744,
+          "defense": 1.2704,
+          "matchesCount": 12,
+          "goalsScored": 8,
+          "goalsConceded": 25,
+          "lastMatchDate": "2025-12-24"
+        },
+        "Al Sharjah": {
+          "name": "Al Sharjah",
+          "attack": 1.1348,
+          "defense": 0.8531,
+          "matchesCount": 11,
+          "goalsScored": 19,
+          "goalsConceded": 11,
+          "lastMatchDate": "2025-05-18"
+        },
+        "Lee Man FC": {
+          "name": "Lee Man FC",
+          "attack": 0.6611,
+          "defense": 0.9692,
+          "matchesCount": 6,
+          "goalsScored": 2,
+          "goalsConceded": 13,
+          "lastMatchDate": "2024-12-04"
+        },
+        "Nam Định": {
+          "name": "Nam Định",
+          "attack": 1.4974,
+          "defense": 0.8246,
+          "matchesCount": 14,
+          "goalsScored": 27,
+          "goalsConceded": 22,
+          "lastMatchDate": "2025-12-11"
+        },
+        "True Bangkok United": {
+          "name": "True Bangkok United",
+          "attack": 1.3395,
+          "defense": 0.7136,
+          "matchesCount": 19,
+          "goalsScored": 31,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-04-15"
+        },
+        "Tampines Rovers": {
+          "name": "Tampines Rovers",
+          "attack": 1.5832,
+          "defense": 1.0011,
+          "matchesCount": 19,
+          "goalsScored": 33,
+          "goalsConceded": 33,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Al Wakrah": {
+          "name": "Al Wakrah",
+          "attack": 0.9149,
+          "defense": 1.1664,
+          "matchesCount": 5,
+          "goalsScored": 6,
+          "goalsConceded": 10,
+          "lastMatchDate": "2025-02-12"
+        },
+        "Tractor Sazi": {
+          "name": "Tractor Sazi",
+          "attack": 1.3027,
+          "defense": 1.1534,
+          "matchesCount": 7,
+          "goalsScored": 21,
+          "goalsConceded": 8,
+          "lastMatchDate": "2025-03-04"
+        },
+        "Al Khalidiyah": {
+          "name": "Al Khalidiyah",
+          "attack": 0.8444,
+          "defense": 0.872,
+          "matchesCount": 18,
+          "goalsScored": 25,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Taawoun": {
+          "name": "Al Taawoun",
+          "attack": 0.8633,
+          "defense": 0.7997,
+          "matchesCount": 13,
+          "goalsScored": 21,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-10-28"
+        },
+        "Shabab Al Ahli Dubai": {
+          "name": "Shabab Al Ahli Dubai",
+          "attack": 1.331,
+          "defense": 1.1407,
+          "matchesCount": 9,
+          "goalsScored": 24,
+          "goalsConceded": 15,
+          "lastMatchDate": "2025-03-05"
+        },
+        "Al Hussein": {
+          "name": "Al Hussein",
+          "attack": 1.0141,
+          "defense": 1.08,
+          "matchesCount": 18,
+          "goalsScored": 30,
+          "goalsConceded": 27,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Nasaf": {
+          "name": "Nasaf",
+          "attack": 0.8117,
+          "defense": 0.888,
+          "matchesCount": 10,
+          "goalsScored": 11,
+          "goalsConceded": 15,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Quwa Al Jawiya": {
+          "name": "Al Quwa Al Jawiya",
+          "attack": 0.9205,
+          "defense": 1.2518,
+          "matchesCount": 6,
+          "goalsScored": 8,
+          "goalsConceded": 9,
+          "lastMatchDate": "2024-12-04"
+        },
+        "Sanfrecce Hiroshima": {
+          "name": "Sanfrecce Hiroshima",
+          "attack": 1.3367,
+          "defense": 0.606,
+          "matchesCount": 9,
+          "goalsScored": 22,
+          "goalsConceded": 6,
+          "lastMatchDate": "2025-03-12"
+        },
+        "Kaya": {
+          "name": "Kaya",
+          "attack": 0.8853,
+          "defense": 1.1542,
+          "matchesCount": 12,
+          "goalsScored": 10,
+          "goalsConceded": 29,
+          "lastMatchDate": "2025-12-11"
+        },
+        "Sydney": {
+          "name": "Sydney",
+          "attack": 1.4103,
+          "defense": 0.8054,
+          "matchesCount": 11,
+          "goalsScored": 25,
+          "goalsConceded": 12,
+          "lastMatchDate": "2025-04-16"
+        },
+        "Eastern": {
+          "name": "Eastern",
+          "attack": 0.883,
+          "defense": 1.3786,
+          "matchesCount": 12,
+          "goalsScored": 9,
+          "goalsConceded": 49,
+          "lastMatchDate": "2025-12-11"
+        },
+        "SCG Muangthong United": {
+          "name": "SCG Muangthong United",
+          "attack": 1.1652,
+          "defense": 1.2081,
+          "matchesCount": 8,
+          "goalsScored": 18,
+          "goalsConceded": 17,
+          "lastMatchDate": "2025-02-20"
+        },
+        "Selangor": {
+          "name": "Selangor",
+          "attack": 1.031,
+          "defense": 1.0562,
+          "matchesCount": 12,
+          "goalsScored": 16,
+          "goalsConceded": 20,
+          "lastMatchDate": "2025-12-10"
+        },
+        "Persib": {
+          "name": "Persib",
+          "attack": 1.1568,
+          "defense": 0.6412,
+          "matchesCount": 20,
+          "goalsScored": 30,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Port FC": {
+          "name": "Port FC",
+          "attack": 1.1125,
+          "defense": 1.0487,
+          "matchesCount": 8,
+          "goalsScored": 9,
+          "goalsConceded": 16,
+          "lastMatchDate": "2025-02-20"
+        },
+        "Lion City Sailors FC": {
+          "name": "Lion City Sailors FC",
+          "attack": 1.3483,
+          "defense": 0.7129,
+          "matchesCount": 21,
+          "goalsScored": 40,
+          "goalsConceded": 26,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Zhejiang": {
+          "name": "Zhejiang",
+          "attack": 1.2626,
+          "defense": 1.0006,
+          "matchesCount": 6,
+          "goalsScored": 10,
+          "goalsConceded": 10,
+          "lastMatchDate": "2024-12-05"
+        },
+        "Dynamic Herb Cebu": {
+          "name": "Dynamic Herb Cebu",
+          "attack": 0.77,
+          "defense": 1.479,
+          "matchesCount": 6,
+          "goalsScored": 4,
+          "goalsConceded": 26,
+          "lastMatchDate": "2024-12-05"
+        },
+        "Jeonbuk Motors": {
+          "name": "Jeonbuk Motors",
+          "attack": 1.1189,
+          "defense": 0.7626,
+          "matchesCount": 10,
+          "goalsScored": 23,
+          "goalsConceded": 9,
+          "lastMatchDate": "2025-03-13"
+        },
+        "Ravshan": {
+          "name": "Ravshan",
+          "attack": 0.7938,
+          "defense": 1.1769,
+          "matchesCount": 4,
+          "goalsScored": 3,
+          "goalsConceded": 11,
+          "lastMatchDate": "2024-12-04"
+        },
+        "Regar-TadAZ": {
+          "name": "Regar-TadAZ",
+          "attack": 0.9405,
+          "defense": 1.1165,
+          "matchesCount": 1,
+          "goalsScored": 1,
+          "goalsConceded": 2,
+          "lastMatchDate": "2025-08-13"
+        },
+        "Ahal": {
+          "name": "Ahal",
+          "attack": 0.9237,
+          "defense": 1.3127,
+          "matchesCount": 6,
+          "goalsScored": 7,
+          "goalsConceded": 11,
+          "lastMatchDate": "2025-12-23"
+        },
+        "Manila Digger": {
+          "name": "Manila Digger",
+          "attack": 0.9205,
+          "defense": 0.9875,
+          "matchesCount": 2,
+          "goalsScored": 1,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-08-31"
+        },
+        "Goa": {
+          "name": "Goa",
+          "attack": 0.7027,
+          "defense": 1.3172,
+          "matchesCount": 8,
+          "goalsScored": 5,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-08-12"
+        },
+        "Al Seeb": {
+          "name": "Al Seeb",
+          "attack": 0.6645,
+          "defense": 0.9962,
+          "matchesCount": 5,
+          "goalsScored": 3,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-11-03"
+        },
+        "ATK Mohun Bagan": {
+          "name": "ATK Mohun Bagan",
+          "attack": 0.2957,
+          "defense": 1.0484,
+          "matchesCount": 1,
+          "goalsScored": 0,
+          "goalsConceded": 1,
+          "lastMatchDate": "2025-09-16"
+        },
+        "Gamba Osaka": {
+          "name": "Gamba Osaka",
+          "attack": 1.516,
+          "defense": 0.4586,
+          "matchesCount": 12,
+          "goalsScored": 24,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-05-16"
+        },
+        "Ratchaburi Mitrphol FC": {
+          "name": "Ratchaburi Mitrphol FC",
+          "attack": 1.4511,
+          "defense": 0.7238,
+          "matchesCount": 9,
+          "goalsScored": 19,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-03-04"
+        },
+        "Arkadag": {
+          "name": "Arkadag",
+          "attack": 0.8446,
+          "defense": 0.7358,
+          "matchesCount": 13,
+          "goalsScored": 11,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Andijan": {
+          "name": "Andijan",
+          "attack": 0.4937,
+          "defense": 0.7032,
+          "matchesCount": 6,
+          "goalsScored": 1,
+          "goalsConceded": 3,
+          "lastMatchDate": "2025-12-24"
+        },
+        "Al Zawra'a": {
+          "name": "Al Zawra'a",
+          "attack": 1.0036,
+          "defense": 1.179,
+          "matchesCount": 7,
+          "goalsScored": 11,
+          "goalsConceded": 13,
+          "lastMatchDate": "2026-02-10"
+        },
+        "Al Wasl": {
+          "name": "Al Wasl",
+          "attack": 1.1365,
+          "defense": 1.1724,
+          "matchesCount": 8,
+          "goalsScored": 17,
+          "goalsConceded": 13,
+          "lastMatchDate": "2026-04-19"
+        },
+        "Esteghlal": {
+          "name": "Esteghlal",
+          "attack": 0.8924,
+          "defense": 1.146,
+          "matchesCount": 8,
+          "goalsScored": 10,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-02-17"
+        },
+        "Al-Ahli Doha": {
+          "name": "Al-Ahli Doha",
+          "attack": 1.3242,
+          "defense": 1.1488,
+          "matchesCount": 9,
+          "goalsScored": 13,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-04-22"
+        },
+        "Muharraq": {
+          "name": "Muharraq",
+          "attack": 0.9637,
+          "defense": 1.1325,
+          "matchesCount": 9,
+          "goalsScored": 12,
+          "goalsConceded": 13,
+          "lastMatchDate": "2026-10-28"
+        },
+        "Al Nassr": {
+          "name": "Al Nassr",
+          "attack": 1.3933,
+          "defense": 0.526,
+          "matchesCount": 11,
+          "goalsScored": 33,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-05-16"
+        },
+        "Wofoo Tai Po": {
+          "name": "Wofoo Tai Po",
+          "attack": 0.7255,
+          "defense": 1.1466,
+          "matchesCount": 9,
+          "goalsScored": 7,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Macarthur": {
+          "name": "Macarthur",
+          "attack": 1.079,
+          "defense": 0.9413,
+          "matchesCount": 8,
+          "goalsScored": 13,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-02-19"
+        },
+        "Beijing Guoan": {
+          "name": "Beijing Guoan",
+          "attack": 1.1201,
+          "defense": 1.2209,
+          "matchesCount": 6,
+          "goalsScored": 10,
+          "goalsConceded": 12,
+          "lastMatchDate": "2025-12-11"
+        },
+        "Công an Hà Nội": {
+          "name": "Công an Hà Nội",
+          "attack": 1.0653,
+          "defense": 0.8893,
+          "matchesCount": 8,
+          "goalsScored": 14,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-02-18"
+        },
+        "BG Pathum United": {
+          "name": "BG Pathum United",
+          "attack": 1.0467,
+          "defense": 0.8679,
+          "matchesCount": 9,
+          "goalsScored": 10,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Pohang Steelers": {
+          "name": "Pohang Steelers",
+          "attack": 1.0455,
+          "defense": 0.6199,
+          "matchesCount": 8,
+          "goalsScored": 9,
+          "goalsConceded": 5,
+          "lastMatchDate": "2026-02-19"
+        },
+        "Gol Gohar": {
+          "name": "Gol Gohar",
+          "attack": 0.02,
+          "defense": 0.87,
+          "matchesCount": 4,
+          "goalsScored": 0,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Jazira": {
+          "name": "Al Jazira",
+          "attack": 1.1781,
+          "defense": 1.1323,
+          "matchesCount": 3,
+          "goalsScored": 6,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-10-28"
+        },
+        "Seoul": {
+          "name": "Seoul",
+          "attack": 1.1182,
+          "defense": 1.0682,
+          "matchesCount": 4,
+          "goalsScored": 8,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Thể Công - Viettel": {
+          "name": "Thể Công - Viettel",
+          "attack": 0.6327,
+          "defense": 1.1556,
+          "matchesCount": 4,
+          "goalsScored": 1,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Melbourne Victory": {
+          "name": "Melbourne Victory",
+          "attack": 1.0317,
+          "defense": 1.012,
+          "matchesCount": 4,
+          "goalsScored": 5,
+          "goalsConceded": 5,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al-Nahda": {
+          "name": "Al-Nahda",
+          "attack": 0.6615,
+          "defense": 1.1406,
+          "matchesCount": 4,
+          "goalsScored": 2,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Wahda": {
+          "name": "Al Wahda",
+          "attack": 1.1609,
+          "defense": 1.0968,
+          "matchesCount": 4,
+          "goalsScored": 8,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Shorta": {
+          "name": "Al Shorta",
+          "attack": 1.0698,
+          "defense": 0.9335,
+          "matchesCount": 4,
+          "goalsScored": 8,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Al Rayyan": {
+          "name": "Al Rayyan",
+          "attack": 1.1532,
+          "defense": 1.2819,
+          "matchesCount": 4,
+          "goalsScored": 11,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-11-04"
+        },
+        "Al Faysali": {
+          "name": "Al Faysali",
+          "attack": 0.9923,
+          "defense": 1.1771,
+          "matchesCount": 3,
+          "goalsScored": 5,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-10-28"
+        },
+        "Machida Zelvia": {
+          "name": "Machida Zelvia",
+          "attack": 1.1851,
+          "defense": 0.0434,
+          "matchesCount": 3,
+          "goalsScored": 4,
+          "goalsConceded": 0,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Svay Rieng": {
+          "name": "Svay Rieng",
+          "attack": 1.3471,
+          "defense": 0.8511,
+          "matchesCount": 3,
+          "goalsScored": 5,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Adelaide United": {
+          "name": "Adelaide United",
+          "attack": 1.1008,
+          "defense": 0.9651,
+          "matchesCount": 3,
+          "goalsScored": 5,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Phnom Penh Crown": {
+          "name": "Phnom Penh Crown",
+          "attack": 1.1371,
+          "defense": 1.0802,
+          "matchesCount": 3,
+          "goalsScored": 6,
+          "goalsConceded": 2,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Kuching FA": {
+          "name": "Kuching FA",
+          "attack": 0.8967,
+          "defense": 1.0909,
+          "matchesCount": 3,
+          "goalsScored": 2,
+          "goalsConceded": 4,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Kitchee": {
+          "name": "Kitchee",
+          "attack": 0.7437,
+          "defense": 0.9921,
+          "matchesCount": 3,
+          "goalsScored": 1,
+          "goalsConceded": 3,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Gangwon": {
+          "name": "Gangwon",
+          "attack": 0.8484,
+          "defense": 0.9418,
+          "matchesCount": 3,
+          "goalsScored": 2,
+          "goalsConceded": 2,
+          "lastMatchDate": "2026-10-29"
+        },
+        "Shanghai Shenhua": {
+          "name": "Shanghai Shenhua",
+          "attack": 1.0246,
+          "defense": 0.72,
+          "matchesCount": 3,
+          "goalsScored": 2,
+          "goalsConceded": 2,
+          "lastMatchDate": "2026-10-29"
+        }
+      }
+    },
+    "SM1356": {
+      "div": "SM1356",
+      "leagueName": "A-League Men",
+      "country": "Australia",
+      "seasonCount": 3,
+      "totalMatches": 354,
+      "leagueAvgGoals": 1.3998,
+      "homeAdvantage": 1.1227,
+      "rho": 0,
+      "calibrationDate": "2026-11-04",
+      "source": "sportmonks-fit",
+      "calibrationStatus": "uncalibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1356",
+      "teams": {
+        "Central Coast Mariners": {
+          "name": "Central Coast Mariners",
+          "attack": 0.8532,
+          "defense": 1.1249,
+          "matchesCount": 55,
+          "goalsScored": 67,
+          "goalsConceded": 98,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Melbourne Victory": {
+          "name": "Melbourne Victory",
+          "attack": 1.0388,
+          "defense": 0.8894,
+          "matchesCount": 60,
+          "goalsScored": 95,
+          "goalsConceded": 77,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Auckland": {
+          "name": "Auckland",
+          "attack": 1.1047,
+          "defense": 0.8254,
+          "matchesCount": 60,
+          "goalsScored": 103,
+          "goalsConceded": 66,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Brisbane Roar": {
+          "name": "Brisbane Roar",
+          "attack": 0.7901,
+          "defense": 1.0391,
+          "matchesCount": 54,
+          "goalsScored": 62,
+          "goalsConceded": 89,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Newcastle Jets": {
+          "name": "Newcastle Jets",
+          "attack": 1.1818,
+          "defense": 1.0742,
+          "matchesCount": 56,
+          "goalsScored": 102,
+          "goalsConceded": 90,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Melbourne City": {
+          "name": "Melbourne City",
+          "attack": 0.9434,
+          "defense": 0.8246,
+          "matchesCount": 58,
+          "goalsScored": 83,
+          "goalsConceded": 64,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Western Sydney Wanderers": {
+          "name": "Western Sydney Wanderers",
+          "attack": 0.9959,
+          "defense": 1.019,
+          "matchesCount": 56,
+          "goalsScored": 91,
+          "goalsConceded": 87,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Sydney": {
+          "name": "Sydney",
+          "attack": 0.9221,
+          "defense": 0.7971,
+          "matchesCount": 58,
+          "goalsScored": 91,
+          "goalsConceded": 76,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Wellington Phoenix": {
+          "name": "Wellington Phoenix",
+          "attack": 0.9296,
+          "defense": 1.0678,
+          "matchesCount": 55,
+          "goalsScored": 70,
+          "goalsConceded": 92,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Western United": {
+          "name": "Western United",
+          "attack": 1.2676,
+          "defense": 1.0135,
+          "matchesCount": 29,
+          "goalsScored": 59,
+          "goalsConceded": 43,
+          "lastMatchDate": "2025-05-24"
+        },
+        "Macarthur": {
+          "name": "Macarthur",
+          "attack": 1.0041,
+          "defense": 1.0678,
+          "matchesCount": 55,
+          "goalsScored": 90,
+          "goalsConceded": 91,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Perth Glory": {
+          "name": "Perth Glory",
+          "attack": 0.8353,
+          "defense": 1.0885,
+          "matchesCount": 55,
+          "goalsScored": 60,
+          "goalsConceded": 99,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Adelaide United": {
+          "name": "Adelaide United",
+          "attack": 1.1336,
+          "defense": 1.1686,
+          "matchesCount": 57,
+          "goalsScored": 103,
+          "goalsConceded": 104,
+          "lastMatchDate": "2026-11-01"
+        }
+      }
     }
   },
   "canonical": {
     "registry": "data/league-canonical.json",
     "registryVersion": 1,
     "registryGeneratedAt": "2026-11-04T11:33:04.775Z",
-    "note": "keys are fit keys; canonicalId maps each fit to its canonical league",
-    "cupOffsets": {
-      "fittedAt": "2026-11-04T18:48:24.510Z",
-      "graphs": {
-        "europe": {
-          "reference": "sm:8",
-          "globalAvgGoals": 1.2588,
-          "cupHomeAdvantage": 1.289,
-          "nAnchorMatches": 1857,
-          "nLeaguesIdentified": 33
-        },
-        "conmebol": {
-          "reference": "sm:648",
-          "globalAvgGoals": 0.8468,
-          "cupHomeAdvantage": 1.4164,
-          "nAnchorMatches": 512,
-          "nLeaguesIdentified": 6
-        },
-        "afc": {
-          "reference": "sm:944",
-          "globalAvgGoals": 1.187,
-          "cupHomeAdvantage": 1.2394,
-          "nAnchorMatches": 227,
-          "nLeaguesIdentified": 8
-        }
-      },
-      "competitions": {
-        "sm:2": {
-          "graph": "europe",
-          "status": "partial"
-        },
-        "sm:5": {
-          "graph": "europe",
-          "status": "partial"
-        },
-        "sm:2286": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:1122": {
-          "graph": "conmebol",
-          "status": "uncalibrated"
-        },
-        "sm:1116": {
-          "graph": "conmebol",
-          "status": "uncalibrated"
-        },
-        "sm:1085": {
-          "graph": "afc",
-          "status": "uncalibrated"
-        },
-        "sm:1088": {
-          "graph": "afc",
-          "status": "uncalibrated"
-        },
-        "sm:24": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:27": {
-          "graph": "europe",
-          "status": "partial"
-        },
-        "sm:307": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:468": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:78": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:570": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:109": {
-          "graph": "europe",
-          "status": "uncalibrated"
-        },
-        "sm:390": {
-          "graph": "europe",
-          "status": "partial"
-        },
-        "sm:654": {
-          "graph": "conmebol",
-          "status": "uncalibrated"
-        },
-        "sm:950": {
-          "graph": "afc",
-          "status": "uncalibrated"
-        }
-      }
-    }
+    "note": "keys are fit keys; canonicalId maps each fit to its canonical league"
   }
 }

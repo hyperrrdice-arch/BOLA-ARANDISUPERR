@@ -560,27 +560,23 @@ function main() {
     // (n >= 20) — sampel lebih kecil tidak cukup kuat untuk menjatuhkan
     // status, dan dicatat sebagai belum teruji, bukan lolos/gagal.
     // Kebijakan tangga: calibrated yang gagal OOS → partial; partial yang
-    // gagal OOS → uncalibrated (diblokir) — model yang tidak mengalahkan
-    // baseline naive secara out-of-sample tidak boleh tersaji sama sekali.
+    // gagal OOS → uncalibrated. Keputusan owner 2026-11-05: uncalibrated
+    // adalah LABEL, bukan blokir — fit-nya TETAP ditulis ke JSON dan jalur
+    // saji melabelinya, bukan menghapusnya seperti kebijakan lama.
+    let forcedUncal = false;
     const oosFail = !!oos && oos.n >= 20 && oos.heldout_logloss >= oos.naive_logloss;
     if (oosFail && status === "calibrated") {
       status = "partial";
       oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → diturunkan ke partial.`;
     } else if (oosFail) {
-      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → DIBLOKIR (uncalibrated).`;
-      delete ratings.leagues[`SM${leagueId.slice(3)}`];
-      insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
-        coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
-        `Lolos gerbang skala/cakupan sebagai partial, gugur di gerbang bukti.` + oosNote,
-        canonicalIdVia(["sportmonks", leagueId]));
-      nUncal += 1;
-      continue;
+      forcedUncal = true;
+      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → status uncalibrated (fit tetap ditulis; tersaji berlabel per keputusan owner 2026-11-05).`;
     } else if (oos && oos.n >= 20) {
       oosNote = ` Gerbang OOS lolos: log-loss held-out ${oos.heldout_logloss.toFixed(4)} < naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}).`;
     } else if (oos) {
       oosNote = ` Gerbang OOS belum teruji: n held-out=${oos.n} < 20 (lantai sampel).`;
     }
-    if (status === "calibrated") nCal += 1; else nPart += 1;
+    if (forcedUncal) nUncal += 1; else if (status === "calibrated") nCal += 1; else nPart += 1;
 
     const key = `SM${leagueId.slice(3)}`;
     const perTeam = new Map<string, { matchesCount: number; goalsScored: number; goalsConceded: number; lastMatchDate: string }>();
@@ -612,10 +608,10 @@ function main() {
     const smCanonicalId = canonicalIdForRatingsKey(key);
     totalAliases += augmentTeamNameAliases(key, teamsJson, smCanonicalId);
     augmentedKeys.add(key);
-    // Calibrated DAN partial ditulis ke JSON (Fase 1): partial tersaji
-    // HANYA lewat gerbang loader dengan flag eksplisit; uncalibrated
-    // tidak pernah ditulis. (Semantik lama "JSON = tanpa flag" digantikan
-    // registry sebagai sumber kebenaran status.)
+    // Calibrated, partial, DAN uncalibrated-gagal-OOS ditulis ke JSON:
+    // status adalah label (keputusan owner 2026-11-05), registry tetap
+    // sumber kebenaran status; yang tidak ditulis hanya liga tanpa fit
+    // sama sekali (data belum cukup / fit gagal).
     ratings.leagues[key] = {
       div: key,
       leagueName: cat.name,
@@ -627,14 +623,16 @@ function main() {
       rho: rhoForLeague(fit, matches),
       calibrationDate: nowIso.slice(0, 10),
       source: "sportmonks-fit",
-      calibrationStatus: status,
+      calibrationStatus: forcedUncal ? "uncalibrated" : status,
       fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}+shrink-${SHRINK_KAPPA}`,
       canonicalId: smCanonicalId,
       teams: teamsJson,
     };
-    insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, status, matches.length, teamSet.size,
+    insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, forcedUncal ? "uncalibrated" : status, matches.length, teamSet.size,
       coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
-      (status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote,
+      (forcedUncal
+        ? "Fit ditulis; status uncalibrated karena gerbang bukti (OOS) — tersaji berlabel (keputusan owner 2026-11-05)."
+        : status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote,
       canonicalIdVia(["sportmonks", leagueId]));
   }
 

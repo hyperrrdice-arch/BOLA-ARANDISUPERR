@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T11:33:04.775Z",
+  "generated_at": "2026-11-04T20:22:45.846Z",
   "generator": "scripts/build-league-canonical.ts",
   "note": "Identitas = canonical_id. Referensi liga = name + country, tidak pernah nama polos sendirian. Regenerasi: npx tsx scripts/build-league-canonical.ts",
   "leagues": [
@@ -2522,6 +2522,11 @@
       "country": "Vietnam",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM1073",
+          "name_as_stored": "V-League"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:1073",
           "name_as_stored": "V-League"
@@ -2532,7 +2537,13 @@
           "name_as_stored": "V-League 1"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1073",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_offset": {
         "graph": "afc",
         "delta": null,
@@ -2599,6 +2610,11 @@
       "country": "Asia",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM1088",
+          "name_as_stored": "AFC Champions League Two"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:1088",
           "name_as_stored": "AFC Champions League Two"
@@ -2609,7 +2625,13 @@
           "name_as_stored": "AFC Champions League Two"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1088",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_model": {
         "graph": "afc",
         "status": "uncalibrated",
@@ -2827,6 +2849,11 @@
       "country": "Australia",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM1356",
+          "name_as_stored": "A-League Men"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:1356",
           "name_as_stored": "A-League Men"
@@ -2837,7 +2864,13 @@
           "name_as_stored": "A-League Men"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1356",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_offset": {
         "graph": "afc",
         "delta": null,
@@ -2872,6 +2905,11 @@
       "country": "England",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM14",
+          "name_as_stored": "League Two"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:14",
           "name_as_stored": "League Two"
@@ -2882,7 +2920,13 @@
           "name_as_stored": "League Two"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM14",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_offset": {
         "graph": "europe",
         "delta": null,
@@ -3327,6 +3371,11 @@
         },
         {
           "system": "thestats",
+          "id": "B1",
+          "name_as_stored": "Pro League"
+        },
+        {
+          "system": "thestats",
           "id": "comp_8531",
           "name_as_stored": "Pro League"
         }
@@ -3650,12 +3699,23 @@
       "country": "Denmark",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM274",
+          "name_as_stored": "First Division"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:274",
           "name_as_stored": "First Division"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM274",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_offset": {
         "graph": "europe",
         "delta": null,
@@ -4730,6 +4790,11 @@
       "country": "Turkey",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM603",
+          "name_as_stored": "1. Lig"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:603",
           "name_as_stored": "1. Lig"
@@ -4740,7 +4805,13 @@
           "name_as_stored": "Trendyol 1.Lig"
         }
       ],
-      "fits": [],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM603",
+          "status": "uncalibrated"
+        }
+      ],
       "cup_offset": {
         "graph": "europe",
         "delta": null,
@@ -5379,6 +5450,11 @@
       "country": "Morocco",
       "aliases": [
         {
+          "system": "ratings-key",
+          "id": "SM860",
+          "name_as_stored": "Botola Pro"
+        },
+        {
           "system": "sportmonks",
           "id": "sm:860",
           "name_as_stored": "Botola Pro"
@@ -5389,7 +5465,13 @@
           "name_as_stored": "Botola Pro"
         }
       ],
-      "fits": []
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM860",
+          "status": "uncalibrated"
+        }
+      ]
     },
     {
       "canonical_id": "sm:9",
@@ -5419,6 +5501,11 @@
         {
           "system": "thestats",
           "id": "comp_8321",
+          "name_as_stored": "Championship"
+        },
+        {
+          "system": "thestats",
+          "id": "E1",
           "name_as_stored": "Championship"
         }
       ],

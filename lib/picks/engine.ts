@@ -20,8 +20,9 @@
  *   - Lab MENOLAK ambang global tunggal; ambang per-pasar di MARKET_GRADE_THRESHOLDS.
  *   - Sel pita dengan n < 200 = "tipis" → tidak boleh menopang grade A
  *     (sudah tercermin di tabel: 1X2 A ditahan di status capped-thin).
- *   - Gerbang kompetisi menimpa tabel: calibrated → sesuai tabel;
- *     partial → cap B; uncalibrated/tidak dikenal → TIDAK ADA kaki (fail-closed).
+ *   - Gerbang kompetisi TIDAK menimpa tabel (keputusan owner 2026-11-05:
+ *     gerbang = label, bukan pembatas): semua status sesuai tabel lab;
+ *     status gerbang tercatat sebagai label jujur di paket/ledger.
  *
  * EFFECTIVE PROBABILITY — probabilitas yang dipakai matematika parlay:
  * hit-rate empiris sel (market, pita) dari populasi lab yang sesuai
@@ -261,14 +262,19 @@ export function gradeFromTable(market: PickMarket, statedProb: number): Grade | 
   return null;
 }
 
-/** Cap gerbang kompetisi: partial → maks B; uncalibrated → tidak ada grade. */
+/**
+ * Gerbang kompetisi = LABEL, bukan cap (keputusan owner 2026-11-05):
+ * grade murni dari tabel lab untuk semua status; status gerbang tetap
+ * tercatat di paket/ledger sebagai label jujur, tapi tidak lagi memotong
+ * grade dan tidak lagi membatalkan kaki. Fungsi dipertahankan sebagai
+ * pass-through supaya kontrak pemanggil tidak berubah.
+ */
 export function applyGateCap(grade: Grade, gate: GateStatus): Grade | null {
-  if (gate === "uncalibrated") return null;
-  if (gate === "partial" && grade === "A") return "B";
+  void gate;
   return grade;
 }
 
-/** Grade akhir = tabel lab lalu cap gerbang. Null = kaki tidak diterbitkan. */
+/** Grade akhir = tabel lab (gerbang = label, tidak memotong). Null = kaki tidak diterbitkan. */
 export function gradeLeg(
   market: PickMarket,
   statedProb: number,
@@ -346,7 +352,7 @@ export interface PickLegsInput {
 
 /**
  * Terbitkan kaki ter-grade untuk satu pertandingan. Kaki di bawah lantai C
- * pasar-nya (atau tertahan cap gerbang) TIDAK diterbitkan. Urutan: grade
+ * pasar-nya TIDAK diterbitkan. Urutan: grade
  * (A→C), lalu effective_prob menurun — urutan peringkat slate.
  */
 export function pickLegs(input: PickLegsInput): PickLeg[] {

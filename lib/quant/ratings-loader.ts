@@ -653,23 +653,12 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   // kedua tim yang ditransformasi δ liga masing-masing
   // (lib/quant/global-offsets.ts). Menggantikan jalur pseudo-UCL lama
   // (parameter hardcoded + penskalaan koefisien UEFA) — diganti, bukan
-  // dilapisi. Gerbang berlaku persis seperti liga: uncalibrated diblokir;
-  // tim yang tidak ter-resolve → fallback teranotasi, bukan angka karangan.
+  // dilapisi. Gerbang = label (keputusan owner 2026-11-05): status kompetisi
+  // — termasuk uncalibrated — tidak lagi memblokir jalur offset; statusnya
+  // diteruskan sebagai label di metadata. Tim yang tidak ter-resolve →
+  // fallback teranotasi, bukan angka karangan.
   if (resolution?.cupModel && ratingsData && resolution.canonical) {
     const cupMeta = defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>;
-    if (gate?.status === "uncalibrated") {
-      return {
-        ...defaultFallback,
-        metadata: {
-          ...cupMeta,
-          div: divCode,
-          leagueName: gate.leagueName ?? resolution.canonical.name,
-          calibrationStatus: "uncalibrated",
-          calibrationGate: gate.reason,
-          leagueResolution: leagueResolutionMeta,
-        },
-      };
-    }
     const cup = getCupShrunkParameters(ratingsData, lookupTeamRating, {
       competition: resolution.canonical,
       homeTeam: options.homeTeam,
@@ -707,21 +696,9 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     return defaultFallback;
   }
 
-  // BLOKIR EKSPLISIT: liga berstatus uncalibrated di registry tidak boleh
-  // disajikan walau entri JSON-nya ada (defense-in-depth; jalur normalnya
-  // calibrate-ratings.ts memang tidak menulis liga uncalibrated ke JSON).
-  if (gate?.status === "uncalibrated") {
-    return {
-      ...defaultFallback,
-      metadata: {
-        ...(defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>),
-        div: divCode,
-        leagueName: gate.leagueName ?? league.leagueName,
-        calibrationStatus: "uncalibrated",
-        calibrationGate: gate.reason,
-      },
-    };
-  }
+  // Gerbang = label (keputusan owner 2026-11-05): liga uncalibrated yang
+  // fit-nya ada di JSON tetap disajikan; statusnya menempel di metadata
+  // lewat gateStatus/calibrationGate di bawah. Blokir lama dicabut.
   const gateStatus: CalibrationStatus = gate?.status ?? league.calibrationStatus ?? "unknown";
 
   const homeResolved = findTeamRating(ratingsData, divCode, normHome);

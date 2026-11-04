@@ -404,14 +404,9 @@ async function main() {
       console.log(`${tag} → unrated: gerbang tidak ter-resolve`);
       continue;
     }
-    if (gate === "uncalibrated") {
-      unrated.push({
-        fixture: fx,
-        reason: `kompetisi uncalibrated (${fx.competition_name}) — tanpa kaki per aturan gerbang`,
-      });
-      console.log(`${tag} → unrated: uncalibrated`);
-      continue;
-    }
+    // Gerbang = label (keputusan owner 2026-11-05): kompetisi uncalibrated
+    // TIDAK lagi di-skip — fixture-nya tetap di-rate dan kakinya terbit
+    // dengan gate_status 'uncalibrated' tercatat sebagai label.
 
     // --- Pipeline offline (jalur yang sama dengan run-one-analysis).
     let legs: PickLeg[] | null = null;
@@ -437,9 +432,7 @@ async function main() {
         (canonicalId ? getCanonicalCupModel(canonicalId) !== null : false);
       const population: Population = isCup ? "cup" : "domestic";
 
-      if (gateFinal === "uncalibrated") {
-        failReason = "paket kuant melayani status uncalibrated — tanpa kaki";
-      } else if (isCup && !md?.cupOffset) {
+      if (isCup && !md?.cupOffset) {
         failReason =
           "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)";
       } else if (
