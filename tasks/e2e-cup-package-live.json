@@ -1,0 +1,4453 @@
+{
+  "meta": {
+    "run": "e2e-cup-ucl-live",
+    "generated_at": "2026-11-04T16:54:29.694Z",
+    "today_cutoff": "2026-11-04",
+    "match_id": "sm_19872622",
+    "competition_id": "sm:2",
+    "fixture_sm_id": 19872622,
+    "kickoff_utc": "2026-11-04T17:45:00Z",
+    "offline_only": true,
+    "model": "global-offset (fase kalibrasi piala): att*=att×e^δ, def*=def÷e^δ, basis globalAvg graf + cupHA graf",
+    "notes": [
+      "Run LIVE pra-kickoff: daily-refresh cron sedang in-flight dan menulis bertahap ke store — tangkapan dibaca apa adanya pada waktu run ini; tidak menunggu cron, tidak mengulang run bila tangkapan baru mendarat di tengah.",
+      "Status kompetisi sm:2 = partial (registry source='cup-offset', bukti OOS tasks/cup-oos.json) — tersaji ber-flag, bukan disembunyikan.",
+      "sm_predictions.fixture_sm_id menyimpan id NUMERIK (19872622); bentuk ber-prefix 'sm_...' = 0 baris (diverifikasi pra-run). sm_predictability league_id = 2 (numerik). expected_lineups/prematch_news dikunci fixture_sm_id numerik yang sama."
+    ]
+  },
+  "selection": {
+    "fixture": {
+      "match_id": "sm_19872622",
+      "competition_id": "sm:2",
+      "competition_name": "Champions League",
+      "competition_country": "Europe",
+      "utc_date": "2026-11-04T17:45:00.000Z",
+      "status": "scheduled",
+      "stage_name": null,
+      "home_team_id": "88",
+      "home_team_name": "Fenerbahçe",
+      "away_team_id": "8",
+      "away_team_name": "Liverpool",
+      "venue": "Şükrü Saracoğlu Stadium",
+      "is_neutral": null,
+      "odds_available": null,
+      "xg_available": null,
+      "fetched_utc": "2026-11-04T16:36:43.365Z"
+    },
+    "kickoff_local_wib": "2026-11-05T00:45:00+07:00 (dari utc_date 2026-11-04T17:45:00.000Z)",
+    "registry_row": {
+      "league_id": "sm:2",
+      "league_name": "Champions League",
+      "country": "Europe",
+      "tier": null,
+      "status": "partial",
+      "n_matches": 684,
+      "n_teams": 0,
+      "telemetry_coverage": 0.5734939759036145,
+      "scale_ratio": null,
+      "fitted_at": "2026-11-04T12:17:04.974Z",
+      "source": "cup-offset",
+      "notes": "Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+      "canonical_id": "sm:2"
+    },
+    "cup_offset_metadata": {
+      "graph": "europe",
+      "competitionCanonicalId": "sm:2",
+      "homeLeagueCanonicalId": "sm:600",
+      "awayLeagueCanonicalId": "sm:8",
+      "homeFitDiv": "SM600",
+      "awayFitDiv": "SM8",
+      "homeDelta": -0.4792,
+      "awayDelta": 0,
+      "baseAvgGoals": 1.2588,
+      "baseAvgSource": "graph-global",
+      "cupHomeAdvantage": 1.289,
+      "neutralVenue": false,
+      "homeCandidates": 2,
+      "awayCandidates": 2
+    },
+    "home_domestic_gate": {
+      "league": "sm:600",
+      "status": "calibrated",
+      "reason": "Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia). rasio skala=1.0007 cakupan telemetri=1 Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0039 < naive 1.0360 (n=111)."
+    },
+    "away_domestic_gate": {
+      "league": "sm:8",
+      "status": "calibrated",
+      "reason": "Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia). rasio skala=0.9903 cakupan telemetri=1 Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128)."
+    },
+    "odds_captures_inventory": [
+      {
+        "captured_utc": "2026-11-03T12:25:27.240Z",
+        "capture_kind": "baseline",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 144911
+      },
+      {
+        "captured_utc": "2026-11-03T17:52:39.524Z",
+        "capture_kind": "scheduled",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 146970
+      },
+      {
+        "captured_utc": "2026-11-04T12:38:16.740Z",
+        "capture_kind": "scheduled",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 152397
+      }
+    ]
+  },
+  "intel": {
+    "pertandingan": {
+      "id": "sm_19872622",
+      "tim_kandang": "Fenerbahçe",
+      "tim_tamu": "Liverpool",
+      "waktu": "2026-11-04T17:45:00.000Z",
+      "kompetisi": "Champions League",
+      "venue": "Şükrü Saracoğlu Stadium",
+      "wasit": "Belum diumumkan",
+      "kickoff_jam_menuju": 0.8
+    },
+    "wasit_detail": {
+      "is_available": false,
+      "name": "Tidak diketahui",
+      "country": "-",
+      "games": 0,
+      "yellow_cards": 0,
+      "red_cards": 0,
+      "avg_yellow_per_game": null,
+      "strictness_level": "tidak diketahui"
+    },
+    "lineups": {
+      "is_available": false,
+      "confirmed": false,
+      "status_label": "belum_tersedia",
+      "home_formation": "4-3-3",
+      "away_formation": "4-3-3",
+      "home_starting_xi": [],
+      "away_starting_xi": []
+    },
+    "h2h_history": {
+      "is_available": false,
+      "sample_size": 0,
+      "summary": "Tidak ada riwayat pertemuan langsung dalam database",
+      "recent_meetings": []
+    },
+    "form_split": {
+      "home_form_summary": "Data split kandang terbatas",
+      "away_form_summary": "Data split tandang terbatas",
+      "home_goals_avg": 1.6,
+      "away_goals_avg": 1.25,
+      "home_form_sample_size": 0,
+      "away_form_sample_size": 0
+    },
+    "injuries": {
+      "is_available": false,
+      "home_injuries": [],
+      "away_injuries": []
+    },
+    "market_odds": {
+      "is_available": false,
+      "home_last": null,
+      "draw_last": null,
+      "away_last": null,
+      "total_goals_over_2_5": null
+    },
+    "missing_data_registry": [
+      "Data wasit resmi belum ditugaskan/tersedia",
+      "Lineup resmi belum diumumkan",
+      "Riwayat H2H masa lalu belum tercatat di database",
+      "Laporan cedera/suspensi resmi tidak ada atau kedua tim berkekuatan penuh",
+      "Odds pasar 1X2 resmi bet365/pinnacle belum tersedia"
+    ],
+    "is_strictly_grounded": true
+  },
+  "fetch_audit": {
+    "dispatcher_model": "bai/qwen3.8-27b (fast heuristic fallback)",
+    "decision": {
+      "fetch_referee": true,
+      "fetch_lineups": true,
+      "fetch_injuries": true,
+      "fetch_odds": true,
+      "fetch_h2h": true,
+      "cache_ttl_minutes": 10,
+      "reasoning": "Heuristic rule: Kickoff 0.8h (scheduled). Lineup wajib diambil."
+    },
+    "endpoints_called": [
+      "/football/matches/sm_19872622",
+      "upcoming_fixtures+match_odds_history (offline SQLite)",
+      "/football/matches/sm_19872622/referee",
+      "/football/matches/sm_19872622/lineups",
+      "/football/matches (h2h pool online fallback)",
+      "/football/matches (recent home/away online fallback)",
+      "injuries-suspensions (online fallback)"
+    ],
+    "endpoints_skipped": [
+      "odds (offline anchor SQLite)"
+    ],
+    "cache_metrics": {
+      "hits": 0,
+      "misses": 8,
+      "totalEntries": 0,
+      "hitRate": "0.0%",
+      "savedCalls": 0
+    },
+    "timestamp": "2026-11-04T16:54:38.409Z"
+  },
+  "quant_pure": {
+    "quant_package": {
+      "dixon_coles": {
+        "lambda_home_xg": 1.41,
+        "mu_away_xg": 2.085,
+        "prob_home_win": 0.2582,
+        "prob_draw": 0.211,
+        "prob_away_win": 0.5308,
+        "fair_odds": {
+          "home": 3.87,
+          "draw": 4.74,
+          "away": 1.88
+        },
+        "over_2_5_prob": 0.6782,
+        "btts_yes_prob": 0.6619,
+        "expected_total_goals": 3.5,
+        "top_scorelines": [
+          {
+            "homeGoals": 1,
+            "awayGoals": 2,
+            "prob": 9.3
+          },
+          {
+            "homeGoals": 1,
+            "awayGoals": 1,
+            "prob": 8.9
+          },
+          {
+            "homeGoals": 0,
+            "awayGoals": 2,
+            "prob": 6.6
+          },
+          {
+            "homeGoals": 2,
+            "awayGoals": 2,
+            "prob": 6.6
+          },
+          {
+            "homeGoals": 1,
+            "awayGoals": 3,
+            "prob": 6.5
+          },
+          {
+            "homeGoals": 0,
+            "awayGoals": 1,
+            "prob": 6.3
+          }
+        ],
+        "asian_handicap": {
+          "ah_0_0_dnb": {
+            "home_prob": 0.3272,
+            "away_prob": 0.6728,
+            "fair_odds_home": 3.06,
+            "fair_odds_away": 1.49,
+            "push_prob": 0.211
+          },
+          "ah_minus_0_5": {
+            "home_cover": 0.2582,
+            "away_cover": 0.7418,
+            "fair_odds_home": 3.87,
+            "fair_odds_away": 1.35
+          },
+          "ah_minus_1_0": {
+            "home_cover": 0.1129,
+            "push_prob": 0.1453,
+            "away_cover": 0.7418,
+            "home_prob": 0.1321,
+            "away_prob": 0.8679,
+            "fair_odds_home": 7.57,
+            "fair_odds_away": 1.15
+          }
+        },
+        "clean_sheet": {
+          "home_clean_sheet_prob": 0.1243,
+          "away_clean_sheet_prob": 0.2441,
+          "home_win_to_nil_prob": 0.094,
+          "away_win_to_nil_prob": 0.2138
+        },
+        "expected_points": {
+          "home_xpts": 0.99,
+          "away_xpts": 1.8
+        }
+      },
+      "vig_stripping": null,
+      "value_bets": [],
+      "special_markets": {
+        "match": {
+          "home_team": "Fenerbahçe",
+          "away_team": "Liverpool",
+          "cutoff_date": "2026-11-04"
+        },
+        "headed_goal": {
+          "expected_headers": 0.268,
+          "prob_at_least_one_header": 0.235,
+          "fair_odds_yes": 4.26,
+          "fair_odds_no": 1.31,
+          "home_expected_headers": 0.118,
+          "away_expected_headers": 0.15,
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "observed_aerial_samples": {
+            "home": 1,
+            "away": 0
+          },
+          "observed_crosses_samples": {
+            "home": 6,
+            "away": 5
+          }
+        },
+        "corners": {
+          "expected_total_corners": 10.19,
+          "home_expected_corners": 5.25,
+          "away_expected_corners": 4.94,
+          "over_9_5_prob": 0.566,
+          "under_9_5_prob": 0.434,
+          "fair_odds_over_9_5": 1.77,
+          "fair_odds_under_9_5": 2.3,
+          "over_10_5_prob": 0.441,
+          "under_10_5_prob": 0.559,
+          "fair_odds_over_10_5": 2.27,
+          "fair_odds_under_10_5": 1.79,
+          "observed_samples": {
+            "home": 6,
+            "away": 6
+          },
+          "confidence_tier": "HIGH",
+          "is_estimated": false
+        },
+        "cards": {
+          "expected_total_cards": 5.4,
+          "home_expected_cards": 2.7,
+          "away_expected_cards": 2.7,
+          "over_3_5_prob": 0.787,
+          "under_3_5_prob": 0.213,
+          "fair_odds_over_3_5": 1.27,
+          "fair_odds_under_3_5": 4.69,
+          "over_4_5_prob": 0.627,
+          "under_4_5_prob": 0.373,
+          "fair_odds_over_4_5": 1.59,
+          "fair_odds_under_4_5": 2.68,
+          "observed_samples": {
+            "home": 6,
+            "away": 6
+          },
+          "confidence_tier": "HIGH",
+          "is_estimated": false
+        },
+        "passing_dominance": {
+          "home_expected_passes": 381,
+          "away_expected_passes": 352,
+          "expected_pass_differential": 29,
+          "observed_samples": {
+            "home": 6,
+            "away": 5
+          }
+        }
+      },
+      "half_profile": {
+        "home": {
+          "team_id": "tm_91646",
+          "sample_size": 6,
+          "observed_half_samples": 1,
+          "avg_first_half_xg_for": null,
+          "avg_second_half_xg_for": null,
+          "avg_first_half_xg_against": null,
+          "avg_second_half_xg_against": null,
+          "diff_second_minus_first": null,
+          "diff_against_second_minus_first": null,
+          "label": "INSUFFICIENT_DATA",
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "summary": "tm_91646: data xG babak tak cukup (1/6 laga) — profil babak tidak disimpulkan."
+        },
+        "away": {
+          "team_id": "tm_0406",
+          "sample_size": 6,
+          "observed_half_samples": 0,
+          "avg_first_half_xg_for": null,
+          "avg_second_half_xg_for": null,
+          "avg_first_half_xg_against": null,
+          "avg_second_half_xg_against": null,
+          "diff_second_minus_first": null,
+          "diff_against_second_minus_first": null,
+          "label": "INSUFFICIENT_DATA",
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "summary": "tm_0406: data xG babak tak cukup (0/6 laga) — profil babak tidak disimpulkan."
+        }
+      },
+      "momentum": {
+        "home": {
+          "team_id": "tm_91646",
+          "sample_size": 6,
+          "recent_sample": 3,
+          "older_sample": 3,
+          "observed_xg_recent": 3,
+          "observed_xg_older": 3,
+          "avg_goals_recent": 1.33,
+          "avg_goals_older": 1,
+          "delta_goals": 0.33,
+          "avg_xg_recent": 1.07,
+          "avg_xg_older": 2.44,
+          "delta_xg": -1.37,
+          "direction": "DATAR",
+          "magnitude": 0.33,
+          "confidence_tier": "HIGH",
+          "is_estimated": false,
+          "summary": "tm_91646: → DATAR — gol 1.33/laga (3 terakhir) vs 1.00/laga (3 sebelumnya) (selisih +0.33, xG -1.37, HIGH)."
+        },
+        "away": {
+          "team_id": "tm_0406",
+          "sample_size": 6,
+          "recent_sample": 3,
+          "older_sample": 3,
+          "observed_xg_recent": 1,
+          "observed_xg_older": 2,
+          "avg_goals_recent": 1,
+          "avg_goals_older": 2.33,
+          "delta_goals": -1.33,
+          "avg_xg_recent": 1.71,
+          "avg_xg_older": 1.8,
+          "delta_xg": -0.1,
+          "direction": "TURUN",
+          "magnitude": 1.33,
+          "confidence_tier": "HIGH",
+          "is_estimated": false,
+          "summary": "tm_0406: ↘ TURUN — gol 1.00/laga (3 terakhir) vs 2.33/laga (3 sebelumnya) (selisih -1.33, xG -0.10, HIGH)."
+        }
+      },
+      "calibration_metadata": {
+        "is_calibrated": true,
+        "div": "sm:2",
+        "league_name": "Champions League",
+        "home_source": "primary_league",
+        "away_source": "primary_league",
+        "shrinkage_weights": {
+          "home": 0,
+          "away": 0
+        },
+        "calibrated_home_advantage": 1.289,
+        "calibrated_league_avg_goals": 1.2588,
+        "macro_prior_date": "2026-11-04",
+        "telemetry_source": {
+          "home": "macro_prior_only",
+          "away": "macro_prior_only"
+        },
+        "observed_xg_samples": {
+          "home": 0,
+          "away": 0
+        },
+        "is_estimated_telemetry": true,
+        "pre_match_cutoff": "2026-11-04"
+      }
+    },
+    "dixon_coles": {
+      "lambda_home_xg": 1.41,
+      "mu_away_xg": 2.085,
+      "prob_home_win": 0.2582,
+      "prob_draw": 0.211,
+      "prob_away_win": 0.5308,
+      "fair_odds": {
+        "home": 3.87,
+        "draw": 4.74,
+        "away": 1.88
+      },
+      "over_2_5_prob": 0.6782,
+      "btts_yes_prob": 0.6619,
+      "expected_total_goals": 3.5,
+      "top_scorelines": [
+        {
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "prob": 9.3
+        },
+        {
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "prob": 8.9
+        },
+        {
+          "homeGoals": 0,
+          "awayGoals": 2,
+          "prob": 6.6
+        },
+        {
+          "homeGoals": 2,
+          "awayGoals": 2,
+          "prob": 6.6
+        },
+        {
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "prob": 6.5
+        },
+        {
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "prob": 6.3
+        }
+      ],
+      "asian_handicap": {
+        "ah_0_0_dnb": {
+          "home_prob": 0.3272,
+          "away_prob": 0.6728,
+          "fair_odds_home": 3.06,
+          "fair_odds_away": 1.49,
+          "push_prob": 0.211
+        },
+        "ah_minus_0_5": {
+          "home_cover": 0.2582,
+          "away_cover": 0.7418,
+          "fair_odds_home": 3.87,
+          "fair_odds_away": 1.35
+        },
+        "ah_minus_1_0": {
+          "home_cover": 0.1129,
+          "push_prob": 0.1453,
+          "away_cover": 0.7418,
+          "home_prob": 0.1321,
+          "away_prob": 0.8679,
+          "fair_odds_home": 7.57,
+          "fair_odds_away": 1.15
+        }
+      },
+      "clean_sheet": {
+        "home_clean_sheet_prob": 0.1243,
+        "away_clean_sheet_prob": 0.2441,
+        "home_win_to_nil_prob": 0.094,
+        "away_win_to_nil_prob": 0.2138
+      },
+      "expected_points": {
+        "home_xpts": 0.99,
+        "away_xpts": 1.8
+      }
+    },
+    "shrunk_params": {
+      "homeAttack": 1,
+      "homeDefense": 1.306,
+      "awayAttack": 1.268,
+      "awayDefense": 0.869,
+      "homeAdvantage": 1.289,
+      "leagueAvgGoals": 1.2588,
+      "rho": 0,
+      "shrinkageWeights": {
+        "home": 0,
+        "away": 0
+      },
+      "isCalibrated": true,
+      "metadata": {
+        "div": "sm:2",
+        "leagueName": "Champions League",
+        "homeSource": "primary_league",
+        "awaySource": "primary_league",
+        "macroPriorDate": "2026-11-04",
+        "telemetrySource": {
+          "home": "macro_prior_only",
+          "away": "macro_prior_only"
+        },
+        "observedXgSamples": {
+          "home": 0,
+          "away": 0
+        },
+        "isEstimatedTelemetry": true,
+        "preMatchCutoff": "2026-11-04",
+        "calibrationStatus": "partial",
+        "calibrationGate": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+        "leagueResolution": {
+          "canonicalId": "sm:2",
+          "fitSystem": "special",
+          "via": "cup-offset",
+          "note": "Model offset global graf europe: kandang dari sm:600 (δ=-0.4792), tamu dari sm:8 (δ=0)."
+        },
+        "cupOffset": {
+          "graph": "europe",
+          "competitionCanonicalId": "sm:2",
+          "homeLeagueCanonicalId": "sm:600",
+          "awayLeagueCanonicalId": "sm:8",
+          "homeFitDiv": "SM600",
+          "awayFitDiv": "SM8",
+          "homeDelta": -0.4792,
+          "awayDelta": 0,
+          "baseAvgGoals": 1.2588,
+          "baseAvgSource": "graph-global",
+          "cupHomeAdvantage": 1.289,
+          "neutralVenue": false,
+          "homeCandidates": 2,
+          "awayCandidates": 2
+        }
+      }
+    },
+    "calibration_metadata": {
+      "is_calibrated": true,
+      "div": "sm:2",
+      "league_name": "Champions League",
+      "home_source": "primary_league",
+      "away_source": "primary_league",
+      "shrinkage_weights": {
+        "home": 0,
+        "away": 0
+      },
+      "calibrated_home_advantage": 1.289,
+      "calibrated_league_avg_goals": 1.2588,
+      "macro_prior_date": "2026-11-04",
+      "telemetry_source": {
+        "home": "macro_prior_only",
+        "away": "macro_prior_only"
+      },
+      "observed_xg_samples": {
+        "home": 0,
+        "away": 0
+      },
+      "is_estimated_telemetry": true,
+      "pre_match_cutoff": "2026-11-04"
+    },
+    "cup_offset_metadata": {
+      "graph": "europe",
+      "competitionCanonicalId": "sm:2",
+      "homeLeagueCanonicalId": "sm:600",
+      "awayLeagueCanonicalId": "sm:8",
+      "homeFitDiv": "SM600",
+      "awayFitDiv": "SM8",
+      "homeDelta": -0.4792,
+      "awayDelta": 0,
+      "baseAvgGoals": 1.2588,
+      "baseAvgSource": "graph-global",
+      "cupHomeAdvantage": 1.289,
+      "neutralVenue": false,
+      "homeCandidates": 2,
+      "awayCandidates": 2
+    },
+    "market_anchor_local": {
+      "home_last": null,
+      "draw_last": null,
+      "away_last": null
+    }
+  },
+  "quant_wired": {
+    "quant_package": {
+      "dixon_coles": {
+        "lambda_home_xg": 1.41,
+        "mu_away_xg": 2.085,
+        "prob_home_win": 0.2582,
+        "prob_draw": 0.211,
+        "prob_away_win": 0.5308,
+        "fair_odds": {
+          "home": 3.87,
+          "draw": 4.74,
+          "away": 1.88
+        },
+        "over_2_5_prob": 0.6782,
+        "btts_yes_prob": 0.6619,
+        "expected_total_goals": 3.5,
+        "top_scorelines": [
+          {
+            "homeGoals": 1,
+            "awayGoals": 2,
+            "prob": 9.3
+          },
+          {
+            "homeGoals": 1,
+            "awayGoals": 1,
+            "prob": 8.9
+          },
+          {
+            "homeGoals": 0,
+            "awayGoals": 2,
+            "prob": 6.6
+          },
+          {
+            "homeGoals": 2,
+            "awayGoals": 2,
+            "prob": 6.6
+          },
+          {
+            "homeGoals": 1,
+            "awayGoals": 3,
+            "prob": 6.5
+          },
+          {
+            "homeGoals": 0,
+            "awayGoals": 1,
+            "prob": 6.3
+          }
+        ],
+        "asian_handicap": {
+          "ah_0_0_dnb": {
+            "home_prob": 0.3272,
+            "away_prob": 0.6728,
+            "fair_odds_home": 3.06,
+            "fair_odds_away": 1.49,
+            "push_prob": 0.211
+          },
+          "ah_minus_0_5": {
+            "home_cover": 0.2582,
+            "away_cover": 0.7418,
+            "fair_odds_home": 3.87,
+            "fair_odds_away": 1.35
+          },
+          "ah_minus_1_0": {
+            "home_cover": 0.1129,
+            "push_prob": 0.1453,
+            "away_cover": 0.7418,
+            "home_prob": 0.1321,
+            "away_prob": 0.8679,
+            "fair_odds_home": 7.57,
+            "fair_odds_away": 1.15
+          }
+        },
+        "clean_sheet": {
+          "home_clean_sheet_prob": 0.1243,
+          "away_clean_sheet_prob": 0.2441,
+          "home_win_to_nil_prob": 0.094,
+          "away_win_to_nil_prob": 0.2138
+        },
+        "expected_points": {
+          "home_xpts": 0.99,
+          "away_xpts": 1.8
+        }
+      },
+      "vig_stripping": null,
+      "value_bets": [
+        {
+          "market_name": "1X2",
+          "selection": "Fenerbahçe Menang",
+          "bookmaker_odds": 5.89,
+          "model_probability": 0.258,
+          "fair_odds": 3.87,
+          "expected_value": 0.5208,
+          "ev_percentage": "+52.1%",
+          "is_positive_ev": true,
+          "edge_rating": "EXCELLENT",
+          "kelly_fraction_full": 10.7,
+          "kelly_fraction_quarter": 2.7,
+          "recommended_stake_percentage": 2.7,
+          "rationale": "Model memproyeksikan probabilitas 25.8% (Fair Odds 3.87), sedangkan bandar menawarkan 5.89. Terdapat mathematical edge +52.1% (+EV). (harga 1xBet via Sportmonks)",
+          "odds_source": "sportmonks",
+          "bookmaker": "1xBet"
+        },
+        {
+          "market_name": "1X2",
+          "selection": "Hasil Imbang (Draw)",
+          "bookmaker_odds": 5.38,
+          "model_probability": 0.211,
+          "fair_odds": 4.74,
+          "expected_value": 0.1352,
+          "ev_percentage": "+13.5%",
+          "is_positive_ev": true,
+          "edge_rating": "EXCELLENT",
+          "kelly_fraction_full": 3.1,
+          "kelly_fraction_quarter": 0.8,
+          "recommended_stake_percentage": 0.8,
+          "rationale": "Model memproyeksikan probabilitas 21.1% (Fair Odds 4.74), sedangkan bandar menawarkan 5.38. Terdapat mathematical edge +13.5% (+EV). (harga 1xBet via Sportmonks)",
+          "odds_source": "sportmonks",
+          "bookmaker": "1xBet"
+        },
+        {
+          "market_name": "1X2",
+          "selection": "Liverpool Menang",
+          "bookmaker_odds": 1.52,
+          "model_probability": 0.531,
+          "fair_odds": 1.88,
+          "expected_value": -0.1932,
+          "ev_percentage": "-19.3%",
+          "is_positive_ev": false,
+          "edge_rating": "NEGATIVE",
+          "kelly_fraction_full": 0,
+          "kelly_fraction_quarter": 0,
+          "recommended_stake_percentage": 0,
+          "rationale": "Odds bandar 1.52 berada di bawah Fair Odds model 1.88 (Defisit EV -19.3%). Pasar ini memiliki ekspektasi nilai negatif. (harga 1xBet via Sportmonks)",
+          "odds_source": "sportmonks",
+          "bookmaker": "1xBet"
+        },
+        {
+          "market_name": "Over/Under 2.5",
+          "selection": "Over 2.5 Goals",
+          "bookmaker_odds": 1.36,
+          "model_probability": 0.678,
+          "fair_odds": 1.47,
+          "expected_value": -0.0776,
+          "ev_percentage": "-7.8%",
+          "is_positive_ev": false,
+          "edge_rating": "NEGATIVE",
+          "kelly_fraction_full": 0,
+          "kelly_fraction_quarter": 0,
+          "recommended_stake_percentage": 0,
+          "rationale": "Odds bandar 1.36 berada di bawah Fair Odds model 1.47 (Defisit EV -7.8%). Pasar ini memiliki ekspektasi nilai negatif. (harga 1xBet via Sportmonks)",
+          "odds_source": "sportmonks",
+          "bookmaker": "1xBet"
+        }
+      ],
+      "special_markets": {
+        "match": {
+          "home_team": "Fenerbahçe",
+          "away_team": "Liverpool",
+          "cutoff_date": "2026-11-04"
+        },
+        "headed_goal": {
+          "expected_headers": 0.268,
+          "prob_at_least_one_header": 0.235,
+          "fair_odds_yes": 4.26,
+          "fair_odds_no": 1.31,
+          "home_expected_headers": 0.118,
+          "away_expected_headers": 0.15,
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "observed_aerial_samples": {
+            "home": 1,
+            "away": 0
+          },
+          "observed_crosses_samples": {
+            "home": 6,
+            "away": 5
+          }
+        },
+        "corners": {
+          "expected_total_corners": 10.19,
+          "home_expected_corners": 5.25,
+          "away_expected_corners": 4.94,
+          "over_9_5_prob": 0.566,
+          "under_9_5_prob": 0.434,
+          "fair_odds_over_9_5": 1.77,
+          "fair_odds_under_9_5": 2.3,
+          "over_10_5_prob": 0.441,
+          "under_10_5_prob": 0.559,
+          "fair_odds_over_10_5": 2.27,
+          "fair_odds_under_10_5": 1.79,
+          "observed_samples": {
+            "home": 6,
+            "away": 6
+          },
+          "confidence_tier": "HIGH",
+          "is_estimated": false
+        },
+        "cards": {
+          "expected_total_cards": 5.4,
+          "home_expected_cards": 2.7,
+          "away_expected_cards": 2.7,
+          "over_3_5_prob": 0.787,
+          "under_3_5_prob": 0.213,
+          "fair_odds_over_3_5": 1.27,
+          "fair_odds_under_3_5": 4.69,
+          "over_4_5_prob": 0.627,
+          "under_4_5_prob": 0.373,
+          "fair_odds_over_4_5": 1.59,
+          "fair_odds_under_4_5": 2.68,
+          "observed_samples": {
+            "home": 6,
+            "away": 6
+          },
+          "confidence_tier": "HIGH",
+          "is_estimated": false
+        },
+        "passing_dominance": {
+          "home_expected_passes": 381,
+          "away_expected_passes": 352,
+          "expected_pass_differential": 29,
+          "observed_samples": {
+            "home": 6,
+            "away": 5
+          }
+        }
+      },
+      "half_profile": {
+        "home": {
+          "team_id": "tm_91646",
+          "sample_size": 6,
+          "observed_half_samples": 1,
+          "avg_first_half_xg_for": null,
+          "avg_second_half_xg_for": null,
+          "avg_first_half_xg_against": null,
+          "avg_second_half_xg_against": null,
+          "diff_second_minus_first": null,
+          "diff_against_second_minus_first": null,
+          "label": "INSUFFICIENT_DATA",
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "summary": "tm_91646: data xG babak tak cukup (1/6 laga) — profil babak tidak disimpulkan."
+        },
+        "away": {
+          "team_id": "tm_0406",
+          "sample_size": 6,
+          "observed_half_samples": 0,
+          "avg_first_half_xg_for": null,
+          "avg_second_half_xg_for": null,
+          "avg_first_half_xg_against": null,
+          "avg_second_half_xg_against": null,
+          "diff_second_minus_first": null,
+          "diff_against_second_minus_first": null,
+          "label": "INSUFFICIENT_DATA",
+          "confidence_tier": "INSUFFICIENT_DATA",
+          "is_estimated": true,
+          "summary": "tm_0406: data xG babak tak cukup (0/6 laga) — profil babak tidak disimpulkan."
+        }
+      },
+      "momentum": {
+        "home": {
+          "team_id": "tm_91646",
+          "sample_size": 6,
+          "recent_sample": 3,
+          "older_sample": 3,
+          "observed_xg_recent": 3,
+          "observed_xg_older": 3,
+          "avg_goals_recent": 1.33,
+          "avg_goals_older": 1,
+          "delta_goals": 0.33,
+          "avg_xg_recent": 1.07,
+          "avg_xg_older": 2.44,
+          "delta_xg": -1.37,
+          "direction": "DATAR",
+          "magnitude": 0.33,
+          "confidence_tier": "HIGH",
+          "is_estimated": false,
+          "summary": "tm_91646: → DATAR — gol 1.33/laga (3 terakhir) vs 1.00/laga (3 sebelumnya) (selisih +0.33, xG -1.37, HIGH)."
+        },
+        "away": {
+          "team_id": "tm_0406",
+          "sample_size": 6,
+          "recent_sample": 3,
+          "older_sample": 3,
+          "observed_xg_recent": 1,
+          "observed_xg_older": 2,
+          "avg_goals_recent": 1,
+          "avg_goals_older": 2.33,
+          "delta_goals": -1.33,
+          "avg_xg_recent": 1.71,
+          "avg_xg_older": 1.8,
+          "delta_xg": -0.1,
+          "direction": "TURUN",
+          "magnitude": 1.33,
+          "confidence_tier": "HIGH",
+          "is_estimated": false,
+          "summary": "tm_0406: ↘ TURUN — gol 1.00/laga (3 terakhir) vs 2.33/laga (3 sebelumnya) (selisih -1.33, xG -0.10, HIGH)."
+        }
+      },
+      "calibration_metadata": {
+        "is_calibrated": true,
+        "div": "sm:2",
+        "league_name": "Champions League",
+        "home_source": "primary_league",
+        "away_source": "primary_league",
+        "shrinkage_weights": {
+          "home": 0,
+          "away": 0
+        },
+        "calibrated_home_advantage": 1.289,
+        "calibrated_league_avg_goals": 1.2588,
+        "macro_prior_date": "2026-11-04",
+        "telemetry_source": {
+          "home": "macro_prior_only",
+          "away": "macro_prior_only"
+        },
+        "observed_xg_samples": {
+          "home": 0,
+          "away": 0
+        },
+        "is_estimated_telemetry": true,
+        "pre_match_cutoff": "2026-11-04"
+      },
+      "sm_context": {
+        "status": "ok",
+        "fixture_id": 19872622,
+        "bookmaker": "1xBet",
+        "bookmaker_id": 35,
+        "fetched_at": "2026-11-04T12:38:16.740Z",
+        "predictions": [],
+        "gaps_closed": [],
+        "notes": [
+          "odds SM 1xBet 1X2 5.89 / 5.38 / 1.52 + O/U 2.5 1.36/3.14 — gabung, harga lokal dipertahankan",
+          "pembanding: 1X2 1xBet 5.89 / 5.38 / 1.52 vs Pinnacle 6.11 / 5.16 / 1.49",
+          "BTTS: tanpa harga SM (filter markets 1,80) — tidak dinilai dari SM",
+          "lineup SM kosong — gap lineup dipertahankan",
+          "sidelined SM kosong — gap cedera dipertahankan"
+        ],
+        "degraded_reason": null
+      }
+    },
+    "intel_merged_market_odds": {
+      "is_available": false,
+      "home_last": null,
+      "draw_last": null,
+      "away_last": null,
+      "total_goals_over_2_5": null,
+      "sm_odds": {
+        "home_last": 5.89,
+        "draw_last": 5.38,
+        "away_last": 1.52,
+        "total_goals_over_2_5": 1.36,
+        "under_2_5": 3.14,
+        "bookmaker": "1xBet",
+        "bookmaker_id": 35,
+        "compare_note": "1X2 1xBet 5.89 / 5.38 / 1.52 vs Pinnacle 6.11 / 5.16 / 1.49",
+        "fetched_at": "2026-11-04T12:38:16.740Z",
+        "source": "sportmonks"
+      }
+    },
+    "sm_status": "ok",
+    "sm_reason": "detail SM 19872622 masuk (4 value bets SM)"
+  },
+  "market_anchor_sm": {
+    "used_capture": {
+      "captured_utc": "2026-11-04T12:38:16.740Z",
+      "capture_kind": "scheduled",
+      "source": "sportmonks"
+    },
+    "all_captures": [
+      {
+        "captured_utc": "2026-11-03T12:25:27.240Z",
+        "capture_kind": "baseline",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 144911
+      },
+      {
+        "captured_utc": "2026-11-03T17:52:39.524Z",
+        "capture_kind": "scheduled",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 146970
+      },
+      {
+        "captured_utc": "2026-11-04T12:38:16.740Z",
+        "capture_kind": "scheduled",
+        "source": "sportmonks",
+        "has_odds": 1,
+        "bytes": 152397
+      }
+    ],
+    "quotes_primary_and_compare": {
+      "home_last": 5.89,
+      "draw_last": 5.38,
+      "away_last": 1.52,
+      "total_goals_over_2_5": 1.36,
+      "under_2_5": 3.14,
+      "bookmaker": "1xBet",
+      "bookmaker_id": 35,
+      "compare_note": "1X2 1xBet 5.89 / 5.38 / 1.52 vs Pinnacle 6.11 / 5.16 / 1.49",
+      "fetched_at": "2026-11-04T12:38:16.740Z",
+      "source": "sportmonks"
+    },
+    "shin_stripped": {
+      "raw_odds": {
+        "home": 5.89,
+        "draw": 5.38,
+        "away": 1.52
+      },
+      "implied_prob_raw": {
+        "home": 0.1698,
+        "draw": 0.1859,
+        "away": 0.6579
+      },
+      "overround": 1.0135,
+      "margin_percentage": 1.4,
+      "fair_prob": {
+        "home": 0.1658,
+        "draw": 0.1819,
+        "away": 0.6523
+      },
+      "fair_odds": {
+        "home": 6.03,
+        "draw": 5.5,
+        "away": 1.53
+      },
+      "method_used": "shin"
+    }
+  },
+  "context": {
+    "predictions_db": {
+      "fixture_id_format": "fixture_sm_id NUMERIK (19872622) — 92 baris; bentuk ber-prefix = 0 baris",
+      "total_rows": 92,
+      "fulltime_result": [
+        {
+          "market": "Fulltime Result Probability",
+          "outcome": "away",
+          "probability": 39.83,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.000Z"
+        },
+        {
+          "market": "Fulltime Result Probability",
+          "outcome": "draw",
+          "probability": 23.8,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.013Z"
+        },
+        {
+          "market": "Fulltime Result Probability",
+          "outcome": "home",
+          "probability": 36.4,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:03.988Z"
+        }
+      ],
+      "over_under_2_5": [
+        {
+          "market": "Over/Under 2.5 Probability",
+          "outcome": "no",
+          "probability": 40.13,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.382Z"
+        },
+        {
+          "market": "Over/Under 2.5 Probability",
+          "outcome": "yes",
+          "probability": 59.87,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.370Z"
+        }
+      ],
+      "btts": [
+        {
+          "market": "Both Teams To Score Probability",
+          "outcome": "no",
+          "probability": 39.14,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:03.822Z"
+        },
+        {
+          "market": "Both Teams To Score Probability",
+          "outcome": "yes",
+          "probability": 60.86,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:03.807Z"
+        }
+      ],
+      "double_chance": [
+        {
+          "market": "Double Chance Probability",
+          "outcome": "draw_away",
+          "probability": 63.629999999999995,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.076Z"
+        },
+        {
+          "market": "Double Chance Probability",
+          "outcome": "draw_home",
+          "probability": 60.2,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.063Z"
+        },
+        {
+          "market": "Double Chance Probability",
+          "outcome": "home_away",
+          "probability": 76.22999999999999,
+          "predictability": -0.9484,
+          "captured_utc": "2026-11-04T10:15:04.089Z"
+        }
+      ],
+      "all_markets": {
+        "Away Over/Under 0.5 Probability": [
+          {
+            "market": "Away Over/Under 0.5 Probability",
+            "outcome": "no",
+            "probability": 26.57,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.558Z"
+          },
+          {
+            "market": "Away Over/Under 0.5 Probability",
+            "outcome": "yes",
+            "probability": 73.43,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.545Z"
+          }
+        ],
+        "Away Over/Under 1.5 Probability": [
+          {
+            "market": "Away Over/Under 1.5 Probability",
+            "outcome": "no",
+            "probability": 56.28,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.585Z"
+          },
+          {
+            "market": "Away Over/Under 1.5 Probability",
+            "outcome": "yes",
+            "probability": 43.72,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.572Z"
+          }
+        ],
+        "Away Over/Under 2.5 Probability": [
+          {
+            "market": "Away Over/Under 2.5 Probability",
+            "outcome": "no",
+            "probability": 79.89,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.610Z"
+          },
+          {
+            "market": "Away Over/Under 2.5 Probability",
+            "outcome": "yes",
+            "probability": 20.11,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.598Z"
+          }
+        ],
+        "Away Over/Under 3.5 Probability": [
+          {
+            "market": "Away Over/Under 3.5 Probability",
+            "outcome": "no",
+            "probability": 92.23,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.635Z"
+          },
+          {
+            "market": "Away Over/Under 3.5 Probability",
+            "outcome": "yes",
+            "probability": 7.77,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.623Z"
+          }
+        ],
+        "Both Teams To Score Probability": [
+          {
+            "market": "Both Teams To Score Probability",
+            "outcome": "no",
+            "probability": 39.14,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.822Z"
+          },
+          {
+            "market": "Both Teams To Score Probability",
+            "outcome": "yes",
+            "probability": 60.86,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.807Z"
+          }
+        ],
+        "Corners Over/Under 10 Probability": [
+          {
+            "market": "Corners Over/Under 10 Probability",
+            "outcome": "equal",
+            "probability": 10.5,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.529Z"
+          },
+          {
+            "market": "Corners Over/Under 10 Probability",
+            "outcome": "no",
+            "probability": 55.68,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.516Z"
+          },
+          {
+            "market": "Corners Over/Under 10 Probability",
+            "outcome": "yes",
+            "probability": 33.82,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.463Z"
+          }
+        ],
+        "Corners Over/Under 10.5 Probability": [
+          {
+            "market": "Corners Over/Under 10.5 Probability",
+            "outcome": "no",
+            "probability": 66.18,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.553Z"
+          },
+          {
+            "market": "Corners Over/Under 10.5 Probability",
+            "outcome": "yes",
+            "probability": 33.82,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.541Z"
+          }
+        ],
+        "Corners Over/Under 11 Probability": [
+          {
+            "market": "Corners Over/Under 11 Probability",
+            "outcome": "equal",
+            "probability": 8.97,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.591Z"
+          },
+          {
+            "market": "Corners Over/Under 11 Probability",
+            "outcome": "no",
+            "probability": 66.18,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.578Z"
+          },
+          {
+            "market": "Corners Over/Under 11 Probability",
+            "outcome": "yes",
+            "probability": 24.85,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:05.565Z"
+          }
+        ],
+        "Corners Over/Under 4 Probability": [
+          {
+            "market": "Corners Over/Under 4 Probability",
+            "outcome": "equal",
+            "probability": 4.05,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.672Z"
+          },
+          {
+            "market": "Corners Over/Under 4 Probability",
+            "outcome": "no",
+            "probability": 3.55,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.660Z"
+          },
+          {
+            "market": "Corners Over/Under 4 Probability",
+            "outcome": "yes",
+            "probability": 92.4,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.647Z"
+          }
+        ],
+        "Corners Over/Under 5 Probability": [
+          {
+            "market": "Corners Over/Under 5 Probability",
+            "outcome": "equal",
+            "probability": 6.3,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.710Z"
+          },
+          {
+            "market": "Corners Over/Under 5 Probability",
+            "outcome": "no",
+            "probability": 7.6,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.697Z"
+          },
+          {
+            "market": "Corners Over/Under 5 Probability",
+            "outcome": "yes",
+            "probability": 86.1,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.685Z"
+          }
+        ],
+        "Corners Over/Under 6 Probability": [
+          {
+            "market": "Corners Over/Under 6 Probability",
+            "outcome": "equal",
+            "probability": 8.57,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.748Z"
+          },
+          {
+            "market": "Corners Over/Under 6 Probability",
+            "outcome": "no",
+            "probability": 13.9,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.735Z"
+          },
+          {
+            "market": "Corners Over/Under 6 Probability",
+            "outcome": "yes",
+            "probability": 77.53,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.723Z"
+          }
+        ],
+        "Corners Over/Under 7 Probability": [
+          {
+            "market": "Corners Over/Under 7 Probability",
+            "outcome": "equal",
+            "probability": 10.4,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.785Z"
+          },
+          {
+            "market": "Corners Over/Under 7 Probability",
+            "outcome": "no",
+            "probability": 22.47,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.773Z"
+          },
+          {
+            "market": "Corners Over/Under 7 Probability",
+            "outcome": "yes",
+            "probability": 67.12,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.760Z"
+          }
+        ],
+        "Corners Over/Under 8 Probability": [
+          {
+            "market": "Corners Over/Under 8 Probability",
+            "outcome": "equal",
+            "probability": 11.4,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.822Z"
+          },
+          {
+            "market": "Corners Over/Under 8 Probability",
+            "outcome": "no",
+            "probability": 32.88,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.810Z"
+          },
+          {
+            "market": "Corners Over/Under 8 Probability",
+            "outcome": "yes",
+            "probability": 55.72,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.798Z"
+          }
+        ],
+        "Corners Over/Under 9 Probability": [
+          {
+            "market": "Corners Over/Under 9 Probability",
+            "outcome": "equal",
+            "probability": 11.4,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.859Z"
+          },
+          {
+            "market": "Corners Over/Under 9 Probability",
+            "outcome": "no",
+            "probability": 44.28,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.847Z"
+          },
+          {
+            "market": "Corners Over/Under 9 Probability",
+            "outcome": "yes",
+            "probability": 44.32,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.834Z"
+          }
+        ],
+        "Correct Score Probability": [
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.0-0",
+            "probability": 5.1,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.102Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.0-1",
+            "probability": 7.42,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.115Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.0-2",
+            "probability": 5.87,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.127Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.0-3",
+            "probability": 3.33,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.141Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.1-0",
+            "probability": 6.44,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.153Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.1-1",
+            "probability": 10.3,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.165Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.1-2",
+            "probability": 8.62,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.177Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.1-3",
+            "probability": 4.05,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.189Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.2-0",
+            "probability": 5.03,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.202Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.2-1",
+            "probability": 8.19,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.214Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.2-2",
+            "probability": 6.22,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.226Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.2-3",
+            "probability": 3.18,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.240Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.3-0",
+            "probability": 2.93,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.252Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.3-1",
+            "probability": 3.8,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.264Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.3-2",
+            "probability": 2.9,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.278Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.3-3",
+            "probability": 1.78,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.291Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.Other_1",
+            "probability": 7.11,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.303Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.Other_2",
+            "probability": 7.36,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.316Z"
+          },
+          {
+            "market": "Correct Score Probability",
+            "outcome": "scores.Other_X",
+            "probability": 0.41,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.329Z"
+          }
+        ],
+        "Double Chance Probability": [
+          {
+            "market": "Double Chance Probability",
+            "outcome": "draw_away",
+            "probability": 63.629999999999995,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.076Z"
+          },
+          {
+            "market": "Double Chance Probability",
+            "outcome": "draw_home",
+            "probability": 60.2,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.063Z"
+          },
+          {
+            "market": "Double Chance Probability",
+            "outcome": "home_away",
+            "probability": 76.22999999999999,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.089Z"
+          }
+        ],
+        "First Half Winner Probability": [
+          {
+            "market": "First Half Winner Probability",
+            "outcome": "away",
+            "probability": 27.66,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.962Z"
+          },
+          {
+            "market": "First Half Winner Probability",
+            "outcome": "draw",
+            "probability": 37.06,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.975Z"
+          },
+          {
+            "market": "First Half Winner Probability",
+            "outcome": "home",
+            "probability": 35.29,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.949Z"
+          }
+        ],
+        "Fulltime Result Probability": [
+          {
+            "market": "Fulltime Result Probability",
+            "outcome": "away",
+            "probability": 39.83,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.000Z"
+          },
+          {
+            "market": "Fulltime Result Probability",
+            "outcome": "draw",
+            "probability": 23.8,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.013Z"
+          },
+          {
+            "market": "Fulltime Result Probability",
+            "outcome": "home",
+            "probability": 36.4,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.988Z"
+          }
+        ],
+        "Half Time/Full Time Probability": [
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "away_away",
+            "probability": 20.62,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.885Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "away_draw",
+            "probability": 4.84,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.898Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "away_home",
+            "probability": 3.29,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.873Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "draw_away",
+            "probability": 10.28,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.937Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "draw_draw",
+            "probability": 11.77,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.912Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "draw_home",
+            "probability": 14.6,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.924Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "home_away",
+            "probability": 3.48,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.848Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "home_draw",
+            "probability": 3.94,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.861Z"
+          },
+          {
+            "market": "Half Time/Full Time Probability",
+            "outcome": "home_home",
+            "probability": 27.18,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:03.836Z"
+          }
+        ],
+        "Home Over/Under 0.5 Probability": [
+          {
+            "market": "Home Over/Under 0.5 Probability",
+            "outcome": "no",
+            "probability": 29.04,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.456Z"
+          },
+          {
+            "market": "Home Over/Under 0.5 Probability",
+            "outcome": "yes",
+            "probability": 70.96,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.443Z"
+          }
+        ],
+        "Home Over/Under 1.5 Probability": [
+          {
+            "market": "Home Over/Under 1.5 Probability",
+            "outcome": "no",
+            "probability": 58.45,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.481Z"
+          },
+          {
+            "market": "Home Over/Under 1.5 Probability",
+            "outcome": "yes",
+            "probability": 41.55,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.468Z"
+          }
+        ],
+        "Home Over/Under 2.5 Probability": [
+          {
+            "market": "Home Over/Under 2.5 Probability",
+            "outcome": "no",
+            "probability": 81.07,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.506Z"
+          },
+          {
+            "market": "Home Over/Under 2.5 Probability",
+            "outcome": "yes",
+            "probability": 18.93,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.493Z"
+          }
+        ],
+        "Home Over/Under 3.5 Probability": [
+          {
+            "market": "Home Over/Under 3.5 Probability",
+            "outcome": "no",
+            "probability": 92.48,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.532Z"
+          },
+          {
+            "market": "Home Over/Under 3.5 Probability",
+            "outcome": "yes",
+            "probability": 7.52,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.518Z"
+          }
+        ],
+        "Over/Under 1.5 Probability": [
+          {
+            "market": "Over/Under 1.5 Probability",
+            "outcome": "no",
+            "probability": 18.92,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.357Z"
+          },
+          {
+            "market": "Over/Under 1.5 Probability",
+            "outcome": "yes",
+            "probability": 81.08,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.343Z"
+          }
+        ],
+        "Over/Under 2.5 Probability": [
+          {
+            "market": "Over/Under 2.5 Probability",
+            "outcome": "no",
+            "probability": 40.13,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.382Z"
+          },
+          {
+            "market": "Over/Under 2.5 Probability",
+            "outcome": "yes",
+            "probability": 59.87,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.370Z"
+          }
+        ],
+        "Over/Under 3.5 Probability": [
+          {
+            "market": "Over/Under 3.5 Probability",
+            "outcome": "no",
+            "probability": 63.2,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.407Z"
+          },
+          {
+            "market": "Over/Under 3.5 Probability",
+            "outcome": "yes",
+            "probability": 36.8,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.394Z"
+          }
+        ],
+        "Over/Under 4.5 Probability": [
+          {
+            "market": "Over/Under 4.5 Probability",
+            "outcome": "no",
+            "probability": 77.26,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.432Z"
+          },
+          {
+            "market": "Over/Under 4.5 Probability",
+            "outcome": "yes",
+            "probability": 22.74,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.419Z"
+          }
+        ],
+        "Team To Score First Probability": [
+          {
+            "market": "Team To Score First Probability",
+            "outcome": "away",
+            "probability": 44.71,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.039Z"
+          },
+          {
+            "market": "Team To Score First Probability",
+            "outcome": "draw",
+            "probability": 5.1,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.051Z"
+          },
+          {
+            "market": "Team To Score First Probability",
+            "outcome": "home",
+            "probability": 50.19,
+            "predictability": -0.9484,
+            "captured_utc": "2026-11-04T10:15:04.026Z"
+          }
+        ]
+      }
+    },
+    "sm_value_bets_db": [
+      {
+        "market": "Valuebet",
+        "outcome": "2",
+        "bookmaker": "1xbet",
+        "odds": 1.61,
+        "fair_odds": 1.57,
+        "value_pct": 2.55,
+        "captured_utc": "2026-11-03T12:58:30.547Z"
+      },
+      {
+        "market": "Valuebet",
+        "outcome": "2",
+        "bookmaker": "dafabet",
+        "odds": 1.55,
+        "fair_odds": 1.52,
+        "value_pct": 1.97,
+        "captured_utc": "2026-11-04T10:15:06.050Z"
+      }
+    ],
+    "predictability_league_2": [
+      {
+        "market": "Historical Log Loss:away_over_under_0_5",
+        "score": -0.6678,
+        "updated_utc": "2026-11-04T16:40:03.019Z"
+      },
+      {
+        "market": "Historical Log Loss:away_over_under_1_5",
+        "score": -0.6374,
+        "updated_utc": "2026-11-04T16:40:03.032Z"
+      },
+      {
+        "market": "Historical Log Loss:both_teams_to_score",
+        "score": -0.7262,
+        "updated_utc": "2026-11-04T16:40:03.045Z"
+      },
+      {
+        "market": "Historical Log Loss:correct_score",
+        "score": -3.406,
+        "updated_utc": "2026-11-04T16:40:03.135Z"
+      },
+      {
+        "market": "Historical Log Loss:fulltime_result",
+        "score": -0.9571,
+        "updated_utc": "2026-11-04T16:40:03.003Z"
+      },
+      {
+        "market": "Historical Log Loss:fulltime_result_1st_half",
+        "score": -1.0477,
+        "updated_utc": "2026-11-04T16:40:03.161Z"
+      },
+      {
+        "market": "Historical Log Loss:home_over_under_0_5",
+        "score": -0.5013,
+        "updated_utc": "2026-11-04T16:40:03.071Z"
+      },
+      {
+        "market": "Historical Log Loss:home_over_under_1_5",
+        "score": -0.6894,
+        "updated_utc": "2026-11-04T16:40:03.084Z"
+      },
+      {
+        "market": "Historical Log Loss:ht_ft",
+        "score": -2.4544,
+        "updated_utc": "2026-11-04T16:40:03.148Z"
+      },
+      {
+        "market": "Historical Log Loss:over_under_1_5",
+        "score": -0.4674,
+        "updated_utc": "2026-11-04T16:40:03.096Z"
+      },
+      {
+        "market": "Historical Log Loss:over_under_2_5",
+        "score": -0.6712,
+        "updated_utc": "2026-11-04T16:40:03.109Z"
+      },
+      {
+        "market": "Historical Log Loss:over_under_3_5",
+        "score": -0.7083,
+        "updated_utc": "2026-11-04T16:40:03.123Z"
+      },
+      {
+        "market": "Historical Log Loss:team_to_score_first",
+        "score": -1.1897,
+        "updated_utc": "2026-11-04T16:40:03.058Z"
+      },
+      {
+        "market": "Model Hit Ratio:away_over_under_0_5",
+        "score": 0.71,
+        "updated_utc": "2026-11-04T16:40:03.187Z"
+      },
+      {
+        "market": "Model Hit Ratio:away_over_under_1_5",
+        "score": 0.65,
+        "updated_utc": "2026-11-04T16:40:03.199Z"
+      },
+      {
+        "market": "Model Hit Ratio:both_teams_to_score",
+        "score": 0.58,
+        "updated_utc": "2026-11-04T16:40:03.212Z"
+      },
+      {
+        "market": "Model Hit Ratio:correct_score",
+        "score": 0.18,
+        "updated_utc": "2026-11-04T16:40:03.300Z"
+      },
+      {
+        "market": "Model Hit Ratio:fulltime_result",
+        "score": 0.6,
+        "updated_utc": "2026-11-04T16:40:03.174Z"
+      },
+      {
+        "market": "Model Hit Ratio:fulltime_result_1st_half",
+        "score": 0.42,
+        "updated_utc": "2026-11-04T16:40:03.325Z"
+      },
+      {
+        "market": "Model Hit Ratio:home_over_under_0_5",
+        "score": 0.85,
+        "updated_utc": "2026-11-04T16:40:03.237Z"
+      },
+      {
+        "market": "Model Hit Ratio:home_over_under_1_5",
+        "score": 0.56,
+        "updated_utc": "2026-11-04T16:40:03.249Z"
+      },
+      {
+        "market": "Model Hit Ratio:ht_ft",
+        "score": 0.3,
+        "updated_utc": "2026-11-04T16:40:03.312Z"
+      },
+      {
+        "market": "Model Hit Ratio:over_under_1_5",
+        "score": 0.85,
+        "updated_utc": "2026-11-04T16:40:03.262Z"
+      },
+      {
+        "market": "Model Hit Ratio:over_under_2_5",
+        "score": 0.65,
+        "updated_utc": "2026-11-04T16:40:03.275Z"
+      },
+      {
+        "market": "Model Hit Ratio:over_under_3_5",
+        "score": 0.5,
+        "updated_utc": "2026-11-04T16:40:03.287Z"
+      },
+      {
+        "market": "Model Hit Ratio:team_to_score_first",
+        "score": 0.6,
+        "updated_utc": "2026-11-04T16:40:03.224Z"
+      },
+      {
+        "market": "Model Predictability:away_over_under_0_5",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.350Z"
+      },
+      {
+        "market": "Model Predictability:away_over_under_1_5",
+        "score": "poor",
+        "updated_utc": "2026-11-04T16:40:03.363Z"
+      },
+      {
+        "market": "Model Predictability:both_teams_to_score",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.376Z"
+      },
+      {
+        "market": "Model Predictability:correct_score",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.468Z"
+      },
+      {
+        "market": "Model Predictability:fulltime_result",
+        "score": "poor",
+        "updated_utc": "2026-11-04T16:40:03.337Z"
+      },
+      {
+        "market": "Model Predictability:fulltime_result_1st_half",
+        "score": "poor",
+        "updated_utc": "2026-11-04T16:40:03.494Z"
+      },
+      {
+        "market": "Model Predictability:home_over_under_0_5",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.401Z"
+      },
+      {
+        "market": "Model Predictability:home_over_under_1_5",
+        "score": "poor",
+        "updated_utc": "2026-11-04T16:40:03.414Z"
+      },
+      {
+        "market": "Model Predictability:ht_ft",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.481Z"
+      },
+      {
+        "market": "Model Predictability:over_under_1_5",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.427Z"
+      },
+      {
+        "market": "Model Predictability:over_under_2_5",
+        "score": "good",
+        "updated_utc": "2026-11-04T16:40:03.440Z"
+      },
+      {
+        "market": "Model Predictability:over_under_3_5",
+        "score": "poor",
+        "updated_utc": "2026-11-04T16:40:03.452Z"
+      },
+      {
+        "market": "Model Predictability:team_to_score_first",
+        "score": "high",
+        "updated_utc": "2026-11-04T16:40:03.389Z"
+      },
+      {
+        "market": "Model Predictive Power:away_over_under_0_5",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.520Z"
+      },
+      {
+        "market": "Model Predictive Power:away_over_under_1_5",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.533Z"
+      },
+      {
+        "market": "Model Predictive Power:both_teams_to_score",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.546Z"
+      },
+      {
+        "market": "Model Predictive Power:correct_score",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.637Z"
+      },
+      {
+        "market": "Model Predictive Power:fulltime_result",
+        "score": "down",
+        "updated_utc": "2026-11-04T16:40:03.507Z"
+      },
+      {
+        "market": "Model Predictive Power:fulltime_result_1st_half",
+        "score": "down",
+        "updated_utc": "2026-11-04T16:40:03.663Z"
+      },
+      {
+        "market": "Model Predictive Power:home_over_under_0_5",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.572Z"
+      },
+      {
+        "market": "Model Predictive Power:home_over_under_1_5",
+        "score": "down",
+        "updated_utc": "2026-11-04T16:40:03.584Z"
+      },
+      {
+        "market": "Model Predictive Power:ht_ft",
+        "score": "down",
+        "updated_utc": "2026-11-04T16:40:03.650Z"
+      },
+      {
+        "market": "Model Predictive Power:over_under_1_5",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.597Z"
+      },
+      {
+        "market": "Model Predictive Power:over_under_2_5",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.610Z"
+      },
+      {
+        "market": "Model Predictive Power:over_under_3_5",
+        "score": "down",
+        "updated_utc": "2026-11-04T16:40:03.624Z"
+      },
+      {
+        "market": "Model Predictive Power:team_to_score_first",
+        "score": "unchanged",
+        "updated_utc": "2026-11-04T16:40:03.559Z"
+      },
+      {
+        "market": "Models Log Loss:away_over_under_0_5",
+        "score": -0.5844,
+        "updated_utc": "2026-11-04T16:40:03.772Z"
+      },
+      {
+        "market": "Models Log Loss:away_over_under_1_5",
+        "score": -0.6301,
+        "updated_utc": "2026-11-04T16:40:03.786Z"
+      },
+      {
+        "market": "Models Log Loss:both_teams_to_score",
+        "score": -0.6714,
+        "updated_utc": "2026-11-04T16:40:03.799Z"
+      },
+      {
+        "market": "Models Log Loss:correct_score",
+        "score": -2.7159,
+        "updated_utc": "2026-11-04T16:40:03.892Z"
+      },
+      {
+        "market": "Models Log Loss:fulltime_result",
+        "score": -0.9484,
+        "updated_utc": "2026-11-04T16:40:03.676Z"
+      },
+      {
+        "market": "Models Log Loss:fulltime_result_1st_half",
+        "score": -1.0406,
+        "updated_utc": "2026-11-04T16:40:03.918Z"
+      },
+      {
+        "market": "Models Log Loss:home_over_under_0_5",
+        "score": -0.4311,
+        "updated_utc": "2026-11-04T16:40:03.826Z"
+      },
+      {
+        "market": "Models Log Loss:home_over_under_1_5",
+        "score": -0.6843,
+        "updated_utc": "2026-11-04T16:40:03.838Z"
+      },
+      {
+        "market": "Models Log Loss:ht_ft",
+        "score": -1.8698,
+        "updated_utc": "2026-11-04T16:40:03.905Z"
+      },
+      {
+        "market": "Models Log Loss:over_under_1_5",
+        "score": -0.4301,
+        "updated_utc": "2026-11-04T16:40:03.852Z"
+      },
+      {
+        "market": "Models Log Loss:over_under_2_5",
+        "score": -0.6369,
+        "updated_utc": "2026-11-04T16:40:03.865Z"
+      },
+      {
+        "market": "Models Log Loss:over_under_3_5",
+        "score": -0.7166,
+        "updated_utc": "2026-11-04T16:40:03.879Z"
+      },
+      {
+        "market": "Models Log Loss:team_to_score_first",
+        "score": -0.7891,
+        "updated_utc": "2026-11-04T16:40:03.812Z"
+      }
+    ],
+    "standings_both_teams": [
+      {
+        "team_id": "8",
+        "position": 4,
+        "points": 9,
+        "fetched_utc": "2026-11-04T09:11:01.223Z",
+        "payload": {
+          "id": 297900,
+          "participant_id": 8,
+          "sport_id": 1,
+          "league_id": 2,
+          "season_id": 28155,
+          "stage_id": 77484090,
+          "group_id": null,
+          "round_id": 424598,
+          "standing_rule_id": 141979,
+          "position": 4,
+          "result": "down",
+          "points": 9
+        }
+      },
+      {
+        "team_id": "88",
+        "position": 31,
+        "points": 2,
+        "fetched_utc": "2026-11-04T09:11:01.223Z",
+        "payload": {
+          "id": 297920,
+          "participant_id": 88,
+          "sport_id": 1,
+          "league_id": 2,
+          "season_id": 28155,
+          "stage_id": 77484090,
+          "group_id": null,
+          "round_id": 424598,
+          "standing_rule_id": null,
+          "position": 31,
+          "result": "equal",
+          "points": 2
+        }
+      }
+    ],
+    "expected_lineups": [
+      {
+        "side": "away",
+        "fetched_utc": "2026-11-04T09:11:01.223Z",
+        "players_count": 11,
+        "players": [
+          {
+            "id": 14675251905,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 129820,
+            "team_id": 8,
+            "position_id": 24,
+            "formation_field": "1:1",
+            "type_id": 11,
+            "formation_position": 1,
+            "player_name": "Alisson",
+            "jersey_number": 1
+          },
+          {
+            "id": 14675251908,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 1743,
+            "team_id": 8,
+            "position_id": 25,
+            "formation_field": "2:2",
+            "type_id": 11,
+            "formation_position": 4,
+            "player_name": "Virgil van Dijk",
+            "jersey_number": 4
+          },
+          {
+            "id": 14675251907,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 37631909,
+            "team_id": 8,
+            "position_id": 25,
+            "formation_field": "2:3",
+            "type_id": 11,
+            "formation_position": 3,
+            "player_name": "Jérémy Jacquet",
+            "jersey_number": 5
+          },
+          {
+            "id": 14675275672,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 785998,
+            "team_id": 8,
+            "position_id": 26,
+            "formation_field": "3:1",
+            "type_id": 11,
+            "formation_position": 8,
+            "player_name": "Dominik Szoboszlai",
+            "jersey_number": 8
+          },
+          {
+            "id": 14675251910,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 216612,
+            "team_id": 8,
+            "position_id": 26,
+            "formation_field": "3:2",
+            "type_id": 11,
+            "formation_position": 7,
+            "player_name": "Alexis Mac Allister",
+            "jersey_number": 10
+          },
+          {
+            "id": 14675251914,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 30062,
+            "team_id": 8,
+            "position_id": 26,
+            "formation_field": "4:2",
+            "type_id": 11,
+            "formation_position": 10,
+            "player_name": "Cody Gakpo",
+            "jersey_number": 18
+          },
+          {
+            "id": 14675251909,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 84627,
+            "team_id": 8,
+            "position_id": 25,
+            "formation_field": "2:1",
+            "type_id": 11,
+            "formation_position": 5,
+            "player_name": "Konstantinos Tsimikas",
+            "jersey_number": 21
+          },
+          {
+            "id": 14675267029,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 37317369,
+            "team_id": 8,
+            "position_id": 27,
+            "formation_field": "4:3",
+            "type_id": 11,
+            "formation_position": 9,
+            "player_name": "Bradley Barcola",
+            "jersey_number": 29
+          },
+          {
+            "id": 14675251906,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 469717,
+            "team_id": 8,
+            "position_id": 25,
+            "formation_field": "2:4",
+            "type_id": 11,
+            "formation_position": 2,
+            "player_name": "Ronald Araujo",
+            "jersey_number": 33
+          },
+          {
+            "id": 14675251911,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 37669492,
+            "team_id": 8,
+            "position_id": 26,
+            "formation_field": "3:3",
+            "type_id": 11,
+            "formation_position": 6,
+            "player_name": "Trey Nyoni",
+            "jersey_number": 42
+          },
+          {
+            "id": 14675251912,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 37721333,
+            "team_id": 8,
+            "position_id": 27,
+            "formation_field": "4:1",
+            "type_id": 11,
+            "formation_position": 11,
+            "player_name": "Rio Ngumoha",
+            "jersey_number": 73
+          }
+        ]
+      },
+      {
+        "side": "home",
+        "fetched_utc": "2026-11-04T09:11:01.223Z",
+        "players_count": 11,
+        "players": [
+          {
+            "id": 14675251896,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 28912973,
+            "team_id": 88,
+            "position_id": 25,
+            "formation_field": "2:3",
+            "type_id": 11,
+            "formation_position": 4,
+            "player_name": "Archie Brown",
+            "jersey_number": 3
+          },
+          {
+            "id": 14675251900,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 97087,
+            "team_id": 88,
+            "position_id": 26,
+            "formation_field": "3:1",
+            "type_id": 11,
+            "formation_position": 6,
+            "player_name": "Mattéo Guendouzi",
+            "jersey_number": 6
+          },
+          {
+            "id": 14675275249,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 995,
+            "team_id": 88,
+            "position_id": 27,
+            "formation_field": "5:1",
+            "type_id": 11,
+            "formation_position": 11,
+            "player_name": "Romelu Lukaku",
+            "jersey_number": 9
+          },
+          {
+            "id": 14675275250,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 20333643,
+            "team_id": 88,
+            "position_id": 26,
+            "formation_field": "4:2",
+            "type_id": 11,
+            "formation_position": 9,
+            "player_name": "Mason Greenwood",
+            "jersey_number": 11
+          },
+          {
+            "id": 14675275251,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 201444,
+            "team_id": 88,
+            "position_id": 26,
+            "formation_field": "4:1",
+            "type_id": 11,
+            "formation_position": 8,
+            "player_name": "İrfan Can Kahveci",
+            "jersey_number": 17
+          },
+          {
+            "id": 14675275252,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 2510388,
+            "team_id": 88,
+            "position_id": 25,
+            "formation_field": "2:1",
+            "type_id": 11,
+            "formation_position": 2,
+            "player_name": "Mert Müldür",
+            "jersey_number": 18
+          },
+          {
+            "id": 14675275253,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 3862139,
+            "team_id": 88,
+            "position_id": 25,
+            "formation_field": "2:4",
+            "type_id": 11,
+            "formation_position": 5,
+            "player_name": "Levent Mercan",
+            "jersey_number": 22
+          },
+          {
+            "id": 14675251884,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 159142,
+            "team_id": 88,
+            "position_id": 24,
+            "formation_field": "1:1",
+            "type_id": 11,
+            "formation_position": 1,
+            "player_name": "Ederson",
+            "jersey_number": 31
+          },
+          {
+            "id": 14675251892,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 130142,
+            "team_id": 88,
+            "position_id": 25,
+            "formation_field": "2:2",
+            "type_id": 11,
+            "formation_position": 3,
+            "player_name": "Milan Škriniar",
+            "jersey_number": 37
+          },
+          {
+            "id": 14675251901,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 10967396,
+            "team_id": 88,
+            "position_id": 26,
+            "formation_field": "4:3",
+            "type_id": 11,
+            "formation_position": 10,
+            "player_name": "Oğuz Aydın",
+            "jersey_number": 70
+          },
+          {
+            "id": 14675251898,
+            "sport_id": 1,
+            "fixture_id": 19872622,
+            "player_id": 1193,
+            "team_id": 88,
+            "position_id": 26,
+            "formation_field": "3:2",
+            "type_id": 11,
+            "formation_position": 7,
+            "player_name": "N'Golo Kanté",
+            "jersey_number": 91
+          }
+        ]
+      }
+    ],
+    "prematch_news": [
+      {
+        "fetched_utc": "2026-11-04T09:11:01.223Z",
+        "payload": [
+          {
+            "id": 14428,
+            "fixture_id": 19872622,
+            "league_id": 2,
+            "title": "Fenerbahçe face daunting task against Liverpool.",
+            "type": "prematch"
+          }
+        ]
+      }
+    ],
+    "h2h": {
+      "pair_key": "8_88",
+      "fetched_utc": "2026-11-04T09:11:01.223Z",
+      "meetings": 0,
+      "recent": []
+    },
+    "telemetry_last6": {
+      "home": {
+        "team": "Fenerbahçe",
+        "telemetry": {
+          "team_id": "Fenerbahçe",
+          "sample_size": 6,
+          "observed_xg_samples": 6,
+          "observed_shots_samples": 6,
+          "observed_passes_samples": 6,
+          "observed_aerial_samples": 1,
+          "observed_crosses_samples": 6,
+          "rolling_xg_for": 1.76,
+          "rolling_xg_against": 1.91,
+          "rolling_npxg_for": 1.73,
+          "rolling_npxg_against": 2.32,
+          "rolling_goals_for": 1.17,
+          "rolling_goals_against": 3,
+          "win_rate": 0.17,
+          "clean_sheet_rate": 0.17,
+          "form_sequence": "L-L-D-W-L-L",
+          "avg_possession_pct": 53.7,
+          "avg_shots_for": 15.2,
+          "avg_shots_on_target_for": 4.7,
+          "avg_shots_inside_box_for": 8.8,
+          "avg_big_chances_for": 3.5,
+          "avg_box_touches_for": 24,
+          "avg_passes_accurate_for": 381,
+          "avg_pass_accuracy_pct": 84.3,
+          "avg_crosses_accurate_for": 4.2,
+          "avg_aerial_duels_pct_for": 7,
+          "avg_duels_won_pct_for": 45,
+          "avg_ground_duels_pct_for": 28,
+          "avg_tackles_for": 15,
+          "avg_corners_for": 5,
+          "avg_fouls_committed": 11.3,
+          "avg_yellow_cards": 2.7,
+          "recent_logs": [
+            {
+              "log_id": "smlog_19746567_h",
+              "match_id": "sm_19746567",
+              "team_id": "tm_91646",
+              "opponent_id": "3897",
+              "venue": "HOME",
+              "match_date": "2026-10-31",
+              "season": "2026/2027",
+              "result": "L",
+              "goals_for": 1,
+              "goals_against": 2,
+              "xg_for": 1.6317,
+              "xg_against": 1.0701,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 18,
+              "shots_against": 12,
+              "shots_on_target_for": 6,
+              "shots_on_target_against": 6,
+              "shots_off_target_for": 9,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": 3,
+              "blocked_shots_against": 1,
+              "shots_inside_box_for": 12,
+              "shots_inside_box_against": 9,
+              "shots_outside_box_for": 6,
+              "shots_outside_box_against": 3,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 3,
+              "big_chances_against": 3,
+              "big_chances_missed_for": 3,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 1,
+              "offsides_against": 1,
+              "possession_pct": 66,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 530,
+              "passes_total_against": 259,
+              "passes_accurate_for": 441,
+              "passes_accurate_against": 176,
+              "pass_accuracy_pct_for": 83,
+              "pass_accuracy_pct_against": 68,
+              "accurate_crosses_for": 2,
+              "accurate_crosses_against": 8,
+              "accurate_long_balls_for": 33,
+              "accurate_long_balls_against": 23,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 29,
+              "throw_ins_against": 15,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 15,
+              "tackles_against": 11,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 7,
+              "interceptions_against": 10,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 5,
+              "corners_against": 8,
+              "fouls_committed": 8,
+              "yellow_cards": 2,
+              "red_cards": null,
+              "saves_for": 4,
+              "saves_against": 5,
+              "goal_kicks_for": 8,
+              "goal_kicks_against": 5,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19746567,\"statistics\":[{\"id\":1084518331,\"fixture_id\":19746567,\"type_id\":34,\"participant_id\":3897,\"data\":{\"value\":8},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1084518332,\"fixture_id\":19746567,\"type_id\":34,\"participant_id\":88,\"data\":{\"value\":5},\"location\":\"home\",\"type\":{\"id…[dipotong]",
+              "created_at": "2026-11-04T15:41:28.653Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:600"
+            },
+            {
+              "log_id": "smlog_19746576_a",
+              "match_id": "sm_19746576",
+              "team_id": "tm_91646",
+              "opponent_id": "tm_26919",
+              "venue": "AWAY",
+              "match_date": "2026-10-26",
+              "season": "2026/2027",
+              "result": "L",
+              "goals_for": 1,
+              "goals_against": 2,
+              "xg_for": 0.49420000000000003,
+              "xg_against": 2.1235,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 4,
+              "shots_against": 23,
+              "shots_on_target_for": 3,
+              "shots_on_target_against": 8,
+              "shots_off_target_for": 1,
+              "shots_off_target_against": 12,
+              "blocked_shots_for": 0,
+              "blocked_shots_against": 3,
+              "shots_inside_box_for": 3,
+              "shots_inside_box_against": 15,
+              "shots_outside_box_for": 1,
+              "shots_outside_box_against": 8,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 2,
+              "big_chances_against": 2,
+              "big_chances_missed_for": 2,
+              "big_chances_missed_against": 2,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 1,
+              "offsides_against": 4,
+              "possession_pct": 38,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 253,
+              "passes_total_against": 430,
+              "passes_accurate_for": 181,
+              "passes_accurate_against": 371,
+              "pass_accuracy_pct_for": 72,
+              "pass_accuracy_pct_against": 86,
+              "accurate_crosses_for": 2,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 19,
+              "accurate_long_balls_against": 40,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 25,
+              "throw_ins_against": 17,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 18,
+              "tackles_against": 14,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 8,
+              "interceptions_against": 10,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 4,
+              "corners_against": 10,
+              "fouls_committed": 18,
+              "yellow_cards": 6,
+              "red_cards": 1,
+              "saves_for": 6,
+              "saves_against": 1,
+              "goal_kicks_for": 13,
+              "goal_kicks_against": 8,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19746576,\"statistics\":[{\"id\":1073921315,\"fixture_id\":19746576,\"type_id\":34,\"participant_id\":88,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1073921316,\"fixture_id\":19746576,\"type_id\":34,\"participant_id\":34,\"data\":{\"value\":10},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
+              "created_at": "2026-11-04T15:41:32.663Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:600"
+            },
+            {
+              "log_id": "smlog_19873677_h",
+              "match_id": "sm_19873677",
+              "team_id": "tm_91646",
+              "opponent_id": "216",
+              "venue": "HOME",
+              "match_date": "2026-10-20",
+              "season": "2026/2027",
+              "result": "D",
+              "goals_for": 2,
+              "goals_against": 2,
+              "xg_for": 1.0976,
+              "xg_against": 1.323,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 15,
+              "shots_against": 15,
+              "shots_on_target_for": 4,
+              "shots_on_target_against": 4,
+              "shots_off_target_for": 9,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": 2,
+              "blocked_shots_against": 6,
+              "shots_inside_box_for": 9,
+              "shots_inside_box_against": 8,
+              "shots_outside_box_for": 6,
+              "shots_outside_box_against": 7,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 2,
+              "big_chances_against": 3,
+              "big_chances_missed_for": 1,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 0,
+              "offsides_against": 2,
+              "possession_pct": 49,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 415,
+              "passes_total_against": 425,
+              "passes_accurate_for": 341,
+              "passes_accurate_against": 353,
+              "pass_accuracy_pct_for": 82,
+              "pass_accuracy_pct_against": 83,
+              "accurate_crosses_for": 1,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 23,
+              "accurate_long_balls_against": 20,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 18,
+              "throw_ins_against": 18,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 24,
+              "tackles_against": 16,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 21,
+              "interceptions_against": 14,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 3,
+              "corners_against": 5,
+              "fouls_committed": 12,
+              "yellow_cards": 3,
+              "red_cards": null,
+              "saves_for": 2,
+              "saves_against": 2,
+              "goal_kicks_for": 7,
+              "goal_kicks_against": 15,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19873677,\"statistics\":[{\"id\":1057694409,\"fixture_id\":19873677,\"type_id\":34,\"participant_id\":216,\"data\":{\"value\":5},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1057694410,\"fixture_id\":19873677,\"type_id\":34,\"participant_id\":88,\"data\":{\"value\":3},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
+              "created_at": "2026-11-04T16:52:56.034Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:2"
+            },
+            {
+              "log_id": "smlog_19746585_h",
+              "match_id": "sm_19746585",
+              "team_id": "tm_91646",
+              "opponent_id": "347",
+              "venue": "HOME",
+              "match_date": "2026-10-17",
+              "season": "2026/2027",
+              "result": "W",
+              "goals_for": 3,
+              "goals_against": 0,
+              "xg_for": 4.1408000000000005,
+              "xg_against": 0.7525000000000001,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 24,
+              "shots_against": 13,
+              "shots_on_target_for": 7,
+              "shots_on_target_against": 5,
+              "shots_off_target_for": 9,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": 8,
+              "blocked_shots_against": 3,
+              "shots_inside_box_for": 15,
+              "shots_inside_box_against": 4,
+              "shots_outside_box_for": 9,
+              "shots_outside_box_against": 9,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 8,
+              "big_chances_against": 2,
+              "big_chances_missed_for": 6,
+              "big_chances_missed_against": 2,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 3,
+              "offsides_against": 2,
+              "possession_pct": 59,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 531,
+              "passes_total_against": 363,
+              "passes_accurate_for": 475,
+              "passes_accurate_against": 312,
+              "pass_accuracy_pct_for": 89,
+              "pass_accuracy_pct_against": 86,
+              "accurate_crosses_for": 8,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 23,
+              "accurate_long_balls_against": 25,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 16,
+              "throw_ins_against": 13,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 9,
+              "tackles_against": 13,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 5,
+              "interceptions_against": 13,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 4,
+              "corners_against": 3,
+              "fouls_committed": 18,
+              "yellow_cards": 1,
+              "red_cards": null,
+              "saves_for": 4,
+              "saves_against": 5,
+              "goal_kicks_for": 6,
+              "goal_kicks_against": 9,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19746585,\"statistics\":[{\"id\":1048437505,\"fixture_id\":19746585,\"type_id\":34,\"participant_id\":347,\"data\":{\"value\":3},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1048437506,\"fixture_id\":19746585,\"type_id\":34,\"participant_id\":88,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
+              "created_at": "2026-11-04T15:41:36.508Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:600"
+            },
+            {
+              "log_id": "mt_981334424_tm_91646",
+              "match_id": "mt_981334424",
+              "team_id": "tm_91646",
+              "opponent_id": "tm_1002",
+              "venue": "AWAY",
+              "match_date": "2026-10-14T19:00:00.000Z",
+              "season": "2026/2027",
+              "result": "L",
+              "goals_for": 0,
+              "goals_against": 6,
+              "xg_for": 1.73,
+              "xg_against": 3.11,
+              "npxg_for": 1.73,
+              "npxg_against": 2.32,
+              "first_half_xg_for": 1.37,
+              "second_half_xg_for": 0.36,
+              "first_half_xg_against": 0.68,
+              "second_half_xg_against": 2.43,
+              "shots_for": 15,
+              "shots_against": 20,
+              "shots_on_target_for": 4,
+              "shots_on_target_against": 11,
+              "shots_off_target_for": 5,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": 6,
+              "blocked_shots_against": 4,
+              "shots_inside_box_for": 7,
+              "shots_inside_box_against": 11,
+              "shots_outside_box_for": 8,
+              "shots_outside_box_against": 9,
+              "hit_woodwork_for": 1,
+              "hit_woodwork_against": 0,
+              "big_chances_for": 3,
+              "big_chances_against": 3,
+              "big_chances_missed_for": 3,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": 24,
+              "touches_in_penalty_area_against": 27,
+              "offsides_for": 3,
+              "offsides_against": 1,
+              "possession_pct": 55,
+              "first_half_possession": 56,
+              "second_half_possession": 54,
+              "passes_total_for": 470,
+              "passes_total_against": 389,
+              "passes_accurate_for": 423,
+              "passes_accurate_against": 350,
+              "pass_accuracy_pct_for": 90,
+              "pass_accuracy_pct_against": 90,
+              "accurate_crosses_for": 6,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 21,
+              "accurate_long_balls_against": 14,
+              "final_third_entries_for": 45,
+              "final_third_entries_against": 34,
+              "throw_ins_for": 12,
+              "throw_ins_against": 10,
+              "duels_won_pct_for": 45,
+              "duels_won_pct_against": 55,
+              "ground_duels_pct_for": 28,
+              "ground_duels_pct_against": 35,
+              "aerial_duels_pct_for": 7,
+              "aerial_duels_pct_against": 7,
+              "dispossessed_for": 9,
+              "dispossessed_against": 6,
+              "dribbles_pct_for": 5,
+              "dribbles_pct_against": 12,
+              "tackles_for": 12,
+              "tackles_against": 17,
+              "tackles_won_pct_for": 10,
+              "tackles_won_pct_against": 10,
+              "interceptions_for": 12,
+              "interceptions_against": 8,
+              "clearances_for": 9,
+              "clearances_against": 28,
+              "ball_recoveries_for": 40,
+              "ball_recoveries_against": 42,
+              "corners_for": 7,
+              "corners_against": 9,
+              "fouls_committed": 6,
+              "yellow_cards": 2,
+              "red_cards": 0,
+              "saves_for": 5,
+              "saves_against": 4,
+              "goal_kicks_for": 4,
+              "goal_kicks_against": 7,
+              "goals_prevented_for": -1.51,
+              "goals_prevented_against": 1.06,
+              "high_claims_for": 0,
+              "high_claims_against": 1,
+              "formation": "4-2-3-1",
+              "starting_xi_ids": "[\"pl_2651311\",\"pl_84828284\",\"pl_5829838\",\"pl_2656155\",\"pl_4657258\",\"pl_13833700\",\"pl_08320143\",\"pl_6409425\",\"pl_61569489\",\"pl_0312203\",\"pl_61062628\"]",
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"match_id\":\"mt_981334424\",\"overview\":{\"ball_possession\":{\"all\":{\"home\":45,\"away\":55},\"first_half\":{\"home\":44,\"away\":56},\"second_half\":{\"home\":46,\"away\":54}},\"expected_goals\":{\"all\":{\"home\":3.11,\"away\":1.73},\"first_half\":{\"home\":0.68,\"away\":1.37},\"second_half\":{\"home\":2.43,\"away\":0.36}},\"big_chances\":{\"all\":{\"home\":3,\"away\":3},\"first_half\":{\"home\":0,\"away\":3},\"second_half\":{\"home\":3,\"away\":0}},\"to…[dipotong]",
+              "created_at": "2026-10-16 15:09:25",
+              "source": null,
+              "data_tier": null,
+              "xg_source": null,
+              "competition_id": "comp_3498"
+            },
+            {
+              "log_id": "smlog_19873676_a",
+              "match_id": "sm_19873676",
+              "team_id": "tm_91646",
+              "opponent_id": "tm_1002",
+              "venue": "AWAY",
+              "match_date": "2026-10-14",
+              "season": "2026/2027",
+              "result": "L",
+              "goals_for": 0,
+              "goals_against": 6,
+              "xg_for": 1.4544,
+              "xg_against": 3.1035,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 15,
+              "shots_against": 20,
+              "shots_on_target_for": 4,
+              "shots_on_target_against": 11,
+              "shots_off_target_for": 5,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": 6,
+              "blocked_shots_against": 4,
+              "shots_inside_box_for": 7,
+              "shots_inside_box_against": 11,
+              "shots_outside_box_for": 8,
+              "shots_outside_box_against": 9,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 3,
+              "big_chances_against": 3,
+              "big_chances_missed_for": 3,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 3,
+              "offsides_against": 1,
+              "possession_pct": 55,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 470,
+              "passes_total_against": 389,
+              "passes_accurate_for": 423,
+              "passes_accurate_against": 350,
+              "pass_accuracy_pct_for": 90,
+              "pass_accuracy_pct_against": 90,
+              "accurate_crosses_for": 6,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 21,
+              "accurate_long_balls_against": 14,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 12,
+              "throw_ins_against": 10,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 12,
+              "tackles_against": 17,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 12,
+              "interceptions_against": 8,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 7,
+              "corners_against": 9,
+              "fouls_committed": 6,
+              "yellow_cards": 2,
+              "red_cards": null,
+              "saves_for": 5,
+              "saves_against": 4,
+              "goal_kicks_for": 4,
+              "goal_kicks_against": 7,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19873676,\"statistics\":[{\"id\":1042087379,\"fixture_id\":19873676,\"type_id\":34,\"participant_id\":88,\"data\":{\"value\":7},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1042087380,\"fixture_id\":19873676,\"type_id\":34,\"participant_id\":15,\"data\":{\"value\":9},\"location\":\"home\",\"type\":{\"id\":…[dipotong]",
+              "created_at": "2026-11-04T16:52:55.630Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:2"
+            }
+          ],
+          "schedule_friction": {
+            "last_match_date": "2026-10-31",
+            "rest_days": 4,
+            "midweek_continental": false,
+            "fatigue_risk": "LOW"
+          }
+        }
+      },
+      "away": {
+        "team": "Liverpool",
+        "telemetry": {
+          "team_id": "Liverpool",
+          "sample_size": 6,
+          "observed_xg_samples": 3,
+          "observed_shots_samples": 6,
+          "observed_passes_samples": 5,
+          "observed_aerial_samples": 0,
+          "observed_crosses_samples": 5,
+          "rolling_xg_for": 1.77,
+          "rolling_xg_against": 1.31,
+          "rolling_npxg_for": null,
+          "rolling_npxg_against": null,
+          "rolling_goals_for": 1.67,
+          "rolling_goals_against": 0.67,
+          "win_rate": 0.83,
+          "clean_sheet_rate": 0.67,
+          "form_sequence": "W-L-W-W-W-W",
+          "avg_possession_pct": 47.7,
+          "avg_shots_for": 12.5,
+          "avg_shots_on_target_for": 3.5,
+          "avg_shots_inside_box_for": 10,
+          "avg_big_chances_for": 1.7,
+          "avg_box_touches_for": null,
+          "avg_passes_accurate_for": 352,
+          "avg_pass_accuracy_pct": 77.8,
+          "avg_crosses_accurate_for": 3.6,
+          "avg_aerial_duels_pct_for": null,
+          "avg_duels_won_pct_for": null,
+          "avg_ground_duels_pct_for": null,
+          "avg_tackles_for": 15,
+          "avg_corners_for": 5.2,
+          "avg_fouls_committed": 12.3,
+          "avg_yellow_cards": 2.7,
+          "recent_logs": [
+            {
+              "log_id": "smlog_19901614_h",
+              "match_id": "sm_19901614",
+              "team_id": "tm_0406",
+              "opponent_id": "9277",
+              "venue": "HOME",
+              "match_date": "2026-11-01",
+              "season": "2026",
+              "result": "W",
+              "goals_for": 2,
+              "goals_against": 0,
+              "xg_for": null,
+              "xg_against": null,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 7,
+              "shots_against": 6,
+              "shots_on_target_for": 4,
+              "shots_on_target_against": 2,
+              "shots_off_target_for": 3,
+              "shots_off_target_against": 4,
+              "blocked_shots_for": null,
+              "blocked_shots_against": null,
+              "shots_inside_box_for": null,
+              "shots_inside_box_against": null,
+              "shots_outside_box_for": null,
+              "shots_outside_box_against": null,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": null,
+              "big_chances_against": null,
+              "big_chances_missed_for": null,
+              "big_chances_missed_against": null,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 2,
+              "offsides_against": 1,
+              "possession_pct": 36,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": null,
+              "passes_total_against": null,
+              "passes_accurate_for": null,
+              "passes_accurate_against": null,
+              "pass_accuracy_pct_for": null,
+              "pass_accuracy_pct_against": null,
+              "accurate_crosses_for": null,
+              "accurate_crosses_against": null,
+              "accurate_long_balls_for": null,
+              "accurate_long_balls_against": null,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 21,
+              "throw_ins_against": 25,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": null,
+              "tackles_against": null,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": null,
+              "interceptions_against": null,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 4,
+              "corners_against": 10,
+              "fouls_committed": 3,
+              "yellow_cards": 3,
+              "red_cards": 0,
+              "saves_for": null,
+              "saves_against": null,
+              "goal_kicks_for": 5,
+              "goal_kicks_against": 7,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19901614,\"statistics\":[{\"id\":1090945753,\"fixture_id\":19901614,\"type_id\":34,\"participant_id\":9277,\"data\":{\"value\":10},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1090945754,\"fixture_id\":19901614,\"type_id\":34,\"participant_id\":976,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"…[dipotong]",
+              "created_at": "2026-11-03T15:26:05.929Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:770"
+            },
+            {
+              "log_id": "smlog_19722117_h",
+              "match_id": "sm_19722117",
+              "team_id": "tm_0406",
+              "opponent_id": "tm_9145",
+              "venue": "HOME",
+              "match_date": "2026-11-01",
+              "season": "2026/2027",
+              "result": "L",
+              "goals_for": 0,
+              "goals_against": 1,
+              "xg_for": 1.7063,
+              "xg_against": 0.8067,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 17,
+              "shots_against": 10,
+              "shots_on_target_for": 0,
+              "shots_on_target_against": 3,
+              "shots_off_target_for": 8,
+              "shots_off_target_against": 4,
+              "blocked_shots_for": 9,
+              "blocked_shots_against": 3,
+              "shots_inside_box_for": 14,
+              "shots_inside_box_against": 6,
+              "shots_outside_box_for": 3,
+              "shots_outside_box_against": 4,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 1,
+              "big_chances_against": 2,
+              "big_chances_missed_for": 1,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 2,
+              "offsides_against": 3,
+              "possession_pct": 56,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 464,
+              "passes_total_against": 372,
+              "passes_accurate_for": 380,
+              "passes_accurate_against": 269,
+              "pass_accuracy_pct_for": 82,
+              "pass_accuracy_pct_against": 72,
+              "accurate_crosses_for": 5,
+              "accurate_crosses_against": 4,
+              "accurate_long_balls_for": 11,
+              "accurate_long_balls_against": 23,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 25,
+              "throw_ins_against": 18,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 17,
+              "tackles_against": 24,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 12,
+              "interceptions_against": 6,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 7,
+              "corners_against": 4,
+              "fouls_committed": 18,
+              "yellow_cards": 4,
+              "red_cards": null,
+              "saves_for": 2,
+              "saves_against": 0,
+              "goal_kicks_for": 4,
+              "goal_kicks_against": 11,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19722117,\"statistics\":[{\"id\":1089189707,\"fixture_id\":19722117,\"type_id\":34,\"participant_id\":19,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1089189734,\"fixture_id\":19722117,\"type_id\":34,\"participant_id\":8,\"data\":{\"value\":7},\"location\":\"home\",\"type\":{\"id\":3…[dipotong]",
+              "created_at": "2026-11-04T16:21:30.068Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:8"
+            },
+            {
+              "log_id": "smlog_19897227_a",
+              "match_id": "sm_19897227",
+              "team_id": "tm_0406",
+              "opponent_id": "7035",
+              "venue": "AWAY",
+              "match_date": "2026-10-25",
+              "season": "2026",
+              "result": "W",
+              "goals_for": 1,
+              "goals_against": 0,
+              "xg_for": null,
+              "xg_against": null,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 6,
+              "shots_against": 15,
+              "shots_on_target_for": 3,
+              "shots_on_target_against": 4,
+              "shots_off_target_for": 2,
+              "shots_off_target_against": 6,
+              "blocked_shots_for": 1,
+              "blocked_shots_against": 5,
+              "shots_inside_box_for": 2,
+              "shots_inside_box_against": 4,
+              "shots_outside_box_for": 4,
+              "shots_outside_box_against": 12,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": null,
+              "big_chances_against": null,
+              "big_chances_missed_for": null,
+              "big_chances_missed_against": null,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 3,
+              "offsides_against": 0,
+              "possession_pct": 44,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 373,
+              "passes_total_against": 429,
+              "passes_accurate_for": 263,
+              "passes_accurate_against": 300,
+              "pass_accuracy_pct_for": 71,
+              "pass_accuracy_pct_against": 70,
+              "accurate_crosses_for": 2,
+              "accurate_crosses_against": 4,
+              "accurate_long_balls_for": 26,
+              "accurate_long_balls_against": 40,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 21,
+              "throw_ins_against": 40,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": null,
+              "tackles_against": null,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 25,
+              "interceptions_against": 7,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 4,
+              "corners_against": 6,
+              "fouls_committed": 16,
+              "yellow_cards": 5,
+              "red_cards": null,
+              "saves_for": 4,
+              "saves_against": 1,
+              "goal_kicks_for": 13,
+              "goal_kicks_against": 5,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19897227,\"statistics\":[{\"id\":1072583745,\"fixture_id\":19897227,\"type_id\":34,\"participant_id\":976,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1072583746,\"fixture_id\":19897227,\"type_id\":34,\"participant_id\":828,\"data\":{\"value\":6},\"location\":\"home\",\"type\":{\"id…[dipotong]",
+              "created_at": "2026-11-03T15:26:05.920Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:770"
+            },
+            {
+              "log_id": "smlog_19722126_h",
+              "match_id": "sm_19722126",
+              "team_id": "tm_0406",
+              "opponent_id": "tm_1552",
+              "venue": "HOME",
+              "match_date": "2026-10-25",
+              "season": "2026/2027",
+              "result": "W",
+              "goals_for": 2,
+              "goals_against": 0,
+              "xg_for": 1.2737,
+              "xg_against": 1.6927999999999999,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 13,
+              "shots_against": 17,
+              "shots_on_target_for": 4,
+              "shots_on_target_against": 1,
+              "shots_off_target_for": 6,
+              "shots_off_target_against": 9,
+              "blocked_shots_for": 3,
+              "blocked_shots_against": 7,
+              "shots_inside_box_for": 10,
+              "shots_inside_box_against": 10,
+              "shots_outside_box_for": 3,
+              "shots_outside_box_against": 7,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 1,
+              "big_chances_against": 1,
+              "big_chances_missed_for": 0,
+              "big_chances_missed_against": 1,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 3,
+              "offsides_against": 3,
+              "possession_pct": 36,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 326,
+              "passes_total_against": 579,
+              "passes_accurate_for": 225,
+              "passes_accurate_against": 485,
+              "pass_accuracy_pct_for": 69,
+              "pass_accuracy_pct_against": 84,
+              "accurate_crosses_for": 2,
+              "accurate_crosses_against": 5,
+              "accurate_long_balls_for": 26,
+              "accurate_long_balls_against": 32,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 24,
+              "throw_ins_against": 21,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 19,
+              "tackles_against": 15,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 5,
+              "interceptions_against": 12,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 4,
+              "corners_against": 2,
+              "fouls_committed": 13,
+              "yellow_cards": 0,
+              "red_cards": null,
+              "saves_for": 1,
+              "saves_against": 3,
+              "goal_kicks_for": 9,
+              "goal_kicks_against": 6,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19722126,\"statistics\":[{\"id\":1070221223,\"fixture_id\":19722126,\"type_id\":34,\"participant_id\":78,\"data\":{\"value\":2},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1070221224,\"fixture_id\":19722126,\"type_id\":34,\"participant_id\":8,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\":3…[dipotong]",
+              "created_at": "2026-11-04T16:21:34.124Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:8"
+            },
+            {
+              "log_id": "smlog_19872628_h",
+              "match_id": "sm_19872628",
+              "team_id": "tm_0406",
+              "opponent_id": "tm_73664",
+              "venue": "HOME",
+              "match_date": "2026-10-20",
+              "season": "2026/2027",
+              "result": "W",
+              "goals_for": 4,
+              "goals_against": 3,
+              "xg_for": 2.3319,
+              "xg_against": 1.4168999999999998,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 22,
+              "shots_against": 14,
+              "shots_on_target_for": 7,
+              "shots_on_target_against": 5,
+              "shots_off_target_for": 8,
+              "shots_off_target_against": 2,
+              "blocked_shots_for": 7,
+              "blocked_shots_against": 7,
+              "shots_inside_box_for": 14,
+              "shots_inside_box_against": 9,
+              "shots_outside_box_for": 8,
+              "shots_outside_box_against": 5,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": 3,
+              "big_chances_against": 3,
+              "big_chances_missed_for": null,
+              "big_chances_missed_against": null,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 2,
+              "offsides_against": 4,
+              "possession_pct": 53,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 544,
+              "passes_total_against": 499,
+              "passes_accurate_for": 466,
+              "passes_accurate_against": 417,
+              "pass_accuracy_pct_for": 86,
+              "pass_accuracy_pct_against": 84,
+              "accurate_crosses_for": 4,
+              "accurate_crosses_against": 1,
+              "accurate_long_balls_for": 24,
+              "accurate_long_balls_against": 21,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 15,
+              "throw_ins_against": 14,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 22,
+              "tackles_against": 16,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 13,
+              "interceptions_against": 14,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 7,
+              "corners_against": 2,
+              "fouls_committed": 12,
+              "yellow_cards": 0,
+              "red_cards": null,
+              "saves_for": 2,
+              "saves_against": 4,
+              "goal_kicks_for": 4,
+              "goal_kicks_against": 11,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19872628,\"statistics\":[{\"id\":1057968813,\"fixture_id\":19872628,\"type_id\":34,\"participant_id\":3477,\"data\":{\"value\":2},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1057968814,\"fixture_id\":19872628,\"type_id\":34,\"participant_id\":8,\"data\":{\"value\":7},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
+              "created_at": "2026-11-04T16:52:40.862Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:2"
+            },
+            {
+              "log_id": "smlog_19895015_h",
+              "match_id": "sm_19895015",
+              "team_id": "tm_0406",
+              "opponent_id": "3338",
+              "venue": "HOME",
+              "match_date": "2026-10-18",
+              "season": "2026",
+              "result": "W",
+              "goals_for": 1,
+              "goals_against": 0,
+              "xg_for": null,
+              "xg_against": null,
+              "npxg_for": null,
+              "npxg_against": null,
+              "first_half_xg_for": null,
+              "second_half_xg_for": null,
+              "first_half_xg_against": null,
+              "second_half_xg_against": null,
+              "shots_for": 10,
+              "shots_against": 5,
+              "shots_on_target_for": 3,
+              "shots_on_target_against": 0,
+              "shots_off_target_for": 7,
+              "shots_off_target_against": 5,
+              "blocked_shots_for": null,
+              "blocked_shots_against": null,
+              "shots_inside_box_for": 10,
+              "shots_inside_box_against": 1,
+              "shots_outside_box_for": 7,
+              "shots_outside_box_against": 5,
+              "hit_woodwork_for": null,
+              "hit_woodwork_against": null,
+              "big_chances_for": null,
+              "big_chances_against": null,
+              "big_chances_missed_for": null,
+              "big_chances_missed_against": null,
+              "touches_in_penalty_area_for": null,
+              "touches_in_penalty_area_against": null,
+              "offsides_for": 3,
+              "offsides_against": 2,
+              "possession_pct": 61,
+              "first_half_possession": null,
+              "second_half_possession": null,
+              "passes_total_for": 524,
+              "passes_total_against": 321,
+              "passes_accurate_for": 425,
+              "passes_accurate_against": 227,
+              "pass_accuracy_pct_for": 81,
+              "pass_accuracy_pct_against": 71,
+              "accurate_crosses_for": 5,
+              "accurate_crosses_against": 2,
+              "accurate_long_balls_for": 34,
+              "accurate_long_balls_against": 24,
+              "final_third_entries_for": null,
+              "final_third_entries_against": null,
+              "throw_ins_for": 19,
+              "throw_ins_against": 22,
+              "duels_won_pct_for": null,
+              "duels_won_pct_against": null,
+              "ground_duels_pct_for": null,
+              "ground_duels_pct_against": null,
+              "aerial_duels_pct_for": null,
+              "aerial_duels_pct_against": null,
+              "dispossessed_for": null,
+              "dispossessed_against": null,
+              "dribbles_pct_for": null,
+              "dribbles_pct_against": null,
+              "tackles_for": 2,
+              "tackles_against": 4,
+              "tackles_won_pct_for": null,
+              "tackles_won_pct_against": null,
+              "interceptions_for": 21,
+              "interceptions_against": 15,
+              "clearances_for": null,
+              "clearances_against": null,
+              "ball_recoveries_for": null,
+              "ball_recoveries_against": null,
+              "corners_for": 5,
+              "corners_against": 4,
+              "fouls_committed": 12,
+              "yellow_cards": 4,
+              "red_cards": 0,
+              "saves_for": 0,
+              "saves_against": 1,
+              "goal_kicks_for": 9,
+              "goal_kicks_against": 7,
+              "goals_prevented_for": null,
+              "goals_prevented_against": null,
+              "high_claims_for": null,
+              "high_claims_against": null,
+              "formation": null,
+              "starting_xi_ids": null,
+              "substitutes_ids": null,
+              "raw_stats_json": "{\"sm_fixture_id\":19895015,\"statistics\":[{\"id\":1054771645,\"fixture_id\":19895015,\"type_id\":34,\"participant_id\":3338,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1054771646,\"fixture_id\":19895015,\"type_id\":34,\"participant_id\":976,\"data\":{\"value\":5},\"location\":\"home\",\"type\":{\"i…[dipotong]",
+              "created_at": "2026-11-03T15:26:05.903Z",
+              "source": "sportmonks",
+              "data_tier": "sportmonks_backfill",
+              "xg_source": "sportmonks",
+              "competition_id": "sm:770"
+            }
+          ],
+          "schedule_friction": {
+            "last_match_date": "2026-11-01",
+            "rest_days": 3,
+            "midweek_continental": false,
+            "fatigue_risk": "MODERATE"
+          }
+        }
+      }
+    },
+    "form_split_intel": {
+      "home_form_summary": "Data split kandang terbatas",
+      "away_form_summary": "Data split tandang terbatas",
+      "home_goals_avg": 1.6,
+      "away_goals_avg": 1.25,
+      "home_form_sample_size": 0,
+      "away_form_sample_size": 0
+    }
+  },
+  "trace": [
+    {
+      "stage": "0-seleksi-live",
+      "inputs": {
+        "matchId": "sm_19872622",
+        "competitionIdHint": "sm:2",
+        "run_started_utc": "2026-11-04T16:54:29.694Z"
+      },
+      "outputs": {
+        "fixture": {
+          "match_id": "sm_19872622",
+          "competition_id": "sm:2",
+          "competition_name": "Champions League",
+          "competition_country": "Europe",
+          "utc_date": "2026-11-04T17:45:00.000Z",
+          "status": "scheduled",
+          "stage_name": null,
+          "home_team_id": "88",
+          "home_team_name": "Fenerbahçe",
+          "away_team_id": "8",
+          "away_team_name": "Liverpool",
+          "venue": "Şükrü Saracoğlu Stadium",
+          "is_neutral": null,
+          "odds_available": null,
+          "xg_available": null,
+          "fetched_utc": "2026-11-04T16:36:43.365Z"
+        },
+        "kickoff_local_wib": "2026-11-05T00:45:00+07:00 (dari utc_date 2026-11-04T17:45:00.000Z)",
+        "registry_row": {
+          "league_id": "sm:2",
+          "league_name": "Champions League",
+          "country": "Europe",
+          "tier": null,
+          "status": "partial",
+          "n_matches": 684,
+          "n_teams": 0,
+          "telemetry_coverage": 0.5734939759036145,
+          "scale_ratio": null,
+          "fitted_at": "2026-11-04T12:17:04.974Z",
+          "source": "cup-offset",
+          "notes": "Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+          "canonical_id": "sm:2"
+        },
+        "cup_offset_metadata": {
+          "graph": "europe",
+          "competitionCanonicalId": "sm:2",
+          "homeLeagueCanonicalId": "sm:600",
+          "awayLeagueCanonicalId": "sm:8",
+          "homeFitDiv": "SM600",
+          "awayFitDiv": "SM8",
+          "homeDelta": -0.4792,
+          "awayDelta": 0,
+          "baseAvgGoals": 1.2588,
+          "baseAvgSource": "graph-global",
+          "cupHomeAdvantage": 1.289,
+          "neutralVenue": false,
+          "homeCandidates": 2,
+          "awayCandidates": 2
+        },
+        "home_domestic_gate": {
+          "league": "sm:600",
+          "status": "calibrated",
+          "reason": "Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia). rasio skala=1.0007 cakupan telemetri=1 Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0039 < naive 1.0360 (n=111)."
+        },
+        "away_domestic_gate": {
+          "league": "sm:8",
+          "status": "calibrated",
+          "reason": "Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia). rasio skala=0.9903 cakupan telemetri=1 Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128)."
+        },
+        "odds_captures_inventory": [
+          {
+            "captured_utc": "2026-11-03T12:25:27.240Z",
+            "capture_kind": "baseline",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 144911
+          },
+          {
+            "captured_utc": "2026-11-03T17:52:39.524Z",
+            "capture_kind": "scheduled",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 146970
+          },
+          {
+            "captured_utc": "2026-11-04T12:38:16.740Z",
+            "capture_kind": "scheduled",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 152397
+          }
+        ]
+      },
+      "fallbacks": [
+        "upcoming_fixtures.is_neutral = NULL → diperlakukan bukan venue netral (metadata.cupOffset.neutralVenue)",
+        "upcoming_fixtures.odds_available = NULL (kolom katalog tidak terisi; tangkapan odds aktual tetap ada di match_odds_history)"
+      ]
+    },
+    {
+      "stage": "1-intelligence",
+      "inputs": {
+        "matchId": "sm_19872622",
+        "competitionIdHint": "sm:2"
+      },
+      "outputs": {
+        "pertandingan": {
+          "id": "sm_19872622",
+          "tim_kandang": "Fenerbahçe",
+          "tim_tamu": "Liverpool",
+          "waktu": "2026-11-04T17:45:00.000Z",
+          "kompetisi": "Champions League",
+          "venue": "Şükrü Saracoğlu Stadium",
+          "wasit": "Belum diumumkan",
+          "kickoff_jam_menuju": 0.8
+        },
+        "market_odds": {
+          "is_available": false,
+          "home_last": null,
+          "draw_last": null,
+          "away_last": null,
+          "total_goals_over_2_5": null
+        },
+        "form_split": {
+          "home_form_summary": "Data split kandang terbatas",
+          "away_form_summary": "Data split tandang terbatas",
+          "home_goals_avg": 1.6,
+          "away_goals_avg": 1.25,
+          "home_form_sample_size": 0,
+          "away_form_sample_size": 0
+        },
+        "audit_endpoints_called": [
+          "/football/matches/sm_19872622",
+          "upcoming_fixtures+match_odds_history (offline SQLite)",
+          "/football/matches/sm_19872622/referee",
+          "/football/matches/sm_19872622/lineups",
+          "/football/matches (h2h pool online fallback)",
+          "/football/matches (recent home/away online fallback)",
+          "injuries-suspensions (online fallback)"
+        ],
+        "audit_endpoints_skipped": [
+          "odds (offline anchor SQLite)"
+        ],
+        "audit_dispatcher_model": "bai/qwen3.8-27b (fast heuristic fallback)"
+      },
+      "fallbacks": [
+        "market_odds 1X2 lokal = null (payload anchor berbentuk SM tidak ter-parse validator TheStats — model-only, sesuai desain)",
+        "lineups lokal di intel tidak tersedia (missing registry) — lineup resmi dibaca dari store expected_lineups di tahap konteks",
+        "injuries lokal di intel tidak tersedia",
+        "missing_data_registry: Data wasit resmi belum ditugaskan/tersedia | Lineup resmi belum diumumkan | Riwayat H2H masa lalu belum tercatat di database | Laporan cedera/suspensi resmi tidak ada atau kedua tim berkekuatan penuh | Odds pasar 1X2 resmi bet365/pinnacle belum tersedia",
+        "form_split kandang sample 0",
+        "form_split tamu sample 0"
+      ]
+    },
+    {
+      "stage": "2-quant-murni",
+      "inputs": {
+        "today": "2026-11-04"
+      },
+      "outputs": {
+        "lambda": 1.41,
+        "mu": 2.085,
+        "probs": {
+          "home": 0.2582,
+          "draw": 0.211,
+          "away": 0.5308
+        },
+        "dixon_coles": {
+          "lambda_home_xg": 1.41,
+          "mu_away_xg": 2.085,
+          "prob_home_win": 0.2582,
+          "prob_draw": 0.211,
+          "prob_away_win": 0.5308,
+          "fair_odds": {
+            "home": 3.87,
+            "draw": 4.74,
+            "away": 1.88
+          },
+          "over_2_5_prob": 0.6782,
+          "btts_yes_prob": 0.6619,
+          "expected_total_goals": 3.5,
+          "top_scorelines": [
+            {
+              "homeGoals": 1,
+              "awayGoals": 2,
+              "prob": 9.3
+            },
+            {
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "prob": 8.9
+            },
+            {
+              "homeGoals": 0,
+              "awayGoals": 2,
+              "prob": 6.6
+            },
+            {
+              "homeGoals": 2,
+              "awayGoals": 2,
+              "prob": 6.6
+            },
+            {
+              "homeGoals": 1,
+              "awayGoals": 3,
+              "prob": 6.5
+            },
+            {
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "prob": 6.3
+            }
+          ],
+          "asian_handicap": {
+            "ah_0_0_dnb": {
+              "home_prob": 0.3272,
+              "away_prob": 0.6728,
+              "fair_odds_home": 3.06,
+              "fair_odds_away": 1.49,
+              "push_prob": 0.211
+            },
+            "ah_minus_0_5": {
+              "home_cover": 0.2582,
+              "away_cover": 0.7418,
+              "fair_odds_home": 3.87,
+              "fair_odds_away": 1.35
+            },
+            "ah_minus_1_0": {
+              "home_cover": 0.1129,
+              "push_prob": 0.1453,
+              "away_cover": 0.7418,
+              "home_prob": 0.1321,
+              "away_prob": 0.8679,
+              "fair_odds_home": 7.57,
+              "fair_odds_away": 1.15
+            }
+          },
+          "clean_sheet": {
+            "home_clean_sheet_prob": 0.1243,
+            "away_clean_sheet_prob": 0.2441,
+            "home_win_to_nil_prob": 0.094,
+            "away_win_to_nil_prob": 0.2138
+          },
+          "expected_points": {
+            "home_xpts": 0.99,
+            "away_xpts": 1.8
+          }
+        },
+        "shrunk_params": {
+          "homeAttack": 1,
+          "homeDefense": 1.306,
+          "awayAttack": 1.268,
+          "awayDefense": 0.869,
+          "homeAdvantage": 1.289,
+          "leagueAvgGoals": 1.2588,
+          "rho": 0,
+          "shrinkageWeights": {
+            "home": 0,
+            "away": 0
+          },
+          "isCalibrated": true,
+          "metadata": {
+            "div": "sm:2",
+            "leagueName": "Champions League",
+            "homeSource": "primary_league",
+            "awaySource": "primary_league",
+            "macroPriorDate": "2026-11-04",
+            "telemetrySource": {
+              "home": "macro_prior_only",
+              "away": "macro_prior_only"
+            },
+            "observedXgSamples": {
+              "home": 0,
+              "away": 0
+            },
+            "isEstimatedTelemetry": true,
+            "preMatchCutoff": "2026-11-04",
+            "calibrationStatus": "partial",
+            "calibrationGate": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+            "leagueResolution": {
+              "canonicalId": "sm:2",
+              "fitSystem": "special",
+              "via": "cup-offset",
+              "note": "Model offset global graf europe: kandang dari sm:600 (δ=-0.4792), tamu dari sm:8 (δ=0)."
+            },
+            "cupOffset": {
+              "graph": "europe",
+              "competitionCanonicalId": "sm:2",
+              "homeLeagueCanonicalId": "sm:600",
+              "awayLeagueCanonicalId": "sm:8",
+              "homeFitDiv": "SM600",
+              "awayFitDiv": "SM8",
+              "homeDelta": -0.4792,
+              "awayDelta": 0,
+              "baseAvgGoals": 1.2588,
+              "baseAvgSource": "graph-global",
+              "cupHomeAdvantage": 1.289,
+              "neutralVenue": false,
+              "homeCandidates": 2,
+              "awayCandidates": 2
+            }
+          }
+        },
+        "calibration_metadata": {
+          "is_calibrated": true,
+          "div": "sm:2",
+          "league_name": "Champions League",
+          "home_source": "primary_league",
+          "away_source": "primary_league",
+          "shrinkage_weights": {
+            "home": 0,
+            "away": 0
+          },
+          "calibrated_home_advantage": 1.289,
+          "calibrated_league_avg_goals": 1.2588,
+          "macro_prior_date": "2026-11-04",
+          "telemetry_source": {
+            "home": "macro_prior_only",
+            "away": "macro_prior_only"
+          },
+          "observed_xg_samples": {
+            "home": 0,
+            "away": 0
+          },
+          "is_estimated_telemetry": true,
+          "pre_match_cutoff": "2026-11-04"
+        },
+        "cup_offset_metadata": {
+          "graph": "europe",
+          "competitionCanonicalId": "sm:2",
+          "homeLeagueCanonicalId": "sm:600",
+          "awayLeagueCanonicalId": "sm:8",
+          "homeFitDiv": "SM600",
+          "awayFitDiv": "SM8",
+          "homeDelta": -0.4792,
+          "awayDelta": 0,
+          "baseAvgGoals": 1.2588,
+          "baseAvgSource": "graph-global",
+          "cupHomeAdvantage": 1.289,
+          "neutralVenue": false,
+          "homeCandidates": 2,
+          "awayCandidates": 2
+        },
+        "gate": {
+          "status": "partial",
+          "reason": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80."
+        },
+        "value_bets": 0,
+        "vig": null
+      },
+      "fallbacks": [
+        "vig_stripping = null (tidak ada odds pasar lokal yang valid → model-only, sesuai desain)",
+        "value_bets lokal = 0 (konsekuensi odds lokal null — bukan odds karangan)",
+        "sampel xG kandang di metadata = 0 (jalur piala: telemetry_source=macro_prior_only — parameter dari prior makro domestik yang ditransformasi δ, bukan blend telemetri last-6)",
+        "sampel xG tamu di metadata = 0 (telemetry_source=macro_prior_only)"
+      ]
+    },
+    {
+      "stage": "3-wire-sportmonks-offline",
+      "inputs": {
+        "payload_captured_utc": "2026-11-04T12:38:16.740Z",
+        "payload_capture_kind": "scheduled",
+        "payload_point": "T-6h",
+        "payload_late_entry": null,
+        "odds_entries": 978,
+        "all_captures": [
+          {
+            "captured_utc": "2026-11-03T12:25:27.240Z",
+            "capture_kind": "baseline",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 144911
+          },
+          {
+            "captured_utc": "2026-11-03T17:52:39.524Z",
+            "capture_kind": "scheduled",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 146970
+          },
+          {
+            "captured_utc": "2026-11-04T12:38:16.740Z",
+            "capture_kind": "scheduled",
+            "source": "sportmonks",
+            "has_odds": 1,
+            "bytes": 152397
+          }
+        ]
+      },
+      "outputs": {
+        "detail_odds_1x2": [
+          {
+            "bookmaker_id": 35,
+            "bookmaker": "1xBet",
+            "home": 5.89,
+            "draw": 5.38,
+            "away": 1.52
+          },
+          {
+            "bookmaker_id": 20,
+            "bookmaker": "Pinnacle",
+            "home": 6.11,
+            "draw": 5.16,
+            "away": 1.49
+          }
+        ],
+        "detail_odds_ou_2_5": [
+          {
+            "bookmaker_id": 20,
+            "bookmaker": "Pinnacle",
+            "line": "2.5",
+            "over": 1.37,
+            "under": 3.25
+          },
+          {
+            "bookmaker_id": 35,
+            "bookmaker": "1xBet",
+            "line": "2.5",
+            "over": 1.36,
+            "under": 3.14
+          },
+          {
+            "bookmaker_id": 2,
+            "bookmaker": "bet365",
+            "line": "2.5",
+            "over": 1.36,
+            "under": 3.2
+          }
+        ],
+        "quotes": {
+          "home_last": 5.89,
+          "draw_last": 5.38,
+          "away_last": 1.52,
+          "total_goals_over_2_5": 1.36,
+          "under_2_5": 3.14,
+          "bookmaker": "1xBet",
+          "bookmaker_id": 35,
+          "compare_note": "1X2 1xBet 5.89 / 5.38 / 1.52 vs Pinnacle 6.11 / 5.16 / 1.49",
+          "fetched_at": "2026-11-04T12:38:16.740Z",
+          "source": "sportmonks"
+        },
+        "shin_implied_from_sm_primary": {
+          "raw_odds": {
+            "home": 5.89,
+            "draw": 5.38,
+            "away": 1.52
+          },
+          "implied_prob_raw": {
+            "home": 0.1698,
+            "draw": 0.1859,
+            "away": 0.6579
+          },
+          "overround": 1.0135,
+          "margin_percentage": 1.4,
+          "fair_prob": {
+            "home": 0.1658,
+            "draw": 0.1819,
+            "away": 0.6523
+          },
+          "fair_odds": {
+            "home": 6.03,
+            "draw": 5.5,
+            "away": 1.53
+          },
+          "method_used": "shin"
+        },
+        "wired_status": "ok",
+        "wired_reason": "detail SM 19872622 masuk (4 value bets SM)",
+        "wired_value_bets": [
+          {
+            "market_name": "1X2",
+            "selection": "Fenerbahçe Menang",
+            "bookmaker_odds": 5.89,
+            "model_probability": 0.258,
+            "fair_odds": 3.87,
+            "expected_value": 0.5208,
+            "ev_percentage": "+52.1%",
+            "is_positive_ev": true,
+            "edge_rating": "EXCELLENT",
+            "kelly_fraction_full": 10.7,
+            "kelly_fraction_quarter": 2.7,
+            "recommended_stake_percentage": 2.7,
+            "rationale": "Model memproyeksikan probabilitas 25.8% (Fair Odds 3.87), sedangkan bandar menawarkan 5.89. Terdapat mathematical edge +52.1% (+EV). (harga 1xBet via Sportmonks)",
+            "odds_source": "sportmonks",
+            "bookmaker": "1xBet"
+          },
+          {
+            "market_name": "1X2",
+            "selection": "Hasil Imbang (Draw)",
+            "bookmaker_odds": 5.38,
+            "model_probability": 0.211,
+            "fair_odds": 4.74,
+            "expected_value": 0.1352,
+            "ev_percentage": "+13.5%",
+            "is_positive_ev": true,
+            "edge_rating": "EXCELLENT",
+            "kelly_fraction_full": 3.1,
+            "kelly_fraction_quarter": 0.8,
+            "recommended_stake_percentage": 0.8,
+            "rationale": "Model memproyeksikan probabilitas 21.1% (Fair Odds 4.74), sedangkan bandar menawarkan 5.38. Terdapat mathematical edge +13.5% (+EV). (harga 1xBet via Sportmonks)",
+            "odds_source": "sportmonks",
+            "bookmaker": "1xBet"
+          },
+          {
+            "market_name": "1X2",
+            "selection": "Liverpool Menang",
+            "bookmaker_odds": 1.52,
+            "model_probability": 0.531,
+            "fair_odds": 1.88,
+            "expected_value": -0.1932,
+            "ev_percentage": "-19.3%",
+            "is_positive_ev": false,
+            "edge_rating": "NEGATIVE",
+            "kelly_fraction_full": 0,
+            "kelly_fraction_quarter": 0,
+            "recommended_stake_percentage": 0,
+            "rationale": "Odds bandar 1.52 berada di bawah Fair Odds model 1.88 (Defisit EV -19.3%). Pasar ini memiliki ekspektasi nilai negatif. (harga 1xBet via Sportmonks)",
+            "odds_source": "sportmonks",
+            "bookmaker": "1xBet"
+          },
+          {
+            "market_name": "Over/Under 2.5",
+            "selection": "Over 2.5 Goals",
+            "bookmaker_odds": 1.36,
+            "model_probability": 0.678,
+            "fair_odds": 1.47,
+            "expected_value": -0.0776,
+            "ev_percentage": "-7.8%",
+            "is_positive_ev": false,
+            "edge_rating": "NEGATIVE",
+            "kelly_fraction_full": 0,
+            "kelly_fraction_quarter": 0,
+            "recommended_stake_percentage": 0,
+            "rationale": "Odds bandar 1.36 berada di bawah Fair Odds model 1.47 (Defisit EV -7.8%). Pasar ini memiliki ekspektasi nilai negatif. (harga 1xBet via Sportmonks)",
+            "odds_source": "sportmonks",
+            "bookmaker": "1xBet"
+          }
+        ],
+        "sm_context": {
+          "status": "ok",
+          "fixture_id": 19872622,
+          "bookmaker": "1xBet",
+          "bookmaker_id": 35,
+          "fetched_at": "2026-11-04T12:38:16.740Z",
+          "predictions": [],
+          "gaps_closed": [],
+          "notes": [
+            "odds SM 1xBet 1X2 5.89 / 5.38 / 1.52 + O/U 2.5 1.36/3.14 — gabung, harga lokal dipertahankan",
+            "pembanding: 1X2 1xBet 5.89 / 5.38 / 1.52 vs Pinnacle 6.11 / 5.16 / 1.49",
+            "BTTS: tanpa harga SM (filter markets 1,80) — tidak dinilai dari SM",
+            "lineup SM kosong — gap lineup dipertahankan",
+            "sidelined SM kosong — gap cedera dipertahankan"
+          ],
+          "degraded_reason": null
+        }
+      },
+      "fallbacks": [
+        "pada waktu run, tangkapan T-1j (jatuh tempo 2026-11-04T16:45:00Z) BELUM mendarat di store — harga pasar yang dipakai = tangkapan scheduled 2026-11-04T12:38:16.740Z (titik terjadwal sebelumnya). Run TIDAK diulang menunggu tangkapan itu, sesuai instruksi.",
+        "detail.lineup = null (payload odds tidak memuat lineup — lineup resmi ada di store expected_lineups, lihat konteks)",
+        "detail.predictions kosong (payload odds tidak memuat prediksi — panel banding dari predictions.db di konteks)",
+        "detail.sidelined kosong — gap cedera tidak ditutup wire offline",
+        "parseFixtureDetail skipped 902 entri (contoh: market asing 122 (bookie 2, label \"Draw/Yes\") — skip ; market asing 104 (bookie 2, label \"1\") — skip ; market asing 104 (bookie 2, label \"2\") — skip)"
+      ]
+    },
+    {
+      "stage": "4-context",
+      "outputs": {
+        "predictions_rows": 92,
+        "sm_value_bets_rows": 2,
+        "standings_found": 2,
+        "lineups_sides": [
+          "away:11",
+          "home:11"
+        ],
+        "news_rows": 1,
+        "h2h": 0
+      },
+      "fallbacks": []
+    }
+  ]
+}
