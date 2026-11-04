@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-11-04T18:52:37.206Z",
+  "runtime_seconds": 2.3,
+  "config": {
+    "params_from_oos_results_levelB_selected": {
+      "label": "winner kx2",
+      "params": "hl365|rho:zero|kfit:10",
+      "kappaScale": 2
+    },
+    "half_life": 365,
+    "kfit": 10,
+    "rho": 0,
+    "kappa_scale": 2,
+    "min_matches": 120,
+    "leagues": 58,
+    "folds_evaluated": [
+      "V2",
+      "H"
+    ],
+    "folds_skipped": [
+      "V1 (dilewati untuk membatasi runtime)"
+    ]
+  },
+  "arms_definition": {
+    "old": "logs semua sumber, bobot xG 1.0 (saji pra-fix)",
+    "filter": "logs source='sportmonks' saja, bobot xG 1.0",
+    "fixed": "logs source='sportmonks' saja + bobot xG rasio kompetisi (saji pasca-fix = harness)"
+  },
+  "recorded_reference": {
+    "note": "tasks/oos-results.json per 2026-11-04 (store sudah tumbuh sejak itu via daily-refresh; lipatan % kronologis per liga → reproduksi persis TIDAK diharapkan)",
+    "levelB_heldout_winner_kx2": {
+      "n": 6661,
+      "logloss": 1.0202,
+      "brier": 0.6103,
+      "ece": 0.0188,
+      "slope": 0.953
+    }
+  },
+  "arms": {
+    "old": {
+      "folds": {
+        "V2": {
+          "n": 6193,
+          "logloss": 1.025,
+          "brier": 0.6147,
+          "slope": 0.92
+        },
+        "H": {
+          "n": 6216,
+          "logloss": 1.0067,
+          "brier": 0.6016,
+          "slope": 1.019
+        }
+      },
+      "pooled_H_V2": {
+        "n": 12409,
+        "logloss": 1.0158,
+        "brier": 0.6081,
+        "slope": 0.97
+      }
+    },
+    "filter": {
+      "folds": {
+        "V2": {
+          "n": 6193,
+          "logloss": 1.0247,
+          "brier": 0.6145,
+          "slope": 0.925
+        },
+        "H": {
+          "n": 6216,
+          "logloss": 1.0061,
+          "brier": 0.6012,
+          "slope": 1.034
+        }
+      },
+      "pooled_H_V2": {
+        "n": 12409,
+        "logloss": 1.0154,
+        "brier": 0.6078,
+        "slope": 0.98
+      }
+    },
+    "fixed": {
+      "folds": {
+        "V2": {
+          "n": 6193,
+          "logloss": 1.0245,
+          "brier": 0.6144,
+          "slope": 0.927
+        },
+        "H": {
+          "n": 6216,
+          "logloss": 1.006,
+          "brier": 0.6012,
+          "slope": 1.037
+        }
+      },
+      "pooled_H_V2": {
+        "n": 12409,
+        "logloss": 1.0152,
+        "brier": 0.6078,
+        "slope": 0.982
+      }
+    }
+  }
+}

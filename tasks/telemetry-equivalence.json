@@ -1,0 +1,4868 @@
+{
+  "generated_at": "2026-11-04T18:52:54.097Z",
+  "runtime_seconds": 0.9,
+  "window_hours": 72,
+  "selection_notes": [
+    "jendela 2026-11-04T18:52:53.239Z → 2026-11-07T18:52:53.239Z: 330 fixture sm terjadwal, 214 lolos saringan domestik + gerbang calibrated/partial"
+  ],
+  "target_teams": [
+    "Leeds United",
+    "Espanyol",
+    "Coventry City",
+    "Eintracht Frankfurt"
+  ],
+  "team_level_only_checks": [],
+  "summary": {
+    "fixtures_sampled": 30,
+    "rolling_team_checks": 60,
+    "rolling_team_pass": 59,
+    "rolling_fixtures_pass": 29,
+    "parameter_fixtures_checked": 30,
+    "parameter_fixtures_pass": 29,
+    "max_abs_diff_rolling": 0,
+    "max_abs_diff_parameter": 0,
+    "tolerance_parameter": 0.002,
+    "mismatch_classifications": {
+      "team-resolution difference": 2
+    }
+  },
+  "fixtures": [
+    {
+      "match_id": "sm_19722107",
+      "competition_id": "sm:8",
+      "competition_name": "Premier League",
+      "competition_country": "England",
+      "utc_date": "2026-11-07T12:30:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Leeds United",
+      "away": "Tottenham Hotspur",
+      "resolved_div": "SM8",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Leeds United",
+          "serving_team_id": "tm_0256",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.24,
+            "rolling_xg_against": 1.16,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:8",
+            "window": [
+              "2026-10-31:sm_19722123",
+              "2026-10-25:sm_19722124",
+              "2026-10-18:sm_19722138",
+              "2026-10-10:sm_19722153",
+              "2026-09-20:sm_19722158",
+              "2026-09-14:sm_19722168"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.24,
+            "rolling_xg_against": 1.16,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-14:sm_19722168:sm:8",
+              "2026-09-20:sm_19722158:sm:8",
+              "2026-10-10:sm_19722153:sm:8",
+              "2026-10-18:sm_19722138:sm:8",
+              "2026-10-25:sm_19722124:sm:8",
+              "2026-10-31:sm_19722123:sm:8"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Tottenham Hotspur",
+          "serving_team_id": "tm_5130",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.88,
+            "rolling_xg_against": 0.89,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:8",
+            "window": [
+              "2026-10-31:sm_19722114",
+              "2026-10-24:sm_19722131",
+              "2026-10-19:sm_19722134",
+              "2026-10-10:sm_19722145",
+              "2026-09-19:sm_19722154",
+              "2026-09-15:sm_19872561"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.88,
+            "rolling_xg_against": 0.89,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-15:sm_19872561:sm:27",
+              "2026-09-19:sm_19722154:sm:8",
+              "2026-10-10:sm_19722145:sm:8",
+              "2026-10-19:sm_19722134:sm:8",
+              "2026-10-24:sm_19722131:sm:8",
+              "2026-10-31:sm_19722114:sm:8"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM8",
+        "serving": {
+          "homeAttack": 0.954,
+          "homeDefense": 0.895,
+          "awayAttack": 1.12,
+          "awayDefense": 0.943,
+          "homeAdvantage": 1.1941,
+          "leagueAvgGoals": 1.2688,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.954,
+          "homeDefense": 0.895,
+          "awayAttack": 1.12,
+          "awayDefense": 0.943,
+          "homeAdvantage": 1.1941,
+          "leagueAvgGoals": 1.2688,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19732629",
+      "competition_id": "sm:564",
+      "competition_name": "La Liga",
+      "competition_country": "Spain",
+      "utc_date": "2026-11-07T15:15:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Espanyol",
+      "away": "Deportivo A Coruña",
+      "resolved_div": "SM564",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Espanyol",
+          "serving_team_id": "tm_02599",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.02,
+            "rolling_xg_against": 1.4,
+            "rolling_goals_for": 0.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:564",
+            "window": [
+              "2026-10-30:sm_19732633",
+              "2026-10-24:sm_19732647",
+              "2026-10-17:sm_19732659",
+              "2026-10-09:sm_19732667",
+              "2026-09-18:sm_19732678",
+              "2026-09-15:sm_19732684"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.02,
+            "rolling_xg_against": 1.4,
+            "rolling_goals_for": 0.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-15:sm_19732684:sm:564",
+              "2026-09-18:sm_19732678:sm:564",
+              "2026-10-09:sm_19732667:sm:564",
+              "2026-10-17:sm_19732659:sm:564",
+              "2026-10-24:sm_19732647:sm:564",
+              "2026-10-30:sm_19732633:sm:564"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Deportivo A Coruña",
+          "serving_team_id": "429",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.15,
+            "rolling_xg_against": 0.95,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:564",
+            "window": [
+              "2026-11-02:sm_19732640",
+              "2026-10-29:sm_19893320",
+              "2026-10-24:sm_19732650",
+              "2026-10-16:sm_19732660",
+              "2026-10-11:sm_19732663",
+              "2026-09-20:sm_19732679"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.15,
+            "rolling_xg_against": 0.95,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-20:sm_19732679:sm:564",
+              "2026-10-11:sm_19732663:sm:564",
+              "2026-10-16:sm_19732660:sm:564",
+              "2026-10-24:sm_19732650:sm:564",
+              "2026-10-29:sm_19893320:sm:570",
+              "2026-11-02:sm_19732640:sm:564"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM564",
+        "serving": {
+          "homeAttack": 0.861,
+          "homeDefense": 1.018,
+          "awayAttack": 1.215,
+          "awayDefense": 0.931,
+          "homeAdvantage": 1.341,
+          "leagueAvgGoals": 1.1773,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.861,
+          "homeDefense": 1.018,
+          "awayAttack": 1.215,
+          "awayDefense": 0.931,
+          "homeAdvantage": 1.341,
+          "leagueAvgGoals": 1.1773,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19722110",
+      "competition_id": "sm:8",
+      "competition_name": "Premier League",
+      "competition_country": "England",
+      "utc_date": "2026-11-06T20:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Everton",
+      "away": "Coventry City",
+      "resolved_div": "SM8",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Everton",
+          "serving_team_id": "tm_8091",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.27,
+            "rolling_xg_against": 1.86,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 4,
+            "xg_weighted_toward": "sm:8",
+            "window": [
+              "2026-11-02:sm_19722115",
+              "2026-11-01:sm_19644888",
+              "2026-10-29:sm_19884063",
+              "2026-10-26:sm_19644898",
+              "2026-10-24:sm_19722133",
+              "2026-10-17:sm_19722140"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.27,
+            "rolling_xg_against": 1.86,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 4,
+            "window": [
+              "2026-10-17:sm_19722140:sm:8",
+              "2026-10-24:sm_19722133:sm:8",
+              "2026-10-26:sm_19644898:sm:663",
+              "2026-10-29:sm_19884063:sm:27",
+              "2026-11-01:sm_19644888:sm:663",
+              "2026-11-02:sm_19722115:sm:8"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:663 (Primera Division, Chile)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Coventry City",
+          "serving_team_id": "tm_2954",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.92,
+            "rolling_xg_against": 1.6,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:8",
+            "window": [
+              "2026-10-31:sm_19722119",
+              "2026-10-24:sm_19722130",
+              "2026-10-19:sm_19722134",
+              "2026-10-12:sm_19722150",
+              "2026-09-19:sm_19722155",
+              "2026-09-16:sm_19872563"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.92,
+            "rolling_xg_against": 1.6,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-16:sm_19872563:sm:27",
+              "2026-09-19:sm_19722155:sm:8",
+              "2026-10-12:sm_19722150:sm:8",
+              "2026-10-19:sm_19722134:sm:8",
+              "2026-10-24:sm_19722130:sm:8",
+              "2026-10-31:sm_19722119:sm:8"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM8",
+        "serving": {
+          "homeAttack": 0.906,
+          "homeDefense": 0.969,
+          "awayAttack": 0.872,
+          "awayDefense": 1.138,
+          "homeAdvantage": 1.1941,
+          "leagueAvgGoals": 1.2688,
+          "shrinkageWeights": {
+            "home": 0.2,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.906,
+          "homeDefense": 0.969,
+          "awayAttack": 0.872,
+          "awayDefense": 1.138,
+          "homeAdvantage": 1.1941,
+          "leagueAvgGoals": 1.2688,
+          "shrinkageWeights": {
+            "home": 0.2,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19735117",
+      "competition_id": "sm:82",
+      "competition_name": "Bundesliga",
+      "competition_country": "Germany",
+      "utc_date": "2026-11-07T14:30:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Paderborn",
+      "away": "Eintracht Frankfurt",
+      "resolved_div": "SM82",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Paderborn",
+          "serving_team_id": "2642",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.32,
+            "rolling_xg_against": 1.72,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 0.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:82",
+            "window": [
+              "2026-10-31:sm_19735129",
+              "2026-10-28:sm_19879784",
+              "2026-10-24:sm_19735135",
+              "2026-10-17:sm_19735146",
+              "2026-10-10:sm_19735153",
+              "2026-09-30:sm_19731471"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.32,
+            "rolling_xg_against": 1.72,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 0.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-30:sm_19731471:sm:2451",
+              "2026-10-10:sm_19735153:sm:82",
+              "2026-10-17:sm_19735146:sm:82",
+              "2026-10-24:sm_19735135:sm:82",
+              "2026-10-28:sm_19879784:sm:109",
+              "2026-10-31:sm_19735129:sm:82"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Eintracht Frankfurt",
+          "serving_team_id": "tm_02978",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.51,
+            "rolling_xg_against": 1.99,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:82",
+            "window": [
+              "2026-11-01:sm_19735132",
+              "2026-10-27:sm_19879791",
+              "2026-10-24:sm_19735143",
+              "2026-10-16:sm_19735150",
+              "2026-10-10:sm_19735160",
+              "2026-10-02:sm_19887249"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.51,
+            "rolling_xg_against": 1.99,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-10-02:sm_19887249:sm:2451",
+              "2026-10-10:sm_19735160:sm:82",
+              "2026-10-16:sm_19735150:sm:82",
+              "2026-10-24:sm_19735143:sm:82",
+              "2026-10-27:sm_19879791:sm:109",
+              "2026-11-01:sm_19735132:sm:82"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM82",
+        "serving": {
+          "homeAttack": 0.771,
+          "homeDefense": 0.927,
+          "awayAttack": 1.111,
+          "awayDefense": 1.166,
+          "homeAdvantage": 1.2447,
+          "leagueAvgGoals": 1.4526,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.771,
+          "homeDefense": 0.927,
+          "awayAttack": 1.111,
+          "awayDefense": 1.166,
+          "homeAdvantage": 1.2447,
+          "leagueAvgGoals": 1.4526,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19888195",
+      "competition_id": "sm:1007",
+      "competition_name": "Indian Super League",
+      "competition_country": "India",
+      "utc_date": "2026-11-05T11:30:00.000Z",
+      "cutoff": "2026-11-05",
+      "home": "Churchill Brothers",
+      "away": "NorthEast United",
+      "resolved_div": "SM1007",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Churchill Brothers",
+          "serving_team_id": "11984",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.95,
+            "rolling_xg_against": 2.03,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 2.67,
+            "sample_size": 3,
+            "observed_xg_samples": 3,
+            "xg_weighted_toward": "sm:1007",
+            "window": [
+              "2026-10-25:sm_19888210",
+              "2026-10-18:sm_19888219",
+              "2026-10-11:sm_19888229"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.95,
+            "rolling_xg_against": 2.03,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 2.67,
+            "sample_size": 3,
+            "observed_xg_samples": 3,
+            "window": [
+              "2026-10-11:sm_19888229:sm:1007",
+              "2026-10-18:sm_19888219:sm:1007",
+              "2026-10-25:sm_19888210:sm:1007"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "NorthEast United",
+          "serving_team_id": "2768",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.37,
+            "rolling_xg_against": 0.98,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:1007",
+            "window": [
+              "2026-10-30:sm_19888204",
+              "2026-10-24:sm_19888212",
+              "2026-10-18:sm_19888217",
+              "2026-10-12:sm_19888227",
+              "2026-05-19:sm_19676259",
+              "2026-05-10:sm_19665480"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.37,
+            "rolling_xg_against": 0.98,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-05-10:sm_19665480:sm:1007",
+              "2026-05-19:sm_19676259:sm:1007",
+              "2026-10-12:sm_19888227:sm:1007",
+              "2026-10-18:sm_19888217:sm:1007",
+              "2026-10-24:sm_19888212:sm:1007",
+              "2026-10-30:sm_19888204:sm:1007"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM1007",
+        "serving": {
+          "homeAttack": 0.991,
+          "homeDefense": 1.263,
+          "awayAttack": 1.136,
+          "awayDefense": 0.919,
+          "homeAdvantage": 1.1376,
+          "leagueAvgGoals": 1.2249,
+          "shrinkageWeights": {
+            "home": 0.158,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.991,
+          "homeDefense": 1.263,
+          "awayAttack": 1.136,
+          "awayDefense": 0.919,
+          "homeAdvantage": 1.1376,
+          "leagueAvgGoals": 1.2249,
+          "shrinkageWeights": {
+            "home": 0.158,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19902400",
+      "competition_id": "sm:1034",
+      "competition_name": "K League 1",
+      "competition_country": "South Korea",
+      "utc_date": "2026-11-07T05:00:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Jeju United",
+      "away": "Gwangju",
+      "resolved_div": "SM1034",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Jeju United",
+          "serving_team_id": "8034",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:1034",
+            "window": [
+              "2026-11-01:sm_19902392",
+              "2026-10-24:sm_19648036",
+              "2026-10-18:sm_19648043",
+              "2026-10-10:sm_19648049",
+              "2026-09-20:sm_19648056",
+              "2026-09-12:sm_19648062"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-12:sm_19648062:sm:1034",
+              "2026-09-20:sm_19648056:sm:1034",
+              "2026-10-10:sm_19648049:sm:1034",
+              "2026-10-18:sm_19648043:sm:1034",
+              "2026-10-24:sm_19648036:sm:1034",
+              "2026-11-01:sm_19902392:sm:1034"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Gwangju",
+          "serving_team_id": "4370",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2.17,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:1034",
+            "window": [
+              "2026-10-31:sm_19902396",
+              "2026-10-24:sm_19648038",
+              "2026-10-18:sm_19648044",
+              "2026-10-11:sm_19648047",
+              "2026-09-20:sm_19648055",
+              "2026-09-13:sm_19648059"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2.17,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-13:sm_19648059:sm:1034",
+              "2026-09-20:sm_19648055:sm:1034",
+              "2026-10-11:sm_19648047:sm:1034",
+              "2026-10-18:sm_19648044:sm:1034",
+              "2026-10-24:sm_19648038:sm:1034",
+              "2026-10-31:sm_19902396:sm:1034"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM1034",
+        "serving": {
+          "homeAttack": 0.931,
+          "homeDefense": 1.066,
+          "awayAttack": 0.994,
+          "awayDefense": 1.236,
+          "homeAdvantage": 1.0634,
+          "leagueAvgGoals": 1.2301,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.931,
+          "homeDefense": 1.066,
+          "awayAttack": 0.994,
+          "awayDefense": 1.236,
+          "homeAdvantage": 1.0634,
+          "leagueAvgGoals": 1.2301,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19728306",
+      "competition_id": "sm:12",
+      "competition_name": "League One",
+      "competition_country": "England",
+      "utc_date": "2026-11-04T19:45:00.000Z",
+      "cutoff": "2026-11-04",
+      "home": "Oxford United",
+      "away": "Reading",
+      "resolved_div": "SM12",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Oxford United",
+          "serving_team_id": "297",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.72,
+            "rolling_xg_against": 1.66,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:12",
+            "window": [
+              "2026-10-31:sm_19728181",
+              "2026-10-27:sm_19728234",
+              "2026-10-24:sm_19728184",
+              "2026-10-20:sm_19728196",
+              "2026-10-15:sm_19728213",
+              "2026-10-10:sm_19728222"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.72,
+            "rolling_xg_against": 1.66,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-10-10:sm_19728222:sm:12",
+              "2026-10-15:sm_19728213:sm:12",
+              "2026-10-20:sm_19728196:sm:12",
+              "2026-10-24:sm_19728184:sm:12",
+              "2026-10-27:sm_19728234:sm:12",
+              "2026-10-31:sm_19728181:sm:12"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Reading",
+          "serving_team_id": "23",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.46,
+            "rolling_xg_against": 1.43,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:12",
+            "window": [
+              "2026-10-31:sm_19728174",
+              "2026-10-24:sm_19728183",
+              "2026-10-21:sm_19728194",
+              "2026-10-17:sm_19728207",
+              "2026-10-10:sm_19728223",
+              "2026-10-03:sm_19728232"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.46,
+            "rolling_xg_against": 1.43,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-10-03:sm_19728232:sm:12",
+              "2026-10-10:sm_19728223:sm:12",
+              "2026-10-17:sm_19728207:sm:12",
+              "2026-10-21:sm_19728194:sm:12",
+              "2026-10-24:sm_19728183:sm:12",
+              "2026-10-31:sm_19728174:sm:12"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM12",
+        "serving": {
+          "homeAttack": 1.226,
+          "homeDefense": 0.974,
+          "awayAttack": 1.166,
+          "awayDefense": 1.005,
+          "homeAdvantage": 1.2317,
+          "leagueAvgGoals": 1.1918,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.226,
+          "homeDefense": 0.974,
+          "awayAttack": 1.166,
+          "awayDefense": 1.005,
+          "homeAdvantage": 1.2317,
+          "leagueAvgGoals": 1.1918,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19729231",
+      "competition_id": "sm:181",
+      "competition_name": "Admiral Bundesliga",
+      "competition_country": "Austria",
+      "utc_date": "2026-11-06T18:30:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "SK Rapid",
+      "away": "Wolfsberger AC",
+      "resolved_div": "SM181",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "SK Rapid",
+          "serving_team_id": "3678",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.95,
+            "rolling_xg_against": 0.79,
+            "rolling_goals_for": 3,
+            "rolling_goals_against": 0.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:181",
+            "window": [
+              "2026-11-01:sm_19729235",
+              "2026-10-24:sm_19729242",
+              "2026-10-16:sm_19729248",
+              "2026-10-11:sm_19729256",
+              "2026-09-18:sm_19729261",
+              "2026-09-12:sm_19729266"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.95,
+            "rolling_xg_against": 0.79,
+            "rolling_goals_for": 3,
+            "rolling_goals_against": 0.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-12:sm_19729266:sm:181",
+              "2026-09-18:sm_19729261:sm:181",
+              "2026-10-11:sm_19729256:sm:181",
+              "2026-10-16:sm_19729248:sm:181",
+              "2026-10-24:sm_19729242:sm:181",
+              "2026-11-01:sm_19729235:sm:181"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Wolfsberger AC",
+          "serving_team_id": "3787",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.26,
+            "rolling_xg_against": 2.24,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:181",
+            "window": [
+              "2026-11-01:sm_19729236",
+              "2026-10-24:sm_19729241",
+              "2026-10-18:sm_19729246",
+              "2026-10-11:sm_19729252",
+              "2026-10-02:sm_19887250",
+              "2026-09-20:sm_19729259"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.26,
+            "rolling_xg_against": 2.24,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-20:sm_19729259:sm:181",
+              "2026-10-02:sm_19887250:sm:2451",
+              "2026-10-11:sm_19729252:sm:181",
+              "2026-10-18:sm_19729246:sm:181",
+              "2026-10-24:sm_19729241:sm:181",
+              "2026-11-01:sm_19729236:sm:181"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM181",
+        "serving": {
+          "homeAttack": 1.293,
+          "homeDefense": 0.757,
+          "awayAttack": 0.925,
+          "awayDefense": 1.166,
+          "homeAdvantage": 1.2616,
+          "leagueAvgGoals": 1.2578,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.293,
+          "homeDefense": 0.757,
+          "awayAttack": 0.925,
+          "awayDefense": 1.166,
+          "homeAdvantage": 1.2616,
+          "leagueAvgGoals": 1.2578,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19726038",
+      "competition_id": "sm:208",
+      "competition_name": "Pro League",
+      "competition_country": "Belgium",
+      "utc_date": "2026-11-04T19:30:00.000Z",
+      "cutoff": "2026-11-04",
+      "home": "KV Kortrijk",
+      "away": "Mechelen",
+      "resolved_div": "SM208",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "KV Kortrijk",
+          "serving_team_id": "1130",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.22,
+            "rolling_xg_against": 1.77,
+            "rolling_goals_for": 0.33,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:208",
+            "window": [
+              "2026-10-31:sm_19726024",
+              "2026-10-10:sm_19726044",
+              "2026-09-20:sm_19726050",
+              "2026-09-13:sm_19726059",
+              "2026-09-06:sm_19726070",
+              "2026-09-03:sm_19726080"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.22,
+            "rolling_xg_against": 1.77,
+            "rolling_goals_for": 0.33,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-03:sm_19726080:sm:208",
+              "2026-09-06:sm_19726070:sm:208",
+              "2026-09-13:sm_19726059:sm:208",
+              "2026-09-20:sm_19726050:sm:208",
+              "2026-10-10:sm_19726044:sm:208",
+              "2026-10-31:sm_19726024:sm:208"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Mechelen",
+          "serving_team_id": "2938",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.94,
+            "rolling_xg_against": 1.61,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:208",
+            "window": [
+              "2026-10-31:sm_19726029",
+              "2026-10-11:sm_19726043",
+              "2026-10-03:sm_19889318",
+              "2026-09-19:sm_19726054",
+              "2026-09-11:sm_19726067",
+              "2026-09-05:sm_19726074"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.94,
+            "rolling_xg_against": 1.61,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-05:sm_19726074:sm:208",
+              "2026-09-11:sm_19726067:sm:208",
+              "2026-09-19:sm_19726054:sm:208",
+              "2026-10-03:sm_19889318:sm:2451",
+              "2026-10-11:sm_19726043:sm:208",
+              "2026-10-31:sm_19726029:sm:208"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM208",
+        "serving": {
+          "homeAttack": 0.723,
+          "homeDefense": 1.276,
+          "awayAttack": 0.904,
+          "awayDefense": 1.12,
+          "homeAdvantage": 1.2611,
+          "leagueAvgGoals": 1.2571,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.723,
+          "homeDefense": 1.276,
+          "awayAttack": 0.904,
+          "awayDefense": 1.12,
+          "homeAdvantage": 1.2611,
+          "leagueAvgGoals": 1.2571,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19722572",
+      "competition_id": "sm:211",
+      "competition_name": "Challenger Pro League",
+      "competition_country": "Belgium",
+      "utc_date": "2026-11-04T19:00:00.000Z",
+      "cutoff": "2026-11-04",
+      "home": "RSCA Futures U23",
+      "away": "Koninklijke Lierse Sportkring",
+      "resolved_div": "SM211",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "RSCA Futures U23",
+          "serving_team_id": "261625",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 2.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:211",
+            "window": [
+              "2026-10-09:sm_19722580",
+              "2026-09-18:sm_19722589",
+              "2026-09-12:sm_19722594",
+              "2026-09-05:sm_19722602",
+              "2026-08-29:sm_19722608",
+              "2026-08-21:sm_19722617"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 2.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-08-21:sm_19722617:sm:211",
+              "2026-08-29:sm_19722608:sm:211",
+              "2026-09-05:sm_19722602:sm:211",
+              "2026-09-12:sm_19722594:sm:211",
+              "2026-09-18:sm_19722589:sm:211",
+              "2026-10-09:sm_19722580:sm:211"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Koninklijke Lierse Sportkring",
+          "serving_team_id": "227972",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:211",
+            "window": [
+              "2026-10-30:sm_19722563",
+              "2026-10-10:sm_19722583",
+              "2026-09-11:sm_19722597",
+              "2026-09-06:sm_19722599",
+              "2026-08-30:sm_19722605",
+              "2026-08-22:sm_19722614"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-08-22:sm_19722614:sm:211",
+              "2026-08-30:sm_19722605:sm:211",
+              "2026-09-06:sm_19722599:sm:211",
+              "2026-09-11:sm_19722597:sm:211",
+              "2026-10-10:sm_19722583:sm:211",
+              "2026-10-30:sm_19722563:sm:211"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM211",
+        "serving": {
+          "homeAttack": 0.92,
+          "homeDefense": 1.42,
+          "awayAttack": 0.812,
+          "awayDefense": 0.931,
+          "homeAdvantage": 1.1516,
+          "leagueAvgGoals": 1.3516,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.92,
+          "homeDefense": 1.42,
+          "awayAttack": 0.812,
+          "awayDefense": 0.931,
+          "homeAdvantage": 1.1516,
+          "leagueAvgGoals": 1.3516,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19714141",
+      "competition_id": "sm:229",
+      "competition_name": "First League",
+      "competition_country": "Bulgaria",
+      "utc_date": "2026-11-06T15:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Septemvri Sofia",
+      "away": "Lokomotiv Sofia 1929",
+      "resolved_div": "SM229",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Septemvri Sofia",
+          "serving_team_id": "7586",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 2.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:229",
+            "window": [
+              "2026-11-02:sm_19714134",
+              "2026-10-27:sm_19714150",
+              "2026-10-11:sm_19714154",
+              "2026-09-19:sm_19714162",
+              "2026-09-14:sm_19714169",
+              "2026-09-04:sm_19714175"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 2.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-04:sm_19714175:sm:229",
+              "2026-09-14:sm_19714169:sm:229",
+              "2026-09-19:sm_19714162:sm:229",
+              "2026-10-11:sm_19714154:sm:229",
+              "2026-10-27:sm_19714150:sm:229",
+              "2026-11-02:sm_19714134:sm:229"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Lokomotiv Sofia 1929",
+          "serving_team_id": "7556",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:229",
+            "window": [
+              "2026-10-30:sm_19714139",
+              "2026-10-24:sm_19714147",
+              "2026-10-10:sm_19714156",
+              "2026-10-03:sm_19890891",
+              "2026-09-20:sm_19714165",
+              "2026-09-16:sm_19714191"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-16:sm_19714191:sm:229",
+              "2026-09-20:sm_19714165:sm:229",
+              "2026-10-03:sm_19890891:sm:2451",
+              "2026-10-10:sm_19714156:sm:229",
+              "2026-10-24:sm_19714147:sm:229",
+              "2026-10-30:sm_19714139:sm:229"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM229",
+        "serving": {
+          "homeAttack": 0.849,
+          "homeDefense": 1.492,
+          "awayAttack": 1.174,
+          "awayDefense": 1.276,
+          "homeAdvantage": 1.2135,
+          "leagueAvgGoals": 1.099,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.849,
+          "homeDefense": 1.492,
+          "awayAttack": 1.174,
+          "awayDefense": 1.276,
+          "homeAdvantage": 1.2135,
+          "leagueAvgGoals": 1.099,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19713887",
+      "competition_id": "sm:244",
+      "competition_name": "1. HNL",
+      "competition_country": "Croatia",
+      "utc_date": "2026-11-06T17:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Lokomotiva Zagreb",
+      "away": "Rudeš",
+      "resolved_div": "SM244",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Lokomotiva Zagreb",
+          "serving_team_id": "5428",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:244",
+            "window": [
+              "2026-11-01:sm_19713890",
+              "2026-10-24:sm_19713906",
+              "2026-10-17:sm_19713913",
+              "2026-10-11:sm_19713924",
+              "2026-09-20:sm_19713934",
+              "2026-09-12:sm_19713941"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-12:sm_19713941:sm:244",
+              "2026-09-20:sm_19713934:sm:244",
+              "2026-10-11:sm_19713924:sm:244",
+              "2026-10-17:sm_19713913:sm:244",
+              "2026-10-24:sm_19713906:sm:244",
+              "2026-11-01:sm_19713890:sm:244"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Rudeš",
+          "serving_team_id": "7409",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:244",
+            "window": [
+              "2026-10-31:sm_19713897",
+              "2026-10-25:sm_19713908",
+              "2026-10-16:sm_19713918",
+              "2026-10-09:sm_19713928",
+              "2026-09-18:sm_19713938",
+              "2026-09-13:sm_19713947"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-13:sm_19713947:sm:244",
+              "2026-09-18:sm_19713938:sm:244",
+              "2026-10-09:sm_19713928:sm:244",
+              "2026-10-16:sm_19713918:sm:244",
+              "2026-10-25:sm_19713908:sm:244",
+              "2026-10-31:sm_19713897:sm:244"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM244",
+        "serving": {
+          "homeAttack": 0.911,
+          "homeDefense": 1.075,
+          "awayAttack": 1.073,
+          "awayDefense": 1.238,
+          "homeAdvantage": 1.3063,
+          "leagueAvgGoals": 1.1561,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.911,
+          "homeDefense": 1.075,
+          "awayAttack": 1.073,
+          "awayDefense": 1.238,
+          "homeAdvantage": 1.3063,
+          "leagueAvgGoals": 1.1561,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19725000",
+      "competition_id": "sm:262",
+      "competition_name": "Chance Liga",
+      "competition_country": "Czech Republic",
+      "utc_date": "2026-11-07T14:00:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Hradec Králové",
+      "away": "Sigma Olomouc",
+      "resolved_div": "SM262",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Hradec Králové",
+          "serving_team_id": "3552",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:262",
+            "window": [
+              "2026-11-01:sm_19725008",
+              "2026-10-25:sm_19725019",
+              "2026-10-17:sm_19725024",
+              "2026-10-10:sm_19725031",
+              "2026-10-02:sm_19890880",
+              "2026-09-20:sm_19725040"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-20:sm_19725040:sm:262",
+              "2026-10-02:sm_19890880:sm:2451",
+              "2026-10-10:sm_19725031:sm:262",
+              "2026-10-17:sm_19725024:sm:262",
+              "2026-10-25:sm_19725019:sm:262",
+              "2026-11-01:sm_19725008:sm:262"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Sigma Olomouc",
+          "serving_team_id": "3097",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 0.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:262",
+            "window": [
+              "2026-10-31:sm_19725009",
+              "2026-10-24:sm_19725018",
+              "2026-10-17:sm_19725028",
+              "2026-10-11:sm_19725036",
+              "2026-10-02:sm_19889278",
+              "2026-09-20:sm_19725043"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 0.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-20:sm_19725043:sm:262",
+              "2026-10-02:sm_19889278:sm:2451",
+              "2026-10-11:sm_19725036:sm:262",
+              "2026-10-17:sm_19725028:sm:262",
+              "2026-10-24:sm_19725018:sm:262",
+              "2026-10-31:sm_19725009:sm:262"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM262",
+        "serving": {
+          "homeAttack": 0.951,
+          "homeDefense": 0.949,
+          "awayAttack": 1.166,
+          "awayDefense": 0.868,
+          "homeAdvantage": 1.1696,
+          "leagueAvgGoals": 1.2309,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.951,
+          "homeDefense": 0.949,
+          "awayAttack": 1.166,
+          "awayDefense": 0.868,
+          "homeAdvantage": 1.1696,
+          "leagueAvgGoals": 1.2309,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19713858",
+      "competition_id": "sm:271",
+      "competition_name": "Superliga",
+      "competition_country": "Denmark",
+      "utc_date": "2026-11-06T18:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Silkeborg IF",
+      "away": "Lyngby Boldklub",
+      "resolved_div": "SM271",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Silkeborg IF",
+          "serving_team_id": "86",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.91,
+            "rolling_xg_against": 1.46,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:271",
+            "window": [
+              "2026-11-01:sm_19713880",
+              "2026-10-25:sm_19713884",
+              "2026-10-18:sm_19713901",
+              "2026-10-11:sm_19713907",
+              "2026-10-02:sm_19890883",
+              "2026-09-18:sm_19713923"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.91,
+            "rolling_xg_against": 1.46,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-18:sm_19713923:sm:271",
+              "2026-10-02:sm_19890883:sm:2451",
+              "2026-10-11:sm_19713907:sm:271",
+              "2026-10-18:sm_19713901:sm:271",
+              "2026-10-25:sm_19713884:sm:271",
+              "2026-11-01:sm_19713880:sm:271"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Lyngby Boldklub",
+          "serving_team_id": "2650",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.33,
+            "rolling_xg_against": 2.26,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 3.33,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:271",
+            "window": [
+              "2026-10-30:sm_19713876",
+              "2026-10-25:sm_19713888",
+              "2026-10-18:sm_19713898",
+              "2026-10-11:sm_19713911",
+              "2026-10-03:sm_19890895",
+              "2026-09-18:sm_19713923"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.33,
+            "rolling_xg_against": 2.26,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 3.33,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-18:sm_19713923:sm:271",
+              "2026-10-03:sm_19890895:sm:2451",
+              "2026-10-11:sm_19713911:sm:271",
+              "2026-10-18:sm_19713898:sm:271",
+              "2026-10-25:sm_19713888:sm:271",
+              "2026-10-30:sm_19713876:sm:271"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM271",
+        "serving": {
+          "homeAttack": 0.867,
+          "homeDefense": 1.12,
+          "awayAttack": 0.852,
+          "awayDefense": 1.221,
+          "homeAdvantage": 1.1748,
+          "leagueAvgGoals": 1.4248,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.867,
+          "homeDefense": 1.12,
+          "awayAttack": 0.852,
+          "awayDefense": 1.221,
+          "homeAdvantage": 1.1748,
+          "leagueAvgGoals": 1.4248,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19715549",
+      "competition_id": "sm:301",
+      "competition_name": "Ligue 1",
+      "competition_country": "France",
+      "utc_date": "2026-11-06T19:45:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Toulouse",
+      "away": "Strasbourg",
+      "resolved_div": "SM301",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Toulouse",
+          "serving_team_id": "tm_25581",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.63,
+            "rolling_xg_against": 1.39,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:301",
+            "window": [
+              "2026-11-01:sm_19715561",
+              "2026-10-25:sm_19715567",
+              "2026-10-16:sm_19715581",
+              "2026-10-10:sm_19715588",
+              "2026-10-03:sm_19889301",
+              "2026-09-19:sm_19715594"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.63,
+            "rolling_xg_against": 1.39,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-19:sm_19715594:sm:301",
+              "2026-10-03:sm_19889301:sm:2451",
+              "2026-10-10:sm_19715588:sm:301",
+              "2026-10-16:sm_19715581:sm:301",
+              "2026-10-25:sm_19715567:sm:301",
+              "2026-11-01:sm_19715561:sm:301"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Strasbourg",
+          "serving_team_id": "tm_74493",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.34,
+            "rolling_xg_against": 1.45,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:301",
+            "window": [
+              "2026-11-01:sm_19715558",
+              "2026-10-25:sm_19715568",
+              "2026-10-17:sm_19715576",
+              "2026-10-11:sm_19715587",
+              "2026-09-19:sm_19715595",
+              "2026-09-12:sm_19715602"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.34,
+            "rolling_xg_against": 1.45,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-12:sm_19715602:sm:301",
+              "2026-09-19:sm_19715595:sm:301",
+              "2026-10-11:sm_19715587:sm:301",
+              "2026-10-17:sm_19715576:sm:301",
+              "2026-10-25:sm_19715568:sm:301",
+              "2026-11-01:sm_19715558:sm:301"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM301",
+        "serving": {
+          "homeAttack": 1.059,
+          "homeDefense": 0.954,
+          "awayAttack": 1.185,
+          "awayDefense": 1.027,
+          "homeAdvantage": 1.2356,
+          "leagueAvgGoals": 1.3051,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.059,
+          "homeDefense": 0.954,
+          "awayAttack": 1.185,
+          "awayDefense": 1.027,
+          "homeAdvantage": 1.2356,
+          "leagueAvgGoals": 1.3051,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19717549",
+      "competition_id": "sm:304",
+      "competition_name": "Ligue 2",
+      "competition_country": "France",
+      "utc_date": "2026-11-06T19:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Nancy",
+      "away": "Sochaux",
+      "resolved_div": "SM304",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Nancy",
+          "serving_team_id": "tm_master_nancy",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.02,
+            "rolling_xg_against": 1.03,
+            "rolling_goals_for": 2.17,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:304",
+            "window": [
+              "2026-11-02:sm_19717560",
+              "2026-10-23:sm_19717570",
+              "2026-10-16:sm_19717584",
+              "2026-10-09:sm_19717589",
+              "2026-10-02:sm_19883504",
+              "2026-09-18:sm_19717594"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.02,
+            "rolling_xg_against": 1.03,
+            "rolling_goals_for": 2.17,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-18:sm_19717594:sm:304",
+              "2026-10-02:sm_19883504:sm:2451",
+              "2026-10-09:sm_19717589:sm:304",
+              "2026-10-16:sm_19717584:sm:304",
+              "2026-10-23:sm_19717570:sm:304",
+              "2026-11-02:sm_19717560:sm:304"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Sochaux",
+          "serving_team_id": "1842",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.26,
+            "rolling_xg_against": 1.42,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:304",
+            "window": [
+              "2026-11-02:sm_19717559",
+              "2026-10-23:sm_19717567",
+              "2026-10-17:sm_19717580",
+              "2026-10-09:sm_19717585",
+              "2026-10-02:sm_19889280",
+              "2026-09-18:sm_19717598"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.26,
+            "rolling_xg_against": 1.42,
+            "rolling_goals_for": 1.17,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-18:sm_19717598:sm:304",
+              "2026-10-02:sm_19889280:sm:2451",
+              "2026-10-09:sm_19717585:sm:304",
+              "2026-10-17:sm_19717580:sm:304",
+              "2026-10-23:sm_19717567:sm:304",
+              "2026-11-02:sm_19717559:sm:304"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM304",
+        "serving": {
+          "homeAttack": 1.134,
+          "homeDefense": 0.967,
+          "awayAttack": 0.813,
+          "awayDefense": 1.032,
+          "homeAdvantage": 1.1375,
+          "leagueAvgGoals": 1.2163,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.134,
+          "homeDefense": 0.967,
+          "awayAttack": 0.813,
+          "awayDefense": 1.032,
+          "homeAdvantage": 1.1375,
+          "leagueAvgGoals": 1.2163,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19763833",
+      "competition_id": "sm:325",
+      "competition_name": "Super League",
+      "competition_country": "Greece",
+      "utc_date": "2026-11-07T15:00:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Volos NFC",
+      "away": "Kifisia",
+      "resolved_div": "SM325",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Volos NFC",
+          "serving_team_id": "tm_master_volos_nfc",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.78,
+            "rolling_xg_against": 1.92,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:325",
+            "window": [
+              "2026-11-02:sm_19763843",
+              "2026-10-25:sm_19763847",
+              "2026-10-17:sm_19763854",
+              "2026-10-11:sm_19763862",
+              "2026-09-20:sm_19763869",
+              "2026-09-13:sm_19763877"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.78,
+            "rolling_xg_against": 1.92,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-13:sm_19763877:sm:325",
+              "2026-09-20:sm_19763869:sm:325",
+              "2026-10-11:sm_19763862:sm:325",
+              "2026-10-17:sm_19763854:sm:325",
+              "2026-10-25:sm_19763847:sm:325",
+              "2026-11-02:sm_19763843:sm:325"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Kifisia",
+          "serving_team_id": "27943",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.55,
+            "rolling_xg_against": 1.03,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:325",
+            "window": [
+              "2026-10-31:sm_19763841",
+              "2026-10-24:sm_19763844",
+              "2026-10-18:sm_19763855",
+              "2026-10-11:sm_19763861",
+              "2026-09-19:sm_19763870",
+              "2026-09-13:sm_19763876"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.55,
+            "rolling_xg_against": 1.03,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-13:sm_19763876:sm:325",
+              "2026-09-19:sm_19763870:sm:325",
+              "2026-10-11:sm_19763861:sm:325",
+              "2026-10-18:sm_19763855:sm:325",
+              "2026-10-24:sm_19763844:sm:325",
+              "2026-10-31:sm_19763841:sm:325"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM325",
+        "serving": {
+          "homeAttack": 0.766,
+          "homeDefense": 1.342,
+          "awayAttack": 1.061,
+          "awayDefense": 1.042,
+          "homeAdvantage": 1.3188,
+          "leagueAvgGoals": 1.1131,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.766,
+          "homeDefense": 1.342,
+          "awayAttack": 1.061,
+          "awayDefense": 1.042,
+          "homeAdvantage": 1.3188,
+          "leagueAvgGoals": 1.1131,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19721172",
+      "competition_id": "sm:372",
+      "competition_name": "Ligat ha'Al",
+      "competition_country": "Israel",
+      "utc_date": "2026-11-06T12:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Maccabi Tel Aviv",
+      "away": "Maccabi Petah Tikva",
+      "resolved_div": "SM372",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Maccabi Tel Aviv",
+          "serving_team_id": "2997",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2.83,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:372",
+            "window": [
+              "2026-11-02:sm_19721173",
+              "2026-10-24:sm_19721185",
+              "2026-10-19:sm_19721188",
+              "2026-10-10:sm_19721198",
+              "2026-09-19:sm_19721203",
+              "2026-09-14:sm_19721211"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2.83,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-14:sm_19721211:sm:372",
+              "2026-09-19:sm_19721203:sm:372",
+              "2026-10-10:sm_19721198:sm:372",
+              "2026-10-19:sm_19721188:sm:372",
+              "2026-10-24:sm_19721185:sm:372",
+              "2026-11-02:sm_19721173:sm:372"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Maccabi Petah Tikva",
+          "serving_team_id": "3074",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:372",
+            "window": [
+              "2026-11-01:sm_19721179",
+              "2026-10-24:sm_19721186",
+              "2026-10-17:sm_19721193",
+              "2026-10-10:sm_19721200",
+              "2026-09-19:sm_19721207",
+              "2026-09-15:sm_19721214"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2.83,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-15:sm_19721214:sm:372",
+              "2026-09-19:sm_19721207:sm:372",
+              "2026-10-10:sm_19721200:sm:372",
+              "2026-10-17:sm_19721193:sm:372",
+              "2026-10-24:sm_19721186:sm:372",
+              "2026-11-01:sm_19721179:sm:372"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM372",
+        "serving": {
+          "homeAttack": 1.726,
+          "homeDefense": 0.722,
+          "awayAttack": 0.911,
+          "awayDefense": 1.4,
+          "homeAdvantage": 1.0622,
+          "leagueAvgGoals": 1.4178,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.726,
+          "homeDefense": 0.722,
+          "awayAttack": 0.911,
+          "awayDefense": 1.4,
+          "homeAdvantage": 1.0622,
+          "leagueAvgGoals": 1.4178,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19713508",
+      "competition_id": "sm:384",
+      "competition_name": "Serie A",
+      "competition_country": "Italy",
+      "utc_date": "2026-11-06T19:45:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Venezia",
+      "away": "Udinese",
+      "resolved_div": "SM384",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Venezia",
+          "serving_team_id": "tm_89646",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.4,
+            "rolling_xg_against": 1.77,
+            "rolling_goals_for": 0.33,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:384",
+            "window": [
+              "2026-11-01:sm_19713525",
+              "2026-10-28:sm_19713528",
+              "2026-10-25:sm_19713544",
+              "2026-10-17:sm_19713548",
+              "2026-10-12:sm_19713567",
+              "2026-09-19:sm_19713568"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.4,
+            "rolling_xg_against": 1.77,
+            "rolling_goals_for": 0.33,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-19:sm_19713568:sm:384",
+              "2026-10-12:sm_19713567:sm:384",
+              "2026-10-17:sm_19713548:sm:384",
+              "2026-10-25:sm_19713544:sm:384",
+              "2026-10-28:sm_19713528:sm:384",
+              "2026-11-01:sm_19713525:sm:384"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Udinese",
+          "serving_team_id": "tm_46107",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.92,
+            "rolling_xg_against": 2.16,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:384",
+            "window": [
+              "2026-10-31:sm_19713518",
+              "2026-10-28:sm_19713532",
+              "2026-10-25:sm_19713538",
+              "2026-10-18:sm_19713549",
+              "2026-10-12:sm_19713558",
+              "2026-09-26:sm_19887225"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.92,
+            "rolling_xg_against": 2.16,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-26:sm_19887225:sm:2451",
+              "2026-10-12:sm_19713558:sm:384",
+              "2026-10-18:sm_19713549:sm:384",
+              "2026-10-25:sm_19713538:sm:384",
+              "2026-10-28:sm_19713532:sm:384",
+              "2026-10-31:sm_19713518:sm:384"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM384",
+        "serving": {
+          "homeAttack": 0.778,
+          "homeDefense": 1.195,
+          "awayAttack": 0.866,
+          "awayDefense": 1.256,
+          "homeAdvantage": 1.0823,
+          "leagueAvgGoals": 1.2635,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.778,
+          "homeDefense": 1.195,
+          "awayAttack": 0.866,
+          "awayDefense": 1.256,
+          "homeAdvantage": 1.0823,
+          "leagueAvgGoals": 1.2635,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19768818",
+      "competition_id": "sm:387",
+      "competition_name": "Serie B",
+      "competition_country": "Italy",
+      "utc_date": "2026-11-06T19:30:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Ascoli",
+      "away": "Palermo",
+      "resolved_div": "SM387",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Ascoli",
+          "serving_team_id": "1006",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.47,
+            "rolling_xg_against": 1.08,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:387",
+            "window": [
+              "2026-11-01:sm_19768828",
+              "2026-10-27:sm_19768838",
+              "2026-10-24:sm_19768846",
+              "2026-10-17:sm_19768858",
+              "2026-10-10:sm_19768860",
+              "2026-09-19:sm_19768877"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.47,
+            "rolling_xg_against": 1.08,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-19:sm_19768877:sm:387",
+              "2026-10-10:sm_19768860:sm:387",
+              "2026-10-17:sm_19768858:sm:387",
+              "2026-10-24:sm_19768846:sm:387",
+              "2026-10-27:sm_19768838:sm:387",
+              "2026-11-01:sm_19768828:sm:387"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Palermo",
+          "serving_team_id": "1216",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.49,
+            "rolling_xg_against": 1.48,
+            "rolling_goals_for": 2.67,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:387",
+            "window": [
+              "2026-11-01:sm_19768821",
+              "2026-10-28:sm_19768830",
+              "2026-10-25:sm_19768841",
+              "2026-10-17:sm_19768852",
+              "2026-10-10:sm_19768864",
+              "2026-09-19:sm_19768870"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.49,
+            "rolling_xg_against": 1.48,
+            "rolling_goals_for": 2.67,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-19:sm_19768870:sm:387",
+              "2026-10-10:sm_19768864:sm:387",
+              "2026-10-17:sm_19768852:sm:387",
+              "2026-10-25:sm_19768841:sm:387",
+              "2026-10-28:sm_19768830:sm:387",
+              "2026-11-01:sm_19768821:sm:387"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM387",
+        "serving": {
+          "homeAttack": 1.157,
+          "homeDefense": 0.772,
+          "awayAttack": 1.527,
+          "awayDefense": 0.985,
+          "homeAdvantage": 1.2831,
+          "leagueAvgGoals": 1.1178,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.157,
+          "homeDefense": 0.772,
+          "awayAttack": 1.527,
+          "awayDefense": 0.985,
+          "homeAdvantage": 1.2831,
+          "leagueAvgGoals": 1.1178,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19629537",
+      "competition_id": "sm:444",
+      "competition_name": "Eliteserien",
+      "competition_country": "Norway",
+      "utc_date": "2026-11-07T15:00:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Kristiansund",
+      "away": "Vålerenga",
+      "resolved_div": "SM444",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Kristiansund",
+          "serving_team_id": "869",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.01,
+            "rolling_xg_against": 3.04,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:444",
+            "window": [
+              "2026-11-01:sm_19629543",
+              "2026-10-25:sm_19629649",
+              "2026-10-17:sm_19629554",
+              "2026-10-10:sm_19629563",
+              "2026-10-04:sm_19887279",
+              "2026-09-19:sm_19629570"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.01,
+            "rolling_xg_against": 3.04,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 2.83,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-19:sm_19629570:sm:444",
+              "2026-10-04:sm_19887279:sm:2451",
+              "2026-10-10:sm_19629563:sm:444",
+              "2026-10-17:sm_19629554:sm:444",
+              "2026-10-25:sm_19629649:sm:444",
+              "2026-11-01:sm_19629543:sm:444"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Vålerenga",
+          "serving_team_id": "502",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.02,
+            "rolling_xg_against": 1.73,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:444",
+            "window": [
+              "2026-11-01:sm_19629541",
+              "2026-10-24:sm_19629651",
+              "2026-10-18:sm_19629548",
+              "2026-10-12:sm_19629560",
+              "2026-09-20:sm_19629564",
+              "2026-09-12:sm_19629575"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.02,
+            "rolling_xg_against": 1.73,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-12:sm_19629575:sm:444",
+              "2026-09-20:sm_19629564:sm:444",
+              "2026-10-12:sm_19629560:sm:444",
+              "2026-10-18:sm_19629548:sm:444",
+              "2026-10-24:sm_19629651:sm:444",
+              "2026-11-01:sm_19629541:sm:444"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM444",
+        "serving": {
+          "homeAttack": 0.963,
+          "homeDefense": 1.387,
+          "awayAttack": 1.211,
+          "awayDefense": 1.123,
+          "homeAdvantage": 1.2815,
+          "leagueAvgGoals": 1.4036,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.963,
+          "homeDefense": 1.387,
+          "awayAttack": 1.211,
+          "awayDefense": 1.123,
+          "homeAdvantage": 1.2815,
+          "leagueAvgGoals": 1.4036,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19784505",
+      "competition_id": "sm:45",
+      "competition_name": "Women's Super League",
+      "competition_country": "England",
+      "utc_date": "2026-11-07T12:45:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "Manchester City W",
+      "away": "West Ham W",
+      "resolved_div": "SM45",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Manchester City W",
+          "serving_team_id": "59584",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:45",
+            "window": [
+              "2026-11-01:sm_19784517",
+              "2026-10-29:sm_19879518",
+              "2026-10-25:sm_19784539",
+              "2026-10-18:sm_19784541",
+              "2026-10-04:sm_19784554",
+              "2026-10-01:sm_19879528"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-10-01:sm_19879528:sm:1419",
+              "2026-10-04:sm_19784554:sm:45",
+              "2026-10-18:sm_19784541:sm:45",
+              "2026-10-25:sm_19784539:sm:45",
+              "2026-10-29:sm_19879518:sm:1419",
+              "2026-11-01:sm_19784517:sm:45"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:1419 (UEFA Women's Champions League, Europe)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "West Ham W",
+          "serving_team_id": "228102",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:45",
+            "window": [
+              "2026-11-01:sm_19784515",
+              "2026-10-24:sm_19784536",
+              "2026-10-18:sm_19784544",
+              "2026-10-04:sm_19784556",
+              "2026-09-27:sm_19784576",
+              "2026-09-20:sm_19784582"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-20:sm_19784582:sm:45",
+              "2026-09-27:sm_19784576:sm:45",
+              "2026-10-04:sm_19784556:sm:45",
+              "2026-10-18:sm_19784544:sm:45",
+              "2026-10-24:sm_19784536:sm:45",
+              "2026-11-01:sm_19784515:sm:45"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM45",
+        "serving": {
+          "homeAttack": 1.569,
+          "homeDefense": 0.782,
+          "awayAttack": 0.832,
+          "awayDefense": 1.128,
+          "homeAdvantage": 1.1069,
+          "leagueAvgGoals": 1.4908,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.569,
+          "homeDefense": 0.782,
+          "awayAttack": 0.832,
+          "awayDefense": 1.128,
+          "homeAdvantage": 1.1069,
+          "leagueAvgGoals": 1.4908,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19716302",
+      "competition_id": "sm:453",
+      "competition_name": "Ekstraklasa",
+      "competition_country": "Poland",
+      "utc_date": "2026-11-06T17:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Motor Lublin",
+      "away": "Wisła Płock",
+      "resolved_div": "SM453",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Motor Lublin",
+          "serving_team_id": "11356",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 2.26,
+            "rolling_xg_against": 1.06,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:453",
+            "window": [
+              "2026-10-30:sm_19716310",
+              "2026-10-23:sm_19716320",
+              "2026-10-17:sm_19716329",
+              "2026-10-12:sm_19716336",
+              "2026-09-19:sm_19716347",
+              "2026-09-11:sm_19716352"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 2.26,
+            "rolling_xg_against": 1.06,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-11:sm_19716352:sm:453",
+              "2026-09-19:sm_19716347:sm:453",
+              "2026-10-12:sm_19716336:sm:453",
+              "2026-10-17:sm_19716329:sm:453",
+              "2026-10-23:sm_19716320:sm:453",
+              "2026-10-30:sm_19716310:sm:453"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Wisła Płock",
+          "serving_team_id": "2778",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.06,
+            "rolling_xg_against": 1.82,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:453",
+            "window": [
+              "2026-10-31:sm_19716304",
+              "2026-10-25:sm_19716312",
+              "2026-10-19:sm_19716322",
+              "2026-10-09:sm_19716338",
+              "2026-10-02:sm_19887242",
+              "2026-09-20:sm_19716340"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.06,
+            "rolling_xg_against": 1.82,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 1.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-20:sm_19716340:sm:453",
+              "2026-10-02:sm_19887242:sm:2451",
+              "2026-10-09:sm_19716338:sm:453",
+              "2026-10-19:sm_19716322:sm:453",
+              "2026-10-25:sm_19716312:sm:453",
+              "2026-10-31:sm_19716304:sm:453"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM453",
+        "serving": {
+          "homeAttack": 1.264,
+          "homeDefense": 1.056,
+          "awayAttack": 0.78,
+          "awayDefense": 1.042,
+          "homeAdvantage": 1.3095,
+          "leagueAvgGoals": 1.2172,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.264,
+          "homeDefense": 1.056,
+          "awayAttack": 0.78,
+          "awayDefense": 1.042,
+          "homeAdvantage": 1.3095,
+          "leagueAvgGoals": 1.2172,
+          "shrinkageWeights": {
+            "home": 0.273,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19736764",
+      "competition_id": "sm:462",
+      "competition_name": "Liga Portugal",
+      "competition_country": "Portugal",
+      "utc_date": "2026-11-06T20:45:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Famalicão",
+      "away": "Arouca",
+      "resolved_div": "SM462",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Famalicão",
+          "serving_team_id": "3161",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.67,
+            "rolling_xg_against": 1.57,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:462",
+            "window": [
+              "2026-11-01:sm_19736774",
+              "2026-10-25:sm_19736780",
+              "2026-10-18:sm_19888018",
+              "2026-10-12:sm_19736790",
+              "2026-09-19:sm_19736799",
+              "2026-09-13:sm_19736808"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.67,
+            "rolling_xg_against": 1.57,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-13:sm_19736808:sm:462",
+              "2026-09-19:sm_19736799:sm:462",
+              "2026-10-12:sm_19736790:sm:462",
+              "2026-10-18:sm_19888018:sm:468",
+              "2026-10-25:sm_19736780:sm:462",
+              "2026-11-01:sm_19736774:sm:462"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Arouca",
+          "serving_team_id": "4092",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.2,
+            "rolling_xg_against": 0.87,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:462",
+            "window": [
+              "2026-11-01:sm_19736775",
+              "2026-10-24:sm_19736785",
+              "2026-10-11:sm_19736793",
+              "2026-09-19:sm_19736796",
+              "2026-09-13:sm_19736811",
+              "2026-09-07:sm_19736819"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.2,
+            "rolling_xg_against": 0.87,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-07:sm_19736819:sm:462",
+              "2026-09-13:sm_19736811:sm:462",
+              "2026-09-19:sm_19736796:sm:462",
+              "2026-10-11:sm_19736793:sm:462",
+              "2026-10-24:sm_19736785:sm:462",
+              "2026-11-01:sm_19736775:sm:462"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM462",
+        "serving": {
+          "homeAttack": 0.888,
+          "homeDefense": 0.942,
+          "awayAttack": 0.998,
+          "awayDefense": 0.976,
+          "homeAdvantage": 1.1634,
+          "leagueAvgGoals": 1.2252,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.888,
+          "homeDefense": 0.942,
+          "awayAttack": 0.998,
+          "awayDefense": 0.976,
+          "homeAdvantage": 1.1634,
+          "leagueAvgGoals": 1.2252,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19736467",
+      "competition_id": "sm:465",
+      "competition_name": "Liga Portugal 2",
+      "competition_country": "Portugal",
+      "utc_date": "2026-11-06T18:45:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "AVS",
+      "away": "Vizela",
+      "resolved_div": "SM465",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "AVS",
+          "serving_team_id": "269225",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:465",
+            "window": [
+              "2026-10-31:sm_19736475",
+              "2026-10-25:sm_19736485",
+              "2026-10-17:sm_19888014",
+              "2026-10-09:sm_19736489",
+              "2026-09-20:sm_19789741",
+              "2026-09-13:sm_19736503"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.33,
+            "rolling_goals_against": 0.67,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-13:sm_19736503:sm:465",
+              "2026-09-20:sm_19789741:sm:468",
+              "2026-10-09:sm_19736489:sm:465",
+              "2026-10-17:sm_19888014:sm:468",
+              "2026-10-25:sm_19736485:sm:465",
+              "2026-10-31:sm_19736475:sm:465"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Vizela",
+          "serving_team_id": "8164",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:465",
+            "window": [
+              "2026-11-01:sm_19736469",
+              "2026-10-23:sm_19736484",
+              "2026-10-17:sm_19888005",
+              "2026-10-10:sm_19736487",
+              "2026-09-20:sm_19789731",
+              "2026-09-14:sm_19736499"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-14:sm_19736499:sm:465",
+              "2026-09-20:sm_19789731:sm:468",
+              "2026-10-10:sm_19736487:sm:465",
+              "2026-10-17:sm_19888005:sm:468",
+              "2026-10-23:sm_19736484:sm:465",
+              "2026-11-01:sm_19736469:sm:465"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM465",
+        "serving": {
+          "homeAttack": 1.048,
+          "homeDefense": 0.875,
+          "awayAttack": 0.957,
+          "awayDefense": 0.939,
+          "homeAdvantage": 1.1216,
+          "leagueAvgGoals": 1.1594,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.048,
+          "homeDefense": 0.875,
+          "awayAttack": 0.957,
+          "awayDefense": 0.939,
+          "homeAdvantage": 1.1216,
+          "leagueAvgGoals": 1.1594,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19729643",
+      "competition_id": "sm:474",
+      "competition_name": "Superliga",
+      "competition_country": "Romania",
+      "utc_date": "2026-11-06T15:30:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "UTA Arad",
+      "away": "Petrolul 52",
+      "resolved_div": "SM474",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "UTA Arad",
+          "serving_team_id": "8474",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 0.83,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:474",
+            "window": [
+              "2026-11-01:sm_19729651",
+              "2026-10-24:sm_19729658",
+              "2026-10-18:sm_19729667",
+              "2026-10-10:sm_19729676",
+              "2026-09-18:sm_19729685",
+              "2026-09-11:sm_19729694"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 0.83,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-09-11:sm_19729694:sm:474",
+              "2026-09-18:sm_19729685:sm:474",
+              "2026-10-10:sm_19729676:sm:474",
+              "2026-10-18:sm_19729667:sm:474",
+              "2026-10-24:sm_19729658:sm:474",
+              "2026-11-01:sm_19729651:sm:474"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "Petrolul 52",
+          "serving_team_id": "132584",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "xg_weighted_toward": "sm:474",
+            "window": [
+              "2026-10-31:sm_19729652",
+              "2026-10-23:sm_19729661",
+              "2026-10-17:sm_19729670",
+              "2026-10-11:sm_19729679",
+              "2026-10-03:sm_19887257",
+              "2026-10-02:sm_19887237"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": null,
+            "rolling_xg_against": null,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 0,
+            "window": [
+              "2026-10-02:sm_19887237:sm:2451",
+              "2026-10-03:sm_19887257:sm:2451",
+              "2026-10-11:sm_19729679:sm:474",
+              "2026-10-17:sm_19729670:sm:474",
+              "2026-10-23:sm_19729661:sm:474",
+              "2026-10-31:sm_19729652:sm:474"
+            ]
+          },
+          "diffs": {
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM474",
+        "serving": {
+          "homeAttack": 0.949,
+          "homeDefense": 1.036,
+          "awayAttack": 0.964,
+          "awayDefense": 1.017,
+          "homeAdvantage": 1.4024,
+          "leagueAvgGoals": 1.0467,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_goals",
+            "away": "thestats_observed_goals"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 0.949,
+          "homeDefense": 1.036,
+          "awayAttack": 0.964,
+          "awayDefense": 1.017,
+          "homeAdvantage": 1.4024,
+          "leagueAvgGoals": 1.0467,
+          "shrinkageWeights": {
+            "home": 0.176,
+            "away": 0.176
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19726747",
+      "competition_id": "sm:486",
+      "competition_name": "Premier League",
+      "competition_country": "Russia",
+      "utc_date": "2026-11-06T16:30:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Lokomotiv Moskva",
+      "away": "Rubin Kazan",
+      "resolved_div": "SM486",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Lokomotiv Moskva",
+          "serving_team_id": "490",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.69,
+            "rolling_xg_against": 2.15,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 4,
+            "xg_weighted_toward": "sm:486",
+            "window": [
+              "2026-11-01:sm_19726753",
+              "2026-10-25:sm_19726766",
+              "2026-10-17:sm_19726769",
+              "2026-10-10:sm_19726775",
+              "2026-10-03:sm_19889298",
+              "2026-09-26:sm_19889421"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.69,
+            "rolling_xg_against": 2.15,
+            "rolling_goals_for": 1.67,
+            "rolling_goals_against": 1.83,
+            "sample_size": 6,
+            "observed_xg_samples": 4,
+            "window": [
+              "2026-09-26:sm_19889421:sm:2451",
+              "2026-10-03:sm_19889298:sm:2451",
+              "2026-10-10:sm_19726775:sm:486",
+              "2026-10-17:sm_19726769:sm:486",
+              "2026-10-25:sm_19726766:sm:486",
+              "2026-11-01:sm_19726753:sm:486"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Rubin Kazan",
+          "serving_team_id": "35",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 0.78,
+            "rolling_xg_against": 1.55,
+            "rolling_goals_for": 0.5,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:486",
+            "window": [
+              "2026-10-31:sm_19726751",
+              "2026-10-24:sm_19726762",
+              "2026-10-18:sm_19726773",
+              "2026-10-11:sm_19726776",
+              "2026-10-03:sm_19890890",
+              "2026-09-16:sm_19726784"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 0.78,
+            "rolling_xg_against": 1.55,
+            "rolling_goals_for": 0.5,
+            "rolling_goals_against": 1.33,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-09-16:sm_19726784:sm:486",
+              "2026-10-03:sm_19890890:sm:2451",
+              "2026-10-11:sm_19726776:sm:486",
+              "2026-10-18:sm_19726773:sm:486",
+              "2026-10-24:sm_19726762:sm:486",
+              "2026-10-31:sm_19726751:sm:486"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM486",
+        "serving": {
+          "homeAttack": 1.261,
+          "homeDefense": 1.198,
+          "awayAttack": 0.804,
+          "awayDefense": 1.008,
+          "homeAdvantage": 1.2372,
+          "leagueAvgGoals": 1.1712,
+          "shrinkageWeights": {
+            "home": 0.2,
+            "away": 0.238
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.261,
+          "homeDefense": 1.198,
+          "awayAttack": 0.804,
+          "awayDefense": 1.008,
+          "homeAdvantage": 1.2372,
+          "leagueAvgGoals": 1.1712,
+          "shrinkageWeights": {
+            "home": 0.2,
+            "away": 0.238
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19722748",
+      "competition_id": "sm:501",
+      "competition_name": "Premiership",
+      "competition_country": "Scotland",
+      "utc_date": "2026-11-07T15:00:00.000Z",
+      "cutoff": "2026-11-07",
+      "home": "St. Johnstone",
+      "away": "Dundee",
+      "resolved_div": "SM501",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "St. Johnstone",
+          "serving_team_id": null,
+          "pass": false,
+          "classification": "team-resolution difference (nama tidak ter-resolve ke team_id)",
+          "near_match_candidates_in_teams_table": [
+            "tm_master_st_johnstone (\"St Johnstone\")"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Dundee",
+          "serving_team_id": "tm_master_dundee",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.46,
+            "rolling_xg_against": 2.01,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:501",
+            "window": [
+              "2026-10-28:sm_19722761",
+              "2026-10-24:sm_19722764",
+              "2026-10-17:sm_19722773",
+              "2026-10-10:sm_19722779",
+              "2026-09-19:sm_19722787",
+              "2026-09-06:sm_19722791"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.46,
+            "rolling_xg_against": 2.01,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 1.5,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-06:sm_19722791:sm:501",
+              "2026-09-19:sm_19722787:sm:501",
+              "2026-10-10:sm_19722779:sm:501",
+              "2026-10-17:sm_19722773:sm:501",
+              "2026-10-24:sm_19722764:sm:501",
+              "2026-10-28:sm_19722761:sm:501"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": false,
+      "parameter_check": {
+        "pass": false,
+        "classification": "team-resolution difference (fit produksi / team_id tidak tersedia untuk div saji)",
+        "serving_div": "SM501"
+      },
+      "parameter_pass": false
+    },
+    {
+      "match_id": "sm_19732625",
+      "competition_id": "sm:564",
+      "competition_name": "La Liga",
+      "competition_country": "Spain",
+      "utc_date": "2026-11-06T20:00:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Sevilla",
+      "away": "Deportivo Alavés",
+      "resolved_div": "SM564",
+      "gate_status": "calibrated",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Sevilla",
+          "serving_team_id": "tm_51959",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.79,
+            "rolling_xg_against": 1.28,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 2.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:564",
+            "window": [
+              "2026-11-01:sm_19732637",
+              "2026-10-29:sm_19893353",
+              "2026-10-26:sm_19732644",
+              "2026-10-18:sm_19732655",
+              "2026-10-12:sm_19732668",
+              "2026-10-02:sm_19889294"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.79,
+            "rolling_xg_against": 1.28,
+            "rolling_goals_for": 1.83,
+            "rolling_goals_against": 2.17,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-10-02:sm_19889294:sm:2451",
+              "2026-10-12:sm_19732668:sm:564",
+              "2026-10-18:sm_19732655:sm:564",
+              "2026-10-26:sm_19732644:sm:564",
+              "2026-10-29:sm_19893353:sm:570",
+              "2026-11-01:sm_19732637:sm:564"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": [
+            "sm:2451 (Club Friendlies 3, World)"
+          ]
+        },
+        {
+          "side": "away",
+          "team": "Deportivo Alavés",
+          "serving_team_id": "tm_46488",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.07,
+            "rolling_xg_against": 1.48,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:564",
+            "window": [
+              "2026-10-31:sm_19732638",
+              "2026-10-23:sm_19732652",
+              "2026-10-18:sm_19732661",
+              "2026-10-10:sm_19732672",
+              "2026-09-19:sm_19732682",
+              "2026-09-15:sm_19732692"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.07,
+            "rolling_xg_against": 1.48,
+            "rolling_goals_for": 0.67,
+            "rolling_goals_against": 2,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-15:sm_19732692:sm:564",
+              "2026-09-19:sm_19732682:sm:564",
+              "2026-10-10:sm_19732672:sm:564",
+              "2026-10-18:sm_19732661:sm:564",
+              "2026-10-23:sm_19732652:sm:564",
+              "2026-10-31:sm_19732638:sm:564"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM564",
+        "serving": {
+          "homeAttack": 1.118,
+          "homeDefense": 1.082,
+          "awayAttack": 0.911,
+          "awayDefense": 1.073,
+          "homeAdvantage": 1.341,
+          "leagueAvgGoals": 1.1773,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.118,
+          "homeDefense": 1.082,
+          "awayAttack": 0.911,
+          "awayDefense": 1.073,
+          "homeAdvantage": 1.341,
+          "leagueAvgGoals": 1.1773,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    },
+    {
+      "match_id": "sm_19744997",
+      "competition_id": "sm:567",
+      "competition_name": "La Liga 2",
+      "competition_country": "Spain",
+      "utc_date": "2026-11-06T19:30:00.000Z",
+      "cutoff": "2026-11-06",
+      "home": "Castellón",
+      "away": "SD Eibar",
+      "resolved_div": "SM567",
+      "gate_status": "partial",
+      "league_resolution_via": "source-id",
+      "rolling_checks": [
+        {
+          "side": "home",
+          "team": "Castellón",
+          "serving_team_id": "10008",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.19,
+            "rolling_xg_against": 1.32,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "xg_weighted_toward": "sm:567",
+            "window": [
+              "2026-11-01:sm_19745010",
+              "2026-10-29:sm_19893314",
+              "2026-10-25:sm_19745018",
+              "2026-10-17:sm_19745026",
+              "2026-10-11:sm_19745043",
+              "2026-10-04:sm_19745052"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.19,
+            "rolling_xg_against": 1.32,
+            "rolling_goals_for": 2,
+            "rolling_goals_against": 0.5,
+            "sample_size": 6,
+            "observed_xg_samples": 5,
+            "window": [
+              "2026-10-04:sm_19745052:sm:567",
+              "2026-10-11:sm_19745043:sm:567",
+              "2026-10-17:sm_19745026:sm:567",
+              "2026-10-25:sm_19745018:sm:567",
+              "2026-10-29:sm_19893314:sm:570",
+              "2026-11-01:sm_19745010:sm:567"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        },
+        {
+          "side": "away",
+          "team": "SD Eibar",
+          "serving_team_id": "60",
+          "pass": true,
+          "classification": null,
+          "serving": {
+            "rolling_xg_for": 1.71,
+            "rolling_xg_against": 1.64,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "xg_weighted_toward": "sm:567",
+            "window": [
+              "2026-10-31:sm_19745007",
+              "2026-10-24:sm_19745017",
+              "2026-10-17:sm_19745030",
+              "2026-10-12:sm_19745036",
+              "2026-10-03:sm_19745055",
+              "2026-09-27:sm_19745063"
+            ]
+          },
+          "harness": {
+            "rolling_xg_for": 1.71,
+            "rolling_xg_against": 1.64,
+            "rolling_goals_for": 1.5,
+            "rolling_goals_against": 1.67,
+            "sample_size": 6,
+            "observed_xg_samples": 6,
+            "window": [
+              "2026-09-27:sm_19745063:sm:567",
+              "2026-10-03:sm_19745055:sm:567",
+              "2026-10-12:sm_19745036:sm:567",
+              "2026-10-17:sm_19745030:sm:567",
+              "2026-10-24:sm_19745017:sm:567",
+              "2026-10-31:sm_19745007:sm:567"
+            ]
+          },
+          "diffs": {
+            "rolling_xg_for": 0,
+            "rolling_xg_against": 0,
+            "rolling_goals_for": 0,
+            "rolling_goals_against": 0,
+            "sample_size": 0,
+            "observed_xg_samples": 0
+          },
+          "foreign_domestic_competitions_in_window": []
+        }
+      ],
+      "rolling_pass": true,
+      "parameter_check": {
+        "pass": true,
+        "classification": null,
+        "serving_div": "SM567",
+        "serving": {
+          "homeAttack": 1.222,
+          "homeDefense": 0.943,
+          "awayAttack": 1.138,
+          "awayDefense": 0.952,
+          "homeAdvantage": 1.2882,
+          "leagueAvgGoals": 1.1566,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "telemetry_source": {
+            "home": "thestats_observed_xg",
+            "away": "thestats_observed_xg"
+          },
+          "home_source": "primary_league",
+          "away_source": "primary_league"
+        },
+        "harness": {
+          "homeAttack": 1.222,
+          "homeDefense": 0.943,
+          "awayAttack": 1.138,
+          "awayDefense": 0.952,
+          "homeAdvantage": 1.2882,
+          "leagueAvgGoals": 1.1566,
+          "shrinkageWeights": {
+            "home": 0.238,
+            "away": 0.273
+          },
+          "prior_source_home": "primary_league",
+          "prior_source_away": "primary_league"
+        },
+        "diffs": {
+          "homeAttack": 0,
+          "homeDefense": 0,
+          "awayAttack": 0,
+          "awayDefense": 0,
+          "homeAdvantage": 0,
+          "leagueAvgGoals": 0,
+          "shrinkage_weight_home": 0,
+          "shrinkage_weight_away": 0,
+          "lambda_implied": 0,
+          "mu_implied": 0
+        }
+      },
+      "parameter_pass": true
+    }
+  ]
+}
