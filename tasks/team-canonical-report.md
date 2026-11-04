@@ -1,16 +1,16 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-04T20:55:22.761Z
+Dibangun: 2026-11-04T20:59:08.683Z
 
 ## Angka
 
 - Baris tim sumber (tabel teams): **6764**
-- Tim kanonik hasil: **6559**
-- Grup tergabung (>1 baris sumber): **202** (menyerap 213 baris ekstra)
-- Grup lintas sistem (>1 sumber): **187**
-- Tim bernama sengketa (≥2 negara): **4** entri
+- Tim kanonik hasil: **6558**
+- Grup tergabung (>1 baris sumber): **203** (menyerap 214 baris ekstra)
+- Grup lintas sistem (>1 sumber): **188**
+- Tim bernama sengketa (≥2 negara): **2** entri
 - Pasangan kandidat mirip BELUM digabung: **8**
-- Keputusan resolusi fase 3 diterapkan: **26 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
+- Keputusan resolusi fase 3 diterapkan: **24 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
 - Permukaan standings: **164 id** tanpa baris teams didaftarkan dari nama fixture; **3 id** terdaftar id-only (name_unknown: 828, 5632, 976). Cakupan standings sekarang penuh.
 - Permukaan fixture: **111 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
 
@@ -42,6 +42,7 @@ Dibangun: 2026-11-04T20:55:22.761Z
 - GABUNG `83` + `tm_37445` — FC Barcelona = Barcelona; imbuhan FC saja.
 - GABUNG `3608` + `8364` — Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda.
 - GABUNG `4508` + `tm_11910` — 'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG.
+- GABUNG `fd_goztep` + `3897` — Nama CSV football-data 'Goztep' adalah Göztepe yang terpotek diakritiknya (Turki, id SM 3897 'Göztepe') — ketahuan dari baris form 31 Okt: lawan Fenerbahçe tercatat dua kali karena dua id ini tidak tergabung.
 - BEDA `10002` + `2837` — River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar).
 - BEDA `132434` + `94617` — Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah).
 - BEDA `2079` + `28207` — San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda.

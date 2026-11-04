@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:55:22.761Z",
+  "generated_at": "2026-11-04T20:59:08.683Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -257,22 +257,6 @@
       ],
       "aliases": [
         "Gaziantep"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_goztep",
-      "name": "Goztep",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_goztep",
-          "name_as_stored": "Goztep"
-        }
-      ],
-      "aliases": [
-        "Goztep"
       ],
       "contested_name": false
     },
@@ -79579,15 +79563,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_goztep",
+          "name_as_stored": "Goztep"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3897",
           "name_as_stored": "Göztepe"
         }
       ],
       "aliases": [
+        "Goztep",
         "Göztepe"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Nama CSV football-data 'Goztep' adalah Göztepe yang terpotek diakritiknya (Turki, id SM 3897 'Göztepe') — ketahuan dari baris form 31 Okt: lawan Fenerbahçe tercatat dua kali karena dua id ini tidak tergabung."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3899",
@@ -89553,13 +89547,13 @@
         },
         {
           "system": "sportmonks",
-          "team_id": "254165",
-          "name_as_stored": "CF Benfica"
+          "team_id": "605",
+          "name_as_stored": "Benfica"
         },
         {
           "system": "sportmonks",
-          "team_id": "605",
-          "name_as_stored": "Benfica"
+          "team_id": "254165",
+          "name_as_stored": "CF Benfica"
         }
       ],
       "aliases": [
@@ -89567,12 +89561,7 @@
         "CF Benfica",
         "SL Benfica"
       ],
-      "contested_name": true,
-      "resolution_notes": [
-        "PECAHAN ENTITAS SM, bukan klub lain: id 254165 (nama tersimpan 'CF Benfica') membawa match Eropa SL Benfica (UCL 26, UEL 9) + sebagian domestik; id 605 membawa domestik (Liga Portugal 68). Digabung ke 605, nama pakem 'SL Benfica'. BUKAN Clube Futebol Benfica.",
-        "Nama persis 'SL Benfica'; sisa master 2 match, digabung ke pembawa utama 605."
-      ],
-      "distinct_from": []
+      "contested_name": false
     },
     {
       "canonical_id": "sm:6050",
@@ -105407,27 +105396,23 @@
     {
       "canonical_id": "sm:9908",
       "name": "Al Ahli",
-      "country": "Asia",
+      "country": "Saudi Arabia",
       "members": [
         {
           "system": "sportmonks",
-          "team_id": "17837",
+          "team_id": "9908",
           "name_as_stored": "Al Ahli"
         },
         {
           "system": "sportmonks",
-          "team_id": "9908",
+          "team_id": "17837",
           "name_as_stored": "Al Ahli"
         }
       ],
       "aliases": [
         "Al Ahli"
       ],
-      "contested_name": true,
-      "resolution_notes": [
-        "Satu klub: Al-Ahli Saudi. Kedua id main di kompetisi yang sama (Saudi Pro sm:944 + ACL Elite sm:1085); 17837 cuma pecahan berlabel negara 'Asia'."
-      ],
-      "distinct_from": []
+      "contested_name": false
     },
     {
       "canonical_id": "sm:9917",

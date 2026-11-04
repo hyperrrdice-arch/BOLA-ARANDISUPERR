@@ -82,6 +82,7 @@ const MERGE_PAIRS: [string, string, string][] = [
   ["83", "tm_37445", "FC Barcelona = Barcelona; imbuhan FC saja."],
   ["3608", "8364", "Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda."],
   ["4508", "tm_11910", "'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG."],
+  ["fd_goztep", "3897", "Nama CSV football-data 'Goztep' adalah Göztepe yang terpotek diakritiknya (Turki, id SM 3897 'Göztepe') — ketahuan dari baris form 31 Okt: lawan Fenerbahçe tercatat dua kali karena dua id ini tidak tergabung."],
 ];
 
 /** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */
@@ -169,6 +170,20 @@ const CANONICAL_ID_OVERRIDES: Record<string, string> = {
   "8364": "sm:8364", // Racing Club: 8364 pembawa 237 match, 3608 baris standings saja
 };
 
+/**
+ * Label benua/kategori dari Sportmonks yang BUKAN negara ("World" saja
+ * menempel di 3.286 baris tim). Untuk logika grouping/sengketa label ini
+ * diperlakukan sebagai negara tidak diketahui — kalau tidak, nama yang
+ * sama terbelah hanya karena satu baris berlabel "World" dan baris lain
+ * berlabel negara aslinya.
+ */
+const NON_COUNTRIES = new Set([
+  "World", "Europe", "Asia", "Africa", "South America", "North America",
+  "Oceania", "Antarctica",
+]);
+const realCountry = (c: string | null): string | null =>
+  c && !NON_COUNTRIES.has(c) ? c : null;
+
 function systemOf(teamId: string): System {
   if (/^\d+$/.test(teamId)) return "sportmonks";
   if (teamId.startsWith("tm_")) return "thestats";
@@ -240,19 +255,21 @@ function main() {
   }
 
   // Negara yang diketahui per nama ternormalisasi (untuk deteksi sengketa).
+  // Hanya negara ASLI yang dihitung; label benua diperlakukan tak diketahui.
   const countriesByName = new Map<string, Set<string>>();
   for (const r of rows) {
     const n = normalizeTeamName(r.name);
     if (!countriesByName.has(n)) countriesByName.set(n, new Set());
-    if (r.country) countriesByName.get(n)!.add(r.country);
+    const rc = realCountry(r.country);
+    if (rc) countriesByName.get(n)!.add(rc);
   }
 
-  // Kelompokkan: kunci = nama ternormalisasi + (negara bila nama sengketa).
+  // Kelompokkan: kunci = nama ternormalisasi + (negara asli bila sengketa).
   const groups = new Map<string, { name: string; members: (typeof rows)[number][]; contested: boolean }>();
   for (const r of rows) {
     const n = normalizeTeamName(r.name);
     const contested = (countriesByName.get(n)?.size ?? 0) >= 2;
-    const key = contested ? `${n}||${r.country ?? "?"}` : n;
+    const key = contested ? `${n}||${realCountry(r.country) ?? "?"}` : n;
     if (!groups.has(key)) groups.set(key, { name: n, members: [], contested });
     groups.get(key)!.members.push(r);
   }
@@ -271,7 +288,9 @@ function main() {
     const canonical_id = sm ? `sm:${sm.team_id}` : tm ? tm.team_id : members[0].team_id;
     const baseName = sm?.name_as_stored ?? members[0].name_as_stored;
     const country =
-      g.members.find((m) => m.country)?.country ?? null;
+      g.members.find((m) => realCountry(m.country))?.country ??
+      g.members.find((m) => m.country)?.country ??
+      null;
     const aliases = [...new Set(members.map((m) => m.name_as_stored))].sort();
     teams.push({
       canonical_id,
