@@ -18,7 +18,7 @@
 |---|---|---|---|---|
 | `football_master.db` | 9,8 MB | matches 28.922 | ✅ ok, FK 0 | statis by design; bukan isu |
 | `upcoming_fixtures.db` | 1,7 MB | fixtures 3.770 · catalog 317 · sm_id_map 3.420 | ✅ ok | 270 fixture lampau masih 'scheduled'; `competition_catalog` tulis-saja (P-06) |
-| `thestats_dataset.db` | 1,53 GB | matches 70.114 · team_match_logs 85.521 · teams 6.450 · odds 4.071 · registry 125 | ⚠️ **UNVERIFIED** (integrity_check tak rampung — INV-18/P-08) | 50 baris hasil ganda (P-01); standings yatim → INV-13 FAIL (P-03); xg_for NULL 57,4% |
+| `thestats_dataset.db` | 1,53 GB | matches 70.114 · team_match_logs 85.521 · teams 6.450 · odds 4.071 · registry 125 | ✅ ok, FK 0 (integrity_check rampung via proses latar pasca-jendela utama — lihat F-02) | 50 baris hasil ganda (P-01); standings yatim → INV-13 FAIL (P-03); xg_for NULL 57,4% |
 | `predictions.db` | 14,2 MB | sm_predictions 70.553 · value_bets 80 · predictability 5.590 | ✅ ok | isolasi terverifikasi (INV-14); skala persen probabilitas kini terdokumentasi |
 | `picks.db` | 46,2 MB | picks 163.491 (lab 163.008 + live-run 483) · outcomes 163.008 | ✅ ok, FK 0 | sehat; resolver lag 0 |
 | `analysis_snapshots.db` (paket) | 0,7 MB | packages 78 · meta 8 | ✅ ok | sehat; payload valid 78/78 |
@@ -41,14 +41,16 @@ registry: 39 calibrated / 33 partial, 0 kunci hilang.
 di seluruh repo** — tabel `teams` tidak dirawat kode aktif, jadi
 referensi baru tidak pernah termaterialisasi. Perbaikan = P-03.
 
-**F-02 · Integritas dataset belum terverifikasi (INV-18 terbuka).**
-`PRAGMA integrity_check` atas store 1,5 GB tidak rampung dalam
-jendela audit di bawah beban tulis bersamaan (proses latar >1,5 jam;
-`quick_check` berbatas 100 detik juga timeout; foreign_key_check
-dataset karenanya belum terukur). Bukti tak langsung kuat —
-page_count × page_size = ukuran file persis, freelist 2 halaman,
-ratusan query audit tanpa error — tetapi **tidak diklaim sebagai
-pass**. Penutup = P-08 (jendela tenang, tanpa penulis bersamaan).
+**F-02 · Integritas dataset — TERTUTUP: ok (INV-18 PASS).**
+Selama jendela utama audit, `PRAGMA integrity_check` atas store
+1,5 GB tidak rampung di bawah beban tulis bersamaan (dua percobaan
+timeout, termasuk `quick_check` berbatas 100 detik) dan statusnya
+sempat dicatat UNVERIFIED apa adanya. Proses latar audit akhirnya
+rampung: **integrity_check = ok, foreign_key_check = 0
+pelanggaran** — kedelapan store kini terverifikasi. Catatan proses:
+integrity_check store sebesar ini tidak kompatibel dengan penulis
+bersamaan di VM ini; jadwalkan di jendela tenang pada audit
+berikutnya.
 
 **F-03 · 50 baris hasil ganda di `dataset.matches`.**
 50 grup duplikat (50 baris ekstra) atas (kompetisi, tanggal, home_id,
@@ -124,10 +126,11 @@ nama fixture katalog (1.397), kunci ratings (1.457), nama master (403).
 ## 4. Invarian — hasil lari
 
 Kontrak penuh + SQL: `docs/DATA-INVARIANTS.md`.
-**18 invarian: 14 PASS · 1 FAIL (INV-13, F-01) · 2 catatan sesuai
+**18 invarian: 15 PASS · 1 FAIL (INV-13, F-01) · 2 catatan sesuai
 desain/disiplin (INV-15 NULL jujur; INV-17 dua fixture predictions
-di luar katalog = retensi permanen by design) · 1 belum selesai
-untuk dataset saja (INV-18, F-02).** Sorotan PASS yang menopang
+di luar katalog = retensi permanen by design).** (INV-18 sempat
+terbuka selama jendela utama, lalu tertutup PASS — lihat F-02.)
+Sorotan PASS yang menopang
 kepercayaan: INV-01/02 (tautan pick↔paket persis), INV-04 (0 kaki
 live-run dari liga uncalibrated), INV-09 (sm_id_map 0 basi),
 INV-10/11/12 (penutupan referensial telemetri/odds/paket = 0 yatim),
@@ -141,7 +144,8 @@ resmi vs payload predictions untuk 71 fixture tumpang-tindih =
    terukur per store, kunci, provenance §12, retensi, penunjuk
    invarian.
 2. `docs/DATA-INVARIANTS.md` — kontrak 18 invarian dengan query
-   pemeriksa + hasil lari apa adanya (termasuk FAIL & UNVERIFIED).
+   pemeriksa + hasil lari apa adanya (termasuk FAIL INV-13, dan
+   INV-18 yang sempat terbuka lalu tertutup PASS).
 3. `docs/AGENT-HANDOVER.md` — brief cold-start: produk, disiplin
    branch/commit, daftar 🔒, **peringatan blok injeksi
    `nextjs-agent-feedback` di AGENTS.md proyek**, inventaris cron,
@@ -195,10 +199,10 @@ resmi vs payload predictions untuk 71 fixture tumpang-tindih =
 - **P-07 · `team_squads`**: putuskan — sambungkan penulisnya ke sync
   konteks, atau drop tabel di pass skema berikutnya (3.893 baris).
   Keputusan bersama pemilik telemetri karena pembacanya di jalur itu.
-- **P-08 · Tutup INV-18**: jalankan `PRAGMA integrity_check` +
-  `foreign_key_check` atas dataset di jendela tenang (mis. tepat
-  sesudah rantai refresh rampung, tanpa penulis lain); bila ada
-  error, eskalasi ke owner sebelum perbaikan apa pun.
+- **P-08 · Tutup INV-18 — SELESAI** (proses latar audit rampung:
+  integrity ok, FK 0; lihat F-02). Tidak ada tindakan lanjutan;
+  untuk audit berikutnya, jadwalkan integrity_check dataset di
+  jendela tenang sejak awal.
 
 ## 7. Review lima sumbu atas lapisan data (code_review_and_quality)
 
@@ -248,8 +252,10 @@ tidak di-commit; angka terverifikasi hidup di worklog + laporan ini.
 - **constraint_driven_development**: kontrak invarian tertulis,
   bernomor, dan dapat dicek mesin (`docs/DATA-INVARIANTS.md`) —
   setiap invarian punya query pemeriksanya dan hasil larinya
-  dicatat apa adanya, termasuk FAIL (INV-13) dan yang belum selesai
-  (INV-18). Kontrak berhenti menjadi slogan; ia jadi gerbang.
+  dicatat apa adanya — FAIL (INV-13) dicatat sebagai FAIL, dan
+  INV-18 dicatat terbuka selama memang terbuka lalu diperbarui
+  begitu hasil penutupnya tiba. Kontrak berhenti menjadi slogan;
+  ia jadi gerbang.
 - **code_review_and_quality**: review lima sumbu atas lapisan data
   (§7) — tiap vonis ditopang hitungan audit, bukan kesan.
 - **verify_before_claiming (disiplin rumah)**: tidak ada angka di

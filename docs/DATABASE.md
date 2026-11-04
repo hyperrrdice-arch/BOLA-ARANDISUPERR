@@ -29,12 +29,11 @@ Semua store SQLite hidup di `data/` (gitignored, journal_mode **wal**
 | `calibrated_ratings.json` | 506,712 B | Fit rating terkalibrasi + blok canonical + offset piala |
 
 Integritas terverifikasi audit: `PRAGMA integrity_check` = **ok** di
-7 dari 8 store; `foreign_key_check` = 0 pelanggaran di ketujuh store
-itu. **Pengecualian jujur: dataset** — integrity_check-nya tidak
-rampung dalam jendela audit di bawah beban tulis bersamaan (lihat
-INV-18 di `docs/DATA-INVARIANTS.md` untuk status + perintah
-penutupnya); ratusan query audit atas dataset berjalan tanpa error,
-tetapi itu bukan integrity pass dan tidak diklaim sebagai pass.
+kedelapan store; `foreign_key_check` = 0 pelanggaran di semua store
+yang memeriksanya. (Dataset 1,5 GB adalah yang terakhir tertutup:
+integrity_check-nya dua kali timeout di bawah beban tulis bersamaan
+selama jendela utama, lalu rampung ok via proses latar — kronologi
+di INV-18, `docs/DATA-INVARIANTS.md`.)
 
 ---
 

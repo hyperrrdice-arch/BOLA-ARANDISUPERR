@@ -116,10 +116,9 @@ npx tsx scripts/verify-consumption.ts              # audit konsumsi katalog (rea
 ```
 
 Dokumen kebenaran: `docs/DATABASE.md` (struktur + provenance),
-`docs/DATA-INVARIANTS.md` (kontrak; status terakhir: 14 PASS,
+`docs/DATA-INVARIANTS.md` (kontrak; status terakhir: 15 PASS,
 **INV-13 FAIL diketahui** — standings merujuk 167 team_id yang tidak
-ada di `teams`; **INV-18 dataset UNVERIFIED** — integrity_check 1,5 GB
-belum rampung, perintah penutupnya ada di kontrak),
+ada di `teams`; INV-18 kesehatan store PASS di semua store),
 `tasks/db-audit-report.md` (audit terakhir + proposal P-01…P-08),
 `ARCHITECTURE.md` / `STRUCTURE.md` (arsitektur + peta repo),
 `tasks/` (bukti per fase — setiap klaim besar punya file buktinya).

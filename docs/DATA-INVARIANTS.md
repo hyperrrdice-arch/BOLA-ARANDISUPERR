@@ -128,24 +128,15 @@ Audit: 770 fixture, **2 di luar katalog** (rotasi horizon) — sesuai desain.
 Audit: **PASS** untuk football_master, upcoming_fixtures,
 predictions, picks, analysis_snapshots (paket), thestats_raw_vault,
 arsip legacy — integrity ok, foreign_key_check 0 pelanggaran.
-**Dataset: TIDAK SELESAI dijalankan** — integrity_check (1,5 GB)
-tidak rampung dalam jendela audit di bawah beban tulis bersamaan
-(dua percobaan: proses latar >1,5 jam dan quick_check berbatas
-100 detik, keduanya timeout); foreign_key_check dataset karenanya
-juga belum terukur. Bukti tak langsung yang ada: page_count ×
-page_size = ukuran file persis, freelist 2 halaman, dan ratusan
-query audit (count/join/anti-join) berjalan tanpa error — itu bukti
-konsistensi parsial, **bukan** integrity pass. Perintah untuk
-menutupnya di jendela tenang (sesudah rantai refresh selesai, tanpa
-penulis bersamaan): `PRAGMA integrity_check; PRAGMA foreign_key_check;`
-pada `data/thestats_dataset.db`. Sampai itu dijalankan, status
-dataset di invarian ini = **UNVERIFIED**.
+**Dataset: PASS (tertutup pasca-jendela utama)** — integrity_check
+(1,5 GB) dua kali timeout di jendela audit di bawah beban tulis
+bersamaan, tetapi proses latar audit akhirnya rampung dan
+mengembalikan **integrity_check = ok, foreign_key_check = 0
+pelanggaran**. Dengan itu kedelapan store PASS invarian ini.
 
 ---
 
 ### Ringkasan audit 5 Nov 2026
-18 invarian: **14 PASS · 1 FAIL diketahui (INV-13 standings→teams) ·
-2 catatan sesuai desain/disiplin (INV-15, INV-17) · 1 belum selesai
-untuk dataset saja (INV-18)**. FAIL dan yang belum selesai tidak
-disembunyikan: INV-13 adalah item perbaikan P-03 dan INV-18 item
-penutup P-08 di laporan audit.
+18 invarian: **15 PASS · 1 FAIL diketahui (INV-13 standings→teams) ·
+2 catatan sesuai desain/disiplin (INV-15, INV-17)**. FAIL tidak
+disembunyikan: ia adalah item perbaikan P-03 di laporan audit.
