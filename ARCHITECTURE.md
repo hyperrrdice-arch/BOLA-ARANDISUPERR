@@ -1,400 +1,801 @@
 # ARCHITECTURE — Football Pre-Match Analyst Agent
 
-Dokumen ini menjelaskan pipeline **aktif** (planner loop + view-model BFF, Okt 2026). Versi lama ada di `archive/legacy-docs/ARCHITECTURE.md`.
+> Ditulis ulang 4 Nov 2026 dari keadaan final sistem, sesudah lima fase
+> berurutan: ekspansi database Sportmonks → overhaul backend → unifikasi
+> liga kanonik → rekalibrasi domestik → kalibrasi piala (offset global).
+> Semua angka di dokumen ini ditarik dari artefak di disk (laporan fase di
+> `tasks/`, registry, dan store lokal) — bukan dari ingatan. Versi
+> pra-sprint dokumen ini tergantikan seluruhnya; yang dipertahankan hanya
+> bagian yang masih benar (aturan emas, bentuk pipeline planner/BFF,
+> kontrak snapshot).
 
 ---
 
-## 1. Gambaran Besar
+## 1. Tujuan & aturan emas
 
-App ini menganalisis pertandingan sepak bola **sebelum kickoff** dan memutuskan: ada value bet atau tidak. Empat lapis:
+App ini menganalisis pertandingan sepak bola **sebelum kickoff** dan
+memutuskan: ada value bet atau tidak. Ia adalah **decision-support tool**
+— ringkasan data, deteksi dislokasi harga, transparansi sumber — **bukan
+mesin pilih taruhan**: pada setiap pengukuran jujur yang tersedia, model
+kalah dari closing line pasar (lihat §5.4). Klaim edge tidak pernah
+dibuat.
 
-1. **Agent** — satu planner (`bai/mimo-v2.6-pro`) yang merencanakan analisis, memanggil tool, mengevaluasi hasil, dan re-plan bila ada gap (loop, bukan pipeline statis)
-2. **Deterministic Quant Engine** — semua angka (probabilitas, fair odds, EV, stake Kelly) dihitung **code murni** di `lib/quant/*`, nol LLM
-3. **Multi-Model Syndicate (R1-only sejak 19 Okt)** — 5 persona (Bull/Neutral/Bear paralel → J1 → J2 sequential) + consensus deterministik. Satu ronde, tanpa re-debate
-4. **Fallback Guard (21 Okt)** — `lib/quant/fallback-guard.ts`: tim sumber `fallback` butuh edge >50% atau verdict SKIP. Deterministik, di luar jangkauan LLM
-4. **View-Model (BFF)** — `lib/view/analysis-view.ts` mengubah output pipeline menjadi JSON bersih per section; frontend adalah dumb renderer, tidak pernah menggali path dalam (+ field `data_quality` / `fallback_guard` sejak 21 Okt)
+**Aturan emas: semua angka datang dari code kuantitatif deterministik
+di `lib/quant/*`. LLM hanya menyusun narasi dan keputusan alur — tidak
+pernah menghitung atau mengarang angka.** Angka disalin apa adanya
+sampai ke layar; field yang absen adalah `null` jujur, bukan 0 karangan.
 
-Aturan emasnya: **LLM hanya boleh menyusun narasi dan keputusan alur. Semua angka datang dari tool, disalin apa adanya sampai ke layar.**
+Dua jalur lapisan debat/verdict di atas paket kuant:
+
+1. **Sindikat 5-LLM (dorman, dipertahankan utuh).** Planner loop +
+   debat Bull/Neutral/Bear → J1 → J2 di `lib/agent/*`,
+   `lib/syndicate-orchestrator.ts`, `lib/llm/*` — file-file ini
+   **READ-ONLY (🔒)** atas perintah owner, byte-identik dengan baseline,
+   supaya bisa diaktifkan lagi kapan pun. Jalur ini saat ini tidak bisa
+   jalan live: kredit NineRouter = 0 dan J2 (`muse-spark-1.3-contributor`)
+   cenderung membalas kosong (verdict UNANIMOUS by-construction).
+2. **Spark sebagai lapisan debat (jalur aktif).** Paket kuant dibangun
+   offline lewat driver E2E (§7.3), lalu Spark sendiri yang membaca
+   paketnya, menyusun debat, dan memberi verdict. Angka tetap hanya dari
+   code; Spark tidak pernah mengarang figur.
+
+Guard deterministik di luar jangkauan LLM mana pun:
+`lib/quant/fallback-guard.ts` — sisi bersumber `fallback` butuh edge
+>50% atau verdict di-SKIP-kan; gerbang kalibrasi (§5.3) menandai atau
+memblokir liga yang belum terbukti.
 
 ---
 
-## 2. Alur End-to-End
+## 2. Gambaran pipeline
 
 ```
-User buka dashboard (app/page.tsx) ──► GET /api/matches?hours=12|24|48|72   [katalog]
+User buka dashboard (app/page.tsx) ──► GET /api/matches?hours=12|24|48|72   [katalog, offline dari store]
 User klik match ──► GET /api/agent?match_id=...                              [analisis]
                      │
                      ▼
-        app/api/agent/route.tsx  (HTTP shell: validasi + merge)
+        app/api/agent/route.tsx  (shell HTTP: validasi + merge)
                      │
                      ▼
-        lib/agent/planner.ts :: runPlannerAnalysis()
-        model bai/mimo-v2.6-pro, loop native tool-calling, hard cap 8 step
+        lib/agent/planner.ts :: runPlannerAnalysis()  🔒
+        loop plan→act→evaluate→re-plan, hard cap 8 step
                      │
    ┌─────────────────┼──────────────────────────────────────┐
    ▼                 ▼                                      ▼
- [1] check_data_integrity ─► lib/stats-fetcher-agent.ts
-   │     fetch TheStatsAPI + Zod sanitizer → missing_data_registry
+ [1] check_data_integrity ─► lib/stats-fetcher-agent.ts + lib/stats-validator.ts
+   │     jalur offline: baris fixture + anchor odds lokal → Zod → VerifiedMatchIntelligence
+   │     (pertandingan.kompetisi = STRING NAMA saja — lihat kompromi identitas §4.4)
    ▼
- [2] fetch_missing_intel (hanya bila ada gap) ─► fetch ulang, bandingkan delta
+ [2] fetch_missing_intel (hanya bila evaluator code menemukan gap; maks 1×)
    ▼
- [3] run_quant_package ─► lib/quant/* (100% code)
-   │     getShrunkMatchParameters (James-Stein) → calculateDixonColes
-   │     → stripVigShin → evaluateValueBet → evaluatePortfolioKelly
-   │     → generateSpecialMarketsPackage
+ [3] run_quant_package ─► lib/quant/* (100% code) — detail §5 (liga) & §6 (piala)
+   │     resolusi liga kanonik → parameter shrunk (prior ratings + blend telemetri)
+   │     → Dixon-Coles → Shin vig-strip → Kelly/value → konteks (konteks TIDAK
+   │     mengubah probabilitas) → merge wire Sportmonks (odds/lineup/predictions
+   │     berlabel sumber; predictions TIDAK pernah masuk jalur odds)
    ▼
- [4] run_syndicate_debate ─► lib/syndicate-orchestrator.ts
-   │     Stage 1 paralel: Bull / Neutral / Bear (model berbeda)
-   │     Stage 2 sequential: J1 → J2 (J2 lihat output J1, wajib setuju/bantah)
-   │     (R1-ONLY sejak 19 Okt: cap 1 ronde, tanpa re-debate; guard fallback → SKIP bila edge <50%)
+ [4] run_syndicate_debate 🔒 (dorman) ── atau ── Spark membaca paket (jalur aktif)
    ▼
- [5] run_editorial_analysis ─► lib/agent/llm.ts
-   │     prompt closed-world 7 aturan anti-halusinasi → JSON editorial
+ [5] run_editorial_analysis 🔒 ─► JSON editorial closed-world
    ▼
- [6] stop_with_verdict ─► sintesis planner (narasi prediksi, faktor kunci)
+ [6] stop_with_verdict
    │
    ▼
- lib/view/analysis-view.ts :: mapPipelineToView()          ← LAPISAN BFF
-   pure function, Zod AnalysisViewSchema, angka disalin apa adanya
+ lib/view/analysis-view.ts :: mapPipelineToView()          ← BFF
+   pure function, Zod AnalysisViewSchema, angka disalin 1:1,
+   fallback-guard + status gerbang kalibrasi merambat ke view
    │
    ▼
- response JSON: { match, ringkasan, kuantitatif, odds, debat, thinking, markets }
-   (?debug=1 → payload mentah pipeline, untuk audit)
+ response JSON: { match, ringkasan, kuantitatif, odds, debat, thinking, markets,
+                  data_quality, fallback_guard, calibration_gate }
    │
    ▼
- dashboard 4 tab: Ringkasan (default) · Kuantitatif · Odds · Debat
- + pasar 1xBet on-demand (lazy, butuh scan manual)
+ dashboard 4 tab: Ringkasan · Kuantitatif · Odds · Debat
 ```
 
-Setiap tool mengembalikan `coverage_check` (hasil evaluator **code**, bukan self-report LLM) yang menjadi bahan re-plan planner **dan** dicatat ke `plannerTrace` per step (ditampilkan UI sebagai section "Cara Agen Menyusun Analisis Ini").
+Setiap tool mengembalikan `coverage_check` hasil evaluator **code**
+(`lib/agent/coverage.ts`), bukan self-report LLM; itulah satu-satunya
+dasar re-plan yang sah (trigger: `FIELD_KOSONG`, `CONSENSUS_LEMAH`,
+`ODDS_DISLOCATION` |EV| > 20%).
 
 ---
 
-## 3. Peta File
+## 3. Lapisan data
 
-| Path | Peran |
+### 3.1 Diagram alur data
+
+```mermaid
+flowchart TD
+    SM["Sportmonks API<br/>(Pro trial, s/d 10 Nov 2026)"]
+    FD["football-data.co.uk CSV<br/>(historis legacy)"]
+    subgraph SYNC["scripts/ — sync & capture (hanya di ritme harian)"]
+        CAT["sync-sportmonks-fixtures"]
+        ODDS["capture-odds<br/>T-24j / T-6j / T-1j / T-15m"]
+        PRED["sync-predictions"]
+        TELE["backfill-telemetry"]
+        CTX["sync-context"]
+        CAL["calibrate-ratings"]
+        CUP["fit-global-offsets"]
+    end
+    subgraph STORES["Store lokal (SQLite, di data/)"]
+        UP[("upcoming_fixtures.db<br/>katalog + sm_id_map")]
+        DS[("thestats_dataset.db<br/>hasil, telemetri, odds history,<br/>konteks, registry kalibrasi")]
+        MA[("football_master.db<br/>28.922 match legacy")]
+        PR[("predictions.db<br/>TERISOLASI dari jalur odds")]
+        SN[("analysis_snapshots.db<br/>APPEND-ONLY")]
+        VA[("thestats_raw_vault.db<br/>payload mentah")]
+    end
+    subgraph ART["Artefak JSON terpadu (git-tracked)"]
+        LC["league-canonical.json<br/>250 liga kanonik"]
+        CR["calibrated_ratings.json<br/>fit + blok canonical + cupOffsets"]
+    end
+    subgraph QUANT["lib/quant/* — deterministik"]
+        IDN["league-identity"]
+        GATE["league-gate"]
+        LOAD["ratings-loader"]
+        DC["dixon-coles"]
+        GO["global-offsets (piala)"]
+    end
+    SM --> CAT & ODDS & PRED & TELE & CTX
+    FD --> MA
+    CAT --> UP
+    ODDS --> DS
+    PRED --> PR
+    TELE --> DS
+    CTX --> DS
+    DS --> CAL --> CR
+    UP --> LC
+    DS --> LC
+    CR --> CUP --> CR
+    LC --> IDN --> LOAD
+    CR --> LOAD
+    GATE --> LOAD
+    LOAD --> DC
+    GO --> DC
+    UP --> QUANT
+    DS --> QUANT
+    PR -. "panel banding saja<br/>TIDAK PERNAH ke odds" .-> QUANT
+    DC --> VIEW["analysis-view (BFF) → dashboard / paket E2E → Spark"]
+    VIEW -. "jalur tulis resmi app saja" .-> SN
+```
+
+### 3.2 Store SQLite (angka per 4 Nov 2026, dibaca langsung dari store)
+
+Semua store di `data/`, semua **gitignored** (data runtime; bisa dibangun
+ulang dari API kecuali snapshots). Prinsip pemisahan file: **berdasarkan
+fungsi saja** — bukan berdasarkan sumber atau benua (lihat §3.4).
+
+| Store | Isi kunci | Baris saat ini | Catatan |
+|---|---|---|---|
+| `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta | Disposable; horizon bergulir 60 hari dari ritme harian |
+| `thestats_dataset.db` (±1,5 GB) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.106; team_match_logs 85.505 (83.082 Sportmonks); teams 6.450; match_odds_history 4.021; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
+| `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 | Prior historis fit legacy |
+| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 79 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur value-bet.** Hanya tampil sebagai panel banding berlabel di view |
+| `analysis_snapshots.db` | `analysis_snapshots` (hasil pipeline + `view_json`), `match_outcomes`, VIEW `v_snapshot_eval*` | 21 snapshot; 81 outcomes | 🔒 **APPEND-ONLY, tidak bisa di-rebuild** (keluaran LLM nondeterministik). Jangan pernah DELETE/DROP; satu-satunya jalur tulis = insert produksi app sendiri. Cache menolak degradasi: hanya baris `is_fallback=0 AND is_grounded=1` yang diservis sebagai analisis segar |
+| `thestats_raw_vault.db` | `raw_api_vault` (payload mentah API) | 1.991 | Retensi payload mentah 90 hari bergulir (keputusan PRD) |
+
+Ruang ID per sumber: match `mt_*` (TheStats) / `sm_<fixtureId>`
+(Sportmonks); kompetisi `comp_*` / `sm:<leagueId>`; tim `tm_*` / angka
+mentah SM sebagai string. Jembatan: `sm_id_map` (baris `mt_` yang sudah
+ada selalu menang atas pembuatan kembaran `sm_`), `teams` (nama → id),
+dan — sejak fase kanonik — registry identitas di §4. ⚠️ Nama tim tidak
+unik: 9 grup nama persis dan 37 grup ternormalisasi dipakai >1 team_id;
+resolusi nama→ID wajib sadar konteks liga (sudah diterapkan di loader +
+resolver telemetri bersama: log terbanyak menang, seri → id terkecil).
+
+### 3.3 Odds — `match_odds_history`
+
+4.021 tangkapan: 500 legacy (anchor TheStats, `source` NULL) + 3.521
+Sportmonks, terdiri dari 3.383 `baseline` (tangkapan pertama fixture) +
+138 `scheduled` (titik jadwal). Payload disimpan tersaring ke market
+utama (payload mentah penuh bisa ±2,3 MB/fixture). Fixture tanpa odds
+terbit dicatat `has_odds = 0` — jujur kosong, bukan hilang. Backfill
+premium history = **0 baris**: semua endpoint `/odds/premium*`
+mengembalikan data kosong pada probe berulang meski entitlement
+tercatat; mekanisme `capture_kind='backfill'` siap bila endpoint hidup.
+
+### 3.4 Dua artefak JSON terpadu (git-tracked)
+
+- **`data/league-canonical.json`** — registry identitas liga (§4).
+  Dihasilkan `scripts/build-league-canonical.ts` dari store lokal.
+- **`data/calibrated_ratings.json`** — output fit: **72 entri liga /
+  1.842 tim** (28 berlabel `calibrated`, 28 berlabel `partial`, 16
+  legacy), setiap entri membawa `canonicalId`, plus blok metadata
+  `canonical` (registry + versi + `generated_at`) dan blok
+  `canonical.cupOffsets` (model piala, §6). Dihasilkan
+  `scripts/calibrate-ratings.ts`; blok `cupOffsets` ditanam
+  `scripts/fit-global-offsets.ts` tepat sesudahnya dalam ritme harian.
+
+**Prinsip file terpadu** (keputusan owner, 4 Nov 2026): satu sumber
+kebenaran per jenis data. Graf benua model piala adalah **data di dalam
+artefak yang sama** (field per liga), bukan file per benua — memecah
+file akan menciptakan masalah routing baru persis seperti yang baru
+dibereskan di §4. DB SQLite terpisah hanya berdasarkan fungsi/siklus
+hidup (katalog disposable vs snapshots append-only vs predictions
+terisolasi).
+
+---
+
+## 4. Identitas liga kanonik
+
+### 4.1 Masalahnya
+
+Nama/ID liga tiba dari **4 konvensi berbeda**: Sportmonks `sm:<leagueId>`
+(nama polos + negara kolom terpisah), TheStats `comp_*` (nama polos,
+ejaan sendiri), divisi legacy football-data (`E0`, `SP1`, … dengan nama
+berawalan negara seperti "English Premier League"), dan kunci ratings
+(campuran kode legacy + `SM<leagueId>`). Di katalog: 88 id kompetisi
+tetapi hanya 73 nama — "Premier League" sendirian menunjuk 6 id dari
+5 negara. Resolusi berbasis string nama terbukti menyajikan fit yang
+salah (fixture Premier League Sportmonks dilayani ratings legacy E0;
+803 dari 3.770 fixture — 21,3% — berubah fit pelayannya setelah
+perbaikan).
+
+### 4.2 Registry
+
+`data/league-canonical.json`: **250 entri kanonik** (satu per liga
+dunia-nyata), **412/412 identitas sumber terpetakan (100%)** —
+sportmonks 109, thestats 208, legacy-div 22 (16 divisi + 6 `master_*`),
+ratings-key 73; 0 tak terpetakan.
+
+- **Identitas = `canonical_id`**: `sm:<leagueId>` bila liga ada di
+  Sportmonks (sumber live); selain itu kode divisi legacy; selain itu id
+  TheStats `comp_*`.
+- **Referensi = `name` + `country`** sebagai pasangan (negara kolom
+  sendiri) — nama polos sendirian tidak pernah jadi kunci.
+- Setiap entri memuat `aliases` (semua identitas sumber + `name_as_stored`
+  versi tiap store) dan `fits` (fit ratings per sistem + statusnya dari
+  registry `league_calibration`, sumber kebenaran status).
+- Penggabungan lintas sistem: join eksak atas (nama ternormalisasi +
+  negara); yang lolos dari join diputuskan eksplisit di `FORCE_MERGE`
+  berkomentar di generator — tidak ada fuzzy matching diam-diam. Ke-16
+  liga legacy tergabung ke padanan Sportmonks-nya. 31 entri `comp_*`
+  TheStats tidak punya negara di katalog sumber (NULL) → entri kanonik
+  sendiri, belum bisa digabung secara bertanggung jawab (keputusan
+  owner terbuka, §10).
+
+### 4.3 Resolusi & aturan fit yang melayani
+
+Satu-satunya tempat logika identitas: `lib/quant/league-identity.ts`
+(`resolveServingForMatch`, `getCanonicalBySourceId`,
+`getCanonicalByNameCountry`, …), dikonsumsi `ratings-loader.ts` lewat
+`resolveMatchLeague()`; hasil resolusi selalu tercatat di
+`metadata.leagueResolution` paket kuant (kanonik, sistem fit, jalur,
+alasan).
+
+Urutan resolusi:
+
+1. **ID sumber** → entri kanonik → fit.
+2. **Baris fixture tersimpan** (pemulihan ID — lihat §4.4).
+3. **Nama + negara**.
+4. **Nama polos** hanya bila tepat satu entri cocok; beberapa kandidat →
+   saring keanggotaan kedua tim di fit kandidat; **tetap ambigu → null
+   eksplisit** (tidak ada lagi peminjaman divisi legacy diam-diam).
+   String yang sama sekali tak dikenal registry jatuh ke jalur warisan
+   bernama eksplisit (`legacy-fallback`) sebagai jaring pengaman untuk
+   singkatan feed eksternal.
+
+**Aturan fit yang melayani:** fit yang sistemnya sama dengan sumber
+fixture (fixture `sm:` → fit Sportmonks; fixture legacy/TheStats → fit
+legacy); entri ber-fit tunggal → fit itu; sumber tak diketahui + dua fit
+memuat kedua tim → fit Sportmonks (sumber live). Konsekuensi gerbang yang
+disadari: untuk 5 liga dual-fit yang fit SM-nya partial sementara fit
+legacy-nya calibrated (Championship, Bundesliga, La Liga 2, Eredivisie,
+Pro League Belgia), gerbang kini melaporkan status kanonik **partial** —
+flag jujur di tingkat liga; penyajian fit legacy sendiri tidak diblokir.
+
+### 4.4 Kompromi batas intel (🔒)
+
+`VerifiedMatchIntelligence.pertandingan` hanya membawa string nama —
+meneruskan `competition_id` menembusnya butuh edit skema/planner 🔒.
+Jalur non-🔒 yang dipakai: loader memulihkan ID dari baris
+`upcoming_fixtures` dengan pasangan nama kandang/tamu persis + kompetisi
+yang cocok ke entri kanonik yang sama. Konsekuensi terukur: 80 pasangan
+pertandingan terdaftar sebagai **kembaran mt_/sm_** (laga sama, kickoff
+identik, dijembatani `sm_id_map`); untuk kembaran ID `sm:` yang menang
+(Sportmonks = katalog live; baris mt_ hanya jembatan identitas), jadi
+kedua baris dilayani fit yang sama. Kesetiaan per-baris untuk kembaran
+hanya bisa dicapai dengan meneruskan `match_id` — pekerjaan 🔒, terbuka
+sebagai keputusan owner (§10).
+
+---
+
+## 5. Model domestik (liga)
+
+### 5.1 Fit
+
+Per liga, dari hasil + telemetri di store (3 jendela musim, time-decay):
+
+- **IPF attack/defense** per tim: λ_home = leagueAvgGoals × att_home ×
+  def_away × homeAdvantage; leagueAvgGoals = rata-rata gol away
+  terbobot; bobot decay **half-life 365 hari** (diuji {180, 365, 730, ∞}
+  di walk-forward — 365 bertahan, semua alternatif dalam ±0,002).
+- **Shrinkage fit κ=10** (log-space) — perbaikan terbesar Fase 3:
+  tanpa shrinkage, komponen weakly-connected meledak (Danish 1.
+  Division terfit attack 16,38 / defense 0,01). Held-out Level A:
+  log-loss 1,0503 → **1,0298**; tier OTHER 1,1781 → 0,9980.
+- **rho Dixon-Coles = 0** untuk liga SM — hasil negatif berbasis bukti:
+  varian rho {0, global, fitted} berbeda ≤0,0006 log-loss di validasi
+  dan rho fitted justru terburuk pada 1X2. Rho legacy (−0,12…+0,02)
+  dipertahankan apa adanya.
+- Hyperparameter **tidak di-tuning ulang** di rekalibrasi — rekalibrasi
+  adalah penerapan ulang protokol yang sama di atas struktur kanonik
+  dan data yang tumbuh, bukan re-optimisasi.
+
+### 5.2 Parameter runtime (jalur analisis)
+
+- Prior ratings dari `calibrated_ratings.json`, lalu **blend telemetri
+  James-Stein**: w = n/(n+κ), window rolling **6 laga** anti-leakage
+  (hanya laga sebelum cutoff), xG dipakai bila ≥3 sampel xG. κ blend
+  **×2 dari asumsi lama → 16 (xG) / 28 (gol) / 32 (tanpa telemetri)** —
+  terpilih di validasi dan terkonfirmasi held-out (Level B 1,0340 →
+  **1,0205**; slope kalibrasi 0,631 → 0,953). κ×3 sengaja tidak diuji
+  (disiplin anti garden-of-forking-paths).
+- `calculateDixonColes`: matriks Poisson 11×11 × koreksi τ(rho) di
+  (0,0),(0,1),(1,0),(1,1), dinormalisasi Σ=1 → 1X2, fair odds, O/U,
+  BTTS, AH, clean sheet, xPts, top scorelines.
+- `stripVigShin` (Shin, bisection z ∈ [0, 0,4]) atas odds pasar nyata →
+  konsensus tanpa vig. **Value bet hanya dari odds pasar nyata** — tanpa
+  odds pasar, tidak ada value bet untuk market itu.
+- `evaluateValueBet` + `evaluatePortfolioKelly`: quarter-Kelly, cap per
+  bet 4,0%, cap portofolio per match 5,0% (parameter risiko owner, bukan
+  statistik; sizing tidak menciptakan edge).
+- Konteks yang **dilarang mengubah probabilitas**: momentum,
+  half-profile, luck-regression (metadata/label saja, ambang heuristik
+  eksplisit).
+- Normalisasi xG lintas kompetisi kini **terukur dari store**
+  (`dataset.matches`), menggantikan konstanta tulisan tangan + default
+  diam-diam 1,48 dari era lama.
+- Roster fit mencakup semua tim yang muncul di jendela data; alias
+  bentuk-nama fixture ("AFC Bournemouth" → "Bournemouth") dijembatani
+  konservatif di skrip kalibrasi. Konsumsi terverifikasi atas 3.770
+  fixture: kedua tim ketemu **2.982**, satu sisi 15, nol 19; kompetisi
+  ter-cover penuh **58/88**.
+
+### 5.3 Tiga gerbang kalibrasi (registry `league_calibration`)
+
+Status per liga diputuskan berurutan; tidak ada liga tersaji diam-diam:
+
+1. **Uji skala ≤2% (ketat)** — Σλ fit vs Σ gol aktual. Sengaja ketat:
+   ke-36 partial era sprint semuanya gagal di sini pada cakupan 100%
+   (artefak metrik tak-terbobot vs fit terbobot-waktu, tercatat jujur).
+   **Tidak dilonggarkan** — melonggarkan = keputusan owner.
+2. **Cakupan telemetri musim berjalan ≥80%.**
+3. **Gerbang OOS walk-forward** — fit harus mengalahkan baseline naive
+   pada lipatan held-out yang tidak pernah dipakai tuning (lantai
+   sampel n≥20): calibrated gagal OOS → partial; partial gagal OOS →
+   uncalibrated (diblokir, entri JSON dihapus).
+
+Penyajian menurut status: `calibrated` = normal; `partial` = tersaji +
+flag eksplisit yang merambat sampai view (`calibration_gate`);
+`uncalibrated` = diblokir dengan alasan eksplisit. Gerbang dibaca
+`lib/quant/league-gate.ts` dari **status kanonik**: divisi apa pun
+di-resolve ke entri kanoniknya dulu, lalu baris `league_id =
+canonical_id` yang dibaca. Registry kini 125 baris, kolom
+`canonical_id` terisi 125/125.
+
+**Status saat ini (4 Nov 2026):**
+
+| Basis | Calibrated | Partial | Uncalibrated |
+|---|---|---|---|
+| Kanonik — 83 liga pembawa fixture/fit (rekalibrasi) | **28** | **29** | **26** |
+| Registry 125 baris (query langsung) | 44 (28 SM + 16 legacy) | 32 (28 liga + 4 piala via `source='cup-offset'`) | 49 (36 liga + 13 piala) |
+
+Rekalibrasi kanonik menghasilkan tepat **satu perubahan status final**:
+`sm:1085` AFC Champions League Elite calibrated → partial (held-out
+1,0841 vs naive 1,0758, n=43 — item pengawasan "margin tipis" Fase 3
+yang buktinya berbalik di data yang tumbuh; statusnya kemudian
+digantikan perlakuan piala di §6). Championship dan Liga Portugal 2
+kini lolos uji skala tetapi tetap partial karena gerbang OOS menahan.
+
+### 5.4 Bukti out-of-sample & benchmark closing line
+
+Walk-forward (63 liga ≥120 match, 44.231 match; lipatan validasi untuk
+seleksi, lipatan held-out final tidak pernah dipakai tuning), hasil
+rekalibrasi — stabil vs Fase 3:
+
+| Metrik held-out | Nilai |
 |---|---|
-| `app/page.tsx` + `components/dashboard/*` | Dashboard: tab Ringkasan (verdict + faktor kunci + ThinkingPlannerCard + integrity), Kuantitatif (QuantEngineCard: hero prob/fair odds + bukti + lipatan Kelly & metode), Odds (TheStatsOddsComparison + OddsDislocationBar), Debat (SyndicateDebateCard, argumen per persona terlipat) |
-| `app/api/matches/route.ts` | Katalog match dari TheStatsAPI |
-| `app/api/agent/route.tsx` | **HTTP shell pipeline analisis** — panggil planner, validasi `AnalysisSchema`, map ke `AnalysisView` |
-| `app/api/betting/route.ts` | Bonus: analisis taruhan dual-model A/B (`bai/qwen3.8-27b` + `bai/deepseek-v4.1-flash`) |
-| `app/api/odds/route.ts` | Bonus: perbandingan odds TheStatsAPI vs pasar (di-cache di client) |
-| `lib/view/analysis-view.ts` | **BFF**: `AnalysisViewSchema` + `mapPipelineToView()` — pure function, angka copy 1:1, helper format sadar-skala, null jujur ("—", bukan 0) |
-| `lib/agent/planner.ts` | **Otomasi inti**: loop `plan→act→evaluate→re-plan`, tool definitions, `buildQuantPackage`, trace + coverage per step |
-| `lib/agent/coverage.ts` | Evaluator coverage (code) + aturan trigger re-plan machine-verifiable |
-| `lib/agent/schemas.ts` | `AnalysisSchema` (kontrak pipeline), `VerdictInputSchema`, `PlannerTraceSchema` (termasuk `coverage` per step) |
-| `lib/agent/llm.ts` | Klien 9Router (sumber tunggal), `callModelWithFallback`, `extractJSON`, `buildEditorialPrompts` |
-| `lib/llm/models.ts` | Sumber tunggal nama model: `PLANNER`, `SYNDICATE`, `STATS_FETCHER`, `EDITORIAL` |
-| `lib/stats-fetcher-agent.ts` | Dispatcher fetch selektif TheStatsAPI (heuristic langsung; LLM di balik flag `DISPATCHER_LLM=1`) |
-| `lib/stats-validator.ts` | Zod sanitizer `VerifiedMatchIntelligence` |
-| `lib/syndicate-orchestrator.ts` | Debat 5 persona (R1-only) + J2 sequential + consensus deterministik + voice guide |
-| `lib/quant/fallback-guard.ts` | Guard fallback-source (21 Okt): SKIP bila sisi fallback & edge <50% (`FALLBACK_MIN_EDGE`) |
-| `lib/llm/voice-guide.ts` | 1 sumber gaya persona + format verdict (kontrak JSON tetap akhir) |
-| `lib/quant/*` | Dixon-Coles, vig-stripping (Shin), Kelly, ratings (James-Stein), luck regression, special markets, half-profile, momentum, fallback-guard |
-| `lib/odds/*` | Sportmonks: `sportmonks-adapter.ts` (fetch + budget guard + pacing + degradasi terstruktur), `sportmonks-wire.ts` (merge odds/lineup/predictions berlabel sumber + accuracy log) |
-| `lib/db/*` | SQLite lokal: dataset TheStats, team telemetry, vault payload, master historis; `upcoming_fixtures.db` + tabel `sm_id_map` (mapping SM, ditulis sync + daily) |
-| `lib/stats-cache.ts` | Cache TTL in-memory untuk fetch TheStatsAPI |
-| `scripts/sync-weekly-telemetry.ts`, `ingest-*.ts` | Ingestion data mingguan/multi-liga (CLI manual) |
-| `scripts/calibrate-ratings.ts`, `backtest-dixon-coles.ts` | Kalibrasi rating + backtest harness (workstream kuantitatif) |
-| `scripts/test-planner-tool-calling.ts`, `test-planner-loop.ts` | Runnable check pipeline agent |
-| `scripts/test-debate-r1.ts`, `test-fallback-guard.ts` | R1-only (38) + guard fallback (55): cap ronde, J2 sequential, SKIP/warning, guard angka |
-| `scripts/test-half-profile.ts`, `test-momentum.ts` | Sinyal konteks: babak (59) + momentum (73), guard prob/fair identik |
-| `scripts/test-parlay-verdict.ts` | Verdict parlay (71): leg_aman/jebakan/skip + cap 3 + kondisi batal, replay #123/#128 |
-| `scripts/test-sportmonks-adapter.ts`, `test-sportmonks-wiring.ts` | Adapter SM (27: budget + degradasi) + wiring (78: merge berlabel, O2.5 +EV Inter terbukti; probe dev-server SKIP sopan bila server mati) |
-| `scripts/sync-sportmonks-fixtures.ts` (+ `--check`), `backfill-sportmonks.ts` (+ `--check`), `daily-refresh.ts` (+ `--check`) | Katalog + backfill + ritme harian; live butuh flag/implisit aman (sm6 one-off dihapus pasca-verifikasi) |
-| `scripts/test-view-mapper.ts` | Runnable check BFF: fixture wajib lolos `AnalysisSchema`, assert skala angka, null jujur, anti-kebocoran field mentah, marker `is_strictly_grounded` |
-| `scripts/test-quant-scale.ts`, `test-value-bets.ts` | Runnable check quant: kontrak skala λ=G·α·β·γ, kalibrasi ratings per liga (Σλ≈Σx, Σμ≈Σy), vig throw odds invalid, value bet hanya dari odds pasar nyata |
-| `scripts/test-snapshot-db.ts`, `test-stats-mapper.ts`, `test-upcoming-guard.ts`, `test-http-json.ts`, `test-stats-cache.ts` | Runnable check data layer: cache snapshot tolak fallback, eval skor NULL, mapper anti-karangan, guard fixture scheduled, gzip/JSON, negative-cache |
-| `archive/` | Sisa pipeline lama, komponen terpotong (`archive/legacy-components/`), eksplorasi one-off (lihat `archive/README.md`) |
+| Level A (ratings murni) — baseline produksi lama | LL 1,0509 |
+| Level A — konfigurasi teradopsi | **LL 1,0295** (naive 1,0736) |
+| Level B (jalur produksi penuh, κ blend ×2) | **LL 1,0202** |
+
+**Benchmark closing line — terukur pertama kali** (sebelumnya n=0):
+30 match bertangkapan odds pre-kickoff yang sudah selesai; subset
+berpasangan n=21 — model LL **0,9575** vs closing LL **0,8668**. Model
+tetap kalah dari closing pada sampel pertama yang kecil ini.
+Kesimpulan yang didukung bukti: model mengalahkan baseline naive dan
+terkalibrasi baik secara OOS — **bukan** bahwa ada edge taruhan.
 
 ---
 
-## 4. Tool Contract (dipanggil planner)
+## 6. Model piala — offset global per graf benua
 
-| Tool | Input | Fungsi | Wajib? |
-|---|---|---|---|
-| `check_data_integrity` | `alasan?` | Fetch + validasi Zod semua data match → gap registry | Ya, pertama |
-| `fetch_missing_intel` | `alasan?` | Fetch ulang saat gap → delta missing | Hanya saat gap |
-| `run_quant_package` | `alasan?` | Quant engine lengkap → probabilitas, fair odds, value bets | Ya |
-| `run_syndicate_debate` | `alasan?` | Debat 5 persona → consensus, verdict panel (+ guard fallback) | Ya (cap 1 ronde) |
-| `run_editorial_analysis` | `alasan?` | Editorial closed-world → JSON naratif | Ya |
-| `stop_with_verdict` | `prediksi`, `faktor_kunci`, `ringkasan_perencanaan` | Tutup analisis | Ya, terakhir |
+### 6.1 Kenapa piala tidak di-fit sebagai liga
 
-Semua argumen divalidasi Zod (`inputSchema`); semua output tool dihasilkan server-side.
+Model §5 mengasumsikan kompetisi tertutup (semua tim saling bertemu,
+satu skala). Piala melanggarnya tiga arah: tim datang dari ±30 liga
+dengan skala gol dan level kekuatan berbeda (att/def domestik tidak
+sebanding lintas liga), sampel per tim tipis (±8 laga/musim di format
+baru UCL), dan dinamika knockout berbeda (leg kedua dipengaruhi
+agregat; final di venue netral). Karena itu kompetisi piala **tidak
+pernah di-fit per-liga** — sebelum fase ini mereka `uncalibrated`
+by design, dengan satu pengecualian warisan (jalur pseudo-UCL, §6.5)
+yang kini pensiun.
 
----
+### 6.2 Desain: satu δ per liga, di-fit dari laga lintas-liga
 
-## 5. Loop & Trigger Re-plan
-
-Loop = `plan → act → evaluate → re-plan`, hard cap **8 step** (`PLANNER_MAX_STEPS`). Re-plan **hanya sah** bila evaluator code (`lib/agent/coverage.ts`) menemukan:
-
-| Trigger | Kondisi numerik | Aksi yang diperbolehkan |
-|---|---|---|
-| `FIELD_KOSONG` | `missing_data_registry` tidak kosong | `fetch_missing_intel` (maks 1×; kalau tetap kosong → degradasi eksplisit) |
-| `CONSENSUS_LEMAH` | `consensus_level` ∈ {SPLIT_DECISION, DISSENT} | Editorial wajib bahas (R1-only: tanpa ronde tambahan) |
-| `ODDS_DISLOCATION` | \|EV\| value bet > 20% | Editorial wajib membahas gap odds |
-
-`coverage_check` disuntikkan ke tiap tool result **dan** distempel ke step `plannerTrace` (checklist, gaps, triggers). UI menampilkannya apa adanya di thinking panel — 2 step pertama + step ber-trigger terbuka, sisanya terlipat.
-
----
-
-## 6. Guardrails (jangan dilanggar)
-
-1. **Angka hanya dari tool** — planner dilarang menghitung/mengarang angka; `lib/quant/*` tidak boleh memanggil LLM
-2. **Fidelitas angka sampai ke layar** — view-model menyalin angka apa adanya; konversi tampilan hanya lewat helper **sadar skala** (sumber desimal vs sumber persen beda helper — `top_scorelines.prob` sudah persen, jangan dikali 100 lagi). Tidak ada nilai default karangan: field absen → `null` / "—", bukan 0
-3. **Closed-world grounding** — prompt editorial punya 7 aturan anti-halusinasi; status estimasi dihormati
-4. **Evaluasi oleh code** — coverage & trigger re-plan dihitung Zod/numerik, bukan klaim LLM
-5. **Multi-model jangan diseragamkan** — kesalahan antar vendor tidak berkorelasi; itu nilai cross-check-nya
-6. **Fail-fast eksplisit** — data inti hilang → HTTP 500 + `plannerTrace`, bukan output palsu
-7. **Value bet hanya dari odds pasar nyata** — tanpa odds pasar, TIDAK ada value bet untuk market itu; odds karangan (1.95/1.88/fair-odds model) menghasilkan EV/stake/`recommended_odds` yang tidak dimiliki bandar mana pun. Market tanpa field odds (BTTS, AH DNB) dilewati sampai sumbernya tersedia
-8. **Setiap LLM call ber-timeout per-tier** — persona 90s / judge 120s / retry 60s / editorial 120s (via env, default di `models.ts`/`llm.ts`); timeout = fallback template jujur, bukan retry membabi-buta. Plafon loop planner 30 menit
-9. **Anti-leakage fail-closed** — cutoff waktu form/H2H lokal butuh `utc_date` valid; kalau absen, sumber lokal dilewati total, bukan membuka query tanpa batas waktu
-
----
-
-## 7. View-Model & Frontend
-
-**Kontrak client = `AnalysisViewSchema`** (`lib/view/analysis-view.ts`), bentuknya persis yang dirender:
+Fondasi tetap fit domestik pasca-rekalibrasi (att/def terkunci ke
+parameter shrunk yang dikonsumsi jalur kuant). Di atasnya, per **graf
+benua** di-fit satu **offset kekuatan δ per liga domestik** (skala log)
+dengan maximum-likelihood Poisson atas **semua laga lintas-liga di
+store** — kompetisi kontinental graf itu + piala domestik lintas
+divisi — dengan decay half-life 365 hari dan ridge L2 lemah (1,0):
 
 ```
-match      : id, home, away, kickoff_wib, competition, venue, wasit, wasit_kartu, status_lineup
-ringkasan  : verdict, prediksi, keyakinan, alasan, faktor_kunci, integrity {gaps, status_estimasi}
-kuantitatif: hero {prob, fair_odds, ev_teratas} · bukti[] (maks 5) · detail {kelly, metode, splits, pasar_lain}
-odds       : dislocation {ringkasan_1x2, asian_handicap, over_under, btts, pasar_konsensus, fair}, smart_money
-debat      : consensus, supreme, persona[] (terlipat per persona), dual_bench
-thinking   : steps[] {step, tool, alasan, trigger, coverage}, stop_reason, durasi_ms
-markets    : null (on-demand dari /api/betting)
-is_strictly_grounded : true = analisis penuh; false = ada bagian fallback/template
-             (marker jujur — WAJIB ditampilkan ke user, jangan disembunyikan)
-data_quality: {home_source, away_source, is_fallback_involved} (21 Okt, additive)
-fallback_guard: {skipped, reason, edge, threshold, original_pick/verdict} (21 Okt, additive)
+λ_home = G × HA_cup × att_home × e^{δ_Lhome} × def_away × e^{−δ_Laway}
+μ_away = G × att_away × e^{δ_Laway} × def_home × e^{−δ_Lhome}
 ```
 
-Aturan frontend:
-- **Dumb renderer** — tiap section render field-nya 1:1; nol penggalian path dalam, nol kalkulasi angka baru (perhitungan turunan display seperti delta% odds ada di card, bukan di mapper)
-- **Anti-tumpuk**: tiap view satu elemen dominan; terbuka default = ringkasan + ≤5 baris bukti; sisanya `<details>` native dengan judul informatif
-- **Verdict-first** — tab default Ringkasan: keputusan (PASS/NO BET + skor + keyakinan) terbaca ≤1 layar
-- **Markets on-demand** — 1xBet/Scanner lazy (`next/dynamic`), butuh scan manual, entry 1 klik dari Ringkasan
-- **Payload minimal** — `rawLineups`/`audit`/`cacheMetrics` tidak pernah ke client (audit via `?debug=1`)
-- Kontrak `/api/betting` dijaga dari sisi client: `match_context.probabilitas_pasar` = `odds.dislocation.pasar_konsensus` (persen konsensus), `wasit_kartu` = `match.wasit_kartu`, `npxg_*` = `detail.splits.npxg_*`
+δ hanya teridentifikasi sebagai selisih → satu liga referensi per graf
+di-clamp δ=0 (liga dengan laga jangkar terbanyak). Ikut di-fit per
+graf: rata-rata gol global **G** dan home advantage piala **HA_cup**.
+Penyajian fixture piala: att\* = att × e^δ, def\* = def ÷ e^δ, basis G
+graf, HA piala graf (venue netral → HA = 1), rho = 0, lewat mesin
+Dixon-Coles yang sama — **formula penyajian = formula yang divalidasi
+walk-forward, persis**. Tim debutan tidak buta: ia mewarisi δ liganya.
+Liga tanpa laga jangkar: δ tidak teridentifikasi (null) — tidak
+ditebak, fixture-nya ter-flag.
+
+Penyimpanan **terpadu** (bukan file per benua): `cup_model` +
+`cup_offset` sebagai field di entri registry kanonik
+(`league-canonical.json`) + blok `canonical.cupOffsets` di
+`calibrated_ratings.json` (metadata graf + status 17 kompetisi).
+162 entri kanonik membawa record `cup_offset`; **47 liga
+teridentifikasi**: Eropa 33, CONMEBOL 6, AFC 8.
+
+Implementasi: inti fit offline `lib/quant/cup-offset-fit.ts`; harness
+validasi `scripts/backtest-cup-offsets.ts` (→ `tasks/cup-oos.json`);
+fit produksi + tulis artefak `scripts/fit-global-offsets.ts`;
+penyajian runtime `lib/quant/global-offsets.ts`, dipanggil
+`ratings-loader.ts` bila kompetisi fixture adalah piala tercakup
+`cup_model`. **v1 jujur:** parameter tim = fit domestik murni (prior
+makro) **tanpa blend telemetri last-6** — tercatat
+`metadata.telemetrySource = 'macro_prior_only'` di paket. Leg-2
+knockout diperlakukan laga biasa di v1 (divalidasi terpisah, §6.4).
+Status kompetisi dibaca dari registry lewat league-gate: uncalibrated
+diblokir pemanggil sebelum modul penyajian dipanggil; partial tersaji
+dengan flag `calibrationStatus` di metadata `cupOffset` paket.
+
+### 6.3 Hasil fit produksi (4 Nov 2026)
+
+| Graf | Referensi (δ=0) | G | HA piala | Jangkar | Liga teridentifikasi |
+|---|---|---|---|---|---|
+| Eropa | sm:8 Premier League | 1,2588 | 1,289 | 1.857 | 33 |
+| CONMEBOL | sm:648 Brasileirão Série A | 0,8468 | 1,4164 | 512 | 6 |
+| AFC | sm:944 Saudi Pro League | 1,1714 | 1,2401 | 226 | 8 |
+
+Urutan δ waras secara sepakbola. Eropa: La Liga −0,09 (terkuat di bawah
+referensi) · Bundesliga −0,16 · Ligue 1 −0,19 · Serie A −0,24 ·
+Eredivisie −0,49 · Championship −0,56 … terlemah First League Bulgaria
+−0,95 dan National League (tier-5 Inggris) −1,00; divisi dua menempel
+di bawah divisi utamanya (La Liga 2 −0,25, Ligue 2 −0,38, Serie B
+−0,62). CONMEBOL: Argentina −0,08 · Uruguay −0,25 · Kolombia −0,30.
+AFC: J1 League **+0,09** — satu-satunya liga di atas referensinya;
+Indian Super League −0,34 tetapi **tipis: hanya 2 jangkar** (δ rapuh,
+tercatat apa adanya).
+
+### 6.4 Gerbang piala & status yang diraih (pradaftar, tidak dilonggarkan)
+
+Protokol walk-forward per kompetisi: fit domestik + δ hanya dari data
+sebelum musim uji (fit domestik di-fit ulang per lipatan — tanpa
+kebocoran parameter produksi); naive = base rate kandang/tandang
+kompetisi itu sendiri pada laga yang sama-sama ter-rate (paired).
+Gerbang ditetapkan di header `scripts/backtest-cup-offsets.ts` SEBELUM
+hasil dilihat: **calibrated** = n≥100 ∧ cakupan ≥0,80 ∧ LL<naive ∧
+slope ∈ [0,70; 1,30]; **partial** = n≥30 ∧ cakupan ≥0,50 ∧ LL<naive;
+selain itu uncalibrated.
+
+Hasil atas 17 kompetisi dalam scope: **0 calibrated · 4 partial · 13
+uncalibrated**. Status tertulis sebagai 17 baris `source='cup-offset'`
+di registry + `cup_model` per entri kanonik.
+
+| Kompetisi | Uji n | Cak. | LL model | LL naive | Slope | Status — alasan |
+|---|---|---|---|---|---|---|
+| sm:2 Champions League | 415 | 0,57 | 0,9825 | 1,0399 | 1,121 | **partial** |
+| sm:5 Europa League | 383 | 0,69 | 0,9912 | 1,0455 | 1,022 | **partial** |
+| sm:27 Carabao Cup | 141 | 0,96 | 0,8074 | 0,9741 | 1,470 | **partial** (slope di luar band) |
+| sm:390 Coppa Italia | 56 | 0,77 | 0,7042 | 0,7584 | 1,557 | **partial** |
+| sm:2286 Europa Conference League | 647 | 0,29 | 0,9956 | 1,0788 | 0,890 | uncalibrated — cakupan |
+| sm:24 FA Cup | 1.534 | 0,05 | 0,8511 | 0,9689 | 1,182 | uncalibrated — cakupan |
+| sm:307 Coupe de France | 150 | 0,15 | 0,9625 | 1,1028 | 1,096 | uncalibrated — cakupan |
+| sm:468 Taça de Portugal | 212 | 0,08 | 0,9548 | 1,0043 | 1,176 | uncalibrated — cakupan |
+| sm:570 Copa del Rey | 154 | 0,19 | 1,0107 | 1,0353 | 0,965 | uncalibrated — cakupan |
+| sm:654 Copa do Brasil | 214 | 0,39 | 0,9744 | 1,0818 | 1,015 | uncalibrated — cakupan |
+| sm:109 DFB Pokal | 90 | 0,49 | 0,7724 | 0,9632 | 2,278 | uncalibrated — cakupan 0,49 < 0,50 (near-miss; aturan tetap aturan) |
+| sm:1088 AFC CL Two | 169 | 0,08 | 0,8422 | 1,1112 | 1,396 | uncalibrated — cakupan |
+| sm:950 Kings Cup | 37 | 0,51 | 0,6587 | 0,9402 | 3,153 | uncalibrated — n<30 ter-rate |
+| sm:1085 AFC CL Elite | 174 | 0,48 | 1,0109 | 1,0501 | 0,760 | uncalibrated — cakupan 0,48 < 0,50 |
+| sm:78 KNVB Beker | 150 | 0,21 | 1,0957 | 0,9418 | 0,504 | uncalibrated — **kalah dari naive** |
+| sm:1122 Copa Libertadores | 288 | 0,40 | 1,0885 | 1,0690 | 0,564 | uncalibrated — **kalah dari naive** |
+| sm:1116 Copa Sudamericana | 290 | 0,46 | 1,1012 | 1,0771 | 0,463 | uncalibrated — **kalah dari naive** |
+
+Taksonomi kegagalan (bukti, bukan tebakan):
+
+- **Cakupan** (mayoritas): cakupan diukur atas seluruh laga historis
+  kompetisi termasuk babak kualifikasi — tim dari liga di luar katalog
+  109 liga Sportmonks tidak punya fit domestik (diagnosis fold UCL
+  2026/2027: 99 dari 106 slot tim tak-ter-rate = "tidak ada liga
+  domestik di store"). Batas struktural store, bukan bug resolver.
+  Mengubah definisi cakupan = mengubah gerbang pradaftar → keputusan
+  owner (§10).
+- **Kalah dari naive** (KNVB; kedua kompetisi CONMEBOL): slope ≈ 0,5 =
+  overconfidence lintas-liga — ekstrem att/def domestik diterapkan
+  hampir tanpa redaman pada jangkar latih yang tipis. Urutan δ sendiri
+  waras dan code yang sama sehat di Eropa → bukan bug arah. Varian
+  kompresi/temperatur adalah varian model baru — tidak di-tune di
+  held-out; keputusan owner (§10).
+- **Leg-2**: di subset leg-2 UCL/UEL/UECL model tetap mengalahkan
+  naive (UCL leg-2 LL 1,0011 vs 1,0303; UEL 0,9494 vs 0,9957; UECL
+  0,8780 vs 1,0317) — perlakuan leg-2 sebagai laga biasa tidak terbukti
+  merusak di v1.
+
+Konsekuensi penyajian saat ini (dari `verify-consumption`, 3.770
+fixture): jalur offset **142 fixture ter-rate penuh, 359 terblokir
+gerbang uncalibrated, 29 tim tak ter-resolve** — UCL 48/54 dan UEL
+43/54 ter-rate ber-flag partial; UECL 0/72 dan ACL Elite 0/36 terblokir
+sesuai status yang mereka raih (fallback teranotasi tanpa angka, bukan
+probabilitas karangan).
+
+### 6.5 Pensiun jalur pseudo-UCL
+
+Jalur lama — divisi semu "UCL" (parameter hardcoded avg 2,04 / HA 1,12
+/ rho −0,05) + penskalaan √Q koefisien UEFA tulisan tangan
+(`findTeamRatingForUCL`, `UEFA_LEAGUE_COEFFICIENT`) — **dihapus**.
+Muara 'UCL' dari fallback warisan ditolak eksplisit; `loader_special`
+hilang dari seluruh registry. Kompetisi piala yang gagal gerbang
+dilayani flagged/diblokir lewat jalur offset — tidak pernah diam-diam
+lewat pseudo.
+
+### 6.6 Konektivitas & lubang bernama
+
+- **Eropa (33 liga):** lubang bernama — **sm:486 Russia Premier
+  League** (klub Rusia dibekukan dari kompetisi UEFA sejak 2022 → nol
+  laga lintas-liga di store; lubang nyata yang bisa dijelaskan);
+  **sm:211 Challenger Pro League** (piala Belgia tidak ada di store
+  Sportmonks → nol jangkar); **sm:14 League Two, sm:274 Danish 1.
+  Division, sm:603 Turkish 1. Lig** (punya baris registry tetapi tidak
+  punya entri fit sama sekali → tidak ada yang bisa ditransformasi).
+  Tipis: sm:465 Liga Portugal 2 (29 jangkar), sm:292 Veikkausliiga
+  (34), sm:304 Ligue 2 (36).
+- **CONMEBOL (6 liga):** 0 lubang di antara liga ber-fit; liga
+  Paraguay/Ekuador/Peru/Venezuela/Bolivia hanya ada di ruang TheStats
+  tanpa fit SM.
+- **AFC (8 liga, graf paling tipis — 226 jangkar):** sm:1007 Indian
+  Super League teridentifikasi dari 2 jangkar saja; sm:1356 A-League
+  dan sm:1073 V-League tidak teridentifikasi.
+- Di luar graf secara desain: **CAF tidak dibangun** (enumerasi saja —
+  sm:1107 CAF Champions League, 378 hasil, saat ini tetap ter-fit
+  sebagai liga biasa berstatus partial; keputusan owner, §10);
+  sm:1452 Intercontinental Cup = lintas benua, diparkir sebagai batas
+  graf yang diketahui; sm:1419 UEFA Women's Champions League tidak
+  diberi `cup_model` (hanya 3/369 laga yang kedua timnya ber-fit) dan
+  dilindungi guard tabrakan nama agar resolusi "Champions League" tidak
+  menyentuh entri wanita; friendlies dikecualikan sebagai bukan
+  kompetisi bermakna untuk offset.
 
 ---
 
-## 8. Model Roster (via 9Router lokal, konfigurasi `lib/llm/models.ts`)
+## 7. Jalur analisis operasional
 
-| Peran | Aktif (`.env.local`, 21 Okt) | Sifat |
-|---|---|---|
-| Planner (loop agent) | `bai/mimo-v2.6-pro` | Reasoning kuat + native tool-calling |
-| Bull persona | `ag/gemini-3.8-flash-medium` | Argumen pro |
-| Neutral persona | `cx/gpt-6-luna` | Argumen netral |
-| Bear persona | `cx/gpt-6-luna` | Argumen kontra / audit risiko |
-| Judgement 1 | `ag/gemini-3.8-flash-high` | Hakim ketua |
-| Judgement 2 | `muse/muse-spark-1.3-contributor` | Penguji silang (catatan: sering balas kosong → fallback jujur; verdict cenderung UNANIMOUS by-construction) |
-| Fallback + editorial default | `cx/gpt-6-luna` (`NINE_ROUTER_MODEL`) | Pengganti saat model gagal |
-| Endpoint dispatcher | `bai/qwen3.8-27b` | Keputusan fetch (heuristic langsung; LLM di balik flag `DISPATCHER_LLM=1`) |
-| Betting A/B | `bai/qwen3.8-27b`, `bai/deepseek-v4.1-flash` | Analisis taruhan bonus |
+### 7.1 Hop inti (yang benar-benar mengeksekusi angka)
 
-Riwayat rotasi (Okt 2026): `space-bunny-free` mati 410 ModelDeprecated → diganti;
-`deepseek/deepseek-v4.1-flash` tanpa kredensial (404) → tidak dipakai;
-`qwen3.8-flash` hang 120s+60s → dikeluarkan dari judge. Model gratisan rotasi cepat —
-cek via probe `chat/completions` sebelum dipasang.
+1. **Intel** — `fetchAndValidateMatchIntelligence` (`stats-fetcher-agent`
+   + `stats-validator`): jalur offline membangun intel dari baris
+   fixture tersimpan + anchor odds lokal; Zod men-sanitasi jadi
+   `VerifiedMatchIntelligence` dengan `missing_data_registry` yang
+   jujur. Parser odds validator berbentuk TheStats — payload SM mentah
+   tidak ter-parse di sini; odds SM masuk lewat wire (hop 3).
+2. **Telemetri** — `lib/db/team-telemetry.ts`: rolling 6 laga per tim
+   dari `team_match_logs` (match_date < cutoff, anti-leakage), agregat
+   null-jujur (xG/npxg/shots hanya dari baris NOT NULL; data absen =
+   sampel mengecil, bukan 0).
+3. **Wire Sportmonks** — `lib/odds/sportmonks-wire.ts`
+   (`mergeSmDetailIntoIntel`, `pickSmQuotes`: bookmaker utama id 35 =
+   1xBet, pembanding id 20 = Pinnacle) + `sportmonks-adapter.ts`.
+   **Jalur render tidak memanggil API** — detail dibaca dari store
+   lokal; semua merge berlabel sumber. Predictions SM hanya masuk panel
+   banding `sm_predictions` di view (isolasi §3.2).
+4. **Paket kuant** — `buildQuantPackage` (planner 🔒) memanggil
+   `lib/quant/*`: resolusi kanonik → `getShrunkMatchParameters` →
+   Dixon-Coles → Shin → Kelly/value → konteks. Metadata resolusi liga,
+   status gerbang, dan (untuk piala) `cupOffset` lengkap (graf, kedua
+   liga + δ, fit asal, G, HA, netral) tercatat di paket.
+5. **View** — `mapPipelineToView()`: pure function; angka disalin 1:1;
+   konversi tampilan hanya lewat helper sadar-skala; fallback-guard dan
+   `calibration_gate` merambat ke view. Frontend = dumb renderer
+   (kontrak `AnalysisViewSchema`: match, ringkasan, kuantitatif, odds,
+   debat, thinking, markets + `data_quality`, `fallback_guard`,
+   `calibration_gate`; `is_strictly_grounded` adalah marker jujur yang
+   wajib tampil).
 
-Semua bisa dioverride lewat env (lihat `.env.example`).
+### 7.2 Sumber yang sudah mati / beku
 
----
+- **TheStatsAPI mati permanen** 18 Okt 2026 (`403 KEY_REVOKED`).
+  `statsFetch` gagal cepat dengan pesan eksplisit; tidak ada panggilan
+  API di jalur render.
+- **Sportmonks Pro trial berakhir 10 Nov 2026.** Sesudah itu semua
+  jalur tulis berhenti di batas data 3–10 Nov; store lokal tetap utuh
+  dan terbaca offline.
 
-## 9. Data Layer
+### 7.3 Driver E2E (jalur aktif Spark)
 
-- **TheStatsAPI** (remote, kuota terbatas) → `lib/stats-cache.ts` (TTL in-memory) → Zod sanitizer
-- **SQLite lokal** (`lib/db/`): `thestats-dataset`, `team-telemetry`, `thestats-vault`, `sqlite-master`, `upcoming-fixtures`, `analysis-snapshot`
-- **`data/calibrated_ratings.json`** — hasil kalibrasi rating (James-Stein shrinkage) dari `scripts/calibrate-ratings.ts`
-- Tier-1 offline diprioritaskan: fetch online hanya fallback bila SQLite kosong
-- **Semua baris telemetri lewat `lib/stats-log-mapper.ts`** — skor/status absen → baris **dilewati** dengan warning, TIDAK PERNAH dikarang jadi 0-0/"finished". Akumulasi statistik (xG, shots, dll.) memakai counter per sisi: data absen → nilai `null` + sample size mengecil, bukan dihitung 0
+- `scripts/run-one-analysis.ts` — satu analisis liga domestik end-to-end
+  offline: seleksi fixture berkriteria (liga calibrated, kedua tim
+  ber-fit, odds + predictions ada) → intel → paket kuant planner 🔒 apa
+  adanya → paket JSON di `tasks/`. Penerimaan kanonik: Everton vs
+  Coventry (sm_19722110) — run #1 (fit E0, artefak routing) H 49,15 /
+  D 27,93 / A 22,92 → run #2/#3 (fit SM8 kanonik) **H 47,22 / D 25,27 /
+  A 27,52** (λ/μ 1,552/1,123), identik pasca-rekalibrasi.
+- `scripts/run-one-cup-analysis.ts` — padanannya untuk piala (seleksi
+  programatik fixture UCL ter-rate jalur offset). Penerimaan:
+  **Fenerbahçe vs Liverpool** (sm_19872622) — Fenerbahçe dari fit SM600
+  (δ Turki −0,4792), Liverpool dari fit SM8 (δ 0, referensi), G 1,2588,
+  HA 1,289 → **H 25,82% / D 21,10% / A 53,08%**, status kompetisi
+  `partial` terbawa sebagai flag di metadata.
+- Kedua driver: nol panggilan API, nol tulis ke snapshots, nol
+  modifikasi file 🔒. Verdict ditulis Spark di chat dari paket — belum
+  ada jalur persistensi verdict ke snapshots di luar insert produksi
+  app (keputusan terpisah, fase frontend).
+- Quirk yang diketahui: graf modul planner 🔒 melempar error saat import
+  headless tanpa env NineRouter (throw di scope modul
+  `syndicate-orchestrator` → `lib/llm/models.ts`); driver memuat env
+  dari `.env.local` (dengan key API dikosongkan paksa) sebagai
+  workaround. Perbaikan akar menyentuh file 🔒 → keputusan owner.
 
-**Peta 4 DB lokal** (semua di `data/`, semua di-gitignore):
+### 7.4 Kesegaran harga — caveat yang masih terbuka
 
-| DB | Isi | Bisa di-rebuild? | Boleh DELETE/refresh? |
-|---|---|---|---|
-| `football_master.db` | 28.922 match historis (CSV football-data.co.uk) | ✅ download ulang | ✅ |
-| `thestats_dataset.db` | 2.423 log / 225 tim season 26/27 (telemetri TheStatsAPI; 75 baris bertag master dari backfill Task 1) | ✅ sync ulang | ✅ |
-| `thestats_raw_vault.db` | 1.129 payload mentah API | ✅ (tapi isinya kadaluarsa) | ✅ |
-| `analysis_snapshots.db` | ~130 snapshot analisis + outcomes (§9.1) | ❌ **tidak bisa** | ❌ append-only |
-| `upcoming_fixtures.db` | 246 fixture 30 hari (§9.2) | ✅ sync ulang | ✅ disposable |
+Value-bet dievaluasi terhadap tangkapan odds terbaru di
+`match_odds_history` **tanpa aturan kesegaran**: tangkapan `baseline`
+berumur beberapa hari ikut dinilai seolah harga live. Pada E2E run #1,
+dua value nominal (Draw EV +16,2%, Coventry +13,0%) bertumpu pada harga
+berumur 4 hari — dan setelah perbaikan routing, EV Draw runtuh ke
++5,1%. Sampai aturan kesegaran ditanam (mis. value hanya actionable
+dari tangkapan ≤ jendela T-24j, sisanya ber-flag `stale`), lapisan
+verdict wajib mengompensasi manual. Ini gap desain yang diakui, belum
+ditutup.
 
-**Perintah rebuild** (fresh clone / DB terhapus): `npx.cmd tsx scripts/sync-weekly-telemetry.ts 400` — argumen = hari lookback; default `8` hanya mengambil delta mingguan, **bukan** membangun ulang riwayat musim. Consumer lokal (`getLocalH2HMatches`/`getLocalRecentMatches`) memberi `console.warn` saat tabel kosong supaya degradasi tidak pernah diam-diam.
-
-`football_master.db` = **prior** (α/β attack/defense dari fitting 22rb match, materialisasi di `calibrated_ratings.json`); `thestats_dataset.db` = **observasi** season berjalan (n di shrinkage `w = n/(n+κ)`). Keduanya beda ID space (nama tim vs `mt_*`) — jembatannya `lib/quant/team-normalizer.ts`.
-
-### 9.1 `data/analysis_snapshots.db` — riwayat analisis (data pribadi, APPEND-ONLY)
-
-Berkas **terpisah** dari `thestats_dataset.db` (`lib/db/analysis-snapshot.ts`), di-gitignore.
-Tabel `analysis_snapshots` (hasil pipeline, lengkap dengan `view_json` sebagai sumber kebenaran
-+ kolom ringkas untuk query), `match_outcomes` (hasil aktual, boleh di-refresh via upsert),
-dan dua VIEW evaluasi (`v_snapshot_eval`, `v_snapshot_eval_market`) yang menyaring
-`lead_time_minutes > 0` (pre-match) + `status = 'finished'` untuk mencegah leakage.
-
-> ⚠️ **Tidak bisa di-rebuild.** Isinya keluaran LLM (70–110 detik per match per 21 Okt 2026,
-> model nondeterministik). Ngawet ulang berarti menjalankan ulang seluruh pipeline. **Jangan
-> pernah DELETE/DROP** di jalur produksi; satu-satunya `DELETE` yang sah adalah cleanup
-> data test ber-prefix di `scripts/test-snapshot-db.ts`. Backup manual bila perlu:
-> `sqlite3 data/analysis_snapshots.db ".backup data/backup-snapshots-YYYY.db"`.
-
-**Kontrak integritas snapshot (audit 18 Okt 2026):**
-- **Cache menolak degradasi** — `getFreshSnapshot` hanya mengembalikan baris
-  `is_fallback = 0 AND is_grounded = 1`. Hasil fallback/template tetap tersimpan
-  (history/audit) tapi TIDAK PERNAH diservis sebagai analisis segar.
-- **`v_snapshot_eval` jujur saat skor NULL** — `hit_recommended`/`hit_panel` bernilai
-  `NULL` (belum dinilai), bukan menang/kalah karangan. `actual_result` juga NULL.
-- **`upsertOutcome` tidak menimpa dengan NULL** — refresh yang lebih miskin mempertahankan
-  kolom statistik lama (`COALESCE`); goals/status tetap authoritative (boleh dikoreksi).
-- **Konvensi market key: `deriveMarketKey` = sumber tunggal** — `market_key` di VIEW SQL
-  adalah mirror-nya; ekuivalensi JS↔SQL diuji `test-snapshot-db.ts`. Kalau aturan diubah,
-  ubah KEDUA sisi atau test akan merah.
-
-Skema ini menggantikan tabel `analysis_runs` yang dulu hidup di `thestats_dataset.db`
-(DB yang boleh di-refresh — berbahaya bagi data pribadi). Kontrak lengkap: `docs/db-snapshot.md`.
-Operasional: `scripts/sync-match-outcomes.ts` (tarik hasil aktual, lokal dulu),
-`scripts/snapshot-report.ts` (report read-only),
-`scripts/backfill-panel-market.ts` (isi kolom `panel_market*` untuk baris lama).
-
-**Dua definisi rekomendasi, sengaja dipisah:** `recommended_market_key` = market
-dengan EV positif pertama (aturan `hero.ev_teratas` di view), sedangkan
-`panel_market_key` = market yang benar-benar direkomendasikan arbiter/supreme
-(diturunkan dari teksnya, market yang disebut pertama). Keduanya punya hit rate
-sendiri di report — sering berbeda, jadi membandingkan keduanya itu inti evaluasi.
-Semua jalur operasional:
-- `npm run sync:weekly` — tarik telemetry match selesai (2 call/match + 1 cedera/tim, skip yang sudah ada)
-- `npm run sync:outcomes` — tarik skor/statistik aktual → `match_outcomes` (lokal dulu, online fallback)
-- `npm run report:snapshot` — evaluasi prediksi vs nyata (read-only, aman diulang)
-
-### 9.2 `data/upcoming_fixtures.db` — katalog fixture (umur pendek, disposable)
-
-Store terpisah dari `thestats_dataset.db` (pola yang sama dengan snapshot: lifecycle
-berbeda → file berbeda). Isinya **378 fixture** horizon penuh (sampai **2026-11-29**,
-7 liga target + `competition_catalog` 208 kompetisi). Horizon ini bukan pilihan kita:
-TheStatsAPI hanya menyediakan ±6 minggu fixture ke depan, dan itu batas kerasnya.
-Siklus hidup: diisi `scripts/sync-upcoming-fixtures.ts` → dibaca katalog
-`/api/matches` (offline-first, API hanya fallback) → match selesai →
-`scripts/promote-upcoming-to-telemetry.ts` menarik telemetry-nya ke dataset utama
-lalu **menghapus barisnya** di sini. Dataset utama tidak pernah menyimpan baris
-`scheduled` (invariant diuji `scripts/test-upcoming-guard.ts`).
-
-### 9.3 Masa beku online (18 Okt 2026): inventaris yang harus menggantikan API
-
-TheStatsAPI **mati permanen** — kunci ditolak dengan `403 KEY_REVOKED: "API key has
-no active subscription plan"` (terverifikasi 18 Okt 2026 ~15:05 UTC, beberapa menit
-sebelum kuota berakhir). Semua yang masih hidup sesudah itu wajib dilayani dari data
-yang sudah distok:
-
-| Kebutuhan | Sumber lokal | Status |
-|---|---|---|
-| Katalog fixture | `upcoming_fixtures.db` 420 baris + `sm_id_map` 155 (SM sync, s/d 22 Nov window) | ✅ offline-first; SM refresh berkala |
-| Harga odds | `match_odds_history` 500 baris (192+ terisi: anchor TheStats + snapshot SM 1xBet/Pinnacle) | ✅ tiap fixture punya baris (terisi/dinyatakan kosong); SM O2.5/BTTS masuk value_bets |
-| Lineup | vault + SM `lineups` per laga (berlabel sumber) | ✅ refresh per analisis |
-| Telemetri | `team_match_logs` 2.583 baris (max 27 Okt; 160 tagged sportmonks) | ✅ ritme harian `daily-refresh.ts` |
-| Cedera/skuat | vault + SM `sidelined` per laga (berlabel sumber) | ✅ refresh per analisis |
-
-Aturan main selama masa beku: **jangan panggil API di jalur render** — katalog, odds,
-dan form wajib dilayani dari store; `statsFetch` kini gagal cepat dengan pesan
-"AKSES API MATI" supaya tidak ada retry sia-sia.
-
-Update 27 Okt: Sportmonks Pro trial gantikan rencana OddsAPI — adapter + wiring
-+ katalog + backfill + ritme harian selesai (lihat Track B `tasks/todo.md`).
-
-> 📌 Laporan lengkap + item yang gagal karena API mati:
-> `tasks/todo-data-coverage.md`. Pengaman offline: `lib/stats-fetch.ts`
-> (pacing 5s di bawah limit nyata **12 req/menit** dari header `x-ratelimit-*`),
-> `lib/api-budget.ts` (counter disinkronkan header `x-monthly-quota-remaining`).
+Catatan kualitas data lain dari run E2E: `form_split` intel bisa
+ber-sampel 0/0 tetapi rata-rata golnya terisi (inkonsistensi builder
+offline); validator H2H tidak selalu sinkron dengan `h2h_cache`.
 
 ---
 
-## 10. Menjalankan & Menguji
+## 8. Ritme harian & jadwal tangkapan
 
-```bash
-npm run dev                        # dashboard di http://localhost:3101 (port 3101, bukan 3000)
-npx tsx scripts/test-debate-r1.ts            # debat R1-only: cap ronde, J2 sequential, voice, guard angka
-npx tsx scripts/test-fallback-guard.ts       # guard fallback: replay DB read-only, SKIP/warning, over-block check
-npx tsx scripts/test-half-profile.ts         # sinyal konteks babak (59)
-npx tsx scripts/test-momentum.ts             # sinyal konteks momentum (73)
-npx tsx scripts/ablate-ucl-scaling.ts        # ablasi sqrt(Q) UCL: paired ON vs OFF (UNDECIDED n=50, 19 Okt)
-npm run sync:weekly                # sinkronisasi telemetry mingguan (CLI)
-npm run ingest:multileague         # ingest multi-liga
-npx tsx scripts/test-planner-tool-calling.ts   # gate native tool-calling model planner
-npx tsx scripts/test-planner-loop.ts           # loop + coverage evaluator (mock tools)
-npx tsx scripts/test-view-mapper.ts            # BFF: fidelitas angka, null jujur, anti-leak
-npx tsx scripts/test-snapshot-db.ts            # DB snapshot: round-trip, VIEW, leakage guard, eval NULL
-npx tsx scripts/test-quant-scale.ts            # kontrak skala quant + kalibrasi ratings per liga
-npx tsx scripts/test-value-bets.ts             # value bet hanya dari odds pasar nyata
-npx tsx scripts/test-stats-mapper.ts           # mapper anti-karangan (skor/status absen → null)
-npx tsx scripts/test-upcoming-guard.ts         # fixture scheduled tidak bocor ke telemetri
-npx tsx scripts/verify-tier1-offline-quant.ts  # integrasi tier-1 offline + quant multi-liga
-npx tsx scripts/verify-foundation-phase-a.ts   # regresi foundation phase A
-npx tsx scripts/sync-match-outcomes.ts         # tarik hasil aktual (CLI, idempoten)
-npx tsx scripts/snapshot-report.ts             # report prediksi vs hasil (read-only)
-npx tsx scripts/sync-upcoming-fixtures.ts 30  # isi store fixture 30 hari ke depan (CLI)
-npx tsx scripts/promote-upcoming-to-telemetry.ts  # fixture selesai → telemetry (CLI)
-npx tsc --noEmit                   # typecheck
-npm run build                      # build produksi
+Satu entrypoint: `scripts/daily-refresh.ts` — semua langkah idempoten
+(menjalankan dua kali berturut: diff baris = 0 kecuali tangkapan
+terjadwal yang sah baru jatuh tempo):
+
+```
+1. catalog     sync-sportmonks-fixtures   horizon bergulir 60 hari
+2. odds        capture-odds               tangkapan jatuh tempo (lihat jadwal)
+3. predictions sync-predictions --days=14 skip segar 20 jam
+4. telemetry   backfill-telemetry --current-only
+5. calibrate   calibrate-ratings          refit dari store; menulis blok canonical
+6. cup-offsets fit-global-offsets         menanam blok cupOffsets + status baris piala
+                                          (TEPAT sesudah calibrate — urutan ini kontraktual:
+                                          calibrate menulis ulang blok canonical tiap siklus)
+7. context     sync-context               standings, berita, lineup, H2H ≤7 hari
+8. laporan     → tasks/coverage-latest.md
 ```
 
-Env wajib ada di `.env.local` (lihat `.env.example`): `NINE_ROUTER_BASE_URL`, `NINE_ROUTER_API_KEY`, `STATS_API_KEY`.
-Flag debug: `PIPELINE_DEBUG=1` (log verbose), `PLANNER_MAX_STEPS` (cap loop), `DISPATCHER_LLM=1` (aktifkan kembali dispatcher LLM).
+**Jadwal tangkapan odds** (per fixture, `scripts/capture-odds.ts`):
+baseline saat fixture masuk katalog, lalu titik terjadwal
+**T-24j, T-6j, T-1j, T-15m** sebelum kickoff (T-15m = proksi closing
+line untuk benchmark §5.4). Titik yang terlewat tidak bisa
+direkonstruksi setelah kickoff — perishable, karenanya ritme tidak
+boleh putus selama jendela trial. Predictions membusuk ±20 jam;
+expected lineups makin lengkap ≤24 jam sebelum kickoff.
 
-Catatan dev: jangan jalankan `next build` bareng `next dev` (output stdout build terpotong — bug Next.js yang sudah dilaporkan). `?debug=1` menjalankan analisis ulang penuh (belum mengambil raw dari run yang sama).
+**Otomasi:** cron `football-daily-refresh-trial` menjalankan rantai ini
+**tiap 6 jam s/d 10 Nov 2026** (Asia/Jakarta; diam bila sukses, melapor
+bila gagal), token hanya lewat env di konfigurasi job (persetujuan
+owner). Job penutup sekali-jalan **11 Nov 2026 09:00 WIB** menghapus
+jadwalnya dan melaporkan ringkasan penutup jendela + kesiapan benchmark
+closing line. Token mati bersama trial — sesudah 10 Nov tidak ada run
+yang berguna dijalankan.
 
----
-
-## 11. Roadmap (update 28 Okt 2026)
-
-Selesai sejak audit terakhir:
-- **Latensi** — ✅ 70–110s/run (R1-only + timeout per-tier + model cepat), dari 200–536s. Target <120s tercapai.
-- **Offline survival** — ✅ katalog/odds lokal, degradasi jujur (lihat `tasks/todo.md`)
-- **Depth 1–3** — ✅ backfill master, half-profile, momentum (konteks-only, prob frozen)
-- **R1 + voice + guard** — ✅ debat 1 ronde, voice guide, fallback guard (Task 1)
-- **Frontend redesign** — ✅ agent frontend (arsip `tasks/archive/`)
-- **Verdict parlay** — ✅ Task 2: headline leg_aman + jebakan/skip + kondisi batal (test 71/71; live E2E tunggu top-up LLM karena butuh amend opsional `parlay_options` di schemas)
-- **Sportmonks batch-1** — ✅ adapter + wiring (O2.5 Inter +EV terbukti masuk value_bets) + katalog 378→420 + telemetri max 21→27 Okt + korektif xG swap + ritme harian `daily-refresh.ts`
-- **Debug sweep 28 Okt** — ✅ full suite hijau kecuali 2 blokir eksternal (kuota LLM 0 untuk test planner; dev-server mati untuk 1 probe wiring yang kini SKIP sopan). Test basi diperbaiki di tempat: odds-anchor (baris baru dideklarasikan kosong + spot-check hanya baris ber-vault), master-backfill (legacy = `source IS NULL`), sync --check (multi-writer state), sm6 (`--check`/`--live` gate)
-
-Aktif sekarang (`tasks/plan.md` + `todo.md` master v2):
-- [ ] Task 3: judge skenario semi-agentic (A/B/C/D berangka + kondisi batal)
-- [ ] Task 4–7 batch-2 SM: H2H endpoint + batch-50 · xG tim/pemain + standings · predictions value-bets + predictability · pre-match news + expected lineups
-- [ ] Task 8: refresh harian (kode ✅, tinggal jadikan ritme)
-- [ ] Task 9: katalog post-Nov-29 (JADWAL H-2 trial mati)
-- [ ] Task 10: live verdict SM + validasi SM-3 (BUTUH TOP-UP LLM)
-- [ ] Task 11–13: kalibrasi & track record · GBM challenger · time-decay + kovariat rest-days
-
-Masih terbuka (lama):
-- Evaluasi outcome berjalan — accumulate ≥100 snapshot evaluable → kalibrasi ulang
-- Slip builder v2 (gabung 10 legs + survival) — sesudah Task 2–4
-- Trigger otonom (cron per kickoff)
-- Sisa depth 4–6 (panel kalibrasi, profil HT, laporan bulanan)
+> Catatan keadaan saat dokumen ini ditulis (4 Nov 2026): satu run
+> rantai-LAMA (dimulai sebelum fase piala mengubah `daily-refresh.ts`)
+> masih berjalan di langkah telemetry-nya. Sesuai desain rantai, run
+> itu akan menulis ulang baris piala + blok JSON sekali saat tiba di
+> langkah calibrate-nya (tanpa langkah cup-offsets), dan run BERIKUTNYA
+> (rantai baru) memulihkannya. Artefak ter-commit saat ini
+> (`calibrated_ratings.json` + registry per commit `7b28b11`) sudah
+> memuat seluruh hasil fase piala — konvergensi dijamin oleh rantai,
+> bukan intervensi manual.
 
 ---
 
-## 12. Status Model & Batasan Terukur (audit Okt 2026)
+## 9. Guardrails (jangan dilanggar)
 
-Hasil backtest jujur out-of-sample — **bahan keputusan pemakaian, jangan diabaikan**:
+1. **Angka hanya dari code** — `lib/quant/*` tidak memanggil LLM; LLM
+   tidak menghitung angka.
+2. **Fidelitas angka sampai ke layar** — view-model menyalin apa
+   adanya; helper tampilan sadar skala; field absen → `null` / "—".
+3. **Predictions terisolasi** — tidak ada jalur dari `predictions.db`
+   ke `match_odds_history` / value-bet; panel banding berlabel saja.
+4. **Snapshots append-only** — tidak ada DELETE/DROP; jalur tulis hanya
+   insert produksi app; cache menolak baris fallback/tak-grounded.
+5. **Gerbang tidak dilonggarkan diam-diam** — toleransi skala 2%,
+   definisi cakupan gerbang piala, dan ambang OOS adalah pradaftar;
+   mengubahnya = keputusan owner tercatat.
+6. **Status jujur selalu tersaji** — partial ber-flag, uncalibrated
+   terblokir dengan alasan; tidak ada liga/kompetisi yang tersaji
+   diam-diam di bawah statusnya.
+7. **Anti-leakage fail-closed** — telemetri/form/H2H lokal terikat
+   cutoff waktu; `utc_date` absen → sumber dilewati total.
+8. **Value bet hanya dari odds pasar nyata** (dan lihat caveat
+   kesegaran §7.4).
+9. **File 🔒 tidak disentuh** — planner, llm, schemas, coverage,
+   syndicate-orchestrator, `lib/llm/*`, `lib/db/analysis-snapshot.ts`,
+   `data/analysis_snapshots.db`. Hash baseline:
+   `tasks/backend-readonly-hashes.txt` (terverifikasi 8/8 di setiap
+   fase).
+10. **Tidak ada panggilan API di jalur render** — semua baca dari store
+    lokal.
 
-| Metrik | Angka | Arti |
-|---|---|---|
-| Log-Loss 1X2 model (6.528 match) | **1.0306** | Punya skill vs baseline naive (1.0771) |
-| Log-Loss closing line (vig dibuang) | **0.9949** | Model **kalah dari pasar** — gap 0.036 ≈ harga informasi yang tidak kita punya (lineup, uang tajam) |
-| Fusion telemetri (Track C) | 0.9641 vs pasar 0.9736 | Paritas statistik (p=0.348) — tidak signifikan |
-| Special markets (corners/cards) | Brier 0.30 vs base rate ~0.25 | **Tidak ada skill** setelah leakage dibetulkan |
-| Simulasi Kelly (6.133 pick) | semua strategi bangkrut | "Edge" 1X2 vs closing = ilusi |
+---
 
-Implikasi arsitektur: app adalah **decision-support** (ringkasan data, deteksi dislokasi harga, transparansi sumber, konteks lineup/cedera) — **bukan mesin pilih taruhan** melawan closing line. Kelas edge yang belum teruji: *asymmetric info* (kabar lineup/cedera lebih awal dari harga). Monitoring: response dengan `is_strictly_grounded: false` = pipeline sedang degradasi — jangan pakai output hari itu.
+## 10. Keputusan owner yang terbuka & utang terukur
 
-**Debt teknis terbuka (diketahui, belum diperbaiki — 28 Okt 2026):**
-- Top-up LLM NineRouter = 0 → live verdict + test planner mati; semua verifikasi live dijadwalkan ulang setelah top-up
-- J2 `muse-spark` sering balas kosong → fallback template ngikut pasar J1 → UNANIMOUS by-construction (inflasi keyakinan semu; lihat §8)
-- Neutral + Bear sama-sama `gpt-6-luna` (independensi stage-1 turun; hemat kredit bai)
-- Cache snapshot tanpa single-flight (2 request paralel = 2 pipeline penuh); `cache_key_hint` terfragmentasi
-- `lib/db/analysis-snapshot.ts` 745 baris — aturan market key punya 2 sumber (SQL VIEW + `deriveMarketKey`), dijaga test ekuivalensi tapi tetap duplikasi
-- Output teks LLM tidak di-Zod per field (angka aman — sudah diaudit closed-world per run)
-- Rate limiter in-memory (reset saat restart; cukup pemakaian pribadi, bukan publik)
+Belum diputuskan (diparkir eksplisit oleh fase-fase sebelumnya; tidak
+diselesaikan sepihak):
 
-Sudah dilunasi: vig fabrication (`overround 1.055` → null jujur), topEv minus-EV, UCL top-5 jatuh prior (cek values map), fixture Genk basi, Sporting ratings-miss.
+1. **Scope CAF** — graf keempat (CAF Champions League + liga CAF di
+   store) belum dibangun; sm:1107 masih diperlakukan liga biasa
+   (partial, skala 0,6025 — deteksi piala berbasis nama tidak
+   menangkapnya).
+2. **Definisi cakupan gerbang piala** — diukur atas seluruh laga
+   historis termasuk kualifikasi. Diukur atas populasi babak utama
+   saja, UECL dan ACL Elite kemungkinan lolos partial.
+3. **Varian kompresi lintas-liga CONMEBOL** (temperatur pada att/def
+   atau δ) — butuh protokol validasi sendiri; tidak di-tune di
+   held-out yang ada.
+4. **Konsekuensi blokir sm:1085 ACL Elite** — 36 fixture upcoming-nya
+   kini terblokir di jalur offset (fallback teranotasi tanpa angka),
+   atau ACL diperlakukan pengecualian.
+5. **Klaim EV special markets** — audit merekomendasikan dinonaktifkan:
+   Brier 0,30 vs base rate 0,25 = tanpa skill terukur (engine-nya
+   sendiri tetap berjalan sebagai konteks).
+6. **Diskon promosi ×0,85/×1,20** — masih hidup di fallback
+   lintas-divisi loader untuk kasus non-piala, **belum teruji**
+   (harness menilai fit per-liga, bukan jalur pinjam). Untuk fixture
+   piala, jalur offset menggantikan perannya.
+7. **Aturan kembaran mt_/sm_** (§4.4) dan **default sumber-tak-dikenal
+   condong SM**.
+8. **31 identitas TheStats tanpa negara** (§4.2) dan **jembatan akronim
+   Belanda** (PEC/ADO/NEC — sisa cakupan comp_3809; himpunan imbuhan
+   jembatan nama sengaja tidak diperluas sepihak).
+9. **Aturan kesegaran harga** untuk value-bet (§7.4).
 
-Audit E2E 18 Okt 2026 (run live Osasuna vs Racing, 375 detik): nol angka karangan, semua desimal prose LLM terlacak ke data/derivasi sah, cache jujur (`hit`, payload identik). Detail eksekusi: `tasks/todo-phase-integrity.md`.
+Utang operasional yang diketahui: kredit NineRouter = 0 (jalur verdict
+in-app mati; Spark adalah jalur aktif), J2 sering membalas kosong,
+cache snapshot tanpa single-flight, dan benchmark closing line yang
+masih ber-sampel kecil (n=21 berpasangan) — ia tumbuh sendiri selama
+ritme harian berjalan.
+
+---
+
+## Lampiran — peta bukti
+
+| Klaim di dokumen ini | Artefak sumber |
+|---|---|
+| Sprint ekspansi DB (katalog, odds, predictions, telemetri, konteks) | `tasks/sprint-report-2026-11-09.md`, `tasks/tier-table.json`, `tasks/mapping-review.md` |
+| Alur backend per hop + titik asumsi lama | `tasks/backend-flow-map.md` |
+| Audit model + vonis Fase 3 | `tasks/model-audit.md`, `tasks/oos-results.json`, `tasks/oos-gate.json` |
+| Unifikasi kanonik (250/412, 803 fixture berubah) | `tasks/league-canonical-report.md`, `data/league-canonical.json` |
+| Rekalibrasi (satu demosi, closing n=30) | `tasks/recalibration-report.md` |
+| Model piala (δ, gerbang, status 0/4/13) | `tasks/cup-offset-report.md`, `tasks/cup-oos.json` |
+| Cakupan harian terakhir | `tasks/coverage-latest.md` (dibangkitkan tiap run ritme) |
+| Paket penerimaan E2E | `tasks/e2e-run-1-package.json` (+ `.pre-canonical` / `.canonical`), `tasks/e2e-cup-package.json` |
