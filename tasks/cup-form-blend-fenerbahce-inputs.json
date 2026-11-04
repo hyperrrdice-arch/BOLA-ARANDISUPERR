@@ -1,0 +1,803 @@
+{
+ "purpose": "Input ilustrasi Fase C (cup-path form blend): angka serving tersimpan Fenerbahçe vs Liverpool (sm_19872622, UCL sm:2, kickoff 2026-11-04T17:45Z) + input telemetri mentah cermin-lab dari store. Ekstraksi read-only, tanpa perubahan kode.",
+ "task1_serving_package": {
+  "source_file": "tasks/e2e-cup-package-live.json",
+  "meta": {
+   "run": "e2e-cup-ucl-live",
+   "generated_at": "2026-11-04T16:54:29.694Z",
+   "match_id": "sm_19872622",
+   "competition_id": "sm:2",
+   "fixture_sm_id": 19872622,
+   "kickoff_utc": "2026-11-04T17:45:00Z",
+   "model": "global-offset (fase kalibrasi piala): att*=att×e^δ, def*=def÷e^δ, basis globalAvg graf + cupHA graf"
+  },
+  "fixture": {
+   "match_id": "sm_19872622",
+   "competition_id": "sm:2",
+   "competition_name": "Champions League",
+   "home_team_id": "88",
+   "away_team_id": "8",
+   "home_team_name": "Fenerbahçe",
+   "away_team_name": "Liverpool",
+   "venue": "Şükrü Saracoğlu Stadium"
+  },
+  "note_fixture_team_ids": "selection.fixture home_team_id='88' / away_team_id='8' adalah id partisipan Sportmonks mentah dari store upcoming; di thestats_dataset.db tim yang sama ber-key tm_91646 / tm_0406 (lihat task2).",
+  "shrunk_params_served": {
+   "homeAttack": 1,
+   "homeDefense": 1.306,
+   "awayAttack": 1.268,
+   "awayDefense": 0.869,
+   "homeAdvantage": 1.289,
+   "leagueAvgGoals": 1.2588,
+   "rho": 0,
+   "shrinkageWeights": {
+    "home": 0,
+    "away": 0
+   },
+   "isCalibrated": true,
+   "metadata": {
+    "div": "sm:2",
+    "leagueName": "Champions League",
+    "homeSource": "primary_league",
+    "awaySource": "primary_league",
+    "macroPriorDate": "2026-11-04",
+    "telemetrySource": {
+     "home": "macro_prior_only",
+     "away": "macro_prior_only"
+    },
+    "observedXgSamples": {
+     "home": 0,
+     "away": 0
+    },
+    "isEstimatedTelemetry": true,
+    "preMatchCutoff": "2026-11-04",
+    "calibrationStatus": "partial",
+    "calibrationGate": "Fit tersedia tapi liga berstatus PARTIAL — sajikan dengan flag, bukan sebagai ratings penuh. cakupan telemetri=0.5734939759036145 Model offset global graf europe (δ liga domestik; ML Poisson atas 1857 jangkar lintas-liga graf). Bukti OOS: Mengalahkan naive (LL 0.9825 < 1.0399) tapi belum calibrated: cakupan 0.57 < 0.80.",
+    "leagueResolution": {
+     "canonicalId": "sm:2",
+     "fitSystem": "special",
+     "via": "cup-offset",
+     "note": "Model offset global graf europe: kandang dari sm:600 (δ=-0.4792), tamu dari sm:8 (δ=0)."
+    },
+    "cupOffset": {
+     "graph": "europe",
+     "competitionCanonicalId": "sm:2",
+     "homeLeagueCanonicalId": "sm:600",
+     "awayLeagueCanonicalId": "sm:8",
+     "homeFitDiv": "SM600",
+     "awayFitDiv": "SM8",
+     "homeDelta": -0.4792,
+     "awayDelta": 0,
+     "baseAvgGoals": 1.2588,
+     "baseAvgSource": "graph-global",
+     "cupHomeAdvantage": 1.289,
+     "neutralVenue": false,
+     "homeCandidates": 2,
+     "awayCandidates": 2
+    }
+   }
+  },
+  "delta_transformed_att_def_served": {
+   "homeAttack": 1,
+   "homeDefense": 1.306,
+   "awayAttack": 1.268,
+   "awayDefense": 0.869,
+   "homeAdvantage": 1.289,
+   "leagueAvgGoals": 1.2588,
+   "rho": 0
+  },
+  "lambda_mu": {
+   "lambda_home_xg": 1.41,
+   "mu_away_xg": 2.085,
+   "expected_total_goals": 3.5
+  },
+  "probabilities_1x2": {
+   "home": 0.2582,
+   "draw": 0.211,
+   "away": 0.5308,
+   "fair_odds": {
+    "home": 3.87,
+    "draw": 4.74,
+    "away": 1.88
+   }
+  },
+  "over_2_5_prob": {
+   "value": 0.6782,
+   "found_at": "quant_pure.dixon_coles.over_2_5_prob (dan duplikat quant_pure.quant_package.dixon_coles.over_2_5_prob)"
+  },
+  "btts_yes_prob": {
+   "value": 0.6619,
+   "found_at": "quant_pure.dixon_coles.btts_yes_prob (dan duplikat quant_pure.quant_package.dixon_coles.btts_yes_prob)"
+  },
+  "top_scorelines": [
+   {
+    "homeGoals": 1,
+    "awayGoals": 2,
+    "prob": 9.3
+   },
+   {
+    "homeGoals": 1,
+    "awayGoals": 1,
+    "prob": 8.9
+   },
+   {
+    "homeGoals": 0,
+    "awayGoals": 2,
+    "prob": 6.6
+   },
+   {
+    "homeGoals": 2,
+    "awayGoals": 2,
+    "prob": 6.6
+   },
+   {
+    "homeGoals": 1,
+    "awayGoals": 3,
+    "prob": 6.5
+   },
+   {
+    "homeGoals": 0,
+    "awayGoals": 1,
+    "prob": 6.3
+   }
+  ],
+  "cup_offset_metadata": {
+   "graph": "europe",
+   "competitionCanonicalId": "sm:2",
+   "homeLeagueCanonicalId": "sm:600",
+   "awayLeagueCanonicalId": "sm:8",
+   "homeFitDiv": "SM600",
+   "awayFitDiv": "SM8",
+   "homeDelta": -0.4792,
+   "awayDelta": 0,
+   "baseAvgGoals": 1.2588,
+   "baseAvgSource": "graph-global",
+   "cupHomeAdvantage": 1.289,
+   "neutralVenue": false,
+   "homeCandidates": 2,
+   "awayCandidates": 2
+  },
+  "calibration_metadata": {
+   "is_calibrated": true,
+   "div": "sm:2",
+   "league_name": "Champions League",
+   "home_source": "primary_league",
+   "away_source": "primary_league",
+   "shrinkage_weights": {
+    "home": 0,
+    "away": 0
+   },
+   "calibrated_home_advantage": 1.289,
+   "calibrated_league_avg_goals": 1.2588,
+   "macro_prior_date": "2026-11-04",
+   "telemetry_source": {
+    "home": "macro_prior_only",
+    "away": "macro_prior_only"
+   },
+   "observed_xg_samples": {
+    "home": 0,
+    "away": 0
+   },
+   "is_estimated_telemetry": true,
+   "pre_match_cutoff": "2026-11-04"
+  },
+  "telemetry_metadata_served": {
+   "telemetrySource": {
+    "home": "macro_prior_only",
+    "away": "macro_prior_only"
+   },
+   "observedXgSamples": {
+    "home": 0,
+    "away": 0
+   },
+   "isEstimatedTelemetry": true,
+   "shrinkageWeights": {
+    "home": 0,
+    "away": 0
+   },
+   "preMatchCutoff": "2026-11-04",
+   "calibrationStatus": "partial"
+  },
+  "last6_form_as_recorded_in_package_context_telemetry_last6": {
+   "home": {
+    "team": "Fenerbahçe",
+    "summary": {
+     "team_id": "Fenerbahçe",
+     "sample_size": 6,
+     "observed_xg_samples": 6,
+     "rolling_xg_for": 1.76,
+     "rolling_xg_against": 1.91,
+     "rolling_npxg_for": 1.73,
+     "rolling_npxg_against": 2.32,
+     "rolling_goals_for": 1.17,
+     "rolling_goals_against": 3,
+     "win_rate": 0.17,
+     "clean_sheet_rate": 0.17,
+     "form_sequence": "L-L-D-W-L-L"
+    },
+    "recent_logs": [
+     {
+      "match_date": "2026-10-31",
+      "match_id": "sm_19746567",
+      "competition_id": "sm:600",
+      "venue": "HOME",
+      "opponent_id": "3897",
+      "result": "L",
+      "goals_for": 1,
+      "goals_against": 2,
+      "xg_for": 1.6317,
+      "xg_against": 1.0701,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-26",
+      "match_id": "sm_19746576",
+      "competition_id": "sm:600",
+      "venue": "AWAY",
+      "opponent_id": "tm_26919",
+      "result": "L",
+      "goals_for": 1,
+      "goals_against": 2,
+      "xg_for": 0.49420000000000003,
+      "xg_against": 2.1235,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-20",
+      "match_id": "sm_19873677",
+      "competition_id": "sm:2",
+      "venue": "HOME",
+      "opponent_id": "216",
+      "result": "D",
+      "goals_for": 2,
+      "goals_against": 2,
+      "xg_for": 1.0976,
+      "xg_against": 1.323,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-17",
+      "match_id": "sm_19746585",
+      "competition_id": "sm:600",
+      "venue": "HOME",
+      "opponent_id": "347",
+      "result": "W",
+      "goals_for": 3,
+      "goals_against": 0,
+      "xg_for": 4.1408000000000005,
+      "xg_against": 0.7525000000000001,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-14T19:00:00.000Z",
+      "match_id": "mt_981334424",
+      "competition_id": "comp_3498",
+      "venue": "AWAY",
+      "opponent_id": "tm_1002",
+      "result": "L",
+      "goals_for": 0,
+      "goals_against": 6,
+      "xg_for": 1.73,
+      "xg_against": 3.11,
+      "source": null
+     },
+     {
+      "match_date": "2026-10-14",
+      "match_id": "sm_19873676",
+      "competition_id": "sm:2",
+      "venue": "AWAY",
+      "opponent_id": "tm_1002",
+      "result": "L",
+      "goals_for": 0,
+      "goals_against": 6,
+      "xg_for": 1.4544,
+      "xg_against": 3.1035,
+      "source": "sportmonks"
+     }
+    ],
+    "schedule_friction": {
+     "last_match_date": "2026-10-31",
+     "rest_days": 4,
+     "midweek_continental": false,
+     "fatigue_risk": "LOW"
+    }
+   },
+   "away": {
+    "team": "Liverpool",
+    "summary": {
+     "team_id": "Liverpool",
+     "sample_size": 6,
+     "observed_xg_samples": 3,
+     "rolling_xg_for": 1.77,
+     "rolling_xg_against": 1.31,
+     "rolling_npxg_for": null,
+     "rolling_npxg_against": null,
+     "rolling_goals_for": 1.67,
+     "rolling_goals_against": 0.67,
+     "win_rate": 0.83,
+     "clean_sheet_rate": 0.67,
+     "form_sequence": "W-L-W-W-W-W"
+    },
+    "recent_logs": [
+     {
+      "match_date": "2026-11-01",
+      "match_id": "sm_19901614",
+      "competition_id": "sm:770",
+      "venue": "HOME",
+      "opponent_id": "9277",
+      "result": "W",
+      "goals_for": 2,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-11-01",
+      "match_id": "sm_19722117",
+      "competition_id": "sm:8",
+      "venue": "HOME",
+      "opponent_id": "tm_9145",
+      "result": "L",
+      "goals_for": 0,
+      "goals_against": 1,
+      "xg_for": 1.7063,
+      "xg_against": 0.8067,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-25",
+      "match_id": "sm_19897227",
+      "competition_id": "sm:770",
+      "venue": "AWAY",
+      "opponent_id": "7035",
+      "result": "W",
+      "goals_for": 1,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-25",
+      "match_id": "sm_19722126",
+      "competition_id": "sm:8",
+      "venue": "HOME",
+      "opponent_id": "tm_1552",
+      "result": "W",
+      "goals_for": 2,
+      "goals_against": 0,
+      "xg_for": 1.2737,
+      "xg_against": 1.6927999999999999,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-20",
+      "match_id": "sm_19872628",
+      "competition_id": "sm:2",
+      "venue": "HOME",
+      "opponent_id": "tm_73664",
+      "result": "W",
+      "goals_for": 4,
+      "goals_against": 3,
+      "xg_for": 2.3319,
+      "xg_against": 1.4168999999999998,
+      "source": "sportmonks"
+     },
+     {
+      "match_date": "2026-10-18",
+      "match_id": "sm_19895015",
+      "competition_id": "sm:770",
+      "venue": "HOME",
+      "opponent_id": "3338",
+      "result": "W",
+      "goals_for": 1,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null,
+      "source": "sportmonks"
+     }
+    ],
+    "schedule_friction": {
+     "last_match_date": "2026-11-01",
+     "rest_days": 3,
+     "midweek_continental": false,
+     "fatigue_risk": "MODERATE"
+    }
+   }
+  },
+  "package_form_caveat": "context.telemetry_last6 paket TIDAK source-filtered: laga Fenerbahçe 2026-10-14 (kalah 0-6) tercatat DUA kali (mt_981334424/comp_3498 source=None dan sm_19873676/sm:2 source=sportmonks), sehingga rolling paket Fenerbahçe rolling_goals_against=3.00 dan rolling_xg_against=1.91 terinflasi dobel. Set cermin-lab (source='sportmonks' saja, task2) memberi GA=2.00 dan xGA tertimbang-kompetisi=1.653. Angka paket xGF 1.76 juga tanpa pembobotan kompetisi; cermin-lab tertimbang = 1.690.",
+  "intel_form_split": {
+   "home_form_summary": "Data split kandang terbatas",
+   "away_form_summary": "Data split tandang terbatas",
+   "home_goals_avg": 1.6,
+   "away_goals_avg": 1.25,
+   "home_form_sample_size": 0,
+   "away_form_sample_size": 0
+  }
+ },
+ "task2_store_inputs": {
+  "store": "data/thestats_dataset.db (read-only, mode=ro)",
+  "cutoff": "match_date < 2026-11-04 (granular tanggal, cermin lab)",
+  "team_id_resolution": {
+   "fenerbahce": {
+    "teams_table_row": {
+     "team_id": "tm_91646",
+     "name": "Fenerbahçe"
+    },
+    "package_fixture_raw_sportmonks_participant_id": "88",
+    "verification": "teams dicari by name → tm_91646; baris matches sm:2 memakai tm_91646 sebagai home/away (mis. sm_19873677 2026-10-20 vs '216' 2-2, sm_19873676 2026-10-14 di tm_1002 6-0); team_match_logs source='sportmonks' untuk tm_91646 = 76 baris, semua match_id ber-prefix sm_. Id '88' TIDAK ada di tabel teams dataset dan 0 log. Fixture sm_19872622 sendiri belum ada di matches (masih scheduled, hidup di store upcoming)."
+   },
+   "liverpool": {
+    "teams_table_row": {
+     "team_id": "tm_0406",
+     "name": "Liverpool"
+    },
+    "package_fixture_raw_sportmonks_participant_id": "8",
+    "verification": "teams by name → tm_0406; matches sm:2 memakai tm_0406 (mis. sm_19872628 2026-10-20 vs tm_73664 4-3); team_match_logs source='sportmonks' tm_0406 = 158 baris prefix sm_. Id '8' tidak ada di teams dataset / 0 log."
+   },
+   "name_collisions_in_teams_table": "Pencarian nama juga memunculkan 'Liverpool W' (132874), 'Fenerbahçe W' (260167), 'City of Liverpool' (128512), 'South Liverpool' (266083) — bukan tabrakan nama persis, tapi risiko bila resolusi memakai LIKE/parsial."
+  },
+  "target_competition_avg_goals_sm2": {
+   "competition_id": "sm:2",
+   "avg_goals_per_team": 1.58845,
+   "n_finished_matches": 684,
+   "measure": "AVG((home_score+away_score)/2.0) over finished matches"
+  },
+  "weight_formula": "weight per log = round3(targetAvg/logCompAvg), target = rata-rata sm:2; weight 1.0 bila kompetisi log = sm:2 atau tak terukur",
+  "teams": {
+   "Fenerbahçe": {
+    "dataset_team_id": "tm_91646",
+    "last6_sportmonks_logs": [
+     {
+      "match_date": "2026-10-31",
+      "match_id": "sm_19746567",
+      "competition_id": "sm:600",
+      "venue": "HOME",
+      "opponent_id": "3897",
+      "result": "L",
+      "goals_for": 1,
+      "goals_against": 2,
+      "xg_for": 1.6317,
+      "xg_against": 1.0701
+     },
+     {
+      "match_date": "2026-10-26",
+      "match_id": "sm_19746576",
+      "competition_id": "sm:600",
+      "venue": "AWAY",
+      "opponent_id": "tm_26919",
+      "result": "L",
+      "goals_for": 1,
+      "goals_against": 2,
+      "xg_for": 0.49420000000000003,
+      "xg_against": 2.1235
+     },
+     {
+      "match_date": "2026-10-20",
+      "match_id": "sm_19873677",
+      "competition_id": "sm:2",
+      "venue": "HOME",
+      "opponent_id": "216",
+      "result": "D",
+      "goals_for": 2,
+      "goals_against": 2,
+      "xg_for": 1.0976,
+      "xg_against": 1.323
+     },
+     {
+      "match_date": "2026-10-17",
+      "match_id": "sm_19746585",
+      "competition_id": "sm:600",
+      "venue": "HOME",
+      "opponent_id": "347",
+      "result": "W",
+      "goals_for": 3,
+      "goals_against": 0,
+      "xg_for": 4.1408000000000005,
+      "xg_against": 0.7525000000000001
+     },
+     {
+      "match_date": "2026-10-14",
+      "match_id": "sm_19873676",
+      "competition_id": "sm:2",
+      "venue": "AWAY",
+      "opponent_id": "tm_1002",
+      "result": "L",
+      "goals_for": 0,
+      "goals_against": 6,
+      "xg_for": 1.4544,
+      "xg_against": 3.1035
+     },
+     {
+      "match_date": "2026-10-10",
+      "match_id": "sm_19746597",
+      "competition_id": "sm:600",
+      "venue": "AWAY",
+      "opponent_id": "1041",
+      "result": "W",
+      "goals_for": 3,
+      "goals_against": 0,
+      "xg_for": 1.2299,
+      "xg_against": 1.6675
+     }
+    ],
+    "per_log_competition_weights": [
+     1.124,
+     1.124,
+     1.0,
+     1.124,
+     1.0,
+     1.124
+    ],
+    "competition_avg_goals": {
+     "sm:2": {
+      "avg_goals_per_team": 1.58845,
+      "n_finished_matches": 684
+     },
+     "sm:600": {
+      "avg_goals_per_team": 1.413161,
+      "n_finished_matches": 737
+     }
+    },
+    "form_goals_fallback": {
+     "matches": [
+      {
+       "match_id": "sm_19746567",
+       "competition_id": "sm:600",
+       "utc_date": "2026-10-31T16:00:00.000Z",
+       "home_team_id": "tm_91646",
+       "away_team_id": "3897",
+       "home_score": 1,
+       "away_score": 2,
+       "goals_scored": 1
+      },
+      {
+       "match_id": "sm_19746576",
+       "competition_id": "sm:600",
+       "utc_date": "2026-10-26T18:30:00.000Z",
+       "home_team_id": "tm_26919",
+       "away_team_id": "tm_91646",
+       "home_score": 2,
+       "away_score": 1,
+       "goals_scored": 1
+      },
+      {
+       "match_id": "sm_19873677",
+       "competition_id": "sm:2",
+       "utc_date": "2026-10-20T16:45:00.000Z",
+       "home_team_id": "tm_91646",
+       "away_team_id": "216",
+       "home_score": 2,
+       "away_score": 2,
+       "goals_scored": 2
+      },
+      {
+       "match_id": "sm_19746585",
+       "competition_id": "sm:600",
+       "utc_date": "2026-10-17T16:00:00.000Z",
+       "home_team_id": "tm_91646",
+       "away_team_id": "347",
+       "home_score": 3,
+       "away_score": 0,
+       "goals_scored": 3
+      },
+      {
+       "match_id": "sm_19873676",
+       "competition_id": "sm:2",
+       "utc_date": "2026-10-14T19:00:00.000Z",
+       "home_team_id": "tm_1002",
+       "away_team_id": "tm_91646",
+       "home_score": 6,
+       "away_score": 0,
+       "goals_scored": 0
+      },
+      {
+       "match_id": "sm_19746597",
+       "competition_id": "sm:600",
+       "utc_date": "2026-10-10T16:00:00.000Z",
+       "home_team_id": "1041",
+       "away_team_id": "tm_91646",
+       "home_score": 0,
+       "away_score": 3,
+       "goals_scored": 3
+      }
+     ],
+     "avg_goals_scored": 1.666667,
+     "n": 6
+    },
+    "lab_mirror_rollings": {
+     "sample_size": 6,
+     "xg_samples_for": 6,
+     "xg_samples_against": 6,
+     "rolling_xg_for_competition_weighted": 1.689991,
+     "rolling_xg_against_competition_weighted": 1.652738,
+     "rolling_xg_for_unweighted": 1.674767,
+     "rolling_xg_against_unweighted": 1.67335,
+     "rolling_goals_for": 1.666667,
+     "rolling_goals_against": 2.0
+    },
+    "blend_branch": "xg",
+    "branch_rule": "xg bila xgSamples>=3, else goals bila sampleSize>=1, else fallback (formGoals)"
+   },
+   "Liverpool": {
+    "dataset_team_id": "tm_0406",
+    "last6_sportmonks_logs": [
+     {
+      "match_date": "2026-11-01",
+      "match_id": "sm_19901614",
+      "competition_id": "sm:770",
+      "venue": "HOME",
+      "opponent_id": "9277",
+      "result": "W",
+      "goals_for": 2,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null
+     },
+     {
+      "match_date": "2026-11-01",
+      "match_id": "sm_19722117",
+      "competition_id": "sm:8",
+      "venue": "HOME",
+      "opponent_id": "tm_9145",
+      "result": "L",
+      "goals_for": 0,
+      "goals_against": 1,
+      "xg_for": 1.7063,
+      "xg_against": 0.8067
+     },
+     {
+      "match_date": "2026-10-25",
+      "match_id": "sm_19897227",
+      "competition_id": "sm:770",
+      "venue": "AWAY",
+      "opponent_id": "7035",
+      "result": "W",
+      "goals_for": 1,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null
+     },
+     {
+      "match_date": "2026-10-25",
+      "match_id": "sm_19722126",
+      "competition_id": "sm:8",
+      "venue": "HOME",
+      "opponent_id": "tm_1552",
+      "result": "W",
+      "goals_for": 2,
+      "goals_against": 0,
+      "xg_for": 1.2737,
+      "xg_against": 1.6927999999999999
+     },
+     {
+      "match_date": "2026-10-20",
+      "match_id": "sm_19872628",
+      "competition_id": "sm:2",
+      "venue": "HOME",
+      "opponent_id": "tm_73664",
+      "result": "W",
+      "goals_for": 4,
+      "goals_against": 3,
+      "xg_for": 2.3319,
+      "xg_against": 1.4168999999999998
+     },
+     {
+      "match_date": "2026-10-18",
+      "match_id": "sm_19895015",
+      "competition_id": "sm:770",
+      "venue": "HOME",
+      "opponent_id": "3338",
+      "result": "W",
+      "goals_for": 1,
+      "goals_against": 0,
+      "xg_for": null,
+      "xg_against": null
+     }
+    ],
+    "per_log_competition_weights": [
+     1.333,
+     1.124,
+     1.333,
+     1.124,
+     1.0,
+     1.333
+    ],
+    "competition_avg_goals": {
+     "sm:2": {
+      "avg_goals_per_team": 1.58845,
+      "n_finished_matches": 684
+     },
+     "sm:770": {
+      "avg_goals_per_team": 1.191648,
+      "n_finished_matches": 874
+     },
+     "sm:8": {
+      "avg_goals_per_team": 1.413529,
+      "n_finished_matches": 850
+     }
+    },
+    "form_goals_fallback": {
+     "matches": [
+      {
+       "match_id": "sm_19901614",
+       "competition_id": "sm:770",
+       "utc_date": "2026-11-01T23:00:00.000Z",
+       "home_team_id": "tm_0406",
+       "away_team_id": "9277",
+       "home_score": 2,
+       "away_score": 0,
+       "goals_scored": 2
+      },
+      {
+       "match_id": "sm_19722117",
+       "competition_id": "sm:8",
+       "utc_date": "2026-11-01T16:30:00.000Z",
+       "home_team_id": "tm_0406",
+       "away_team_id": "tm_9145",
+       "home_score": 0,
+       "away_score": 1,
+       "goals_scored": 0
+      },
+      {
+       "match_id": "sm_19897227",
+       "competition_id": "sm:770",
+       "utc_date": "2026-10-25T22:30:00.000Z",
+       "home_team_id": "7035",
+       "away_team_id": "tm_0406",
+       "home_score": 0,
+       "away_score": 1,
+       "goals_scored": 1
+      },
+      {
+       "match_id": "sm_19722126",
+       "competition_id": "sm:8",
+       "utc_date": "2026-10-25T14:00:00.000Z",
+       "home_team_id": "tm_0406",
+       "away_team_id": "tm_1552",
+       "home_score": 2,
+       "away_score": 0,
+       "goals_scored": 2
+      },
+      {
+       "match_id": "sm_19872628",
+       "competition_id": "sm:2",
+       "utc_date": "2026-10-20T19:00:00.000Z",
+       "home_team_id": "tm_0406",
+       "away_team_id": "tm_73664",
+       "home_score": 4,
+       "away_score": 3,
+       "goals_scored": 4
+      },
+      {
+       "match_id": "sm_19895015",
+       "competition_id": "sm:770",
+       "utc_date": "2026-10-18T21:30:00.000Z",
+       "home_team_id": "tm_0406",
+       "away_team_id": "3338",
+       "home_score": 1,
+       "away_score": 0,
+       "goals_scored": 1
+      }
+     ],
+     "avg_goals_scored": 1.666667,
+     "n": 6
+    },
+    "lab_mirror_rollings": {
+     "sample_size": 6,
+     "xg_samples_for": 3,
+     "xg_samples_against": 3,
+     "rolling_xg_for_competition_weighted": 1.749206,
+     "rolling_xg_against_competition_weighted": 1.301212,
+     "rolling_xg_for_unweighted": 1.770633,
+     "rolling_xg_against_unweighted": 1.305467,
+     "rolling_goals_for": 1.666667,
+     "rolling_goals_against": 0.666667
+    },
+    "blend_branch": "xg",
+    "branch_rule": "xg bila xgSamples>=3, else goals bila sampleSize>=1, else fallback (formGoals)"
+   }
+  }
+ }
+}
