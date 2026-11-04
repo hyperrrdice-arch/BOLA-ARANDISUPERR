@@ -1,8 +1,10 @@
 @theme {
-  /* Colors — Editorial Terminal "Amber Panas" (arah v2 disetujui Arandi 2026-11-05;
-     palet chartreuse ditolak sebagai AI slop, diganti amber).
+  /* Colors — "Amber Panas" (disetujui Arandi 2026-11-05).
      Dasar tinta hangat + teks tulang; SATU aksen amber (probabilitas = panas);
-     warna lain cuma buat status, direduksi ala cetakan. Nol neon, nol gradasi. */
+     warna lain cuma buat status, direduksi. Nol neon, nol gradasi.
+     v2 (2026-11-05): standar halaman produk big-tech — tanpa kotak/panel;
+     struktur dari spasi, alignment, dan tipe; hairline sangat tipis hanya
+     di tempat tabel memang butuh pemisah. */
   --color-canvas: #0d0c0a;
   --color-paper: #151310;
   --color-surface-alt: #1b1813;
@@ -20,8 +22,9 @@
   --color-brick: #b4503c;
   --color-ember: #b4503c;
 
-  /* Typography */
-  --font-geist: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Typography — satu keluarga Archivo (display 600, tracking rapat;
+     teks 400/500) + IBM Plex Mono untuk angka. */
+  --font-archivo: 'Archivo', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
@@ -35,16 +38,16 @@
   --leading-subheading: 1.56;
   --text-heading-sm: 24px;
   --leading-heading-sm: 1.33;
-  --tracking-heading-sm: -0.6px;
+  --tracking-heading-sm: -0.24px;
   --text-heading: 30px;
   --leading-heading: 1.2;
-  --tracking-heading: -0.75px;
+  --tracking-heading: -0.3px;
   --text-heading-lg: 36px;
   --leading-heading-lg: 1.11;
-  --tracking-heading-lg: -0.9px;
+  --tracking-heading-lg: -0.36px;
   --text-display: 48px;
   --leading-display: 1.1;
-  --tracking-display: -2.4px;
+  --tracking-display: -0.96px;
 
   /* Spacing */
   --spacing-4: 4px;

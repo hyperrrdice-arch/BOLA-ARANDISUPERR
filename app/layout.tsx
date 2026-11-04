@@ -1,27 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Archivo_Narrow } from "next/font/google";
+import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
-});
-
-const display = Archivo_Narrow({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "PILIHAN AMAN — Mesin Probabilitas Sepak Bola",
+  title: "Pilihan Aman — Know your odds.",
   description:
-    "Alat bantu menaikkan keyakinan: probabilitas terkalibrasi dari model kuantitatif deterministik, dibandingkan lintas sumber, dengan bukti hasil yang tercatat. Bukan tipster, bukan janji menang.",
+    "Match probabilities from a calibrated model. Every pick is logged before kick-off and graded on the final score.",
 };
 
 export default function RootLayout({
@@ -31,15 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
+      lang="en"
+      className={`${archivo.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink selection:bg-accent selection:text-accent-ink">
         <a
-          href="#konten-utama"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-md focus:bg-accent focus:text-accent-ink focus:text-xs focus:font-bold"
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-md focus:bg-accent focus:text-accent-ink focus:text-xs focus:font-semibold"
         >
-          Lewati ke konten utama
+          Skip to main content
         </a>
         {children}
       </body>

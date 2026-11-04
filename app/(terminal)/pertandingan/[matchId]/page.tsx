@@ -19,7 +19,7 @@ import {
   EmptyState,
   FormChips,
   GateStatus,
-  GradeStamp,
+  GradeMark,
   MicroLabel,
   PageLoading,
   Prob,
@@ -444,7 +444,7 @@ async function AnalisisContent({ params }: { params: Promise<{ matchId: string }
                 {picks.map((pk: PickRow) => (
                   <tr key={pk.id} className="border-b border-hairline/60">
                     <td className="py-2 pr-3">
-                      <GradeStamp grade={pk.grade} size="sm" />
+                      <GradeMark grade={pk.grade} />
                     </td>
                     <td className="py-2 px-3 text-ink-soft">
                       {labelPilihan(pk.market, pk.selection, home, away)}

@@ -10,8 +10,8 @@
   --well: #0a0908;
   --ink: #e9e4d8;
   --ink-soft: #cfc8b8;
-  --mid-gray: #9a927f;
-  --faint: #6e6759;
+  --mid-gray: #a39e93;
+  --faint: #6e675c;
   --hairline: #26231e;
   --hairline-strong: #3a352b;
   --accent: #ffa02e;
@@ -27,8 +27,8 @@
   --border-strong: #3a352b;
   --text-primary: #e9e4d8;
   --text-body: #cfc8b8;
-  --text-muted: #9a927f;
-  --text-faint: #6e6759;
+  --text-muted: #a39e93;
+  --text-faint: #6e675c;
 
   /* Motion curves */
   --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
@@ -39,9 +39,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-display), "Archivo Narrow", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
@@ -52,7 +52,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Angka selalu mono tabular — menghilangkan jitter layout pada data live. */
+/* Numbers always mono tabular — no layout jitter on live data. */
 .tabular-nums {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -68,30 +68,8 @@ body {
   color: var(--accent-ink);
 }
 
-/* Panel terminal: permukaan datar + garis rambut 1px. Bukan kartu melayang. */
-.panel {
-  background-color: var(--paper);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-}
-
-.panel-flat {
-  background-color: var(--paper);
-  border: 1px solid var(--border-subtle);
-  border-radius: 2px;
-}
-
-/* Label mikro: huruf besar mono — bahasa visual terminal. */
-.micro-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
 /* ========================================================================= */
-/* LOADING BAR (mono scan, amber)                                             */
+/* LOADING BAR (thin amber scan line — a line, not a box)                     */
 /* ========================================================================= */
 
 @keyframes monoScan {
@@ -118,24 +96,6 @@ body {
   animation: monoScan 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
-/* ========================================================================= */
-/* REVEAL (dipakai tanpa JS berat; GSAP menangani yang lebih kompleks)        */
-/* ========================================================================= */
-
-@keyframes revealStaggerUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.reveal-up {
-  animation: revealStaggerUp 280ms var(--ease-terminal) forwards;
-}
-
-.bar-unfold {
-  transform-origin: left;
-  transition: transform 320ms var(--ease-terminal);
-}
-
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -144,12 +104,6 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal-up {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .bar-unfold { transition: none !important; }
   .mono-loading-bar {
     animation: none !important;
     background: var(--accent);
@@ -157,32 +111,8 @@ body {
   }
 }
 
-/* Scrollbar tipis netral */
+/* Thin neutral scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #3a352b; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #55492f; }
-
-/* ========================================================================= */
-/* TREK A (LANDING) — ticker marquee pilihan A/B mendatang.                   */
-/* Track berisi dua salinan daftar yang sama; geser -50% = putaran mulus.    */
-/* ========================================================================= */
-
-@keyframes trekATicker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.ticker-track {
-  animation: trekATicker 48s linear infinite;
-}
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ticker-track {
-    animation: none !important;
-    transform: none !important;
-  }
-}

@@ -11,7 +11,7 @@
  * di panel, bukan disembunyikan.
  */
 import { useMemo, useState } from "react";
-import { GateStatus, GradeStamp, MicroLabel, Prob, SectionHead, EmptyState } from "../ui";
+import { GateStatus, GradeMark, MicroLabel, Prob, SectionHead, EmptyState } from "../ui";
 import { MARKET_LABEL, jamWibOnly, labelPilihan, pct, tanggalWib } from "../../lib/web/format";
 import { combineSlip, type SlipPick } from "../../lib/web/parlay";
 
@@ -125,7 +125,7 @@ export default function ParlayBuilder({
             <ul className="mt-3 divide-y divide-hairline">
               {selected.map((p) => (
                 <li key={p.key} className="flex items-start gap-2 py-2">
-                  <GradeStamp grade={p.grade} size="sm" />
+                  <GradeMark grade={p.grade} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm text-ink">
                       {labelPilihan(p.market, p.selection, p.home, p.away)}
@@ -267,7 +267,7 @@ export default function ParlayBuilder({
                             aktif ? "bg-surface-alt/70" : ""
                           }`}
                         >
-                          <GradeStamp grade={p.grade} size="sm" />
+                          <GradeMark grade={p.grade} />
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm text-ink">
                               {labelPilihan(p.market, p.selection, p.home, p.away)}

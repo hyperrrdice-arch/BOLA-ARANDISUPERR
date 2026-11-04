@@ -8,7 +8,7 @@
  * menilai klaim itu pada pilihan live-run yang sudah selesai.
  */
 import { Suspense } from "react";
-import { EmptyState, GradeStamp, MicroLabel, PageLoading, Prob, SectionHead } from "../../../components/ui";
+import { EmptyState, GradeMark, MicroLabel, PageLoading, Prob, SectionHead } from "../../../components/ui";
 import { connection } from "next/server";
 import { landingStats, ledgerStats } from "../../../lib/web/data";
 import { MARKET_LABEL, int, jamWibOnly, labelPilihan, pct, tanggalWib } from "../../../lib/web/format";
@@ -118,7 +118,7 @@ async function BuktiContent() {
                   {s.by_grade.map((g) => (
                     <tr key={g.grade} className="border-b border-hairline last:border-b-0">
                       <td className={TD}>
-                        <GradeStamp grade={g.grade} size="sm" />
+                        <GradeMark grade={g.grade} />
                       </td>
                       <td className={TDR}>{int(g.n)}</td>
                       <td className={TDR}>{int(g.resolved)}</td>
@@ -191,7 +191,7 @@ async function BuktiContent() {
                           {pct(p.model_prob)}
                         </span>
                       </span>
-                      <GradeStamp grade={p.grade} size="sm" />
+                      <GradeMark grade={p.grade} />
                       <span className="font-mono text-sm tabular-nums text-ink">
                         {p.home_goals ?? "–"}–{p.away_goals ?? "–"}
                       </span>

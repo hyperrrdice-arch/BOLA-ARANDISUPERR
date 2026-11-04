@@ -1,27 +1,30 @@
 /**
- * ATOM UI — bahasa visual Editorial Terminal (Amber Panas).
- * Dipakai semua halaman; jangan duplikasi gaya ini di halaman.
+ * UI ATOMS — v2 "big-tech calm" (approved 2026-11-05).
+ * No boxes, no stamps, no all-caps labels: hierarchy comes from size,
+ * weight, colour and spacing. Shared by every page; do not duplicate
+ * these styles inside pages.
  */
 import type { ReactNode } from "react";
 import { GATE_LABEL, pct } from "../lib/web/format";
 import type { FormEntry } from "../lib/web/data";
 
+/** Quiet sentence-case label text (replaces the old mono micro-label). */
 export function MicroLabel({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <span className={`micro-label ${className}`}>{children}</span>;
+  return <span className={`text-[13px] text-mid-gray ${className}`}>{children}</span>;
 }
 
-const GRADE_STYLE: Record<string, string> = {
-  A: "bg-sage/20 text-sage border-sage/50",
-  B: "bg-accent/15 text-accent border-accent/50",
-  C: "bg-brick/15 text-brick border-brick/50",
+const GRADE_TEXT: Record<string, string> = {
+  A: "text-sage",
+  B: "text-accent",
+  C: "text-brick",
+  D: "text-faint",
 };
 
-export function GradeStamp({ grade, size = "md" }: { grade: string; size?: "sm" | "md" | "lg" }) {
-  const s = GRADE_STYLE[grade] ?? "bg-surface-alt text-mid-gray border-hairline-strong";
-  const dim = size === "lg" ? "w-9 h-9 text-base" : size === "sm" ? "w-5 h-5 text-[11px]" : "w-7 h-7 text-sm";
+/** A plain coloured grade letter — no border, no background, no stamp. */
+export function GradeMark({ grade, className = "" }: { grade: string; className?: string }) {
   return (
     <span
-      className={`inline-flex ${dim} items-center justify-center border rounded-md font-mono font-bold ${s}`}
+      className={`font-display font-semibold ${GRADE_TEXT[grade] ?? "text-faint"} ${className}`}
       aria-label={`Grade ${grade}`}
     >
       {grade}
@@ -34,20 +37,13 @@ const GATE_DOT: Record<string, string> = {
   partial: "bg-accent",
   uncalibrated: "bg-brick",
 };
-const GATE_TEXT: Record<string, string> = {
-  calibrated: "text-sage",
-  partial: "text-accent",
-  uncalibrated: "text-brick",
-};
 
 export function GateStatus({ status, withLabel = true }: { status: string; withLabel?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-      <span className={`w-1.5 h-1.5 rounded-full ${GATE_DOT[status] ?? "bg-faint"}`} />
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      <span className={`h-1.5 w-1.5 rounded-full ${GATE_DOT[status] ?? "bg-faint"}`} />
       {withLabel && (
-        <span className={`font-mono text-[11px] tracking-wider ${GATE_TEXT[status] ?? "text-faint"}`}>
-          {GATE_LABEL[status] ?? status.toUpperCase()}
-        </span>
+        <span className="text-[13px] text-mid-gray">{GATE_LABEL[status] ?? status}</span>
       )}
     </span>
   );
@@ -55,28 +51,28 @@ export function GateStatus({ status, withLabel = true }: { status: string; withL
 
 export function Prob({ value, strong = false, className = "" }: { value: number | null | undefined; strong?: boolean; className?: string }) {
   return (
-    <span className={`tabular-nums ${strong ? "text-accent font-semibold" : ""} ${className}`}>
+    <span className={`tabular-nums ${strong ? "font-semibold text-accent" : ""} ${className}`}>
       {pct(value)}
     </span>
   );
 }
 
 const FORM_STYLE: Record<string, string> = {
-  W: "bg-sage/20 text-sage border-sage/40",
-  D: "bg-surface-alt text-mid-gray border-hairline-strong",
-  L: "bg-brick/15 text-brick border-brick/40",
+  W: "bg-sage/25 text-sage",
+  D: "bg-surface-alt text-mid-gray",
+  L: "bg-brick/20 text-brick",
 };
 
 export function FormChips({ form, showScore = false }: { form: FormEntry[]; showScore?: boolean }) {
-  if (form.length === 0) return <span className="text-faint text-xs font-mono">belum ada data form</span>;
+  if (form.length === 0) return <span className="text-[13px] text-faint">No form data yet</span>;
   return (
-    <span className="inline-flex items-center gap-1">
+    <span className="inline-flex items-center gap-1.5">
       {form.map((f, i) => (
         <span
           key={i}
-          title={`${f.date.slice(0, 10)} vs ${f.opponent} (${f.venue === "home" ? "kandang" : "tandang"}) ${f.goals_for}-${f.goals_against}`}
-          className={`inline-flex items-center justify-center border rounded-md font-mono text-[11px] font-bold ${
-            showScore ? "px-1.5 h-6" : "w-6 h-6"
+          title={`${f.date.slice(0, 10)} ${f.venue === "home" ? "vs" : "at"} ${f.opponent} ${f.goals_for}-${f.goals_against}`}
+          className={`inline-flex h-[22px] items-center justify-center rounded-full text-[10px] font-semibold ${
+            showScore ? "px-2" : "w-[22px]"
           } ${FORM_STYLE[f.result]}`}
         >
           {showScore ? `${f.goals_for}-${f.goals_against}` : f.result}
@@ -86,7 +82,7 @@ export function FormChips({ form, showScore = false }: { form: FormEntry[]; show
   );
 }
 
-/** Warna sel heatmap matriks skor: amber sebagai panas, diskalakan ke sel maksimum. */
+/** Score-matrix heat colour: amber as heat, scaled to the hottest cell. */
 export function heatStyle(prob: number, max: number): { backgroundColor: string; color: string } {
   const t = max > 0 ? Math.pow(prob / max, 0.72) : 0;
   return {
@@ -95,31 +91,42 @@ export function heatStyle(prob: number, max: number): { backgroundColor: string;
   };
 }
 
-/** Fallback streaming untuk pulau data (Cache Components: Suspense). */
+/** Streaming fallback for data islands (Cache Components: Suspense). */
 export function PageLoading({ label }: { label: string }) {
   return (
-    <div className="panel-flat px-5 py-8" role="status" aria-label={label}>
-      <MicroLabel>{label}</MicroLabel>
-      <div className="mono-loading-bar-container mt-4">
+    <div className="py-16" role="status" aria-label={label}>
+      <p className="text-sm text-mid-gray">{label}</p>
+      <div className="mono-loading-bar-container mt-4 max-w-xs">
         <div className="mono-loading-bar" />
       </div>
     </div>
   );
 }
 
-export function EmptyState({ title, note }: { title: string; note: string }) {
+export function EmptyState({ title, note }: { title: string; note?: string }) {
   return (
-    <div className="panel-flat px-5 py-8 text-center">
-      <p className="font-display text-xl font-semibold tracking-wide text-ink">{title}</p>
-      <p className="mt-1 text-sm text-mid-gray">{note}</p>
+    <div className="py-16 text-center">
+      <p className="text-[17px] font-medium text-ink">{title}</p>
+      {note && <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mid-gray">{note}</p>}
     </div>
   );
 }
 
-export function SectionHead({ label, right }: { label: string; right?: ReactNode }) {
+export function SectionHead({
+  label,
+  sub,
+  right,
+}: {
+  label: string;
+  sub?: string;
+  right?: ReactNode;
+}) {
   return (
-    <div className="flex items-end justify-between gap-4 border-b border-hairline pb-2">
-      <MicroLabel>{label}</MicroLabel>
+    <div className="flex items-end justify-between gap-4">
+      <div>
+        <h2 className="font-display text-2xl font-semibold tracking-[-0.01em] text-ink">{label}</h2>
+        {sub && <p className="mt-1.5 text-sm text-mid-gray">{sub}</p>}
+      </div>
       {right}
     </div>
   );

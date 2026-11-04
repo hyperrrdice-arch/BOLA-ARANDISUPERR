@@ -13,7 +13,7 @@ import {
   type FixtureListItem,
 } from "@/lib/web/data";
 import { jamWibOnly, labelHari, labelPilihan } from "@/lib/web/format";
-import { EmptyState, GateStatus, GradeStamp, MicroLabel, PageLoading, Prob, SectionHead } from "@/components/ui";
+import { EmptyState, GateStatus, GradeMark, MicroLabel, PageLoading, Prob, SectionHead } from "@/components/ui";
 
 function SourceDots({ item }: { item: FixtureListItem }) {
   const p = item.pkg.payload;
@@ -60,7 +60,7 @@ function FixtureRow({ item }: { item: FixtureListItem }) {
             </span>
             <Prob value={leg.effective_prob} strong className="text-sm" />
           </span>
-          <GradeStamp grade={leg.grade} />
+          <GradeMark grade={leg.grade} />
         </span>
       ) : (
         <span className="font-mono text-[11px] text-faint shrink-0">belum ada pilihan</span>
@@ -96,7 +96,7 @@ function FinishedCard({ item }: { item: FixtureListItem }) {
         <ul className="mt-3 space-y-1.5 border-t border-hairline pt-3">
           {picks.map((p) => (
             <li key={p.id} className="flex items-center gap-2.5 text-sm">
-              <GradeStamp grade={p.grade} size="sm" />
+              <GradeMark grade={p.grade} />
               <span className="flex-1 min-w-0 truncate text-ink-soft">
                 {labelPilihan(p.market, p.selection, f.home, f.away)}
               </span>
