@@ -1,21 +1,20 @@
 /**
- * PILIHAN AMAN — susun slip parlay dari pilihan probabilitas tertinggi.
+ * PICKS — build a parlay slip from the highest-probability picks.
  *
- * Server Component: membaca ledger live-run (listSafePicks) + matriks
- * skor paket yang benar-benar muncul di daftar (getPackageMatrix),
- * lalu menyerahkan interaksi ke ParlayBuilder (client). Matriks 11x11
- * per paket ~2,7 KB JSON; hanya paket milik pilihan di halaman ini
- * yang dikirim, bukan seluruh katalog.
+ * Server Component: reads the live-run ledger (listSafePicks) plus the
+ * score matrices of the packages actually on the page (getPackageMatrix),
+ * then hands interaction to ParlayBuilder (client). An 11x11 matrix is
+ * ~2.7 KB of JSON; only packages behind these picks are sent.
  */
 import { Suspense } from "react";
 import { connection } from "next/server";
 import ParlayBuilder, { type BuilderPick } from "../../../components/pilihan/ParlayBuilder";
-import { MicroLabel, PageLoading } from "../../../components/ui";
+import { PageLoading } from "../../../components/ui";
 import { getPackageMatrix, listSafePicks } from "../../../lib/web/data";
 
 export default function PilihanPage() {
   return (
-    <Suspense fallback={<PageLoading label="Memuat pilihan aman…" />}>
+    <Suspense fallback={<PageLoading label="Loading picks…" />}>
       <PilihanContent />
     </Suspense>
   );
@@ -51,15 +50,12 @@ async function PilihanContent() {
 
   return (
     <div>
-      <header className="mb-6">
-        <MicroLabel>Terminal / Pilihan Aman</MicroLabel>
-        <h1 className="mt-1 font-display text-4xl font-bold tracking-wide text-ink">
-          PILIHAN <span className="text-accent">AMAN</span>
+      <header className="mb-10">
+        <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-[-0.02em] text-ink">
+          Build your parlay.
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-mid-gray">
-          Pilihan probabilitas tertinggi dari ledger live-run, tercatat sebelum kickoff. Centang
-          untuk menyusun slip — gabungannya dihitung dari matriks skor pertandingan, bukan
-          sekadar dikalikan mentah.
+        <p className="mt-2 text-[15px] text-mid-gray">
+          Combined probability, from the score matrix.
         </p>
       </header>
 
