@@ -244,6 +244,16 @@ const ORIGIN_PRIORITY = ["registry", "catalog", "fixtures", "ratings-json", "mas
 function main() {
   const { seeds, registryStatus, jsonStatus } = collectSeeds();
 
+  // Registry sebelumnya: bidang cup_* (fase kalibrasi piala) dipertahankan
+  // per canonical_id agar regenerasi tidak menghapus hasil fit offset.
+  const prevById = new Map<string, { cup_model?: unknown; cup_offset?: unknown; loader_special?: string }>();
+  try {
+    const prev = JSON.parse(readFileSync(path.join(DATA_DIR, "league-canonical.json"), "utf-8")) as {
+      leagues: { canonical_id: string; cup_model?: unknown; cup_offset?: unknown; loader_special?: string }[];
+    };
+    for (const e of prev.leagues) prevById.set(e.canonical_id, e);
+  } catch { /* registry pertama: tidak ada yang dipertahankan */ }
+
   // Dedup per (system,id): nama/negara diambil dari origin berprioritas tertinggi.
   const byKey = new Map<string, Seed>();
   for (const s of seeds) {
@@ -325,6 +335,11 @@ function main() {
     aliases: Alias[];
     fits: Fit[];
     loader_special?: string;
+    // Bidang milik fase kalibrasi piala (ditulis scripts/fit-global-offsets.ts):
+    // regenerasi registry TIDAK boleh menghapusnya — dipertahankan dari
+    // file registry sebelumnya (lihat prevById di main()).
+    cup_model?: { graph: string; status: string; fitted_at?: string; note?: string };
+    cup_offset?: { graph: string; delta: number | null; anchors: number; identified: boolean; fitted_at?: string };
   }
 
   const entries: Entry[] = [];
@@ -367,9 +382,14 @@ function main() {
         .sort((a, b) => `${a.system}:${a.id}`.localeCompare(`${b.system}:${b.id}`)),
       fits,
     };
-    // Liga pseudo UCL di loader (parameter hardcoded + penskalaan koefisien
-    // UEFA) menempel pada entri Champions League Eropa ini.
-    if (canonical_id === "sm:2") entry.loader_special = "UCL";
+    // Bidang piala dari registry sebelumnya dipertahankan apa adanya.
+    // loader_special 'UCL' (jalur pseudo lama) TIDAK lagi ditulis di sini:
+    // fase kalibrasi piala memensiunkannya — sm:2 dilayani model offset
+    // global lewat cup_model yang ditulis fit-global-offsets.ts.
+    const prev = prevById.get(canonical_id);
+    if (prev?.cup_model) entry.cup_model = prev.cup_model as Entry["cup_model"];
+    if (prev?.cup_offset) entry.cup_offset = prev.cup_offset as Entry["cup_offset"];
+    if (prev?.loader_special && !entry.cup_model) entry.loader_special = prev.loader_special;
     entries.push(entry);
   }
   entries.sort((a, b) => a.canonical_id.localeCompare(b.canonical_id));

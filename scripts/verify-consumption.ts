@@ -11,7 +11,7 @@
  *
  * Read-only. Pakai: npx tsx scripts/verify-consumption.ts
  */
-import { loadCalibratedRatings, findTeamRating, resolveDivForMatch } from "../lib/quant/ratings-loader";
+import { loadCalibratedRatings, findTeamRating, resolveDivForMatch, resolveMatchLeague, getShrunkMatchParameters } from "../lib/quant/ratings-loader";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { getUpcomingDb } from "../lib/db/upcoming-fixtures";
 import { getLeagueGate } from "../lib/quant/league-gate";
@@ -43,7 +43,7 @@ function main() {
   const db = getUpcomingDb();
   const rows = db
     .prepare(
-      "SELECT match_id, competition_id, competition_name, home_team_name, away_team_name FROM upcoming_fixtures ORDER BY competition_id"
+      "SELECT match_id, competition_id, competition_name, home_team_name, away_team_name, is_neutral FROM upcoming_fixtures ORDER BY competition_id"
     )
     .all() as {
     match_id: string;
@@ -51,14 +51,52 @@ function main() {
     competition_name: string | null;
     home_team_name: string | null;
     away_team_name: string | null;
+    is_neutral: number | null;
   }[];
 
   let both = 0,
     one = 0,
     none = 0,
     noDiv = 0;
+  // Piala (model offset global): ter-rate penuh lewat cupOffset / terblokir
+  // gerbang / tim tak ter-resolve — dihitung terpisah, dan yang ter-rate
+  // penuh ikut ke penghitung `both` agar sebanding dengan metrik lama.
+  let cupBoth = 0,
+    cupBlocked = 0,
+    cupMissing = 0;
   const perComp = new Map<string, { name: string; n: number; ok: number; div: string | null; gate: string }>();
   for (const r of rows) {
+    const resolution = resolveMatchLeague(
+      data,
+      r.competition_id ?? r.competition_name,
+      r.home_team_name ?? "",
+      r.away_team_name ?? "",
+    );
+    if (resolution?.cupModel) {
+      const key = r.competition_id ?? "?";
+      const gate = getLeagueGate(resolution.cupModel.competitionCanonicalId);
+      const pc =
+        perComp.get(key) ??
+        ({ name: r.competition_name ?? "?", n: 0, ok: 0, div: `CUP:${resolution.cupModel.graph}`, gate: gate?.status ?? "unknown" } as const);
+      pc.n++;
+      const params = getShrunkMatchParameters({
+        leagueHint: r.competition_id ?? r.competition_name ?? undefined,
+        homeTeam: r.home_team_name ?? "",
+        awayTeam: r.away_team_name ?? "",
+        isNeutralVenue: r.is_neutral === 1,
+      });
+      if (params.metadata?.cupOffset) {
+        cupBoth++;
+        both++;
+        pc.ok++;
+      } else if (gate?.status === "uncalibrated") {
+        cupBlocked++;
+      } else {
+        cupMissing++;
+      }
+      perComp.set(key, pc);
+      continue;
+    }
     const div = resolveDivForMatch(data, r.competition_name, r.home_team_name ?? "", r.away_team_name ?? "");
     const key = r.competition_id ?? "?";
     const pc =
@@ -81,6 +119,9 @@ function main() {
   }
   console.log(
     `[fixture] total ${rows.length}: div-gagal ${noDiv}, kedua tim ketemu ${both}, satu sisi ${one}, nol ${none}`
+  );
+  console.log(
+    `[piala-offset] ter-rate penuh ${cupBoth}, terblokir gerbang uncalibrated ${cupBlocked}, tim tak ter-resolve ${cupMissing}`
   );
   const bad = [...perComp.entries()]
     .filter(([, v]) => v.ok < v.n)

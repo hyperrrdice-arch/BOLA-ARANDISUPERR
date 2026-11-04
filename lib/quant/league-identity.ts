@@ -30,12 +30,14 @@
  * bila keduanya memuat / tidak memuat, fit Sportmonks didahulukan
  * (sumber live, fit paling segar) — pilihan selalu tercatat di `note`.
  *
- * Pengecualian tercatat: entri Champions League Eropa membawa
- * `loader_special: "UCL"` — parameter pseudo hardcoded di ratings-loader
- * (penskalaan koefisien UEFA) yang sudah melayani jalur nama sejak era
- * legacy. Registry menandai sm:2 uncalibrated by design; jalur pseudo
- * ini dipertahankan apa adanya (perilaku produksi saat ini) dan dicatat
- * di sini + laporan, menunggu keputusan owner.
+ * Kompetisi piala yang tercakup model offset global membawa `cup_model`
+ * (ditulis scripts/fit-global-offsets.ts): resolusi mengembalikan
+ * cupModel dan ratings-loader melayani lewat transformasi δ
+ * (lib/quant/global-offsets.ts). Jalur pseudo lama `loader_special: "UCL"`
+ * (parameter hardcoded + penskalaan koefisien UEFA) PENSIUN di fase
+ * kalibrasi piala — tidak ada lagi entri registry yang membawanya untuk
+ * kompetisi yang tercakup offset; cabang loader_special di pickFit hanya
+ * tersisa sebagai toleransi data lama, bukan jalur aktif.
  */
 import path from "node:path";
 import fs from "node:fs";
@@ -57,6 +59,23 @@ export interface CanonicalAlias {
   name_as_stored: string | null;
 }
 
+/** Model offset global untuk satu kompetisi piala (fase kalibrasi piala). */
+export interface CupModelInfo {
+  graph: string;
+  status: string;
+  fitted_at?: string;
+  note?: string;
+}
+
+/** Offset δ liga domestik ini di graf benuanya (fase kalibrasi piala). */
+export interface CupOffsetInfo {
+  graph: string;
+  delta: number | null;
+  anchors: number;
+  identified: boolean;
+  fitted_at?: string;
+}
+
 export interface CanonicalLeague {
   canonical_id: string;
   name: string;
@@ -64,6 +83,8 @@ export interface CanonicalLeague {
   aliases: CanonicalAlias[];
   fits: CanonicalFit[];
   loader_special?: string;
+  cup_model?: CupModelInfo;
+  cup_offset?: CupOffsetInfo;
 }
 
 export type ResolutionVia =
@@ -77,13 +98,15 @@ export type ResolutionVia =
 
 export interface ServingResolution {
   canonical: CanonicalLeague | null;
-  /** Kunci ratings yang melayani (mis. 'E0' | 'SM8' | 'UCL'), atau null. */
+  /** Kunci ratings yang melayani (mis. 'E0' | 'SM8'), atau null (piala: null + cupModel terisi). */
   div: string | null;
   fitSystem: FitSystem | "special" | null;
   via: ResolutionVia;
   sourceSystem: LeagueSourceSystem | null;
   /** true bila nama cocok ke >1 liga kanonik dan tidak ada penentu — div pasti null. */
   ambiguous: boolean;
+  /** Model offset global bila kompetisi ini piala tercakup offset; null selain itu. */
+  cupModel: { graph: string; competitionCanonicalId: string } | null;
   /** Alasan manusiawi atas pilihan ini (audit). */
   note: string;
 }
@@ -244,6 +267,21 @@ function pickFit(
   via: ResolutionVia,
   opts: ResolveOptions
 ): ServingResolution {
+  // Piala tercakup offset global: didahulukan dari fit liga maupun jalur
+  // khusus lama — kompetisi kontinental/domestik piala dilayani model
+  // offset (diganti, bukan dilapisi).
+  if (entry.cup_model) {
+    return {
+      canonical: entry,
+      div: null,
+      fitSystem: "special",
+      via,
+      sourceSystem,
+      ambiguous: false,
+      cupModel: { graph: entry.cup_model.graph, competitionCanonicalId: entry.canonical_id },
+      note: `Kompetisi piala ${entry.canonical_id} — model offset global graf ${entry.cup_model.graph} (status gerbang: ${entry.cup_model.status}); parameter = fit domestik kedua tim ditransformasi δ liga masing-masing.`,
+    };
+  }
   if (entry.loader_special) {
     return {
       canonical: entry,
@@ -252,7 +290,8 @@ function pickFit(
       via,
       sourceSystem,
       ambiguous: false,
-      note: `Jalur khusus loader '${entry.loader_special}' (parameter pseudo + penskalaan UEFA) — dipertahankan dari era legacy; registry menandai ${entry.canonical_id} uncalibrated by design.`,
+      cupModel: null,
+      note: `Jalur khusus loader '${entry.loader_special}' — toleransi data registry lama; jalur pseudo ini pensiun untuk kompetisi yang tercakup model offset.`,
     };
   }
   if (entry.fits.length === 0) {
@@ -263,6 +302,7 @@ function pickFit(
       via,
       sourceSystem,
       ambiguous: false,
+      cupModel: null,
       note: `Liga kanonik ${entry.canonical_id} (${entry.name}, ${entry.country ?? "?"}) dikenal tapi TIDAK punya fit ratings — tanpa divisi (jujur), bukan tebakan.`,
     };
   }
@@ -282,6 +322,7 @@ function pickFit(
         via,
         sourceSystem,
         ambiguous: false,
+        cupModel: null,
         note: `Fit ${fit.system} (${fit.ratings_key}, status ${fit.status}) melayani karena sumber fixture = ${sourceSystem}.`,
       };
     }
@@ -293,6 +334,7 @@ function pickFit(
       via,
       sourceSystem,
       ambiguous: false,
+      cupModel: null,
       note: `Entri hanya punya fit ${only.system} (${only.ratings_key}) — fit itu yang melayani walau sumber = ${sourceSystem}.`,
     };
   }
@@ -306,6 +348,7 @@ function pickFit(
       via,
       sourceSystem,
       ambiguous: false,
+      cupModel: null,
       note: `Satu-satunya fit entri ini: ${only.ratings_key} (${only.system}).`,
     };
   }
@@ -322,6 +365,7 @@ function pickFit(
         via: "name-teams",
         sourceSystem,
         ambiguous: false,
+        cupModel: null,
         note: `Sumber tak diketahui; fit ${full[0].ratings_key} dipilih karena memuat kedua tim.`,
       };
     }
@@ -334,6 +378,7 @@ function pickFit(
     via,
     sourceSystem,
     ambiguous: false,
+    cupModel: null,
     note: `Sumber tak diketahui dan kedua fit sama-sama layak — fit Sportmonks (${smFit.ratings_key}) didahulukan sebagai sumber live.`,
   };
 }
@@ -387,7 +432,7 @@ function recoverCompetitionIdFromFixtureRow(opts: ResolveOptions): { id: string;
 export function resolveServingForMatch(opts: ResolveOptions): ServingResolution {
   const none: ServingResolution = {
     canonical: null, div: null, fitSystem: null, via: "none",
-    sourceSystem: null, ambiguous: false, note: "Registry kanonik tidak mengenal hint ini.",
+    sourceSystem: null, ambiguous: false, cupModel: null, note: "Registry kanonik tidak mengenal hint ini.",
   };
   const hint = opts.hint?.trim();
   if (!hint) return none;
@@ -445,6 +490,21 @@ export function resolveServingForMatch(opts: ResolveOptions): ServingResolution 
     via: "none",
     sourceSystem: null,
     ambiguous: true,
+    cupModel: null,
     note: `Nama "${hint}" cocok ke ${candidates.length} liga kanonik (${candidates.map((c) => c.canonical_id).join(", ")}) dan tidak ada penentu (ID/negara/tim) — resolusi ditolak, bukan ditebak.`,
   };
+}
+
+/** Info model offset kompetisi piala ini (null bila tidak tercakup offset). */
+export function getCanonicalCupModel(canonicalId: string | null | undefined): CupModelInfo | null {
+  if (!canonicalId) return null;
+  const entry = loadCanonicalLeagues().find((e) => e.canonical_id === canonicalId);
+  return entry?.cup_model ?? null;
+}
+
+/** Offset δ liga domestik ini di grafnya (null bila tidak teridentifikasi / di luar graf). */
+export function getCanonicalCupOffset(canonicalId: string | null | undefined): CupOffsetInfo | null {
+  if (!canonicalId) return null;
+  const entry = loadCanonicalLeagues().find((e) => e.canonical_id === canonicalId);
+  return entry?.cup_offset ?? null;
 }

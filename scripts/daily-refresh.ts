@@ -104,6 +104,10 @@ function main() {
   run("predictions", "sync-predictions.ts", ["--days=14"]);
   run("telemetry", "backfill-telemetry.ts", ["--current-only"]);
   run("calibrate", "calibrate-ratings.ts");
+  // Offset piala SETELAH calibrate: calibrate menulis ulang blok canonical
+  // + entri liga ACL; langkah ini menanam blok cupOffsets, menghapus lagi
+  // entri SM1085/SM1088, dan menetapkan status baris piala dari bukti OOS.
+  run("cup-offsets", "fit-global-offsets.ts");
   run("context", "sync-context.ts");
   const report = coverageReport();
   const out = path.join(process.cwd(), "tasks", "coverage-latest.md");

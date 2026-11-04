@@ -10,6 +10,7 @@ import {
 import { evaluateMatchupLuck, type MatchupLuckSignal } from "./luck-regression";
 import { getLeagueGate, competitionIdToDiv, type CalibrationStatus } from "./league-gate";
 import { resolveServingForMatch, type ServingResolution } from "./league-identity";
+import { getCupShrunkParameters, type CupOffsetsBlock } from "./global-offsets";
 
 export type { ServingResolution } from "./league-identity";
 
@@ -48,7 +49,14 @@ export interface CalibratedRatingsFile {
   totalLeagues: number;
   totalTeams: number;
   /** Metadata registry kanonik yang memetakan tiap fit key → canonical league. */
-  canonical?: { registry: string; registryVersion?: number; registryGeneratedAt?: string; note?: string };
+  canonical?: {
+    registry: string;
+    registryVersion?: number;
+    registryGeneratedAt?: string;
+    note?: string;
+    /** Parameter graf offset global piala (ditulis scripts/fit-global-offsets.ts). */
+    cupOffsets?: CupOffsetsBlock;
+  };
   leagues: Record<string, LeagueCalibratedParameters>;
 }
 
@@ -92,6 +100,23 @@ export interface ShrunkMatchParameters {
       fitSystem: "sportmonks" | "legacy-div" | "special" | null;
       via: string;
       note: string;
+    };
+    /** Jejak transformasi offset global bila fixture ini piala tercakup offset (audit penuh input δ). */
+    cupOffset?: {
+      graph: string;
+      competitionCanonicalId: string;
+      homeLeagueCanonicalId: string;
+      awayLeagueCanonicalId: string;
+      homeFitDiv: string;
+      awayFitDiv: string;
+      homeDelta: number;
+      awayDelta: number;
+      baseAvgGoals: number;
+      baseAvgSource: string;
+      cupHomeAdvantage: number;
+      neutralVenue: boolean;
+      homeCandidates: number;
+      awayCandidates: number;
     };
   };
 }
@@ -183,21 +208,6 @@ export const LEAGUE_ALIAS_TO_DIV: Record<string, string> = {
   "europe. uefa champions league": "UCL",
 };
 
-// Koefisien Kualitas Liga UEFA Q(L) untuk penskalaan tim lintas liga di UCL
-export const UEFA_LEAGUE_COEFFICIENT: Record<string, number> = {
-  E0: 1.000,   // Premier League
-  SP1: 0.965,  // LaLiga
-  D1: 0.940,   // Bundesliga
-  I1: 0.935,   // Serie A
-  F1: 0.865,   // Ligue 1
-  N1: 0.780,   // Eredivisie
-  P1: 0.770,   // Primeira Liga
-  B1: 0.720,   // Belgian Pro League
-  SC0: 0.650,  // Scottish Premiership
-  T1: 0.640,   // Turkish Super Lig
-  G1: 0.600,   // Greek Super League
-};
-
 // Pasangan Divisi Utama & Kasta Kedua untuk penanganan tim promosi/degradasi
 const SECOND_DIVISION_MAP: Record<string, string> = {
   E0: "E1",
@@ -207,40 +217,14 @@ const SECOND_DIVISION_MAP: Record<string, string> = {
   F1: "F2",
 };
 
-/**
- * Mencari rating klub untuk kompetisi kontinental UCL melintasi semua liga utama
- * dengan penskalaan koefisien kualitas liga UEFA Q(L)
- */
-// Divisi kasta kedua (nilai map) dilewati di pencarian UCL: tim UCL dicari di
-// liga domestik utama. (Sebelumnya memeriksa key map sehingga justru 5 liga
-// utama E0/SP1/I1/D1/F1 yang dilewati — semua laga UCL antar tim top-5 jatuh
-// ke prior + telemetri lokal dibuang.)
-const SECOND_DIVS = new Set(Object.values(SECOND_DIVISION_MAP));
-export function findTeamRatingForUCL(
-  data: CalibratedRatingsFile,
-  normalizedTeam: string
-): { rating: TeamRating; source: "primary_league"; domesticDiv: string } | null {
-  for (const [div, league] of Object.entries(data.leagues)) {
-    if (SECOND_DIVS.has(div) || !UEFA_LEAGUE_COEFFICIENT[div]) continue;
-    const found = lookupTeamRating(data, div, normalizedTeam);
-    if (found) {
-      const raw = found;
-      const q = UEFA_LEAGUE_COEFFICIENT[div] || 0.80;
-      const adjustedAttack = Number((raw.attack * Math.sqrt(q)).toFixed(3));
-      const adjustedDefense = Number((raw.defense / Math.sqrt(q)).toFixed(3));
-      return {
-        rating: {
-          ...raw,
-          attack: adjustedAttack,
-          defense: adjustedDefense,
-        },
-        source: "primary_league",
-        domesticDiv: div,
-      };
-    }
-  }
-  return null;
-}
+// CATATAN PENSIUN (fase kalibrasi piala): penskalaan lintas-liga lama untuk
+// UCL — UEFA_LEAGUE_COEFFICIENT (Q(L) tulisan tangan) + findTeamRatingForUCL
+// (√Q) — DIHAPUS. Kompetisi kontinental kini dilayani model offset global:
+// δ liga di-fit dari hasil lintas-liga nyata (lib/quant/cup-offset-fit.ts),
+// penyajian di lib/quant/global-offsets.ts. Alias nama "UCL" di
+// LEAGUE_ALIAS_TO_DIV dibiarkan sebagai petunjuk nama warisan; resolusi
+// kanonik (resolveServingForMatch) mendahuluinya, dan muara 'UCL' dari
+// fallback warisan ditolak eksplisit di resolveMatchLeague.
 
 // In-memory cache singleton
 let cachedRatings: CalibratedRatingsFile | null = null;
@@ -403,13 +387,25 @@ export function resolveMatchLeague(
   }
   const div = legacyResolveDivForMatch(data, leagueHint, homeTeam, awayTeam);
   if (!div) return res;
+  // Jalur pseudo-UCL PENSIUN (fase kalibrasi piala): divisi semu 'UCL'
+  // (parameter hardcoded + penskalaan koefisien UEFA) tidak lagi dilayani.
+  // Kompetisi kontinental harus ter-resolve kanonik ke model offset global;
+  // hint warisan yang hanya bermuara ke 'UCL' berhenti di sini dengan
+  // penjelasan, bukan parameter karangan.
+  if (div === "UCL") {
+    return {
+      ...res,
+      note: "Hint hanya ter-resolve ke divisi semu 'UCL' warisan — jalur pseudo-UCL pensiun; kompetisi ini harus ter-resolve kanonik (model offset global) agar bisa dilayani.",
+    };
+  }
   return {
     canonical: null,
     div,
-    fitSystem: div === "UCL" ? "special" : div.startsWith("SM") ? "sportmonks" : "legacy-div",
+    fitSystem: div.startsWith("SM") ? "sportmonks" : "legacy-div",
     via: "legacy-fallback",
     sourceSystem: null,
     ambiguous: false,
+    cupModel: null,
     note: "Registry kanonik tidak mengenal hint ini — resolusi warisan (alias + saringan keanggotaan tim) yang melayani.",
   };
 }
@@ -587,6 +583,8 @@ export interface ShrunkMatchParametersOptions {
   homeTelemetry?: TeamRollingTelemetry | null;
   awayTelemetry?: TeamRollingTelemetry | null;
   matchDateCutoff?: string; // Pre-match cutoff (anti-leakage)
+  /** Venue netral (final satu leg di tempat netral): home advantage piala = 1. */
+  isNeutralVenue?: boolean;
 }
 
 /**
@@ -649,21 +647,60 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     },
   };
 
-  const isUCL = divCode === "UCL";
-  const league = isUCL
-    ? {
-        div: "UCL",
-        leagueName: "UEFA Champions League",
-        country: "Europe",
-        seasonCount: 1,
-        totalMatches: 36,
-        leagueAvgGoals: 2.04,
-        homeAdvantage: 1.12,
-        rho: -0.05,
-        calibrationDate: "2026-10-17",
-        teams: {},
-      }
-    : (ratingsData ? ratingsData.leagues[divCode] : undefined);
+  // Cabang PIALA — model offset global (fase kalibrasi piala). Kompetisi
+  // ter-resolve kanonik ke cup_model: parameter dibangun dari fit domestik
+  // kedua tim yang ditransformasi δ liga masing-masing
+  // (lib/quant/global-offsets.ts). Menggantikan jalur pseudo-UCL lama
+  // (parameter hardcoded + penskalaan koefisien UEFA) — diganti, bukan
+  // dilapisi. Gerbang berlaku persis seperti liga: uncalibrated diblokir;
+  // tim yang tidak ter-resolve → fallback teranotasi, bukan angka karangan.
+  if (resolution?.cupModel && ratingsData && resolution.canonical) {
+    const cupMeta = defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>;
+    if (gate?.status === "uncalibrated") {
+      return {
+        ...defaultFallback,
+        metadata: {
+          ...cupMeta,
+          div: divCode,
+          leagueName: gate.leagueName ?? resolution.canonical.name,
+          calibrationStatus: "uncalibrated",
+          calibrationGate: gate.reason,
+          leagueResolution: leagueResolutionMeta,
+        },
+      };
+    }
+    const cup = getCupShrunkParameters(ratingsData, lookupTeamRating, {
+      competition: resolution.canonical,
+      homeTeam: options.homeTeam,
+      awayTeam: options.awayTeam,
+      isNeutralVenue: options.isNeutralVenue,
+      matchDateCutoff: options.matchDateCutoff,
+      calibrationStatus: gate?.status ?? "unknown",
+      calibrationGate: gate?.reason,
+    });
+    if (cup?.kind === "ok") return cup.params;
+    const why =
+      cup?.kind === "missing-team"
+        ? `Tim ${cup.side === "home" ? "kandang" : "tamu"} "${cup.teamName}" tidak ter-resolve ke liga domestik teridentifikasi di graf ${resolution.cupModel.graph} — fixture piala ini belum bisa dinilai offset.`
+        : cup?.kind === "no-graph-params"
+          ? `Parameter graf ${cup.graph} belum ter-fit di blok canonical.cupOffsets — jalankan scripts/fit-global-offsets.ts.`
+          : "Model offset tidak tersedia untuk kompetisi ini.";
+    return {
+      ...defaultFallback,
+      metadata: {
+        ...cupMeta,
+        div: divCode,
+        leagueName: resolution.canonical.name,
+        calibrationStatus: gate?.status ?? "unknown",
+        calibrationGate: gate?.reason,
+        leagueResolution: leagueResolutionMeta
+          ? { ...leagueResolutionMeta, note: `${leagueResolutionMeta.note} ${why}` }
+          : leagueResolutionMeta,
+      },
+    };
+  }
+
+  const league = ratingsData ? ratingsData.leagues[divCode] : undefined;
 
   if (!ratingsData || !resolvedDiv || !league) {
     return defaultFallback;
@@ -686,12 +723,8 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   }
   const gateStatus: CalibrationStatus = gate?.status ?? league.calibrationStatus ?? "unknown";
 
-  const homeResolved = isUCL
-    ? findTeamRatingForUCL(ratingsData, normHome)
-    : findTeamRating(ratingsData, divCode, normHome);
-  const awayResolved = isUCL
-    ? findTeamRatingForUCL(ratingsData, normAway)
-    : findTeamRating(ratingsData, divCode, normAway);
+  const homeResolved = findTeamRating(ratingsData, divCode, normHome);
+  const awayResolved = findTeamRating(ratingsData, divCode, normAway);
 
   // Jika kedua tim tidak ditemukan sama sekali di database historis
   if (!homeResolved && !awayResolved) {
