@@ -8,17 +8,37 @@
 > pra-sprint dokumen ini tergantikan seluruhnya; yang dipertahankan hanya
 > bagian yang masih benar (aturan emas, bentuk pipeline planner/BFF,
 > kontrak snapshot).
+> Koreksi tujuan produk (5 Nov 2026, perintah owner): app ini bertujuan
+> mencari **safe bet untuk parlay** — bukan melawan pasar, bukan
+> berburu value bet tunggal. §1 ditulis ulang sesuai koreksi ini dan
+> framing tujuan di seluruh dokumen disesuaikan; seluruh angka teknis
+> tidak berubah.
 
 ---
 
 ## 1. Tujuan & aturan emas
 
-App ini menganalisis pertandingan sepak bola **sebelum kickoff** dan
-memutuskan: ada value bet atau tidak. Ia adalah **decision-support tool**
-— ringkasan data, deteksi dislokasi harga, transparansi sumber — **bukan
-mesin pilih taruhan**: pada setiap pengukuran jujur yang tersedia, model
-kalah dari closing line pasar (lihat §5.4). Klaim edge tidak pernah
-dibuat.
+App ini menganalisis pertandingan sepak bola **sebelum kickoff** untuk
+satu tujuan: **menemukan safe bet buat parlay** — outcome dengan
+probabilitas kejadian tertinggi, yang layak dijadikan kaki parlay.
+App ini **bukan** alat melawan pasar dan **bukan** pemburu value bet
+tunggal: harga pasar tidak dilawan, melainkan dibaca sebagai salah
+satu sumber taksiran probabilitas. Ukuran suksesnya adalah **hit-rate
+dan kalibrasi pick berprobabilitas tinggi**, bukan edge atas pasar.
+(Koreksi tujuan oleh owner, 5 Nov 2026 — framing value-bet warisan
+desain awal app digantikan; angka backtest lama di laporan fase
+`tasks/` adalah catatan sejarah, bukan tujuan saat ini.)
+
+Konsekuensinya pada lapisan debat/verdict di bawah: pick diperingkat
+dari **probabilitas model + kesepakatan lintas sumber** (model ×
+konsensus pasar tanpa vig × panel Sportmonks) sebagai sinyal keamanan.
+Outcome yang sumber-sumbernya sepakat berprobabilitas tinggi = kaki
+aman; outcome berprobabilitas rendah tetap bukan pick betapa pun besar
+EV-nya. **EV/Kelly adalah catatan sekunder di paket — tidak pernah
+menjadi gerbang keputusan.** Benchmark closing line (§5.4) tetap
+dipertahankan sebagai **referensi akurasi probabilitas**: seberapa
+dekat taksiran model dengan taksiran pasar paling matang — bukan
+target "edge" yang harus dikalahkan.
 
 **Aturan emas: semua angka datang dari code kuantitatif deterministik
 di `lib/quant/*`. LLM hanya menyusun narasi dan keputusan alur — tidak
@@ -40,9 +60,11 @@ Dua jalur lapisan debat/verdict di atas paket kuant:
    code; Spark tidak pernah mengarang figur.
 
 Guard deterministik di luar jangkauan LLM mana pun:
-`lib/quant/fallback-guard.ts` — sisi bersumber `fallback` butuh edge
->50% atau verdict di-SKIP-kan; gerbang kalibrasi (§5.3) menandai atau
-memblokir liga yang belum terbukti.
+`lib/quant/fallback-guard.ts` — pick yang sisinya bersumber `fallback`
+hanya lolos bila margin probabilitas model atas konsensus pasar >50%
+(ambang code yang sudah terdaftar); kalau tidak, pick itu gugur.
+Gerbang kalibrasi (§5.3) menandai atau memblokir liga yang belum
+terbukti.
 
 ---
 
@@ -69,7 +91,7 @@ User klik match ──► GET /api/agent?match_id=...                           
    ▼
  [3] run_quant_package ─► lib/quant/* (100% code) — detail §5 (liga) & §6 (piala)
    │     resolusi liga kanonik → parameter shrunk (prior ratings + blend telemetri)
-   │     → Dixon-Coles → Shin vig-strip → Kelly/value → konteks (konteks TIDAK
+   │     → Dixon-Coles → Shin vig-strip → probabilitas + EV (sekunder, §1) → konteks (konteks TIDAK
    │     mengubah probabilitas) → merge wire Sportmonks (odds/lineup/predictions
    │     berlabel sumber; predictions TIDAK pernah masuk jalur odds)
    ▼
@@ -169,7 +191,7 @@ fungsi saja** — bukan berdasarkan sumber atau benua (lihat §3.4).
 | `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta | Disposable; horizon bergulir 60 hari dari ritme harian |
 | `thestats_dataset.db` (±1,5 GB) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.106; team_match_logs 85.505 (83.082 Sportmonks); teams 6.450; match_odds_history 4.021; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
 | `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 | Prior historis fit legacy |
-| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 79 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur value-bet.** Hanya tampil sebagai panel banding berlabel di view |
+| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 79 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
 | `analysis_snapshots.db` | `analysis_snapshots` (hasil pipeline + `view_json`), `match_outcomes`, VIEW `v_snapshot_eval*` | 21 snapshot; 81 outcomes | 🔒 **APPEND-ONLY, tidak bisa di-rebuild** (keluaran LLM nondeterministik). Jangan pernah DELETE/DROP; satu-satunya jalur tulis = insert produksi app sendiri. Cache menolak degradasi: hanya baris `is_fallback=0 AND is_grounded=1` yang diservis sebagai analisis segar |
 | `thestats_raw_vault.db` | `raw_api_vault` (payload mentah API) | 1.991 | Retensi payload mentah 90 hari bergulir (keputusan PRD) |
 
@@ -334,11 +356,15 @@ Per liga, dari hasil + telemetri di store (3 jendela musim, time-decay):
   (0,0),(0,1),(1,0),(1,1), dinormalisasi Σ=1 → 1X2, fair odds, O/U,
   BTTS, AH, clean sheet, xPts, top scorelines.
 - `stripVigShin` (Shin, bisection z ∈ [0, 0,4]) atas odds pasar nyata →
-  konsensus tanpa vig. **Value bet hanya dari odds pasar nyata** — tanpa
-  odds pasar, tidak ada value bet untuk market itu.
-- `evaluateValueBet` + `evaluatePortfolioKelly`: quarter-Kelly, cap per
-  bet 4,0%, cap portofolio per match 5,0% (parameter risiko owner, bukan
-  statistik; sizing tidak menciptakan edge).
+  konsensus tanpa vig. Konsensus ini dibaca sebagai **sinyal
+  kesepakatan** dengan probabilitas model (§1), dan perbandingan pasar
+  hanya berjalan dari odds pasar nyata — tanpa odds pasar, market itu
+  tidak punya pembanding.
+- `evaluateValueBet` + `evaluatePortfolioKelly` tetap dihitung engine:
+  EV + quarter-Kelly, cap per bet 4,0%, cap portofolio per match 5,0%
+  (parameter risiko owner, bukan statistik; sizing tidak menciptakan
+  edge). Sesuai §1, keluaran ini **informasi sekunder di paket** —
+  bukan penentu pick.
 - Konteks yang **dilarang mengubah probabilitas**: momentum,
   half-profile, luck-regression (metadata/label saja, ambang heuristik
   eksplisit).
@@ -401,10 +427,14 @@ rekalibrasi — stabil vs Fase 3:
 
 **Benchmark closing line — terukur pertama kali** (sebelumnya n=0):
 30 match bertangkapan odds pre-kickoff yang sudah selesai; subset
-berpasangan n=21 — model LL **0,9575** vs closing LL **0,8668**. Model
-tetap kalah dari closing pada sampel pertama yang kecil ini.
-Kesimpulan yang didukung bukti: model mengalahkan baseline naive dan
-terkalibrasi baik secara OOS — **bukan** bahwa ada edge taruhan.
+berpasangan n=21 — model LL **0,9575** vs closing LL **0,8668**.
+Probabilitas model masih kurang akurat dari closing pada sampel
+pertama yang kecil ini. Kesimpulan yang didukung bukti: model
+mengalahkan baseline naive dan terkalibrasi baik secara OOS. Sesuai
+§1, benchmark ini adalah **referensi akurasi probabilitas** — closing
+adalah taksiran pasar paling matang, jadi selisih log-loss ke closing
+mengukur jarak taksiran model dari taksiran terbaik yang tersedia;
+bukan target "edge" yang dikejar.
 
 ---
 
@@ -607,7 +637,7 @@ lewat pseudo.
    banding `sm_predictions` di view (isolasi §3.2).
 4. **Paket kuant** — `buildQuantPackage` (planner 🔒) memanggil
    `lib/quant/*`: resolusi kanonik → `getShrunkMatchParameters` →
-   Dixon-Coles → Shin → Kelly/value → konteks. Metadata resolusi liga,
+   Dixon-Coles → Shin → probabilitas + EV (sekunder, §1) → konteks. Metadata resolusi liga,
    status gerbang, dan (untuk piala) `cupOffset` lengkap (graf, kedua
    liga + δ, fit asal, G, HA, netral) tercatat di paket.
 5. **View** — `mapPipelineToView()`: pure function; angka disalin 1:1;
@@ -654,15 +684,17 @@ lewat pseudo.
 
 ### 7.4 Kesegaran harga — caveat yang masih terbuka
 
-Value-bet dievaluasi terhadap tangkapan odds terbaru di
-`match_odds_history` **tanpa aturan kesegaran**: tangkapan `baseline`
-berumur beberapa hari ikut dinilai seolah harga live. Pada E2E run #1,
-dua value nominal (Draw EV +16,2%, Coventry +13,0%) bertumpu pada harga
-berumur 4 hari — dan setelah perbaikan routing, EV Draw runtuh ke
-+5,1%. Sampai aturan kesegaran ditanam (mis. value hanya actionable
-dari tangkapan ≤ jendela T-24j, sisanya ber-flag `stale`), lapisan
-verdict wajib mengompensasi manual. Ini gap desain yang diakui, belum
-ditutup.
+Perbandingan pasar di paket berjalan terhadap tangkapan odds terbaru
+di `match_odds_history` **tanpa aturan kesegaran**: tangkapan
+`baseline` berumur beberapa hari ikut diperlakukan seolah harga live.
+Pada E2E run #1, dua angka EV nominal (Draw +16,2%, Coventry +13,0%)
+bertumpu pada harga berumur 4 hari — dan setelah perbaikan routing,
+EV Draw runtuh ke +5,1% karena probabilitas modelnya yang berubah.
+Sampai aturan kesegaran ditanam (mis. perbandingan hanya memakai
+tangkapan ≤ jendela T-24j, sisanya ber-flag `stale`), lapisan verdict
+wajib memperlakukan sinyal kesepakatan berbasis harga tua sebagai
+tidak andal dan mengompensasi manual. Ini gap desain yang diakui,
+belum ditutup.
 
 Catatan kualitas data lain dari run E2E: `form_split` intel bisa
 ber-sampel 0/0 tetapi rata-rata golnya terisi (inkonsistensi builder
@@ -724,7 +756,7 @@ yang berguna dijalankan.
 2. **Fidelitas angka sampai ke layar** — view-model menyalin apa
    adanya; helper tampilan sadar skala; field absen → `null` / "—".
 3. **Predictions terisolasi** — tidak ada jalur dari `predictions.db`
-   ke `match_odds_history` / value-bet; panel banding berlabel saja.
+   ke `match_odds_history` / jalur odds kuant; panel banding berlabel saja.
 4. **Snapshots append-only** — tidak ada DELETE/DROP; jalur tulis hanya
    insert produksi app; cache menolak baris fallback/tak-grounded.
 5. **Gerbang tidak dilonggarkan diam-diam** — toleransi skala 2%,
@@ -735,8 +767,8 @@ yang berguna dijalankan.
    diam-diam di bawah statusnya.
 7. **Anti-leakage fail-closed** — telemetri/form/H2H lokal terikat
    cutoff waktu; `utc_date` absen → sumber dilewati total.
-8. **Value bet hanya dari odds pasar nyata** (dan lihat caveat
-   kesegaran §7.4).
+8. **Perbandingan pasar hanya dari odds pasar nyata** (dan lihat
+   caveat kesegaran §7.4).
 9. **File 🔒 tidak disentuh** — planner, llm, schemas, coverage,
    syndicate-orchestrator, `lib/llm/*`, `lib/db/analysis-snapshot.ts`,
    `data/analysis_snapshots.db`. Hash baseline:
@@ -767,7 +799,10 @@ diselesaikan sepihak):
    atau ACL diperlakukan pengecualian.
 5. **Klaim EV special markets** — audit merekomendasikan dinonaktifkan:
    Brier 0,30 vs base rate 0,25 = tanpa skill terukur (engine-nya
-   sendiri tetap berjalan sebagai konteks).
+   sendiri tetap berjalan sebagai konteks). Sesudah koreksi tujuan
+   5 Nov (§1), urgensi item ini turun: EV bukan lagi gerbang keputusan
+   di mana pun di sistem — yang tersisa adalah keputusan higienis soal
+   label klaim di engine konteks ini.
 6. **Diskon promosi ×0,85/×1,20** — masih hidup di fallback
    lintas-divisi loader untuk kasus non-piala, **belum teruji**
    (harness menilai fit per-liga, bukan jalur pinjam). Untuk fixture
@@ -777,7 +812,7 @@ diselesaikan sepihak):
 8. **31 identitas TheStats tanpa negara** (§4.2) dan **jembatan akronim
    Belanda** (PEC/ADO/NEC — sisa cakupan comp_3809; himpunan imbuhan
    jembatan nama sengaja tidak diperluas sepihak).
-9. **Aturan kesegaran harga** untuk value-bet (§7.4).
+9. **Aturan kesegaran harga** untuk perbandingan pasar (§7.4).
 
 Utang operasional yang diketahui: kredit NineRouter = 0 (jalur verdict
 in-app mati; Spark adalah jalur aktif), J2 sering membalas kosong,

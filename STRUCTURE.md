@@ -4,7 +4,10 @@
 > sprint DB → overhaul backend → unifikasi kanonik → rekalibrasi →
 > kalibrasi piala). Menggantikan peta Fase 4. Arsitektur sistem,
 > model, dan alasan di balik struktur ini ada di `ARCHITECTURE.md`;
-> bukti per fase ada di `tasks/` (peta di §7 bawah).
+> bukti per fase ada di `tasks/` (peta di §7 bawah). Koreksi tujuan
+> (5 Nov 2026): app ini alat pencari **safe bet untuk parlay** —
+> framing value-bet di peta ini sudah disesuaikan; pohon & fakta
+> tidak berubah.
 
 ## 1. Pohon teranotasi
 
@@ -51,6 +54,7 @@ football-agent/
 │   │   ├── global-offsets.ts    penyajian runtime model piala (att*/def*,
 │   │   │                        G + HA graf, venue netral)
 │   │   ├── vig-stripping.ts     Shin; kelly.ts sizing quarter-Kelly ber-cap
+│   │   │                        (EV/Kelly = info sekunder — ARCH §1)
 │   │   ├── fallback-guard.ts    gerbang kualitas data (fallback → SKIP <50%)
 │   │   ├── special-markets-engine.ts  konteks pasar khusus (klaim EV-nya
 │   │   │                        direkomendasikan nonaktif — lihat ARCH §10)
@@ -104,8 +108,8 @@ football-agent/
   + `competition_catalog` + `sm_id_map`.
 - `capture-odds.ts` — tangkapan odds jatuh tempo → `match_odds_history`
   (baseline + titik T-24j/T-6j/T-1j/T-15m; `has_odds=0` jujur).
-- `sync-predictions.ts` — probabilities + value bets + predictability →
-  `predictions.db` (terisolasi).
+- `sync-predictions.ts` — probabilities + tabel value bets SM +
+  predictability → `predictions.db` (terisolasi).
 - `backfill-telemetry.ts` — hasil + statistik laga selesai → `matches` +
   `team_match_logs` (3 jendela musim; `--current-only` untuk ritme).
 - `sync-context.ts` — standings, prematch news, expected lineups, H2H.
