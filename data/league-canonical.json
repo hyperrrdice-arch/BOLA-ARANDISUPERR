@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T10:53:47.861Z",
+  "generated_at": "2026-11-04T11:33:04.775Z",
   "generator": "scripts/build-league-canonical.ts",
   "note": "Identitas = canonical_id. Referensi liga = name + country, tidak pernah nama polos sendirian. Regenerasi: npx tsx scripts/build-league-canonical.ts",
   "leagues": [
@@ -1961,7 +1961,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM1085",
-          "status": "calibrated"
+          "status": "partial"
         }
       ]
     },
