@@ -53,6 +53,34 @@ gerbang dilepas; grade kejujuran pasar dari lab tetap tampil sebagai info.
   λ/μ 1,511/1,011.
 - `tsc --noEmit` = 0 error.
 
+## Koreksi (2026-11-05, ditemukan dari pertanyaan owner soal 46 laga piala)
+
+Angka verifikasi di atas **kurang lengkap**: re-run `calibrate-ratings.ts`
+yang berdiri sendiri menulis ulang `calibrated_ratings.json` TANPA blok
+`canonical.cupOffsets` — blok itu produsennya `scripts/fit-global-offsets.ts`
+(dalam rantai daily-refresh urutannya memang calibrate → fit-offsets; run
+manual di tugas ini melompati langkah kedua). Akibatnya 46 fixture piala
+gagal di-rate dengan alasan "cupOffset absen", termasuk 35 laga UEL/UECL.
+
+Perbaikan: `fit-global-offsets.ts` dijalankan (graf europe/conmebol/afc
+ter-fit ulang; AFC kini 10 liga teridentifikasi, 265 jangkar). Efek
+samping by-design: entri JSON SM1085/SM1088 dihapus produsen itu (kompetisi
+piala dilayani model offset, bukan fit liga) — fit uncalibrated tertulis
+efektif 6 liga domestik.
+
+**Angka verifikasi FINAL (slate 48 jam, jendela sama persis):**
+
+- Rated 75 (baseline aturan lama) → **109**; unrated 57 → **23**.
+- Rated per status: calibrated 29, partial 59, **uncalibrated 21**
+  (10 domestik + 11 piala berstatus uncalibrated tapi tercakup graf).
+- 24 dari 46 fixture piala yang semula gagal kini ter-rate (UEL +13,
+  UECL +9, ACL Two +1, FA Cup +1). Sisa 22 fixture piala memang di luar
+  cakupan graf: minimal satu tim berasal dari liga tanpa fit/δ (mis.
+  tim Siprus/Lincoln Red Imps/Olympique Cayenne) + 1 fixture ratings
+  tidak ditemukan.
+- Probe Leverkusen vs Marseille: cupOffset europe terisi
+  (δ Bundesliga −0,1628; δ Ligue 1 −0,1942), status partial.
+
 ## Yang SENGAJA tidak berubah
 
 - Registry & gerbang ukur (uji skala 2%, gerbang OOS) tetap jalan apa

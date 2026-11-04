@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-11-04T20:23:18.394Z",
+  "generated_at": "2026-11-04T20:26:34.231Z",
   "window": {
-    "from": "2026-11-04T20:23:02.554Z",
-    "to": "2026-11-06T20:23:02.554Z",
+    "from": "2026-11-04T20:26:03.879Z",
+    "to": "2026-11-06T20:26:03.879Z",
     "hours": 48
   },
   "stats": {
     "fixtures_scanned": 132,
-    "fixtures_rated": 85,
-    "fixtures_unrated": 47,
-    "legs_total": 597,
+    "fixtures_rated": 109,
+    "fixtures_unrated": 23,
+    "legs_total": 763,
     "legs_by_grade": {
-      "A": 216,
-      "B": 257,
-      "C": 124
+      "A": 277,
+      "B": 332,
+      "C": 154
     },
     "unrated_reason_counts": {
-      "kompetisi piala tapi jalur offset tidak me-rate fixture ini": 46,
+      "kompetisi piala tapi jalur offset tidak me-rate fixture ini": 22,
       "ratings tim tidak ditemukan": 1
     },
-    "packages_written": 85,
+    "packages_written": 109,
     "fixtures_rated_free_mode": 0,
-    "ledger_live_run_rows_written": 65,
-    "ledger_skipped_already_recorded": 75
+    "ledger_live_run_rows_written": 77,
+    "ledger_skipped_already_recorded": 98
   },
   "rated": [
     {
@@ -38,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 2.074,
       "mu": 1.232,
-      "package_id": 233,
+      "package_id": 318,
       "legs": [
         {
           "market": "team_over05_home",
@@ -159,7 +159,7 @@
       "feed_mode": "full",
       "lambda": 2.604,
       "mu": 0.986,
-      "package_id": 234,
+      "package_id": 319,
       "legs": [
         {
           "market": "dc",
@@ -267,7 +267,7 @@
       "feed_mode": "full",
       "lambda": 1.284,
       "mu": 1.38,
-      "package_id": 235,
+      "package_id": 320,
       "legs": [
         {
           "market": "team_over05_home",
@@ -375,7 +375,7 @@
       "feed_mode": "full",
       "lambda": 1.767,
       "mu": 1.322,
-      "package_id": 236,
+      "package_id": 321,
       "legs": [
         {
           "market": "team_over05_home",
@@ -483,7 +483,7 @@
       "feed_mode": "full",
       "lambda": 1.798,
       "mu": 1.201,
-      "package_id": 237,
+      "package_id": 322,
       "legs": [
         {
           "market": "team_over05_home",
@@ -578,7 +578,7 @@
       "feed_mode": "full",
       "lambda": 1.499,
       "mu": 1.084,
-      "package_id": 238,
+      "package_id": 323,
       "legs": [
         {
           "market": "team_over05_home",
@@ -661,6 +661,101 @@
       ]
     },
     {
+      "match_id": "sm_19862286",
+      "utc_date": "2026-11-05T10:00:00.000Z",
+      "competition_id": "sm:1088",
+      "competition_name": "AFC Champions League Two",
+      "canonical_id": "sm:1088",
+      "home": "Machida Zelvia",
+      "away": "Shanghai Shenhua",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.927,
+      "mu": 0.699,
+      "package_id": 324,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.9394573432815266,
+          "effective_prob": 0.8726,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 416,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6209,
+          "agreement_spread": 0.31855734328152663
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8838069808295907,
+          "effective_prob": 0.8726,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 416,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7650999999999999,
+          "agreement_spread": 0.11870698082959086
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.9464297799368455,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7286,
+          "agreement_spread": 0.2178297799368455
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8768151735101448,
+          "effective_prob": 0.8439,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 237,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8117,
+          "agreement_spread": 0.06511517351014484
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.8232643241111172,
+          "effective_prob": 0.8232643241111172,
+          "effective_source": "stated-fallback",
+          "band": "80–85",
+          "band_n": 32,
+          "grade": "B",
+          "market_prob": 0.6919,
+          "sm_prob": 0.3861,
+          "agreement_spread": 0.43716432411111716
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.7017590965786563,
+          "effective_prob": 0.7017590965786563,
+          "effective_source": "stated-fallback",
+          "band": "70–75",
+          "band_n": 120,
+          "grade": "B",
+          "market_prob": 0.5597,
+          "sm_prob": 0.601,
+          "agreement_spread": 0.14205909657865634
+        }
+      ]
+    },
+    {
       "match_id": "sm_19888195",
       "utc_date": "2026-11-05T11:30:00.000Z",
       "competition_id": "sm:1007",
@@ -673,7 +768,7 @@
       "feed_mode": "full",
       "lambda": 1.269,
       "mu": 1.757,
-      "package_id": 239,
+      "package_id": 325,
       "legs": [
         {
           "market": "team_over05_away",
@@ -768,7 +863,7 @@
       "feed_mode": "full",
       "lambda": 1.154,
       "mu": 0.71,
-      "package_id": 240,
+      "package_id": 326,
       "legs": [
         {
           "market": "ou35",
@@ -876,7 +971,7 @@
       "feed_mode": "full",
       "lambda": 1.869,
       "mu": 1.84,
-      "package_id": 241,
+      "package_id": 327,
       "legs": [
         {
           "market": "ou15",
@@ -997,7 +1092,7 @@
       "feed_mode": "full",
       "lambda": 2.266,
       "mu": 0.68,
-      "package_id": 242,
+      "package_id": 328,
       "legs": [
         {
           "market": "dc",
@@ -1092,7 +1187,7 @@
       "feed_mode": "full",
       "lambda": 0.976,
       "mu": 1.717,
-      "package_id": 243,
+      "package_id": 329,
       "legs": [
         {
           "market": "team_over05_away",
@@ -1187,7 +1282,7 @@
       "feed_mode": "full",
       "lambda": 2.543,
       "mu": 0.839,
-      "package_id": 244,
+      "package_id": 330,
       "legs": [
         {
           "market": "dc",
@@ -1296,6 +1391,1155 @@
       ]
     },
     {
+      "match_id": "sm_19873920",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Crystal Palace",
+      "away": "TSG Hoffenheim",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.805,
+      "mu": 1.262,
+      "package_id": 331,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8355250160803975,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7084,
+          "agreement_spread": 0.1271250160803975
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7693033723533336,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7678999999999999,
+          "agreement_spread": 0.001403372353333654
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8106373017320363,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7935,
+          "agreement_spread": 0.017137301732036314
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7322540253231545,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6071,
+          "agreement_spread": 0.12515402532315456
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7169126856397418,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7143,
+          "agreement_spread": 0.0026126856397417075
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.632226880911661,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.66,
+          "agreement_spread": 0.027773119088339016
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873922",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Lillestrøm",
+      "away": "Viktoria Plzeň",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.54,
+      "mu": 1.452,
+      "package_id": 332,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7568839528545398,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7716,
+          "agreement_spread": 0.014716047145460154
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7658982893158103,
+          "effective_prob": 0.7658982893158103,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7594,
+          "agreement_spread": 0.006498289315810313
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7856187462021531,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7066,
+          "agreement_spread": 0.0790187462021531
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7996534231352315,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8314,
+          "agreement_spread": 0.03174657686476856
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6490249396995982,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5878,
+          "agreement_spread": 0.06122493969959819
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6409275588543246,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5765,
+          "agreement_spread": 0.06442755885432461
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6021884882911374,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6518999999999999,
+          "agreement_spread": 0.049711511708862566
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6017040537706604,
+          "effective_prob": 0.5688,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 327,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6232,
+          "agreement_spread": 0.02149594622933959
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873925",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Levski Sofia",
+      "away": "Jagiellonia Białystok",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.479,
+      "mu": 1.205,
+      "package_id": 333,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7721344503367233,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7551000000000001,
+          "agreement_spread": 0.01703445033672324
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7437561968905816,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7665000000000001,
+          "agreement_spread": 0.02274380310941848
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7003079810507072,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7021999999999999,
+          "agreement_spread": 0.0018920189492926953
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7484215312640037,
+          "effective_prob": 0.6978,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 225,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8151,
+          "agreement_spread": 0.06667846873599637
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.691229247641516,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6493000000000001,
+          "agreement_spread": 0.041929247641515954
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7176168549747652,
+          "effective_prob": 0.6557,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 212,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6285000000000001,
+          "agreement_spread": 0.08911685497476518
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873929",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Sparta Praha",
+      "away": "AFC Bournemouth",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.169,
+      "mu": 2.012,
+      "package_id": 334,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8662778611154869,
+          "effective_prob": 0.8662778611154869,
+          "effective_source": "stated-fallback",
+          "band": "85+",
+          "band_n": 131,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5952000000000001,
+          "agreement_spread": 0.2710778611154868
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7858408186484,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7943000000000001,
+          "agreement_spread": 0.008459181351600065
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.782916227215531,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.4946,
+          "agreement_spread": 0.288316227215531
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8263026256641172,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7908,
+          "agreement_spread": 0.035502625664117216
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6893225216452408,
+          "effective_prob": 0.6893225216452408,
+          "effective_source": "stated-fallback",
+          "band": "65–70",
+          "band_n": 169,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.753,
+          "agreement_spread": 0.06367747835475923
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6067572206530742,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6273,
+          "agreement_spread": 0.02054277934692572
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6161134104964141,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.599,
+          "sm_prob": 0.5867,
+          "agreement_spread": 0.029413410496414105
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873936",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Real Sociedad",
+      "away": "Olympique Lyonnais",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.626,
+      "mu": 1.478,
+      "package_id": 335,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8032849029240557,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7844,
+          "agreement_spread": 0.018884902924055758
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7623479450618789,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7589,
+          "agreement_spread": 0.003447945061878843
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7719064715315513,
+          "effective_prob": 0.7719064715315513,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6199,
+          "agreement_spread": 0.15200647153155133
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8158558157978506,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7735,
+          "agreement_spread": 0.04235581579785064
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6508523219894728,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7347999999999999,
+          "agreement_spread": 0.08394767801052705
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6239463409639169,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6776000000000001,
+          "agreement_spread": 0.05365365903608321
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6200608150506722,
+          "effective_prob": 0.5688,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 327,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5495,
+          "agreement_spread": 0.07056081505067224
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873938",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Anderlecht",
+      "away": "Salzburg",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.641,
+      "mu": 1.187,
+      "package_id": 336,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8062135880103449,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6713,
+          "agreement_spread": 0.13491358801034492
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7558621579697089,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.758,
+          "agreement_spread": 0.002137842030291104
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7736462337310439,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7877,
+          "agreement_spread": 0.014053766268956047
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7237198077315158,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5586,
+          "agreement_spread": 0.1651198077315158
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6857028970634623,
+          "effective_prob": 0.6939,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 245,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6576000000000001,
+          "agreement_spread": 0.02810289706346225
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6948646847289954,
+          "effective_prob": 0.6489,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 225,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.7565999999999999,
+          "agreement_spread": 0.06173531527100451
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873984",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Trabzonspor",
+      "away": "SC Freiburg",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.515,
+      "mu": 1.436,
+      "package_id": 337,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.754913379072982,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7662,
+          "agreement_spread": 0.011286620927018043
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7621225462300705,
+          "effective_prob": 0.7621225462300705,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6114999999999999,
+          "agreement_spread": 0.15062254623007054
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7801916816723414,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8133,
+          "agreement_spread": 0.03310831832765859
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7934123123860459,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8014,
+          "agreement_spread": 0.007987687613954075
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6582090990534814,
+          "effective_prob": 0.6939,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 245,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6474,
+          "agreement_spread": 0.010809099053481375
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6400404175018928,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7559,
+          "agreement_spread": 0.11585958249810724
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6050462034251256,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.4779,
+          "agreement_spread": 0.12714620342512561
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873990",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "KuPS",
+      "away": "Gent",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 0.984,
+      "mu": 1.503,
+      "package_id": 338,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7524308909105845,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.665,
+          "agreement_spread": 0.08743089091058442
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7775381021189617,
+          "effective_prob": 0.7775381021189617,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.743,
+          "agreement_spread": 0.03453810211896169
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7603518394714666,
+          "effective_prob": 0.7603518394714666,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 199,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6890000000000001,
+          "agreement_spread": 0.0713518394714665
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7401731971326041,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7534000000000001,
+          "agreement_spread": 0.01322680286739597
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7100241575265982,
+          "effective_prob": 0.6978,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 225,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7713,
+          "agreement_spread": 0.06127584247340179
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6261871438630213,
+          "effective_prob": 0.6261871438630213,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 115,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6788,
+          "agreement_spread": 0.052612856136978636
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873993",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Thun",
+      "away": "Hearts",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.827,
+      "mu": 1.5,
+      "package_id": 339,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8391038911495035,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6934999999999999,
+          "agreement_spread": 0.14560389114950356
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7738488716495158,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7656000000000001,
+          "agreement_spread": 0.00824887164951571
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7768697167387147,
+          "effective_prob": 0.7768697167387147,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7583,
+          "agreement_spread": 0.01856971673871477
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8446572628758922,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8156,
+          "agreement_spread": 0.029057262875892165
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6814422624875515,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5699000000000001,
+          "agreement_spread": 0.11154226248755139
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6518744022316676,
+          "effective_prob": 0.6518744022316676,
+          "effective_source": "stated-fallback",
+          "band": "65–70",
+          "band_n": 180,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6053000000000001,
+          "agreement_spread": 0.04657440223166753
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.645965591060267,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.6146,
+          "sm_prob": 0.6065,
+          "agreement_spread": 0.039465591060266925
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5743834729832611,
+          "effective_prob": 0.5743834729832611,
+          "effective_source": "stated-fallback",
+          "band": "55–60",
+          "band_n": 188,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6228,
+          "agreement_spread": 0.04841652701673893
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873995",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "FC Midtjylland",
+      "away": "Ajax",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.734,
+      "mu": 1.097,
+      "package_id": 340,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8234229230210696,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6838,
+          "agreement_spread": 0.1396229230210696
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7599888225767482,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5437,
+          "agreement_spread": 0.2162888225767482
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.762855663032447,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7678,
+          "agreement_spread": 0.004944336967553031
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7741472204695475,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8325,
+          "agreement_spread": 0.05835277953045248
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6850347395461347,
+          "effective_prob": 0.6939,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 245,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5887,
+          "agreement_spread": 0.0963347395461347
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6661287951287135,
+          "effective_prob": 0.6489,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 225,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.7822,
+          "agreement_spread": 0.11607120487128653
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873999",
+      "utc_date": "2026-11-05T17:45:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "AGF",
+      "away": "Sporting Braga",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.398,
+      "mu": 1.339,
+      "package_id": 341,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7529092796835799,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6812,
+          "agreement_spread": 0.07170927968357987
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.757975516731835,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7748999999999999,
+          "agreement_spread": 0.01692448326816487
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7439767140947248,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7536000000000002,
+          "agreement_spread": 0.009623285905275392
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7378923067819141,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.738,
+          "agreement_spread": 0.00010769321808590249
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7059191697029261,
+          "effective_prob": 0.6557,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 212,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6826000000000001,
+          "agreement_spread": 0.023319169702926024
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6415243543505709,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5848,
+          "agreement_spread": 0.05672435435057088
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6144989315547046,
+          "effective_prob": 0.6174,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 311,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6616,
+          "agreement_spread": 0.04710106844529538
+        }
+      ]
+    },
+    {
       "match_id": "sm_19636528",
       "utc_date": "2026-11-05T18:00:00.000Z",
       "competition_id": "sm:636",
@@ -1308,7 +2552,7 @@
       "feed_mode": "full",
       "lambda": 0.982,
       "mu": 1.742,
-      "package_id": 245,
+      "package_id": 342,
       "legs": [
         {
           "market": "team_over05_away",
@@ -1391,6 +2635,1220 @@
       ]
     },
     {
+      "match_id": "sm_19873882",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "AZ Alkmaar",
+      "away": "Juventus",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 0.998,
+      "mu": 1.493,
+      "package_id": 343,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7753023307536692,
+          "effective_prob": 0.7753023307536692,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7055,
+          "agreement_spread": 0.06980233075366915
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7594986654272767,
+          "effective_prob": 0.7594986654272767,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 199,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7095,
+          "agreement_spread": 0.04999866542727671
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7394234387047228,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7454999999999999,
+          "agreement_spread": 0.006076561295277116
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7471839018824515,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6396999999999999,
+          "agreement_spread": 0.1074839018824516
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7108504453578918,
+          "effective_prob": 0.6978,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 225,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7498,
+          "agreement_spread": 0.03894955464210825
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6313840600668843,
+          "effective_prob": 0.6313840600668843,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 115,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6878,
+          "agreement_spread": 0.056415939933115666
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873888",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Celtic",
+      "away": "Beşiktaş",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.589,
+      "mu": 1.4,
+      "package_id": 344,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7576652179198671,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7813,
+          "agreement_spread": 0.02363478208013292
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7534029663085511,
+          "effective_prob": 0.7534029663085511,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7258,
+          "agreement_spread": 0.02760296630855108
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7958701647886418,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7544,
+          "agreement_spread": 0.04147016478864185
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7992024685261808,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8434999999999999,
+          "agreement_spread": 0.044297531473819096
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6627410724353254,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6265999999999999,
+          "agreement_spread": 0.036141072435325494
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6496971392393768,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5704,
+          "agreement_spread": 0.07929713923937676
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873892",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Sunderland",
+      "away": "Dinamo Zagreb",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.179,
+      "mu": 0.986,
+      "package_id": 345,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8868433176984049,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6161,
+          "agreement_spread": 0.2707433176984049
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8403562182992091,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5417000000000001,
+          "agreement_spread": 0.2986562182992091
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8050364880207912,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7818999999999999,
+          "agreement_spread": 0.023136488020791268
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8241749069018286,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7664,
+          "agreement_spread": 0.05777490690182863
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.64539270632,
+          "effective_prob": 0.64539270632,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 132,
+          "grade": "B",
+          "market_prob": 0.6671,
+          "sm_prob": 0.3233,
+          "agreement_spread": 0.34380000000000005
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6103304244213693,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6838,
+          "agreement_spread": 0.07346957557863065
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6269340223817369,
+          "effective_prob": 0.6269340223817369,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 187,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.7225,
+          "agreement_spread": 0.09556597761826313
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6127367894696157,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.5768,
+          "sm_prob": 0.5387,
+          "agreement_spread": 0.07403678946961578
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873898",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Celta de Vigo",
+      "away": "Union Saint-Gilloise",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.028,
+      "mu": 1.212,
+      "package_id": 346,
+      "legs": [
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.8114307613288801,
+          "effective_prob": 0.8114307613288801,
+          "effective_source": "stated-fallback",
+          "band": "80–85",
+          "band_n": 156,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6672,
+          "agreement_spread": 0.14423076132888013
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7133976329798137,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7628,
+          "agreement_spread": 0.0494023670201863
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7023984986920566,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7927,
+          "agreement_spread": 0.09030150130794334
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6891914499952585,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7412000000000001,
+          "agreement_spread": 0.05200855000474158
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.6550744175434503,
+          "effective_prob": 0.6550744175434503,
+          "effective_source": "stated-fallback",
+          "band": "65–70",
+          "band_n": 154,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7854000000000001,
+          "agreement_spread": 0.1303255824565498
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6422783062719997,
+          "effective_prob": 0.6422783062719997,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 115,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6189,
+          "agreement_spread": 0.02337830627199966
+        },
+        {
+          "market": "ou25",
+          "selection": "under",
+          "model_prob": 0.6120087001315484,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.4365,
+          "sm_prob": 0.441,
+          "agreement_spread": 0.1755087001315484
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873902",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Benfica",
+      "away": "Lech Poznań",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.521,
+      "mu": 1.009,
+      "package_id": 347,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8690116587135284,
+          "effective_prob": 0.8726,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 416,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8537,
+          "agreement_spread": 0.015311658713528353
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.9196154829600774,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8753,
+          "agreement_spread": 0.04431548296007748
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8672399273602139,
+          "effective_prob": 0.8439,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 237,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8161,
+          "agreement_spread": 0.05113992736021389
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8329775977514486,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8064,
+          "agreement_spread": 0.026577597751448634
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.7019892564649778,
+          "effective_prob": 0.7019892564649778,
+          "effective_source": "stated-fallback",
+          "band": "70–75",
+          "band_n": 75,
+          "grade": "B",
+          "market_prob": 0.8109,
+          "sm_prob": 0.6604000000000001,
+          "agreement_spread": 0.15049999999999986
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.684645005819695,
+          "effective_prob": 0.6379,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 243,
+          "grade": "C",
+          "market_prob": 0.6953,
+          "sm_prob": 0.6076,
+          "agreement_spread": 0.0877
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6354166152690065,
+          "effective_prob": 0.6354166152690065,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 187,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.4943,
+          "agreement_spread": 0.14111661526900648
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873907",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Bayer 04 Leverkusen",
+      "away": "Olympique Marseille",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.025,
+      "mu": 1.528,
+      "package_id": 348,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8680049276643584,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7985,
+          "agreement_spread": 0.06950492766435845
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8696071773784972,
+          "effective_prob": 0.8439,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 237,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8305,
+          "agreement_spread": 0.039107177378497227
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7854590383365571,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7841,
+          "agreement_spread": 0.001359038336557039
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7830306849456905,
+          "effective_prob": 0.7830306849456905,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6502,
+          "agreement_spread": 0.1328306849456905
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7076386441730932,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7106999999999999,
+          "agreement_spread": 0.0030613558269066976
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6796744930452574,
+          "effective_prob": 0.6796744930452574,
+          "effective_source": "stated-fallback",
+          "band": "65–70",
+          "band_n": 180,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5997,
+          "agreement_spread": 0.07997449304525739
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6888412990845451,
+          "effective_prob": 0.6379,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 243,
+          "grade": "C",
+          "market_prob": 0.6498,
+          "sm_prob": 0.6248,
+          "agreement_spread": 0.06404129908454503
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873910",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:5",
+      "competition_name": "Europa League",
+      "canonical_id": "sm:5",
+      "home": "Hapoel Be'er Sheva",
+      "away": "OFI",
+      "gate_status": "partial",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.143,
+      "mu": 1.273,
+      "package_id": 349,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8826957616816417,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7984,
+          "agreement_spread": 0.08429576168164166
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8549606176732646,
+          "effective_prob": 0.8439,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 237,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8146,
+          "agreement_spread": 0.0403606176732646
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7784273837609851,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7288,
+          "agreement_spread": 0.04962738376098508
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7943948425495908,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7837999999999999,
+          "agreement_spread": 0.010594842549590866
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7200095793832252,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6188,
+          "agreement_spread": 0.10120957938322517
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6633310123091241,
+          "effective_prob": 0.6379,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 243,
+          "grade": "C",
+          "market_prob": 0.5671,
+          "sm_prob": 0.6035,
+          "agreement_spread": 0.09623101230912401
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6355494040917543,
+          "effective_prob": 0.5688,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 327,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5629,
+          "agreement_spread": 0.07264940409175435
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5548712316655109,
+          "effective_prob": 0.5548712316655109,
+          "effective_source": "stated-fallback",
+          "band": "55–60",
+          "band_n": 188,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6378,
+          "agreement_spread": 0.08292876833448914
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873969",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Panathinaikos",
+      "away": "CSKA Sofia",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.894,
+      "mu": 0.814,
+      "package_id": 350,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8451549408366369,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7848,
+          "agreement_spread": 0.06035494083663684
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8495305156265123,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7715000000000001,
+          "agreement_spread": 0.0780305156265122
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7834434219154267,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7229000000000001,
+          "agreement_spread": 0.06054342191542661
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7527863479166153,
+          "effective_prob": 0.7778,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 315,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7028,
+          "agreement_spread": 0.04998634791661527
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7123312366775609,
+          "effective_prob": 0.6557,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 212,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7554000000000001,
+          "agreement_spread": 0.04306876332243914
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.6285983627520636,
+          "effective_prob": 0.6285983627520636,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 132,
+          "grade": "B",
+          "market_prob": 0.6105,
+          "sm_prob": 0.5077,
+          "agreement_spread": 0.12089836275206356
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.5569178113695369,
+          "effective_prob": 0.5569178113695369,
+          "effective_source": "stated-fallback",
+          "band": "55–60",
+          "band_n": 172,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5605,
+          "agreement_spread": 0.0035821886304631123
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873971",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Sint-Truiden",
+      "away": "Brann",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.949,
+      "mu": 1.312,
+      "package_id": 351,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8575826506049321,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7367,
+          "agreement_spread": 0.12088265060493208
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7799232246077171,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7759999999999999,
+          "agreement_spread": 0.003923224607717213
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8365894326949639,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8343,
+          "agreement_spread": 0.0022894326949638444
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.742956591480333,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6114,
+          "agreement_spread": 0.13155659148033294
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7307190040525933,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7365999999999999,
+          "agreement_spread": 0.005880995947406653
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6326786435139743,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.6101,
+          "sm_prob": 0.6349,
+          "agreement_spread": 0.024800000000000044
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5889723843257606,
+          "effective_prob": 0.5889723843257606,
+          "effective_source": "stated-fallback",
+          "band": "55–60",
+          "band_n": 188,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5939,
+          "agreement_spread": 0.004927615674239383
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6266519403428192,
+          "effective_prob": 0.5688,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 327,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6289,
+          "agreement_spread": 0.0022480596571807787
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873974",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Getafe",
+      "away": "Brighton & Hove Albion",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 0.824,
+      "mu": 1.367,
+      "package_id": 352,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.774022001694712,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7543,
+          "agreement_spread": 0.019722001694712055
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.8211194473875557,
+          "effective_prob": 0.8211194473875557,
+          "effective_source": "stated-fallback",
+          "band": "80–85",
+          "band_n": 156,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7484000000000001,
+          "agreement_spread": 0.07271944738755565
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7220271555077064,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7447999999999999,
+          "agreement_spread": 0.022772844492293554
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7451295178041241,
+          "effective_prob": 0.7342,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 222,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7673000000000001,
+          "agreement_spread": 0.02217048219587603
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.6432305225196728,
+          "effective_prob": 0.6432305225196728,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 121,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7206,
+          "agreement_spread": 0.07736947748032719
+        },
+        {
+          "market": "ou25",
+          "selection": "under",
+          "model_prob": 0.6251281578351112,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.5052,
+          "sm_prob": 0.5293,
+          "agreement_spread": 0.11992815783511124
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.5613265527367934,
+          "effective_prob": 0.5613265527367934,
+          "effective_source": "stated-fallback",
+          "band": "55–60",
+          "band_n": 61,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5863,
+          "agreement_spread": 0.024973447263206605
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19873982",
+      "utc_date": "2026-11-05T20:00:00.000Z",
+      "competition_id": "sm:2286",
+      "competition_name": "Europa Conference League",
+      "canonical_id": "sm:2286",
+      "home": "Monaco",
+      "away": "Nordsjælland",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 2.148,
+      "mu": 1.016,
+      "package_id": 353,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8832807801183862,
+          "effective_prob": 0.8579,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 387,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7522,
+          "agreement_spread": 0.1310807801183862
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8311042814221181,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6794999999999999,
+          "agreement_spread": 0.15160428142211824
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8011885775294617,
+          "effective_prob": 0.8408,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 471,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7713,
+          "agreement_spread": 0.029888577529461724
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8240416387813275,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7848999999999999,
+          "agreement_spread": 0.03914163878132759
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6105521519279182,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6635,
+          "agreement_spread": 0.05294784807208175
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.6322928589515804,
+          "effective_prob": 0.6322928589515804,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 132,
+          "grade": "B",
+          "market_prob": 0.6645,
+          "sm_prob": 0.45049999999999996,
+          "agreement_spread": 0.21400000000000002
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6379597871874625,
+          "effective_prob": 0.6379597871874625,
+          "effective_source": "stated-fallback",
+          "band": "60–65",
+          "band_n": 187,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6515000000000001,
+          "agreement_spread": 0.013540212812537589
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6125261663400983,
+          "effective_prob": 0.6063,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 320,
+          "grade": "C",
+          "market_prob": 0.6456,
+          "sm_prob": 0.5595,
+          "agreement_spread": 0.08609999999999995
+        }
+      ]
+    },
+    {
       "match_id": "sm_19636530",
       "utc_date": "2026-11-05T22:15:00.000Z",
       "competition_id": "sm:636",
@@ -1403,7 +3861,7 @@
       "feed_mode": "full",
       "lambda": 1.597,
       "mu": 1.059,
-      "package_id": 246,
+      "package_id": 354,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1498,7 +3956,7 @@
       "feed_mode": "full",
       "lambda": 2.508,
       "mu": 0.668,
-      "package_id": 247,
+      "package_id": 355,
       "legs": [
         {
           "market": "dc",
@@ -1606,7 +4064,7 @@
       "feed_mode": "full",
       "lambda": 1.716,
       "mu": 1,
-      "package_id": 248,
+      "package_id": 356,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1701,7 +4159,7 @@
       "feed_mode": "full",
       "lambda": 2.326,
       "mu": 1.25,
-      "package_id": 249,
+      "package_id": 357,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1822,7 +4280,7 @@
       "feed_mode": "full",
       "lambda": 1.511,
       "mu": 1.011,
-      "package_id": 250,
+      "package_id": 358,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1917,7 +4375,7 @@
       "feed_mode": "full",
       "lambda": 0.79,
       "mu": 1.004,
-      "package_id": 251,
+      "package_id": 359,
       "legs": [
         {
           "market": "ou35",
@@ -2025,7 +4483,7 @@
       "feed_mode": "full",
       "lambda": 0.899,
       "mu": 1.428,
-      "package_id": 252,
+      "package_id": 360,
       "legs": [
         {
           "market": "dc",
@@ -2120,7 +4578,7 @@
       "feed_mode": "full",
       "lambda": 0.85,
       "mu": 1.535,
-      "package_id": 253,
+      "package_id": 361,
       "legs": [
         {
           "market": "dc",
@@ -2215,7 +4673,7 @@
       "feed_mode": "full",
       "lambda": 2.368,
       "mu": 0.574,
-      "package_id": 254,
+      "package_id": 362,
       "legs": [
         {
           "market": "dc",
@@ -2323,7 +4781,7 @@
       "feed_mode": "full",
       "lambda": 3.639,
       "mu": 0.933,
-      "package_id": 255,
+      "package_id": 363,
       "legs": [
         {
           "market": "dc",
@@ -2444,7 +4902,7 @@
       "feed_mode": "full",
       "lambda": 1.655,
       "mu": 0.686,
-      "package_id": 256,
+      "package_id": 364,
       "legs": [
         {
           "market": "dc",
@@ -2539,7 +4997,7 @@
       "feed_mode": "full",
       "lambda": 2.174,
       "mu": 0.558,
-      "package_id": 257,
+      "package_id": 365,
       "legs": [
         {
           "market": "dc",
@@ -2647,7 +5105,7 @@
       "feed_mode": "full",
       "lambda": 2.133,
       "mu": 0.684,
-      "package_id": 258,
+      "package_id": 366,
       "legs": [
         {
           "market": "dc",
@@ -2742,7 +5200,7 @@
       "feed_mode": "full",
       "lambda": 0.986,
       "mu": 0.999,
-      "package_id": 259,
+      "package_id": 367,
       "legs": [
         {
           "market": "ou35",
@@ -2876,7 +5334,7 @@
       "feed_mode": "full",
       "lambda": 1.31,
       "mu": 1.253,
-      "package_id": 260,
+      "package_id": 368,
       "legs": [
         {
           "market": "team_over05_home",
@@ -2984,7 +5442,7 @@
       "feed_mode": "full",
       "lambda": 1.928,
       "mu": 1.535,
-      "package_id": 261,
+      "package_id": 369,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3092,7 +5550,7 @@
       "feed_mode": "full",
       "lambda": 1.439,
       "mu": 1.392,
-      "package_id": 262,
+      "package_id": 370,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3200,7 +5658,7 @@
       "feed_mode": "full",
       "lambda": 1.007,
       "mu": 3.007,
-      "package_id": 263,
+      "package_id": 371,
       "legs": [
         {
           "market": "dc",
@@ -3334,7 +5792,7 @@
       "feed_mode": "full",
       "lambda": 1.445,
       "mu": 1.925,
-      "package_id": 264,
+      "package_id": 372,
       "legs": [
         {
           "market": "team_over05_away",
@@ -3455,7 +5913,7 @@
       "feed_mode": "full",
       "lambda": 1.417,
       "mu": 1.045,
-      "package_id": 265,
+      "package_id": 373,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3550,7 +6008,7 @@
       "feed_mode": "full",
       "lambda": 1.842,
       "mu": 1.128,
-      "package_id": 266,
+      "package_id": 374,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3645,7 +6103,7 @@
       "feed_mode": "full",
       "lambda": 2.069,
       "mu": 1.29,
-      "package_id": 267,
+      "package_id": 375,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3766,7 +6224,7 @@
       "feed_mode": "full",
       "lambda": 1.703,
       "mu": 1.334,
-      "package_id": 268,
+      "package_id": 376,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3874,7 +6332,7 @@
       "feed_mode": "full",
       "lambda": 2.099,
       "mu": 1.003,
-      "package_id": 269,
+      "package_id": 377,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3982,7 +6440,7 @@
       "feed_mode": "full",
       "lambda": 1.416,
       "mu": 1.353,
-      "package_id": 270,
+      "package_id": 378,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4090,7 +6548,7 @@
       "feed_mode": "full",
       "lambda": 0.933,
       "mu": 1.18,
-      "package_id": 271,
+      "package_id": 379,
       "legs": [
         {
           "market": "ou35",
@@ -4198,7 +6656,7 @@
       "feed_mode": "full",
       "lambda": 1.184,
       "mu": 1.942,
-      "package_id": 272,
+      "package_id": 380,
       "legs": [
         {
           "market": "team_over05_away",
@@ -4306,7 +6764,7 @@
       "feed_mode": "full",
       "lambda": 1.017,
       "mu": 1.543,
-      "package_id": 273,
+      "package_id": 381,
       "legs": [
         {
           "market": "dc",
@@ -4401,7 +6859,7 @@
       "feed_mode": "full",
       "lambda": 0.849,
       "mu": 1.581,
-      "package_id": 274,
+      "package_id": 382,
       "legs": [
         {
           "market": "dc",
@@ -4496,7 +6954,7 @@
       "feed_mode": "full",
       "lambda": 2.052,
       "mu": 1.294,
-      "package_id": 275,
+      "package_id": 383,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4617,7 +7075,7 @@
       "feed_mode": "full",
       "lambda": 1.754,
       "mu": 1.515,
-      "package_id": 276,
+      "package_id": 384,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4738,7 +7196,7 @@
       "feed_mode": "full",
       "lambda": 2.059,
       "mu": 1.303,
-      "package_id": 277,
+      "package_id": 385,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4859,7 +7317,7 @@
       "feed_mode": "full",
       "lambda": 1.611,
       "mu": 1.204,
-      "package_id": 278,
+      "package_id": 386,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4954,7 +7412,7 @@
       "feed_mode": "full",
       "lambda": 1.69,
       "mu": 1.015,
-      "package_id": 279,
+      "package_id": 387,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5049,7 +7507,7 @@
       "feed_mode": "full",
       "lambda": 1.772,
       "mu": 1.36,
-      "package_id": 280,
+      "package_id": 388,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5170,7 +7628,7 @@
       "feed_mode": "full",
       "lambda": 1.98,
       "mu": 0.969,
-      "package_id": 281,
+      "package_id": 389,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5278,7 +7736,7 @@
       "feed_mode": "full",
       "lambda": 1.712,
       "mu": 1.561,
-      "package_id": 282,
+      "package_id": 390,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5399,7 +7857,7 @@
       "feed_mode": "full",
       "lambda": 1.281,
       "mu": 1.063,
-      "package_id": 283,
+      "package_id": 391,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5494,7 +7952,7 @@
       "feed_mode": "full",
       "lambda": 2.392,
       "mu": 0.881,
-      "package_id": 284,
+      "package_id": 392,
       "legs": [
         {
           "market": "dc",
@@ -5615,7 +8073,7 @@
       "feed_mode": "full",
       "lambda": 0.744,
       "mu": 1.291,
-      "package_id": 285,
+      "package_id": 393,
       "legs": [
         {
           "market": "ou35",
@@ -5723,7 +8181,7 @@
       "feed_mode": "full",
       "lambda": 1.28,
       "mu": 0.971,
-      "package_id": 286,
+      "package_id": 394,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5831,7 +8289,7 @@
       "feed_mode": "full",
       "lambda": 1.334,
       "mu": 1.754,
-      "package_id": 287,
+      "package_id": 395,
       "legs": [
         {
           "market": "team_over05_away",
@@ -5939,7 +8397,7 @@
       "feed_mode": "full",
       "lambda": 2.321,
       "mu": 1.261,
-      "package_id": 288,
+      "package_id": 396,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6060,7 +8518,7 @@
       "feed_mode": "full",
       "lambda": 1.535,
       "mu": 1.742,
-      "package_id": 289,
+      "package_id": 397,
       "legs": [
         {
           "market": "team_over05_away",
@@ -6181,7 +8639,7 @@
       "feed_mode": "full",
       "lambda": 1.804,
       "mu": 2.11,
-      "package_id": 290,
+      "package_id": 398,
       "legs": [
         {
           "market": "team_over05_away",
@@ -6289,7 +8747,7 @@
       "feed_mode": "full",
       "lambda": 2.209,
       "mu": 1.059,
-      "package_id": 291,
+      "package_id": 399,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6410,7 +8868,7 @@
       "feed_mode": "full",
       "lambda": 1.642,
       "mu": 2.112,
-      "package_id": 292,
+      "package_id": 400,
       "legs": [
         {
           "market": "team_over05_away",
@@ -6518,7 +8976,7 @@
       "feed_mode": "full",
       "lambda": 1.628,
       "mu": 1.502,
-      "package_id": 293,
+      "package_id": 401,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6639,7 +9097,7 @@
       "feed_mode": "full",
       "lambda": 1.405,
       "mu": 1.647,
-      "package_id": 294,
+      "package_id": 402,
       "legs": [
         {
           "market": "team_over05_away",
@@ -6747,7 +9205,7 @@
       "feed_mode": "full",
       "lambda": 1.619,
       "mu": 0.956,
-      "package_id": 295,
+      "package_id": 403,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6842,7 +9300,7 @@
       "feed_mode": "full",
       "lambda": 1.69,
       "mu": 1.328,
-      "package_id": 296,
+      "package_id": 404,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6937,7 +9395,7 @@
       "feed_mode": "full",
       "lambda": 1.052,
       "mu": 1.602,
-      "package_id": 297,
+      "package_id": 405,
       "legs": [
         {
           "market": "dc",
@@ -7032,7 +9490,7 @@
       "feed_mode": "full",
       "lambda": 1.61,
       "mu": 1.506,
-      "package_id": 298,
+      "package_id": 406,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7153,7 +9611,7 @@
       "feed_mode": "full",
       "lambda": 1.835,
       "mu": 1.573,
-      "package_id": 299,
+      "package_id": 407,
       "legs": [
         {
           "market": "ou15",
@@ -7274,7 +9732,7 @@
       "feed_mode": "full",
       "lambda": 1.018,
       "mu": 1.254,
-      "package_id": 300,
+      "package_id": 408,
       "legs": [
         {
           "market": "ou35",
@@ -7382,7 +9840,7 @@
       "feed_mode": "full",
       "lambda": 1.545,
       "mu": 1.584,
-      "package_id": 301,
+      "package_id": 409,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7516,7 +9974,7 @@
       "feed_mode": "full",
       "lambda": 1.681,
       "mu": 1.719,
-      "package_id": 302,
+      "package_id": 410,
       "legs": [
         {
           "market": "ou15",
@@ -7650,7 +10108,7 @@
       "feed_mode": "full",
       "lambda": 1.697,
       "mu": 1.396,
-      "package_id": 303,
+      "package_id": 411,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7758,7 +10216,7 @@
       "feed_mode": "full",
       "lambda": 2.065,
       "mu": 1.217,
-      "package_id": 304,
+      "package_id": 412,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7879,7 +10337,7 @@
       "feed_mode": "full",
       "lambda": 1.573,
       "mu": 1.446,
-      "package_id": 305,
+      "package_id": 413,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7987,7 +10445,7 @@
       "feed_mode": "full",
       "lambda": 1.733,
       "mu": 1.241,
-      "package_id": 306,
+      "package_id": 414,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8082,7 +10540,7 @@
       "feed_mode": "full",
       "lambda": 1.635,
       "mu": 1.318,
-      "package_id": 307,
+      "package_id": 415,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8165,6 +10623,114 @@
       ]
     },
     {
+      "match_id": "sm_19900816",
+      "utc_date": "2026-11-06T19:30:00.000Z",
+      "competition_id": "sm:24",
+      "competition_name": "FA Cup",
+      "canonical_id": "sm:24",
+      "home": "Bristol Rovers",
+      "away": "Cambridge United",
+      "gate_status": "uncalibrated",
+      "population": "cup",
+      "feed_mode": "full",
+      "lambda": 1.641,
+      "mu": 1.426,
+      "package_id": 416,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8062135880103452,
+          "effective_prob": 0.8293,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 287,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7109000000000001,
+          "agreement_spread": 0.09531358801034506
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7615043941991835,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7515000000000001,
+          "agreement_spread": 0.01000439419918342
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7597318437745911,
+          "effective_prob": 0.7597318437745911,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 183,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6855,
+          "agreement_spread": 0.07423184377459113
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8106376171968432,
+          "effective_prob": 0.7898,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 352,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7451000000000001,
+          "agreement_spread": 0.06553761719684315
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6659799254078381,
+          "effective_prob": 0.6682,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 422,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6453,
+          "agreement_spread": 0.02067992540783814
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.632225827666575,
+          "effective_prob": 0.6383,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 235,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7118000000000001,
+          "agreement_spread": 0.07957417233342512
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6125061356952283,
+          "effective_prob": 0.5688,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 327,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5351,
+          "agreement_spread": 0.07740613569522825
+        }
+      ]
+    },
+    {
       "match_id": "mt_377145380",
       "utc_date": "2026-11-06T19:45:00.000Z",
       "competition_id": "comp_5840",
@@ -8177,7 +10743,7 @@
       "feed_mode": "full",
       "lambda": 1.336,
       "mu": 1.308,
-      "package_id": 308,
+      "package_id": 417,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8285,7 +10851,7 @@
       "feed_mode": "full",
       "lambda": 1.864,
       "mu": 1.535,
-      "package_id": 309,
+      "package_id": 418,
       "legs": [
         {
           "market": "ou15",
@@ -8406,7 +10972,7 @@
       "feed_mode": "full",
       "lambda": 1.336,
       "mu": 1.308,
-      "package_id": 310,
+      "package_id": 419,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8514,7 +11080,7 @@
       "feed_mode": "full",
       "lambda": 1.754,
       "mu": 1.475,
-      "package_id": 311,
+      "package_id": 420,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8635,7 +11201,7 @@
       "feed_mode": "full",
       "lambda": 1.687,
       "mu": 1.369,
-      "package_id": 312,
+      "package_id": 421,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8743,7 +11309,7 @@
       "feed_mode": "full",
       "lambda": 1.562,
       "mu": 1.072,
-      "package_id": 313,
+      "package_id": 422,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8838,7 +11404,7 @@
       "feed_mode": "full",
       "lambda": 1.894,
       "mu": 1.16,
-      "package_id": 314,
+      "package_id": 423,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8933,7 +11499,7 @@
       "feed_mode": "full",
       "lambda": 1.562,
       "mu": 1.072,
-      "package_id": 315,
+      "package_id": 424,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9028,7 +11594,7 @@
       "feed_mode": "full",
       "lambda": 1.754,
       "mu": 1.703,
-      "package_id": 316,
+      "package_id": 425,
       "legs": [
         {
           "market": "ou15",
@@ -9149,7 +11715,7 @@
       "feed_mode": "full",
       "lambda": 1.388,
       "mu": 0.945,
-      "package_id": 317,
+      "package_id": 426,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9242,14 +11808,6 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19862286",
-      "utc_date": "2026-11-05T10:00:00.000Z",
-      "competition_name": "AFC Champions League Two",
-      "home": "Machida Zelvia",
-      "away": "Shanghai Shenhua",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19862290",
       "utc_date": "2026-11-05T10:00:00.000Z",
       "competition_name": "AFC Champions League Two",
@@ -9298,62 +11856,6 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19873920",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Crystal Palace",
-      "away": "TSG Hoffenheim",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873922",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Lillestrøm",
-      "away": "Viktoria Plzeň",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873925",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Levski Sofia",
-      "away": "Jagiellonia Białystok",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873929",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Sparta Praha",
-      "away": "AFC Bournemouth",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873936",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Real Sociedad",
-      "away": "Olympique Lyonnais",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873938",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Anderlecht",
-      "away": "Salzburg",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873984",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Trabzonspor",
-      "away": "SC Freiburg",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19873986",
       "utc_date": "2026-11-05T17:45:00.000Z",
       "competition_name": "Europa Conference League",
@@ -9370,35 +11872,11 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19873990",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "KuPS",
-      "away": "Gent",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19873991",
       "utc_date": "2026-11-05T17:45:00.000Z",
       "competition_name": "Europa Conference League",
       "home": "Crvena Zvezda",
       "away": "Inter Club d'Escaldes",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873993",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Thun",
-      "away": "Hearts",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873995",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "FC Midtjylland",
-      "away": "Ajax",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
@@ -9410,27 +11888,11 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19873999",
-      "utc_date": "2026-11-05T17:45:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "AGF",
-      "away": "Sporting Braga",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19893326",
       "utc_date": "2026-11-05T18:00:00.000Z",
       "competition_name": "Copa Del Rey",
       "home": "Tarancón",
       "away": "Levante",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873882",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "AZ Alkmaar",
-      "away": "Juventus",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
@@ -9442,59 +11904,11 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19873888",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Celtic",
-      "away": "Beşiktaş",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873892",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Sunderland",
-      "away": "Dinamo Zagreb",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19873895",
       "utc_date": "2026-11-05T20:00:00.000Z",
       "competition_name": "Europa League",
       "home": "Sturm Graz",
       "away": "Celje",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873898",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Celta de Vigo",
-      "away": "Union Saint-Gilloise",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873902",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Benfica",
-      "away": "Lech Poznań",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873907",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Bayer 04 Leverkusen",
-      "away": "Olympique Marseille",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873910",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa League",
-      "home": "Hapoel Be'er Sheva",
-      "away": "OFI",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
@@ -9511,30 +11925,6 @@
       "competition_name": "Europa Conference League",
       "home": "Riga",
       "away": "Jablonec",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873969",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Panathinaikos",
-      "away": "CSKA Sofia",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873971",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Sint-Truiden",
-      "away": "Brann",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19873974",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Getafe",
-      "away": "Brighton & Hove Albion",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
@@ -9562,14 +11952,6 @@
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
-      "match_id": "sm_19873982",
-      "utc_date": "2026-11-05T20:00:00.000Z",
-      "competition_name": "Europa Conference League",
-      "home": "Monaco",
-      "away": "Nordsjælland",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
       "match_id": "sm_19893309",
       "utc_date": "2026-11-05T20:00:00.000Z",
       "competition_name": "Copa Del Rey",
@@ -9591,14 +11973,6 @@
       "competition_name": "Coupe de France",
       "home": "Olympique Cayenne",
       "away": "Etoile Matoury",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19900816",
-      "utc_date": "2026-11-06T19:30:00.000Z",
-      "competition_name": "FA Cup",
-      "home": "Bristol Rovers",
-      "away": "Cambridge United",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     },
     {
