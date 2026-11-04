@@ -9,6 +9,9 @@ import {
 } from "../db/team-telemetry";
 import { evaluateMatchupLuck, type MatchupLuckSignal } from "./luck-regression";
 import { getLeagueGate, competitionIdToDiv, type CalibrationStatus } from "./league-gate";
+import { resolveServingForMatch, type ServingResolution } from "./league-identity";
+
+export type { ServingResolution } from "./league-identity";
 
 export interface TeamRating {
   name: string;
@@ -79,6 +82,13 @@ export interface ShrunkMatchParameters {
     calibrationStatus?: CalibrationStatus;
     /** Alasan gerbang (wajib terbaca saat partial/blokir — tidak ada penyajian diam-diam). */
     calibrationGate?: string;
+    /** Jejak resolusi identitas kanonik: liga apa + fit mana yang melayani + lewat jalur apa (audit). */
+    leagueResolution?: {
+      canonicalId: string | null;
+      fitSystem: "sportmonks" | "legacy-div" | "special" | null;
+      via: string;
+      note: string;
+    };
   };
 }
 
@@ -253,6 +263,13 @@ export function loadCalibratedRatings(): CalibratedRatingsFile | null {
 export function resolveDivCode(leagueHint?: string): string | null {
   if (!leagueHint) return null;
 
+  // Registry kanonik dulu (lib/quant/league-identity.ts): ID sumber, atau
+  // nama yang menunjuk TEPAT satu liga kanonik. Liga yang dikenal registry
+  // tapi tak ber-fit / ambigu → null di sini juga (jawaban final — bukan
+  // jatuh ke tebakan alias warisan di bawah).
+  const canonical = resolveServingForMatch({ hint: leagueHint });
+  if (canonical.canonical || canonical.ambiguous) return canonical.div;
+
   // Hint berbentuk ID kompetisi Sportmonks ('sm:8') atau kode divisi SM
   // ('SM8') — ruang ID baru pasca sprint; resolver lama tidak mengenalnya.
   const smDiv = competitionIdToDiv(leagueHint);
@@ -288,14 +305,13 @@ export function resolveDivCode(leagueHint?: string): string | null {
 }
 
 /**
- * Resolusi divisi SADAR-TIM (Fase 1). Nama liga saja ambigu — "Premier
- * League" ada di ≥6 negara, "Serie A"/"Super League"/"Primera Division"
- * juga bertabrakan. Bila hint menghasilkan >1 kandidat divisi yang ada di
- * file ratings, kandidat DISARING oleh keanggotaan kedua tim: divisi yang
- * memuat kedua tim menang; seri → kandidat pertama (urutan alias legacy
- * didahulukan demi kontinuitas perilaku pra-sprint untuk 7 liga tumpang).
+ * Resolusi divisi WARISAN (pra-kanonik) — hanya dipakai sebagai jaring
+ * pengaman untuk string hint yang TIDAK dikenal registry kanonik sama
+ * sekali (mis. singkatan feed eksternal seperti "epl"). Nama liga saja
+ * ambigu — "Premier League" ada di ≥6 negara. Kandidat disaring oleh
+ * keanggotaan kedua tim; seri → kandidat pertama (urutan alias legacy).
  */
-export function resolveDivForMatch(
+function legacyResolveDivForMatch(
   data: CalibratedRatingsFile,
   leagueHint: string | null | undefined,
   homeTeam: string,
@@ -343,6 +359,65 @@ export function resolveDivForMatch(
   // yang baru/promosi — parameter liganya tetap benar).
   if (bestScore === 0 && candidates.length > 1) return null;
   return best;
+}
+
+/**
+ * Resolusi liga untuk satu pertandingan LEWAT REGISTRY KANONIK
+ * (lib/quant/league-identity.ts): ID sumber → baris fixture tersimpan →
+ * nama+negara → nama tunggal / saringan tim. Fit yang melayani = fit yang
+ * sistemnya sama dengan sumber fixture (sm: → fit Sportmonks; legacy/
+ * TheStats → fit legacy), tercatat eksplisit di hasil (via + note).
+ *
+ * Registry mengenal liganya tapi fit tak tersedia di file ratings yang
+ * dimuat → div null (jujur), BUKAN jatuh ke tebakan nama. Registry sama
+ * sekali tidak mengenal hint → barulah jalur warisan di atas yang bicara.
+ */
+export function resolveMatchLeague(
+  data: CalibratedRatingsFile,
+  leagueHint: string | null | undefined,
+  homeTeam: string,
+  awayTeam: string,
+  asOfDate?: string | null
+): ServingResolution {
+  const res = resolveServingForMatch({
+    hint: leagueHint,
+    homeTeam,
+    awayTeam,
+    asOf: asOfDate ?? null,
+    hasTeam: (div, normalized) => !!lookupTeamRating(data, div, normalized),
+  });
+  if (res.canonical || res.ambiguous) {
+    if (res.div && res.div !== "UCL" && !data.leagues[res.div]) {
+      return {
+        ...res,
+        div: null,
+        fitSystem: null,
+        note: `${res.note} [fit ${res.div} tidak ada di calibrated_ratings.json yang dimuat — diperlakukan tanpa fit]`,
+      };
+    }
+    return res;
+  }
+  const div = legacyResolveDivForMatch(data, leagueHint, homeTeam, awayTeam);
+  if (!div) return res;
+  return {
+    canonical: null,
+    div,
+    fitSystem: div === "UCL" ? "special" : div.startsWith("SM") ? "sportmonks" : "legacy-div",
+    via: "legacy-fallback",
+    sourceSystem: null,
+    ambiguous: false,
+    note: "Registry kanonik tidak mengenal hint ini — resolusi warisan (alias + saringan keanggotaan tim) yang melayani.",
+  };
+}
+
+/** Kompatibilitas pemanggil lama: hanya kunci divisi yang melayani. */
+export function resolveDivForMatch(
+  data: CalibratedRatingsFile,
+  leagueHint: string | null | undefined,
+  homeTeam: string,
+  awayTeam: string
+): string | null {
+  return resolveMatchLeague(data, leagueHint, homeTeam, awayTeam).div;
 }
 
 /**
@@ -521,12 +596,24 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   const ratingsData = loadCalibratedRatings();
   // JANGAN fallback ke E0: liga tak dikenal harus dilaporkan sebagai tidak terkalibrasi,
   // bukan diam-diam memakai parameter Premier League.
-  // Resolusi sadar-tim: nama liga yang bertabrakan antar negara disaring
-  // oleh keanggotaan kedua tim di divisi kandidat (Fase 1).
-  const resolvedDiv = ratingsData
-    ? resolveDivForMatch(ratingsData, options.leagueHint, options.homeTeam, options.awayTeam)
-    : resolveDivCode(options.leagueHint);
-  const divCode = resolvedDiv || "UNKNOWN";
+  // Resolusi lewat registry kanonik (identitas liga tunggal): ID sumber /
+  // baris fixture / nama+negara — fit yang melayani = fit se-sumber dengan
+  // fixture, tercatat di metadata.leagueResolution. Liga dikenal tapi tak
+  // ber-fit: divCode memakai canonical_id supaya gerbang registry tetap
+  // bisa bicara eksplisit (mis. uncalibrated), bukan "UNKNOWN" generik.
+  const resolution: ServingResolution | null = ratingsData
+    ? resolveMatchLeague(ratingsData, options.leagueHint, options.homeTeam, options.awayTeam, options.matchDateCutoff)
+    : null;
+  const resolvedDiv = resolution ? resolution.div : resolveDivCode(options.leagueHint);
+  const divCode = resolvedDiv || resolution?.canonical?.canonical_id || "UNKNOWN";
+  const leagueResolutionMeta = resolution
+    ? {
+        canonicalId: resolution.canonical?.canonical_id ?? null,
+        fitSystem: resolution.fitSystem,
+        via: resolution.via,
+        note: resolution.note,
+      }
+    : undefined;
 
   // Gerbang kalibrasi (registry league_calibration) — sumber kebenaran status.
   const gate = divCode !== "UNKNOWN" && divCode !== "UCL" ? getLeagueGate(divCode) : null;
@@ -554,6 +641,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       preMatchCutoff: options.matchDateCutoff,
       calibrationStatus: gate?.status ?? "unknown",
       calibrationGate: gate?.reason,
+      leagueResolution: leagueResolutionMeta,
     },
   };
 
@@ -758,6 +846,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       luckMetrics: luckSignal,
       calibrationStatus: gateStatus,
       calibrationGate: gate?.reason,
+      leagueResolution: leagueResolutionMeta,
     },
   };
 }
