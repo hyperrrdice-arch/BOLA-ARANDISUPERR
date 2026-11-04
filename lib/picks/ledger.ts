@@ -38,6 +38,8 @@ export interface PickInput {
   source: string; // 'lab' | 'live-run' | 'verdict' | 'smoke'
   notes?: string | null;
   created_utc?: string; // default: now ISO
+  /** Baris packages (lib/picks/packages.ts) asal pick ini diturunkan; null bila tak ada. */
+  package_id?: number | null;
 }
 
 export interface PickRow extends Required<PickInput> {
@@ -70,6 +72,7 @@ interface RawPickRow {
   grade: string | null;
   source: string;
   notes: string | null;
+  package_id: number | null;
 }
 
 let dbInstance: DatabaseSync | null = null;
@@ -124,6 +127,17 @@ export function getPicksDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_picks_market_band ON picks(market, model_prob);
   `);
 
+  // Migrasi aditif: kolom package_id pada DB yang sudah ada (CREATE TABLE
+  // IF NOT EXISTS tidak menambah kolom). Idempoten via PRAGMA table_info,
+  // pola yang sama dengan ensureSnapshotColumns di modul snapshot warisan.
+  const pickCols = new Set(
+    (db.prepare("PRAGMA table_info(picks)").all() as { name: string }[]).map((c) => c.name),
+  );
+  if (!pickCols.has("package_id")) {
+    db.exec("ALTER TABLE picks ADD COLUMN package_id INTEGER");
+    db.exec("CREATE INDEX IF NOT EXISTS idx_picks_package ON picks(package_id)");
+  }
+
   dbInstance = db;
   return dbInstance;
 }
@@ -155,12 +169,13 @@ function toPickRow(r: RawPickRow): PickRow {
     grade: r.grade,
     source: r.source,
     notes: r.notes,
+    package_id: r.package_id,
   };
 }
 
 const PICK_COLUMNS =
   "created_utc, match_id, competition_canonical_id, kickoff_utc, market, selection, " +
-  "model_prob, market_prob, sm_prob, agreement_spread, gate_status, grade, source, notes";
+  "model_prob, market_prob, sm_prob, agreement_spread, gate_status, grade, source, notes, package_id";
 
 function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boolean } {
   const createdUtc = p.created_utc ?? new Date().toISOString();
@@ -180,11 +195,12 @@ function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boo
     p.grade ?? null,
     p.source,
     p.notes ?? null,
+    p.package_id ?? null,
   ];
 
   if (p.source === "lab") {
     const result = db
-      .prepare(`INSERT OR IGNORE INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .prepare(`INSERT OR IGNORE INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(...values);
     if (Number(result.changes) > 0) {
       return { id: Number(result.lastInsertRowid), inserted: true };
@@ -200,7 +216,7 @@ function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boo
   }
 
   const result = db
-    .prepare(`INSERT INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .prepare(`INSERT INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(...values);
   return { id: Number(result.lastInsertRowid), inserted: true };
 }
