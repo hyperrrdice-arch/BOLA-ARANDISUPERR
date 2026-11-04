@@ -95,6 +95,18 @@ export function heatStyle(prob: number, max: number): { backgroundColor: string;
   };
 }
 
+/** Fallback streaming untuk pulau data (Cache Components: Suspense). */
+export function PageLoading({ label }: { label: string }) {
+  return (
+    <div className="panel-flat px-5 py-8" role="status" aria-label={label}>
+      <MicroLabel>{label}</MicroLabel>
+      <div className="mono-loading-bar-container mt-4">
+        <div className="mono-loading-bar" />
+      </div>
+    </div>
+  );
+}
+
 export function EmptyState({ title, note }: { title: string; note: string }) {
   return (
     <div className="panel-flat px-5 py-8 text-center">

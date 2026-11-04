@@ -12,26 +12,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
+  canonicalIdForTeamId,
   canonicalIdForTeamName,
   loadCanonicalTeams,
 } from "../quant/team-identity";
 
-const ROOT = process.cwd();
-
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
-function db(rel: string): Db {
+function db(file: string): Db {
   if (!g.__webDbs) g.__webDbs = new Map();
-  let h = g.__webDbs.get(rel);
+  let h = g.__webDbs.get(file);
   if (!h) {
-    h = new DatabaseSync(path.join(ROOT, rel), { readOnly: true });
-    g.__webDbs.set(rel, h);
+    // Path dibuat statis per subfolder "data" agar tracing build tidak
+    // menyapu seluruh proyek (peringatan NFT Turbopack).
+    h = new DatabaseSync(path.join(process.cwd(), "data", file), { readOnly: true });
+    g.__webDbs.set(file, h);
   }
   return h;
 }
-const packagesDb = () => db("data/analysis_snapshots.db");
-const picksDb = () => db("data/picks.db");
-const datasetDb = () => db("data/thestats_dataset.db");
+const packagesDb = () => db("analysis_snapshots.db");
+const picksDb = () => db("picks.db");
+const datasetDb = () => db("thestats_dataset.db");
 
 /* ------------------------------------------------------------------ types */
 
@@ -123,6 +124,85 @@ export interface FormEntry {
 
 /* ---------------------------------------------------------------- helpers */
 
+/**
+ * Normalisasi payload lintas generasi paket. Tabel packages menyimpan tiga
+ * bentuk historis: (1) quant-package terkini dengan fixture bersarang;
+ * (2) bentuk datar awal (fixture di level atas, hanya legs — tanpa
+ * probabilitas/matriks); (3) paket manual e2e lama (bentuk bebas).
+ * Semua konsumen web hanya melihat bentuk (1); bentuk lain dilengkapi
+ * nilai kosong yang jujur, dan nama tim bentuk (3) dicari dari dataset.
+ */
+function normalizePayload(
+  raw: Record<string, unknown>,
+  rowMatchId: string,
+  rowKickoff: string,
+): QuantPayload {
+  const base: QuantPayload = {
+    fixture: {
+      match_id: rowMatchId,
+      competition_name: "",
+      home: "?",
+      away: "?",
+      kickoff_utc: rowKickoff,
+    },
+    gate_status: (raw.gate_status as string) ?? "uncalibrated",
+    population: (raw.population as string) ?? "unknown",
+    lambda: (raw.lambda as number) ?? 0,
+    mu: (raw.mu as number) ?? 0,
+    rho: (raw.rho as number) ?? 0,
+    probabilities: (raw.probabilities as Record<string, number>) ?? {},
+    top_scores: (raw.top_scores as QuantPayload["top_scores"]) ?? [],
+    score_matrix: (raw.score_matrix as number[][]) ?? [],
+    market: (raw.market as QuantPayload["market"]) ?? null,
+    sm_panel: (raw.sm_panel as QuantPayload["sm_panel"]) ?? null,
+    legs: (raw.legs as Leg[]) ?? [],
+    shrunk_metadata: raw.shrunk_metadata as QuantPayload["shrunk_metadata"],
+  };
+  if (raw.fixture) {
+    return { ...base, ...(raw as unknown as QuantPayload) };
+  }
+  if (typeof raw.home === "string" && typeof raw.away === "string") {
+    base.fixture = {
+      match_id: (raw.match_id as string) ?? rowMatchId,
+      competition_name: (raw.competition_name as string) ?? "",
+      home: raw.home,
+      away: raw.away,
+      kickoff_utc: (raw.utc_date as string) ?? rowKickoff,
+    };
+    return base;
+  }
+  // Bentuk manual lama: nama tim dari selection.fixture bila ada…
+  const sel = raw.selection as
+    | { fixture?: { home_team_name?: string; away_team_name?: string; competition_name?: string; utc_date?: string } }
+    | undefined;
+  if (sel?.fixture?.home_team_name && sel?.fixture?.away_team_name) {
+    base.fixture.home = sel.fixture.home_team_name;
+    base.fixture.away = sel.fixture.away_team_name;
+    base.fixture.competition_name = sel.fixture.competition_name ?? "";
+    if (sel.fixture.utc_date) base.fixture.kickoff_utc = sel.fixture.utc_date;
+    return base;
+  }
+  // …kalau tidak, dari baris dataset (id → nama kanonik).
+  try {
+    const m = datasetDb()
+      .prepare(`SELECT home_team_id, away_team_id, competition_id FROM matches WHERE match_id = ?`)
+      .get(rowMatchId) as
+      | { home_team_id: string; away_team_id: string; competition_id: string }
+      | undefined;
+    if (m) {
+      const nameOf = (tid: string) => {
+        const cid = canonicalIdForTeamId(tid);
+        return cid ? opponentName(cid) : tid;
+      };
+      base.fixture.home = nameOf(m.home_team_id);
+      base.fixture.away = nameOf(m.away_team_id);
+    }
+  } catch {
+    /* nama tetap "?" — halaman menampilkan apa adanya */
+  }
+  return base;
+}
+
 function parsePackage(r: Record<string, unknown>): PackageRow {
   return {
     id: r.id as number,
@@ -134,7 +214,11 @@ function parsePackage(r: Record<string, unknown>): PackageRow {
     gate_status: r.gate_status as string,
     cup_delta: (r.cup_delta as number | null) ?? null,
     odds_captured_utc: (r.odds_captured_utc as string | null) ?? null,
-    payload: JSON.parse(r.payload_json as string) as QuantPayload,
+    payload: normalizePayload(
+      JSON.parse(r.payload_json as string) as Record<string, unknown>,
+      r.match_id as string,
+      r.kickoff_utc as string,
+    ),
   };
 }
 
@@ -151,7 +235,7 @@ function twinsOf(matchId: string): string[] {
     twinMap = new Map();
     try {
       const links = JSON.parse(
-        fs.readFileSync(path.join(ROOT, "data/fixture-links.json"), "utf8"),
+        fs.readFileSync(path.join(process.cwd(), "data", "fixture-links.json"), "utf8"),
       ) as { groups?: { match_ids: string[] }[] };
       for (const grp of links.groups ?? []) {
         for (const id of grp.match_ids) twinMap.set(id, grp.match_ids);
@@ -418,7 +502,13 @@ export function ledgerStats(): LedgerStats {
       const prow = r.package_id
         ? (packagesDb().prepare(`SELECT payload_json FROM packages WHERE id = ?`).get(r.package_id as number) as { payload_json: string } | undefined)
         : undefined;
-      const fx = prow ? (JSON.parse(prow.payload_json) as QuantPayload).fixture : null;
+      const fx = prow
+        ? normalizePayload(
+            JSON.parse(prow.payload_json) as Record<string, unknown>,
+            r.match_id as string,
+            r.kickoff_utc as string,
+          ).fixture
+        : null;
       return {
         ...(r as unknown as PickRow),
         home: fx?.home ?? "?",
@@ -445,7 +535,7 @@ export function landingStats(): LandingStats {
   let leagues_calibrated = 0;
   try {
     const ratings = JSON.parse(
-      fs.readFileSync(path.join(ROOT, "data/calibrated_ratings.json"), "utf8"),
+      fs.readFileSync(path.join(process.cwd(), "data", "calibrated_ratings.json"), "utf8"),
     ) as { leagues: Record<string, unknown> };
     leagues_fitted = Object.keys(ratings.leagues).length;
   } catch { /* angka tampil — bila file tidak ada */ }
@@ -465,6 +555,17 @@ export function landingStats(): LandingStats {
     packages: (packagesDb().prepare(`SELECT COUNT(*) n FROM packages`).get() as { n: number }).n,
     upcoming: listUpcoming(72).length,
   };
+}
+
+/** Pick ledger milik satu paket beserta hasil resolusinya (untuk daftar selesai). */
+export function getPackagePicks(packageId: number): PickRow[] {
+  return picksDb()
+    .prepare(
+      `SELECT pk.*, po.hit, po.home_goals, po.away_goals
+       FROM picks pk LEFT JOIN pick_outcomes po ON po.pick_id = pk.id
+       WHERE pk.package_id = ? ORDER BY pk.grade ASC, pk.model_prob DESC`,
+    )
+    .all(packageId) as unknown as PickRow[];
 }
 
 /** Matriks skor paket untuk halaman analisis + pembangun parlay (client-safe data). */
