@@ -22,6 +22,10 @@ export interface TeamRollingTelemetry {
   rolling_xg_against: number | null;
   rolling_npxg_for: number | null;
   rolling_npxg_against: number | null;
+  // competition_id yang menjadi target pembobotan xG rolling di atas
+  // (competitionIdForDiv(targetDivCode)); null bila tanpa target / target
+  // tidak ter-resolve — dalam kasus itu semua bobot per-log = 1.0.
+  xg_weighted_toward?: string | null;
 
   // 3. Gol & Hasil Aktual (Terverifikasi dari skor resmi)
   rolling_goals_for: number;
@@ -202,79 +206,79 @@ export function getPreMatchLogs(
   // disimpan sebagai tanggal 10-digit. Tanpa slice, '2026-09-08' < '2026-09-08T16:45...' = TRUE
   // dan match T sendiri ikut masuk rolling window-nya (post-hoc leakage).
   const cutoff = beforeDate ? beforeDate.slice(0, 10) : undefined;
+  // Hanya baris Sportmonks yang tersaji — definisi tervalidasi harness
+  // (parlay-lab / backtest-walkforward: source='sportmonks'). Baris legacy
+  // TheStats (source NULL) dan 'master' adalah kembaran fixture yang sama
+  // di bawah match_id lain; tanpa filter ini satu laga fisik terhitung dua
+  // kali di jendela rolling.
+  // Ambil dengan headroom (limit × 3) lalu dedupe per laga fisik: kunci
+  // (tanggal kalender, opponent_id, goals_for, goals_against). Skor WAJIB
+  // masuk kunci — ada double-header sah di hari yang sama melawan lawan
+  // yang sama dengan skor BERBEDA, dan itu bukan duplikat. Baris pertama
+  // menurut urutan yang ada (terbaru dulu) dipertahankan; hasil akhir =
+  // `limit` laga DISTINCT terakhir.
+  const fetchLimit = limit * 3;
+  let rows: (TeamMatchLogRecord & { competition_id?: string })[];
   if (cutoff) {
     const stmt = db.prepare(`
       SELECT l.*, m.competition_id FROM team_match_logs l
       LEFT JOIN matches m ON l.match_id = m.match_id
-      WHERE l.team_id = ? AND l.match_date < ?
+      WHERE l.team_id = ? AND l.source = 'sportmonks' AND l.match_date < ?
       ORDER BY l.match_date DESC
       LIMIT ?
     `);
-    return stmt.all(teamId, cutoff, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
+    rows = stmt.all(teamId, cutoff, fetchLimit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
+  } else {
+    const stmt = db.prepare(`
+      SELECT l.*, m.competition_id FROM team_match_logs l
+      LEFT JOIN matches m ON l.match_id = m.match_id
+      WHERE l.team_id = ? AND l.source = 'sportmonks'
+      ORDER BY l.match_date DESC
+      LIMIT ?
+    `);
+    rows = stmt.all(teamId, fetchLimit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
   }
 
-  const stmt = db.prepare(`
-    SELECT l.*, m.competition_id FROM team_match_logs l
-    LEFT JOIN matches m ON l.match_id = m.match_id
-    WHERE l.team_id = ?
-    ORDER BY l.match_date DESC
-    LIMIT ?
-  `);
-  return stmt.all(teamId, limit) as unknown as (TeamMatchLogRecord & { competition_id?: string })[];
+  const seen = new Set<string>();
+  const deduped: (TeamMatchLogRecord & { competition_id?: string })[] = [];
+  for (const row of rows) {
+    const key = `${row.match_date.slice(0, 10)}|${row.opponent_id}|${row.goals_for}|${row.goals_against}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(row);
+    if (deduped.length >= limit) break;
+  }
+  return deduped;
+}
+
+export interface RollingXgAggregate {
+  rolling_xg_for: number | null;
+  rolling_xg_against: number | null;
+  rolling_npxg_for: number | null;
+  rolling_npxg_against: number | null;
+  // Counter per sisi (for/against dihitung terpisah — data absen tidak
+  // di-imputasi; penyebut rata-rata = COUNT sampel non-null per sisi,
+  // BUKAN Σbobot).
+  xg_for_samples: number;
+  xg_against_samples: number;
+  npxg_for_samples: number;
+  npxg_against_samples: number;
+  // competition_id target pembobotan; null = tanpa target (bobot 1.0).
+  xg_weighted_toward: string | null;
 }
 
 /**
- * Menghitung rolling metrics tanpa silent imputation (Zero False Assumptions)
- * Menerapkan Weighted Normalization xG lintas kompetisi jika targetDivCode disediakan.
+ * Agregasi xG/npxG rolling TERTIMBANG rasio kompetisi — satu-satunya
+ * definisi pembobotan, dipakai getTeamRollingTelemetry dan dipakai ulang
+ * ratings-loader untuk menimbang ulang telemetri dari planner (yang tidak
+ * bisa membawa targetDivCode). Bobot per log = round3(targetAvg/logAvg)
+ * dari rata-rata gol kompetisi TERUKUR; log sekompetisi dengan target /
+ * kompetisi tak terukur → bobot 1.0. Rata-rata = round2(Σ(xG·bobot)/count).
  */
-export function getTeamRollingTelemetry(
-  teamId: string,
-  limit: number = 6,
-  beforeDate?: string,
+export function aggregateRollingXg(
+  logs: (TeamMatchLogRecord & { competition_id?: string })[],
   targetDivCode?: string
-): TeamRollingTelemetry {
-  const logs = getPreMatchLogs(teamId, limit, beforeDate);
-
-  if (logs.length === 0) {
-    return {
-      team_id: teamId,
-      sample_size: 0,
-      observed_xg_samples: 0,
-      observed_shots_samples: 0,
-      observed_passes_samples: 0,
-      observed_aerial_samples: 0,
-      observed_crosses_samples: 0,
-      rolling_xg_for: null,
-      rolling_xg_against: null,
-      rolling_npxg_for: null,
-      rolling_npxg_against: null,
-      rolling_goals_for: 0,
-      rolling_goals_against: 0,
-      win_rate: 0,
-      clean_sheet_rate: 0,
-      form_sequence: "N/A",
-      avg_possession_pct: null,
-      avg_shots_for: null,
-      avg_shots_on_target_for: null,
-      avg_shots_inside_box_for: null,
-      avg_big_chances_for: null,
-      avg_box_touches_for: null,
-      avg_passes_accurate_for: null,
-      avg_pass_accuracy_pct: null,
-      avg_crosses_accurate_for: null,
-      avg_aerial_duels_pct_for: null,
-      avg_duels_won_pct_for: null,
-      avg_ground_duels_pct_for: null,
-      avg_tackles_for: null,
-      avg_corners_for: null,
-      avg_fouls_committed: null,
-      avg_yellow_cards: null,
-      recent_logs: [],
-    };
-  }
-
-  const n = logs.length;
-
+): RollingXgAggregate {
   // Resolusi bobot target liga untuk normalisasi xG.
   // Rata-rata gol kompetisi kini TERUKUR dari store hasil (semua ruang ID:
   // comp_* legacy + sm:* Sportmonks); 1.48 hanya fallback terakhir bila
@@ -282,42 +286,12 @@ export function getTeamRollingTelemetry(
   const targetCompId = targetDivCode ? competitionIdForDiv(targetDivCode) : null;
   const targetAvgGoals = (targetCompId ? getCompetitionAvgGoals(targetCompId) : null) ?? 1.48;
 
-  // Akumulator metrik aktual
-  let totalGoalsFor = 0;
-  let totalGoalsAgainst = 0;
-  let wins = 0;
-  let cleanSheets = 0;
-  const formArr: string[] = [];
-
-  // Akumulator observed metrics (HANYA dijumlah jika NOT NULL)
   let sumXgFor = 0, countXg = 0;
   let sumXgAgainst = 0, countXgAgainst = 0;
   let sumNpxgFor = 0, countNpxg = 0;
   let sumNpxgAgainst = 0, countNpxgAgainst = 0;
-  let sumPossession = 0, countPossession = 0;
-  let sumShotsFor = 0, countShots = 0;
-  let sumShotsOnTargetFor = 0, countShotsOnTarget = 0;
-  let sumShotsInBoxFor = 0, countShotsInBox = 0;
-  let sumBigChancesFor = 0, countBigChances = 0;
-  let sumBoxTouchesFor = 0, countBoxTouches = 0;
-  let sumPassesAcc = 0, countPasses = 0;
-  let sumPassPct = 0, countPassPct = 0;
-  let sumCrossesAcc = 0, countCrosses = 0;
-  let sumAerialPct = 0, countAerial = 0;
-  let sumDuelsWon = 0, countDuelsWon = 0;
-  let sumGroundPct = 0, countGround = 0;
-  let sumTacklesFor = 0, countTackles = 0;
-  let sumCornersFor = 0, countCorners = 0;
-  let sumFouls = 0, countFouls = 0;
-  let sumYellows = 0, countYellows = 0;
 
   for (const log of logs) {
-    totalGoalsFor += log.goals_for;
-    totalGoalsAgainst += log.goals_against;
-    if (log.result === "W") wins++;
-    if (log.goals_against === 0) cleanSheets++;
-    formArr.push(log.result);
-
     // Weighted Normalization factor untuk xG (EPL vs UCL dll.)
     // Rata-rata kompetisi log kini juga terukur dari store (bukan hanya
     // 7 konstanta legacy); kompetisi tak terukur → bobot 1.0 (netral).
@@ -349,6 +323,110 @@ export function getTeamRollingTelemetry(
       sumNpxgAgainst += log.npxg_against * xgWeight;
       countNpxgAgainst++;
     }
+  }
+
+  return {
+    rolling_xg_for: countXg > 0 ? Number((sumXgFor / countXg).toFixed(2)) : null,
+    rolling_xg_against: countXgAgainst > 0 ? Number((sumXgAgainst / countXgAgainst).toFixed(2)) : null,
+    rolling_npxg_for: countNpxg > 0 ? Number((sumNpxgFor / countNpxg).toFixed(2)) : null,
+    rolling_npxg_against: countNpxgAgainst > 0 ? Number((sumNpxgAgainst / countNpxgAgainst).toFixed(2)) : null,
+    xg_for_samples: countXg,
+    xg_against_samples: countXgAgainst,
+    npxg_for_samples: countNpxg,
+    npxg_against_samples: countNpxgAgainst,
+    xg_weighted_toward: targetCompId,
+  };
+}
+
+/**
+ * Menghitung rolling metrics tanpa silent imputation (Zero False Assumptions)
+ * Menerapkan Weighted Normalization xG lintas kompetisi jika targetDivCode disediakan.
+ */
+export function getTeamRollingTelemetry(
+  teamId: string,
+  limit: number = 6,
+  beforeDate?: string,
+  targetDivCode?: string
+): TeamRollingTelemetry {
+  const logs = getPreMatchLogs(teamId, limit, beforeDate);
+
+  if (logs.length === 0) {
+    return {
+      team_id: teamId,
+      sample_size: 0,
+      observed_xg_samples: 0,
+      observed_shots_samples: 0,
+      observed_passes_samples: 0,
+      observed_aerial_samples: 0,
+      observed_crosses_samples: 0,
+      rolling_xg_for: null,
+      rolling_xg_against: null,
+      rolling_npxg_for: null,
+      rolling_npxg_against: null,
+      xg_weighted_toward: null,
+      rolling_goals_for: 0,
+      rolling_goals_against: 0,
+      win_rate: 0,
+      clean_sheet_rate: 0,
+      form_sequence: "N/A",
+      avg_possession_pct: null,
+      avg_shots_for: null,
+      avg_shots_on_target_for: null,
+      avg_shots_inside_box_for: null,
+      avg_big_chances_for: null,
+      avg_box_touches_for: null,
+      avg_passes_accurate_for: null,
+      avg_pass_accuracy_pct: null,
+      avg_crosses_accurate_for: null,
+      avg_aerial_duels_pct_for: null,
+      avg_duels_won_pct_for: null,
+      avg_ground_duels_pct_for: null,
+      avg_tackles_for: null,
+      avg_corners_for: null,
+      avg_fouls_committed: null,
+      avg_yellow_cards: null,
+      recent_logs: [],
+    };
+  }
+
+  const n = logs.length;
+
+  // Agregasi xG/npxG tertimbang rasio kompetisi — definisi tunggal di
+  // aggregateRollingXg (bobot, counter per sisi, dan penanda targetnya).
+  const xgAgg = aggregateRollingXg(logs, targetDivCode);
+  const countXg = xgAgg.xg_for_samples;
+
+  // Akumulator metrik aktual
+  let totalGoalsFor = 0;
+  let totalGoalsAgainst = 0;
+  let wins = 0;
+  let cleanSheets = 0;
+  const formArr: string[] = [];
+
+  // Akumulator observed metrics (HANYA dijumlah jika NOT NULL)
+  let sumPossession = 0, countPossession = 0;
+  let sumShotsFor = 0, countShots = 0;
+  let sumShotsOnTargetFor = 0, countShotsOnTarget = 0;
+  let sumShotsInBoxFor = 0, countShotsInBox = 0;
+  let sumBigChancesFor = 0, countBigChances = 0;
+  let sumBoxTouchesFor = 0, countBoxTouches = 0;
+  let sumPassesAcc = 0, countPasses = 0;
+  let sumPassPct = 0, countPassPct = 0;
+  let sumCrossesAcc = 0, countCrosses = 0;
+  let sumAerialPct = 0, countAerial = 0;
+  let sumDuelsWon = 0, countDuelsWon = 0;
+  let sumGroundPct = 0, countGround = 0;
+  let sumTacklesFor = 0, countTackles = 0;
+  let sumCornersFor = 0, countCorners = 0;
+  let sumFouls = 0, countFouls = 0;
+  let sumYellows = 0, countYellows = 0;
+
+  for (const log of logs) {
+    totalGoalsFor += log.goals_for;
+    totalGoalsAgainst += log.goals_against;
+    if (log.result === "W") wins++;
+    if (log.goals_against === 0) cleanSheets++;
+    formArr.push(log.result);
 
     // Observed Possession
     if (log.possession_pct !== null && log.possession_pct !== undefined) {
@@ -440,11 +518,12 @@ export function getTeamRollingTelemetry(
     observed_aerial_samples: countAerial,
     observed_crosses_samples: countCrosses,
 
-    // Rata-rata terukur (NULL jika 0 sampel observed)
-    rolling_xg_for: countXg > 0 ? Number((sumXgFor / countXg).toFixed(2)) : null,
-    rolling_xg_against: countXgAgainst > 0 ? Number((sumXgAgainst / countXgAgainst).toFixed(2)) : null,
-    rolling_npxg_for: countNpxg > 0 ? Number((sumNpxgFor / countNpxg).toFixed(2)) : null,
-    rolling_npxg_against: countNpxgAgainst > 0 ? Number((sumNpxgAgainst / countNpxgAgainst).toFixed(2)) : null,
+    // Rata-rata terukur (NULL jika 0 sampel observed) — dari aggregateRollingXg
+    rolling_xg_for: xgAgg.rolling_xg_for,
+    rolling_xg_against: xgAgg.rolling_xg_against,
+    rolling_npxg_for: xgAgg.rolling_npxg_for,
+    rolling_npxg_against: xgAgg.rolling_npxg_against,
+    xg_weighted_toward: xgAgg.xg_weighted_toward,
 
     rolling_goals_for: Number((totalGoalsFor / n).toFixed(2)),
     rolling_goals_against: Number((totalGoalsAgainst / n).toFixed(2)),

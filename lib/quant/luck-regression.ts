@@ -42,7 +42,7 @@ export function calculateTeamLuckMetrics(
 
   let query = `
     SELECT * FROM team_match_logs 
-    WHERE team_id = ?
+    WHERE team_id = ? AND source = 'sportmonks'
   `;
   const params: any[] = [resolvedTeamId];
 
