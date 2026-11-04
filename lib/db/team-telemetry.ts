@@ -5,6 +5,10 @@ import {
   type TeamMatchLogRecord,
   type SquadPlayerRecord,
 } from "./thestats-dataset";
+import {
+  canonicalIdForTeamId,
+  canonicalIdForTeamName,
+} from "../quant/team-identity";
 
 export interface TeamRollingTelemetry {
   team_id: string;
@@ -206,17 +210,62 @@ export function getPreMatchLogs(
   // disimpan sebagai tanggal 10-digit. Tanpa slice, '2026-09-08' < '2026-09-08T16:45...' = TRUE
   // dan match T sendiri ikut masuk rolling window-nya (post-hoc leakage).
   const cutoff = beforeDate ? beforeDate.slice(0, 10) : undefined;
-  // Hanya baris Sportmonks yang tersaji — definisi tervalidasi harness
-  // (parlay-lab / backtest-walkforward: source='sportmonks'). Baris legacy
-  // TheStats (source NULL) dan 'master' adalah kembaran fixture yang sama
-  // di bawah match_id lain; tanpa filter ini satu laga fisik terhitung dua
-  // kali di jendela rolling.
-  // Ambil dengan headroom (limit × 3) lalu dedupe per laga fisik: kunci
-  // (tanggal kalender, opponent_id, goals_for, goals_against). Skor WAJIB
-  // masuk kunci — ada double-header sah di hari yang sama melawan lawan
-  // yang sama dengan skor BERBEDA, dan itu bukan duplikat. Baris pertama
-  // menurut urutan yang ada (terbaru dulu) dipertahankan; hasil akhir =
-  // `limit` laga DISTINCT terakhir.
+
+  // ACUAN PAKEM (fase 5, 2026-11-05): saji membaca tabel telemetri
+  // KANONIK (team_match_logs_canonical, dibangun
+  // scripts/build-canonical-telemetry.ts dari registry
+  // data/team-canonical.json). Satu baris resmi per tim per pertandingan
+  // sudah dilebur di sana per prioritas sumber — filter lama
+  // source='sportmonks' + dedupe manual PENSIUN: dobel-hitung antar
+  // sumber kini mustahil secara struktur, dan laga yang hanya dicatat
+  // sumber gratis/legacy (football-data / TheStats) ikut tersaji.
+  // Definisi harness (parlay-lab / backtest-walkforward) TIDAK berubah —
+  // mereka membaca tabel asal dengan definisinya sendiri.
+  const canonicalId =
+    canonicalIdForTeamId(teamId) ?? canonicalIdForTeamName(teamIdOrName);
+  if (canonicalId) {
+    const fetchLimit = limit * 2;
+    const stmt = cutoff
+      ? db.prepare(`
+          SELECT c.*, m.competition_id FROM team_match_logs_canonical c
+          LEFT JOIN matches m ON c.match_id = m.match_id
+          WHERE c.canonical_team_id = ? AND substr(c.match_date, 1, 10) < ?
+          ORDER BY c.match_date DESC
+          LIMIT ?
+        `)
+      : db.prepare(`
+          SELECT c.*, m.competition_id FROM team_match_logs_canonical c
+          LEFT JOIN matches m ON c.match_id = m.match_id
+          WHERE c.canonical_team_id = ?
+          ORDER BY c.match_date DESC
+          LIMIT ?
+        `);
+    const raw = (cutoff
+      ? stmt.all(canonicalId, cutoff, fetchLimit)
+      : stmt.all(canonicalId, fetchLimit)) as unknown as (TeamMatchLogRecord & {
+        canonical_team_id: string; canonical_opponent_id: string; competition_id?: string;
+      })[];
+    // team_id/opponent_id yang dikembalikan = id KANONIK (bukan id sumber
+    // baris pemenang), supaya konsumen tidak perlu tahu namespace asal.
+    // Dedupe pengaman dipertahankan dengan kunci yang sama seperti dulu
+    // (tanggal, lawan, skor) — di tabel kanonik seharusnya tidak pernah
+    // terpicu, tapi melindungi dari kembar beda-venue hasil flip sumber.
+    const seen = new Set<string>();
+    const deduped: (TeamMatchLogRecord & { competition_id?: string })[] = [];
+    for (const row of raw) {
+      const mapped = { ...row, team_id: row.canonical_team_id, opponent_id: row.canonical_opponent_id };
+      const key = `${mapped.match_date.slice(0, 10)}|${mapped.opponent_id}|${mapped.goals_for}|${mapped.goals_against}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(mapped);
+      if (deduped.length >= limit) break;
+    }
+    return deduped;
+  }
+
+  // Fallback: tim tidak dikenal registry kanonik (seharusnya tidak
+  // terjadi — cakupan registry terukur penuh untuk id tabel teams).
+  // Perilaku persis seperti sebelum pakem: Sportmonks saja + dedupe.
   const fetchLimit = limit * 3;
   let rows: (TeamMatchLogRecord & { competition_id?: string })[];
   if (cutoff) {
