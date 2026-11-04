@@ -146,10 +146,13 @@ function collectSeeds(): { seeds: Seed[]; registryStatus: Map<string, string>; j
   const masterDb = new DatabaseSync(path.join(DATA_DIR, "football_master.db"), { readOnly: true });
 
   // 1) Registry kalibrasi — sumber kebenaran status; id sm: = Sportmonks, selain itu divisi legacy.
+  //    Baris turunan source='canonical' (ditulis calibrate-ratings.ts) BUKAN
+  //    identitas sumber — dilewati sepenuhnya (seed maupun peta status).
   const regRows = dsDb
-    .prepare("SELECT league_id, league_name, country, status FROM league_calibration")
-    .all() as { league_id: string; league_name: string | null; country: string | null; status: string }[];
+    .prepare("SELECT league_id, league_name, country, status, source FROM league_calibration")
+    .all() as { league_id: string; league_name: string | null; country: string | null; status: string; source: string }[];
   for (const r of regRows) {
+    if (r.source === "canonical") continue;
     registryStatus.set(r.league_id, r.status);
     seeds.push({
       system: r.league_id.startsWith("sm:") ? "sportmonks" : "legacy-div",

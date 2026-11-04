@@ -1,8 +1,8 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-04T09:10:28.382Z",
+  "compiledAt": "2026-11-04T11:09:29.794Z",
   "totalLeagues": 73,
-  "totalTeams": 1872,
+  "totalTeams": 1898,
   "leagues": {
     "B1": {
       "div": "B1",
@@ -231,7 +231,8 @@
           "goalsConceded": 14,
           "lastMatchDate": "2026-10-09"
         }
-      }
+      },
+      "canonicalId": "sm:208"
     },
     "D1": {
       "div": "D1",
@@ -487,7 +488,8 @@
           "goalsConceded": 7,
           "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:82"
     },
     "D2": {
       "div": "D2",
@@ -796,8 +798,27 @@
           "goalsScored": 15,
           "goalsConceded": 16,
           "lastMatchDate": "2026-10-10"
+        },
+        "Darmstadt 98": {
+          "name": "SV Darmstadt 98",
+          "attack": 0.997,
+          "defense": 1.003,
+          "matchesCount": 143,
+          "goalsScored": 242,
+          "goalsConceded": 193,
+          "lastMatchDate": "2026-10-10"
+        },
+        "St. Pauli": {
+          "name": "FC St. Pauli",
+          "attack": 0.927,
+          "defense": 0.651,
+          "matchesCount": 109,
+          "goalsScored": 188,
+          "goalsConceded": 129,
+          "lastMatchDate": "2026-10-11"
         }
-      }
+      },
+      "canonicalId": "sm:85"
     },
     "E0": {
       "div": "E0",
@@ -1070,8 +1091,18 @@
           "goalsScored": 8,
           "goalsConceded": 6,
           "lastMatchDate": "2026-10-11"
+        },
+        "AFC Bournemouth": {
+          "name": "Bournemouth",
+          "attack": 1.103,
+          "defense": 0.921,
+          "matchesCount": 158,
+          "goalsScored": 214,
+          "goalsConceded": 251,
+          "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:8"
     },
     "E1": {
       "div": "E1",
@@ -1480,7 +1511,8 @@
           "goalsConceded": 12,
           "lastMatchDate": "2026-10-14"
         }
-      }
+      },
+      "canonicalId": "sm:9"
     },
     "F1": {
       "div": "F1",
@@ -1726,8 +1758,27 @@
           "goalsScored": 10,
           "goalsConceded": 12,
           "lastMatchDate": "2026-10-10"
+        },
+        "Paris": {
+          "name": "Paris FC",
+          "attack": 1.053,
+          "defense": 0.74,
+          "matchesCount": 40,
+          "goalsScored": 55,
+          "goalsConceded": 54,
+          "lastMatchDate": "2026-10-10"
+        },
+        "Paris Saint Germain": {
+          "name": "Paris Saint-Germain",
+          "attack": 1.643,
+          "defense": 0.631,
+          "matchesCount": 184,
+          "goalsScored": 437,
+          "goalsConceded": 181,
+          "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:301"
     },
     "F2": {
       "div": "F2",
@@ -2073,7 +2124,8 @@
           "goalsConceded": 13,
           "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:304"
     },
     "G1": {
       "div": "G1",
@@ -2275,7 +2327,8 @@
           "goalsConceded": 9,
           "lastMatchDate": "2026-10-12"
         }
-      }
+      },
+      "canonicalId": "sm:325"
     },
     "I1": {
       "div": "I1",
@@ -2531,7 +2584,8 @@
           "goalsConceded": 71,
           "lastMatchDate": "2026-05-23"
         }
-      }
+      },
+      "canonicalId": "sm:384"
     },
     "I2": {
       "div": "I2",
@@ -2958,7 +3012,8 @@
           "goalsConceded": 10,
           "lastMatchDate": "2026-10-11"
         }
-      }
+      },
+      "canonicalId": "sm:387"
     },
     "N1": {
       "div": "N1",
@@ -3195,8 +3250,45 @@
           "goalsScored": 9,
           "goalsConceded": 19,
           "lastMatchDate": "2026-10-11"
+        },
+        "FC Groningen": {
+          "name": "Groningen",
+          "attack": 1.147,
+          "defense": 0.85,
+          "matchesCount": 144,
+          "goalsScored": 181,
+          "goalsConceded": 242,
+          "lastMatchDate": "2026-10-11"
+        },
+        "SC Cambuur": {
+          "name": "Cambuur",
+          "attack": 0.9,
+          "defense": 1.361,
+          "matchesCount": 76,
+          "goalsScored": 90,
+          "goalsConceded": 158,
+          "lastMatchDate": "2026-10-11"
+        },
+        "SC Heerenveen": {
+          "name": "Heerenveen",
+          "attack": 1.017,
+          "defense": 0.862,
+          "matchesCount": 178,
+          "goalsScored": 244,
+          "goalsConceded": 291,
+          "lastMatchDate": "2026-10-09"
+        },
+        "SC Telstar": {
+          "name": "Telstar",
+          "attack": 0.874,
+          "defense": 0.94,
+          "matchesCount": 42,
+          "goalsScored": 56,
+          "goalsConceded": 69,
+          "lastMatchDate": "2026-10-11"
         }
-      }
+      },
+      "canonicalId": "sm:72"
     },
     "P1": {
       "div": "P1",
@@ -3452,7 +3544,8 @@
           "goalsConceded": 10,
           "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:462"
     },
     "SC0": {
       "div": "SC0",
@@ -3590,8 +3683,27 @@
           "goalsScored": 57,
           "goalsConceded": 73,
           "lastMatchDate": "2026-10-10"
+        },
+        "St. Johnstone": {
+          "name": "St Johnstone",
+          "attack": 0.811,
+          "defense": 0.989,
+          "matchesCount": 160,
+          "goalsScored": 142,
+          "goalsConceded": 242,
+          "lastMatchDate": "2026-10-11"
+        },
+        "St. Mirren": {
+          "name": "St Mirren",
+          "attack": 0.704,
+          "defense": 1.065,
+          "matchesCount": 198,
+          "goalsScored": 213,
+          "goalsConceded": 292,
+          "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:501"
     },
     "SP1": {
       "div": "SP1",
@@ -3864,8 +3976,18 @@
           "goalsScored": 4,
           "goalsConceded": 13,
           "lastMatchDate": "2026-10-09"
+        },
+        "FC Barcelona": {
+          "name": "Barcelona",
+          "attack": 2.159,
+          "defense": 0.659,
+          "matchesCount": 198,
+          "goalsScored": 448,
+          "goalsConceded": 184,
+          "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:564"
     },
     "SP2": {
       "div": "SP2",
@@ -4255,8 +4377,18 @@
           "goalsScored": 10,
           "goalsConceded": 7,
           "lastMatchDate": "2026-10-10"
+        },
+        "FC Andorra": {
+          "name": "Andorra",
+          "attack": 1.169,
+          "defense": 1.052,
+          "matchesCount": 135,
+          "goalsScored": 155,
+          "goalsConceded": 159,
+          "lastMatchDate": "2026-10-11"
         }
-      }
+      },
+      "canonicalId": "sm:567"
     },
     "T1": {
       "div": "T1",
@@ -4557,7 +4689,8 @@
           "goalsConceded": 11,
           "lastMatchDate": "2026-10-10"
         }
-      }
+      },
+      "canonicalId": "sm:600"
     },
     "SM8": {
       "div": "SM8",
@@ -4572,6 +4705,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:8",
       "teams": {
         "Manchester United": {
           "name": "Manchester United",
@@ -4797,6 +4931,15 @@
           "goalsScored": 11,
           "goalsConceded": 10,
           "lastMatchDate": "2026-10-31"
+        },
+        "AFC Bournemouth": {
+          "name": "Bournemouth",
+          "attack": 1.1401,
+          "defense": 0.9232,
+          "matchesCount": 85,
+          "goalsScored": 130,
+          "goalsConceded": 113,
+          "lastMatchDate": "2026-10-31"
         }
       }
     },
@@ -4813,6 +4956,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:45",
       "teams": {
         "Chelsea W": {
           "name": "Chelsea W",
@@ -4964,6 +5108,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:244",
       "teams": {
         "Dinamo Zagreb": {
           "name": "Dinamo Zagreb",
@@ -5088,6 +5233,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:262",
       "teams": {
         "AC Sparta Praha": {
           "name": "AC Sparta Praha",
@@ -5259,6 +5405,15 @@
           "goalsScored": 13,
           "goalsConceded": 22,
           "lastMatchDate": "2026-10-31"
+        },
+        "Sparta Praha": {
+          "name": "AC Sparta Praha",
+          "attack": 1.3994,
+          "defense": 0.7874,
+          "matchesCount": 82,
+          "goalsScored": 152,
+          "goalsConceded": 91,
+          "lastMatchDate": "2026-11-01"
         }
       }
     },
@@ -5275,6 +5430,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:301",
       "teams": {
         "Le Havre": {
           "name": "Le Havre",
@@ -5482,6 +5638,24 @@
           "goalsScored": 11,
           "goalsConceded": 18,
           "lastMatchDate": "2026-10-31"
+        },
+        "Paris": {
+          "name": "Paris FC",
+          "attack": 1.0952,
+          "defense": 0.8813,
+          "matchesCount": 43,
+          "goalsScored": 63,
+          "goalsConceded": 60,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Paris Saint Germain": {
+          "name": "Paris Saint-Germain",
+          "attack": 1.5888,
+          "defense": 0.6692,
+          "matchesCount": 77,
+          "goalsScored": 187,
+          "goalsConceded": 74,
+          "lastMatchDate": "2026-10-30"
         }
       }
     },
@@ -5498,6 +5672,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:325",
       "teams": {
         "Volos NFC": {
           "name": "Volos NFC",
@@ -5676,6 +5851,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:384",
       "teams": {
         "Genoa": {
           "name": "Genoa",
@@ -5908,6 +6084,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:453",
       "teams": {
         "Jagiellonia Białystok": {
           "name": "Jagiellonia Białystok",
@@ -6131,6 +6308,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:462",
       "teams": {
         "Sporting CP": {
           "name": "Sporting CP",
@@ -6354,6 +6532,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:474",
       "teams": {
         "Farul Constanța": {
           "name": "Farul Constanța",
@@ -6559,6 +6738,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:501",
       "teams": {
         "Hearts": {
           "name": "Hearts",
@@ -6685,6 +6865,24 @@
           "goalsScored": 65,
           "goalsConceded": 74,
           "lastMatchDate": "2026-11-01"
+        },
+        "St. Johnstone": {
+          "name": "St Johnstone",
+          "attack": 0.8314,
+          "defense": 1.116,
+          "matchesCount": 50,
+          "goalsScored": 53,
+          "goalsConceded": 87,
+          "lastMatchDate": "2026-10-31"
+        },
+        "St. Mirren": {
+          "name": "St Mirren",
+          "attack": 0.7393,
+          "defense": 1.0321,
+          "matchesCount": 88,
+          "goalsScored": 95,
+          "goalsConceded": 134,
+          "lastMatchDate": "2026-10-31"
         }
       }
     },
@@ -6701,6 +6899,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:12",
       "teams": {
         "Barnsley": {
           "name": "Barnsley",
@@ -7050,6 +7249,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:74",
       "teams": {
         "FC Eindhoven": {
           "name": "FC Eindhoven",
@@ -7275,6 +7475,15 @@
           "goalsScored": 25,
           "goalsConceded": 20,
           "lastMatchDate": "2026-11-02"
+        },
+        "Almere City": {
+          "name": "Almere City FC",
+          "attack": 1.191,
+          "defense": 0.9375,
+          "matchesCount": 51,
+          "goalsScored": 105,
+          "goalsConceded": 76,
+          "lastMatchDate": "2026-10-30"
         }
       }
     },
@@ -7291,6 +7500,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:85",
       "teams": {
         "FC Köln": {
           "name": "FC Köln",
@@ -7534,6 +7744,15 @@
           "goalsScored": 12,
           "goalsConceded": 12,
           "lastMatchDate": "2026-11-01"
+        },
+        "St. Pauli": {
+          "name": "FC St. Pauli",
+          "attack": 0.8847,
+          "defense": 0.8716,
+          "matchesCount": 10,
+          "goalsScored": 12,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-11-01"
         }
       }
     },
@@ -7550,6 +7769,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:304",
       "teams": {
         "Clermont": {
           "name": "Clermont",
@@ -7809,6 +8029,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:387",
       "teams": {
         "Brescia": {
           "name": "Brescia",
@@ -8113,6 +8334,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:465",
       "teams": {
         "Maritimo": {
           "name": "Maritimo",
@@ -8345,6 +8567,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:564",
       "teams": {
         "Athletic Club": {
           "name": "Athletic Club",
@@ -8579,6 +8802,15 @@
           "goalsScored": 8,
           "goalsConceded": 21,
           "lastMatchDate": "2026-10-31"
+        },
+        "FC Barcelona": {
+          "name": "Barcelona",
+          "attack": 2.023,
+          "defense": 0.7614,
+          "matchesCount": 87,
+          "goalsScored": 243,
+          "goalsConceded": 87,
+          "lastMatchDate": "2026-10-31"
         }
       }
     },
@@ -8595,6 +8827,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:573",
       "teams": {
         "Norrköping": {
           "name": "Norrköping",
@@ -8782,6 +9015,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:591",
       "teams": {
         "Lugano": {
           "name": "Lugano",
@@ -8908,6 +9142,15 @@
           "goalsScored": 24,
           "goalsConceded": 25,
           "lastMatchDate": "2026-10-31"
+        },
+        "Thun": {
+          "name": "FC Thun",
+          "attack": 1.2479,
+          "defense": 1.0971,
+          "matchesCount": 50,
+          "goalsScored": 104,
+          "goalsConceded": 86,
+          "lastMatchDate": "2026-11-01"
         }
       }
     },
@@ -8924,6 +9167,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:600",
       "teams": {
         "Galatasaray": {
           "name": "Galatasaray",
@@ -9165,6 +9409,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:651",
       "teams": {
         "Botafogo SP": {
           "name": "Botafogo SP",
@@ -9478,6 +9723,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:663",
       "teams": {
         "Ñublense": {
           "name": "Ñublense",
@@ -9674,6 +9920,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:770",
       "teams": {
         "Nacional": {
           "name": "Nacional",
@@ -9879,6 +10126,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:779",
       "teams": {
         "Inter Miami": {
           "name": "Inter Miami",
@@ -10165,6 +10413,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:830",
       "teams": {
         "Haras El Hodood": {
           "name": "Haras El Hodood",
@@ -10397,6 +10646,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:968",
       "teams": {
         "Yokohama F. Marinos": {
           "name": "Yokohama F. Marinos",
@@ -10593,6 +10843,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1034",
       "teams": {
         "Ulsan HD": {
           "name": "Ulsan HD",
@@ -10735,6 +10986,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:9",
       "teams": {
         "Blackburn Rovers": {
           "name": "Blackburn Rovers",
@@ -11057,6 +11309,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:17",
       "teams": {
         "Fylde": {
           "name": "Fylde",
@@ -11388,6 +11641,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:72",
       "teams": {
         "FC Groningen": {
           "name": "FC Groningen",
@@ -11595,6 +11849,15 @@
           "goalsScored": 13,
           "goalsConceded": 24,
           "lastMatchDate": "2026-11-01"
+        },
+        "Telstar": {
+          "name": "SC Telstar",
+          "attack": 0.9887,
+          "defense": 1.0174,
+          "matchesCount": 45,
+          "goalsScored": 65,
+          "goalsConceded": 78,
+          "lastMatchDate": "2026-11-01"
         }
       }
     },
@@ -11611,6 +11874,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:82",
       "teams": {
         "Borussia Mönchengladbach": {
           "name": "Borussia Mönchengladbach",
@@ -11834,6 +12098,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:181",
       "teams": {
         "Grazer AK": {
           "name": "Grazer AK",
@@ -11976,6 +12241,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:208",
       "teams": {
         "Club Brugge": {
           "name": "Club Brugge",
@@ -12172,6 +12438,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:211",
       "teams": {
         "RFC Seraing": {
           "name": "RFC Seraing",
@@ -12386,6 +12653,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:229",
       "teams": {
         "Cherno More": {
           "name": "Cherno More",
@@ -12573,6 +12841,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:271",
       "teams": {
         "AGF": {
           "name": "AGF",
@@ -12724,6 +12993,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:292",
       "teams": {
         "Gnistan": {
           "name": "Gnistan",
@@ -12875,6 +13145,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:372",
       "teams": {
         "Maccabi Bnei Raina": {
           "name": "Maccabi Bnei Raina",
@@ -13044,6 +13315,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:444",
       "teams": {
         "Odd": {
           "name": "Odd",
@@ -13224,6 +13496,15 @@
           "goalsScored": 26,
           "goalsConceded": 55,
           "lastMatchDate": "2026-11-01"
+        },
+        "Bodø / Glimt": {
+          "name": "Bodø/Glimt",
+          "attack": 1.5709,
+          "defense": 0.6397,
+          "matchesCount": 85,
+          "goalsScored": 217,
+          "goalsConceded": 82,
+          "lastMatchDate": "2026-10-30"
         }
       }
     },
@@ -13240,6 +13521,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:486",
       "teams": {
         "Lokomotiv Moskva": {
           "name": "Lokomotiv Moskva",
@@ -13427,6 +13709,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:567",
       "teams": {
         "Granada": {
           "name": "Granada",
@@ -13740,6 +14023,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:609",
       "teams": {
         "Veres": {
           "name": "Veres",
@@ -13945,6 +14229,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:636",
       "teams": {
         "Sarmiento": {
           "name": "Sarmiento",
@@ -14233,6 +14518,15 @@
           "goalsScored": 15,
           "goalsConceded": 45,
           "lastMatchDate": "2026-10-30"
+        },
+        "Racing Club": {
+          "name": "Racing",
+          "attack": 1.1291,
+          "defense": 1.0214,
+          "matchesCount": 94,
+          "goalsScored": 122,
+          "goalsConceded": 100,
+          "lastMatchDate": "2026-10-31"
         }
       }
     },
@@ -14249,6 +14543,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:648",
       "teams": {
         "Internacional": {
           "name": "Internacional",
@@ -14508,6 +14803,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:672",
       "teams": {
         "Patriotas Boyacá": {
           "name": "Patriotas Boyacá",
@@ -14731,6 +15027,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:743",
       "teams": {
         "Puebla": {
           "name": "Puebla",
@@ -14918,6 +15215,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:806",
       "teams": {
         "Marumo Gallants FC": {
           "name": "Marumo Gallants FC",
@@ -15123,6 +15421,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:902",
       "teams": {
         "Persepolis": {
           "name": "Persepolis",
@@ -15319,6 +15618,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:938",
       "teams": {
         "Al Rayyan": {
           "name": "Al Rayyan",
@@ -15461,6 +15761,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:944",
       "teams": {
         "Al Taawoun": {
           "name": "Al Taawoun",
@@ -15693,6 +15994,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:959",
       "teams": {
         "Al Wahda": {
           "name": "Al Wahda",
@@ -15871,6 +16173,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:983",
       "teams": {
         "Serbian White Eagles": {
           "name": "Serbian White Eagles",
@@ -15950,6 +16253,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:989",
       "teams": {
         "Shandong Taishan": {
           "name": "Shandong Taishan",
@@ -16146,6 +16450,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1007",
       "teams": {
         "ATK Mohun Bagan": {
           "name": "ATK Mohun Bagan",
@@ -16297,6 +16602,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "calibrated",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1085",
       "teams": {
         "Al Gharafa": {
           "name": "Al Gharafa",
@@ -16817,6 +17123,7 @@
       "source": "sportmonks-fit",
       "calibrationStatus": "partial",
       "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:1107",
       "teams": {
         "Arta / SIHD": {
           "name": "Arta / SIHD",
@@ -17972,5 +18279,11 @@
         }
       }
     }
+  },
+  "canonical": {
+    "registry": "data/league-canonical.json",
+    "registryVersion": 1,
+    "registryGeneratedAt": "2026-11-04T10:53:47.861Z",
+    "note": "keys are fit keys; canonicalId maps each fit to its canonical league"
   }
 }

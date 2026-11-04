@@ -11,14 +11,22 @@
  * Modul ini murni membaca registry (cache per proses). Bila registry/DB
  * tidak tersedia, return null — pemanggil wajib menandai status
  * 'unknown', BUKAN menganggap calibrated (tidak ada penyajian diam-diam).
+ *
+ * Status dibaca lewat identitas KANONIK (lib/quant/league-identity.ts):
+ * divisi apa pun (SM8 / E0 / sm:8) diresolusi ke canonical_id-nya dan
+ * baris registry league_id = canonical_id yang berlaku; tanpa entri
+ * kanonik / baris kanonik, jatuh ke pemetaan divisi warisan.
  */
 import { getTheStatsDb } from "../db/thestats-dataset";
+import { getCanonicalBySourceId } from "./league-identity";
 
 export type CalibrationStatus = "calibrated" | "partial" | "uncalibrated" | "unknown";
 
 export interface LeagueGateInfo {
   /** league_id di registry: 'sm:<id>' untuk Sportmonks, kode divisi untuk legacy. */
   leagueId: string;
+  /** canonical_id liga ini di registry kanonik (data/league-canonical.json), bila dikenal. */
+  canonicalId: string | null;
   div: string;
   status: Exclude<CalibrationStatus, "unknown">;
   leagueName: string | null;
@@ -89,19 +97,18 @@ function reasonFor(row: RegistryRow): string {
   return bits.join(" ");
 }
 
-/** Status gerbang untuk satu divisi ratings. null = registry tak terbaca. */
-export function getLeagueGate(div: string | null | undefined): LeagueGateInfo | null {
-  const leagueId = divToLeagueId(div);
-  if (!leagueId || !div) return null;
-  const reg = loadRegistry();
-  if (!reg) return null;
-  const row = reg.get(leagueId);
-  if (!row) return null;
+function infoFromRow(
+  row: RegistryRow,
+  div: string,
+  leagueId: string,
+  canonicalId: string | null
+): LeagueGateInfo {
   const status = (["calibrated", "partial", "uncalibrated"].includes(row.status)
     ? row.status
     : "uncalibrated") as LeagueGateInfo["status"];
   return {
     leagueId,
+    canonicalId,
     div,
     status,
     leagueName: row.league_name,
@@ -111,6 +118,26 @@ export function getLeagueGate(div: string | null | undefined): LeagueGateInfo | 
     notes: row.notes,
     reason: reasonFor({ ...row, status }),
   };
+}
+
+/** Status gerbang untuk satu divisi ratings. null = registry tak terbaca. */
+export function getLeagueGate(div: string | null | undefined): LeagueGateInfo | null {
+  if (!div) return null;
+  const reg = loadRegistry();
+  if (!reg) return null;
+  // Status KANONIK dulu: divisi → entri kanonik → baris registry dengan
+  // league_id = canonical_id (baris utama SM/legacy atau baris turunan
+  // source='canonical'). Baris itulah status yang berlaku untuk liganya.
+  const canonical = getCanonicalBySourceId(div);
+  if (canonical) {
+    const crow = reg.get(canonical.canonical_id);
+    if (crow) return infoFromRow(crow, div, canonical.canonical_id, canonical.canonical_id);
+  }
+  const leagueId = divToLeagueId(div);
+  if (!leagueId) return null;
+  const row = reg.get(leagueId);
+  if (!row) return null;
+  return infoFromRow(row, div, leagueId, canonical?.canonical_id ?? null);
 }
 
 /** Untuk test/diagnostik: kosongkan cache registry. */

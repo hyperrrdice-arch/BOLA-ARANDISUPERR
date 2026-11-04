@@ -18,6 +18,23 @@
  *
  * Pakai: npx tsx scripts/calibrate-ratings.ts [--min-matches=30]
  *        [--half-life-days=365] [--rho-mode=zero|global:<v>|fitted]
+ *        [--no-oos-gate]
+ *
+ * Rekalibrasi kanonik (2026-11-04):
+ *   (a) --no-oos-gate: lewati gerbang OOS (tasks/oos-gate.json tidak dibaca).
+ *   (b) Registry liga kanonik (data/league-canonical.json) dimuat di awal;
+ *       peta alias `${system}:${id}` → canonical_id dibangun dari situ.
+ *   (c) Registry league_calibration punya kolom canonical_id (ALTER
+ *       idempoten) yang diisi di SETIAP baris dari peta alias.
+ *   (d) Baris status kanonik (source='canonical') dibangun ulang tiap run
+ *       untuk liga kanonik ber-fixture/ber-fit yang belum punya baris
+ *       league_id = canonical_id — status 'uncalibrated', tanpa fit.
+ *   (e) Setiap entri JSON dapat field canonicalId + blok metadata
+ *       top-level `canonical`; totalTeams kini TERMASUK alias bentuk-nama
+ *       (lihat (f)), jadi jumlah tim bisa lebih besar dari tim ter-fit.
+ *   (f) Roster tiap liga (SM calibrated/partial + legacy) ditambah alias
+ *       bentuk-nama dari fixture upcoming (jembatan token prefix/suffix)
+ *       agar nama fixture yang divergen dari kunci roster tetap ketemu.
  *
  * Parameter fit (half-life decay + kebijakan rho) dipilih dari validasi
  * walk-forward out-of-sample (scripts/backtest-walkforward.ts, Fase 3
@@ -30,8 +47,10 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { poissonLogProb, tauAdjustment } from "../lib/quant/dixon-coles";
+import { normalizeTeamName } from "../lib/quant/team-normalizer";
 
 const args = process.argv.slice(2);
+const NO_OOS_GATE = args.includes("--no-oos-gate");
 const MIN_MATCHES = (() => {
   const hit = args.find((a) => a.startsWith("--min-matches="));
   return hit ? Number(hit.split("=")[1]) : 30;
@@ -223,7 +242,138 @@ function rhoForLeague(fit: FitResult, matches: MatchRow[]): number {
   return 0;
 }
 
+// ---------------------------------------------------------------------------
+// Registry kanonik (data/league-canonical.json) — dimuat sekali di main().
+// ---------------------------------------------------------------------------
+interface CanonicalAliasEntry { system: string; id: string; name_as_stored: string | null }
+interface CanonicalEntry {
+  canonical_id: string;
+  name: string;
+  country: string | null;
+  aliases: CanonicalAliasEntry[];
+  fits: { system: string; ratings_key: string; status: string }[];
+}
+interface CanonicalFileShape { version?: number; generated_at?: string; leagues: CanonicalEntry[] }
+
+let canonicalFile: CanonicalFileShape | null = null;
+/** Peta alias `${system}:${id}` → canonical_id. */
+const canonicalAliasMap = new Map<string, string>();
+/** Peta canonical_id → entri kanonik. */
+const canonicalById = new Map<string, CanonicalEntry>();
+/** Nama tim per liga kanonik dari fixture upcoming (diisi di main()). */
+const fixtureNamesByCanonical = new Map<string, Set<string>>();
+
+function loadCanonicalRegistry(): void {
+  try {
+    canonicalFile = JSON.parse(
+      fs.readFileSync(dataPath("league-canonical.json"), "utf8"),
+    ) as CanonicalFileShape;
+    for (const e of canonicalFile.leagues) {
+      canonicalById.set(e.canonical_id, e);
+      for (const a of e.aliases) canonicalAliasMap.set(`${a.system}:${a.id}`, e.canonical_id);
+    }
+  } catch {
+    canonicalFile = null; /* tanpa registry kanonik: canonicalId null, tanpa baris kanonik/alias nama */
+  }
+}
+
+function canonicalIdVia(...pairs: [string, string][]): string | null {
+  for (const [system, id] of pairs) {
+    const hit = canonicalAliasMap.get(`${system}:${id}`);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/** canonical_id untuk baris/entri divisi legacy: alias legacy-div, fallback ratings-key. */
+function canonicalIdForLegacyDiv(div: string): string | null {
+  return canonicalIdVia(["legacy-div", div], ["ratings-key", div]);
+}
+
+/** canonical_id untuk satu kunci ratings (SM<n> atau divisi legacy). */
+function canonicalIdForRatingsKey(key: string): string | null {
+  if (/^SM\d+$/i.test(key)) {
+    return canonicalIdVia(["ratings-key", key], ["sportmonks", `sm:${key.slice(2)}`]);
+  }
+  return canonicalIdForLegacyDiv(key);
+}
+
+// ---------------------------------------------------------------------------
+// Alias bentuk-nama roster (butir f): jembatan token antara nama fixture
+// dan kunci roster. normalizeTeamName(x) → lowercase → tanda [-/.'’] jadi
+// spasi → buang token awalan {afc,fc,sc,ac,cf,sv} dan token akhiran
+// {fc,sc,cf,club} berulang → gabung satu spasi.
+// ---------------------------------------------------------------------------
+const BRIDGE_LEAD_TOKENS = new Set(["afc", "fc", "sc", "ac", "cf", "sv"]);
+const BRIDGE_TRAIL_TOKENS = new Set(["fc", "sc", "cf", "club"]);
+
+function bridgeTeamKey(raw: string): string {
+  const tokens = normalizeTeamName(raw)
+    .toLowerCase()
+    .replace(/[-/.'’]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  while (tokens.length > 0 && BRIDGE_LEAD_TOKENS.has(tokens[0])) tokens.shift();
+  while (tokens.length > 0 && BRIDGE_TRAIL_TOKENS.has(tokens[tokens.length - 1])) tokens.pop();
+  return tokens.join(" ");
+}
+
+const PLACEHOLDER_TEAM_RE = /^\d+(st|nd|rd|th) ranked$/i;
+
+/**
+ * Tambahkan alias bentuk-nama fixture ke objek teams satu liga (mutasi di
+ * tempat; nilai alias = objek tim yang SAMA dengan kunci roster asal).
+ * Mengembalikan jumlah alias yang ditambahkan.
+ */
+function augmentTeamNameAliases(
+  leagueKey: string,
+  teams: Record<string, unknown>,
+  canonicalId: string | null,
+): number {
+  if (!canonicalId) return 0;
+  const fixtureNames = fixtureNamesByCanonical.get(canonicalId);
+  if (!fixtureNames || fixtureNames.size === 0) return 0;
+  const originalKeys = Object.keys(teams);
+  // Indeks ternormalisasi persis aturan ratings-loader (teamKeyIndex):
+  // normalize(kunci) → kunci, yang pertama menang.
+  const normalizedIndex = new Map<string, string>();
+  for (const key of originalKeys) {
+    const nk = normalizeTeamName(key);
+    if (!normalizedIndex.has(nk)) normalizedIndex.set(nk, key);
+  }
+  // Peta jembatan dari kunci roster yang ada; tabrakan (dua kunci roster
+  // berbagi kunci jembatan yang sama) dicatat dan dianggap ambigu.
+  const bridgeMap = new Map<string, string>();
+  const bridgeCollisions = new Set<string>();
+  for (const key of originalKeys) {
+    const b = bridgeTeamKey(key);
+    if (!b) continue;
+    const cur = bridgeMap.get(b);
+    if (cur === undefined) bridgeMap.set(b, key);
+    else if (cur !== key) bridgeCollisions.add(b);
+  }
+  const added: string[] = [];
+  const ambiguous: string[] = [];
+  for (const f of [...fixtureNames].sort()) {
+    if (PLACEHOLDER_TEAM_RE.test(f)) continue; // "1st ranked" dst BUKAN tim nyata
+    if (Object.prototype.hasOwnProperty.call(teams, f)) continue;
+    const nf = normalizeTeamName(f);
+    if (Object.prototype.hasOwnProperty.call(teams, nf) || normalizedIndex.has(nf)) continue;
+    const b = bridgeTeamKey(f);
+    if (!b) continue;
+    if (bridgeCollisions.has(b)) { ambiguous.push(f); continue; }
+    const targetKey = bridgeMap.get(b);
+    if (!targetKey) continue;
+    teams[f] = teams[targetKey];
+    added.push(f);
+  }
+  if (added.length > 0) console.log(`${leagueKey} alias nama: +${added.length} (${added.join(", ")})`);
+  if (ambiguous.length > 0) console.log(`${leagueKey} alias nama ambigu (dilewati): ${ambiguous.join(", ")}`);
+  return added.length;
+}
+
 function main() {
+  loadCanonicalRegistry();
   const ds = new DatabaseSync(dataPath("thestats_dataset.db"));
   ds.exec("PRAGMA journal_mode = WAL;");
   ds.exec("PRAGMA busy_timeout = 120000;");
@@ -240,10 +390,39 @@ function main() {
       scale_ratio REAL,
       fitted_at TEXT,
       source TEXT NOT NULL,
-      notes TEXT
+      notes TEXT,
+      canonical_id TEXT
     )`,
   );
+  // Kolom canonical_id untuk registry yang sudah ada (idempoten).
+  const regCols = ds.prepare("PRAGMA table_info(league_calibration)").all() as { name: string }[];
+  if (!regCols.some((c) => c.name === "canonical_id")) {
+    ds.exec("ALTER TABLE league_calibration ADD COLUMN canonical_id TEXT");
+  }
   const up = new DatabaseSync(dataPath("upcoming_fixtures.db"), { readOnly: true });
+
+  // Nama tim per liga kanonik dari fixture upcoming (untuk alias bentuk-nama,
+  // butir f) + himpunan liga kanonik ber-fixture (untuk baris kanonik, butir d).
+  const canonicalWithFixtures = new Set<string>();
+  for (const r of up
+    .prepare(
+      "SELECT DISTINCT competition_id, home_team_name, away_team_name FROM upcoming_fixtures WHERE competition_id IS NOT NULL",
+    )
+    .all() as { competition_id: string; home_team_name: string | null; away_team_name: string | null }[]) {
+    const system = r.competition_id.startsWith("sm:")
+      ? "sportmonks"
+      : r.competition_id.startsWith("comp_")
+        ? "thestats"
+        : null;
+    if (!system) continue;
+    const cid = canonicalAliasMap.get(`${system}:${r.competition_id}`);
+    if (!cid) continue;
+    canonicalWithFixtures.add(cid);
+    const set = fixtureNamesByCanonical.get(cid) ?? new Set<string>();
+    if (r.home_team_name) set.add(r.home_team_name);
+    if (r.away_team_name) set.add(r.away_team_name);
+    fixtureNamesByCanonical.set(cid, set);
+  }
   const catalog = up
     .prepare("SELECT competition_id, name, country FROM competition_catalog WHERE competition_id LIKE 'sm:%'")
     .all() as { competition_id: string; name: string; country: string | null }[];
@@ -256,6 +435,7 @@ function main() {
   const ratingsPath = dataPath("calibrated_ratings.json");
   const ratings = JSON.parse(fs.readFileSync(ratingsPath, "utf8")) as {
     version: string; compiledAt: string; totalLeagues: number; totalTeams: number;
+    canonical?: { registry: string; registryVersion?: number; registryGeneratedAt?: string; note: string };
     leagues: Record<string, Record<string, unknown>>;
   };
 
@@ -273,30 +453,46 @@ function main() {
   // Liga yang log-loss held-out-nya TIDAK mengalahkan baseline naive tidak
   // boleh duduk di 'calibrated' — diturunkan ke 'partial' dengan catatan.
   const oosGate = new Map<string, { heldout_logloss: number; naive_logloss: number; n: number }>();
-  try {
-    const raw = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), "tasks", "oos-gate.json"), "utf8"),
-    ) as Record<string, { heldout_logloss: number; naive_logloss: number; n: number }>;
-    for (const [k, v] of Object.entries(raw)) oosGate.set(k, v);
-  } catch { /* tanpa file gerbang OOS, status murni dari gerbang skala+cakupan */ }
+  if (!NO_OOS_GATE) {
+    try {
+      const raw = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), "tasks", "oos-gate.json"), "utf8"),
+      ) as Record<string, { heldout_logloss: number; naive_logloss: number; n: number }>;
+      for (const [k, v] of Object.entries(raw)) oosGate.set(k, v);
+    } catch { /* tanpa file gerbang OOS, status murni dari gerbang skala+cakupan */ }
+  }
 
   const insReg = ds.prepare(
     `INSERT OR REPLACE INTO league_calibration
-     (league_id, league_name, country, tier, status, n_matches, n_teams, telemetry_coverage, scale_ratio, fitted_at, source, notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (league_id, league_name, country, tier, status, n_matches, n_teams, telemetry_coverage, scale_ratio, fitted_at, source, notes, canonical_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
   const now = new Date();
   const nowIso = now.toISOString();
-  let nCal = 0, nPart = 0, nUncal = 0, addedTeams = 0;
+  let nCal = 0, nPart = 0, nUncal = 0, addedTeams = 0, totalAliases = 0;
+  const augmentedKeys = new Set<string>();
 
   // Liga legacy: tercatat sebagai calibrated dari file rating yang sudah ada.
+  // (n_teams dihitung dari roster ASLI, sebelum alias bentuk-nama ditambah —
+  // kolom itu menghitung tim ter-fit dari match, bukan kunci JSON.)
   for (const [div, lg] of Object.entries(ratings.leagues)) {
     if (div.startsWith("SM")) continue;
     insReg.run(
       div, String(lg.leagueName ?? div), String(lg.country ?? ""), null, "calibrated",
       Number(lg.totalMatches ?? 0), Object.keys((lg.teams as object) ?? {}).length,
       null, null, String(lg.calibrationDate ?? ""), "legacy-csv-fit", "Rating warisan (football-data) yang sudah terpasang sebelum sprint.",
+      canonicalIdForLegacyDiv(div),
     );
+  }
+
+  // Entri legacy yang dipertahankan: tambah canonicalId + alias bentuk-nama
+  // (parameter tim asli tidak diubah — alias menunjuk objek tim yang sama).
+  for (const [div, lg] of Object.entries(ratings.leagues)) {
+    if (div.startsWith("SM")) continue;
+    const cid = canonicalIdForRatingsKey(div);
+    lg.canonicalId = cid;
+    totalAliases += augmentTeamNameAliases(div, (lg.teams ?? {}) as Record<string, unknown>, cid);
+    augmentedKeys.add(div);
   }
 
   for (const cat of catalog) {
@@ -333,14 +529,16 @@ function main() {
     if (isCup) {
       delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
-        coverage, null, null, "sportmonks-fit", "Kompetisi piala/lintas-negara — tidak difit per-liga (di luar parameterisasi rating liga).");
+        coverage, null, null, "sportmonks-fit", "Kompetisi piala/lintas-negara — tidak difit per-liga (di luar parameterisasi rating liga).",
+        canonicalIdVia(["sportmonks", leagueId]));
       nUncal += 1;
       continue;
     }
     if (matches.length < MIN_MATCHES) {
       delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
-        coverage, null, null, "sportmonks-fit", `Data hasil belum cukup untuk fit (n=${matches.length} < ${MIN_MATCHES}).`);
+        coverage, null, null, "sportmonks-fit", `Data hasil belum cukup untuk fit (n=${matches.length} < ${MIN_MATCHES}).`,
+        canonicalIdVia(["sportmonks", leagueId]));
       nUncal += 1;
       continue;
     }
@@ -348,7 +546,8 @@ function main() {
     if (!fit) {
       delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
-        coverage, null, null, "sportmonks-fit", "Fit gagal (tim/gol tidak memadai).");
+        coverage, null, null, "sportmonks-fit", "Fit gagal (tim/gol tidak memadai).",
+        canonicalIdVia(["sportmonks", leagueId]));
       nUncal += 1;
       continue;
     }
@@ -372,7 +571,8 @@ function main() {
       delete ratings.leagues[`SM${leagueId.slice(3)}`];
       insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, "uncalibrated", matches.length, teamSet.size,
         coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
-        `Lolos gerbang skala/cakupan sebagai partial, gugur di gerbang bukti.` + oosNote);
+        `Lolos gerbang skala/cakupan sebagai partial, gugur di gerbang bukti.` + oosNote,
+        canonicalIdVia(["sportmonks", leagueId]));
       nUncal += 1;
       continue;
     } else if (oos && oos.n >= 20) {
@@ -406,6 +606,12 @@ function main() {
       };
       if (status === "calibrated") addedTeams += 1;
     }
+    // Roster difinalkan: tambah alias bentuk-nama fixture (butir f) SEBELUM
+    // entri ditulis — registry n_teams tetap teamSet (tim ter-fit), tidak
+    // ikut membengkak oleh alias.
+    const smCanonicalId = canonicalIdForRatingsKey(key);
+    totalAliases += augmentTeamNameAliases(key, teamsJson, smCanonicalId);
+    augmentedKeys.add(key);
     // Calibrated DAN partial ditulis ke JSON (Fase 1): partial tersaji
     // HANYA lewat gerbang loader dengan flag eksplisit; uncalibrated
     // tidak pernah ditulis. (Semantik lama "JSON = tanpa flag" digantikan
@@ -423,12 +629,69 @@ function main() {
       source: "sportmonks-fit",
       calibrationStatus: status,
       fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}+shrink-${SHRINK_KAPPA}`,
+      canonicalId: smCanonicalId,
       teams: teamsJson,
     };
     insReg.run(leagueId, cat.name, cat.country, tierByLeague.get(leagueId) ?? null, status, matches.length, teamSet.size,
       coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "sportmonks-fit",
-      (status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote);
+      (status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote,
+      canonicalIdVia(["sportmonks", leagueId]));
   }
+
+  // Entri yang dipertahankan tapi tidak tersentuh loop di atas (mis. kunci SM
+  // di luar katalog berjalan): pastikan canonicalId + alias bentuk-nama juga.
+  for (const [key, lg] of Object.entries(ratings.leagues)) {
+    if (augmentedKeys.has(key)) continue;
+    const cid = canonicalIdForRatingsKey(key);
+    lg.canonicalId = cid;
+    totalAliases += augmentTeamNameAliases(key, (lg.teams ?? {}) as Record<string, unknown>, cid);
+    augmentedKeys.add(key);
+  }
+
+  // Baris status kanonik (butir d): baris turunan source='canonical' dibangun
+  // ulang tiap run. Target = liga kanonik ber-fixture (dari upcoming_fixtures)
+  // ∪ liga kanonik ber-fit. Bila baris league_id = canonical_id sudah ada
+  // (baris utama SM/legacy), baris itulah baris kanoniknya — tidak disisipkan.
+  ds.prepare("DELETE FROM league_calibration WHERE source = 'canonical'").run();
+  const canonicalTargets = new Set<string>(canonicalWithFixtures);
+  for (const e of canonicalById.values()) if (e.fits.length > 0) canonicalTargets.add(e.canonical_id);
+  let nCanonicalRows = 0;
+  const existingReg = ds.prepare("SELECT league_id FROM league_calibration WHERE league_id = ?");
+  for (const cid of [...canonicalTargets].sort()) {
+    const entry = canonicalById.get(cid);
+    if (!entry) continue;
+    if (existingReg.get(cid)) continue;
+    // n_matches/n_teams dari match selesai di ruang-id matches (sm:* / comp_*).
+    const matchIds = entry.aliases.map((a) => a.id).filter((id) => id.startsWith("sm:") || id.startsWith("comp_"));
+    let nMatches = 0;
+    const teamSet = new Set<string>();
+    if (matchIds.length > 0) {
+      const rows = ds
+        .prepare(
+          `SELECT home_team_id, away_team_id FROM matches
+           WHERE competition_id IN (${matchIds.map(() => "?").join(",")})
+             AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL`,
+        )
+        .all(...matchIds) as { home_team_id: string; away_team_id: string }[];
+      nMatches = rows.length;
+      for (const r of rows) { teamSet.add(r.home_team_id); teamSet.add(r.away_team_id); }
+    }
+    insReg.run(
+      cid, entry.name, entry.country, null, "uncalibrated", nMatches, teamSet.size,
+      null, null, null, "canonical",
+      "Baris status kanonik: liga kanonik dengan fixture/fit terdaftar tapi tanpa baris fit utama — tidak ada fit ratings (no ratings fit — not served).",
+      cid,
+    );
+    nCanonicalRows += 1;
+  }
+
+  // Metadata kanonik top-level (butir e).
+  ratings.canonical = {
+    registry: "data/league-canonical.json",
+    registryVersion: canonicalFile?.version,
+    registryGeneratedAt: canonicalFile?.generated_at,
+    note: "keys are fit keys; canonicalId maps each fit to its canonical league",
+  };
 
   ratings.totalLeagues = Object.keys(ratings.leagues).length;
   ratings.totalTeams = Object.values(ratings.leagues).reduce(
@@ -437,6 +700,8 @@ function main() {
   ratings.compiledAt = nowIso;
   fs.writeFileSync(ratingsPath, JSON.stringify(ratings, null, 2));
   console.log(`Registry: calibrated+partial baru=${nCal + nPart} (calibrated ${nCal}, partial ${nPart}), uncalibrated ${nUncal}; entri tim tertulis ${addedTeams}.`);
+  console.log(`Baris status kanonik (source='canonical') disisipkan: ${nCanonicalRows}.`);
+  console.log(`Total alias nama fixture ditambahkan: +${totalAliases}.`);
   console.log(`calibrated_ratings.json: ${ratings.totalLeagues} liga, ${ratings.totalTeams} tim.`);
 }
 

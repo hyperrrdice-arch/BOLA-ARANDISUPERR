@@ -37,6 +37,8 @@ export interface LeagueCalibratedParameters {
   source?: string;
   calibrationStatus?: CalibrationStatus;
   fitMethod?: string;
+  /** canonical_id liga ini di registry kanonik (ditulis calibrate-ratings.ts). */
+  canonicalId?: string;
   teams: Record<string, TeamRating>;
 }
 
@@ -45,6 +47,8 @@ export interface CalibratedRatingsFile {
   compiledAt: string;
   totalLeagues: number;
   totalTeams: number;
+  /** Metadata registry kanonik yang memetakan tiap fit key → canonical league. */
+  canonical?: { registry: string; registryVersion?: number; registryGeneratedAt?: string; note?: string };
   leagues: Record<string, LeagueCalibratedParameters>;
 }
 
