@@ -97,6 +97,8 @@ interface RatedFixture {
   canonical_id: string | null;
   gate_status: GateStatus;
   population: Population;
+  /** 'free' bila fixture berasal dari feed gratis (id fd_*), selain itu 'full'. */
+  feed_mode: "free" | "full";
   lambda: number;
   mu: number;
   /** Baris store paket (packages.id) tempat paket penuh fixture ini tinggal. */
@@ -235,37 +237,85 @@ async function main() {
     const info: MarketInfo = { probs: {}, captured_utc: null, bookmakers: null };
     const newest = dsDb
       .prepare(
-        "SELECT captured_utc, payload_json FROM match_odds_history WHERE match_id = ? ORDER BY captured_utc DESC LIMIT 1",
+        "SELECT captured_utc, payload_json, source FROM match_odds_history WHERE match_id = ? ORDER BY captured_utc DESC LIMIT 1",
       )
-      .get(fx.match_id) as { captured_utc: string; payload_json: string } | undefined;
-    if (!newest || smId === null) return info;
-    try {
-      const envelope = JSON.parse(newest.payload_json) as { odds?: unknown[] };
-      const detail = parseFixtureDetail(smId, { data: { odds: envelope.odds ?? [] } });
-      const quotes = pickSmQuotes(detail, newest.captured_utc);
-      if (!quotes) return info;
-      // Tangkapan ini benar-benar memberi makan paket → catat freshness-nya.
-      info.captured_utc = newest.captured_utc;
-      const q = quotes as unknown as Record<string, unknown>;
-      const names = [q.bookmaker, q.compare_bookmaker].filter(
-        (v): v is string => typeof v === "string" && v.length > 0,
-      );
-      if (names.length > 0) info.bookmakers = [...new Set(names)];
-      if (quotes.home_last && quotes.draw_last && quotes.away_last) {
-        const shin = stripVigShin(quotes.home_last, quotes.draw_last, quotes.away_last);
-        if (shin.fair_prob) {
-          info.probs["1x2:1"] = shin.fair_prob.home;
-          info.probs["1x2:x"] = shin.fair_prob.draw;
-          info.probs["1x2:2"] = shin.fair_prob.away;
+      .get(fx.match_id) as
+      | { captured_utc: string; payload_json: string; source: string | null }
+      | undefined;
+    if (!newest) return info;
+    if (smId !== null) {
+      try {
+        const envelope = JSON.parse(newest.payload_json) as { odds?: unknown[] };
+        const detail = parseFixtureDetail(smId, { data: { odds: envelope.odds ?? [] } });
+        const quotes = pickSmQuotes(detail, newest.captured_utc);
+        if (quotes) {
+          // Tangkapan ini benar-benar memberi makan paket → catat freshness-nya.
+          info.captured_utc = newest.captured_utc;
+          const q = quotes as unknown as Record<string, unknown>;
+          const names = [q.bookmaker, q.compare_bookmaker].filter(
+            (v): v is string => typeof v === "string" && v.length > 0,
+          );
+          if (names.length > 0) info.bookmakers = [...new Set(names)];
+          if (quotes.home_last && quotes.draw_last && quotes.away_last) {
+            const shin = stripVigShin(quotes.home_last, quotes.draw_last, quotes.away_last);
+            if (shin.fair_prob) {
+              info.probs["1x2:1"] = shin.fair_prob.home;
+              info.probs["1x2:x"] = shin.fair_prob.draw;
+              info.probs["1x2:2"] = shin.fair_prob.away;
+            }
+          }
+          if (quotes.total_goals_over_2_5 && quotes.under_2_5) {
+            const two = stripVigTwoWay(quotes.total_goals_over_2_5, quotes.under_2_5);
+            info.probs["ou25:over"] = two.fair_prob.optionA;
+            info.probs["ou25:under"] = two.fair_prob.optionB;
+          }
         }
+      } catch {
+        /* payload tidak ter-parse → probabilitas pasar absen (null), bukan karangan */
       }
-      if (quotes.total_goals_over_2_5 && quotes.under_2_5) {
-        const two = stripVigTwoWay(quotes.total_goals_over_2_5, quotes.under_2_5);
-        info.probs["ou25:over"] = two.fair_prob.optionA;
-        info.probs["ou25:under"] = two.fair_prob.optionB;
+      if (Object.keys(info.probs).length > 0) return info;
+    }
+    // --- Degradasi feed gratis: envelope football-data pra-laga.
+    // Hanya bila jalur SM tidak menghasilkan apa pun DAN baris odds terbaru
+    // memang tangkapan football-data kind='pre-match'.
+    if (newest.source === "football-data" && newest.payload_json) {
+      try {
+        const payload = JSON.parse(newest.payload_json) as {
+          kind?: string;
+          books?: Array<{
+            bookmaker: string;
+            "1x2": { home: number; draw: number; away: number };
+            ou25: { over: number; under: number } | null;
+          }>;
+        };
+        if (payload.kind === "pre-match" && Array.isArray(payload.books) && payload.books.length > 0) {
+          const primary =
+            payload.books.find((b) => b.bookmaker === "Pinnacle") ??
+            payload.books.find((b) => b.bookmaker === "Bet365") ??
+            payload.books[0];
+          const shin = stripVigShin(primary["1x2"].home, primary["1x2"].draw, primary["1x2"].away);
+          if (shin.fair_prob) {
+            info.probs["1x2:1"] = shin.fair_prob.home;
+            info.probs["1x2:x"] = shin.fair_prob.draw;
+            info.probs["1x2:2"] = shin.fair_prob.away;
+          }
+          const ordered = [primary, ...payload.books.filter((b) => b !== primary)];
+          for (const b of ordered) {
+            if (b.ou25) {
+              const two = stripVigTwoWay(b.ou25.over, b.ou25.under);
+              info.probs["ou25:over"] = two.fair_prob.optionA;
+              info.probs["ou25:under"] = two.fair_prob.optionB;
+              break;
+            }
+          }
+          if (Object.keys(info.probs).length > 0) {
+            info.captured_utc = newest.captured_utc;
+            info.bookmakers = [...new Set(payload.books.map((b) => b.bookmaker))];
+          }
+        }
+      } catch {
+        /* envelope fd tidak valid → probabilitas pasar absen (null), bukan karangan */
       }
-    } catch {
-      /* payload tidak ter-parse → probabilitas pasar absen (null), bukan karangan */
     }
     return info;
   };
@@ -366,7 +416,7 @@ async function main() {
     // --- Pipeline offline (jalur yang sama dengan run-one-analysis).
     let legs: PickLeg[] | null = null;
     let packageId: number | null = null;
-    let ratedMeta: Omit<RatedFixture, "fixture" | "legs" | "group_key"> | null = null;
+    let ratedMeta: Omit<RatedFixture, "fixture" | "legs" | "group_key" | "feed_mode"> | null = null;
     let failReason: string | null = null;
     try {
       const fetched = await fetchAndValidateMatchIntelligence(
@@ -479,6 +529,7 @@ async function main() {
               source: "pick-slate",
               pipeline: "buildQuantPackage",
               population,
+              feed_mode: fx.match_id.startsWith("fd_") ? "free" : "full",
               home_source: md?.homeSource ?? null,
               away_source: md?.awaySource ?? null,
               cup_offset: md?.cupOffset ?? null,
@@ -516,6 +567,7 @@ async function main() {
     const entry: RatedFixture = {
       fixture: fx,
       ...ratedMeta,
+      feed_mode: fx.match_id.startsWith("fd_") ? "free" : "full",
       legs,
       group_key: `${normalizeTeamName(fx.home_team_name)}|${normalizeTeamName(fx.away_team_name)}|${fx.utc_date}`,
     };
@@ -625,6 +677,7 @@ async function main() {
       legs_by_grade: legsByGrade,
       unrated_reason_counts: reasonCounts,
       packages_written: packagesWritten,
+      fixtures_rated_free_mode: rated.filter((r) => r.feed_mode === "free").length,
       ledger_live_run_rows_written: ledgerWritten,
       ledger_skipped_already_recorded: writeLedger
         ? rated.filter((r) => alreadyRecorded.has(r.fixture.match_id)).length
@@ -640,6 +693,7 @@ async function main() {
       away: r.fixture.away_team_name,
       gate_status: r.gate_status,
       population: r.population,
+      feed_mode: r.feed_mode,
       lambda: r.lambda,
       mu: r.mu,
       package_id: r.package_id,
@@ -673,6 +727,9 @@ async function main() {
   );
   md.push("");
   md.push(
+    `Fixture ter-rate mode free (feed gratis football-data): **${result.stats.fixtures_rated_free_mode}**.`,
+  );
+  md.push(
     "Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. " +
       "Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).",
   );
@@ -693,7 +750,7 @@ async function main() {
   for (const r of rated) {
     md.push("");
     md.push(
-      `### ${r.fixture.home_team_name} vs ${r.fixture.away_team_name} — ${r.fixture.competition_name} (${r.gate_status}${r.population === "cup" ? ", piala/offset" : ""})`,
+      `### ${r.fixture.home_team_name} vs ${r.fixture.away_team_name} — ${r.fixture.competition_name} (${r.gate_status}${r.population === "cup" ? ", piala/offset" : ""})${r.feed_mode === "free" ? " · mode: free" : ""}`,
     );
     md.push(`Kickoff ${wib(r.fixture.utc_date)} · λ ${r.lambda} / μ ${r.mu}`);
     for (const l of r.legs) {
