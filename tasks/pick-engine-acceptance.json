@@ -1,0 +1,384 @@
+{
+  "generated_at": "2026-11-04T17:51:52.096Z",
+  "tolerance": 0.0011,
+  "fixtures": [
+    {
+      "fixture": "Everton vs Coventry City",
+      "match_id": "sm_19722110",
+      "competition": "Premier League",
+      "utc_date": "2026-11-06T20:00:00.000Z",
+      "lambda": 1.552,
+      "mu": 1.123,
+      "rho": 0,
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "reproduction": [
+        {
+          "quantity": "1X2 home (1)",
+          "published": 0.4722,
+          "recomputed": 0.4721762888677676,
+          "abs_diff": 0.000023711132232429044,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "1X2 draw (x)",
+          "published": 0.2527,
+          "recomputed": 0.2526523541170303,
+          "abs_diff": 0.00004764588296968242,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "1X2 away (2)",
+          "published": 0.2752,
+          "recomputed": 0.2751713570152017,
+          "abs_diff": 0.000028642984798321613,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "OU2.5 over",
+          "published": 0.5002,
+          "recomputed": 0.5002312949157569,
+          "abs_diff": 0.000031294915756929775,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "OU2.5 under",
+          "published": 0.4998,
+          "recomputed": 0.4997687050842426,
+          "abs_diff": 0.000031294915757429376,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "BTTS yes",
+          "published": 0.5318,
+          "recomputed": 0.5317803865848677,
+          "abs_diff": 0.000019613415132346823,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "BTTS no",
+          "published": 0.46819999999999995,
+          "recomputed": 0.46821961341513235,
+          "abs_diff": 0.000019613415132402334,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC 1x",
+          "published": 0.7249,
+          "recomputed": 0.7248286429847981,
+          "abs_diff": 0.00007135701520188942,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC 12",
+          "published": 0.7474000000000001,
+          "recomputed": 0.7473476458829696,
+          "abs_diff": 0.00005235411703041759,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC x2",
+          "published": 0.5279,
+          "recomputed": 0.5278237111322325,
+          "abs_diff": 0.00007628886776755994,
+          "within_tolerance": true
+        }
+      ],
+      "reproduction_all_within_tolerance": true,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7881759357095539,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7195965569888615,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7467672035938347,
+          "effective_prob": 0.7344,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1472,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7248286429847981,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7081999999999999,
+          "agreement_spread": 0.01662864298479816
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7473476458829696,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7472,
+          "agreement_spread": 0.0001476458829696714
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6746975674994867,
+          "effective_prob": 0.6506,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1428,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        }
+      ]
+    },
+    {
+      "fixture": "Fenerbahçe vs Liverpool",
+      "match_id": "sm_19872622",
+      "competition": "Champions League",
+      "utc_date": "2026-11-04T17:45:00.000Z",
+      "lambda": 1.41,
+      "mu": 2.085,
+      "rho": 0,
+      "gate_status": "partial",
+      "population": "cup",
+      "reproduction": [
+        {
+          "quantity": "1X2 home (1)",
+          "published": 0.2582,
+          "recomputed": 0.2581671573735274,
+          "abs_diff": 0.00003284262647257341,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "1X2 draw (x)",
+          "published": 0.211,
+          "recomputed": 0.21100444037821658,
+          "abs_diff": 0.0000044403782165913785,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "1X2 away (2)",
+          "published": 0.5308,
+          "recomputed": 0.5308284022482561,
+          "abs_diff": 0.0000284022482560653,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "OU2.5 over",
+          "published": 0.6782,
+          "recomputed": 0.6782230043186193,
+          "abs_diff": 0.000023004318619235242,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "OU2.5 under",
+          "published": 0.3218,
+          "recomputed": 0.32177699568138085,
+          "abs_diff": 0.00002300431861912422,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "BTTS yes",
+          "published": 0.6619,
+          "recomputed": 0.6618971375661897,
+          "abs_diff": 0.0000028624338103133695,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "BTTS no",
+          "published": 0.33809999999999996,
+          "recomputed": 0.3381028624338105,
+          "abs_diff": 0.000002862433810535414,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC 1x",
+          "published": 0.46919999999999995,
+          "recomputed": 0.46917159775174405,
+          "abs_diff": 0.000028402248255898765,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC 12",
+          "published": 0.789,
+          "recomputed": 0.7889955596217834,
+          "abs_diff": 0.000004440378216674645,
+          "within_tolerance": true
+        },
+        {
+          "quantity": "DC x2",
+          "published": 0.7418,
+          "recomputed": 0.7418328426264725,
+          "abs_diff": 0.0000328426264725179,
+          "within_tolerance": true
+        }
+      ],
+      "reproduction_all_within_tolerance": true,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.875691367979152,
+          "effective_prob": 0.875691367979152,
+          "effective_source": "stated-fallback",
+          "band": "85+",
+          "band_n": 131,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.863580675279769,
+          "effective_prob": 0.8439,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 237,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7889955596217834,
+          "effective_prob": 0.789,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 943,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7622999999999999,
+          "agreement_spread": 0.026695559621783493
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7418328426264725,
+          "effective_prob": 0.7437,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 710,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6363,
+          "agreement_spread": 0.10553284262647256
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7558566428417135,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6618971375661897,
+          "effective_prob": 0.6618971375661897,
+          "effective_source": "stated-fallback",
+          "band": "65–70",
+          "band_n": 180,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6086,
+          "agreement_spread": 0.0532971375661897
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6782230043186193,
+          "effective_prob": 0.6379,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 243,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5987,
+          "agreement_spread": 0.07952300431861925
+        }
+      ]
+    }
+  ],
+  "fenerbahce_same_match_combo": {
+    "legs": [
+      {
+        "market": "ou25",
+        "selection": "over"
+      },
+      {
+        "market": "btts",
+        "selection": "yes"
+      }
+    ],
+    "joint_exact": 0.5726752573039491,
+    "naive_product_for_comparison": 0.4489138651900356,
+    "effective_source": "joint-exact-stated"
+  },
+  "example_cross_match_parlay": {
+    "units": [
+      {
+        "label": "Everton vs Coventry: team_over05_home/yes",
+        "stated_prob": 0.7881759357095539,
+        "effective_prob": 0.7612
+      },
+      {
+        "label": "Fenerbahçe vs Liverpool: team_over05_away/yes",
+        "stated_prob": 0.875691367979152,
+        "effective_prob": 0.875691367979152
+      },
+      {
+        "label": "Fenerbahçe vs Liverpool kombo OU2.5+BTTS (eksak)",
+        "stated_prob": 0.5726752573039491,
+        "effective_prob": 0.5726752573039491
+      }
+    ],
+    "combined_stated": 0.3952598116597098,
+    "combined_effective": 0.3817317365373657,
+    "range_note": "Kombinasi efektif 38.2% adalah estimasi titik; produk stated 39.5% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
+  }
+}
