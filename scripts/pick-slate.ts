@@ -10,8 +10,14 @@
  * Output:
  *   - tasks/pick-slate-latest.json  (struktur penuh)
  *   - tasks/pick-slate-latest.md    (ringkasan terbaca)
+ *   - store paket data/analysis_snapshots.db: SETIAP fixture ter-rate
+ *     ditulis sebagai paket kuant penuh versi baru (trigger 'slate',
+ *     lib/picks/packages.ts). Fixture tak ter-rate tidak menulis apa pun;
+ *     kegagalan menulis paket = fixture gugur dengan alasan eksplisit
+ *     (fail-closed: kaki tanpa rumah provenance tidak diterbitkan).
  *   - ledger data/picks.db: kaki fixture live ditulis dengan source
- *     'live-run' (flag --no-ledger untuk menonaktifkan). Fixture yang sudah
+ *     'live-run' (flag --no-ledger untuk menonaktifkan), package_id
+ *     menunjuk baris paket asalnya. Fixture yang sudah
  *     pernah dicatat sebagai live-run dilewati (idempoten per match_id di
  *     level driver — skema ledger memang tanpa constraint unik untuk
  *     live-run). market_prob (Shin 1X2 / strip dua-arah OU2.5) dan sm_prob
@@ -35,6 +41,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import { getUpcomingDb } from "../lib/db/upcoming-fixtures";
 import {
@@ -51,11 +58,14 @@ import {
   pickLegs,
   combineParlay,
   rebuildMatrix,
+  probFromMatrix,
+  CANDIDATES,
   type GateStatus,
   type PickLeg,
   type Population,
 } from "../lib/picks/engine";
 import { recordPicks, type PickInput } from "../lib/picks/ledger";
+import { writePackage } from "../lib/picks/packages";
 
 function openRo(p: string): DatabaseSync {
   return new DatabaseSync(p, { readOnly: true });
@@ -89,8 +99,34 @@ interface RatedFixture {
   population: Population;
   lambda: number;
   mu: number;
+  /** Baris store paket (packages.id) tempat paket penuh fixture ini tinggal. */
+  package_id: number | null;
   legs: PickLeg[];
   group_key: string;
+}
+
+/** Skor-skor paling mungkin dari matriks (untuk payload paket). */
+function topScoresFromMatrix(
+  matrix: number[][],
+  n = 8,
+): { home_goals: number; away_goals: number; prob: number }[] {
+  const cells: { home_goals: number; away_goals: number; prob: number }[] = [];
+  matrix.forEach((row, h) =>
+    row.forEach((p, a) => cells.push({ home_goals: h, away_goals: a, prob: p })),
+  );
+  return cells.sort((x, y) => y.prob - x.prob).slice(0, n);
+}
+
+/** δ kandang dari metadata cupOffset planner (objek offset global); null di luar itu. */
+function cupDeltaFrom(cupOffset: unknown): number | null {
+  if (typeof cupOffset === "number" && Number.isFinite(cupOffset)) return cupOffset;
+  if (cupOffset !== null && typeof cupOffset === "object") {
+    const o = cupOffset as Record<string, unknown>;
+    for (const k of ["homeDelta", "delta", "offset"]) {
+      if (typeof o[k] === "number" && Number.isFinite(o[k])) return o[k] as number;
+    }
+  }
+  return null;
 }
 
 interface UnratedFixture {
@@ -146,6 +182,17 @@ async function main() {
   const prDb = openRo("data/predictions.db");
   const ratings = loadCalibratedRatings();
 
+  // Penanda versi artefak ratings untuk provenance paket (hash isi file).
+  let ratingsMarker: string | null = null;
+  try {
+    const raw = fs.readFileSync(
+      path.join(process.cwd(), "data", "calibrated_ratings.json"),
+    );
+    ratingsMarker = `sha256:${createHash("sha256").update(raw).digest("hex").slice(0, 16)}`;
+  } catch {
+    ratingsMarker = null;
+  }
+
   const fixtures = upDb
     .prepare(
       `SELECT match_id, competition_id, competition_name, competition_country, utc_date, home_team_name, away_team_name
@@ -177,36 +224,59 @@ async function main() {
     return row?.sm_fixture_id ?? null;
   };
 
-  const marketProbsFor = (fx: FixtureRow, smId: number | null) => {
-    const out: Record<string, number> = {};
+  interface MarketInfo {
+    probs: Record<string, number>;
+    /** Cap tangkapan odds yang benar-benar masuk paket; null bila tak ada. */
+    captured_utc: string | null;
+    bookmakers: string[] | null;
+  }
+
+  const marketInfoFor = (fx: FixtureRow, smId: number | null): MarketInfo => {
+    const info: MarketInfo = { probs: {}, captured_utc: null, bookmakers: null };
     const newest = dsDb
       .prepare(
         "SELECT captured_utc, payload_json FROM match_odds_history WHERE match_id = ? ORDER BY captured_utc DESC LIMIT 1",
       )
       .get(fx.match_id) as { captured_utc: string; payload_json: string } | undefined;
-    if (!newest || smId === null) return out;
+    if (!newest || smId === null) return info;
     try {
       const envelope = JSON.parse(newest.payload_json) as { odds?: unknown[] };
       const detail = parseFixtureDetail(smId, { data: { odds: envelope.odds ?? [] } });
       const quotes = pickSmQuotes(detail, newest.captured_utc);
-      if (!quotes) return out;
+      if (!quotes) return info;
+      // Tangkapan ini benar-benar memberi makan paket → catat freshness-nya.
+      info.captured_utc = newest.captured_utc;
+      const q = quotes as unknown as Record<string, unknown>;
+      const names = [q.bookmaker, q.compare_bookmaker].filter(
+        (v): v is string => typeof v === "string" && v.length > 0,
+      );
+      if (names.length > 0) info.bookmakers = [...new Set(names)];
       if (quotes.home_last && quotes.draw_last && quotes.away_last) {
         const shin = stripVigShin(quotes.home_last, quotes.draw_last, quotes.away_last);
         if (shin.fair_prob) {
-          out["1x2:1"] = shin.fair_prob.home;
-          out["1x2:x"] = shin.fair_prob.draw;
-          out["1x2:2"] = shin.fair_prob.away;
+          info.probs["1x2:1"] = shin.fair_prob.home;
+          info.probs["1x2:x"] = shin.fair_prob.draw;
+          info.probs["1x2:2"] = shin.fair_prob.away;
         }
       }
       if (quotes.total_goals_over_2_5 && quotes.under_2_5) {
         const two = stripVigTwoWay(quotes.total_goals_over_2_5, quotes.under_2_5);
-        out["ou25:over"] = two.fair_prob.optionA;
-        out["ou25:under"] = two.fair_prob.optionB;
+        info.probs["ou25:over"] = two.fair_prob.optionA;
+        info.probs["ou25:under"] = two.fair_prob.optionB;
       }
     } catch {
       /* payload tidak ter-parse → probabilitas pasar absen (null), bukan karangan */
     }
-    return out;
+    return info;
+  };
+
+  /** Cap batch predictions SM terakhir untuk fixture (freshness panel). */
+  const smBatchUtcFor = (smId: number | null): string | null => {
+    if (smId === null) return null;
+    const row = prDb
+      .prepare("SELECT MAX(captured_utc) AS m FROM sm_predictions WHERE fixture_sm_id = ?")
+      .get(smId) as { m: string | null } | undefined;
+    return row?.m ?? null;
   };
 
   const smProbsFor = (smId: number | null) => {
@@ -248,6 +318,7 @@ async function main() {
   const unrated: UnratedFixture[] = [];
   const ledgerRows: PickInput[] = [];
   let processed = 0;
+  let packagesWritten = 0;
 
   for (const fx of fixtures) {
     if (processed >= limit) break;
@@ -294,6 +365,7 @@ async function main() {
 
     // --- Pipeline offline (jalur yang sama dengan run-one-analysis).
     let legs: PickLeg[] | null = null;
+    let packageId: number | null = null;
     let ratedMeta: Omit<RatedFixture, "fixture" | "legs" | "group_key"> | null = null;
     let failReason: string | null = null;
     try {
@@ -334,20 +406,101 @@ async function main() {
             pure.dcOutput.mu,
             pure.shrunkParams.rho ?? 0,
           );
+        const mInfo = marketInfoFor(fx, smId);
+        const smProbs = smProbsFor(smId);
         legs = pickLegs({
           matrix,
           gate_status: gateFinal,
           population,
-          market_probs: marketProbsFor(fx, smId),
-          sm_probs: smProbsFor(smId),
+          market_probs: mInfo.probs,
+          sm_probs: smProbs,
         });
-        ratedMeta = {
-          canonical_id: md?.leagueResolution?.canonicalId ?? canonicalId,
-          gate_status: gateFinal,
-          population,
-          lambda: pure.dcOutput.lambda,
-          mu: pure.dcOutput.mu,
-        };
+
+        // --- Store paket: paket penuh fixture ini = satu baris versi baru.
+        // Gagal tulis = fixture gugur dengan alasan eksplisit (fail-closed).
+        try {
+          const probabilities: Record<string, number> = {};
+          for (const c of CANDIDATES) {
+            probabilities[`${c.market}:${c.selection}`] = probFromMatrix(
+              matrix,
+              c.market,
+              c.selection,
+            );
+          }
+          const batchUtc = smBatchUtcFor(smId);
+          const pkg = writePackage({
+            match_id: fx.match_id,
+            competition_canonical_id:
+              md?.leagueResolution?.canonicalId ?? canonicalId,
+            kickoff_utc: fx.utc_date,
+            computed_utc: new Date().toISOString(),
+            trigger: "slate",
+            fit_source: population === "cup" ? "cup-offset" : (md?.homeSource ?? null),
+            gate_status: gateFinal,
+            cup_delta: cupDeltaFrom(md?.cupOffset),
+            ratings_marker: ratingsMarker,
+            odds_captured_utc: mInfo.captured_utc,
+            bookmakers: mInfo.bookmakers,
+            predictions_batch_utc: batchUtc,
+            lambda: pure.dcOutput.lambda,
+            mu: pure.dcOutput.mu,
+            rho: pure.shrunkParams.rho ?? null,
+            payload: {
+              kind: "quant-package",
+              version: 1,
+              source: "pick-slate",
+              fixture: {
+                match_id: fx.match_id,
+                competition_id: fx.competition_id,
+                competition_name: fx.competition_name,
+                home: fx.home_team_name,
+                away: fx.away_team_name,
+                kickoff_utc: fx.utc_date,
+              },
+              canonical_id: md?.leagueResolution?.canonicalId ?? canonicalId,
+              gate_status: gateFinal,
+              population,
+              lambda: pure.dcOutput.lambda,
+              mu: pure.dcOutput.mu,
+              rho: pure.shrunkParams.rho ?? null,
+              probabilities,
+              top_scores: topScoresFromMatrix(matrix),
+              score_matrix: matrix,
+              shrunk_metadata: md ?? null,
+              market: {
+                probs: mInfo.probs,
+                captured_utc: mInfo.captured_utc,
+                bookmakers: mInfo.bookmakers,
+              },
+              sm_panel: { probs: smProbs, batch_utc: batchUtc },
+              legs,
+            },
+            provenance: {
+              source: "pick-slate",
+              pipeline: "buildQuantPackage",
+              population,
+              home_source: md?.homeSource ?? null,
+              away_source: md?.awaySource ?? null,
+              cup_offset: md?.cupOffset ?? null,
+            },
+          });
+          packageId = pkg.id;
+          packagesWritten++;
+        } catch (e) {
+          legs = null;
+          failReason = `store paket gagal: ${e instanceof Error ? e.message : String(e)}`;
+        }
+
+        if (legs) {
+          ratedMeta = {
+            canonical_id: md?.leagueResolution?.canonicalId ?? canonicalId,
+            gate_status: gateFinal,
+            population,
+            lambda: pure.dcOutput.lambda,
+            mu: pure.dcOutput.mu,
+            package_id: packageId,
+          };
+        }
       }
     } catch (e) {
       failReason = `pipeline throw: ${e instanceof Error ? e.message : String(e)}`;
@@ -385,6 +538,7 @@ async function main() {
           gate_status: entry.gate_status,
           grade: leg.grade,
           source: "live-run",
+          package_id: entry.package_id,
           notes:
             `pick-slate fase B; eff=${leg.effective_prob.toFixed(4)} ${leg.effective_source}` +
             (leg.band ? ` pita ${leg.band} n=${leg.band_n}` : ""),
@@ -470,6 +624,7 @@ async function main() {
       legs_total: rated.reduce((s, r) => s + r.legs.length, 0),
       legs_by_grade: legsByGrade,
       unrated_reason_counts: reasonCounts,
+      packages_written: packagesWritten,
       ledger_live_run_rows_written: ledgerWritten,
       ledger_skipped_already_recorded: writeLedger
         ? rated.filter((r) => alreadyRecorded.has(r.fixture.match_id)).length
@@ -487,6 +642,7 @@ async function main() {
       population: r.population,
       lambda: r.lambda,
       mu: r.mu,
+      package_id: r.package_id,
       legs: r.legs,
     })),
     unrated: unrated.map((u) => ({
@@ -512,6 +668,7 @@ async function main() {
     `Fixture terpindai **${result.stats.fixtures_scanned}** · ter-rate **${result.stats.fixtures_rated}** · ` +
       `tidak ter-rate **${result.stats.fixtures_unrated}** · total kaki **${result.stats.legs_total}** ` +
       `(A ${legsByGrade.A} / B ${legsByGrade.B} / C ${legsByGrade.C}) · ` +
+      `paket kuant tersimpan **${packagesWritten}** · ` +
       `baris ledger live-run tertulis **${ledgerWritten}**.`,
   );
   md.push("");
@@ -563,7 +720,7 @@ async function main() {
   );
 
   console.log(
-    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, ledger live-run +${ledgerWritten}.`,
+    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, paket tersimpan ${packagesWritten}, ledger live-run +${ledgerWritten}.`,
   );
   console.log("Tertulis: tasks/pick-slate-latest.json + tasks/pick-slate-latest.md");
 }
