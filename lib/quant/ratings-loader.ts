@@ -4,6 +4,7 @@ import { normalizeTeamName } from "./team-normalizer";
 import { getTheStatsDb } from "../db/thestats-dataset";
 import {
   getTeamRollingTelemetry,
+  aggregateRollingXg,
   competitionIdForDiv,
   type TeamRollingTelemetry,
 } from "../db/team-telemetry";
@@ -775,6 +776,33 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
       }
     }
   }
+
+  // Penimbangan ulang xG telemetri dari pemanggil: planner (🔒) tidak bisa
+  // membawa targetDivCode, jadi telemetri darinya berbobot 1.0 — penanda
+  // xg_weighted_toward ≠ target divisi ini. Timbang ulang dari recent_logs
+  // memakai aggregateRollingXg (satu definisi agregasi yang sama dengan
+  // jalur loader) agar input blend = standar tervalidasi harness. Bekerja
+  // pada SALINAN dangkal — objek pemanggil tidak dimutasi (planner memakai
+  // salinannya lagi untuk konteks intel). Counter sampel tidak berubah
+  // oleh pembobotan, jadi tidak ikut diganti. Telemetri hitungan loader
+  // sendiri penandanya sudah = target → lolos tanpa disentuh.
+  const targetCompId = competitionIdForDiv(divCode);
+  const reweightTowardDiv = (
+    telem: TeamRollingTelemetry | null | undefined
+  ): TeamRollingTelemetry | null | undefined => {
+    if (!telem || telem.xg_weighted_toward === targetCompId || !telem.recent_logs?.length) return telem;
+    const agg = aggregateRollingXg(telem.recent_logs, divCode);
+    return {
+      ...telem,
+      rolling_xg_for: agg.rolling_xg_for,
+      rolling_xg_against: agg.rolling_xg_against,
+      rolling_npxg_for: agg.rolling_npxg_for,
+      rolling_npxg_against: agg.rolling_npxg_against,
+      xg_weighted_toward: agg.xg_weighted_toward,
+    };
+  };
+  homeTelem = reweightTowardDiv(homeTelem);
+  awayTelem = reweightTowardDiv(awayTelem);
 
   // 1. Evaluasi Likelihood Home Team
   let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
