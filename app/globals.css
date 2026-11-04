@@ -162,3 +162,27 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #3a352b; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #55492f; }
+
+/* ========================================================================= */
+/* TREK A (LANDING) — ticker marquee pilihan A/B mendatang.                   */
+/* Track berisi dua salinan daftar yang sama; geser -50% = putaran mulus.    */
+/* ========================================================================= */
+
+@keyframes trekATicker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: trekATicker 48s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
