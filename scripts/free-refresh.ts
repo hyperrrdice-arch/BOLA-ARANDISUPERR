@@ -3,8 +3,15 @@
  * langganan dibatalkan 9 Nov 2026). Tanpa token apa pun:
  *   1. import-free-feed.ts  — hasil + odds closing + telemetri fd +
  *      fixture + odds pra-laga dari football-data.co.uk
- *   2. calibrate-ratings.ts — refit rating dari store lokal (offline)
- *   3. pick-slate.ts --hours=72 — slate pick dari store lokal (offline)
+ *   2. build-team-canonical.ts — registry tim acuan pakem dibangun ulang
+ *      (tim fd_ baru dari langkah 1 langsung terdaftar resmi)
+ *   3. build-fixture-links.ts — tautan fixture kembar katalog diperbarui
+ *   4. calibrate-ratings.ts — refit rating dari store lokal (offline)
+ *   5. fit-global-offsets.ts — offset piala ditanam SETELAH calibrate
+ *      (calibrate menulis ulang file rating tanpa blok cupOffsets)
+ *   6. build-canonical-telemetry.ts — tabel form kanonik dibangun ulang
+ *      supaya saji membaca data resmi terbaru
+ *   7. pick-slate.ts --hours=72 — slate pick dari store lokal (offline)
  *
  * Setiap langkah spawnSync npx tsx dengan stdio inherit; ringkasan satu
  * baris per langkah (nama + exit code + durasi); exit non-nol bila ada
@@ -22,7 +29,11 @@ interface Step {
 
 const STEPS: Step[] = [
   { name: "import-free-feed", script: "scripts/import-free-feed.ts", scriptArgs: [] },
+  { name: "build-team-canonical", script: "scripts/build-team-canonical.ts", scriptArgs: [] },
+  { name: "build-fixture-links", script: "scripts/build-fixture-links.ts", scriptArgs: [] },
   { name: "calibrate-ratings", script: "scripts/calibrate-ratings.ts", scriptArgs: [] },
+  { name: "fit-global-offsets", script: "scripts/fit-global-offsets.ts", scriptArgs: [] },
+  { name: "build-canonical-telemetry", script: "scripts/build-canonical-telemetry.ts", scriptArgs: [] },
   // pick-slate mem-parse "--hours <n>" (bentuk spasi), bukan "--hours=<n>".
   { name: "pick-slate", script: "scripts/pick-slate.ts", scriptArgs: ["--hours", "72"] },
 ];

@@ -19,9 +19,13 @@
  * odds-nya.
  *
  * Resolusi tim: nama CSV → baris teams yang ada lewat normalizeTeamName +
- * TEAM_NAME_ALIASES (lib/quant/team-normalizer.ts — satu-satunya normalizer).
- * Tak ter-resolve → id fd_<slug>; untuk HASIL dibuatkan baris teams-nya,
- * untuk FIXTURE tidak. Semua yang tak ter-resolve masuk laporan
+ * TEAM_NAME_ALIASES (lib/quant/team-normalizer.ts — satu-satunya normalizer),
+ * lalu REGISTRY PAKEM (lib/quant/team-identity.ts — alias yang diputuskan
+ * di data/team-canonical.json, mis. "KV Mechelen" → Mechelen sm:2938).
+ * Masih tak ter-resolve → id fd_<slug>; untuk HASIL dibuatkan baris
+ * teams-nya, untuk FIXTURE tidak; baris fd_ baru terdaftar otomatis ke
+ * registry pada build berikutnya (build-team-canonical di rantai
+ * refresh). Semua yang tak ter-resolve masuk laporan
  * tasks/free-import-unmatched.json — tidak ada tebakan fuzzy di luar itu.
  *
  * Idempoten: re-run memasukkan 0 baris baru di semua tabel.
@@ -49,6 +53,10 @@ import {
 } from "../lib/feeds/football-data";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { getCanonicalBySourceId } from "../lib/quant/league-identity";
+import {
+  canonicalIdForTeamName,
+  memberIdsForCanonical,
+} from "../lib/quant/team-identity";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -129,6 +137,7 @@ async function main() {
 
   const unmatched: UnmatchedTeam[] = [];
   const unmatchedSeen = new Set<string>();
+  let registryResolved = 0;
   const resolveTeam = (
     csvName: string,
     div: string,
@@ -137,6 +146,20 @@ async function main() {
     const normalized = normalizeTeamName(csvName);
     const hit = teamIdByNorm.get(normalized);
     if (hit) return { teamId: hit, resolved: true, normalized };
+    // Registry pakem: nama/alias yang sudah diputuskan pemiliknya di
+    // data/team-canonical.json mengikat ke tim kanonik; id yang dipakai
+    // = anggota kanonik yang benar-benar punya baris teams (jangkar
+    // sm:<id> didahulukan). Kanonik tanpa baris teams → jatuh ke fd_.
+    const canonicalId = canonicalIdForTeamName(csvName) ?? canonicalIdForTeamName(normalized);
+    if (canonicalId) {
+      const members = memberIdsForCanonical(canonicalId).filter((id) => teamNameById.has(id));
+      const anchor = canonicalId.startsWith("sm:") ? canonicalId.slice(3) : null;
+      const pick = (anchor && members.includes(anchor) ? anchor : members[0]) ?? null;
+      if (pick) {
+        registryResolved += 1;
+        return { teamId: pick, resolved: true, normalized };
+      }
+    }
     const teamId = `fd_${teamSlug(normalized)}`;
     const seenKey = `${teamId}|${context}`;
     if (!unmatchedSeen.has(seenKey)) {
@@ -477,6 +500,7 @@ async function main() {
   }
 
   // --- Laporan tim tak ter-resolve.
+  console.log(`Tim ter-resolve lewat registry pakem: ${registryResolved}`);
   console.log(`Tim tak ter-resolve (baru fd_*): ${unmatched.length}`);
   for (const u of unmatched.slice(0, 40)) {
     console.log(`  - ${u.csv_name} → ${u.team_id} [${u.div}/${u.context}${u.team_row_created ? ", teams row dibuat" : ""}]`);

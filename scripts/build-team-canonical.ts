@@ -317,11 +317,7 @@ function main() {
     return sm ? `sm:${sm.team_id}` : tm ? tm.team_id : members[0].team_id;
   };
   let mergesApplied = 0;
-  for (const [a, b, reason] of MERGE_PAIRS) {
-    const idx = byMember();
-    const ta = idx.get(a);
-    const tb = idx.get(b);
-    if (!ta || !tb || ta === tb) continue;
+  const mergeTeams = (ta: CanonTeam, tb: CanonTeam, reason: string): void => {
     const members = [...ta.members, ...tb.members];
     const survivor: CanonTeam = {
       canonical_id: pickCanonical(members),
@@ -342,6 +338,26 @@ function main() {
     teams.splice(teams.indexOf(tb), 1);
     teams.push(survivor);
     mergesApplied += 1;
+  };
+  for (const [a, b, reason] of MERGE_PAIRS) {
+    const idx = byMember();
+    const ta = idx.get(a);
+    const tb = idx.get(b);
+    if (!ta || !tb || ta === tb) continue;
+    mergeTeams(ta, tb, reason);
+  }
+  // Grup bayangan: tim kanonik LAIN yang namanya persis sama dengan alias
+  // yang sudah diputuskan (lahir dari permukaan fixture/standings, mis.
+  // fd_kv-mechelen bernama "KV Mechelen") harus ikut ke target alias —
+  // kalau tidak, nama itu menunjuk dua kanonik sekaligus dan alias
+  // keputusan kalah oleh urutan abjad.
+  for (const ea of EXTRA_ALIASES) {
+    const target = byMember().get(ea.member_id);
+    if (!target) continue;
+    const shadow = teams.find((t) => t !== target && t.name === ea.name);
+    if (shadow) {
+      mergeTeams(target, shadow, `Grup bayangan "${ea.name}" digabung ke target alias yang diputuskan (${ea.reason})`);
+    }
   }
   for (const [memberId, display] of Object.entries(NAME_OVERRIDES)) {
     const t = byMember().get(memberId);

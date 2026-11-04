@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:59:08.683Z",
+  "generated_at": "2026-11-04T21:12:04.105Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -305,22 +305,6 @@
       ],
       "aliases": [
         "Kortrijk"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_kv-mechelen",
-      "name": "KV Mechelen",
-      "country": null,
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_kv-mechelen",
-          "name_as_stored": "KV Mechelen"
-        }
-      ],
-      "aliases": [
-        "KV Mechelen"
       ],
       "contested_name": false
     },
@@ -71830,16 +71814,23 @@
           "system": "sportmonks",
           "team_id": "2938",
           "name_as_stored": "Mechelen"
+        },
+        {
+          "system": "football-data",
+          "team_id": "fd_kv-mechelen",
+          "name_as_stored": "KV Mechelen"
         }
       ],
       "aliases": [
-        "Mechelen",
-        "KV Mechelen"
+        "KV Mechelen",
+        "Mechelen"
       ],
       "contested_name": false,
       "resolution_notes": [
+        "Grup bayangan \"KV Mechelen\" digabung ke target alias yang diputuskan (Nama CSV football-data (divisi B1) untuk klub yang di SM tersimpan sebagai 'Mechelen' (id 2938, Belgia). Satu-satunya nama tak ter-resolve di tasks/free-import-unmatched.json run terakhir.)",
         "Alias eksternal diputuskan: \"KV Mechelen\" — Nama CSV football-data (divisi B1) untuk klub yang di SM tersimpan sebagai 'Mechelen' (id 2938, Belgia). Satu-satunya nama tak ter-resolve di tasks/free-import-unmatched.json run terakhir."
-      ]
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:294",

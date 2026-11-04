@@ -109,6 +109,13 @@ function main() {
   // entri SM1085/SM1088, dan menetapkan status baris piala dari bukti OOS.
   run("cup-offsets", "fit-global-offsets.ts");
   run("context", "sync-context.ts");
+  // ACUAN PAKEM (2026-11-05): setelah semua data hari ini masuk, bangun
+  // ulang registry tim + tautan fixture + tabel telemetri kanonik supaya
+  // lapisan resmi yang dibaca saji selalu mutakhir. Urutan wajib:
+  // registry dulu (identitas), tautan (katalog), telemetri (form).
+  run("pakem-teams", "build-team-canonical.ts");
+  run("pakem-fixtures", "build-fixture-links.ts");
+  run("pakem-telemetry", "build-canonical-telemetry.ts");
   const report = coverageReport();
   const out = path.join(process.cwd(), "tasks", "coverage-latest.md");
   fs.writeFileSync(out, report);
