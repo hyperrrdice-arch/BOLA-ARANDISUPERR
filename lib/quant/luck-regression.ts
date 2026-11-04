@@ -1,5 +1,9 @@
 import { getTheStatsDb, getTeamRecentLogs, TeamMatchLogRecord } from "../db/thestats-dataset";
 import { resolveTeamId } from "../db/team-telemetry";
+import {
+  canonicalIdForTeamId,
+  canonicalIdForTeamName,
+} from "./team-identity";
 
 export interface TeamLuckMetrics {
   team_id: string;
@@ -40,21 +44,45 @@ export function calculateTeamLuckMetrics(
   // (deterministik saat nama bertabrakan; dulu query LIMIT 1 privat di sini).
   const resolvedTeamId = resolveTeamId(teamIdOrName);
 
-  let query = `
-    SELECT * FROM team_match_logs 
-    WHERE team_id = ? AND source = 'sportmonks'
-  `;
-  const params: any[] = [resolvedTeamId];
-
-  if (beforeDate) {
-    query += ` AND match_date < ?`;
-    params.push(beforeDate);
+  // ACUAN PAKEM (tindak lanjut audit 2026-11-05): baca tabel telemetri
+  // KANONIK lewat registry tim — pola yang sama dengan getPreMatchLogs.
+  // Sebelumnya fungsi ini membaca tabel mentah filter source='sportmonks'
+  // + satu id namespace, jadi tim ber-id terpecah dan tim yang laganya
+  // hanya dicatat sumber gratis/legacy terhitung dari data lebih miskin
+  // daripada form-nya sendiri. Tim di luar registry → perilaku lama.
+  const canonicalId =
+    canonicalIdForTeamId(resolvedTeamId) ?? canonicalIdForTeamName(teamIdOrName);
+  let logs: TeamMatchLogRecord[];
+  if (canonicalId) {
+    const cutoff = beforeDate ? beforeDate.slice(0, 10) : undefined;
+    const stmt = cutoff
+      ? db.prepare(`
+          SELECT * FROM team_match_logs_canonical
+          WHERE canonical_team_id = ? AND substr(match_date, 1, 10) < ?
+          ORDER BY match_date DESC LIMIT ?
+        `)
+      : db.prepare(`
+          SELECT * FROM team_match_logs_canonical
+          WHERE canonical_team_id = ?
+          ORDER BY match_date DESC LIMIT ?
+        `);
+    logs = (cutoff
+      ? stmt.all(canonicalId, cutoff, limit)
+      : stmt.all(canonicalId, limit)) as unknown as TeamMatchLogRecord[];
+  } else {
+    let query = `
+      SELECT * FROM team_match_logs
+      WHERE team_id = ? AND source = 'sportmonks'
+    `;
+    const params: any[] = [resolvedTeamId];
+    if (beforeDate) {
+      query += ` AND match_date < ?`;
+      params.push(beforeDate);
+    }
+    query += ` ORDER BY match_date DESC LIMIT ?`;
+    params.push(limit);
+    logs = db.prepare(query).all(...params) as unknown as TeamMatchLogRecord[];
   }
-
-  query += ` ORDER BY match_date DESC LIMIT ?`;
-  params.push(limit);
-
-  const logs = db.prepare(query).all(...params) as unknown as TeamMatchLogRecord[];
 
   if (!logs || logs.length === 0) {
     return {
