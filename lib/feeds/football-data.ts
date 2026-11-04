@@ -53,17 +53,27 @@ const THROTTLE_MS = 400;
 let lastFetchAt = 0;
 
 async function fetchText(url: string): Promise<string | null> {
-  const wait = lastFetchAt + THROTTLE_MS - Date.now();
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-  lastFetchAt = Date.now();
-  const res = await fetch(url, {
-    headers: { "User-Agent": UA, Accept: "text/csv,text/plain,*/*" },
-    redirect: "follow",
-  });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`football-data fetch ${url} → HTTP ${res.status}`);
-  const text = await res.text();
-  return text.length > 0 ? text : null;
+  // Retry meniru fetchWithRetry script warisan: 3 percobaan, jeda naik.
+  let lastErr: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const wait = lastFetchAt + THROTTLE_MS - Date.now();
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastFetchAt = Date.now();
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": UA, Accept: "text/csv,text/plain,*/*" },
+        redirect: "follow",
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`football-data fetch ${url} → HTTP ${res.status}`);
+      const text = await res.text();
+      return text.length > 0 ? text : null;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(`football-data fetch ${url} gagal`);
 }
 
 // ---------------------------------------------------------------------------
