@@ -1,0 +1,13 @@
+{
+  "purpose": "Ilustrasi worked example Fase C — Fenerbahçe vs Liverpool (sm_19872622, UCL, kickoff 2026-11-04T17:45Z) dihitung OFFLINE dengan modul lib/quant/cup-form-blend.ts atas parameter produksi yang benar-benar disajikan. ILUSTRASI, BUKAN BUKTI — keputusan adopsi diambil dari OOS walk-forward (tasks/cup-form-blend-oos.json).",
+  "inputs": "tasks/cup-form-blend-fenerbahce-inputs.json (priors dari tasks/e2e-cup-package-live.json; telemetri cermin-lab source='sportmonks', cutoff match_date < 2026-11-04)",
+  "validation": "Lengan offset-only dari perhitungan ini mereproduksi paket tersimpan PERSIS: λ 1.410, μ 2.085, H/D/A 0.2582/0.2110/0.5308, OU2.5 0.6782, BTTS 0.6619.",
+  "priors_offset_transformed": { "attH": 1.0, "defH": 1.306, "attA": 1.268, "defA": 0.869, "G": 1.2588, "cupHA": 1.289 },
+  "blend_detail": {
+    "home_fenerbahce": { "branch": "xg", "xgSamples": 6, "w": 0.2727, "liveAtt": 1.3425, "liveDef": 1.3108, "att": 1.093, "def": 1.307 },
+    "away_liverpool": { "branch": "xg", "xgSamples": 3, "w": 0.1579, "liveAtt": 1.3902, "liveDef": 1.0327, "att": 1.287, "def": 0.895 }
+  },
+  "offset_only": { "lam": 1.41, "mu": 2.0846, "pHome": 0.2582, "pDraw": 0.211, "pAway": 0.5308, "over25": 0.6782, "bttsYes": 0.6619 },
+  "blend": { "lam": 1.5873, "mu": 2.1174, "pHome": 0.2906, "pDraw": 0.209, "pAway": 0.5004, "over25": 0.7152, "bttsYes": 0.6997 },
+  "note": "Blend menaikkan λ (+0.177) terutama lewat serangan Fenerbahçe (live xGF 1.69/G) dan pertahanan Liverpool yang form-nya lebih bocor dari prior (live xGA 1.30/G vs prior 0.869). Pertahanan Fenerbahçe nyaris tidak bergerak: xGA form bersih 1.65 ≈ prior-nya — 'kebobolan 3.00/laga' di paket live adalah artefak hitung-ganda log (lihat laporan Fase C), bukan sinyal xG."
+}
