@@ -1,16 +1,17 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-04T20:50:49.740Z
+Dibangun: 2026-11-04T20:53:40.996Z
 
 ## Angka
 
-- Baris tim sumber (tabel teams): **6489**
-- Tim kanonik hasil: **6443**
-- Grup tergabung (>1 baris sumber): **45** (menyerap 46 baris ekstra)
-- Grup lintas sistem (>1 sumber): **34**
+- Baris tim sumber (tabel teams): **6653**
+- Tim kanonik hasil: **6446**
+- Grup tergabung (>1 baris sumber): **200** (menyerap 210 baris ekstra)
+- Grup lintas sistem (>1 sumber): **187**
 - Tim bernama sengketa (≥2 negara): **4** entri
 - Pasangan kandidat mirip BELUM digabung: **7**
-- Keputusan resolusi fase 3 diterapkan: **12 penggabungan terbukti**, **7 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **1 alias eksternal**.
+- Keputusan resolusi fase 3 diterapkan: **26 penggabungan terbukti**, **7 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **1 alias eksternal**.
+- Permukaan standings: **164 id** tanpa baris teams didaftarkan dari nama fixture; **3 id** terdaftar id-only (name_unknown: 828, 5632, 976). Cakupan standings sekarang penuh.
 
 ## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)
 
@@ -26,6 +27,20 @@ Dibangun: 2026-11-04T20:50:49.740Z
 - GABUNG `tm_master_sl_benfica` + `605` — Nama persis 'SL Benfica'; sisa master 2 match, digabung ke pembawa utama 605.
 - GABUNG `17837` + `9908` — Satu klub: Al-Ahli Saudi. Kedua id main di kompetisi yang sama (Saudi Pro sm:944 + ACL Elite sm:1085); 17837 cuma pecahan berlabel negara 'Asia'.
 - GABUNG `230422` + `7780` — Cangkang 1 match tanpa telemetri, nama 'Al-Ain' = Al Ain (UEA, id 7780 pembawa 77 match). Label negara 'Saudi Arabia' di cangkang itu keliru konteks.
+- GABUNG `10655` + `tm_02219` — Thun = FC Thun (Swiss); imbuhan FC saja.
+- GABUNG `132649` + `tm_7937035` — Ararat-Armenia = FC Ararat-Armenia (Armenia); imbuhan FC saja.
+- GABUNG `1433` + `tm_10419` — Almere City = Almere City FC (Belanda); imbuhan FC saja.
+- GABUNG `1668` + `tm_6686` — Bodø/Glimt — beda ejaan garis miring saja (SM 'Bodø / Glimt').
+- GABUNG `2727` + `tm_89295` — Sparta Praha = AC Sparta Praha (Ceko); imbuhan AC saja.
+- GABUNG `353` + `tm_64315` — St. Pauli = FC St. Pauli (Jerman); imbuhan FC saja.
+- GABUNG `3546` + `tm_8366658` — Riga = Riga FC (Latvia); imbuhan FC saja.
+- GABUNG `496` + `tm_master_st_mirren` — St. Mirren = St Mirren (Skotlandia); beda titik saja.
+- GABUNG `52` + `tm_1772` — AFC Bournemouth = Bournemouth; bentuk pendek TheStats.
+- GABUNG `591` + `tm_01119` — Paris Saint-Germain — beda tanda hubung saja.
+- GABUNG `734` + `tm_master_st_johnstone` — St. Johnstone = St Johnstone (Skotlandia); beda titik saja.
+- GABUNG `83` + `tm_37445` — FC Barcelona = Barcelona; imbuhan FC saja.
+- GABUNG `3608` + `8364` — Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda.
+- GABUNG `4508` + `tm_11910` — 'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG.
 - BEDA `10002` + `2837` — River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar).
 - BEDA `132434` + `94617` — Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah).
 - BEDA `2079` + `28207` — San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda.
@@ -36,21 +51,21 @@ Dibangun: 2026-11-04T20:50:49.740Z
 
 ## Contoh grup lintas sistem
 
+- `sm:1` West Ham United (?): thestats:tm_3809="West Ham United" · sportmonks:1="West Ham United"
+- `sm:10068` Lincoln Red Imps (?): thestats:tm_0181115="Lincoln Red Imps" · sportmonks:10068="Lincoln Red Imps"
+- `sm:1016` PEC Zwolle (?): thestats:tm_26389="PEC Zwolle" · sportmonks:1016="PEC Zwolle"
+- `sm:102` Genoa CFC (?): thestats:tm_51322="Genoa" · sportmonks:102="Genoa"
 - `sm:1028` Stade de Reims (France): thestats:tm_master_stade_de_reims="Stade de Reims" · sportmonks:1028="Reims"
+- `sm:1053` SC Heerenveen (Netherlands): football-data:fd_heerenveen="Heerenveen" · thestats:tm_04732="SC Heerenveen" · sportmonks:1053="SC Heerenveen"
+- `sm:1055` Le Havre AC (?): thestats:tm_97714="Le Havre" · sportmonks:1055="Le Havre"
+- `sm:106` Getafe CF (?): thestats:tm_73740="Getafe" · sportmonks:106="Getafe"
+- `sm:10655` Thun (?): sportmonks:10655="Thun" · thestats:tm_02219="FC Thun"
+- `sm:1072` Pisa SC (?): thestats:tm_37240="Pisa" · sportmonks:1072="Pisa"
+- `sm:10722` US Cremonese (?): thestats:tm_20131="Cremonese" · sportmonks:10722="Cremonese"
+- `sm:1073` De Graafschap (?): thestats:tm_79130="De Graafschap" · sportmonks:1073="De Graafschap"
 - `sm:1079` 1. FC Union Berlin (Germany): thestats:tm_37885="1. FC Union Berlin" · sportmonks:1079="FC Union Berlin"
-- `sm:1112` Stade Lavallois (France): thestats:tm_master_stade_lavallois="Stade Lavallois" · sportmonks:1112="Laval"
-- `sm:238115` FC Andorra (Spain): football-data:fd_andorra="Andorra" · sportmonks:238115="FC Andorra"
-- `sm:2642` SC Paderborn 07 (Germany): thestats:tm_20677="SC Paderborn 07" · sportmonks:2642="Paderborn"
-- `sm:265948` Real Betis (Spain): thestats:tm_64056="Real Betis" · sportmonks:265948="Betis CF"
-- `sm:266` Stade Brestois 29 (Europe): thestats:tm_40658="Stade Brestois" · sportmonks:266="Brest"
-- `sm:2831` 1. FC Heidenheim (Germany): thestats:tm_44984="1. FC Heidenheim" · sportmonks:2831="FC Heidenheim"
-- `sm:29` Wolverhampton Wanderers (England): thestats:tm_5104="Wolverhampton" · sportmonks:29="Wolverhampton Wanderers"
-- `sm:2919` EA Guingamp (France): thestats:tm_master_ea_guingamp="EA Guingamp" · sportmonks:2919="Guingamp"
-- `sm:314` Hearts (Europe): thestats:tm_51862="Heart of Midlothian" · sportmonks:314="Hearts"
-- `sm:3320` 1. FC Koln (Germany): thestats:tm_20721="1. FC Köln" · sportmonks:3320="FC Köln"
-- `sm:340` Club Brugge (Europe): thestats:tm_89808="Club Brugge KV" · sportmonks:340="Club Brugge"
-- `sm:36` Celta Vigo (Europe): thestats:tm_20116="Celta Vigo" · sportmonks:36="Celta de Vigo"
-- `sm:3958` St. Gilloise (Europe): thestats:tm_17744="Royale Union Saint-Gilloise" · sportmonks:3958="Union Saint-Gilloise"
+- `sm:108` AS Saint-Etienne (?): thestats:tm_83365="Saint-Étienne" · sportmonks:108="Saint-Étienne"
+- `sm:1083` Red Star FC (?): thestats:tm_007490="Red Star FC" · sportmonks:1083="Red Star"
 
 ## Kandidat mirip (keputusan fase resolusi)
 

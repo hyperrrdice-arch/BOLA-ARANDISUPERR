@@ -42,6 +42,7 @@ interface CanonTeam {
   contested_name: boolean;
   resolution_notes?: string[];
   distinct_from?: { canonical_id: string; reason: string }[];
+  name_unknown?: boolean;
 }
 
 /**
@@ -64,6 +65,23 @@ const MERGE_PAIRS: [string, string, string][] = [
   ["tm_master_sl_benfica", "605", "Nama persis 'SL Benfica'; sisa master 2 match, digabung ke pembawa utama 605."],
   ["17837", "9908", "Satu klub: Al-Ahli Saudi. Kedua id main di kompetisi yang sama (Saudi Pro sm:944 + ACL Elite sm:1085); 17837 cuma pecahan berlabel negara 'Asia'."],
   ["230422", "7780", "Cangkang 1 match tanpa telemetri, nama 'Al-Ain' = Al Ain (UEA, id 7780 pembawa 77 match). Label negara 'Saudi Arabia' di cangkang itu keliru konteks."],
+  // Gelombang 3b: pasangan SM <-> TheStats nama sama, beda imbuhan saja
+  // (FC/AC/AFC/huruf miring) — klub khas yang tidak mungkin tertukar,
+  // negara sama, muncul dari permukaan standings/fixture.
+  ["10655", "tm_02219", "Thun = FC Thun (Swiss); imbuhan FC saja."],
+  ["132649", "tm_7937035", "Ararat-Armenia = FC Ararat-Armenia (Armenia); imbuhan FC saja."],
+  ["1433", "tm_10419", "Almere City = Almere City FC (Belanda); imbuhan FC saja."],
+  ["1668", "tm_6686", "Bodø/Glimt — beda ejaan garis miring saja (SM 'Bodø / Glimt')."],
+  ["2727", "tm_89295", "Sparta Praha = AC Sparta Praha (Ceko); imbuhan AC saja."],
+  ["353", "tm_64315", "St. Pauli = FC St. Pauli (Jerman); imbuhan FC saja."],
+  ["3546", "tm_8366658", "Riga = Riga FC (Latvia); imbuhan FC saja."],
+  ["496", "tm_master_st_mirren", "St. Mirren = St Mirren (Skotlandia); beda titik saja."],
+  ["52", "tm_1772", "AFC Bournemouth = Bournemouth; bentuk pendek TheStats."],
+  ["591", "tm_01119", "Paris Saint-Germain — beda tanda hubung saja."],
+  ["734", "tm_master_st_johnstone", "St. Johnstone = St Johnstone (Skotlandia); beda titik saja."],
+  ["83", "tm_37445", "FC Barcelona = Barcelona; imbuhan FC saja."],
+  ["3608", "8364", "Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda."],
+  ["4508", "tm_11910", "'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG."],
 ];
 
 /** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */
@@ -85,6 +103,7 @@ const EXTRA_ALIASES: { name: string; member_id: string; reason: string }[] = [
 /** Nama pakem yang menimpa hasil normalisasi untuk kanonik tertentu. */
 const NAME_OVERRIDES: Record<string, string> = {
   "605": "SL Benfica",
+  "8364": "Racing Club",
 };
 
 /**
@@ -96,6 +115,7 @@ const CANONICAL_ID_OVERRIDES: Record<string, string> = {
   "605": "sm:605", // SL Benfica: 605 pembawa domestik+utama, 254165 pecahan Eropa
   "9908": "sm:9908", // Al-Ahli Saudi: 9908 pembawa 94 match, 17837 pecahan 28
   "7780": "sm:7780", // Al Ain: 7780 pembawa 77 match, 230422 cangkang 1 match
+  "8364": "sm:8364", // Racing Club: 8364 pembawa 237 match, 3608 baris standings saja
 };
 
 function systemOf(teamId: string): System {
@@ -120,7 +140,33 @@ function main() {
   const rows = ds.prepare("SELECT team_id, name, country FROM teams").all() as unknown as {
     team_id: string; name: string; country: string | null;
   }[];
+  // Permukaan standings: 167 team_id dirujuk standings tapi tidak punya
+  // baris di tabel teams (audit 2026-11-04). Nama untuk 164 di antaranya
+  // ada di baris fixture upcoming (id yang sama tampil bernama di sana);
+  // sisanya (3) didaftarkan id-only berflag name_unknown — jujur, bukan
+  // nama karangan. Baris sintetis ikut aturan grouping yang sama.
+  const standingsIds = (ds.prepare("SELECT DISTINCT team_id FROM standings").all() as unknown as { team_id: string }[])
+    .map((r) => r.team_id);
   ds.close();
+  const up = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
+  const nameById = new Map<string, string>();
+  for (const r of up.prepare("SELECT home_team_id AS id, home_team_name AS nm FROM upcoming_fixtures UNION SELECT away_team_id, away_team_name FROM upcoming_fixtures").all() as unknown as { id: string; nm: string }[]) {
+    if (r.id && r.nm && !nameById.has(r.id)) nameById.set(r.id, r.nm);
+  }
+  up.close();
+  const knownIds = new Set(rows.map((r) => r.team_id));
+  const nameUnknownIds: string[] = [];
+  let standingsSurfaced = 0;
+  for (const sid of standingsIds) {
+    if (knownIds.has(sid)) continue;
+    const nm = nameById.get(sid);
+    if (nm) {
+      rows.push({ team_id: sid, name: nm, country: null });
+      standingsSurfaced += 1;
+    } else {
+      nameUnknownIds.push(sid);
+    }
+  }
 
   // Negara yang diketahui per nama ternormalisasi (untuk deteksi sengketa).
   const countriesByName = new Map<string, Set<string>>();
@@ -223,6 +269,22 @@ function main() {
     }
   }
 
+  // Entri id-only untuk id standings yang namanya tidak ditemukan di
+  // permukaan lokal mana pun — tetap terdaftar supaya setiap referensi
+  // punya rumah di registry, dengan flag jujur name_unknown.
+  for (const sid of nameUnknownIds) {
+    teams.push({
+      canonical_id: `sm:${sid}`,
+      name: `Sportmonks team ${sid} (nama belum diketahui)`,
+      country: null,
+      members: [{ system: "sportmonks", team_id: sid, name_as_stored: "" }],
+      aliases: [],
+      contested_name: false,
+      resolution_notes: ["Id dirujuk standings tapi tidak bernama di permukaan lokal mana pun (0 match, 0 telemetri). Didaftarkan id-only; nama diisi bila tim ini kelak punya match/fixture bernama."],
+      name_unknown: true,
+    });
+  }
+
   teams.sort((a, b) => a.canonical_id.localeCompare(b.canonical_id));
 
   // Kandidat pasangan mirip (TIDAK digabung): kunci longgar sama tapi beda grup.
@@ -265,6 +327,7 @@ function main() {
   lines.push(`- Tim bernama sengketa (≥2 negara): **${contested.length}** entri`);
   lines.push(`- Pasangan kandidat mirip BELUM digabung: **${candidates.length}**`);
   lines.push(`- Keputusan resolusi fase 3 diterapkan: **${mergesApplied} penggabungan terbukti**, **${DISTINCT_PAIRS.length} pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **${EXTRA_ALIASES.length} alias eksternal**.`);
+  lines.push(`- Permukaan standings: **${standingsSurfaced} id** tanpa baris teams didaftarkan dari nama fixture; **${nameUnknownIds.length} id** terdaftar id-only (name_unknown: ${nameUnknownIds.join(", ") || "-"}). Cakupan standings sekarang penuh.`);
   lines.push("");
   lines.push("## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)");
   lines.push("");

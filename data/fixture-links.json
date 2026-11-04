@@ -1,0 +1,839 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-04T20:53:42.366Z",
+  "generator": "scripts/build-fixture-links.ts",
+  "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
+  "stats": {
+    "fixtures": 3774,
+    "duplicate_groups": 165,
+    "twin_rows": 165,
+    "fixtures_with_unresolved_team": 100
+  },
+  "links": [
+    {
+      "twin_id": "mt_022015219",
+      "canonical_id": "sm_19735099",
+      "kickoff_utc": "2026-11-28T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022015274",
+      "canonical_id": "sm_19735122",
+      "kickoff_utc": "2026-11-08T18:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022075498",
+      "canonical_id": "sm_19732631",
+      "kickoff_utc": "2026-11-08T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022357025",
+      "canonical_id": "sm_19713511",
+      "kickoff_utc": "2026-11-07T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_022357040",
+      "canonical_id": "sm_19713498",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_022357097",
+      "canonical_id": "sm_19713491",
+      "kickoff_utc": "2026-11-29T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_022587925",
+      "canonical_id": "sm_19722102",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_022587940",
+      "canonical_id": "sm_19722093",
+      "kickoff_utc": "2026-11-29T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022588739",
+      "canonical_id": "sm_19722110",
+      "kickoff_utc": "2026-11-06T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_022910490",
+      "canonical_id": "sm_19714598",
+      "kickoff_utc": "2026-11-08T15:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_022911788",
+      "canonical_id": "sm_19714580",
+      "kickoff_utc": "2026-11-29T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022917425",
+      "canonical_id": "sm_19715554",
+      "kickoff_utc": "2026-11-08T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_022917497",
+      "canonical_id": "sm_19715534",
+      "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_024559301",
+      "canonical_id": "sm_19872632",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_024559397",
+      "canonical_id": "sm_19872613",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_150887131",
+      "canonical_id": "sm_19873236",
+      "kickoff_utc": "2026-11-24T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_150887154",
+      "canonical_id": "sm_19872646",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_150887705",
+      "canonical_id": "sm_19872631",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155148078",
+      "canonical_id": "sm_19732623",
+      "kickoff_utc": "2026-11-08T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155198544",
+      "canonical_id": "sm_19735123",
+      "kickoff_utc": "2026-11-07T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155198599",
+      "canonical_id": "sm_19735104",
+      "kickoff_utc": "2026-11-29T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155684100",
+      "canonical_id": "sm_19713506",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155684155",
+      "canonical_id": "sm_19713515",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155684166",
+      "canonical_id": "sm_19713495",
+      "kickoff_utc": "2026-11-28T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155791070",
+      "canonical_id": "sm_19714603",
+      "kickoff_utc": "2026-11-01T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155794000",
+      "canonical_id": "sm_19715549",
+      "kickoff_utc": "2026-11-06T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_155794066",
+      "canonical_id": "sm_19715538",
+      "kickoff_utc": "2026-11-28T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_155799438",
+      "canonical_id": "sm_19714591",
+      "kickoff_utc": "2026-11-21T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155799447",
+      "canonical_id": "sm_19714586",
+      "kickoff_utc": "2026-11-21T15:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155833475",
+      "canonical_id": "sm_19722104",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_155834700",
+      "canonical_id": "sm_19722097",
+      "kickoff_utc": "2026-11-22T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_155834766",
+      "canonical_id": "sm_19722088",
+      "kickoff_utc": "2026-11-28T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200193867",
+      "canonical_id": "sm_19722096",
+      "kickoff_utc": "2026-11-21T12:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200193878",
+      "canonical_id": "sm_19722087",
+      "kickoff_utc": "2026-11-28T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200199370",
+      "canonical_id": "sm_19722113",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200231668",
+      "canonical_id": "sm_19732638",
+      "kickoff_utc": "2026-10-31T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200251012",
+      "canonical_id": "sm_19735106",
+      "kickoff_utc": "2026-11-28T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200713206",
+      "canonical_id": "sm_19713514",
+      "kickoff_utc": "2026-11-08T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200713267",
+      "canonical_id": "sm_19713504",
+      "kickoff_utc": "2026-11-22T11:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200713278",
+      "canonical_id": "sm_19713494",
+      "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_200853667",
+      "canonical_id": "sm_19715547",
+      "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_200855303",
+      "canonical_id": "sm_19714575",
+      "kickoff_utc": "2026-11-28T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200855392",
+      "canonical_id": "sm_19714583",
+      "kickoff_utc": "2026-11-29T11:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_206118187",
+      "canonical_id": "sm_19873721",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_206118232",
+      "canonical_id": "sm_19873229",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_377145316",
+      "canonical_id": "sm_19713496",
+      "kickoff_utc": "2026-11-29T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377145375",
+      "canonical_id": "sm_19713517",
+      "kickoff_utc": "2026-11-07T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_377145380",
+      "canonical_id": "sm_19713508",
+      "kickoff_utc": "2026-11-06T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377263837",
+      "canonical_id": "sm_19714593",
+      "kickoff_utc": "2026-11-08T15:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377263846",
+      "canonical_id": "sm_19714600",
+      "kickoff_utc": "2026-11-07T15:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_377265816",
+      "canonical_id": "sm_19715541",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_377265827",
+      "canonical_id": "sm_19715531",
+      "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377266508",
+      "canonical_id": "sm_19714577",
+      "kickoff_utc": "2026-11-29T15:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377266557",
+      "canonical_id": "sm_19714589",
+      "kickoff_utc": "2026-11-21T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377354828",
+      "canonical_id": "sm_19732626",
+      "kickoff_utc": "2026-11-08T15:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_377364703",
+      "canonical_id": "sm_19735110",
+      "kickoff_utc": "2026-11-22T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_377364754",
+      "canonical_id": "sm_19735116",
+      "kickoff_utc": "2026-11-20T19:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_377400525",
+      "canonical_id": "sm_19722107",
+      "kickoff_utc": "2026-11-07T12:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_377405216",
+      "canonical_id": "sm_19722091",
+      "kickoff_utc": "2026-11-29T14:05:00.000Z"
+    },
+    {
+      "twin_id": "mt_377405280",
+      "canonical_id": "sm_19722100",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_378442210",
+      "canonical_id": "sm_19873235",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_378442451",
+      "canonical_id": "sm_19872619",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_378442473",
+      "canonical_id": "sm_19873728",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_378444557",
+      "canonical_id": "sm_19873705",
+      "kickoff_utc": "2026-11-04T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_466100950",
+      "canonical_id": "sm_19714582",
+      "kickoff_utc": "2026-11-28T15:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_466104729",
+      "canonical_id": "sm_19714597",
+      "kickoff_utc": "2026-11-07T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_466109715",
+      "canonical_id": "sm_19715533",
+      "kickoff_utc": "2026-11-29T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_466109764",
+      "canonical_id": "sm_19715553",
+      "kickoff_utc": "2026-11-08T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_466109789",
+      "canonical_id": "sm_19715543",
+      "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_466255982",
+      "canonical_id": "sm_19722109",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_466259115",
+      "canonical_id": "sm_19722084",
+      "kickoff_utc": "2026-11-29T14:05:00.000Z"
+    },
+    {
+      "twin_id": "mt_466259164",
+      "canonical_id": "sm_19722103",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_466402602",
+      "canonical_id": "sm_19735105",
+      "kickoff_utc": "2026-11-29T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_466402651",
+      "canonical_id": "sm_19735112",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_466402698",
+      "canonical_id": "sm_19735118",
+      "kickoff_utc": "2026-11-08T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_466492710",
+      "canonical_id": "sm_19732624",
+      "kickoff_utc": "2026-11-07T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_466829415",
+      "canonical_id": "sm_19713489",
+      "kickoff_utc": "2026-11-29T11:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_466829464",
+      "canonical_id": "sm_19713510",
+      "kickoff_utc": "2026-11-07T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_466829489",
+      "canonical_id": "sm_19713499",
+      "kickoff_utc": "2026-11-21T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_467221257",
+      "canonical_id": "sm_19873708",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_467221449",
+      "canonical_id": "sm_19873717",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_467221471",
+      "canonical_id": "sm_19873711",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511386213",
+      "canonical_id": "sm_19715555",
+      "kickoff_utc": "2026-11-07T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_511386229",
+      "canonical_id": "sm_19715545",
+      "kickoff_utc": "2026-11-22T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_511386245",
+      "canonical_id": "sm_19715535",
+      "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_511388676",
+      "canonical_id": "sm_19714584",
+      "kickoff_utc": "2026-11-21T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511388687",
+      "canonical_id": "sm_19714579",
+      "kickoff_utc": "2026-11-29T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_511496513",
+      "canonical_id": "sm_19713512",
+      "kickoff_utc": "2026-11-08T11:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_511496529",
+      "canonical_id": "sm_19713501",
+      "kickoff_utc": "2026-11-23T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_511496545",
+      "canonical_id": "sm_19713492",
+      "kickoff_utc": "2026-11-29T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511569236",
+      "canonical_id": "sm_19732628",
+      "kickoff_utc": "2026-11-07T13:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511589161",
+      "canonical_id": "sm_19735121",
+      "kickoff_utc": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_511589172",
+      "canonical_id": "sm_19735111",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_511976329",
+      "canonical_id": "sm_19722094",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511976345",
+      "canonical_id": "sm_19722085",
+      "kickoff_utc": "2026-11-27T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511977644",
+      "canonical_id": "sm_19722111",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_512993496",
+      "canonical_id": "sm_19872595",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_512993943",
+      "canonical_id": "sm_19873713",
+      "kickoff_utc": "2026-11-24T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_643005040",
+      "canonical_id": "sm_19873695",
+      "kickoff_utc": "2026-11-03T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_643005551",
+      "canonical_id": "sm_19873241",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_643005589",
+      "canonical_id": "sm_19872614",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_644011896",
+      "canonical_id": "sm_19722108",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_644018591",
+      "canonical_id": "sm_19722092",
+      "kickoff_utc": "2026-11-29T14:05:00.000Z"
+    },
+    {
+      "twin_id": "mt_644528338",
+      "canonical_id": "sm_19715552",
+      "kickoff_utc": "2026-11-08T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_644528352",
+      "canonical_id": "sm_19715532",
+      "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_644528391",
+      "canonical_id": "sm_19715542",
+      "kickoff_utc": "2026-11-21T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_644620485",
+      "canonical_id": "sm_19735117",
+      "kickoff_utc": "2026-11-07T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_644680354",
+      "canonical_id": "sm_19732627",
+      "kickoff_utc": "2026-11-07T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_644908626",
+      "canonical_id": "sm_19713516",
+      "kickoff_utc": "2026-11-08T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_644908638",
+      "canonical_id": "sm_19713509",
+      "kickoff_utc": "2026-11-07T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_644908652",
+      "canonical_id": "sm_19713490",
+      "kickoff_utc": "2026-11-28T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_644908691",
+      "canonical_id": "sm_19713500",
+      "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_733041934",
+      "canonical_id": "sm_19715559",
+      "kickoff_utc": "2026-11-01T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_733041959",
+      "canonical_id": "sm_19715539",
+      "kickoff_utc": "2026-11-20T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_733041993",
+      "canonical_id": "sm_19715550",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_733044115",
+      "canonical_id": "sm_19714588",
+      "kickoff_utc": "2026-11-21T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_733044120",
+      "canonical_id": "sm_19714578",
+      "kickoff_utc": "2026-11-29T19:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_733047969",
+      "canonical_id": "sm_19714596",
+      "kickoff_utc": "2026-11-08T11:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_733561793",
+      "canonical_id": "sm_19713505",
+      "kickoff_utc": "2026-11-21T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_733621059",
+      "canonical_id": "sm_19722089",
+      "kickoff_utc": "2026-11-29T14:05:00.000Z"
+    },
+    {
+      "twin_id": "mt_733621093",
+      "canonical_id": "sm_19722098",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_733622104",
+      "canonical_id": "sm_19722105",
+      "kickoff_utc": "2026-11-07T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_733746342",
+      "canonical_id": "sm_19735109",
+      "kickoff_utc": "2026-11-21T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_733746477",
+      "canonical_id": "sm_19735124",
+      "kickoff_utc": "2026-11-07T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_739660505",
+      "canonical_id": "sm_19873231",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_739660559",
+      "canonical_id": "sm_19872597",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_895776680",
+      "canonical_id": "sm_19872620",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_895776763",
+      "canonical_id": "sm_19872618",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899072809",
+      "canonical_id": "sm_19713502",
+      "kickoff_utc": "2026-11-22T17:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899072853",
+      "canonical_id": "sm_19713507",
+      "kickoff_utc": "2026-11-22T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_899072865",
+      "canonical_id": "sm_19713488",
+      "kickoff_utc": "2026-11-27T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_899632509",
+      "canonical_id": "sm_19715540",
+      "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_899632553",
+      "canonical_id": "sm_19715551",
+      "kickoff_utc": "2026-11-07T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_899632565",
+      "canonical_id": "sm_19715530",
+      "kickoff_utc": "2026-11-29T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_899633225",
+      "canonical_id": "sm_19714592",
+      "kickoff_utc": "2026-11-22T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899633240",
+      "canonical_id": "sm_19714585",
+      "kickoff_utc": "2026-11-22T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899638579",
+      "canonical_id": "sm_19714599",
+      "kickoff_utc": "2026-11-07T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899638585",
+      "canonical_id": "sm_19714594",
+      "kickoff_utc": "2026-11-08T19:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899742609",
+      "canonical_id": "sm_19722090",
+      "kickoff_utc": "2026-11-29T12:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899742653",
+      "canonical_id": "sm_19722099",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_899744264",
+      "canonical_id": "sm_19722106",
+      "kickoff_utc": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899837928",
+      "canonical_id": "sm_19735115",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899837932",
+      "canonical_id": "sm_19735107",
+      "kickoff_utc": "2026-11-29T18:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899837994",
+      "canonical_id": "sm_19735100",
+      "kickoff_utc": "2026-11-27T19:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_981334311",
+      "canonical_id": "sm_19872639",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_981334322",
+      "canonical_id": "sm_19873699",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_981334399",
+      "canonical_id": "sm_19872622",
+      "kickoff_utc": "2026-11-04T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_981334960",
+      "canonical_id": "sm_19873715",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_981334976",
+      "canonical_id": "sm_19873252",
+      "kickoff_utc": "2026-11-03T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_988230914",
+      "canonical_id": "sm_19713503",
+      "kickoff_utc": "2026-11-21T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988230982",
+      "canonical_id": "sm_19713513",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988360414",
+      "canonical_id": "sm_19722095",
+      "kickoff_utc": "2026-11-21T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_988360423",
+      "canonical_id": "sm_19722086",
+      "kickoff_utc": "2026-11-28T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988366018",
+      "canonical_id": "sm_19722123",
+      "kickoff_utc": "2026-10-31T15:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988366021",
+      "canonical_id": "sm_19722112",
+      "kickoff_utc": "2026-11-08T14:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988470114",
+      "canonical_id": "sm_19715546",
+      "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_988470123",
+      "canonical_id": "sm_19715536",
+      "kickoff_utc": "2026-11-27T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_988470182",
+      "canonical_id": "sm_19715556",
+      "kickoff_utc": "2026-11-08T16:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_988477009",
+      "canonical_id": "sm_19714587",
+      "kickoff_utc": "2026-11-22T15:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_988477070",
+      "canonical_id": "sm_19714576",
+      "kickoff_utc": "2026-11-28T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_988479133",
+      "canonical_id": "sm_19714595",
+      "kickoff_utc": "2026-11-08T13:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_988903129",
+      "canonical_id": "sm_19732630",
+      "kickoff_utc": "2026-11-08T13:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_988973807",
+      "canonical_id": "sm_19735119",
+      "kickoff_utc": "2026-11-06T19:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_988973868",
+      "canonical_id": "sm_19735114",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_988973871",
+      "canonical_id": "sm_19735102",
+      "kickoff_utc": "2026-11-28T14:30:00.000Z"
+    }
+  ]
+}
