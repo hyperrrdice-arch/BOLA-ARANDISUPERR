@@ -80,6 +80,18 @@ konten data asli, dan nol TypeError di log server setelah perbaikan.
   halaman analisis 483 baris (padat tapi satu halaman-satu laga, terstruktur
   per seksi). Duplikasi yang disengaja: nol — atom bersama dipakai semua trek.
 
+## Batas verifikasi (jujur)
+
+- **Screenshot visual TIDAK tercapai di lingkungan ini.** Browser jarak jauh
+  tidak bisa menjangkau localhost VM (loopback ditolak), dan tiga percobaan
+  memasang browser headless lokal gagal di jaringan VM (CDN Playwright gagal
+  unduh 2×, CDN Puppeteer timeout) — dihentikan setelah tiga rute, bukan
+  diulang tanpa batas. Yang terverifikasi: DOM hasil render server per rute
+  (konten data asli terbaca penuh), build, dan log server bersih. Objek 3D
+  hero terverifikasi lewat review kode + anggaran performa di atas, BUKAN
+  lewat tangkapan layar; ia punya fallback heatmap 2D bila WebGL gagal.
+  Pemeriksaan visual piksel pertama terjadi alami saat deploy.
+
 ## Sisa pekerjaan di luar audit ini
 
 - **Deploy ke VPS Arandi** (`hermes.mhmdarandi.biz.id`) — menunggu akses;
