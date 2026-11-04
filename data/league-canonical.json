@@ -1,0 +1,4491 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-04T10:53:47.861Z",
+  "generator": "scripts/build-league-canonical.ts",
+  "note": "Identitas = canonical_id. Referensi liga = name + country, tidak pernah nama polos sendirian. Regenerasi: npx tsx scripts/build-league-canonical.ts",
+  "leagues": [
+    {
+      "canonical_id": "comp_013219",
+      "name": "Arab Cup",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_013219",
+          "name_as_stored": "Arab Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0149",
+      "name": "First League",
+      "country": "Russia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0149",
+          "name_as_stored": "First League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0182",
+      "name": "National League South",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0182",
+          "name_as_stored": "National League South"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0334",
+      "name": "U21 European Championship",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0334",
+          "name_as_stored": "U21 European Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0488",
+      "name": "Football League Trophy",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0488",
+          "name_as_stored": "Football League Trophy"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0499",
+      "name": "CONMEBOL Libertadores",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0499",
+          "name_as_stored": "CONMEBOL Libertadores"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_08235",
+      "name": "Copa Argentina",
+      "country": "Argentina",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_08235",
+          "name_as_stored": "Copa Argentina"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_08282",
+      "name": "Tunisian Ligue Professionnelle 1",
+      "country": "Tunisia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_08282",
+          "name_as_stored": "Tunisian Ligue Professionnelle 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_0836",
+      "name": "World Championship Qual. CONCACAF",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_0836",
+          "name_as_stored": "World Championship Qual. CONCACAF"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_08478",
+      "name": "CAF Champions League",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_08478",
+          "name_as_stored": "CAF Champions League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_08840",
+      "name": "U21 Friendly Games",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_08840",
+          "name_as_stored": "U21 Friendly Games"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_089853",
+      "name": "3rd Division, Group 1",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_089853",
+          "name_as_stored": "3rd Division, Group 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_08993",
+      "name": "NPL New South Wales",
+      "country": "Australia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_08993",
+          "name_as_stored": "NPL New South Wales"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1038",
+      "name": "Johan Cruijff Schaal",
+      "country": "Netherlands",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1038",
+          "name_as_stored": "Johan Cruijff Schaal"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1085",
+      "name": "Brasileirão Série B",
+      "country": "Brazil",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1085",
+          "name_as_stored": "Brasileirão Série B"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_10949",
+      "name": "Presidents Cup",
+      "country": "United Arab Emirates",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_10949",
+          "name_as_stored": "Presidents Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1112",
+      "name": "Svenska Cupen",
+      "country": "Sweden",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1112",
+          "name_as_stored": "Svenska Cupen"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_13553",
+      "name": "Malaysia Super League",
+      "country": "Malaysia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_13553",
+          "name_as_stored": "Malaysia Super League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_136659",
+      "name": "Serie A Femminile",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_136659",
+          "name_as_stored": "Serie A Femminile"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1376",
+      "name": "CONCACAF Gold Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1376",
+          "name_as_stored": "CONCACAF Gold Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_137809",
+      "name": "Primera División, Apertura",
+      "country": "Paraguay",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_137809",
+          "name_as_stored": "Primera División, Apertura"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_153661",
+      "name": "Liga Premier Serie A",
+      "country": "Mexico",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_153661",
+          "name_as_stored": "Liga Premier Serie A"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1554",
+      "name": "Africa Cup of Nations",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1554",
+          "name_as_stored": "Africa Cup of Nations"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1615",
+      "name": "CONMEBOL Sudamericana",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1615",
+          "name_as_stored": "CONMEBOL Sudamericana"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1909",
+      "name": "NIFL Premiership",
+      "country": "Northern Ireland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1909",
+          "name_as_stored": "NIFL Premiership"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_19136",
+      "name": "Saudi 1st Division",
+      "country": "Saudi Arabia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_19136",
+          "name_as_stored": "Saudi 1st Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1917",
+      "name": "LigaPro Serie A",
+      "country": "Ecuador",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1917",
+          "name_as_stored": "LigaPro Serie A"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_193547",
+      "name": "CONCACAF Nations League",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_193547",
+          "name_as_stored": "CONCACAF Nations League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_574977",
+          "name_as_stored": "UEFA Nations League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_194097",
+      "name": "Canadian Premier League",
+      "country": "Canada",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_194097",
+          "name_as_stored": "Canadian Premier League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_1965",
+      "name": "Mozzart Bet Superliga",
+      "country": "Serbia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_1965",
+          "name_as_stored": "Mozzart Bet Superliga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_19988",
+      "name": "NWSL",
+      "country": "USA",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_19988",
+          "name_as_stored": "NWSL"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2065",
+      "name": "Puchar Polski",
+      "country": "Poland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2065",
+          "name_as_stored": "Puchar Polski"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2504",
+      "name": "EFL Cup",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2504",
+          "name_as_stored": "EFL Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2518",
+      "name": "Liga FUTVE",
+      "country": "Venezuela",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2518",
+          "name_as_stored": "Liga FUTVE"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2576",
+      "name": "Niké Liga",
+      "country": "Slovakia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2576",
+          "name_as_stored": "Niké Liga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_25875",
+      "name": "FA Trophy, Qualification",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_25875",
+          "name_as_stored": "FA Trophy, Qualification"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2593",
+      "name": "Cypriot First Division",
+      "country": "Cyprus",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2593",
+          "name_as_stored": "Cypriot First Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2692",
+      "name": "Supercoppa Italiana",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2692",
+          "name_as_stored": "Supercoppa Italiana"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2837",
+      "name": "3. Liga",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2837",
+          "name_as_stored": "3. Liga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2949",
+      "name": "EURO",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2949",
+          "name_as_stored": "EURO"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2954",
+      "name": "World Championship Qual. UEFA",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2954",
+          "name_as_stored": "World Championship Qual. UEFA"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_29906",
+      "name": "Algerian Ligue 1",
+      "country": "Algeria",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_29906",
+          "name_as_stored": "Algerian Ligue 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_2999",
+      "name": "Russian Cup",
+      "country": "Russia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_2999",
+          "name_as_stored": "Russian Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_302043",
+      "name": "3rd Division, Group 4",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_302043",
+          "name_as_stored": "3rd Division, Group 4"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_302263",
+      "name": "Serie C, Girone B",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_302263",
+          "name_as_stored": "Serie C, Girone B"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_30517",
+      "name": "K League 2",
+      "country": "South Korea",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_30517",
+          "name_as_stored": "K League 2"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3135",
+      "name": "Women's Euro",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3135",
+          "name_as_stored": "Women's Euro"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3169",
+      "name": "Danish 1st Division",
+      "country": "Denmark",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3169",
+          "name_as_stored": "Danish 1st Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3444",
+      "name": "African Nations Championship",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3444",
+          "name_as_stored": "African Nations Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3615",
+      "name": "Scottish League One",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3615",
+          "name_as_stored": "Scottish League One"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_364464",
+      "name": "Campeonato de Reserva de Primera División",
+      "country": "Argentina",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_364464",
+          "name_as_stored": "Campeonato de Reserva de Primera División"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3664",
+      "name": "NB I",
+      "country": "Hungary",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3664",
+          "name_as_stored": "NB I"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3740",
+      "name": "Croatian Cup",
+      "country": "Croatia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3740",
+          "name_as_stored": "Croatian Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3758",
+      "name": "Parva Liga",
+      "country": "Bulgaria",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3758",
+          "name_as_stored": "Parva Liga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3759",
+      "name": "EURO, Qualification",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3759",
+          "name_as_stored": "EURO, Qualification"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3861",
+      "name": "Scottish Cup",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3861",
+          "name_as_stored": "Scottish Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_3872",
+      "name": "Club World Championship",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_3872",
+          "name_as_stored": "Club World Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4072",
+      "name": "FNL",
+      "country": "Czech Republic",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4072",
+          "name_as_stored": "FNL"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_408698",
+      "name": "UEFA Conference League",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_408698",
+          "name_as_stored": "UEFA Conference League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4153",
+      "name": "Ykkösliiga",
+      "country": "Finland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4153",
+          "name_as_stored": "Ykkösliiga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4159",
+      "name": "US Open Cup",
+      "country": "USA",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4159",
+          "name_as_stored": "US Open Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_451094",
+      "name": "U19 DFB Nachwuchsliga",
+      "country": "Germany Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_451094",
+          "name_as_stored": "U19 DFB Nachwuchsliga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_451101",
+      "name": "Serie C, Girone A",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_451101",
+          "name_as_stored": "Serie C, Girone A"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_45111",
+      "name": "NPL Victoria",
+      "country": "Australia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_45111",
+          "name_as_stored": "NPL Victoria"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4519",
+      "name": "2. Liga",
+      "country": "Austria",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4519",
+          "name_as_stored": "2. Liga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_45672",
+      "name": "Indonesia Liga 1",
+      "country": "Indonesia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_45672",
+          "name_as_stored": "Indonesia Liga 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_45714",
+      "name": "CAF Confederations Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_45714",
+          "name_as_stored": "CAF Confederations Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_458819",
+      "name": "UAE 1st Division",
+      "country": "United Arab Emirates",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_458819",
+          "name_as_stored": "UAE 1st Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4614",
+      "name": "Magyar Kupa",
+      "country": "Hungary",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4614",
+          "name_as_stored": "Magyar Kupa"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4682",
+      "name": "World Championship Qual. CONMEBOL",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4682",
+          "name_as_stored": "World Championship Qual. CONMEBOL"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4781",
+      "name": "Greek Cup Betsson",
+      "country": "Greece",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4781",
+          "name_as_stored": "Greek Cup Betsson"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4795",
+      "name": "Brasileirão Série A",
+      "country": "Brazil",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4795",
+          "name_as_stored": "Brasileirão Série A"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4811",
+      "name": "UEFA Super Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4811",
+          "name_as_stored": "UEFA Super Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_4877",
+      "name": "ÖFB Cup",
+      "country": "Austria",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_4877",
+          "name_as_stored": "ÖFB Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5133",
+      "name": "Slovensky Pohar",
+      "country": "Slovakia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5133",
+          "name_as_stored": "Slovensky Pohar"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5155",
+      "name": "Emperor Cup",
+      "country": "Japan",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5155",
+          "name_as_stored": "Emperor Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_51789",
+      "name": "J3 League",
+      "country": "Japan",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_51789",
+          "name_as_stored": "J3 League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5537",
+      "name": "Primera Nacional",
+      "country": "Argentina",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5537",
+          "name_as_stored": "Primera Nacional"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5720",
+      "name": "World Championship Qual. CAF",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5720",
+          "name_as_stored": "World Championship Qual. CAF"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_573599",
+      "name": "Chilean Primera División",
+      "country": "Chile",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_573599",
+          "name_as_stored": "Chilean Primera División"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_573792",
+      "name": "3rd Division, Group 3",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_573792",
+          "name_as_stored": "3rd Division, Group 3"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5749",
+      "name": "Copa América",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5749",
+          "name_as_stored": "Copa América"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5812",
+      "name": "Ireland 1st Division",
+      "country": "Ireland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5812",
+          "name_as_stored": "Ireland 1st Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_584196",
+      "name": "Primera Federación",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_584196",
+          "name_as_stored": "Primera Federación"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_5843",
+      "name": "Supercopa de España",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_5843",
+          "name_as_stored": "Supercopa de España"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_586572",
+      "name": "Leagues Cup",
+      "country": "North & Central America",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_586572",
+          "name_as_stored": "Leagues Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_586859",
+      "name": "USL Championship",
+      "country": "USA",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_586859",
+          "name_as_stored": "USL Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6107",
+      "name": "FIFA World Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6107",
+          "name_as_stored": "FIFA World Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6115",
+      "name": "Türkiye Kupası",
+      "country": "Turkey",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6115",
+          "name_as_stored": "Türkiye Kupası"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_615100",
+      "name": "3rd Division, Group 2",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_615100",
+          "name_as_stored": "3rd Division, Group 2"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_615520",
+      "name": "Serie C, Girone C",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_615520",
+          "name_as_stored": "Serie C, Girone C"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_619385",
+      "name": "Egyptian Second Division A",
+      "country": "Egypt",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_619385",
+          "name_as_stored": "Egyptian Second Division A"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_621119",
+      "name": "Professional Development League",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_621119",
+          "name_as_stored": "Professional Development League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6219",
+      "name": "National League North",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6219",
+          "name_as_stored": "National League North"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_62263",
+      "name": "FA Cup, Qualification",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_62263",
+          "name_as_stored": "FA Cup, Qualification"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6236",
+      "name": "Scottish Championship",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6236",
+          "name_as_stored": "Scottish Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_623699",
+      "name": "División Profesional",
+      "country": "Bolivia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_623699",
+          "name_as_stored": "División Profesional"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6258",
+      "name": "Challenge League",
+      "country": "Switzerland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6258",
+          "name_as_stored": "Challenge League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6267",
+      "name": "U21 Euro Qualification",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6267",
+          "name_as_stored": "U21 Euro Qualification"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6382",
+      "name": "Belgian Cup",
+      "country": "Belgium",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6382",
+          "name_as_stored": "Belgian Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6429",
+      "name": "Israeli Premier League",
+      "country": "Israel",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6429",
+          "name_as_stored": "Israeli Premier League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_643138",
+      "name": "OFC Men's Nations Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_643138",
+          "name_as_stored": "OFC Men's Nations Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6637",
+      "name": "Oddset Pokalen",
+      "country": "Denmark",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6637",
+          "name_as_stored": "Oddset Pokalen"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6917",
+      "name": "Superettan",
+      "country": "Sweden",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6917",
+          "name_as_stored": "Superettan"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_6981",
+      "name": "Liga 1",
+      "country": "Peru",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_6981",
+          "name_as_stored": "Liga 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_720692",
+      "name": "Primera A, Apertura",
+      "country": "Colombia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_720692",
+          "name_as_stored": "Primera A, Apertura"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_723761",
+      "name": "Algerian Ligue 2",
+      "country": "Algeria",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_723761",
+          "name_as_stored": "Algerian Ligue 2"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_72672",
+      "name": "UAE League Cup",
+      "country": "United Arab Emirates",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_72672",
+          "name_as_stored": "UAE League Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_72979",
+      "name": "Premier League 2, Division 1",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_72979",
+          "name_as_stored": "Premier League 2, Division 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_7348",
+      "name": "NM Cup",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_7348",
+          "name_as_stored": "NM Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_7363",
+      "name": "World Championship Qual. OFC",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_7363",
+          "name_as_stored": "World Championship Qual. OFC"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_742231",
+      "name": "U19 Lig, Elit A, Grup 1",
+      "country": "Turkey",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_742231",
+          "name_as_stored": "U19 Lig, Elit A, Grup 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_7454",
+      "name": "Scottish League Two",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_7454",
+          "name_as_stored": "Scottish League Two"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_7920",
+      "name": "Trophée des Champions",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_7920",
+          "name_as_stored": "Trophée des Champions"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_7973",
+      "name": "Schweizer Cup",
+      "country": "Switzerland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_7973",
+          "name_as_stored": "Schweizer Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8338",
+      "name": "Besta deild karla",
+      "country": "Iceland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8338",
+          "name_as_stored": "Besta deild karla"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_83579",
+      "name": "Africa Cup of Nations Qual.",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_83579",
+          "name_as_stored": "Africa Cup of Nations Qual."
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_84470",
+      "name": "Women's Euro, Qualification",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_84470",
+          "name_as_stored": "Women's Euro, Qualification"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_846482",
+      "name": "3rd Division, Group 5",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_846482",
+          "name_as_stored": "3rd Division, Group 5"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8597",
+      "name": "South African Premier Division",
+      "country": "South Africa",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8597",
+          "name_as_stored": "South African Premier Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8649",
+      "name": "CONCACAF Champions Cup",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8649",
+          "name_as_stored": "CONCACAF Champions Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8767",
+      "name": "FA Trophy",
+      "country": "England Amateur",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8767",
+          "name_as_stored": "FA Trophy"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_892803",
+      "name": "UEFA Women's Nations League",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_892803",
+          "name_as_stored": "UEFA Women's Nations League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8941",
+      "name": "AFC Asian Cup Qual.",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8941",
+          "name_as_stored": "AFC Asian Cup Qual."
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8973",
+      "name": "World Championship Qual. AFC",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8973",
+          "name_as_stored": "World Championship Qual. AFC"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_8998",
+      "name": "Uruguayan Primera División",
+      "country": "Uruguay",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_8998",
+          "name_as_stored": "Uruguayan Primera División"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9194",
+      "name": "J2 League",
+      "country": "Japan",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9194",
+          "name_as_stored": "J2 League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_920080",
+      "name": "FIFA Series",
+      "country": null,
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_920080",
+          "name_as_stored": "FIFA Series"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9235",
+      "name": "Trendyol Süper Lig",
+      "country": "Turkey",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9235",
+          "name_as_stored": "Trendyol Süper Lig"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9346",
+      "name": "Gulf Cup",
+      "country": "Asia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9346",
+          "name_as_stored": "Gulf Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9389",
+      "name": "ASEAN Championship",
+      "country": "Asia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9389",
+          "name_as_stored": "ASEAN Championship"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9491",
+      "name": "Liga II",
+      "country": "Romania",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9491",
+          "name_as_stored": "Liga II"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_964638",
+      "name": "3rd Division, Group 6",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_964638",
+          "name_as_stored": "3rd Division, Group 6"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_96844",
+      "name": "Thai League 1",
+      "country": "Thailand",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_96844",
+          "name_as_stored": "Thai League 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_970794",
+      "name": "USL League One",
+      "country": "USA",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_970794",
+          "name_as_stored": "USL League One"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9715",
+      "name": "Norwegian 1st Division",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9715",
+          "name_as_stored": "Norwegian 1st Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9722",
+      "name": "PrvaLiga",
+      "country": "Slovenia",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9722",
+          "name_as_stored": "PrvaLiga"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9766",
+      "name": "Czech First League",
+      "country": "Czech Republic",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9766",
+          "name_as_stored": "Czech First League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9788",
+      "name": "Premier Division",
+      "country": "Ireland",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9788",
+          "name_as_stored": "Premier Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9799",
+      "name": "MLS",
+      "country": "USA",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9799",
+          "name_as_stored": "MLS"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "comp_9818",
+      "name": "Czech Cup",
+      "country": "Czech Republic",
+      "aliases": [
+        {
+          "system": "thestats",
+          "id": "comp_9818",
+          "name_as_stored": "Czech Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1007",
+      "name": "Indian Super League",
+      "country": "India",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM1007",
+          "name_as_stored": "Indian Super League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:1007",
+          "name_as_stored": "Indian Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_19603",
+          "name_as_stored": "Indian Super League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1007",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1034",
+      "name": "K League 1",
+      "country": "South Korea",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM1034",
+          "name_as_stored": "K League 1"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:1034",
+          "name_as_stored": "K League 1"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_1646",
+          "name_as_stored": "K League 1"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1034",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1073",
+      "name": "V-League",
+      "country": "Vietnam",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1073",
+          "name_as_stored": "V-League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6059",
+          "name_as_stored": "V-League 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1082",
+      "name": "Friendly International",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1082",
+          "name_as_stored": "Friendly International"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_29967",
+          "name_as_stored": "International Friendly Games"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1085",
+      "name": "AFC Champions League Elite",
+      "country": "Asia",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM1085",
+          "name_as_stored": "AFC Champions League Elite"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:1085",
+          "name_as_stored": "AFC Champions League Elite"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5432",
+          "name_as_stored": "AFC Champions League Elite"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1085",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1088",
+      "name": "AFC Champions League Two",
+      "country": "Asia",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1088",
+          "name_as_stored": "AFC Champions League Two"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8833",
+          "name_as_stored": "AFC Champions League Two"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:109",
+      "name": "DFB Pokal",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:109",
+          "name_as_stored": "DFB Pokal"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_3620",
+          "name_as_stored": "DFB Pokal"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1101",
+      "name": "Club Friendlies 1",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1101",
+          "name_as_stored": "Club Friendlies 1"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1107",
+      "name": "CAF Champions League",
+      "country": "Africa",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM1107",
+          "name_as_stored": "CAF Champions League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:1107",
+          "name_as_stored": "CAF Champions League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM1107",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1116",
+      "name": "Copa Sudamericana",
+      "country": "South America",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1116",
+          "name_as_stored": "Copa Sudamericana"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1122",
+      "name": "Copa Libertadores",
+      "country": "South America",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1122",
+          "name_as_stored": "Copa Libertadores"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1128",
+      "name": "Super Cup",
+      "country": "Belgium",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1128",
+          "name_as_stored": "Super Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:12",
+      "name": "League One",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM12",
+          "name_as_stored": "League One"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:12",
+          "name_as_stored": "League One"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_0196",
+          "name_as_stored": "League One"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM12",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1251",
+      "name": "Super Cup",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1251",
+          "name_as_stored": "Super Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1328",
+      "name": "UEFA Super Cup",
+      "country": "Europe",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1328",
+          "name_as_stored": "UEFA Super Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1353",
+      "name": "Eredivisie Playoffs",
+      "country": "Netherlands",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1353",
+          "name_as_stored": "Eredivisie Playoffs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1356",
+      "name": "A-League Men",
+      "country": "Australia",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1356",
+          "name_as_stored": "A-League Men"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6151",
+          "name_as_stored": "A-League Men"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1371",
+      "name": "UEFA Europa League Play-offs",
+      "country": "Belgium",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1371",
+          "name_as_stored": "UEFA Europa League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:14",
+      "name": "League Two",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:14",
+          "name_as_stored": "League Two"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4023",
+          "name_as_stored": "League Two"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1419",
+      "name": "UEFA Women's Champions League",
+      "country": "Europe",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1419",
+          "name_as_stored": "UEFA Women's Champions League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6694",
+          "name_as_stored": "UEFA Women's Champions League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1452",
+      "name": "FIFA Intercontinental Cup",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1452",
+          "name_as_stored": "FIFA Intercontinental Cup"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_023414",
+          "name_as_stored": "FIFA Intercontinental Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:163",
+      "name": "Bundesliga Play-offs",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:163",
+          "name_as_stored": "Bundesliga Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1659",
+      "name": "Superliga Play-offs",
+      "country": "Denmark",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1659",
+          "name_as_stored": "Superliga Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:166",
+      "name": "2. Bundesliga Play-offs",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:166",
+          "name_as_stored": "2. Bundesliga Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1666",
+      "name": "Premier League Play-offs",
+      "country": "South Africa",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1666",
+          "name_as_stored": "Premier League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1673",
+      "name": "Ligue 1 Play-offs",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1673",
+          "name_as_stored": "Ligue 1 Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1674",
+      "name": "Ligue 2 Play-offs",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1674",
+          "name_as_stored": "Ligue 2 Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1678",
+      "name": "Pro League Play-offs",
+      "country": "Saudi Arabia",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1678",
+          "name_as_stored": "Pro League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1681",
+      "name": "Super League Play-offs",
+      "country": "Switzerland",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1681",
+          "name_as_stored": "Super League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1691",
+      "name": "Premier League - Playoffs",
+      "country": "Ukraine",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1691",
+          "name_as_stored": "Premier League - Playoffs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:17",
+      "name": "Enterprise National League",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM17",
+          "name_as_stored": "Enterprise National League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:17",
+          "name_as_stored": "Enterprise National League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5878",
+          "name_as_stored": "National League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM17",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1750",
+      "name": "Veikkausliiga Play-offs",
+      "country": "Finland",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1750",
+          "name_as_stored": "Veikkausliiga Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1753",
+      "name": "Allsvenskan Play-offs",
+      "country": "Sweden",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1753",
+          "name_as_stored": "Allsvenskan Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1760",
+      "name": "Eliteserien Play-offs",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1760",
+          "name_as_stored": "Eliteserien Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:1768",
+      "name": "J1 League Play-offs",
+      "country": "Japan",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1768",
+          "name_as_stored": "J1 League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:181",
+      "name": "Admiral Bundesliga",
+      "country": "Austria",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM181",
+          "name_as_stored": "Admiral Bundesliga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:181",
+          "name_as_stored": "Admiral Bundesliga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4893",
+          "name_as_stored": "Austrian Bundesliga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM181",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:1932",
+      "name": "Super League - Playoffs",
+      "country": "Greece",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:1932",
+          "name_as_stored": "Super League - Playoffs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:2",
+      "name": "Champions League",
+      "country": "Europe",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:2",
+          "name_as_stored": "Champions League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_3498",
+          "name_as_stored": "UEFA Champions League"
+        }
+      ],
+      "fits": [],
+      "loader_special": "UCL"
+    },
+    {
+      "canonical_id": "sm:208",
+      "name": "Pro League",
+      "country": "Belgium",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "B1",
+          "name_as_stored": "Belgian First Division A"
+        },
+        {
+          "system": "legacy-div",
+          "id": "master_B1",
+          "name_as_stored": "Belgian First Division A"
+        },
+        {
+          "system": "ratings-key",
+          "id": "B1",
+          "name_as_stored": "Belgian First Division A"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM208",
+          "name_as_stored": "Pro League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:208",
+          "name_as_stored": "Pro League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8531",
+          "name_as_stored": "Pro League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "B1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM208",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:211",
+      "name": "Challenger Pro League",
+      "country": "Belgium",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM211",
+          "name_as_stored": "Challenger Pro League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:211",
+          "name_as_stored": "Challenger Pro League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7218",
+          "name_as_stored": "Challenger Pro League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM211",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:2286",
+      "name": "Europa Conference League",
+      "country": "Europe",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:2286",
+          "name_as_stored": "Europa Conference League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:229",
+      "name": "First League",
+      "country": "Bulgaria",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM229",
+          "name_as_stored": "First League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:229",
+          "name_as_stored": "First League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM229",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:23",
+      "name": "Community Shield",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:23",
+          "name_as_stored": "Community Shield"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6323",
+          "name_as_stored": "Community Shield"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:24",
+      "name": "FA Cup",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:24",
+          "name_as_stored": "FA Cup"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7428",
+          "name_as_stored": "FA Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:244",
+      "name": "1. HNL",
+      "country": "Croatia",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM244",
+          "name_as_stored": "1. HNL"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:244",
+          "name_as_stored": "1. HNL"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_1941",
+          "name_as_stored": "HNL"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM244",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:2450",
+      "name": "Club Friendlies 2",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:2450",
+          "name_as_stored": "Club Friendlies 2"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:2451",
+      "name": "Club Friendlies 3",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:2451",
+          "name_as_stored": "Club Friendlies 3"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:2452",
+      "name": "Club Friendlies 4",
+      "country": "World",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:2452",
+          "name_as_stored": "Club Friendlies 4"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:262",
+      "name": "Chance Liga",
+      "country": "Czech Republic",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM262",
+          "name_as_stored": "Chance Liga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:262",
+          "name_as_stored": "Chance Liga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM262",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:27",
+      "name": "Carabao Cup",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:27",
+          "name_as_stored": "Carabao Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:271",
+      "name": "Superliga",
+      "country": "Denmark",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM271",
+          "name_as_stored": "Superliga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:271",
+          "name_as_stored": "Superliga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7938",
+          "name_as_stored": "Danish Superliga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM271",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:274",
+      "name": "First Division",
+      "country": "Denmark",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:274",
+          "name_as_stored": "First Division"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:292",
+      "name": "Veikkausliiga",
+      "country": "Finland",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM292",
+          "name_as_stored": "Veikkausliiga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:292",
+          "name_as_stored": "Veikkausliiga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_2674",
+          "name_as_stored": "Veikkausliiga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM292",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:301",
+      "name": "Ligue 1",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "F1",
+          "name_as_stored": "French Ligue 1"
+        },
+        {
+          "system": "ratings-key",
+          "id": "F1",
+          "name_as_stored": "French Ligue 1"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM301",
+          "name_as_stored": "Ligue 1"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:301",
+          "name_as_stored": "Ligue 1"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_0256",
+          "name_as_stored": "Ligue 1"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "F1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM301",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:304",
+      "name": "Ligue 2",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "F2",
+          "name_as_stored": "French Ligue 2"
+        },
+        {
+          "system": "legacy-div",
+          "id": "master_F2",
+          "name_as_stored": "French Ligue 2"
+        },
+        {
+          "system": "ratings-key",
+          "id": "F2",
+          "name_as_stored": "French Ligue 2"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM304",
+          "name_as_stored": "Ligue 2"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:304",
+          "name_as_stored": "Ligue 2"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_9777",
+          "name_as_stored": "Ligue 2"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "F2",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM304",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:307",
+      "name": "Coupe de France",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:307",
+          "name_as_stored": "Coupe de France"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4750",
+          "name_as_stored": "Coupe de France"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:310",
+      "name": "Coupe de la Ligue",
+      "country": "France",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:310",
+          "name_as_stored": "Coupe de la Ligue"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:325",
+      "name": "Super League",
+      "country": "Greece",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "G1",
+          "name_as_stored": "Greek Super League"
+        },
+        {
+          "system": "legacy-div",
+          "id": "master_G1",
+          "name_as_stored": "Greek Super League"
+        },
+        {
+          "system": "ratings-key",
+          "id": "G1",
+          "name_as_stored": "Greek Super League"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM325",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:325",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4008",
+          "name_as_stored": "Stoiximan Super League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "G1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM325",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:372",
+      "name": "Ligat ha'Al",
+      "country": "Israel",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM372",
+          "name_as_stored": "Ligat ha'Al"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:372",
+          "name_as_stored": "Ligat ha'Al"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM372",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:384",
+      "name": "Serie A",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "I1",
+          "name_as_stored": "Italian Serie A"
+        },
+        {
+          "system": "ratings-key",
+          "id": "I1",
+          "name_as_stored": "Italian Serie A"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM384",
+          "name_as_stored": "Serie A"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:384",
+          "name_as_stored": "Serie A"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5840",
+          "name_as_stored": "Serie A"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "I1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM384",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:387",
+      "name": "Serie B",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "I2",
+          "name_as_stored": "Italian Serie B"
+        },
+        {
+          "system": "ratings-key",
+          "id": "I2",
+          "name_as_stored": "Italian Serie B"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM387",
+          "name_as_stored": "Serie B"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:387",
+          "name_as_stored": "Serie B"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5450",
+          "name_as_stored": "Serie B"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "I2",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM387",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:390",
+      "name": "Coppa Italia",
+      "country": "Italy",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:390",
+          "name_as_stored": "Coppa Italia"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8525",
+          "name_as_stored": "Coppa Italia"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:444",
+      "name": "Eliteserien",
+      "country": "Norway",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM444",
+          "name_as_stored": "Eliteserien"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:444",
+          "name_as_stored": "Eliteserien"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_1992",
+          "name_as_stored": "Eliteserien"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM444",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:45",
+      "name": "Women's Super League",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM45",
+          "name_as_stored": "Women's Super League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:45",
+          "name_as_stored": "Women's Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_08207",
+          "name_as_stored": "Women's Super League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM45",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:453",
+      "name": "Ekstraklasa",
+      "country": "Poland",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM453",
+          "name_as_stored": "Ekstraklasa"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:453",
+          "name_as_stored": "Ekstraklasa"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_9711",
+          "name_as_stored": "Ekstraklasa"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM453",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:462",
+      "name": "Liga Portugal",
+      "country": "Portugal",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "master_P1",
+          "name_as_stored": "Portuguese Primeira Liga"
+        },
+        {
+          "system": "legacy-div",
+          "id": "P1",
+          "name_as_stored": "Portuguese Primeira Liga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "P1",
+          "name_as_stored": "Portuguese Primeira Liga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM462",
+          "name_as_stored": "Liga Portugal"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:462",
+          "name_as_stored": "Liga Portugal"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8385",
+          "name_as_stored": "Liga Portugal Betclic"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "P1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM462",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:465",
+      "name": "Liga Portugal 2",
+      "country": "Portugal",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM465",
+          "name_as_stored": "Liga Portugal 2"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:465",
+          "name_as_stored": "Liga Portugal 2"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7475",
+          "name_as_stored": "Liga Portugal 2"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM465",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:468",
+      "name": "Taça De Portugal",
+      "country": "Portugal",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:468",
+          "name_as_stored": "Taça De Portugal"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6314",
+          "name_as_stored": "Taça de Portugal"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:474",
+      "name": "Superliga",
+      "country": "Romania",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM474",
+          "name_as_stored": "Superliga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:474",
+          "name_as_stored": "Superliga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_9639",
+          "name_as_stored": "Romanian Super Liga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM474",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:486",
+      "name": "Premier League",
+      "country": "Russia",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM486",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:486",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5824",
+          "name_as_stored": "Russian Premier League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM486",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:495",
+      "name": "Premier League Play-offs",
+      "country": "Russia",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:495",
+          "name_as_stored": "Premier League Play-offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:5",
+      "name": "Europa League",
+      "country": "Europe",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:5",
+          "name_as_stored": "Europa League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7739",
+          "name_as_stored": "UEFA Europa League"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:501",
+      "name": "Premiership",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "master_SC0",
+          "name_as_stored": "Scottish Premiership"
+        },
+        {
+          "system": "legacy-div",
+          "id": "SC0",
+          "name_as_stored": "Scottish Premiership"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SC0",
+          "name_as_stored": "Scottish Premiership"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM501",
+          "name_as_stored": "Premiership"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:501",
+          "name_as_stored": "Premiership"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6387",
+          "name_as_stored": "Scottish Premiership"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "SC0",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM501",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:513",
+      "name": "Premiership Play-Offs",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:513",
+          "name_as_stored": "Premiership Play-Offs"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:564",
+      "name": "La Liga",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "SP1",
+          "name_as_stored": "Spanish La Liga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM564",
+          "name_as_stored": "La Liga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SP1",
+          "name_as_stored": "Spanish La Liga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:564",
+          "name_as_stored": "La Liga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8814",
+          "name_as_stored": "LaLiga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM564",
+          "status": "calibrated"
+        },
+        {
+          "system": "legacy-div",
+          "ratings_key": "SP1",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:567",
+      "name": "La Liga 2",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "SP2",
+          "name_as_stored": "Spanish Segunda Division"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM567",
+          "name_as_stored": "La Liga 2"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SP2",
+          "name_as_stored": "Spanish Segunda Division"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:567",
+          "name_as_stored": "La Liga 2"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_0976",
+          "name_as_stored": "LaLiga 2"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM567",
+          "status": "partial"
+        },
+        {
+          "system": "legacy-div",
+          "ratings_key": "SP2",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:570",
+      "name": "Copa Del Rey",
+      "country": "Spain",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:570",
+          "name_as_stored": "Copa Del Rey"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7915",
+          "name_as_stored": "Copa del Rey"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:573",
+      "name": "Allsvenskan",
+      "country": "Sweden",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM573",
+          "name_as_stored": "Allsvenskan"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:573",
+          "name_as_stored": "Allsvenskan"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_1002",
+          "name_as_stored": "Allsvenskan"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM573",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:591",
+      "name": "Super League",
+      "country": "Switzerland",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM591",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:591",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4084",
+          "name_as_stored": "Swiss Super League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM591",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:600",
+      "name": "Super Lig",
+      "country": "Turkey",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "master_T1",
+          "name_as_stored": "Turkish Super Lig"
+        },
+        {
+          "system": "legacy-div",
+          "id": "T1",
+          "name_as_stored": "Turkish Super Lig"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM600",
+          "name_as_stored": "Super Lig"
+        },
+        {
+          "system": "ratings-key",
+          "id": "T1",
+          "name_as_stored": "Turkish Super Lig"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:600",
+          "name_as_stored": "Super Lig"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM600",
+          "status": "calibrated"
+        },
+        {
+          "system": "legacy-div",
+          "ratings_key": "T1",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:603",
+      "name": "1. Lig",
+      "country": "Turkey",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:603",
+          "name_as_stored": "1. Lig"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8448",
+          "name_as_stored": "Trendyol 1.Lig"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:609",
+      "name": "Premier League",
+      "country": "Ukraine",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM609",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:609",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8363",
+          "name_as_stored": "Ukrainian Premier League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM609",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:636",
+      "name": "Liga Profesional de Fútbol",
+      "country": "Argentina",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM636",
+          "name_as_stored": "Liga Profesional de Fútbol"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:636",
+          "name_as_stored": "Liga Profesional de Fútbol"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4540",
+          "name_as_stored": "Liga Profesional de Fútbol"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM636",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:648",
+      "name": "Serie A",
+      "country": "Brazil",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM648",
+          "name_as_stored": "Serie A"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:648",
+          "name_as_stored": "Serie A"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM648",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:651",
+      "name": "Serie B",
+      "country": "Brazil",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM651",
+          "name_as_stored": "Serie B"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:651",
+          "name_as_stored": "Serie B"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM651",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:654",
+      "name": "Copa do Brasil",
+      "country": "Brazil",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:654",
+          "name_as_stored": "Copa do Brasil"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_5242",
+          "name_as_stored": "Copa do Brasil"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:663",
+      "name": "Primera Division",
+      "country": "Chile",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM663",
+          "name_as_stored": "Primera Division"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:663",
+          "name_as_stored": "Primera Division"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM663",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:672",
+      "name": "Liga BetPlay",
+      "country": "Colombia",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM672",
+          "name_as_stored": "Liga BetPlay"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:672",
+          "name_as_stored": "Liga BetPlay"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM672",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:72",
+      "name": "Eredivisie",
+      "country": "Netherlands",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "N1",
+          "name_as_stored": "Dutch Eredivisie"
+        },
+        {
+          "system": "ratings-key",
+          "id": "N1",
+          "name_as_stored": "Dutch Eredivisie"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM72",
+          "name_as_stored": "Eredivisie"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:72",
+          "name_as_stored": "Eredivisie"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_3809",
+          "name_as_stored": "Eredivisie"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "N1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM72",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:74",
+      "name": "Eerste Divisie",
+      "country": "Netherlands",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM74",
+          "name_as_stored": "Eerste Divisie"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:74",
+          "name_as_stored": "Eerste Divisie"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_2977",
+          "name_as_stored": "Eerste Divisie"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM74",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:743",
+      "name": "Liga MX",
+      "country": "Mexico",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM743",
+          "name_as_stored": "Liga MX"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:743",
+          "name_as_stored": "Liga MX"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_137103",
+          "name_as_stored": "Liga MX, Clausura"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_298265",
+          "name_as_stored": "Liga MX, Apertura"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM743",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:770",
+      "name": "Primera Division",
+      "country": "Uruguay",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM770",
+          "name_as_stored": "Primera Division"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:770",
+          "name_as_stored": "Primera Division"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM770",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:779",
+      "name": "Major League Soccer",
+      "country": "United States",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM779",
+          "name_as_stored": "Major League Soccer"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:779",
+          "name_as_stored": "Major League Soccer"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM779",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:78",
+      "name": "KNVB Beker",
+      "country": "Netherlands",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:78",
+          "name_as_stored": "KNVB Beker"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_1047",
+          "name_as_stored": "KNVB Beker"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:8",
+      "name": "Premier League",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "E0",
+          "name_as_stored": "English Premier League"
+        },
+        {
+          "system": "ratings-key",
+          "id": "E0",
+          "name_as_stored": "English Premier League"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM8",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:8",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_3039",
+          "name_as_stored": "Premier League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "E0",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM8",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:806",
+      "name": "Premier League",
+      "country": "South Africa",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM806",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:806",
+          "name_as_stored": "Premier League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM806",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:82",
+      "name": "Bundesliga",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "D1",
+          "name_as_stored": "German Bundesliga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "D1",
+          "name_as_stored": "German Bundesliga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM82",
+          "name_as_stored": "Bundesliga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:82",
+          "name_as_stored": "Bundesliga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_4643",
+          "name_as_stored": "Bundesliga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "D1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM82",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:830",
+      "name": "Premier League",
+      "country": "Egypt",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM830",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:830",
+          "name_as_stored": "Premier League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_84287",
+          "name_as_stored": "Egyptian Premier League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM830",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:85",
+      "name": "2. Bundesliga",
+      "country": "Germany",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "D2",
+          "name_as_stored": "German 2. Bundesliga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "D2",
+          "name_as_stored": "German 2. Bundesliga"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM85",
+          "name_as_stored": "2. Bundesliga"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:85",
+          "name_as_stored": "2. Bundesliga"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_0406",
+          "name_as_stored": "2. Bundesliga"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "D2",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM85",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:860",
+      "name": "Botola Pro",
+      "country": "Morocco",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:860",
+          "name_as_stored": "Botola Pro"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_30610",
+          "name_as_stored": "Botola Pro"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:9",
+      "name": "Championship",
+      "country": "England",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "E1",
+          "name_as_stored": "English Championship"
+        },
+        {
+          "system": "ratings-key",
+          "id": "E1",
+          "name_as_stored": "English Championship"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SM9",
+          "name_as_stored": "Championship"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:9",
+          "name_as_stored": "Championship"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_8321",
+          "name_as_stored": "Championship"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "E1",
+          "status": "calibrated"
+        },
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM9",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:902",
+      "name": "Persian Gulf Pro League",
+      "country": "Iran",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM902",
+          "name_as_stored": "Persian Gulf Pro League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:902",
+          "name_as_stored": "Persian Gulf Pro League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_45001",
+          "name_as_stored": "Persian Gulf Pro League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM902",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:938",
+      "name": "Stars League",
+      "country": "Qatar",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM938",
+          "name_as_stored": "Stars League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:938",
+          "name_as_stored": "Stars League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_45551",
+          "name_as_stored": "Stars League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM938",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:944",
+      "name": "Pro League",
+      "country": "Saudi Arabia",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM944",
+          "name_as_stored": "Pro League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:944",
+          "name_as_stored": "Pro League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_45025",
+          "name_as_stored": "Saudi Pro League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM944",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:950",
+      "name": "Kings Cup",
+      "country": "Saudi Arabia",
+      "aliases": [
+        {
+          "system": "sportmonks",
+          "id": "sm:950",
+          "name_as_stored": "Kings Cup"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_83796",
+          "name_as_stored": "King's Cup"
+        }
+      ],
+      "fits": []
+    },
+    {
+      "canonical_id": "sm:959",
+      "name": "UAE Pro League",
+      "country": "United Arab Emirates",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM959",
+          "name_as_stored": "UAE Pro League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:959",
+          "name_as_stored": "UAE Pro League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_29522",
+          "name_as_stored": "UAE Pro League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM959",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:968",
+      "name": "J1 League",
+      "country": "Japan",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM968",
+          "name_as_stored": "J1 League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:968",
+          "name_as_stored": "J1 League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6240",
+          "name_as_stored": "J1 League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM968",
+          "status": "calibrated"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:983",
+      "name": "Canadian Soccer League",
+      "country": "Canada",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM983",
+          "name_as_stored": "Canadian Soccer League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:983",
+          "name_as_stored": "Canadian Soccer League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM983",
+          "status": "partial"
+        }
+      ]
+    },
+    {
+      "canonical_id": "sm:989",
+      "name": "Super League",
+      "country": "China",
+      "aliases": [
+        {
+          "system": "ratings-key",
+          "id": "SM989",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "sportmonks",
+          "id": "sm:989",
+          "name_as_stored": "Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7712",
+          "name_as_stored": "CFA Super League"
+        }
+      ],
+      "fits": [
+        {
+          "system": "sportmonks",
+          "ratings_key": "SM989",
+          "status": "partial"
+        }
+      ]
+    }
+  ]
+}
