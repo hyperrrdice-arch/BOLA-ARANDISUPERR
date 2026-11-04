@@ -1,7 +1,7 @@
 {
   "meta": {
     "run": "e2e-run-1",
-    "generated_at": "2026-11-04T10:58:15.094Z",
+    "generated_at": "2026-11-04T11:33:24.388Z",
     "today_cutoff": "2026-11-04",
     "match_id": "sm_19722110",
     "competition_id": "sm:8",
@@ -36,9 +36,10 @@
       "n_teams": 25,
       "telemetry_coverage": 1,
       "scale_ratio": 0.9903,
-      "fitted_at": "2026-11-04T09:10:28.382Z",
+      "fitted_at": "2026-11-04T11:28:08.166Z",
       "source": "sportmonks-fit",
-      "notes": "Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128)."
+      "notes": "Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128).",
+      "canonical_id": "sm:8"
     },
     "resolved_div": "SM8",
     "gate": {
@@ -91,7 +92,7 @@
       "kompetisi": "Premier League",
       "venue": "Hill Dickinson Stadium",
       "wasit": "Belum diumumkan",
-      "kickoff_jam_menuju": 57
+      "kickoff_jam_menuju": 56.4
     },
     "wasit_detail": {
       "is_available": false,
@@ -156,7 +157,7 @@
       "fetch_odds": true,
       "fetch_h2h": true,
       "cache_ttl_minutes": 60,
-      "reasoning": "Heuristic rule: Kickoff 57h (scheduled). Lineup dilewati (terlalu jauh)."
+      "reasoning": "Heuristic rule: Kickoff 56.4h (scheduled). Lineup dilewati (terlalu jauh)."
     },
     "endpoints_called": [
       "/football/matches/sm_19722110",
@@ -177,7 +178,7 @@
       "hitRate": "0.0%",
       "savedCalls": 0
     },
-    "timestamp": "2026-11-04T10:58:28.566Z"
+    "timestamp": "2026-11-04T11:33:25.961Z"
   },
   "quant_pure": {
     "quant_package": {
@@ -1895,7 +1896,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722115,\"statistics\":[{\"id\":1092820397,\"fixture_id\":19722115,\"type_id\":34,\"participant_id\":13,\"data\":{\"value\":5},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1092820398,\"fixture_id\":19722115,\"type_id\":34,\"participant_id\":20,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\":…[dipotong]",
-              "created_at": "2026-11-04T07:12:40.100Z",
+              "created_at": "2026-11-04T11:05:11.569Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -2299,7 +2300,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722133,\"statistics\":[{\"id\":1064560239,\"fixture_id\":19722133,\"type_id\":34,\"participant_id\":13,\"data\":{\"value\":3},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1064560240,\"fixture_id\":19722133,\"type_id\":34,\"participant_id\":19,\"data\":{\"value\":12},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
-              "created_at": "2026-11-04T07:12:47.883Z",
+              "created_at": "2026-11-04T11:05:18.794Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -2546,7 +2547,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722119,\"statistics\":[{\"id\":1083702300,\"fixture_id\":19722119,\"type_id\":34,\"participant_id\":3,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1083702302,\"fixture_id\":19722119,\"type_id\":34,\"participant_id\":117,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\":…[dipotong]",
-              "created_at": "2026-11-04T07:12:41.828Z",
+              "created_at": "2026-11-04T11:05:13.200Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -2647,7 +2648,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722130,\"statistics\":[{\"id\":1064537951,\"fixture_id\":19722130,\"type_id\":34,\"participant_id\":11,\"data\":{\"value\":6},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1064537952,\"fixture_id\":19722130,\"type_id\":34,\"participant_id\":117,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
-              "created_at": "2026-11-04T07:12:46.589Z",
+              "created_at": "2026-11-04T11:05:17.617Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -2748,7 +2749,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722134,\"statistics\":[{\"id\":1056391895,\"fixture_id\":19722134,\"type_id\":34,\"participant_id\":117,\"data\":{\"value\":4},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1056391896,\"fixture_id\":19722134,\"type_id\":34,\"participant_id\":6,\"data\":{\"value\":4},\"location\":\"home\",\"type\":{\"id\":…[dipotong]",
-              "created_at": "2026-11-04T07:12:48.330Z",
+              "created_at": "2026-11-04T11:05:19.201Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -2950,7 +2951,7 @@
               "starting_xi_ids": null,
               "substitutes_ids": null,
               "raw_stats_json": "{\"sm_fixture_id\":19722150,\"statistics\":[{\"id\":1039024005,\"fixture_id\":19722150,\"type_id\":34,\"participant_id\":20,\"data\":{\"value\":6},\"location\":\"away\",\"type\":{\"id\":34,\"name\":\"Corners\",\"code\":\"corners\",\"developer_name\":\"CORNERS\",\"model_type\":\"statistic\",\"stat_group\":\"offensive\"}},{\"id\":1039024006,\"fixture_id\":19722150,\"type_id\":34,\"participant_id\":117,\"data\":{\"value\":2},\"location\":\"home\",\"type\":{\"id\"…[dipotong]",
-              "created_at": "2026-11-04T07:12:54.813Z",
+              "created_at": "2026-11-04T11:05:25.529Z",
               "source": "sportmonks",
               "data_tier": "sportmonks_backfill",
               "xg_source": "sportmonks",
@@ -3096,9 +3097,10 @@
           "n_teams": 25,
           "telemetry_coverage": 1,
           "scale_ratio": 0.9903,
-          "fitted_at": "2026-11-04T09:10:28.382Z",
+          "fitted_at": "2026-11-04T11:28:08.166Z",
           "source": "sportmonks-fit",
-          "notes": "Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128)."
+          "notes": "Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0393 < naive 1.0959 (n=128).",
+          "canonical_id": "sm:8"
         },
         "resolved_div": "SM8",
         "gate": {
@@ -3159,7 +3161,7 @@
           "kompetisi": "Premier League",
           "venue": "Hill Dickinson Stadium",
           "wasit": "Belum diumumkan",
-          "kickoff_jam_menuju": 57
+          "kickoff_jam_menuju": 56.4
         },
         "market_odds": {
           "is_available": false,
