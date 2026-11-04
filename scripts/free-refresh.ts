@@ -23,7 +23,8 @@ interface Step {
 const STEPS: Step[] = [
   { name: "import-free-feed", script: "scripts/import-free-feed.ts", scriptArgs: [] },
   { name: "calibrate-ratings", script: "scripts/calibrate-ratings.ts", scriptArgs: [] },
-  { name: "pick-slate", script: "scripts/pick-slate.ts", scriptArgs: ["--hours=72"] },
+  // pick-slate mem-parse "--hours <n>" (bentuk spasi), bukan "--hours=<n>".
+  { name: "pick-slate", script: "scripts/pick-slate.ts", scriptArgs: ["--hours", "72"] },
 ];
 
 function main() {
