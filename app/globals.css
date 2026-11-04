@@ -2,36 +2,35 @@
 @import "../design-system/theme.css";
 
 :root {
-  --background: #0a0a12;
-  --foreground: #f4f4f6;
-  --canvas: #0a0a12;
-  --paper: #14141f;
-  --surface-alt: #1b1b29;
-  --ink: #f4f4f6;
-  --ink-soft: #e8e8ef;
-  --mid-gray: #a2a2b5;
-  --hairline: #262636;
-  --accent: #b8b0ff;
-  --accent-ink: #17131f;
-  --ember: #fb4d5e;
+  --background: #0d0c0a;
+  --foreground: #e9e4d8;
+  --canvas: #0d0c0a;
+  --paper: #151310;
+  --surface-alt: #1b1813;
+  --well: #0a0908;
+  --ink: #e9e4d8;
+  --ink-soft: #cfc8b8;
+  --mid-gray: #9a927f;
+  --faint: #6e6759;
+  --hairline: #26231e;
+  --hairline-strong: #3a352b;
+  --accent: #ffa02e;
+  --accent-deep: #cc7a1a;
+  --accent-ink: #1a1206;
+  --sage: #7fa36b;
+  --brick: #b4503c;
 
-  --terminal-surface: #14141f;
-  --terminal-surface-hover: #1b1b29;
-  --terminal-well: #0a0a12;
-  --terminal-border: #262636;
-  --terminal-border-strong: #34344a;
+  --surface: #151310;
+  --surface-hover: #1b1813;
+  --surface-active: #221e16;
+  --border-subtle: #26231e;
+  --border-strong: #3a352b;
+  --text-primary: #e9e4d8;
+  --text-body: #cfc8b8;
+  --text-muted: #9a927f;
+  --text-faint: #6e6759;
 
-  --surface: #14141f;
-  --surface-hover: #1b1b29;
-  --surface-active: #232334;
-  --border-subtle: #262636;
-  --border-strong: #34344a;
-  --text-primary: #f4f4f6;
-  --text-body: #e8e8ef;
-  --text-muted: #a2a2b5;
-  --text-faint: #8e8ea3;
-
-  /* Motion Architecture Curves (cubic-bezier 0.16, 1, 0.3, 1) */
+  /* Motion curves */
   --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-micro: 160ms;
   --duration-layout: 280ms;
@@ -41,6 +40,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display), "Archivo Narrow", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -52,10 +52,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Tabular figures for numbers to eliminate layout jitter.
-   Mono hanya di angka tabular; teks UI tetap sans. */
+/* Angka selalu mono tabular — menghilangkan jitter layout pada data live. */
 .tabular-nums {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -64,104 +63,41 @@ body {
   outline-offset: 2px;
 }
 
-/* ========================================================================= */
-/* CLINICAL BLUEPRINT 1PX HAIRLINE ARCHITECTURE                              */
-/* ========================================================================= */
-
-.doppel-shell {
-  background-color: var(--surface-alt);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  padding: 4px;
-  transition: border-color 160ms var(--ease-terminal);
-}
-
-.doppel-shell:hover {
-  border-color: var(--border-strong);
-}
-
-.doppel-core {
-  background-color: var(--paper);
-  border: 1px solid var(--border-subtle);
-  border-radius: calc(18px - 4px);
-  padding: 20px;
-}
-
-/* Standard flat cards, dark panels */
-.flat-card {
-  background-color: var(--paper);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  transition: background-color 160ms var(--ease-terminal), border-color 160ms var(--ease-terminal);
-}
-
-.flat-card:hover {
-  background-color: var(--surface-alt);
-  border-color: var(--border-strong);
-}
-
-.flat-card-static {
-  background-color: var(--paper);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-}
-
-.flat-callout {
-  background-color: var(--surface-alt);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  padding: 14px 16px;
-}
-
-/* ========================================================================= */
-/* FUNCTIONAL MONOCHROME TAGS & CHIPS (CAPSULE 18PX PILLS)                   */
-/* ========================================================================= */
-
-.flat-tag-white,
-.flat-tag-green {
-  background-color: var(--accent);
+::selection {
+  background: var(--accent);
   color: var(--accent-ink);
-  border: 1px solid var(--accent);
-  border-radius: 18px;
 }
 
-.flat-tag-zinc,
-.flat-tag-blue,
-.flat-tag-slate {
-  background-color: var(--surface-alt);
-  color: var(--text-body);
+/* Panel terminal: permukaan datar + garis rambut 1px. Bukan kartu melayang. */
+.panel {
+  background-color: var(--paper);
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: 6px;
 }
 
-.flat-tag-amber {
-  background-color: var(--surface-alt);
-  color: var(--ink);
-  border: 1px solid var(--border-strong);
-  border-radius: 18px;
+.panel-flat {
+  background-color: var(--paper);
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
 }
 
-.flat-tag-red {
-  background-color: rgba(251, 77, 94, 0.12);
-  color: #fb7185;
-  border: 1px solid rgba(251, 77, 94, 0.35);
-  border-radius: 18px;
+/* Label mikro: huruf besar mono — bahasa visual terminal. */
+.micro-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 /* ========================================================================= */
-/* MONO SCANNING & LOADING ANIMATION                                        */
+/* LOADING BAR (mono scan, amber)                                             */
 /* ========================================================================= */
 
 @keyframes monoScan {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(40%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(40%); }
+  100% { transform: translateX(120%); }
 }
 
 .mono-loading-bar-container {
@@ -170,7 +106,6 @@ body {
   background-color: var(--border-subtle);
   overflow: hidden;
   position: relative;
-  border-radius: 9999px;
 }
 
 .mono-loading-bar {
@@ -184,18 +119,12 @@ body {
 }
 
 /* ========================================================================= */
-/* GPU-ACCELERATED MOTION TOKENS                                             */
+/* REVEAL (dipakai tanpa JS berat; GSAP menangani yang lebih kompleks)        */
 /* ========================================================================= */
 
 @keyframes revealStaggerUp {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .reveal-up {
@@ -220,9 +149,7 @@ body {
     opacity: 1 !important;
     transform: none !important;
   }
-  .bar-unfold {
-    transition: none !important;
-  }
+  .bar-unfold { transition: none !important; }
   .mono-loading-bar {
     animation: none !important;
     background: var(--accent);
@@ -230,21 +157,8 @@ body {
   }
 }
 
-/* Flat Minimal Monochrome Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #34344a;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4a4a61;
-}
+/* Scrollbar tipis netral */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3a352b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #55492f; }

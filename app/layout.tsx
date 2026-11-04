@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Archivo_Narrow } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +12,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const display = Archivo_Narrow({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "MENCARI UANG DARI PARLAY // Quant Terminal",
-  description: "Pre-match tactical football analytics, Dixon-Coles quant engine & multi-agent syndicate debate.",
+  title: "PILIHAN AMAN — Mesin Probabilitas Sepak Bola",
+  description:
+    "Alat bantu menaikkan keyakinan: probabilitas terkalibrasi dari model kuantitatif deterministik, dibandingkan lintas sumber, dengan bukti hasil yang tercatat. Bukan tipster, bukan janji menang.",
 };
 
 export default function RootLayout({
@@ -25,12 +32,12 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a12] text-[#f4f4f6] selection:bg-[#b8b0ff] selection:text-[#17131f]">
+      <body className="min-h-full flex flex-col bg-canvas text-ink selection:bg-accent selection:text-accent-ink">
         <a
           href="#konten-utama"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-[12px] focus:bg-[#b8b0ff] focus:text-[#17131f] focus:text-xs focus:font-bold"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-md focus:bg-accent focus:text-accent-ink focus:text-xs focus:font-bold"
         >
           Lewati ke konten utama
         </a>
