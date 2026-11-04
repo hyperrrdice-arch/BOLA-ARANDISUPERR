@@ -202,9 +202,12 @@ mentah SM sebagai string. Jembatan: `sm_id_map` (baris `mt_` yang sudah
 ada selalu menang atas pembuatan kembaran `sm_`), `teams` (nama → id),
 dan — sejak fase kanonik — registry identitas di §4. ⚠️ Nama tim tidak
 unik: 9 grup nama persis dan 12 grup ternormalisasi dipakai >1 team_id
-(di tabel `teams`, terukur audit 5 Nov 2026); lintas sumber, 107 grup
-ejaan berbeda menunjuk tim yang sama — tim belum punya registry
-kanonik seperti liga (proposal P-05 di laporan audit);
+(di tabel `teams`, terukur audit 5 Nov 2026); lintas sumber, 111 grup
+ejaan berbeda menunjuk tim yang sama, dan 26 grup kunci ganda ada di
+dalam satu liga ratings yang sama (salinan alias berstatistik
+identik — mis. Bournemouth/AFC Bournemouth di E0 dan SM8) — tim
+belum punya registry kanonik seperti liga (proposal P-05 di
+laporan audit);
 resolusi nama→ID wajib sadar konteks liga (sudah diterapkan di loader +
 resolver telemetri bersama: log terbanyak menang, seri → id terkecil).
 

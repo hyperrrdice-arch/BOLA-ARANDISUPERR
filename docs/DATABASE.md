@@ -90,11 +90,16 @@ Terukur: 0 baris peta menunjuk match_id di luar katalog. Seluruh
 3,420 sm_fixture_id ter-resolve: 3,392 di ruang fixture katalog
 berjalan, 28 menunjuk laga yang sudah selesai di `dataset.matches`
 (47 nilai ada di kedua ruang) — **0 menggantung**. Dari 378 fixture
-`mt_` di katalog, 123 punya baris jembatan berkunci `mt_`; 255
-sisanya terukur **tidak punya kembaran SM** (tanggal + nama
-ternormalisasi dicocokkan — 0 ketemu; 209 di antaranya batch
-TheStats 2026-10-17 sebelum katalog SM berjalan). Kembaran katalog
-yang belum terjembatani: **0**.
+`mt_` di katalog, 123 punya baris jembatan berkunci `mt_`. Dari 255
+sisanya, **62 terverifikasi punya kembaran SM** (timestamp kickoff
+identik + nama home/away ternormalisasi identik; 64–72 pada varian
+pencocokan lebih longgar) — baris katalog ganda untuk laga yang
+sama, tanpa jembatan (koreksi census audit, lihat laporan §3:
+pengukuran awal yang menyatakan 0 ternyata cacat metode). Sisanya
+mayoritas batch TheStats 2026-10-17 sebelum katalog SM berjalan.
+Terukur melegakan: **0 pick dan 0 paket merujuk sisi `mt_`** dari
+62 pasangan itu — belum ada duplikasi hilir; perbaikannya proposal
+P-09 di laporan audit.
 
 ## 3. `thestats_dataset.db` — store kerja utama
 

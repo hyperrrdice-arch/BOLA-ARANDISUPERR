@@ -17,7 +17,7 @@
 | Store | Ukuran | Baris kunci | Integritas | Isu teratas |
 |---|---|---|---|---|
 | `football_master.db` | 9,8 MB | matches 28.922 | ✅ ok, FK 0 | statis by design; bukan isu |
-| `upcoming_fixtures.db` | 1,7 MB | fixtures 3.770 · catalog 317 · sm_id_map 3.420 | ✅ ok | 270 fixture lampau masih 'scheduled'; `competition_catalog` tulis-saja (P-06) |
+| `upcoming_fixtures.db` | 1,7 MB | fixtures 3.770 · catalog 317 · sm_id_map 3.420 | ✅ ok | **62 kembaran mt_/sm_ tak terjembatani** (F-16, tanpa referensi hilir); 270 fixture lampau masih 'scheduled'; `competition_catalog` tulis-saja (P-06) |
 | `thestats_dataset.db` | 1,53 GB | matches 70.114 · team_match_logs 85.521 · teams 6.450 · odds 4.071 · registry 125 | ✅ ok, FK 0 (integrity_check rampung via proses latar pasca-jendela utama — lihat F-02) | 50 baris hasil ganda (P-01); standings yatim → INV-13 FAIL (P-03); xg_for NULL 57,4% |
 | `predictions.db` | 14,2 MB | sm_predictions 70.553 · value_bets 80 · predictability 5.590 | ✅ ok | isolasi terverifikasi (INV-14); skala persen probabilitas kini terdokumentasi |
 | `picks.db` | 46,2 MB | picks 163.491 (lab 163.008 + live-run 483) · outcomes 163.008 | ✅ ok, FK 0 | sehat; resolver lag 0 |
@@ -104,32 +104,67 @@ baca → buang token imbuhan {fc, afc, cf, sc, ac, as, us, cd, sd,
 club, de, the}. Populasi: gabungan nama di `teams` (6.441 distinct),
 nama fixture katalog (1.397), kunci ratings (1.457), nama master (403).
 
-- **Kembaran fixture mt_/sm_ tak terjembatani: 0.** Dari 378 fixture
-  `mt_`, 123 terjembatani; 255 sisanya dicocokkan (tanggal UTC sama +
-  nama home/away ternormalisasi sama) melawan seluruh katalog `sm_`:
-  **0 ketemu** — 209 adalah batch TheStats 17 Okt (pra-katalog SM),
-  46 di jendela Nov tanpa padanan nama-sama. Tidak ada kembaran
-  katalog yang bersembunyi.
+- **Kembaran fixture mt_/sm_ tak terjembatani: 62 terverifikasi**
+  (F-16). Dari 378 fixture `mt_`, 123 terjembatani; 255 sisanya
+  dicocokkan ulang melawan seluruh katalog `sm_`: **62 pasangan**
+  pada timestamp kickoff identik + nama ternormalisasi identik
+  (64–72 pada varian lebih longgar; metode pekerja census dengan
+  normalizer kode menghasilkan 59 — semua metode berkumpul di
+  kisaran yang sama). Contoh tak ambigu: Ipswich Town vs Bournemouth
+  (comp_3039 ↔ sm:8, timestamp sama persis), Atlético Madrid vs
+  Barcelona (comp_8814 ↔ sm:564). **Koreksi jujur: pengukuran census
+  pertama audit ini menyatakan 0 — query-nya cacat (kriteria join
+  terlalu sempit) dan angka itu sempat masuk draf dokumen; angka
+  yang berdiri adalah hasil lari ulang di atas.** Dampak terukur
+  hari ini terbatas: 0 pick dan 0 paket merujuk sisi `mt_` —
+  duplikasi berhenti di katalog (proposal P-09).
 - **Duplikasi hasil selesai**: 50 grup / 50 baris ekstra intra-ruang;
   lintas ruang id = 0 (F-03).
 - **Tim**: id telemetri (5.497 = 5.272 numerik SM + 225 `tm_`) adalah
   subset penuh `teams` (tml-only = 0); 953 id `teams` tanpa log
-  telemetri (semua numerik SM). Tabrakan ejaan lintas sumber:
-  **107 grup** (setiap grup tepat 2 ejaan; 102 lintas sumber, 5 satu
-  sumber; di dalam `teams` saja hanya 7). Contoh: AFC
-  Bournemouth/Bournemouth · FC Porto/Porto · Red Star/Red Star FC ·
-  Atlético Madrid/Atletico Madrid · 1. FC Köln/1. FC Koln ·
-  FC Metz/Metz. Arah sebaliknya di `teams`: 9 grup nama persis dan
-  12 grup ternormalisasi dipakai >1 team_id (River Plate ×2,
-  Al Ahli ×2, …) — resolusi nama→id memang wajib sadar konteks liga.
+  telemetri (semua numerik SM). Tabrakan ejaan (lari ulang census,
+  normalizer yang sama): **111 grup** (106 lintas sumber, 5 satu
+  sumber — kelimanya di `teams`; di dalam `teams` saja 11 grup;
+  maks 3 ejaan per grup; metode normalizer-kode pekerja census
+  menghasilkan 130 pada korpusnya — angka ini sensitif metode dan
+  dinyatakan apa adanya). Contoh: AFC Bournemouth/Bournemouth ·
+  FC Porto/Porto · Red Star/Red Star FC · Atlético Madrid/Atletico
+  Madrid · 1. FC Köln/1. FC Koln · FC Metz/Metz. Arah sebaliknya di
+  `teams`: 9 grup nama persis dan 12 grup ternormalisasi dipakai >1
+  team_id (River Plate ×2, Al Ahli ×2, …) — resolusi nama→id memang
+  wajib sadar konteks liga.
+- **Kunci ganda di dalam ratings (F-14)**: 26 grup kunci tim
+  ternormalisasi ganda **di dalam satu liga yang sama** di
+  `calibrated_ratings.json` — terverifikasi contohnya adalah salinan
+  alias yang diperluas dengan statistik byte-identik (Bournemouth +
+  AFC Bournemouth di E0 **dan** SM8). Pengecualian yang ditandai
+  pekerja census dan masuk akal: pasangan mirip yang sebenarnya dua
+  klub berbeda (Benfica vs CF Benfica, SM462) — penggabungan berbasis
+  normalisasi saja akan salah di sana; P-05 wajib membawa daftar
+  do-not-merge.
+- **Ruang id hanya disjoint karena prefix**: 10 sufiks numerik `tm_`
+  juga ada sebagai id numerik Sportmonks di `teams`, dan **0 dari 10
+  itu klub yang sama** (terverifikasi nama) — kode apa pun yang
+  menanggalkan prefix akan menggabungkan klub yang salah secara
+  diam-diam.
+- **Satu-satunya fits kanonik menggantung (F-15)**: liga kanonik
+  sm:1085 membawa `fits[0].ratings_key = 'SM1085'`, tetapi
+  `calibrated_ratings.json` tidak punya liga SM1085 (72 kunci) —
+  tepat 1 dari seluruh entri fits kanonik. Baris registry sm:1085
+  berstatus uncalibrated (cup-offset) sehingga gerbang memblokir
+  sajiannya; dampak langsung nol, tetapi referensi lintas-artefaknya
+  basi (INV-19 FAIL, proposal P-10).
 
 ## 4. Invarian — hasil lari
 
 Kontrak penuh + SQL: `docs/DATA-INVARIANTS.md`.
-**18 invarian: 15 PASS · 1 FAIL (INV-13, F-01) · 2 catatan sesuai
+**19 invarian: 15 PASS · 2 FAIL (INV-13 standings→teams, F-01;
+INV-19 satu fits kanonik menggantung, F-15) · 2 catatan sesuai
 desain/disiplin (INV-15 NULL jujur; INV-17 dua fixture predictions
 di luar katalog = retensi permanen by design).** (INV-18 sempat
-terbuka selama jendela utama, lalu tertutup PASS — lihat F-02.)
+terbuka selama jendela utama, lalu tertutup PASS — lihat F-02.
+INV-19 ditambahkan dari temuan census susulan dan langsung
+dijalankan.)
 Sorotan PASS yang menopang
 kepercayaan: INV-01/02 (tautan pick↔paket persis), INV-04 (0 kaki
 live-run dari liga uncalibrated), INV-09 (sm_id_map 0 basi),
@@ -212,8 +247,8 @@ resmi vs payload predictions untuk 71 fixture tumpang-tindih =
   diverifikasi (F-02). Sisanya: 7/8 store integrity ok.
 - **Keterbacaan (readability)**: konvensi id per sumber konsisten
   dan kini terdokumentasi; utang keterbacaan terbesar adalah
-  ketiadaan registry tim (107 grup ejaan) — terkuantifikasi, bukan
-  kesan.
+  ketiadaan registry tim (111 grup ejaan + 26 grup kunci ganda
+  intra-liga ratings) — terkuantifikasi, bukan kesan.
 - **Arsitektur**: split per fungsi terbukti sehat (isolasi
   predictions dapat dibuktikan mekanis, INV-14); satu definisi
   semantik pick (`evaluatePick`) dipakai lab + engine + resolver;
@@ -289,3 +324,32 @@ layak dicatat permanen:
 - Baris telemetri source NULL (2.348) terukur **seluruhnya**
   match_id `mt_*` — konsisten dengan label "era TheStats"; dicatat
   di `docs/DATABASE.md` §3.
+
+### Addendum 2 — proposal dari temuan census susulan
+
+- **P-09 · Jembatani atau dedupe 62 kembaran katalog (F-16).**
+  Perbaikan tahan lama ada di pencocokan skrip sync katalog
+  (celah normalizer: normalizer kode tidak menanggalkan 'AFC' dan
+  kawanannya — kasus Bournemouth), bukan tambalan baris sekali.
+  Untuk 62 pasangan terverifikasi: tulis baris jembatan `sm_id_map`
+  atau pensiunkan baris `mt_`-nya. Risiko: sedang-rendah — terukur
+  0 pick/paket merujuk sisi `mt_`, tetapi konsumen masa depan yang
+  memindai katalog mentah akan menggandakan laga ini; verifikasi
+  sesudahnya = lari ulang pencocokan census (target 0) + INV-09
+  tetap PASS.
+- **P-10 · Validasi fits kanonik terhadap berkas ratings (F-15).**
+  Tambahkan cek di generator kanonik: setiap `fits[].ratings_key`
+  harus ada sebagai kunci liga di `calibrated_ratings.json`; entri
+  basi SM1085 gugur pada pembangunan ulang berikutnya. Risiko:
+  nol ke sajian (liga itu sudah terblokir gerbang); verifikasi =
+  INV-19 PASS.
+
+Catatan koreksi census (mengikat §3 & §8): angka kembaran "0" pada
+pengukuran census pertama audit ini adalah kesalahan metode
+koordinator sendiri — bukan hanya draf pekerja yang perlu
+diverifikasi ulang. Lari ulang dengan kolom dan kriteria yang benar
+menghasilkan 62 (lihat §3), dan dokumen-dokumen yang sempat membawa
+angka lama (DATABASE.md §2, laporan ini) sudah dikoreksi dalam
+commit koreksi census yang sama. Pelajarannya dicatat apa adanya:
+klaim negatif ("tidak ada X") menuntut verifikasi metode seketat
+klaim positif.

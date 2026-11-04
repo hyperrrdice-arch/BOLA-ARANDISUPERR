@@ -116,10 +116,12 @@ npx tsx scripts/verify-consumption.ts              # audit konsumsi katalog (rea
 ```
 
 Dokumen kebenaran: `docs/DATABASE.md` (struktur + provenance),
-`docs/DATA-INVARIANTS.md` (kontrak; status terakhir: 15 PASS,
-**INV-13 FAIL diketahui** — standings merujuk 167 team_id yang tidak
-ada di `teams`; INV-18 kesehatan store PASS di semua store),
-`tasks/db-audit-report.md` (audit terakhir + proposal P-01…P-08),
+`docs/DATA-INVARIANTS.md` (kontrak; status terakhir: 19 invarian —
+15 PASS, **2 FAIL diketahui: INV-13** standings merujuk 167 team_id
+yang tidak ada di `teams`, **INV-19** satu fits kanonik menggantung
+(SM1085, dampak terblokir gerbang); INV-18 kesehatan store PASS di
+semua store),
+`tasks/db-audit-report.md` (audit terakhir + proposal P-01…P-10),
 `ARCHITECTURE.md` / `STRUCTURE.md` (arsitektur + peta repo),
 `tasks/` (bukti per fase — setiap klaim besar punya file buktinya).
 

@@ -122,6 +122,16 @@ Audit: **PASS** — 21/81, integrity ok.
 pelanggaran (retensi permanen, keputusan owner); jumlahnya dipantau.
 Audit: 770 fixture, **2 di luar katalog** (rotasi horizon) — sesuai desain.
 
+**INV-19 · Setiap fits kanonik menunjuk kunci yang ada di berkas ratings.**
+Pemeriksa: untuk setiap entri `fits[].ratings_key` di
+`league-canonical.json`, kunci itu harus ada sebagai liga di
+`calibrated_ratings.json`. Audit susulan (dari census identitas):
+**FAIL diketahui — tepat 1 menggantung**: liga kanonik sm:1085
+membawa ratings_key 'SM1085' yang tidak ada di berkas (72 kunci).
+Dampak langsung nol (baris registry sm:1085 berstatus uncalibrated
+— gerbang memblokir sajiannya), tetapi referensinya basi.
+Perbaikan = proposal P-10 di laporan audit.
+
 ## Grup E — Kesehatan store
 
 **INV-18 · Semua store lolos integrity_check dan ber-journal wal.**
@@ -137,6 +147,7 @@ pelanggaran**. Dengan itu kedelapan store PASS invarian ini.
 ---
 
 ### Ringkasan audit 5 Nov 2026
-18 invarian: **15 PASS · 1 FAIL diketahui (INV-13 standings→teams) ·
-2 catatan sesuai desain/disiplin (INV-15, INV-17)**. FAIL tidak
-disembunyikan: ia adalah item perbaikan P-03 di laporan audit.
+19 invarian: **15 PASS · 2 FAIL diketahui (INV-13 standings→teams;
+INV-19 satu fits kanonik menggantung) · 2 catatan sesuai
+desain/disiplin (INV-15, INV-17)**. FAIL tidak disembunyikan:
+keduanya adalah item perbaikan (P-03 dan P-10) di laporan audit.
