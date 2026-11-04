@@ -1,7 +1,8 @@
 /**
- * ANALISIS PERTANDINGAN — satu paket kuant lengkap per laga:
- * probabilitas 3 sumber, matriks skor, asal angka, form, keberuntungan,
- * dan pilihan yang tercatat beserta hasil akhirnya.
+ * MATCH ANALYSIS — one full quant package per match: probabilities from
+ * three sources, the score matrix, where the numbers come from, recent
+ * form, goals vs xG, and the picks recorded for it with their results.
+ * Presentation only — every figure comes from the stored package.
  */
 import { Suspense } from "react";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getMatchDetail, type FormEntry, type PickRow } from "@/lib/web/data";
 import {
+  GATE_LABEL,
   labelPilihan,
   num,
   pct,
@@ -20,7 +22,6 @@ import {
   FormChips,
   GateStatus,
   GradeMark,
-  MicroLabel,
   PageLoading,
   Prob,
   SectionHead,
@@ -37,7 +38,6 @@ interface LuckSide {
   total_xg_for: number;
   total_goals_against: number;
   total_xg_against: number;
-  description?: string;
 }
 interface LuckMetrics {
   home: LuckSide;
@@ -45,6 +45,13 @@ interface LuckMetrics {
   luck_disparity: number;
   market_bias_warning: string | null;
 }
+
+const LUCK_LABEL: Record<string, string> = {
+  OVERPERFORMING: "Overperforming",
+  UNDERPERFORMING: "Underperforming",
+  NEUTRAL: "In line",
+  INSUFFICIENT_DATA: "Not enough data",
+};
 
 /* ------------------------------------------------------- probability rows */
 
@@ -67,9 +74,34 @@ const PROB_ROWS: { market: string; selection: string }[] = [
   { market: "team_over05_away", selection: "yes" },
 ];
 
+const GATE_SENTENCE: Record<string, string> = {
+  calibrated: "This league passed calibration checks on held-out matches.",
+  partial: "This league is partly calibrated — treat its numbers with care.",
+  uncalibrated: "This league has not passed calibration checks yet.",
+};
+
 function signed(n: number, digits = 2): string {
   const s = num(Math.abs(n), digits);
   return `${n > 0 ? "+" : n < 0 ? "−" : ""}${s}`;
+}
+
+/** Plain-English serving note from the structured resolution fields
+ *  (the stored note itself is pipeline prose, so it is not printed). */
+function resolutionSentence(
+  lr: { fitSystem?: string; via?: string } | undefined,
+): string | null {
+  if (!lr) return null;
+  if (lr.via === "cup-offset") return "This fixture is served by the global cup offset model.";
+  switch (lr.fitSystem) {
+    case "sportmonks":
+      return "This fixture is served by the Sportmonks fit for its league.";
+    case "legacy-div":
+      return "This fixture is served by the legacy divisional fit for its league.";
+    case "special":
+      return "This fixture is served by a dedicated fit for its competition.";
+    default:
+      return null;
+  }
 }
 
 /* ------------------------------------------------------------------- page */
@@ -80,7 +112,7 @@ export default function AnalisisPage({
   params: Promise<{ matchId: string }>;
 }) {
   return (
-    <Suspense fallback={<PageLoading label="Memuat analisis pertandingan…" />}>
+    <Suspense fallback={<PageLoading label="Loading match analysis…" />}>
       <AnalisisContent params={params} />
     </Suspense>
   );
@@ -102,96 +134,98 @@ async function AnalisisContent({ params }: { params: Promise<{ matchId: string }
   const hits = resolved.filter((x) => x.hit === 1).length;
 
   const luck = (p.shrunk_metadata?.luckMetrics ?? null) as LuckMetrics | null;
+  const feedMode = (p as unknown as { feed_mode?: string }).feed_mode;
+  const resolution = resolutionSentence(p.shrunk_metadata?.leagueResolution);
 
   const matrix = p.score_matrix ?? [];
   const cut = matrix.slice(0, 6).map((row) => row.slice(0, 6));
   const maxCell = cut.reduce((m, row) => row.reduce((a, v) => Math.max(a, v), m), 0);
 
+  const spreadRows = PROB_ROWS.map(({ market, selection }) => {
+    const key = `${market}:${selection}`;
+    const mv = p.probabilities[key] ?? null;
+    const kv = p.market?.probs[key] ?? null;
+    const sv = p.sm_panel?.probs[key] ?? null;
+    const present = [mv, kv, sv].filter((v): v is number => v !== null);
+    const spread = present.length >= 2 ? Math.max(...present) - Math.min(...present) : 0;
+    return { market, selection, key, mv, kv, sv, spread };
+  });
+  const disagreeCount = spreadRows.filter((r) => r.spread > 0.1).length;
+
   return (
-    <div className="space-y-10">
+    <div>
       <Link
         href="/pertandingan"
-        className="inline-block font-mono text-xs tracking-wider text-mid-gray hover:text-accent"
+        className="text-sm text-mid-gray transition-colors hover:text-ink"
       >
-        ← SEMUA PERTANDINGAN
+        ← Matches
       </Link>
 
-      {/* ---------------------------------------------------------- kepala */}
-      <header>
-        <h1 className="font-display text-4xl sm:text-6xl font-bold tracking-wide text-ink leading-none">
-          {home} <span className="text-faint">vs</span> {away}
-        </h1>
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-mid-gray">
+      {/* ---------------------------------------------------------- header */}
+      <header className="mt-8">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-mid-gray">
+          <GateStatus status={pkg.gate_status} withLabel={false} />
           <span>{f.competition_name}</span>
-          <span aria-hidden="true">•</span>
-          <span>{tanggalJamWib(f.kickoff_utc)}</span>
-          <GateStatus status={pkg.gate_status} />
-          {p.population === "cup" && (
-            <span className="font-mono text-[11px] tracking-wider text-faint">JALUR PIALA (OFFSET)</span>
-          )}
-        </div>
+          <span aria-hidden="true">·</span>
+          <span>{GATE_LABEL[pkg.gate_status] ?? pkg.gate_status}</span>
+        </p>
+        <h1 className="mt-3 font-display text-[32px] leading-tight font-semibold tracking-[-0.01em] text-ink sm:text-4xl">
+          {home} <span className="font-normal text-faint">vs</span> {away}
+        </h1>
+        <p className="mt-2.5 text-[15px] text-mid-gray">
+          {tanggalJamWib(f.kickoff_utc)}
+          {feedMode === "free" && <> · Free data mode</>}
+        </p>
         {result?.finished && (
-          <div className="mt-5 panel-flat px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <span className="flex items-baseline gap-3">
-              <MicroLabel>Skor akhir</MicroLabel>
-              <span className="tabular-nums text-3xl font-bold text-ink">
-                {result.home_goals}–{result.away_goals}
-              </span>
-            </span>
-            <span className="font-mono text-xs text-mid-gray tabular-nums">
-              Pilihan paket ini: <span className="text-sage font-bold">{hits} kena</span> ·{" "}
-              <span className="text-brick font-bold">{resolved.length - hits} meleset</span> · dari{" "}
-              {resolved.length} ter-resolve ({picks.length} tercatat)
-            </span>
+          <div className="mt-8">
+            <p className="text-xl font-medium text-ink">
+              Finished {home} {result.home_goals}–{result.away_goals} {away}.
+            </p>
+            {picks.length > 0 && (
+              <p className="mt-1.5 text-sm text-mid-gray">
+                {resolved.length > 0
+                  ? `${hits} of ${resolved.length} picks from this package hit.`
+                  : `${picks.length} picks recorded, none graded yet.`}
+              </p>
+            )}
           </div>
         )}
       </header>
 
-      {/* ------------------------------------------- probabilitas 3 sumber */}
-      <section className="space-y-3">
-        <SectionHead
-          label="Probabilitas — 3 Sumber"
-          right={<MicroLabel>selisih &gt; 10 poin disorot amber</MicroLabel>}
-        />
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-t border-hairline">
+      {/* --------------------------------------------------- three sources */}
+      <section className="mt-16">
+        <SectionHead label="Three sources" />
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[540px] text-sm">
             <thead>
-              <tr className="border-b border-hairline">
-                <th className="text-left py-2 pr-3 micro-label font-normal">Pilihan</th>
-                <th className="text-right py-2 px-3 micro-label font-normal">Model</th>
-                <th className="text-right py-2 px-3 micro-label font-normal">Pasar</th>
-                <th className="text-right py-2 pl-3 micro-label font-normal">Sportmonks</th>
+              <tr>
+                <th className="pb-3 text-left text-[13px] font-normal text-mid-gray">Pick</th>
+                <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Model</th>
+                <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Market</th>
+                <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Sportmonks</th>
               </tr>
             </thead>
             <tbody>
-              {PROB_ROWS.map(({ market, selection }) => {
-                const key = `${market}:${selection}`;
-                const mv = p.probabilities[key] ?? null;
-                const kv = p.market?.probs[key] ?? null;
-                const sv = p.sm_panel?.probs[key] ?? null;
-                const present = [mv, kv, sv].filter((v): v is number => v !== null);
-                const spread =
-                  present.length >= 2 ? Math.max(...present) - Math.min(...present) : 0;
-                const hot = spread > 0.1;
+              {spreadRows.map((r) => {
+                const hot = r.spread > 0.1;
+                const present = [r.mv, r.kv, r.sv].filter((v): v is number => v !== null);
                 const hi = hot ? Math.max(...present) : null;
                 const lo = hot ? Math.min(...present) : null;
                 const cls = (v: number | null) =>
-                  hot && v !== null && (v === hi || v === lo)
-                    ? "text-accent font-semibold"
-                    : "";
+                  hot && v !== null && (v === hi || v === lo) ? "font-semibold text-accent" : "";
                 return (
-                  <tr key={key} className="border-b border-hairline/60">
-                    <td className="py-1.5 pr-3 text-ink-soft">
-                      {labelPilihan(market, selection, home, away)}
+                  <tr key={r.key} className="border-t border-hairline/50">
+                    <td className="py-2 pr-3 text-ink-soft">
+                      {labelPilihan(r.market, r.selection, home, away)}
                     </td>
-                    <td className={`py-1.5 px-3 text-right ${cls(mv)}`}>
-                      <Prob value={mv} />
+                    <td className={`py-2 px-3 text-right ${cls(r.mv)}`}>
+                      <Prob value={r.mv} />
                     </td>
-                    <td className={`py-1.5 px-3 text-right ${cls(kv)}`}>
-                      <Prob value={kv} />
+                    <td className={`py-2 px-3 text-right ${cls(r.kv)}`}>
+                      <Prob value={r.kv} />
                     </td>
-                    <td className={`py-1.5 pl-3 text-right ${cls(sv)}`}>
-                      <Prob value={sv} />
+                    <td className={`py-2 pl-3 text-right ${cls(r.sv)}`}>
+                      <Prob value={r.sv} />
                     </td>
                   </tr>
                 );
@@ -199,41 +233,40 @@ async function AnalisisContent({ params }: { params: Promise<{ matchId: string }
             </tbody>
           </table>
         </div>
-        <div className="space-y-1 font-mono text-[11px] leading-relaxed text-faint">
+        <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-faint">
+          {disagreeCount > 0 && (
+            <p>Sources disagree by more than 10 points on {disagreeCount} picks.</p>
+          )}
           {p.market ? (
             <p>
-              Pasar: odds ditangkap {tanggalJamWib(p.market.captured_utc)}
-              {p.market.bookmakers.length > 0 && <> · bandar: {p.market.bookmakers.join(", ")}</>}
-              {" "}— sudah dibersihkan dari margin bandar.
+              Market odds captured {tanggalJamWib(p.market.captured_utc)}
+              {p.market.bookmakers.length > 0 && <> · {p.market.bookmakers.join(", ")}</>}.
             </p>
           ) : (
-            <p>Pasar: belum ada tangkapan odds untuk laga ini — kolom pasar kosong.</p>
+            <p>No market odds captured for this match.</p>
           )}
           {p.sm_panel ? (
-            <p>Sportmonks: panel prediksi batch {tanggalJamWib(p.sm_panel.batch_utc)} (arsip trial).</p>
+            <p>Sportmonks panel {tanggalJamWib(p.sm_panel.batch_utc)}.</p>
           ) : (
-            <p>Sportmonks: panel tidak tersedia untuk laga ini — kolom Sportmonks kosong.</p>
+            <p>No Sportmonks panel for this match.</p>
           )}
         </div>
       </section>
 
-      <div className="grid gap-10 lg:grid-cols-2">
-        {/* ------------------------------------------------ matriks skor */}
-        <section className="space-y-3">
-          <SectionHead
-            label="Matriks Skor"
-            right={<MicroLabel>gol kandang ↓ · gol tamu →</MicroLabel>}
-          />
+      <div className="mt-16 grid gap-16 lg:grid-cols-2">
+        {/* ------------------------------------------------- likely scores */}
+        <section>
+          <SectionHead label="Likely scores" sub="Home goals down, away goals across." />
           {cut.length === 0 ? (
-            <p className="font-mono text-xs text-faint">Matriks skor tidak tersimpan pada paket ini.</p>
+            <p className="mt-6 text-sm text-faint">No score matrix stored in this package.</p>
           ) : (
             <>
-              <table className="border-collapse">
+              <table className="mt-6 border-collapse">
                 <thead>
                   <tr>
-                    <th className="w-9 h-9" />
+                    <th className="h-9 w-8" />
                     {cut[0].map((_, j) => (
-                      <th key={j} className="w-14 h-9 font-mono text-xs text-mid-gray font-normal">
+                      <th key={j} className="h-9 w-12 font-mono text-xs font-normal text-mid-gray sm:w-14">
                         {j}
                       </th>
                     ))}
@@ -242,12 +275,12 @@ async function AnalisisContent({ params }: { params: Promise<{ matchId: string }
                 <tbody>
                   {cut.map((row, i) => (
                     <tr key={i}>
-                      <th className="w-9 h-11 font-mono text-xs text-mid-gray font-normal">{i}</th>
+                      <th className="h-10 w-8 font-mono text-xs font-normal text-mid-gray">{i}</th>
                       {row.map((v, j) => (
                         <td
                           key={j}
                           style={heatStyle(v, maxCell)}
-                          className="w-14 h-11 text-center font-mono text-[11px] tabular-nums border border-canvas"
+                          className="h-10 w-12 rounded-[3px] text-center font-mono text-[11px] tabular-nums sm:w-14"
                         >
                           {pct(v)}
                         </td>
@@ -256,219 +289,185 @@ async function AnalisisContent({ params }: { params: Promise<{ matchId: string }
                   ))}
                 </tbody>
               </table>
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <ol className="mt-6 space-y-1.5">
                 {(p.top_scores ?? []).slice(0, 5).map((s, i) => (
-                  <span
-                    key={i}
-                    className="border border-hairline rounded-md px-2 py-1 font-mono text-[11px] text-ink-soft tabular-nums"
-                  >
-                    {s.home_goals}–{s.away_goals} · {pct(s.prob)}
-                  </span>
+                  <li key={i} className="flex items-baseline gap-3 text-sm">
+                    <span className="w-4 text-faint">{i + 1}.</span>
+                    <span className="font-medium text-ink">
+                      {s.home_goals}–{s.away_goals}
+                    </span>
+                    <span className="tabular-nums text-mid-gray">{pct(s.prob)}</span>
+                  </li>
                 ))}
-              </div>
-              <p className="font-mono text-[11px] text-faint">
-                Ditampilkan 0–5 gol per sisi dari matriks 11×11 penuh.
+              </ol>
+              <p className="mt-4 text-[13px] text-faint">
+                Shown 0–5 goals per side, from the full 11×11 matrix.
               </p>
             </>
           )}
         </section>
 
-        {/* -------------------------------------------------- asal angka */}
-        <section className="space-y-3">
-          <SectionHead label="Asal Angka" />
-          <dl className="space-y-2 text-sm">
-            <div className="flex gap-3">
-              <dt className="w-32 shrink-0 text-faint">Kekuatan gol</dt>
-              <dd className="tabular-nums text-ink-soft">
-                λ {num(p.lambda)} · μ {num(p.mu)} · ρ {num(p.rho)}
-              </dd>
-            </div>
-            <div className="flex gap-3">
-              <dt className="w-32 shrink-0 text-faint">Sumber fit</dt>
-              <dd className="text-ink-soft font-mono text-[13px]">{pkg.fit_source}</dd>
-            </div>
+        {/* ------------------------------------------- about these numbers */}
+        <section>
+          <SectionHead label="About these numbers" />
+          <div className="mt-6 space-y-3.5 text-[15px] leading-relaxed text-ink-soft">
+            <p>
+              Expected goals <span className="tabular-nums">{num(p.lambda)}</span> –{" "}
+              <span className="tabular-nums">{num(p.mu)}</span>. Correlation{" "}
+              <span className="tabular-nums">{num(p.rho)}</span>.
+            </p>
+            <p>
+              Ratings from <span className="font-mono text-[13px]">{pkg.fit_source}</span>.
+            </p>
             {pkg.cup_delta !== null && (
-              <div className="flex gap-3">
-                <dt className="w-32 shrink-0 text-faint">Offset piala</dt>
-                <dd className="tabular-nums text-ink-soft">δ {signed(pkg.cup_delta, 3)}</dd>
-              </div>
+              <p>
+                Cup match: league offset{" "}
+                <span className="tabular-nums">{signed(pkg.cup_delta, 3)}</span> applied.
+              </p>
             )}
-            <div className="flex gap-3">
-              <dt className="w-32 shrink-0 text-faint">Dihitung</dt>
-              <dd className="text-ink-soft">{tanggalJamWib(pkg.computed_utc)}</dd>
-            </div>
-            {pkg.odds_captured_utc && (
-              <div className="flex gap-3">
-                <dt className="w-32 shrink-0 text-faint">Odds ditangkap</dt>
-                <dd className="text-ink-soft">{tanggalJamWib(pkg.odds_captured_utc)}</dd>
-              </div>
-            )}
-          </dl>
-          {p.shrunk_metadata?.calibrationGate && (
-            <p className="border-t border-hairline pt-3 text-[13px] leading-relaxed text-mid-gray">
-              {p.shrunk_metadata.calibrationGate}
-            </p>
-          )}
-          {p.shrunk_metadata?.leagueResolution?.note && (
-            <p className="text-[13px] leading-relaxed text-faint">
-              {p.shrunk_metadata.leagueResolution.note}
-            </p>
-          )}
+            <p>{GATE_SENTENCE[pkg.gate_status] ?? GATE_SENTENCE.uncalibrated}</p>
+            {resolution && <p>{resolution}</p>}
+            <p className="text-mid-gray">Calculated {tanggalJamWib(pkg.computed_utc)}.</p>
+          </div>
         </section>
       </div>
 
-      {/* ---------------------------------------------------------- form */}
-      <section className="space-y-3">
-        <SectionHead label="Form 6 Laga Terakhir" />
-        <div className="grid gap-6 md:grid-cols-2">
+      {/* --------------------------------------------------------- last six */}
+      <section className="mt-16">
+        <SectionHead label="Last six" />
+        <div className="mt-8 grid gap-12 md:grid-cols-2">
           {[
             { name: home, form: formHome },
             { name: away, form: formAway },
-          ].map(({ name, form }) => (
-            <div key={name} className="panel-flat px-4 py-3">
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-display text-lg font-semibold tracking-wide text-ink">{name}</span>
-                <FormChips form={form} />
+          ].map(({ name, form }) => {
+            const gf = form.reduce((a, e) => a + e.goals_for, 0);
+            const ga = form.reduce((a, e) => a + e.goals_against, 0);
+            return (
+              <div key={name}>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-display text-lg font-semibold text-ink">{name}</span>
+                  <FormChips form={form} />
+                </div>
+                {form.length > 0 && (
+                  <>
+                    <p className="mt-2 text-[13px] text-mid-gray">
+                      Scored {gf} · Conceded {ga}
+                    </p>
+                    <ul className="mt-4 space-y-2 text-sm">
+                      {form.map((e: FormEntry, i: number) => (
+                        <li key={i} className="flex items-baseline gap-2.5 text-ink-soft">
+                          <span className="w-[5.5rem] shrink-0 font-mono text-[11px] text-faint">
+                            {tanggalWib(e.date)}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">
+                            {e.venue === "home" ? "vs" : "at"} {e.opponent}
+                          </span>
+                          <span className="tabular-nums">
+                            {e.goals_for}–{e.goals_against}
+                          </span>
+                          {e.xg_for !== null && e.xg_against !== null && (
+                            <span className="tabular-nums text-[11px] text-faint">
+                              xG {num(e.xg_for)}–{num(e.xg_against)}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
-              {form.length > 0 && (
-                <ul className="mt-3 space-y-1.5 border-t border-hairline pt-3 text-[13px]">
-                  {form.map((e: FormEntry, i: number) => (
-                    <li key={i} className="flex items-center gap-2 text-ink-soft">
-                      <span className="font-mono text-[11px] text-faint w-20 shrink-0">
-                        {tanggalWib(e.date)}
-                      </span>
-                      <span className="flex-1 min-w-0 truncate">
-                        {e.venue === "home" ? "vs" : "@"} {e.opponent}
-                      </span>
-                      <span className="tabular-nums">
-                        {e.goals_for}–{e.goals_against}
-                      </span>
-                      {e.xg_for !== null && e.xg_against !== null && (
-                        <span className="tabular-nums text-faint text-[11px]">
-                          xG {num(e.xg_for)}–{num(e.xg_against)}
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
-      {/* -------------------------------------------------- keberuntungan */}
+      {/* ------------------------------------------------------------ luck */}
       {luck && (
-        <section className="space-y-3">
-          <SectionHead
-            label="Keberuntungan vs xG"
-            right={
-              <MicroLabel>
-                selisih kandang–tamu {signed(luck.luck_disparity)} per laga
-              </MicroLabel>
-            }
-          />
-          <div className="grid gap-6 md:grid-cols-2">
+        <section className="mt-16">
+          <SectionHead label="Goals vs expected goals (xG)" />
+          <div className="mt-8 grid gap-12 md:grid-cols-2">
             {[
               { name: home, side: luck.home },
               { name: away, side: luck.away },
             ].map(({ name, side }) => (
-              <div key={name} className="panel-flat px-4 py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-display text-lg font-semibold tracking-wide text-ink">{name}</span>
-                  <span className="font-mono text-[11px] tracking-wider text-mid-gray">{side.status}</span>
-                </div>
-                <dl className="mt-3 space-y-1.5 border-t border-hairline pt-3 text-[13px]">
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-faint">Keberuntungan bersih</dt>
-                    <dd className="tabular-nums text-ink-soft">
-                      {signed(side.net_luck_rating)} gol per laga
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-faint">Gol vs xG (serang)</dt>
-                    <dd className="tabular-nums text-ink-soft">
-                      {side.total_goals_for} vs {num(side.total_xg_for)}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-faint">Kebobolan vs xGA</dt>
-                    <dd className="tabular-nums text-ink-soft">
-                      {side.total_goals_against} vs {num(side.total_xg_against)}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-faint">Sampel</dt>
-                    <dd className="tabular-nums text-ink-soft">{side.sample_size} laga</dd>
-                  </div>
-                </dl>
-                {side.status === "INSUFFICIENT_DATA" && side.description && (
-                  <p className="mt-2 text-[13px] leading-relaxed text-faint">{side.description}</p>
+              <div key={name}>
+                {side.status === "INSUFFICIENT_DATA" ? (
+                  <p className="text-[15px] text-ink-soft">{name}: not enough xG data yet.</p>
+                ) : (
+                  <>
+                    <p className="text-[15px] text-ink-soft">
+                      {name}: <span className="tabular-nums">{signed(side.net_luck_rating)}</span>{" "}
+                      per game vs xG — {LUCK_LABEL[side.status] ?? side.status}.
+                    </p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-faint">
+                      Across {side.sample_size} games: scored {side.total_goals_for} on{" "}
+                      {num(side.total_xg_for)} xG, conceded {side.total_goals_against} on{" "}
+                      {num(side.total_xg_against)} xG against.
+                    </p>
+                  </>
                 )}
               </div>
             ))}
           </div>
           {luck.market_bias_warning && (
-            <div className="border border-accent/40 bg-accent/10 rounded-md px-4 py-3 text-sm leading-relaxed text-ink-soft">
-              {luck.market_bias_warning}
-            </div>
+            <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
+              Note: {home} are {(LUCK_LABEL[luck.home.status] ?? "").toLowerCase()} against xG
+              while {away} are {(LUCK_LABEL[luck.away.status] ?? "").toLowerCase()} — recent
+              results and the numbers disagree here.
+            </p>
           )}
         </section>
       )}
 
-      {/* ------------------------------------------------------- pilihan */}
-      <section className="space-y-3">
+      {/* ---------------------------------------------------- package picks */}
+      <section className="mt-16">
         <SectionHead
-          label="Pilihan dari Laga Ini"
-          right={<MicroLabel>{picks.length} tercatat di ledger</MicroLabel>}
+          label="Picks from this package"
+          right={<span className="text-[13px] text-faint">{picks.length} on record</span>}
         />
         {picks.length === 0 ? (
           <EmptyState
-            title="Belum ada pilihan tercatat"
-            note="Paket ini dihitung sebelum mesin pilihan menulis ke ledger, atau tidak ada pilihan yang lolos ambang grade."
+            title="No picks recorded for this package"
+            note="This package was calculated before the pick engine wrote to the ledger, or no pick cleared the grade threshold."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border-t border-hairline">
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
-                <tr className="border-b border-hairline">
-                  <th className="text-left py-2 pr-3 micro-label font-normal">Grade</th>
-                  <th className="text-left py-2 px-3 micro-label font-normal">Pilihan</th>
-                  <th className="text-right py-2 px-3 micro-label font-normal">Model</th>
-                  <th className="text-right py-2 px-3 micro-label font-normal">Pasar</th>
-                  <th className="text-right py-2 px-3 micro-label font-normal">SM</th>
-                  <th className="text-right py-2 pl-3 micro-label font-normal">Hasil</th>
+                <tr>
+                  <th className="pb-3 text-left text-[13px] font-normal text-mid-gray">Grade</th>
+                  <th className="pb-3 text-left text-[13px] font-normal text-mid-gray">Pick</th>
+                  <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Model</th>
+                  <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Market</th>
+                  <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Sportmonks</th>
+                  <th className="pb-3 text-right text-[13px] font-normal text-mid-gray">Result</th>
                 </tr>
               </thead>
               <tbody>
                 {picks.map((pk: PickRow) => (
-                  <tr key={pk.id} className="border-b border-hairline/60">
-                    <td className="py-2 pr-3">
+                  <tr key={pk.id} className="border-t border-hairline/50">
+                    <td className="py-2.5 pr-3">
                       <GradeMark grade={pk.grade} />
                     </td>
-                    <td className="py-2 px-3 text-ink-soft">
+                    <td className="py-2.5 px-3 text-ink-soft">
                       {labelPilihan(pk.market, pk.selection, home, away)}
                     </td>
-                    <td className="py-2 px-3 text-right">
+                    <td className="py-2.5 px-3 text-right">
                       <Prob value={pk.model_prob} strong={pk.grade === "A"} />
                     </td>
-                    <td className="py-2 px-3 text-right">
+                    <td className="py-2.5 px-3 text-right">
                       <Prob value={pk.market_prob} />
                     </td>
-                    <td className="py-2 px-3 text-right">
+                    <td className="py-2.5 px-3 text-right">
                       <Prob value={pk.sm_prob} />
                     </td>
-                    <td className="py-2 pl-3 text-right">
+                    <td className="py-2.5 pl-3 text-right">
                       {pk.hit === 1 ? (
-                        <span className="font-mono text-[11px] font-bold tracking-wider text-sage">KENA</span>
+                        <span className="text-[13px] font-medium text-sage">Hit</span>
                       ) : pk.hit === 0 ? (
-                        <span className="font-mono text-[11px] font-bold tracking-wider text-brick">
-                          MELESET
-                        </span>
+                        <span className="text-[13px] font-medium text-brick">Miss</span>
                       ) : (
-                        <span className="font-mono text-[11px] text-faint">
-                          {result?.finished ? "belum ter-resolve" : "menunggu laga"}
-                        </span>
+                        <span className="text-[13px] text-faint">—</span>
                       )}
                     </td>
                   </tr>

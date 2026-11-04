@@ -1,7 +1,7 @@
 /**
- * DAFTAR PERTANDINGAN — 72 jam ke depan dari paket analisis terbaru,
- * dikelompokkan per hari lalu kompetisi. Semua angka dari pipeline
- * tersimpan; halaman ini tidak menghitung model apa pun.
+ * MATCHES — the next 72 hours from the latest analysis packages,
+ * grouped by day, then competition. Every number comes from stored
+ * pipeline output; this page calculates nothing.
  */
 import { Suspense } from "react";
 import Link from "next/link";
@@ -12,117 +12,120 @@ import {
   listUpcoming,
   type FixtureListItem,
 } from "@/lib/web/data";
-import { jamWibOnly, labelHari, labelPilihan } from "@/lib/web/format";
-import { EmptyState, GateStatus, GradeMark, MicroLabel, PageLoading, Prob, SectionHead } from "@/components/ui";
+import { GATE_LABEL, jamWibOnly, labelHari, labelPilihan, tanggalWib } from "@/lib/web/format";
+import { EmptyState, GateStatus, GradeMark, PageLoading, Prob, SectionHead } from "@/components/ui";
 
-function SourceDots({ item }: { item: FixtureListItem }) {
-  const p = item.pkg.payload;
-  const cell = (label: string, on: boolean) => (
-    <span key={label} className={on ? "text-ink-soft" : "text-faint/50"}>
-      {label}
-    </span>
-  );
-  return (
-    <span className="hidden lg:inline-flex items-center gap-2 font-mono text-[10px] tracking-wider">
-      {cell("MODEL", true)}
-      {cell("PASAR", !!p.market)}
-      {cell("SM", !!p.sm_panel)}
-    </span>
-  );
+function sourcesOf(item: FixtureListItem): { agree: number; total: number } {
+  const leg = item.topLeg;
+  if (!leg) return { agree: 0, total: 0 };
+  const total = 1 + (leg.market_prob !== null ? 1 : 0) + (leg.sm_prob !== null ? 1 : 0);
+  return { agree: total, total: 3 };
+}
+
+function countsLine(item: FixtureListItem): string | null {
+  const c = item.pickCounts;
+  const parts: string[] = [];
+  if (c.A > 0) parts.push(`${c.A} A`);
+  if (c.B > 0) parts.push(`${c.B} B`);
+  if (c.C > 0) parts.push(`${c.C} C`);
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 function FixtureRow({ item }: { item: FixtureListItem }) {
   const f = item.pkg.payload.fixture;
   const leg = item.topLeg;
-  const c = item.pickCounts;
+  const src = sourcesOf(item);
+  const counts = countsLine(item);
   return (
     <Link
       href={`/pertandingan/${item.pkg.match_id}`}
-      className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 border-b border-hairline hover:bg-surface-alt transition-colors"
+      className="flex items-start gap-4 border-t border-hairline/50 py-4 transition-colors first:border-t-0 hover:bg-surface-alt/40 sm:gap-6"
     >
-      <span className="tabular-nums text-sm text-mid-gray w-11 shrink-0">{jamWibOnly(item.pkg.kickoff_utc)}</span>
-      <span className="flex-1 min-w-0">
-        <span className="block truncate font-semibold text-ink">
-          {f.home} <span className="text-faint font-normal">vs</span> {f.away}
+      <span className="tabular-nums w-12 shrink-0 pt-0.5 text-sm text-mid-gray">
+        {jamWibOnly(item.pkg.kickoff_utc)}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[17px] font-medium text-ink">
+          {f.home} <span className="font-normal text-faint">vs</span> {f.away}
         </span>
-        <span className="mt-0.5 flex items-center gap-3">
-          <span className="font-mono text-[11px] text-faint">
-            A {c.A} · B {c.B} · C {c.C}
-          </span>
-          <SourceDots item={item} />
+        <span className="mt-1 block text-[13px] text-mid-gray">
+          {leg ? (
+            <>
+              {labelPilihan(leg.market, leg.selection, f.home, f.away)}
+              {counts && <span className="text-faint"> · {counts}</span>}
+            </>
+          ) : (
+            "No graded pick"
+          )}
         </span>
       </span>
-      {leg ? (
-        <span className="flex items-center gap-2.5 shrink-0 text-right">
-          <span className="hidden sm:block">
-            <span className="block text-sm text-ink-soft leading-tight">
-              {labelPilihan(leg.market, leg.selection, f.home, f.away)}
-            </span>
-            <Prob value={leg.effective_prob} strong className="text-sm" />
+      {leg && (
+        <span className="shrink-0 text-right">
+          <span className="flex items-baseline justify-end gap-2.5">
+            <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
+            <GradeMark grade={leg.grade} className="text-xl" />
           </span>
-          <GradeMark grade={leg.grade} />
+          <span className="mt-1.5 block text-[12px] text-faint">
+            {src.agree} of {src.total} sources
+          </span>
         </span>
-      ) : (
-        <span className="font-mono text-[11px] text-faint shrink-0">belum ada pilihan</span>
       )}
     </Link>
   );
 }
 
-function FinishedCard({ item }: { item: FixtureListItem }) {
+function FinishedRow({ item }: { item: FixtureListItem }) {
   const f = item.pkg.payload.fixture;
   const r = item.result;
-  const picks = getPackagePicks(item.pkg.id).slice(0, 6);
+  const picks = getPackagePicks(item.pkg.id).slice(0, 3);
   return (
-    <div className="panel-flat px-4 py-3">
-      <div className="flex items-center gap-4">
-        <span className="tabular-nums text-2xl font-bold text-ink shrink-0">
-          {r ? `${r.home_goals}–${r.away_goals}` : "—"}
+    <div className="flex items-start gap-4 border-t border-hairline/50 py-5 first:border-t-0 sm:gap-6">
+      <span className="tabular-nums w-16 shrink-0 text-2xl font-semibold text-ink">
+        {r ? `${r.home_goals}–${r.away_goals}` : "—"}
+      </span>
+      <span className="min-w-0 flex-1">
+        <Link
+          href={`/pertandingan/${item.pkg.match_id}`}
+          className="block truncate text-[17px] font-medium text-ink transition-colors hover:text-accent"
+        >
+          {f.home} <span className="font-normal text-faint">vs</span> {f.away}
+        </Link>
+        <span className="mt-1 block text-[13px] text-mid-gray">
+          {f.competition_name} · {jamWibOnly(item.pkg.kickoff_utc)} WIB
         </span>
-        <span className="flex-1 min-w-0">
-          <Link
-            href={`/pertandingan/${item.pkg.match_id}`}
-            className="block truncate font-semibold text-ink hover:text-accent"
-          >
-            {f.home} <span className="text-faint font-normal">vs</span> {f.away}
-          </Link>
-          <span className="block font-mono text-[11px] text-faint">
-            {f.competition_name} · {jamWibOnly(item.pkg.kickoff_utc)} WIB
-          </span>
-        </span>
+        {picks.length > 0 ? (
+          <ul className="mt-3 space-y-1.5">
+            {picks.map((p) => (
+              <li key={p.id} className="flex items-baseline gap-2.5 text-sm">
+                <GradeMark grade={p.grade} />
+                <span className="min-w-0 flex-1 truncate text-ink-soft">
+                  {labelPilihan(p.market, p.selection, f.home, f.away)}
+                </span>
+                <Prob value={p.model_prob} className="text-[13px]" />
+                {p.hit === 1 ? (
+                  <span className="text-[13px] font-medium text-sage">Hit</span>
+                ) : p.hit === 0 ? (
+                  <span className="text-[13px] font-medium text-brick">Miss</span>
+                ) : (
+                  <span className="text-[13px] text-faint">Not graded</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-[13px] text-faint">No picks recorded for this package.</p>
+        )}
+      </span>
+      <span className="shrink-0 pt-1">
         <GateStatus status={item.pkg.gate_status} />
-      </div>
-      {picks.length > 0 ? (
-        <ul className="mt-3 space-y-1.5 border-t border-hairline pt-3">
-          {picks.map((p) => (
-            <li key={p.id} className="flex items-center gap-2.5 text-sm">
-              <GradeMark grade={p.grade} />
-              <span className="flex-1 min-w-0 truncate text-ink-soft">
-                {labelPilihan(p.market, p.selection, f.home, f.away)}
-              </span>
-              <Prob value={p.model_prob} className="text-xs" />
-              {p.hit === 1 ? (
-                <span className="font-mono text-[11px] font-bold tracking-wider text-sage">KENA</span>
-              ) : p.hit === 0 ? (
-                <span className="font-mono text-[11px] font-bold tracking-wider text-brick">MELESET</span>
-              ) : (
-                <span className="font-mono text-[11px] text-faint">belum ada hasil</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 border-t border-hairline pt-3 font-mono text-[11px] text-faint">
-          Tidak ada pilihan tercatat untuk paket ini.
-        </p>
-      )}
+      </span>
     </div>
   );
 }
 
 export default function PertandinganPage() {
   return (
-    <Suspense fallback={<PageLoading label="Memuat daftar pertandingan…" />}>
+    <Suspense fallback={<PageLoading label="Loading matches…" />}>
       <PertandinganContent />
     </Suspense>
   );
@@ -133,17 +136,12 @@ async function PertandinganContent() {
   const upcoming = listUpcoming(72);
   const finished = listFinished(72, 60);
 
-  const totals = upcoming.reduce(
-    (acc, it) => ({
-      A: acc.A + it.pickCounts.A,
-      B: acc.B + it.pickCounts.B,
-      C: acc.C + it.pickCounts.C,
-    }),
-    { A: 0, B: 0, C: 0 },
+  const updated = upcoming.reduce<string | null>(
+    (max, it) => (max === null || it.pkg.computed_utc > max ? it.pkg.computed_utc : max),
+    null,
   );
-  const calibrated = upcoming.filter((it) => it.pkg.gate_status === "calibrated").length;
 
-  // Kelompok: hari → kompetisi (urutan kickoff dipertahankan).
+  // Group: day -> competition (kickoff order preserved).
   const byDay = new Map<string, Map<string, FixtureListItem[]>>();
   for (const it of upcoming) {
     const day = labelHari(it.pkg.kickoff_utc);
@@ -155,36 +153,47 @@ async function PertandinganContent() {
   }
 
   return (
-    <div className="space-y-10">
+    <div>
       <header>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-wide text-ink">
-          Pertandingan — <span className="text-accent">72 Jam</span>
+        <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-[-0.02em] text-ink">
+          Matches
         </h1>
-        <p className="mt-3 font-mono text-xs sm:text-sm text-mid-gray tabular-nums">
-          {upcoming.length} laga · {calibrated} liga terkalibrasi penuh · pilihan A {totals.A} · B {totals.B} · C{" "}
-          {totals.C}
-        </p>
-        <p className="mt-1 text-sm text-faint">
-          Diurutkan dari pilihan paling aman per laga. Klik laga untuk analisis lengkapnya.
+        <p className="mt-2 text-[15px] text-mid-gray">
+          Next 72 hours
+          {updated && (
+            <>
+              {" "}· Updated {tanggalWib(updated)} {jamWibOnly(updated)} WIB
+            </>
+          )}
         </p>
       </header>
 
       {upcoming.length === 0 ? (
         <EmptyState
-          title="Belum ada pertandingan pada jendela 72 jam"
-          note="Slate berikutnya ditulis ritme data tiap 12 jam. Cek lagi setelah refresh berikutnya."
+          title="No matches in this window."
+          note="The slate refreshes every 12 hours."
         />
       ) : (
         [...byDay.entries()].map(([day, comps]) => (
-          <section key={day} className="space-y-5">
-            <SectionHead label={day} />
+          <section key={day} className="mt-14">
+            <h2 className="font-display text-xl font-semibold text-ink">
+              {day}
+              {comps.size > 0 && (
+                <span className="ml-3 text-sm font-normal text-faint">
+                  {tanggalWib([...comps.values()][0][0].pkg.kickoff_utc)}
+                </span>
+              )}
+            </h2>
             {[...comps.entries()].map(([comp, items]) => (
-              <div key={comp}>
-                <div className="flex items-center justify-between gap-4 px-1 pb-1.5">
-                  <span className="font-display text-lg font-semibold tracking-wide text-ink">{comp}</span>
-                  <GateStatus status={items[0].pkg.gate_status} />
+              <div key={comp} className="mt-8">
+                <div className="flex items-center gap-2.5 pb-1">
+                  <GateStatus status={items[0].pkg.gate_status} withLabel={false} />
+                  <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
+                  <span className="text-[13px] text-mid-gray">
+                    {GATE_LABEL[items[0].pkg.gate_status] ?? items[0].pkg.gate_status}
+                  </span>
                 </div>
-                <div className="border-t border-hairline">
+                <div>
                   {items.map((it) => (
                     <FixtureRow key={it.pkg.id} item={it} />
                   ))}
@@ -195,22 +204,20 @@ async function PertandinganContent() {
         ))
       )}
 
-      <section className="space-y-4">
+      <section className="mt-20">
         <SectionHead
-          label="Baru Selesai — Paket vs Kenyataan"
-          right={<MicroLabel>{finished.length} laga</MicroLabel>}
+          label="Finished"
+          right={<span className="text-[13px] text-faint">{finished.length} matches</span>}
         />
-        {finished.length === 0 ? (
-          <p className="font-mono text-xs text-faint px-1">
-            Belum ada laga selesai pada 72 jam terakhir yang paketnya tersimpan.
-          </p>
-        ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {finished.map((it) => (
-              <FinishedCard key={it.pkg.id} item={it} />
-            ))}
-          </div>
-        )}
+        <div className="mt-6">
+          {finished.length === 0 ? (
+            <p className="text-sm text-faint">
+              No finished matches with a stored package in the last 72 hours.
+            </p>
+          ) : (
+            finished.map((it) => <FinishedRow key={it.pkg.id} item={it} />)
+          )}
+        </div>
       </section>
     </div>
   );
