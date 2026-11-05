@@ -546,11 +546,20 @@ export function ledgerStats(): LedgerStats {
             : null,
       } satisfies GradeStat;
     });
+  // Populasi sama persis dengan lab_by_grade: hanya kandidat ber-grade
+  // (gradeCase yang sama, satu definisi). Tanpa filter ini, lab menyimpan
+  // kandidat di KEDUA sisi tiap pasar (over+under, yes+no, ketiga hasil
+  // 1X2) sehingga rata-rata mentahnya datar dan tidak bermakna.
   const lab_by_market = (d
     .prepare(
-      `SELECT p.market AS market, COUNT(*) AS n, AVG(p.model_prob) AS claimed, SUM(o.hit) AS hits
-       FROM picks p JOIN pick_outcomes o ON o.pick_id = p.id
-       WHERE p.source='lab' GROUP BY p.market ORDER BY n DESC`,
+      `SELECT market, COUNT(*) AS n, AVG(model_prob) AS claimed, SUM(hit) AS hits
+       FROM (
+         SELECT p.market AS market, p.model_prob AS model_prob, o.hit AS hit,
+                CASE ${gradeCase} END AS g
+         FROM picks p JOIN pick_outcomes o ON o.pick_id = p.id
+         WHERE p.source='lab'
+       )
+       WHERE g IS NOT NULL GROUP BY market ORDER BY n DESC`,
     )
     .all() as Record<string, unknown>[]).map((r) => {
       const n = r.n as number;

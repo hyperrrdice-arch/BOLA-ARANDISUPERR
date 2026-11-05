@@ -202,3 +202,7 @@ Dua bug dari intipan visual owner, diperbaiki dan terverifikasi screenshot
 
 Verifikasi: tsc bersih, build bersih, 5 rute 200, log server 0 TypeError,
 screenshot 02 + 05 dibaca langsung.
+
+## Addendum — fix tabel By market (5 Nov 2026)
+
+Tabel "By market" di /bukti sebelumnya datar dan tidak bermakna (BTTS/OU semua 50,0%/50,0%) karena lab menyimpan kandidat di kedua sisi tiap pasar. Sekarang `lab_by_market` dibatasi ke populasi ber-grade yang sama dengan `lab_by_grade` (CASE ambang `MARKET_GRADE_THRESHOLDS` yang sama, total 70.114 kandidat) — BTTS kini terbaca tidak jujur (dijanjikan 64,8% vs aktual 59,6%), OU2.5 66,6% vs 62,4%, team_over mendekati jujur (78,2% vs 77,4%). Footnote di bawah By grade diperluas mencakup kedua tabel. Terverifikasi: tsc + build bersih, screenshot 05-record.png dibaca langsung — tidak ada baris datar lagi.

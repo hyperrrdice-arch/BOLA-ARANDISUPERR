@@ -97,7 +97,8 @@ async function BuktiContent() {
           Promised is the average probability the model claimed; Actual is how often the picks
           actually landed. Grades come from the lab&apos;s per-market table —{" "}
           {int(s.lab_by_grade.reduce((a, g) => a + g.n, 0))} of the {int(s.lab_total)} lab
-          candidates carry a grade; the rest sit below the lowest grade floor.
+          candidates carry a grade; the rest sit below the lowest grade floor. The market
+          table below uses the same graded candidates.
         </p>
       </section>
 
