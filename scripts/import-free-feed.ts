@@ -238,8 +238,12 @@ async function main() {
        created_at, source, xg_source
      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
+  // OR IGNORE wajib: kunci unik tabel adalah (match_id, captured_utc) dan semua
+  // baris satu run berbagi cap waktu yang sama (nowIso), sementara penjaga di
+  // bawah memilah per capture_kind — baris kedua untuk match yang sama bisa
+  // lolos penjaga tapi nabrak kunci unik dan membunuh run (kejadian 2026-11-05).
   const insOdds = ds.prepare(
-    `INSERT INTO match_odds_history (match_id, captured_utc, payload_json, has_odds, source, capture_kind)
+    `INSERT OR IGNORE INTO match_odds_history (match_id, captured_utc, payload_json, has_odds, source, capture_kind)
      VALUES (?, ?, ?, 1, 'football-data', ?)`,
   );
   const hasClosing = ds.prepare(
@@ -388,8 +392,13 @@ async function main() {
                     : null,
                 kickoff_utc: row.kickoffUtc,
               });
-              if (!DRY_RUN) insOdds.run(anchorId, nowIso, payload, "closing");
-              sum.closing_odds_written++;
+              if (!DRY_RUN) {
+                const r = insOdds.run(anchorId, nowIso, payload, "closing");
+                if (r.changes > 0) sum.closing_odds_written++;
+                else sum.closing_odds_skipped_existing++;
+              } else {
+                sum.closing_odds_written++;
+              }
             }
           }
         }
@@ -478,8 +487,13 @@ async function main() {
                       : null,
                 })),
               });
-              if (!DRY_RUN) insOdds.run(anchorId, nowIso, payload, "fd-prematch");
-              totals.prematch_odds_written++;
+              if (!DRY_RUN) {
+                const r = insOdds.run(anchorId, nowIso, payload, "fd-prematch");
+                if (r.changes > 0) totals.prematch_odds_written++;
+                else totals.prematch_odds_skipped_today++;
+              } else {
+                totals.prematch_odds_written++;
+              }
             }
           }
         }
