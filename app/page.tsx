@@ -114,7 +114,7 @@ async function HowItWorks() {
 async function RecordTable() {
   await connection();
   const ledger = ledgerStats();
-  if (ledger.by_grade.length === 0) {
+  if (ledger.lab_by_grade.length === 0) {
     return (
       <EmptyState
         title="No picks on record yet"
@@ -139,7 +139,7 @@ async function RecordTable() {
             </tr>
           </thead>
           <tbody>
-            {ledger.by_grade.map((g) => (
+            {ledger.lab_by_grade.map((g) => (
               <tr key={g.grade} className="border-t border-hairline/60">
                 <td className="py-3.5">
                   <GradeMark grade={g.grade} className="text-lg" />

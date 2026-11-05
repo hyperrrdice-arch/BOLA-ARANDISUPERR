@@ -16,6 +16,7 @@ import {
   canonicalIdForTeamName,
   loadCanonicalTeams,
 } from "../quant/team-identity";
+import { MARKET_GRADE_THRESHOLDS } from "../picks/engine";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -435,12 +436,21 @@ export interface GradeStat {
   claimed: number | null;
   gap_pp: number | null;
 }
+export interface MarketStat {
+  market: string;
+  n: number;
+  claimed: number | null;
+  hits: number;
+  hit_rate: number | null;
+}
 export interface LedgerStats {
   lab_total: number;
   live_total: number;
   live_resolved: number;
   by_grade: GradeStat[];
   by_market: { market: string; n: number; hits: number; hit_rate: number | null }[];
+  lab_by_grade: GradeStat[];
+  lab_by_market: MarketStat[];
   recent_resolved: (PickRow & { home: string; away: string })[];
 }
 
@@ -491,6 +501,68 @@ export function ledgerStats(): LedgerStats {
       hits: r.hits as number,
       hit_rate: (r.n as number) > 0 ? (r.hits as number) / (r.n as number) : null,
     }));
+  // Populasi lab tidak menyimpan kolom grade (baris lab grade-nya NULL);
+  // grade diturunkan ulang dari tabel ambang per-pasar milik engine
+  // (MARKET_GRADE_THRESHOLDS — sumber kebenaran tunggal, sama dengan yang
+  // memberi grade pick live). CASE SQL dibangun dari konstanta itu supaya
+  // kalibrasi ulang ambang otomatis mengalir ke sini. Kandidat di bawah
+  // lantai grade terendah memang tidak pernah diterbitkan sebagai pick,
+  // jadi tidak masuk tabel per-grade.
+  const gradeCase = Object.entries(MARKET_GRADE_THRESHOLDS)
+    .map(([market, t]) => {
+      const arms: string[] = [];
+      if (t.A !== null) arms.push(`WHEN p.model_prob >= ${t.A} THEN 'A'`);
+      if (t.B !== null) arms.push(`WHEN p.model_prob >= ${t.B} THEN 'B'`);
+      if (t.C !== null) arms.push(`WHEN p.model_prob >= ${t.C} THEN 'C'`);
+      return `WHEN p.market = '${market}' THEN CASE ${arms.join(" ")} END`;
+    })
+    .join(" ");
+  const lab_by_grade = (d
+    .prepare(
+      `SELECT g AS grade, COUNT(*) AS n, AVG(model_prob) AS claimed, SUM(hit) AS hits
+       FROM (
+         SELECT p.model_prob AS model_prob, o.hit AS hit,
+                CASE ${gradeCase} END AS g
+         FROM picks p JOIN pick_outcomes o ON o.pick_id = p.id
+         WHERE p.source='lab'
+       )
+       WHERE g IS NOT NULL GROUP BY g ORDER BY g`,
+    )
+    .all() as Record<string, unknown>[]).map((r) => {
+      const n = r.n as number;
+      const hits = r.hits as number;
+      const claimed = (r.claimed as number | null) ?? null;
+      const hit_rate = n > 0 ? hits / n : null;
+      return {
+        grade: r.grade as string,
+        n,
+        resolved: n,
+        hits,
+        hit_rate,
+        claimed,
+        gap_pp:
+          hit_rate !== null && claimed !== null
+            ? Math.round((hit_rate - claimed) * 1000) / 10
+            : null,
+      } satisfies GradeStat;
+    });
+  const lab_by_market = (d
+    .prepare(
+      `SELECT p.market AS market, COUNT(*) AS n, AVG(p.model_prob) AS claimed, SUM(o.hit) AS hits
+       FROM picks p JOIN pick_outcomes o ON o.pick_id = p.id
+       WHERE p.source='lab' GROUP BY p.market ORDER BY n DESC`,
+    )
+    .all() as Record<string, unknown>[]).map((r) => {
+      const n = r.n as number;
+      const hits = r.hits as number;
+      return {
+        market: r.market as string,
+        n,
+        claimed: (r.claimed as number | null) ?? null,
+        hits,
+        hit_rate: n > 0 ? hits / n : null,
+      } satisfies MarketStat;
+    });
   const recent = (d
     .prepare(
       `SELECT p.*, o.hit, o.home_goals, o.away_goals FROM picks p
@@ -515,7 +587,16 @@ export function ledgerStats(): LedgerStats {
         away: fx?.away ?? "?",
       };
     });
-  return { lab_total, live_total, live_resolved, by_grade, by_market, recent_resolved: recent };
+  return {
+    lab_total,
+    live_total,
+    live_resolved,
+    by_grade,
+    by_market,
+    lab_by_grade,
+    lab_by_market,
+    recent_resolved: recent,
+  };
 }
 
 export interface LandingStats {

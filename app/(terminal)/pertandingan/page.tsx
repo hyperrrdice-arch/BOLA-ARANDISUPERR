@@ -41,7 +41,7 @@ function FixtureRow({ item }: { item: FixtureListItem }) {
       href={`/pertandingan/${item.pkg.match_id}`}
       className="flex items-start gap-4 border-t border-hairline/50 py-4 transition-colors first:border-t-0 hover:bg-surface-alt/40 sm:gap-6"
     >
-      <span className="tabular-nums w-12 shrink-0 pt-0.5 text-sm text-mid-gray">
+      <span className="tabular-nums w-[3.5rem] flex-none whitespace-nowrap pt-0.5 text-sm text-mid-gray">
         {jamWibOnly(item.pkg.kickoff_utc)}
       </span>
       <span className="min-w-0 flex-1">

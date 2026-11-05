@@ -4,8 +4,9 @@
  * Pure Server Component, read-only from the ledger (ledgerStats). The
  * page's principle: picks are logged BEFORE kick-off and graded on the
  * final score — nothing is deleted, moved, or rewritten afterwards.
- * Grades come from the historical lab; the tables here check those
- * claims against the live picks that have finished.
+ * The main tables are the lab record itself — every lab candidate and
+ * its result. Live picks (issued from real slates) follow below, once
+ * any of them have finished.
  */
 import { Suspense } from "react";
 import { GradeMark, PageLoading, Prob, SectionHead } from "../../../components/ui";
@@ -62,12 +63,6 @@ async function BuktiContent() {
         </div>
       </section>
 
-      {s.live_resolved === 0 && (
-        <p className="mt-10 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-          No live picks have finished yet. The lab record above is the evidence for now.
-        </p>
-      )}
-
       <section className="mt-16" aria-label="Record by grade">
         <SectionHead label="By grade" />
         <div className="mt-6 overflow-x-auto">
@@ -81,7 +76,7 @@ async function BuktiContent() {
               </tr>
             </thead>
             <tbody>
-              {s.by_grade.map((g) => (
+              {s.lab_by_grade.map((g) => (
                 <tr key={g.grade} className="border-t border-hairline/50">
                   <td className={TD}>
                     <GradeMark grade={g.grade} className="text-base" />
@@ -99,49 +94,91 @@ async function BuktiContent() {
           </table>
         </div>
         <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
-          Promised is the average probability the model claimed on the picks that have been
-          graded; Actual is how often they actually landed.
-          {s.live_resolved > 0 && s.live_resolved < 100 && (
-            <> The live sample is still small (n={int(s.live_resolved)}) — read it as an early
-            direction, not a verdict.</>
-          )}
+          Promised is the average probability the model claimed; Actual is how often the picks
+          actually landed. Grades come from the lab&apos;s per-market table —{" "}
+          {int(s.lab_by_grade.reduce((a, g) => a + g.n, 0))} of the {int(s.lab_total)} lab
+          candidates carry a grade; the rest sit below the lowest grade floor.
         </p>
       </section>
 
-      {s.by_market.length > 0 && (
-        <section className="mt-16" aria-label="Record by market">
-          <SectionHead label="By market" />
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-sm">
-              <thead>
-                <tr>
-                  <th className={TH}>Market</th>
-                  <th className={THR}>Picks</th>
-                  <th className={THR}>Hits</th>
-                  <th className={THR}>Actual</th>
+      <section className="mt-16" aria-label="Record by market">
+        <SectionHead label="By market" />
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[520px] text-sm">
+            <thead>
+              <tr>
+                <th className={TH}>Market</th>
+                <th className={THR}>Promised</th>
+                <th className={THR}>Actual</th>
+                <th className={THR}>Picks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.lab_by_market.map((m) => (
+                <tr key={m.market} className="border-t border-hairline/50">
+                  <td className={`${TD} text-ink`}>{MARKET_LABEL[m.market] ?? m.market}</td>
+                  <td className={TDR}>
+                    <Prob value={m.claimed} />
+                  </td>
+                  <td className={`${TDR} font-medium text-ink`}>
+                    <Prob value={m.hit_rate} />
+                  </td>
+                  <td className={TDR}>{int(m.n)}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {s.by_market.map((m) => (
-                  <tr key={m.market} className="border-t border-hairline/50">
-                    <td className={`${TD} text-ink`}>{MARKET_LABEL[m.market] ?? m.market}</td>
-                    <td className={TDR}>{int(m.n)}</td>
-                    <td className={TDR}>{int(m.hits)}</td>
-                    <td className={`${TDR} font-medium text-ink`}>
-                      <Prob value={m.hit_rate} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      {s.recent_resolved.length > 0 && (
-        <section className="mt-16" aria-label="Recently graded">
-          <SectionHead label="Recently graded" />
-          <ul className="mt-6">
+      <section className="mt-16" aria-label="Live picks">
+        <SectionHead label="Live picks" />
+        {s.live_resolved === 0 ? (
+          <p className="mt-6 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
+            No live picks have finished yet.
+          </p>
+        ) : (
+          <>
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full min-w-[560px] text-sm">
+                <thead>
+                  <tr>
+                    <th className={TH}>Grade</th>
+                    <th className={THR}>Promised</th>
+                    <th className={THR}>Actual</th>
+                    <th className={THR}>Picks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.by_grade.map((g) => (
+                    <tr key={g.grade} className="border-t border-hairline/50">
+                      <td className={TD}>
+                        <GradeMark grade={g.grade} className="text-base" />
+                      </td>
+                      <td className={TDR}>
+                        <Prob value={g.claimed} />
+                      </td>
+                      <td className={`${TDR} font-medium text-ink`}>
+                        <Prob value={g.hit_rate} />
+                      </td>
+                      <td className={TDR}>{int(g.n)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {s.live_resolved < 100 && (
+              <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
+                The live sample is still small (n={int(s.live_resolved)}) — read it as an early
+                direction, not a verdict.
+              </p>
+            )}
+            {s.recent_resolved.length > 0 && (
+              <>
+                <div className="mt-12">
+                  <SectionHead label="Recently graded" />
+                </div>
+                <ul className="mt-6">
             {s.recent_resolved.map((p) => (
               <li
                 key={p.id}
@@ -172,9 +209,12 @@ async function BuktiContent() {
                 </span>
               </li>
             ))}
-          </ul>
-        </section>
-      )}
+                </ul>
+              </>
+            )}
+          </>
+        )}
+      </section>
     </div>
   );
 }

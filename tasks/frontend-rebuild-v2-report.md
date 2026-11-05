@@ -170,3 +170,35 @@ the ball). Construction:
   preview bridge or the VPS deploy.
 - The matches list still calls `getPackagePicks` per finished row
   (known, accepted N+1 from v1; local read-only SQLite).
+
+## Addendum — Fix batch 2026-11-05 (post-preview)
+
+Dua bug dari intipan visual owner, diperbaiki dan terverifikasi screenshot
+(`~/workspace/tools/pwshot/shoot2.mjs` → `your_files/shots-v2/`):
+
+1. **Record kosong → tabel lab.** `ledgerStats()` hanya menghitung populasi
+   live-run (resolved = 0), jadi halaman Record + seksi "The record" di
+   landing menampilkan grade A/B/C dengan Promised/Actual "—". Sekarang
+   `LedgerStats` punya `lab_by_grade` + `lab_by_market` dari 163.008 pick lab
+   (100% resolved). Catatan penting: kolom `grade` baris lab di DB ternyata
+   NULL — grade diturunkan ulang dari `MARKET_GRADE_THRESHOLDS` milik engine
+   (sumber kebenaran tunggal; CASE SQL dibangun dari konstanta itu, jadi
+   kalibrasi ulang ambang otomatis mengalir). Kandidat di bawah lantai grade
+   terendah (92.894) memang tidak pernah diterbitkan sebagai pick, jadi tabel
+   per-grade menjumlah ke 70.114 pick ber-grade. Hasilnya: **A — dijanjikan
+   81,0% / aktual 79,8% (n=24.670); B — 71,5% / 71,5% (n=32.217); C — 63,3% /
+   61,3% (n=13.227)**. Halaman Record: tabel utama = lab ("By grade" +
+   "By market" dengan kolom Promised/Actual/Picks), lalu seksi "Live picks"
+   terpisah ("No live picks have finished yet." selama resolved masih 0).
+   Catatan by-market: pasar berpasangan komplementer (1x2, DC, BTTS, OU)
+   Promised≈Actual-nya memang terpaksa simetris oleh desain kandidat lab
+   (probabilitas seleksi per laga menjumlah ke konstanta) — bukan bug query.
+2. **Waktu menabrak nama tim di daftar pertandingan.** Kolom waktu baris
+   fixture sekarang `w-[3.5rem] flex-none whitespace-nowrap` (tim tetap
+   `min-w-0`). Terverifikasi di crop resolusi penuh 02-matches.png: "17:00"
+   utuh, pisah bersih dari nama tim. (Spasi lebar di sekitar titik/koma pada
+   angka = lebar sel monospace IBM Plex Mono, konsisten di seluruh desain —
+   bukan bug.)
+
+Verifikasi: tsc bersih, build bersih, 5 rute 200, log server 0 TypeError,
+screenshot 02 + 05 dibaca langsung.
