@@ -1,259 +1,30 @@
 {
-  "generated_at": "2026-11-05T11:33:35.085Z",
+  "generated_at": "2026-11-05T13:53:36.101Z",
   "window": {
-    "from": "2026-11-05T11:31:29.477Z",
-    "to": "2026-11-08T11:31:29.477Z",
+    "from": "2026-11-05T13:52:13.639Z",
+    "to": "2026-11-08T13:52:13.639Z",
     "hours": 72
   },
   "stats": {
-    "fixtures_scanned": 408,
-    "fixtures_rated": 377,
-    "fixtures_unrated": 31,
-    "legs_total": 2642,
+    "fixtures_scanned": 436,
+    "fixtures_rated": 407,
+    "fixtures_unrated": 29,
+    "legs_total": 2850,
     "legs_by_grade": {
-      "A": 999,
-      "B": 1138,
-      "C": 505
+      "A": 1081,
+      "B": 1224,
+      "C": 545
     },
     "unrated_reason_counts": {
-      "kompetisi piala tapi jalur offset tidak me-rate fixture ini": 29,
+      "kompetisi piala tapi jalur offset tidak me-rate fixture ini": 27,
       "ratings tim tidak ditemukan": 2
     },
-    "packages_written": 377,
+    "packages_written": 407,
     "fixtures_rated_free_mode": 0,
-    "ledger_live_run_rows_written": 76,
-    "ledger_skipped_already_recorded": 366
+    "ledger_live_run_rows_written": 223,
+    "ledger_skipped_already_recorded": 375
   },
   "rated": [
-    {
-      "match_id": "sm_19883471",
-      "utc_date": "2026-11-05T13:00:00.000Z",
-      "competition_id": "sm:902",
-      "competition_name": "Persian Gulf Pro League",
-      "canonical_id": "sm:902",
-      "home": "Shams Azar Qazvin",
-      "away": "Sanat Naft",
-      "gate_status": "calibrated",
-      "population": "domestic",
-      "feed_mode": "full",
-      "lambda": 1.154,
-      "mu": 0.71,
-      "package_id": 1131,
-      "legs": [
-        {
-          "market": "ou35",
-          "selection": "under",
-          "model_prob": 0.8807927978570903,
-          "effective_prob": 0.8675,
-          "effective_source": "lab-band",
-          "band": "85+",
-          "band_n": 385,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.8288,
-          "agreement_spread": 0.05199279785709032
-        },
-        {
-          "market": "dc",
-          "selection": "1x",
-          "model_prob": 0.7737715202128794,
-          "effective_prob": 0.7519,
-          "effective_source": "lab-band",
-          "band": "75–80",
-          "band_n": 6263,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.6354,
-          "agreement_spread": 0.13837152021287946
-        },
-        {
-          "market": "team_over05_home",
-          "selection": "yes",
-          "model_prob": 0.6846272346646038,
-          "effective_prob": 0.6986,
-          "effective_source": "lab-band",
-          "band": "65–70",
-          "band_n": 793,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.6134000000000001,
-          "agreement_spread": 0.07122723466460379
-        },
-        {
-          "market": "dc",
-          "selection": "12",
-          "model_prob": 0.6893926210735495,
-          "effective_prob": 0.6855,
-          "effective_source": "lab-band",
-          "band": "65–70",
-          "band_n": 2658,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.6908,
-          "agreement_spread": 0.0014073789264504866
-        },
-        {
-          "market": "ou25",
-          "selection": "under",
-          "model_prob": 0.7134289786271438,
-          "effective_prob": 0.6789,
-          "effective_source": "lab-band",
-          "band": "70–75",
-          "band_n": 517,
-          "grade": "B",
-          "market_prob": 0.615,
-          "sm_prob": 0.6429,
-          "agreement_spread": 0.09842897862714384
-        },
-        {
-          "market": "btts",
-          "selection": "no",
-          "model_prob": 0.6519657727838073,
-          "effective_prob": 0.6276,
-          "effective_source": "lab-band",
-          "band": "65–70",
-          "band_n": 878,
-          "grade": "C",
-          "market_prob": null,
-          "sm_prob": 0.5710000000000001,
-          "agreement_spread": 0.08096577278380723
-        },
-        {
-          "market": "ou15",
-          "selection": "over",
-          "model_prob": 0.5559333913781348,
-          "effective_prob": 0.5837,
-          "effective_source": "lab-band",
-          "band": "55–60",
-          "band_n": 209,
-          "grade": "C",
-          "market_prob": null,
-          "sm_prob": 0.6129,
-          "agreement_spread": 0.0569666086218652
-        }
-      ]
-    },
-    {
-      "match_id": "sm_19778776",
-      "utc_date": "2026-11-05T13:25:00.000Z",
-      "competition_id": "sm:944",
-      "competition_name": "Pro League",
-      "canonical_id": "sm:944",
-      "home": "Al Kholood",
-      "away": "Al Khaleej",
-      "gate_status": "partial",
-      "population": "domestic",
-      "feed_mode": "full",
-      "lambda": 1.869,
-      "mu": 1.84,
-      "package_id": 1132,
-      "legs": [
-        {
-          "market": "ou15",
-          "selection": "over",
-          "model_prob": 0.8846190656967786,
-          "effective_prob": 0.8553,
-          "effective_source": "lab-band",
-          "band": "85+",
-          "band_n": 1320,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.7742,
-          "agreement_spread": 0.11041906569677862
-        },
-        {
-          "market": "team_over05_home",
-          "selection": "yes",
-          "model_prob": 0.8457214525644088,
-          "effective_prob": 0.815,
-          "effective_source": "lab-band",
-          "band": "80–85",
-          "band_n": 1973,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.6629,
-          "agreement_spread": 0.18282145256440874
-        },
-        {
-          "market": "team_over05_away",
-          "selection": "yes",
-          "model_prob": 0.8411819645133612,
-          "effective_prob": 0.8136,
-          "effective_source": "lab-band",
-          "band": "80–85",
-          "band_n": 1057,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.7583,
-          "agreement_spread": 0.08288196451336127
-        },
-        {
-          "market": "dc",
-          "selection": "12",
-          "model_prob": 0.7842589052654876,
-          "effective_prob": 0.7519,
-          "effective_source": "lab-band",
-          "band": "75–80",
-          "band_n": 6263,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.7439,
-          "agreement_spread": 0.04035890526548758
-        },
-        {
-          "market": "ou25",
-          "selection": "over",
-          "model_prob": 0.7160844822723382,
-          "effective_prob": 0.6789,
-          "effective_source": "lab-band",
-          "band": "70–75",
-          "band_n": 517,
-          "grade": "B",
-          "market_prob": 0.5,
-          "sm_prob": 0.5429999999999999,
-          "agreement_spread": 0.21608448227233823
-        },
-        {
-          "market": "dc",
-          "selection": "1x",
-          "model_prob": 0.6136620220608644,
-          "effective_prob": 0.6536,
-          "effective_source": "lab-band",
-          "band": "60–65",
-          "band_n": 2292,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.5603,
-          "agreement_spread": 0.05336202206086438
-        },
-        {
-          "market": "dc",
-          "selection": "x2",
-          "model_prob": 0.6020790726736488,
-          "effective_prob": 0.6536,
-          "effective_source": "lab-band",
-          "band": "60–65",
-          "band_n": 2292,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.6948000000000001,
-          "agreement_spread": 0.09272092732635129
-        },
-        {
-          "market": "btts",
-          "selection": "yes",
-          "model_prob": 0.7114056328992225,
-          "effective_prob": 0.6387,
-          "effective_source": "lab-band",
-          "band": "70–75",
-          "band_n": 274,
-          "grade": "C",
-          "market_prob": null,
-          "sm_prob": 0.5660000000000001,
-          "agreement_spread": 0.14540563289922248
-        }
-      ]
-    },
     {
       "match_id": "sm_19888193",
       "utc_date": "2026-11-05T14:00:00.000Z",
@@ -267,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 2.266,
       "mu": 0.68,
-      "package_id": 1133,
+      "package_id": 1508,
       "legs": [
         {
           "market": "dc",
@@ -362,7 +133,7 @@
       "feed_mode": "full",
       "lambda": 0.976,
       "mu": 1.717,
-      "package_id": 1134,
+      "package_id": 1509,
       "legs": [
         {
           "market": "team_over05_away",
@@ -457,7 +228,7 @@
       "feed_mode": "full",
       "lambda": 2.543,
       "mu": 0.839,
-      "package_id": 1135,
+      "package_id": 1510,
       "legs": [
         {
           "market": "dc",
@@ -578,7 +349,7 @@
       "feed_mode": "full",
       "lambda": 1.805,
       "mu": 1.262,
-      "package_id": 1136,
+      "package_id": 1511,
       "legs": [
         {
           "market": "team_over05_home",
@@ -673,7 +444,7 @@
       "feed_mode": "full",
       "lambda": 1.54,
       "mu": 1.452,
-      "package_id": 1137,
+      "package_id": 1512,
       "legs": [
         {
           "market": "dc",
@@ -794,7 +565,7 @@
       "feed_mode": "full",
       "lambda": 1.479,
       "mu": 1.205,
-      "package_id": 1138,
+      "package_id": 1513,
       "legs": [
         {
           "market": "team_over05_home",
@@ -889,7 +660,7 @@
       "feed_mode": "full",
       "lambda": 1.169,
       "mu": 2.012,
-      "package_id": 1139,
+      "package_id": 1514,
       "legs": [
         {
           "market": "team_over05_away",
@@ -997,7 +768,7 @@
       "feed_mode": "full",
       "lambda": 1.626,
       "mu": 1.478,
-      "package_id": 1140,
+      "package_id": 1515,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1105,7 +876,7 @@
       "feed_mode": "full",
       "lambda": 1.641,
       "mu": 1.187,
-      "package_id": 1141,
+      "package_id": 1516,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1200,7 +971,7 @@
       "feed_mode": "full",
       "lambda": 1.514,
       "mu": 1.436,
-      "package_id": 1142,
+      "package_id": 1517,
       "legs": [
         {
           "market": "dc",
@@ -1308,7 +1079,7 @@
       "feed_mode": "full",
       "lambda": 0.984,
       "mu": 1.505,
-      "package_id": 1143,
+      "package_id": 1518,
       "legs": [
         {
           "market": "dc",
@@ -1403,7 +1174,7 @@
       "feed_mode": "full",
       "lambda": 1.827,
       "mu": 1.5,
-      "package_id": 1144,
+      "package_id": 1519,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1524,7 +1295,7 @@
       "feed_mode": "full",
       "lambda": 1.734,
       "mu": 1.099,
-      "package_id": 1145,
+      "package_id": 1520,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1619,7 +1390,7 @@
       "feed_mode": "full",
       "lambda": 1.4,
       "mu": 1.339,
-      "package_id": 1146,
+      "package_id": 1521,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1727,7 +1498,7 @@
       "feed_mode": "full",
       "lambda": 0.982,
       "mu": 1.742,
-      "package_id": 1147,
+      "package_id": 1522,
       "legs": [
         {
           "market": "team_over05_away",
@@ -1822,7 +1593,7 @@
       "feed_mode": "full",
       "lambda": 0.998,
       "mu": 1.493,
-      "package_id": 1148,
+      "package_id": 1523,
       "legs": [
         {
           "market": "team_over05_away",
@@ -1917,7 +1688,7 @@
       "feed_mode": "full",
       "lambda": 1.589,
       "mu": 1.4,
-      "package_id": 1149,
+      "package_id": 1524,
       "legs": [
         {
           "market": "dc",
@@ -2012,7 +1783,7 @@
       "feed_mode": "full",
       "lambda": 2.179,
       "mu": 0.986,
-      "package_id": 1150,
+      "package_id": 1525,
       "legs": [
         {
           "market": "team_over05_home",
@@ -2133,7 +1904,7 @@
       "feed_mode": "full",
       "lambda": 1.028,
       "mu": 1.212,
-      "package_id": 1151,
+      "package_id": 1526,
       "legs": [
         {
           "market": "ou35",
@@ -2241,7 +2012,7 @@
       "feed_mode": "full",
       "lambda": 2.521,
       "mu": 1.009,
-      "package_id": 1152,
+      "package_id": 1527,
       "legs": [
         {
           "market": "dc",
@@ -2349,7 +2120,7 @@
       "feed_mode": "full",
       "lambda": 2.023,
       "mu": 1.53,
-      "package_id": 1153,
+      "package_id": 1528,
       "legs": [
         {
           "market": "team_over05_home",
@@ -2457,7 +2228,7 @@
       "feed_mode": "full",
       "lambda": 2.143,
       "mu": 1.273,
-      "package_id": 1154,
+      "package_id": 1529,
       "legs": [
         {
           "market": "team_over05_home",
@@ -2578,7 +2349,7 @@
       "feed_mode": "full",
       "lambda": 1.894,
       "mu": 0.814,
-      "package_id": 1155,
+      "package_id": 1530,
       "legs": [
         {
           "market": "dc",
@@ -2686,7 +2457,7 @@
       "feed_mode": "full",
       "lambda": 1.948,
       "mu": 1.312,
-      "package_id": 1156,
+      "package_id": 1531,
       "legs": [
         {
           "market": "team_over05_home",
@@ -2807,7 +2578,7 @@
       "feed_mode": "full",
       "lambda": 0.824,
       "mu": 1.367,
-      "package_id": 1157,
+      "package_id": 1532,
       "legs": [
         {
           "market": "dc",
@@ -2915,7 +2686,7 @@
       "feed_mode": "full",
       "lambda": 2.146,
       "mu": 1.016,
-      "package_id": 1158,
+      "package_id": 1533,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3036,7 +2807,7 @@
       "feed_mode": "full",
       "lambda": 1.597,
       "mu": 1.059,
-      "package_id": 1159,
+      "package_id": 1534,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3131,7 +2902,7 @@
       "feed_mode": "full",
       "lambda": 2.508,
       "mu": 0.668,
-      "package_id": 1160,
+      "package_id": 1535,
       "legs": [
         {
           "market": "dc",
@@ -3239,7 +3010,7 @@
       "feed_mode": "full",
       "lambda": 1.716,
       "mu": 1,
-      "package_id": 1161,
+      "package_id": 1536,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3334,7 +3105,7 @@
       "feed_mode": "full",
       "lambda": 2.326,
       "mu": 1.25,
-      "package_id": 1162,
+      "package_id": 1537,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3455,7 +3226,7 @@
       "feed_mode": "full",
       "lambda": 1.511,
       "mu": 1.011,
-      "package_id": 1163,
+      "package_id": 1538,
       "legs": [
         {
           "market": "team_over05_home",
@@ -3550,7 +3321,7 @@
       "feed_mode": "full",
       "lambda": 0.79,
       "mu": 1.004,
-      "package_id": 1164,
+      "package_id": 1539,
       "legs": [
         {
           "market": "ou35",
@@ -3658,7 +3429,7 @@
       "feed_mode": "full",
       "lambda": 0.899,
       "mu": 1.428,
-      "package_id": 1165,
+      "package_id": 1540,
       "legs": [
         {
           "market": "dc",
@@ -3753,7 +3524,7 @@
       "feed_mode": "full",
       "lambda": 0.85,
       "mu": 1.535,
-      "package_id": 1166,
+      "package_id": 1541,
       "legs": [
         {
           "market": "dc",
@@ -3848,7 +3619,7 @@
       "feed_mode": "full",
       "lambda": 2.368,
       "mu": 0.574,
-      "package_id": 1167,
+      "package_id": 1542,
       "legs": [
         {
           "market": "dc",
@@ -3956,7 +3727,7 @@
       "feed_mode": "full",
       "lambda": 3.639,
       "mu": 0.933,
-      "package_id": 1168,
+      "package_id": 1543,
       "legs": [
         {
           "market": "dc",
@@ -4077,7 +3848,7 @@
       "feed_mode": "full",
       "lambda": 1.655,
       "mu": 0.686,
-      "package_id": 1169,
+      "package_id": 1544,
       "legs": [
         {
           "market": "dc",
@@ -4172,7 +3943,7 @@
       "feed_mode": "full",
       "lambda": 2.174,
       "mu": 0.558,
-      "package_id": 1170,
+      "package_id": 1545,
       "legs": [
         {
           "market": "dc",
@@ -4280,7 +4051,7 @@
       "feed_mode": "full",
       "lambda": 2.133,
       "mu": 0.684,
-      "package_id": 1171,
+      "package_id": 1546,
       "legs": [
         {
           "market": "dc",
@@ -4375,7 +4146,7 @@
       "feed_mode": "full",
       "lambda": 0.986,
       "mu": 0.999,
-      "package_id": 1172,
+      "package_id": 1547,
       "legs": [
         {
           "market": "ou35",
@@ -4509,7 +4280,7 @@
       "feed_mode": "full",
       "lambda": 1.31,
       "mu": 1.253,
-      "package_id": 1173,
+      "package_id": 1548,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4617,7 +4388,7 @@
       "feed_mode": "full",
       "lambda": 1.928,
       "mu": 1.535,
-      "package_id": 1174,
+      "package_id": 1549,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4725,7 +4496,7 @@
       "feed_mode": "full",
       "lambda": 1.439,
       "mu": 1.392,
-      "package_id": 1175,
+      "package_id": 1550,
       "legs": [
         {
           "market": "team_over05_home",
@@ -4833,7 +4604,7 @@
       "feed_mode": "full",
       "lambda": 1.007,
       "mu": 3.007,
-      "package_id": 1176,
+      "package_id": 1551,
       "legs": [
         {
           "market": "dc",
@@ -4967,7 +4738,7 @@
       "feed_mode": "full",
       "lambda": 1.445,
       "mu": 1.925,
-      "package_id": 1177,
+      "package_id": 1552,
       "legs": [
         {
           "market": "team_over05_away",
@@ -5088,7 +4859,7 @@
       "feed_mode": "full",
       "lambda": 1.417,
       "mu": 1.045,
-      "package_id": 1178,
+      "package_id": 1553,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5183,7 +4954,7 @@
       "feed_mode": "full",
       "lambda": 1.842,
       "mu": 1.128,
-      "package_id": 1179,
+      "package_id": 1554,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5278,7 +5049,7 @@
       "feed_mode": "full",
       "lambda": 2.069,
       "mu": 1.29,
-      "package_id": 1180,
+      "package_id": 1555,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5399,7 +5170,7 @@
       "feed_mode": "full",
       "lambda": 1.703,
       "mu": 1.334,
-      "package_id": 1181,
+      "package_id": 1556,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5507,7 +5278,7 @@
       "feed_mode": "full",
       "lambda": 2.099,
       "mu": 1.003,
-      "package_id": 1182,
+      "package_id": 1557,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5615,7 +5386,7 @@
       "feed_mode": "full",
       "lambda": 1.416,
       "mu": 1.353,
-      "package_id": 1183,
+      "package_id": 1558,
       "legs": [
         {
           "market": "team_over05_home",
@@ -5723,7 +5494,7 @@
       "feed_mode": "full",
       "lambda": 0.933,
       "mu": 1.18,
-      "package_id": 1184,
+      "package_id": 1559,
       "legs": [
         {
           "market": "ou35",
@@ -5831,7 +5602,7 @@
       "feed_mode": "full",
       "lambda": 1.184,
       "mu": 1.942,
-      "package_id": 1185,
+      "package_id": 1560,
       "legs": [
         {
           "market": "team_over05_away",
@@ -5939,7 +5710,7 @@
       "feed_mode": "full",
       "lambda": 1.017,
       "mu": 1.543,
-      "package_id": 1186,
+      "package_id": 1561,
       "legs": [
         {
           "market": "dc",
@@ -6034,7 +5805,7 @@
       "feed_mode": "full",
       "lambda": 0.849,
       "mu": 1.581,
-      "package_id": 1187,
+      "package_id": 1562,
       "legs": [
         {
           "market": "dc",
@@ -6129,7 +5900,7 @@
       "feed_mode": "full",
       "lambda": 2.052,
       "mu": 1.294,
-      "package_id": 1188,
+      "package_id": 1563,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6250,7 +6021,7 @@
       "feed_mode": "full",
       "lambda": 1.648,
       "mu": 1.464,
-      "package_id": 1189,
+      "package_id": 1564,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6371,7 +6142,7 @@
       "feed_mode": "full",
       "lambda": 2.059,
       "mu": 1.303,
-      "package_id": 1190,
+      "package_id": 1565,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6492,7 +6263,7 @@
       "feed_mode": "full",
       "lambda": 1.611,
       "mu": 1.204,
-      "package_id": 1191,
+      "package_id": 1566,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6587,7 +6358,7 @@
       "feed_mode": "full",
       "lambda": 1.69,
       "mu": 1.015,
-      "package_id": 1192,
+      "package_id": 1567,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6682,7 +6453,7 @@
       "feed_mode": "full",
       "lambda": 1.772,
       "mu": 1.36,
-      "package_id": 1193,
+      "package_id": 1568,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6803,7 +6574,7 @@
       "feed_mode": "full",
       "lambda": 1.98,
       "mu": 0.969,
-      "package_id": 1194,
+      "package_id": 1569,
       "legs": [
         {
           "market": "team_over05_home",
@@ -6911,7 +6682,7 @@
       "feed_mode": "full",
       "lambda": 1.712,
       "mu": 1.561,
-      "package_id": 1195,
+      "package_id": 1570,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7032,7 +6803,7 @@
       "feed_mode": "full",
       "lambda": 1.424,
       "mu": 1.14,
-      "package_id": 1196,
+      "package_id": 1571,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7127,7 +6898,7 @@
       "feed_mode": "full",
       "lambda": 2.392,
       "mu": 0.881,
-      "package_id": 1197,
+      "package_id": 1572,
       "legs": [
         {
           "market": "dc",
@@ -7248,7 +7019,7 @@
       "feed_mode": "full",
       "lambda": 0.744,
       "mu": 1.291,
-      "package_id": 1198,
+      "package_id": 1573,
       "legs": [
         {
           "market": "ou35",
@@ -7356,7 +7127,7 @@
       "feed_mode": "full",
       "lambda": 1.28,
       "mu": 0.971,
-      "package_id": 1199,
+      "package_id": 1574,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7464,7 +7235,7 @@
       "feed_mode": "full",
       "lambda": 1.309,
       "mu": 1.744,
-      "package_id": 1200,
+      "package_id": 1575,
       "legs": [
         {
           "market": "team_over05_away",
@@ -7572,7 +7343,7 @@
       "feed_mode": "full",
       "lambda": 2.321,
       "mu": 1.261,
-      "package_id": 1201,
+      "package_id": 1576,
       "legs": [
         {
           "market": "team_over05_home",
@@ -7693,7 +7464,7 @@
       "feed_mode": "full",
       "lambda": 1.535,
       "mu": 1.742,
-      "package_id": 1202,
+      "package_id": 1577,
       "legs": [
         {
           "market": "team_over05_away",
@@ -7814,7 +7585,7 @@
       "feed_mode": "full",
       "lambda": 1.952,
       "mu": 2.185,
-      "package_id": 1203,
+      "package_id": 1578,
       "legs": [
         {
           "market": "team_over05_away",
@@ -7935,7 +7706,7 @@
       "feed_mode": "full",
       "lambda": 2.209,
       "mu": 1.059,
-      "package_id": 1204,
+      "package_id": 1579,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8056,7 +7827,7 @@
       "feed_mode": "full",
       "lambda": 1.642,
       "mu": 2.112,
-      "package_id": 1205,
+      "package_id": 1580,
       "legs": [
         {
           "market": "team_over05_away",
@@ -8164,7 +7935,7 @@
       "feed_mode": "full",
       "lambda": 1.628,
       "mu": 1.502,
-      "package_id": 1206,
+      "package_id": 1581,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8285,7 +8056,7 @@
       "feed_mode": "full",
       "lambda": 1.405,
       "mu": 1.647,
-      "package_id": 1207,
+      "package_id": 1582,
       "legs": [
         {
           "market": "team_over05_away",
@@ -8393,7 +8164,7 @@
       "feed_mode": "full",
       "lambda": 1.619,
       "mu": 0.956,
-      "package_id": 1208,
+      "package_id": 1583,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8488,7 +8259,7 @@
       "feed_mode": "full",
       "lambda": 1.69,
       "mu": 1.328,
-      "package_id": 1209,
+      "package_id": 1584,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8583,7 +8354,7 @@
       "feed_mode": "full",
       "lambda": 1.052,
       "mu": 1.602,
-      "package_id": 1210,
+      "package_id": 1585,
       "legs": [
         {
           "market": "dc",
@@ -8678,7 +8449,7 @@
       "feed_mode": "full",
       "lambda": 1.61,
       "mu": 1.506,
-      "package_id": 1211,
+      "package_id": 1586,
       "legs": [
         {
           "market": "team_over05_home",
@@ -8799,7 +8570,7 @@
       "feed_mode": "full",
       "lambda": 1.835,
       "mu": 1.573,
-      "package_id": 1212,
+      "package_id": 1587,
       "legs": [
         {
           "market": "ou15",
@@ -8920,7 +8691,7 @@
       "feed_mode": "full",
       "lambda": 1.018,
       "mu": 1.254,
-      "package_id": 1213,
+      "package_id": 1588,
       "legs": [
         {
           "market": "ou35",
@@ -9028,7 +8799,7 @@
       "feed_mode": "full",
       "lambda": 1.545,
       "mu": 1.584,
-      "package_id": 1214,
+      "package_id": 1589,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9162,7 +8933,7 @@
       "feed_mode": "full",
       "lambda": 1.681,
       "mu": 1.719,
-      "package_id": 1215,
+      "package_id": 1590,
       "legs": [
         {
           "market": "ou15",
@@ -9296,7 +9067,7 @@
       "feed_mode": "full",
       "lambda": 1.704,
       "mu": 1.515,
-      "package_id": 1216,
+      "package_id": 1591,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9417,7 +9188,7 @@
       "feed_mode": "full",
       "lambda": 2.065,
       "mu": 1.217,
-      "package_id": 1217,
+      "package_id": 1592,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9538,7 +9309,7 @@
       "feed_mode": "full",
       "lambda": 1.573,
       "mu": 1.446,
-      "package_id": 1218,
+      "package_id": 1593,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9646,7 +9417,7 @@
       "feed_mode": "full",
       "lambda": 1.733,
       "mu": 1.241,
-      "package_id": 1219,
+      "package_id": 1594,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9741,7 +9512,7 @@
       "feed_mode": "full",
       "lambda": 1.668,
       "mu": 1.345,
-      "package_id": 1220,
+      "package_id": 1595,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9836,7 +9607,7 @@
       "feed_mode": "full",
       "lambda": 1.641,
       "mu": 1.426,
-      "package_id": 1221,
+      "package_id": 1596,
       "legs": [
         {
           "market": "team_over05_home",
@@ -9944,7 +9715,7 @@
       "feed_mode": "full",
       "lambda": 1.336,
       "mu": 1.308,
-      "package_id": 1222,
+      "package_id": 1597,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10052,7 +9823,7 @@
       "feed_mode": "full",
       "lambda": 1.788,
       "mu": 1.422,
-      "package_id": 1223,
+      "package_id": 1598,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10173,7 +9944,7 @@
       "feed_mode": "full",
       "lambda": 1.336,
       "mu": 1.308,
-      "package_id": 1224,
+      "package_id": 1599,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10281,7 +10052,7 @@
       "feed_mode": "full",
       "lambda": 1.678,
       "mu": 1.369,
-      "package_id": 1225,
+      "package_id": 1600,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10389,7 +10160,7 @@
       "feed_mode": "full",
       "lambda": 1.687,
       "mu": 1.369,
-      "package_id": 1226,
+      "package_id": 1601,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10497,7 +10268,7 @@
       "feed_mode": "full",
       "lambda": 1.562,
       "mu": 1.072,
-      "package_id": 1227,
+      "package_id": 1602,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10592,7 +10363,7 @@
       "feed_mode": "full",
       "lambda": 1.98,
       "mu": 1.172,
-      "package_id": 1228,
+      "package_id": 1603,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10700,7 +10471,7 @@
       "feed_mode": "full",
       "lambda": 1.562,
       "mu": 1.072,
-      "package_id": 1229,
+      "package_id": 1604,
       "legs": [
         {
           "market": "team_over05_home",
@@ -10795,7 +10566,7 @@
       "feed_mode": "full",
       "lambda": 1.754,
       "mu": 1.703,
-      "package_id": 1230,
+      "package_id": 1605,
       "legs": [
         {
           "market": "ou15",
@@ -10916,7 +10687,7 @@
       "feed_mode": "full",
       "lambda": 1.388,
       "mu": 0.945,
-      "package_id": 1231,
+      "package_id": 1606,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11011,7 +10782,7 @@
       "feed_mode": "full",
       "lambda": 1.263,
       "mu": 1.086,
-      "package_id": 1232,
+      "package_id": 1607,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11106,7 +10877,7 @@
       "feed_mode": "full",
       "lambda": 1.208,
       "mu": 0.707,
-      "package_id": 1233,
+      "package_id": 1608,
       "legs": [
         {
           "market": "ou35",
@@ -11214,7 +10985,7 @@
       "feed_mode": "full",
       "lambda": 1.418,
       "mu": 1.533,
-      "package_id": 1234,
+      "package_id": 1609,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11309,7 +11080,7 @@
       "feed_mode": "full",
       "lambda": 0.98,
       "mu": 1.052,
-      "package_id": 1235,
+      "package_id": 1610,
       "legs": [
         {
           "market": "ou35",
@@ -11430,7 +11201,7 @@
       "feed_mode": "full",
       "lambda": 1.249,
       "mu": 1.386,
-      "package_id": 1236,
+      "package_id": 1611,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11525,7 +11296,7 @@
       "feed_mode": "full",
       "lambda": 1.386,
       "mu": 1.338,
-      "package_id": 1237,
+      "package_id": 1612,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11633,7 +11404,7 @@
       "feed_mode": "full",
       "lambda": 1.093,
       "mu": 1.363,
-      "package_id": 1238,
+      "package_id": 1613,
       "legs": [
         {
           "market": "ou35",
@@ -11728,7 +11499,7 @@
       "feed_mode": "full",
       "lambda": 1.336,
       "mu": 1.272,
-      "package_id": 1239,
+      "package_id": 1614,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11836,7 +11607,7 @@
       "feed_mode": "full",
       "lambda": 1.957,
       "mu": 1.62,
-      "package_id": 1240,
+      "package_id": 1615,
       "legs": [
         {
           "market": "team_over05_home",
@@ -11944,7 +11715,7 @@
       "feed_mode": "full",
       "lambda": 2.096,
       "mu": 1.346,
-      "package_id": 1241,
+      "package_id": 1616,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12052,7 +11823,7 @@
       "feed_mode": "full",
       "lambda": 1.884,
       "mu": 0.896,
-      "package_id": 1242,
+      "package_id": 1617,
       "legs": [
         {
           "market": "dc",
@@ -12160,7 +11931,7 @@
       "feed_mode": "full",
       "lambda": 1.346,
       "mu": 1.316,
-      "package_id": 1243,
+      "package_id": 1618,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12268,7 +12039,7 @@
       "feed_mode": "full",
       "lambda": 1.697,
       "mu": 1.328,
-      "package_id": 1244,
+      "package_id": 1619,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12376,7 +12147,7 @@
       "feed_mode": "full",
       "lambda": 1.241,
       "mu": 1.058,
-      "package_id": 1245,
+      "package_id": 1620,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12471,7 +12242,7 @@
       "feed_mode": "full",
       "lambda": 1.739,
       "mu": 1.095,
-      "package_id": 1246,
+      "package_id": 1621,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12566,7 +12337,7 @@
       "feed_mode": "full",
       "lambda": 1.764,
       "mu": 1.098,
-      "package_id": 1247,
+      "package_id": 1622,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12661,7 +12432,7 @@
       "feed_mode": "full",
       "lambda": 1.914,
       "mu": 0.967,
-      "package_id": 1248,
+      "package_id": 1623,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12756,7 +12527,7 @@
       "feed_mode": "full",
       "lambda": 1.505,
       "mu": 1.303,
-      "package_id": 1249,
+      "package_id": 1624,
       "legs": [
         {
           "market": "team_over05_home",
@@ -12851,7 +12622,7 @@
       "feed_mode": "full",
       "lambda": 1.259,
       "mu": 1.547,
-      "package_id": 1250,
+      "package_id": 1625,
       "legs": [
         {
           "market": "dc",
@@ -12946,7 +12717,7 @@
       "feed_mode": "full",
       "lambda": 2.445,
       "mu": 1.024,
-      "package_id": 1251,
+      "package_id": 1626,
       "legs": [
         {
           "market": "dc",
@@ -13054,7 +12825,7 @@
       "feed_mode": "full",
       "lambda": 2.293,
       "mu": 1.725,
-      "package_id": 1252,
+      "package_id": 1627,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13175,7 +12946,7 @@
       "feed_mode": "full",
       "lambda": 1.275,
       "mu": 1.166,
-      "package_id": 1253,
+      "package_id": 1628,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13283,7 +13054,7 @@
       "feed_mode": "full",
       "lambda": 1.364,
       "mu": 1.201,
-      "package_id": 1254,
+      "package_id": 1629,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13378,7 +13149,7 @@
       "feed_mode": "full",
       "lambda": 1.355,
       "mu": 2.105,
-      "package_id": 1255,
+      "package_id": 1630,
       "legs": [
         {
           "market": "team_over05_away",
@@ -13486,7 +13257,7 @@
       "feed_mode": "full",
       "lambda": 0.884,
       "mu": 1.271,
-      "package_id": 1256,
+      "package_id": 1631,
       "legs": [
         {
           "market": "ou35",
@@ -13594,7 +13365,7 @@
       "feed_mode": "full",
       "lambda": 1.364,
       "mu": 1.103,
-      "package_id": 1257,
+      "package_id": 1632,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13689,7 +13460,7 @@
       "feed_mode": "full",
       "lambda": 2.247,
       "mu": 1.275,
-      "package_id": 1258,
+      "package_id": 1633,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13797,7 +13568,7 @@
       "feed_mode": "full",
       "lambda": 1.668,
       "mu": 1.681,
-      "package_id": 1259,
+      "package_id": 1634,
       "legs": [
         {
           "market": "team_over05_home",
@@ -13931,7 +13702,7 @@
       "feed_mode": "full",
       "lambda": 0.732,
       "mu": 1.978,
-      "package_id": 1260,
+      "package_id": 1635,
       "legs": [
         {
           "market": "dc",
@@ -14026,7 +13797,7 @@
       "feed_mode": "full",
       "lambda": 1.45,
       "mu": 0.979,
-      "package_id": 1261,
+      "package_id": 1636,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14121,7 +13892,7 @@
       "feed_mode": "full",
       "lambda": 1.456,
       "mu": 1.399,
-      "package_id": 1262,
+      "package_id": 1637,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14229,7 +14000,7 @@
       "feed_mode": "full",
       "lambda": 1.467,
       "mu": 1.119,
-      "package_id": 1263,
+      "package_id": 1638,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14324,7 +14095,7 @@
       "feed_mode": "full",
       "lambda": 1.676,
       "mu": 1.444,
-      "package_id": 1264,
+      "package_id": 1639,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14445,7 +14216,7 @@
       "feed_mode": "full",
       "lambda": 1.652,
       "mu": 0.918,
-      "package_id": 1265,
+      "package_id": 1640,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14540,7 +14311,7 @@
       "feed_mode": "full",
       "lambda": 1.435,
       "mu": 1.396,
-      "package_id": 1266,
+      "package_id": 1641,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14648,7 +14419,7 @@
       "feed_mode": "full",
       "lambda": 1.955,
       "mu": 1.28,
-      "package_id": 1267,
+      "package_id": 1642,
       "legs": [
         {
           "market": "team_over05_home",
@@ -14769,7 +14540,7 @@
       "feed_mode": "full",
       "lambda": 0.991,
       "mu": 0.843,
-      "package_id": 1268,
+      "package_id": 1643,
       "legs": [
         {
           "market": "ou35",
@@ -14890,7 +14661,7 @@
       "feed_mode": "full",
       "lambda": 1.374,
       "mu": 1.407,
-      "package_id": 1269,
+      "package_id": 1644,
       "legs": [
         {
           "market": "team_over05_away",
@@ -14998,7 +14769,7 @@
       "feed_mode": "full",
       "lambda": 1.509,
       "mu": 1.303,
-      "package_id": 1270,
+      "package_id": 1645,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15093,7 +14864,7 @@
       "feed_mode": "full",
       "lambda": 1.432,
       "mu": 1.266,
-      "package_id": 1271,
+      "package_id": 1646,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15188,7 +14959,7 @@
       "feed_mode": "full",
       "lambda": 2.091,
       "mu": 1.459,
-      "package_id": 1272,
+      "package_id": 1647,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15296,7 +15067,7 @@
       "feed_mode": "full",
       "lambda": 1.234,
       "mu": 1.36,
-      "package_id": 1273,
+      "package_id": 1648,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15404,7 +15175,7 @@
       "feed_mode": "full",
       "lambda": 1.778,
       "mu": 0.623,
-      "package_id": 1274,
+      "package_id": 1649,
       "legs": [
         {
           "market": "dc",
@@ -15512,7 +15283,7 @@
       "feed_mode": "full",
       "lambda": 0.974,
       "mu": 0.613,
-      "package_id": 1275,
+      "package_id": 1650,
       "legs": [
         {
           "market": "ou35",
@@ -15607,7 +15378,7 @@
       "feed_mode": "full",
       "lambda": 1.678,
       "mu": 0.761,
-      "package_id": 1276,
+      "package_id": 1651,
       "legs": [
         {
           "market": "dc",
@@ -15689,7 +15460,7 @@
       "feed_mode": "full",
       "lambda": 1.363,
       "mu": 1.272,
-      "package_id": 1277,
+      "package_id": 1652,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15797,7 +15568,7 @@
       "feed_mode": "full",
       "lambda": 1.363,
       "mu": 1.272,
-      "package_id": 1278,
+      "package_id": 1653,
       "legs": [
         {
           "market": "team_over05_home",
@@ -15905,7 +15676,7 @@
       "feed_mode": "full",
       "lambda": 1.357,
       "mu": 1.501,
-      "package_id": 1279,
+      "package_id": 1654,
       "legs": [
         {
           "market": "dc",
@@ -16000,7 +15771,7 @@
       "feed_mode": "full",
       "lambda": 1.397,
       "mu": 1.098,
-      "package_id": 1280,
+      "package_id": 1655,
       "legs": [
         {
           "market": "team_over05_home",
@@ -16095,7 +15866,7 @@
       "feed_mode": "full",
       "lambda": 1.603,
       "mu": 1.443,
-      "package_id": 1281,
+      "package_id": 1656,
       "legs": [
         {
           "market": "team_over05_home",
@@ -16203,7 +15974,7 @@
       "feed_mode": "full",
       "lambda": 1.34,
       "mu": 1.52,
-      "package_id": 1282,
+      "package_id": 1657,
       "legs": [
         {
           "market": "dc",
@@ -16298,7 +16069,7 @@
       "feed_mode": "full",
       "lambda": 2.921,
       "mu": 0.97,
-      "package_id": 1283,
+      "package_id": 1658,
       "legs": [
         {
           "market": "dc",
@@ -16406,7 +16177,7 @@
       "feed_mode": "full",
       "lambda": 2.478,
       "mu": 0.549,
-      "package_id": 1284,
+      "package_id": 1659,
       "legs": [
         {
           "market": "dc",
@@ -16514,7 +16285,7 @@
       "feed_mode": "full",
       "lambda": 1.544,
       "mu": 1.495,
-      "package_id": 1285,
+      "package_id": 1660,
       "legs": [
         {
           "market": "team_over05_home",
@@ -16635,7 +16406,7 @@
       "feed_mode": "full",
       "lambda": 1.853,
       "mu": 1.684,
-      "package_id": 1286,
+      "package_id": 1661,
       "legs": [
         {
           "market": "ou15",
@@ -16743,7 +16514,7 @@
       "feed_mode": "full",
       "lambda": 1.378,
       "mu": 1.642,
-      "package_id": 1287,
+      "package_id": 1662,
       "legs": [
         {
           "market": "team_over05_away",
@@ -16851,7 +16622,7 @@
       "feed_mode": "full",
       "lambda": 1.327,
       "mu": 1.063,
-      "package_id": 1288,
+      "package_id": 1663,
       "legs": [
         {
           "market": "team_over05_home",
@@ -16946,7 +16717,7 @@
       "feed_mode": "full",
       "lambda": 1.04,
       "mu": 2.132,
-      "package_id": 1289,
+      "package_id": 1664,
       "legs": [
         {
           "market": "team_over05_away",
@@ -17067,7 +16838,7 @@
       "feed_mode": "full",
       "lambda": 1.955,
       "mu": 1.473,
-      "package_id": 1290,
+      "package_id": 1665,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17188,7 +16959,7 @@
       "feed_mode": "full",
       "lambda": 1.819,
       "mu": 1.033,
-      "package_id": 1291,
+      "package_id": 1666,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17283,7 +17054,7 @@
       "feed_mode": "full",
       "lambda": 1.456,
       "mu": 1.294,
-      "package_id": 1292,
+      "package_id": 1667,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17378,7 +17149,7 @@
       "feed_mode": "full",
       "lambda": 1.73,
       "mu": 1.787,
-      "package_id": 1293,
+      "package_id": 1668,
       "legs": [
         {
           "market": "ou15",
@@ -17486,7 +17257,7 @@
       "feed_mode": "full",
       "lambda": 1.317,
       "mu": 1.27,
-      "package_id": 1294,
+      "package_id": 1669,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17594,7 +17365,7 @@
       "feed_mode": "full",
       "lambda": 1.754,
       "mu": 1.211,
-      "package_id": 1295,
+      "package_id": 1670,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17689,7 +17460,7 @@
       "feed_mode": "full",
       "lambda": 1.692,
       "mu": 1.848,
-      "package_id": 1296,
+      "package_id": 1671,
       "legs": [
         {
           "market": "ou15",
@@ -17797,7 +17568,7 @@
       "feed_mode": "full",
       "lambda": 1.459,
       "mu": 1.082,
-      "package_id": 1297,
+      "package_id": 1672,
       "legs": [
         {
           "market": "team_over05_home",
@@ -17892,7 +17663,7 @@
       "feed_mode": "full",
       "lambda": 1.443,
       "mu": 2.148,
-      "package_id": 1298,
+      "package_id": 1673,
       "legs": [
         {
           "market": "team_over05_away",
@@ -18000,7 +17771,7 @@
       "feed_mode": "full",
       "lambda": 1.459,
       "mu": 1.082,
-      "package_id": 1299,
+      "package_id": 1674,
       "legs": [
         {
           "market": "team_over05_home",
@@ -18095,7 +17866,7 @@
       "feed_mode": "full",
       "lambda": 1.443,
       "mu": 2.148,
-      "package_id": 1300,
+      "package_id": 1675,
       "legs": [
         {
           "market": "team_over05_away",
@@ -18203,7 +17974,7 @@
       "feed_mode": "full",
       "lambda": 1.466,
       "mu": 1.385,
-      "package_id": 1301,
+      "package_id": 1676,
       "legs": [
         {
           "market": "team_over05_home",
@@ -18311,7 +18082,7 @@
       "feed_mode": "full",
       "lambda": 1.063,
       "mu": 0.883,
-      "package_id": 1302,
+      "package_id": 1677,
       "legs": [
         {
           "market": "ou35",
@@ -18445,7 +18216,7 @@
       "feed_mode": "full",
       "lambda": 1.188,
       "mu": 1.362,
-      "package_id": 1303,
+      "package_id": 1678,
       "legs": [
         {
           "market": "ou35",
@@ -18540,7 +18311,7 @@
       "feed_mode": "full",
       "lambda": 1.603,
       "mu": 1.201,
-      "package_id": 1304,
+      "package_id": 1679,
       "legs": [
         {
           "market": "team_over05_home",
@@ -18635,7 +18406,7 @@
       "feed_mode": "full",
       "lambda": 1.187,
       "mu": 0.667,
-      "package_id": 1305,
+      "package_id": 1680,
       "legs": [
         {
           "market": "ou35",
@@ -18743,7 +18514,7 @@
       "feed_mode": "full",
       "lambda": 1.275,
       "mu": 1.617,
-      "package_id": 1306,
+      "package_id": 1681,
       "legs": [
         {
           "market": "team_over05_away",
@@ -18838,7 +18609,7 @@
       "feed_mode": "full",
       "lambda": 2.234,
       "mu": 1.081,
-      "package_id": 1307,
+      "package_id": 1682,
       "legs": [
         {
           "market": "team_over05_home",
@@ -18959,7 +18730,7 @@
       "feed_mode": "full",
       "lambda": 1.537,
       "mu": 1.208,
-      "package_id": 1308,
+      "package_id": 1683,
       "legs": [
         {
           "market": "team_over05_home",
@@ -19054,7 +18825,7 @@
       "feed_mode": "full",
       "lambda": 1.81,
       "mu": 0.891,
-      "package_id": 1309,
+      "package_id": 1684,
       "legs": [
         {
           "market": "dc",
@@ -19149,7 +18920,7 @@
       "feed_mode": "full",
       "lambda": 1.869,
       "mu": 1.568,
-      "package_id": 1310,
+      "package_id": 1685,
       "legs": [
         {
           "market": "ou15",
@@ -19270,7 +19041,7 @@
       "feed_mode": "full",
       "lambda": 0.664,
       "mu": 1.1,
-      "package_id": 1311,
+      "package_id": 1686,
       "legs": [
         {
           "market": "ou35",
@@ -19365,7 +19136,7 @@
       "feed_mode": "full",
       "lambda": 0.995,
       "mu": 2.022,
-      "package_id": 1312,
+      "package_id": 1687,
       "legs": [
         {
           "market": "team_over05_away",
@@ -19473,7 +19244,7 @@
       "feed_mode": "full",
       "lambda": 2.288,
       "mu": 1.26,
-      "package_id": 1313,
+      "package_id": 1688,
       "legs": [
         {
           "market": "team_over05_home",
@@ -19594,7 +19365,7 @@
       "feed_mode": "full",
       "lambda": 1.297,
       "mu": 1.433,
-      "package_id": 1314,
+      "package_id": 1689,
       "legs": [
         {
           "market": "team_over05_away",
@@ -19702,7 +19473,7 @@
       "feed_mode": "full",
       "lambda": 1.462,
       "mu": 3.129,
-      "package_id": 1315,
+      "package_id": 1690,
       "legs": [
         {
           "market": "dc",
@@ -19836,7 +19607,7 @@
       "feed_mode": "full",
       "lambda": 2.882,
       "mu": 1.574,
-      "package_id": 1316,
+      "package_id": 1691,
       "legs": [
         {
           "market": "team_over05_home",
@@ -19970,7 +19741,7 @@
       "feed_mode": "full",
       "lambda": 2.439,
       "mu": 1.209,
-      "package_id": 1317,
+      "package_id": 1692,
       "legs": [
         {
           "market": "team_over05_home",
@@ -20091,7 +19862,7 @@
       "feed_mode": "full",
       "lambda": 1.326,
       "mu": 2.89,
-      "package_id": 1318,
+      "package_id": 1693,
       "legs": [
         {
           "market": "dc",
@@ -20225,7 +19996,7 @@
       "feed_mode": "full",
       "lambda": 2.493,
       "mu": 1.257,
-      "package_id": 1319,
+      "package_id": 1694,
       "legs": [
         {
           "market": "team_over05_home",
@@ -20346,7 +20117,7 @@
       "feed_mode": "full",
       "lambda": 1.598,
       "mu": 1.478,
-      "package_id": 1320,
+      "package_id": 1695,
       "legs": [
         {
           "market": "team_over05_home",
@@ -20454,7 +20225,7 @@
       "feed_mode": "full",
       "lambda": 2.882,
       "mu": 1.574,
-      "package_id": 1321,
+      "package_id": 1696,
       "legs": [
         {
           "market": "team_over05_home",
@@ -20588,7 +20359,7 @@
       "feed_mode": "full",
       "lambda": 0.893,
       "mu": 2.75,
-      "package_id": 1322,
+      "package_id": 1697,
       "legs": [
         {
           "market": "dc",
@@ -20696,7 +20467,7 @@
       "feed_mode": "full",
       "lambda": 1.739,
       "mu": 1.34,
-      "package_id": 1323,
+      "package_id": 1698,
       "legs": [
         {
           "market": "team_over05_home",
@@ -20804,7 +20575,7 @@
       "feed_mode": "full",
       "lambda": 1.894,
       "mu": 0.73,
-      "package_id": 1324,
+      "package_id": 1699,
       "legs": [
         {
           "market": "dc",
@@ -20899,7 +20670,7 @@
       "feed_mode": "full",
       "lambda": 1.945,
       "mu": 2.358,
-      "package_id": 1325,
+      "package_id": 1700,
       "legs": [
         {
           "market": "team_over05_away",
@@ -21020,7 +20791,7 @@
       "feed_mode": "full",
       "lambda": 1.739,
       "mu": 1.34,
-      "package_id": 1326,
+      "package_id": 1701,
       "legs": [
         {
           "market": "team_over05_home",
@@ -21128,7 +20899,7 @@
       "feed_mode": "full",
       "lambda": 1.894,
       "mu": 0.73,
-      "package_id": 1327,
+      "package_id": 1702,
       "legs": [
         {
           "market": "dc",
@@ -21223,7 +20994,7 @@
       "feed_mode": "full",
       "lambda": 1.836,
       "mu": 1.843,
-      "package_id": 1328,
+      "package_id": 1703,
       "legs": [
         {
           "market": "ou15",
@@ -21344,7 +21115,7 @@
       "feed_mode": "full",
       "lambda": 1.372,
       "mu": 1.297,
-      "package_id": 1329,
+      "package_id": 1704,
       "legs": [
         {
           "market": "team_over05_home",
@@ -21452,7 +21223,7 @@
       "feed_mode": "full",
       "lambda": 1.71,
       "mu": 1.624,
-      "package_id": 1330,
+      "package_id": 1705,
       "legs": [
         {
           "market": "team_over05_home",
@@ -21573,7 +21344,7 @@
       "feed_mode": "full",
       "lambda": 1.773,
       "mu": 1.524,
-      "package_id": 1331,
+      "package_id": 1706,
       "legs": [
         {
           "market": "team_over05_home",
@@ -21694,7 +21465,7 @@
       "feed_mode": "full",
       "lambda": 1.849,
       "mu": 1.961,
-      "package_id": 1332,
+      "package_id": 1707,
       "legs": [
         {
           "market": "team_over05_away",
@@ -21802,7 +21573,7 @@
       "feed_mode": "full",
       "lambda": 1.559,
       "mu": 1.271,
-      "package_id": 1333,
+      "package_id": 1708,
       "legs": [
         {
           "market": "team_over05_home",
@@ -21897,7 +21668,7 @@
       "feed_mode": "full",
       "lambda": 1.047,
       "mu": 1.837,
-      "package_id": 1334,
+      "package_id": 1709,
       "legs": [
         {
           "market": "team_over05_away",
@@ -21992,7 +21763,7 @@
       "feed_mode": "full",
       "lambda": 2.156,
       "mu": 1.096,
-      "package_id": 1335,
+      "package_id": 1710,
       "legs": [
         {
           "market": "team_over05_home",
@@ -22113,7 +21884,7 @@
       "feed_mode": "full",
       "lambda": 1.116,
       "mu": 2.199,
-      "package_id": 1336,
+      "package_id": 1711,
       "legs": [
         {
           "market": "team_over05_away",
@@ -22234,7 +22005,7 @@
       "feed_mode": "full",
       "lambda": 1.16,
       "mu": 1.547,
-      "package_id": 1337,
+      "package_id": 1712,
       "legs": [
         {
           "market": "team_over05_away",
@@ -22329,7 +22100,7 @@
       "feed_mode": "full",
       "lambda": 1.735,
       "mu": 1.59,
-      "package_id": 1338,
+      "package_id": 1713,
       "legs": [
         {
           "market": "team_over05_home",
@@ -22450,7 +22221,7 @@
       "feed_mode": "full",
       "lambda": 1.274,
       "mu": 2.165,
-      "package_id": 1339,
+      "package_id": 1714,
       "legs": [
         {
           "market": "team_over05_away",
@@ -22558,7 +22329,7 @@
       "feed_mode": "full",
       "lambda": 1.782,
       "mu": 1.19,
-      "package_id": 1340,
+      "package_id": 1715,
       "legs": [
         {
           "market": "team_over05_home",
@@ -22653,7 +22424,7 @@
       "feed_mode": "full",
       "lambda": 1.079,
       "mu": 1.487,
-      "package_id": 1341,
+      "package_id": 1716,
       "legs": [
         {
           "market": "team_over05_away",
@@ -22748,7 +22519,7 @@
       "feed_mode": "full",
       "lambda": 1.668,
       "mu": 1.215,
-      "package_id": 1342,
+      "package_id": 1717,
       "legs": [
         {
           "market": "team_over05_home",
@@ -22843,7 +22614,7 @@
       "feed_mode": "full",
       "lambda": 2.339,
       "mu": 0.929,
-      "package_id": 1343,
+      "package_id": 1718,
       "legs": [
         {
           "market": "dc",
@@ -22964,7 +22735,7 @@
       "feed_mode": "full",
       "lambda": 1.594,
       "mu": 1.368,
-      "package_id": 1344,
+      "package_id": 1719,
       "legs": [
         {
           "market": "dc",
@@ -23059,7 +22830,7 @@
       "feed_mode": "full",
       "lambda": 1.502,
       "mu": 0.834,
-      "package_id": 1345,
+      "package_id": 1720,
       "legs": [
         {
           "market": "dc",
@@ -23154,7 +22925,7 @@
       "feed_mode": "full",
       "lambda": 1.814,
       "mu": 1.652,
-      "package_id": 1346,
+      "package_id": 1721,
       "legs": [
         {
           "market": "ou15",
@@ -23262,7 +23033,7 @@
       "feed_mode": "full",
       "lambda": 1.694,
       "mu": 1.226,
-      "package_id": 1347,
+      "package_id": 1722,
       "legs": [
         {
           "market": "team_over05_home",
@@ -23357,7 +23128,7 @@
       "feed_mode": "full",
       "lambda": 2.45,
       "mu": 1.126,
-      "package_id": 1348,
+      "package_id": 1723,
       "legs": [
         {
           "market": "team_over05_home",
@@ -23478,7 +23249,7 @@
       "feed_mode": "full",
       "lambda": 2.61,
       "mu": 1.46,
-      "package_id": 1349,
+      "package_id": 1724,
       "legs": [
         {
           "market": "team_over05_home",
@@ -23612,7 +23383,7 @@
       "feed_mode": "full",
       "lambda": 1.54,
       "mu": 2.168,
-      "package_id": 1350,
+      "package_id": 1725,
       "legs": [
         {
           "market": "team_over05_away",
@@ -23720,7 +23491,7 @@
       "feed_mode": "full",
       "lambda": 1.433,
       "mu": 1.983,
-      "package_id": 1351,
+      "package_id": 1726,
       "legs": [
         {
           "market": "team_over05_away",
@@ -23841,7 +23612,7 @@
       "feed_mode": "full",
       "lambda": 2.207,
       "mu": 1.33,
-      "package_id": 1352,
+      "package_id": 1727,
       "legs": [
         {
           "market": "team_over05_home",
@@ -23949,7 +23720,7 @@
       "feed_mode": "full",
       "lambda": 1.641,
       "mu": 1.381,
-      "package_id": 1353,
+      "package_id": 1728,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24057,7 +23828,7 @@
       "feed_mode": "full",
       "lambda": 2.323,
       "mu": 1.191,
-      "package_id": 1354,
+      "package_id": 1729,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24178,7 +23949,7 @@
       "feed_mode": "full",
       "lambda": 1.778,
       "mu": 1.66,
-      "package_id": 1355,
+      "package_id": 1730,
       "legs": [
         {
           "market": "ou15",
@@ -24299,7 +24070,7 @@
       "feed_mode": "full",
       "lambda": 2.877,
       "mu": 0.882,
-      "package_id": 1356,
+      "package_id": 1731,
       "legs": [
         {
           "market": "dc",
@@ -24407,7 +24178,7 @@
       "feed_mode": "full",
       "lambda": 1.75,
       "mu": 1.521,
-      "package_id": 1357,
+      "package_id": 1732,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24528,7 +24299,7 @@
       "feed_mode": "full",
       "lambda": 2.18,
       "mu": 1.556,
-      "package_id": 1358,
+      "package_id": 1733,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24636,7 +24407,7 @@
       "feed_mode": "full",
       "lambda": 3.232,
       "mu": 1.091,
-      "package_id": 1359,
+      "package_id": 1734,
       "legs": [
         {
           "market": "dc",
@@ -24770,7 +24541,7 @@
       "feed_mode": "full",
       "lambda": 1.348,
       "mu": 1.302,
-      "package_id": 1360,
+      "package_id": 1735,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24878,7 +24649,7 @@
       "feed_mode": "full",
       "lambda": 1.715,
       "mu": 1.022,
-      "package_id": 1361,
+      "package_id": 1736,
       "legs": [
         {
           "market": "team_over05_home",
@@ -24973,7 +24744,7 @@
       "feed_mode": "full",
       "lambda": 2.024,
       "mu": 1.028,
-      "package_id": 1362,
+      "package_id": 1737,
       "legs": [
         {
           "market": "team_over05_home",
@@ -25081,7 +24852,7 @@
       "feed_mode": "full",
       "lambda": 2.577,
       "mu": 0.885,
-      "package_id": 1363,
+      "package_id": 1738,
       "legs": [
         {
           "market": "dc",
@@ -25189,7 +24960,7 @@
       "feed_mode": "full",
       "lambda": 1.409,
       "mu": 1.536,
-      "package_id": 1364,
+      "package_id": 1739,
       "legs": [
         {
           "market": "team_over05_home",
@@ -25284,7 +25055,7 @@
       "feed_mode": "full",
       "lambda": 1.177,
       "mu": 1.442,
-      "package_id": 1365,
+      "package_id": 1740,
       "legs": [
         {
           "market": "team_over05_away",
@@ -25379,7 +25150,7 @@
       "feed_mode": "full",
       "lambda": 1.448,
       "mu": 1.578,
-      "package_id": 1366,
+      "package_id": 1741,
       "legs": [
         {
           "market": "team_over05_home",
@@ -25487,7 +25258,7 @@
       "feed_mode": "full",
       "lambda": 1.575,
       "mu": 1.638,
-      "package_id": 1367,
+      "package_id": 1742,
       "legs": [
         {
           "market": "team_over05_away",
@@ -25621,7 +25392,7 @@
       "feed_mode": "full",
       "lambda": 2.427,
       "mu": 1.359,
-      "package_id": 1368,
+      "package_id": 1743,
       "legs": [
         {
           "market": "team_over05_home",
@@ -25742,7 +25513,7 @@
       "feed_mode": "full",
       "lambda": 2.326,
       "mu": 1.421,
-      "package_id": 1369,
+      "package_id": 1744,
       "legs": [
         {
           "market": "team_over05_home",
@@ -25850,7 +25621,7 @@
       "feed_mode": "full",
       "lambda": 1.532,
       "mu": 1.666,
-      "package_id": 1370,
+      "package_id": 1745,
       "legs": [
         {
           "market": "team_over05_away",
@@ -25971,7 +25742,7 @@
       "feed_mode": "full",
       "lambda": 1.823,
       "mu": 1.115,
-      "package_id": 1371,
+      "package_id": 1746,
       "legs": [
         {
           "market": "team_over05_home",
@@ -26066,7 +25837,7 @@
       "feed_mode": "full",
       "lambda": 1.019,
       "mu": 1.54,
-      "package_id": 1372,
+      "package_id": 1747,
       "legs": [
         {
           "market": "team_over05_away",
@@ -26161,7 +25932,7 @@
       "feed_mode": "full",
       "lambda": 0.949,
       "mu": 1.792,
-      "package_id": 1373,
+      "package_id": 1748,
       "legs": [
         {
           "market": "dc",
@@ -26256,7 +26027,7 @@
       "feed_mode": "full",
       "lambda": 1.508,
       "mu": 1.745,
-      "package_id": 1374,
+      "package_id": 1749,
       "legs": [
         {
           "market": "team_over05_away",
@@ -26377,7 +26148,7 @@
       "feed_mode": "full",
       "lambda": 1.085,
       "mu": 0.96,
-      "package_id": 1375,
+      "package_id": 1750,
       "legs": [
         {
           "market": "ou35",
@@ -26498,7 +26269,7 @@
       "feed_mode": "full",
       "lambda": 1.276,
       "mu": 1.609,
-      "package_id": 1376,
+      "package_id": 1751,
       "legs": [
         {
           "market": "dc",
@@ -26593,7 +26364,7 @@
       "feed_mode": "full",
       "lambda": 1.691,
       "mu": 1.723,
-      "package_id": 1377,
+      "package_id": 1752,
       "legs": [
         {
           "market": "ou15",
@@ -26727,7 +26498,7 @@
       "feed_mode": "full",
       "lambda": 2.038,
       "mu": 1.554,
-      "package_id": 1378,
+      "package_id": 1753,
       "legs": [
         {
           "market": "team_over05_home",
@@ -26835,7 +26606,7 @@
       "feed_mode": "full",
       "lambda": 1.94,
       "mu": 1.365,
-      "package_id": 1379,
+      "package_id": 1754,
       "legs": [
         {
           "market": "team_over05_home",
@@ -26956,7 +26727,7 @@
       "feed_mode": "full",
       "lambda": 1.853,
       "mu": 1.154,
-      "package_id": 1380,
+      "package_id": 1755,
       "legs": [
         {
           "market": "team_over05_home",
@@ -27051,7 +26822,7 @@
       "feed_mode": "full",
       "lambda": 0.955,
       "mu": 0.89,
-      "package_id": 1381,
+      "package_id": 1756,
       "legs": [
         {
           "market": "ou35",
@@ -27185,7 +26956,7 @@
       "feed_mode": "full",
       "lambda": 1.126,
       "mu": 1.546,
-      "package_id": 1382,
+      "package_id": 1757,
       "legs": [
         {
           "market": "team_over05_away",
@@ -27280,7 +27051,7 @@
       "feed_mode": "full",
       "lambda": 1.251,
       "mu": 1.64,
-      "package_id": 1383,
+      "package_id": 1758,
       "legs": [
         {
           "market": "team_over05_away",
@@ -27375,7 +27146,7 @@
       "feed_mode": "full",
       "lambda": 1.678,
       "mu": 1.61,
-      "package_id": 1384,
+      "package_id": 1759,
       "legs": [
         {
           "market": "team_over05_home",
@@ -27509,7 +27280,7 @@
       "feed_mode": "full",
       "lambda": 0.888,
       "mu": 1.726,
-      "package_id": 1385,
+      "package_id": 1760,
       "legs": [
         {
           "market": "dc",
@@ -27604,7 +27375,7 @@
       "feed_mode": "full",
       "lambda": 1.29,
       "mu": 1.737,
-      "package_id": 1386,
+      "package_id": 1761,
       "legs": [
         {
           "market": "team_over05_away",
@@ -27699,7 +27470,7 @@
       "feed_mode": "full",
       "lambda": 2.079,
       "mu": 0.999,
-      "package_id": 1387,
+      "package_id": 1762,
       "legs": [
         {
           "market": "team_over05_home",
@@ -27807,7 +27578,7 @@
       "feed_mode": "full",
       "lambda": 2.351,
       "mu": 0.949,
-      "package_id": 1388,
+      "package_id": 1763,
       "legs": [
         {
           "market": "dc",
@@ -27928,7 +27699,7 @@
       "feed_mode": "full",
       "lambda": 1.681,
       "mu": 1.182,
-      "package_id": 1389,
+      "package_id": 1764,
       "legs": [
         {
           "market": "team_over05_home",
@@ -28023,7 +27794,7 @@
       "feed_mode": "full",
       "lambda": 1.007,
       "mu": 2.051,
-      "package_id": 1390,
+      "package_id": 1765,
       "legs": [
         {
           "market": "team_over05_away",
@@ -28131,7 +27902,7 @@
       "feed_mode": "full",
       "lambda": 0.958,
       "mu": 1.551,
-      "package_id": 1391,
+      "package_id": 1766,
       "legs": [
         {
           "market": "dc",
@@ -28226,7 +27997,7 @@
       "feed_mode": "full",
       "lambda": 3.329,
       "mu": 0.92,
-      "package_id": 1392,
+      "package_id": 1767,
       "legs": [
         {
           "market": "dc",
@@ -28347,7 +28118,7 @@
       "feed_mode": "full",
       "lambda": 0.958,
       "mu": 1.551,
-      "package_id": 1393,
+      "package_id": 1768,
       "legs": [
         {
           "market": "dc",
@@ -28442,7 +28213,7 @@
       "feed_mode": "full",
       "lambda": 1.386,
       "mu": 1.779,
-      "package_id": 1394,
+      "package_id": 1769,
       "legs": [
         {
           "market": "team_over05_away",
@@ -28563,7 +28334,7 @@
       "feed_mode": "full",
       "lambda": 1.33,
       "mu": 1.244,
-      "package_id": 1395,
+      "package_id": 1770,
       "legs": [
         {
           "market": "team_over05_home",
@@ -28671,7 +28442,7 @@
       "feed_mode": "full",
       "lambda": 1.698,
       "mu": 1.8,
-      "package_id": 1396,
+      "package_id": 1771,
       "legs": [
         {
           "market": "ou15",
@@ -28779,7 +28550,7 @@
       "feed_mode": "full",
       "lambda": 2.065,
       "mu": 2.393,
-      "package_id": 1397,
+      "package_id": 1772,
       "legs": [
         {
           "market": "team_over05_away",
@@ -28900,7 +28671,7 @@
       "feed_mode": "full",
       "lambda": 1.572,
       "mu": 1.023,
-      "package_id": 1398,
+      "package_id": 1773,
       "legs": [
         {
           "market": "team_over05_home",
@@ -28995,7 +28766,7 @@
       "feed_mode": "full",
       "lambda": 1.529,
       "mu": 1.316,
-      "package_id": 1399,
+      "package_id": 1774,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29090,7 +28861,7 @@
       "feed_mode": "full",
       "lambda": 1.256,
       "mu": 1.677,
-      "package_id": 1400,
+      "package_id": 1775,
       "legs": [
         {
           "market": "team_over05_away",
@@ -29185,7 +28956,7 @@
       "feed_mode": "full",
       "lambda": 1.494,
       "mu": 1.591,
-      "package_id": 1401,
+      "package_id": 1776,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29293,7 +29064,7 @@
       "feed_mode": "full",
       "lambda": 2.537,
       "mu": 1.43,
-      "package_id": 1402,
+      "package_id": 1777,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29427,7 +29198,7 @@
       "feed_mode": "full",
       "lambda": 0.874,
       "mu": 1.961,
-      "package_id": 1403,
+      "package_id": 1778,
       "legs": [
         {
           "market": "team_over05_away",
@@ -29535,7 +29306,7 @@
       "feed_mode": "full",
       "lambda": 1.256,
       "mu": 1.677,
-      "package_id": 1404,
+      "package_id": 1779,
       "legs": [
         {
           "market": "team_over05_away",
@@ -29630,7 +29401,7 @@
       "feed_mode": "full",
       "lambda": 1.494,
       "mu": 1.591,
-      "package_id": 1405,
+      "package_id": 1780,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29738,7 +29509,7 @@
       "feed_mode": "full",
       "lambda": 2.39,
       "mu": 1.5,
-      "package_id": 1406,
+      "package_id": 1781,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29846,7 +29617,7 @@
       "feed_mode": "full",
       "lambda": 1.628,
       "mu": 1.371,
-      "package_id": 1407,
+      "package_id": 1782,
       "legs": [
         {
           "market": "team_over05_home",
@@ -29941,7 +29712,7 @@
       "feed_mode": "full",
       "lambda": 2.42,
       "mu": 1.538,
-      "package_id": 1408,
+      "package_id": 1783,
       "legs": [
         {
           "market": "team_over05_home",
@@ -30062,7 +29833,7 @@
       "feed_mode": "full",
       "lambda": 2.038,
       "mu": 0.709,
-      "package_id": 1409,
+      "package_id": 1784,
       "legs": [
         {
           "market": "dc",
@@ -30157,7 +29928,7 @@
       "feed_mode": "full",
       "lambda": 2.046,
       "mu": 1.313,
-      "package_id": 1410,
+      "package_id": 1785,
       "legs": [
         {
           "market": "team_over05_home",
@@ -30278,7 +30049,7 @@
       "feed_mode": "full",
       "lambda": 1.28,
       "mu": 1.928,
-      "package_id": 1411,
+      "package_id": 1786,
       "legs": [
         {
           "market": "team_over05_away",
@@ -30399,7 +30170,7 @@
       "feed_mode": "full",
       "lambda": 1.66,
       "mu": 1.76,
-      "package_id": 1412,
+      "package_id": 1787,
       "legs": [
         {
           "market": "ou15",
@@ -30520,7 +30291,7 @@
       "feed_mode": "full",
       "lambda": 1.66,
       "mu": 1.76,
-      "package_id": 1413,
+      "package_id": 1788,
       "legs": [
         {
           "market": "ou15",
@@ -30641,7 +30412,7 @@
       "feed_mode": "full",
       "lambda": 1.432,
       "mu": 1.418,
-      "package_id": 1414,
+      "package_id": 1789,
       "legs": [
         {
           "market": "team_over05_home",
@@ -30749,7 +30520,7 @@
       "feed_mode": "full",
       "lambda": 1.586,
       "mu": 1.471,
-      "package_id": 1415,
+      "package_id": 1790,
       "legs": [
         {
           "market": "team_over05_home",
@@ -30857,7 +30628,7 @@
       "feed_mode": "full",
       "lambda": 1.604,
       "mu": 0.958,
-      "package_id": 1416,
+      "package_id": 1791,
       "legs": [
         {
           "market": "team_over05_home",
@@ -30952,7 +30723,7 @@
       "feed_mode": "full",
       "lambda": 0.992,
       "mu": 0.714,
-      "package_id": 1417,
+      "package_id": 1792,
       "legs": [
         {
           "market": "ou35",
@@ -31047,7 +30818,7 @@
       "feed_mode": "full",
       "lambda": 1.061,
       "mu": 1.252,
-      "package_id": 1418,
+      "package_id": 1793,
       "legs": [
         {
           "market": "ou35",
@@ -31142,7 +30913,7 @@
       "feed_mode": "full",
       "lambda": 1.435,
       "mu": 1.382,
-      "package_id": 1419,
+      "package_id": 1794,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31250,7 +31021,7 @@
       "feed_mode": "full",
       "lambda": 1.677,
       "mu": 1.975,
-      "package_id": 1420,
+      "package_id": 1795,
       "legs": [
         {
           "market": "team_over05_away",
@@ -31358,7 +31129,7 @@
       "feed_mode": "full",
       "lambda": 2.004,
       "mu": 1.095,
-      "package_id": 1421,
+      "package_id": 1796,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31453,7 +31224,7 @@
       "feed_mode": "full",
       "lambda": 1.691,
       "mu": 1.067,
-      "package_id": 1422,
+      "package_id": 1797,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31548,7 +31319,7 @@
       "feed_mode": "full",
       "lambda": 1.21,
       "mu": 1.244,
-      "package_id": 1423,
+      "package_id": 1798,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31656,7 +31427,7 @@
       "feed_mode": "full",
       "lambda": 1.91,
       "mu": 0.996,
-      "package_id": 1424,
+      "package_id": 1799,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31751,7 +31522,7 @@
       "feed_mode": "full",
       "lambda": 1.655,
       "mu": 1.405,
-      "package_id": 1425,
+      "package_id": 1800,
       "legs": [
         {
           "market": "team_over05_home",
@@ -31859,7 +31630,7 @@
       "feed_mode": "full",
       "lambda": 1.278,
       "mu": 1.938,
-      "package_id": 1426,
+      "package_id": 1801,
       "legs": [
         {
           "market": "team_over05_away",
@@ -31980,7 +31751,7 @@
       "feed_mode": "full",
       "lambda": 1.596,
       "mu": 0.792,
-      "package_id": 1427,
+      "package_id": 1802,
       "legs": [
         {
           "market": "dc",
@@ -32062,7 +31833,7 @@
       "feed_mode": "full",
       "lambda": 1.357,
       "mu": 1.378,
-      "package_id": 1428,
+      "package_id": 1803,
       "legs": [
         {
           "market": "team_over05_home",
@@ -32170,7 +31941,7 @@
       "feed_mode": "full",
       "lambda": 1.61,
       "mu": 1.453,
-      "package_id": 1429,
+      "package_id": 1804,
       "legs": [
         {
           "market": "team_over05_home",
@@ -32278,7 +32049,7 @@
       "feed_mode": "full",
       "lambda": 2.2,
       "mu": 1.368,
-      "package_id": 1430,
+      "package_id": 1805,
       "legs": [
         {
           "market": "team_over05_home",
@@ -32386,7 +32157,7 @@
       "feed_mode": "full",
       "lambda": 2.642,
       "mu": 1.004,
-      "package_id": 1431,
+      "package_id": 1806,
       "legs": [
         {
           "market": "dc",
@@ -32494,7 +32265,7 @@
       "feed_mode": "full",
       "lambda": 3.4,
       "mu": 0.641,
-      "package_id": 1432,
+      "package_id": 1807,
       "legs": [
         {
           "market": "dc",
@@ -32602,7 +32373,7 @@
       "feed_mode": "full",
       "lambda": 2.692,
       "mu": 0.844,
-      "package_id": 1433,
+      "package_id": 1808,
       "legs": [
         {
           "market": "dc",
@@ -32710,7 +32481,7 @@
       "feed_mode": "full",
       "lambda": 2.642,
       "mu": 1.004,
-      "package_id": 1434,
+      "package_id": 1809,
       "legs": [
         {
           "market": "dc",
@@ -32818,7 +32589,7 @@
       "feed_mode": "full",
       "lambda": 1.733,
       "mu": 1.6,
-      "package_id": 1435,
+      "package_id": 1810,
       "legs": [
         {
           "market": "team_over05_home",
@@ -32939,7 +32710,7 @@
       "feed_mode": "full",
       "lambda": 1.514,
       "mu": 1.435,
-      "package_id": 1436,
+      "package_id": 1811,
       "legs": [
         {
           "market": "team_over05_home",
@@ -33047,7 +32818,7 @@
       "feed_mode": "full",
       "lambda": 1.128,
       "mu": 1.891,
-      "package_id": 1437,
+      "package_id": 1812,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33142,7 +32913,7 @@
       "feed_mode": "full",
       "lambda": 1.604,
       "mu": 2.034,
-      "package_id": 1438,
+      "package_id": 1813,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33250,7 +33021,7 @@
       "feed_mode": "full",
       "lambda": 1.604,
       "mu": 2.034,
-      "package_id": 1439,
+      "package_id": 1814,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33358,7 +33129,7 @@
       "feed_mode": "full",
       "lambda": 0.999,
       "mu": 2.286,
-      "package_id": 1440,
+      "package_id": 1815,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33479,7 +33250,7 @@
       "feed_mode": "full",
       "lambda": 1.128,
       "mu": 1.891,
-      "package_id": 1441,
+      "package_id": 1816,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33574,7 +33345,7 @@
       "feed_mode": "full",
       "lambda": 1.771,
       "mu": 0.948,
-      "package_id": 1442,
+      "package_id": 1817,
       "legs": [
         {
           "market": "dc",
@@ -33669,7 +33440,7 @@
       "feed_mode": "full",
       "lambda": 1.478,
       "mu": 1.727,
-      "package_id": 1443,
+      "package_id": 1818,
       "legs": [
         {
           "market": "team_over05_away",
@@ -33790,7 +33561,7 @@
       "feed_mode": "full",
       "lambda": 0.66,
       "mu": 1.265,
-      "package_id": 1444,
+      "package_id": 1819,
       "legs": [
         {
           "market": "ou35",
@@ -33898,7 +33669,7 @@
       "feed_mode": "full",
       "lambda": 1.404,
       "mu": 1.033,
-      "package_id": 1445,
+      "package_id": 1820,
       "legs": [
         {
           "market": "team_over05_home",
@@ -33993,7 +33764,7 @@
       "feed_mode": "full",
       "lambda": 2.628,
       "mu": 0.793,
-      "package_id": 1446,
+      "package_id": 1821,
       "legs": [
         {
           "market": "dc",
@@ -34101,7 +33872,7 @@
       "feed_mode": "full",
       "lambda": 2.112,
       "mu": 0.637,
-      "package_id": 1447,
+      "package_id": 1822,
       "legs": [
         {
           "market": "dc",
@@ -34196,7 +33967,7 @@
       "feed_mode": "full",
       "lambda": 1.265,
       "mu": 0.775,
-      "package_id": 1448,
+      "package_id": 1823,
       "legs": [
         {
           "market": "dc",
@@ -34304,7 +34075,7 @@
       "feed_mode": "full",
       "lambda": 1.934,
       "mu": 0.863,
-      "package_id": 1449,
+      "package_id": 1824,
       "legs": [
         {
           "market": "team_over05_home",
@@ -34412,7 +34183,7 @@
       "feed_mode": "full",
       "lambda": 2.795,
       "mu": 1.669,
-      "package_id": 1450,
+      "package_id": 1825,
       "legs": [
         {
           "market": "team_over05_home",
@@ -34546,7 +34317,7 @@
       "feed_mode": "full",
       "lambda": 1.401,
       "mu": 1.762,
-      "package_id": 1451,
+      "package_id": 1826,
       "legs": [
         {
           "market": "team_over05_away",
@@ -34667,7 +34438,7 @@
       "feed_mode": "full",
       "lambda": 2.439,
       "mu": 1.166,
-      "package_id": 1452,
+      "package_id": 1827,
       "legs": [
         {
           "market": "team_over05_home",
@@ -34788,7 +34559,7 @@
       "feed_mode": "full",
       "lambda": 2.058,
       "mu": 1.391,
-      "package_id": 1453,
+      "package_id": 1828,
       "legs": [
         {
           "market": "team_over05_home",
@@ -34896,7 +34667,7 @@
       "feed_mode": "full",
       "lambda": 1.007,
       "mu": 1.942,
-      "package_id": 1454,
+      "package_id": 1829,
       "legs": [
         {
           "market": "team_over05_away",
@@ -34991,7 +34762,7 @@
       "feed_mode": "full",
       "lambda": 2.007,
       "mu": 1.675,
-      "package_id": 1455,
+      "package_id": 1830,
       "legs": [
         {
           "market": "team_over05_home",
@@ -35099,7 +34870,7 @@
       "feed_mode": "full",
       "lambda": 2.329,
       "mu": 1.817,
-      "package_id": 1456,
+      "package_id": 1831,
       "legs": [
         {
           "market": "team_over05_home",
@@ -35220,7 +34991,7 @@
       "feed_mode": "full",
       "lambda": 1.27,
       "mu": 1.65,
-      "package_id": 1457,
+      "package_id": 1832,
       "legs": [
         {
           "market": "team_over05_away",
@@ -35315,7 +35086,7 @@
       "feed_mode": "full",
       "lambda": 1.22,
       "mu": 0.742,
-      "package_id": 1458,
+      "package_id": 1833,
       "legs": [
         {
           "market": "ou35",
@@ -35423,7 +35194,7 @@
       "feed_mode": "full",
       "lambda": 1.471,
       "mu": 0.863,
-      "package_id": 1459,
+      "package_id": 1834,
       "legs": [
         {
           "market": "team_over05_home",
@@ -35518,7 +35289,7 @@
       "feed_mode": "full",
       "lambda": 1.139,
       "mu": 1.033,
-      "package_id": 1460,
+      "package_id": 1835,
       "legs": [
         {
           "market": "ou35",
@@ -35639,7 +35410,7 @@
       "feed_mode": "full",
       "lambda": 0.811,
       "mu": 1.143,
-      "package_id": 1461,
+      "package_id": 1836,
       "legs": [
         {
           "market": "ou35",
@@ -35760,7 +35531,7 @@
       "feed_mode": "full",
       "lambda": 1.642,
       "mu": 1.758,
-      "package_id": 1462,
+      "package_id": 1837,
       "legs": [
         {
           "market": "ou15",
@@ -35881,7 +35652,7 @@
       "feed_mode": "full",
       "lambda": 1.869,
       "mu": 1.502,
-      "package_id": 1463,
+      "package_id": 1838,
       "legs": [
         {
           "market": "team_over05_home",
@@ -36002,7 +35773,7 @@
       "feed_mode": "full",
       "lambda": 2.443,
       "mu": 0.619,
-      "package_id": 1464,
+      "package_id": 1839,
       "legs": [
         {
           "market": "dc",
@@ -36097,7 +35868,7 @@
       "feed_mode": "full",
       "lambda": 1.285,
       "mu": 1.476,
-      "package_id": 1465,
+      "package_id": 1840,
       "legs": [
         {
           "market": "team_over05_away",
@@ -36192,7 +35963,7 @@
       "feed_mode": "full",
       "lambda": 2.099,
       "mu": 1.403,
-      "package_id": 1466,
+      "package_id": 1841,
       "legs": [
         {
           "market": "team_over05_home",
@@ -36300,7 +36071,7 @@
       "feed_mode": "full",
       "lambda": 1.992,
       "mu": 1.334,
-      "package_id": 1467,
+      "package_id": 1842,
       "legs": [
         {
           "market": "team_over05_home",
@@ -36421,7 +36192,7 @@
       "feed_mode": "full",
       "lambda": 1.483,
       "mu": 1.969,
-      "package_id": 1468,
+      "package_id": 1843,
       "legs": [
         {
           "market": "team_over05_away",
@@ -36529,7 +36300,7 @@
       "feed_mode": "full",
       "lambda": 3.174,
       "mu": 1.284,
-      "package_id": 1469,
+      "package_id": 1844,
       "legs": [
         {
           "market": "dc",
@@ -36663,7 +36434,7 @@
       "feed_mode": "full",
       "lambda": 2.035,
       "mu": 1.428,
-      "package_id": 1470,
+      "package_id": 1845,
       "legs": [
         {
           "market": "team_over05_home",
@@ -36771,7 +36542,7 @@
       "feed_mode": "full",
       "lambda": 1.57,
       "mu": 1.526,
-      "package_id": 1471,
+      "package_id": 1846,
       "legs": [
         {
           "market": "team_over05_home",
@@ -36892,7 +36663,7 @@
       "feed_mode": "full",
       "lambda": 1.414,
       "mu": 1.413,
-      "package_id": 1472,
+      "package_id": 1847,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37000,7 +36771,7 @@
       "feed_mode": "full",
       "lambda": 1.334,
       "mu": 0.97,
-      "package_id": 1473,
+      "package_id": 1848,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37095,7 +36866,7 @@
       "feed_mode": "full",
       "lambda": 2.28,
       "mu": 1.48,
-      "package_id": 1474,
+      "package_id": 1849,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37203,7 +36974,7 @@
       "feed_mode": "full",
       "lambda": 1.271,
       "mu": 0.826,
-      "package_id": 1475,
+      "package_id": 1850,
       "legs": [
         {
           "market": "dc",
@@ -37311,7 +37082,7 @@
       "feed_mode": "full",
       "lambda": 1.611,
       "mu": 1.808,
-      "package_id": 1476,
+      "package_id": 1851,
       "legs": [
         {
           "market": "ou15",
@@ -37432,7 +37203,7 @@
       "feed_mode": "full",
       "lambda": 1.762,
       "mu": 1.284,
-      "package_id": 1477,
+      "package_id": 1852,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37527,7 +37298,7 @@
       "feed_mode": "full",
       "lambda": 1.544,
       "mu": 1.23,
-      "package_id": 1478,
+      "package_id": 1853,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37622,7 +37393,7 @@
       "feed_mode": "full",
       "lambda": 1.957,
       "mu": 1.255,
-      "package_id": 1479,
+      "package_id": 1854,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37743,7 +37514,7 @@
       "feed_mode": "full",
       "lambda": 1.127,
       "mu": 1.201,
-      "package_id": 1480,
+      "package_id": 1855,
       "legs": [
         {
           "market": "ou35",
@@ -37851,7 +37622,7 @@
       "feed_mode": "full",
       "lambda": 1.901,
       "mu": 1.335,
-      "package_id": 1481,
+      "package_id": 1856,
       "legs": [
         {
           "market": "team_over05_home",
@@ -37972,7 +37743,7 @@
       "feed_mode": "full",
       "lambda": 1.629,
       "mu": 1.169,
-      "package_id": 1482,
+      "package_id": 1857,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38067,7 +37838,7 @@
       "feed_mode": "full",
       "lambda": 1.473,
       "mu": 1.602,
-      "package_id": 1483,
+      "package_id": 1858,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38175,7 +37946,7 @@
       "feed_mode": "full",
       "lambda": 1.36,
       "mu": 1.57,
-      "package_id": 1484,
+      "package_id": 1859,
       "legs": [
         {
           "market": "dc",
@@ -38270,7 +38041,7 @@
       "feed_mode": "full",
       "lambda": 2.311,
       "mu": 1.599,
-      "package_id": 1485,
+      "package_id": 1860,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38378,7 +38149,7 @@
       "feed_mode": "full",
       "lambda": 2.084,
       "mu": 1.498,
-      "package_id": 1486,
+      "package_id": 1861,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38486,7 +38257,7 @@
       "feed_mode": "full",
       "lambda": 1.398,
       "mu": 0.974,
-      "package_id": 1487,
+      "package_id": 1862,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38581,7 +38352,7 @@
       "feed_mode": "full",
       "lambda": 2.003,
       "mu": 0.992,
-      "package_id": 1488,
+      "package_id": 1863,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38689,7 +38460,7 @@
       "feed_mode": "full",
       "lambda": 2.813,
       "mu": 1.753,
-      "package_id": 1489,
+      "package_id": 1864,
       "legs": [
         {
           "market": "team_over05_home",
@@ -38810,7 +38581,7 @@
       "feed_mode": "full",
       "lambda": 2.348,
       "mu": 0.948,
-      "package_id": 1490,
+      "package_id": 1865,
       "legs": [
         {
           "market": "dc",
@@ -38931,7 +38702,7 @@
       "feed_mode": "full",
       "lambda": 3.117,
       "mu": 1.159,
-      "package_id": 1491,
+      "package_id": 1866,
       "legs": [
         {
           "market": "dc",
@@ -39065,7 +38836,7 @@
       "feed_mode": "full",
       "lambda": 1.031,
       "mu": 1.102,
-      "package_id": 1492,
+      "package_id": 1867,
       "legs": [
         {
           "market": "ou35",
@@ -39186,7 +38957,7 @@
       "feed_mode": "full",
       "lambda": 1.058,
       "mu": 1.251,
-      "package_id": 1493,
+      "package_id": 1868,
       "legs": [
         {
           "market": "ou35",
@@ -39281,7 +39052,7 @@
       "feed_mode": "full",
       "lambda": 1.841,
       "mu": 0.869,
-      "package_id": 1494,
+      "package_id": 1869,
       "legs": [
         {
           "market": "dc",
@@ -39389,7 +39160,7 @@
       "feed_mode": "full",
       "lambda": 1.581,
       "mu": 1.063,
-      "package_id": 1495,
+      "package_id": 1870,
       "legs": [
         {
           "market": "team_over05_home",
@@ -39484,7 +39255,7 @@
       "feed_mode": "full",
       "lambda": 1.05,
       "mu": 0.919,
-      "package_id": 1496,
+      "package_id": 1871,
       "legs": [
         {
           "market": "ou35",
@@ -39618,7 +39389,7 @@
       "feed_mode": "full",
       "lambda": 1.95,
       "mu": 1.199,
-      "package_id": 1497,
+      "package_id": 1872,
       "legs": [
         {
           "market": "team_over05_home",
@@ -39726,7 +39497,7 @@
       "feed_mode": "full",
       "lambda": 1.668,
       "mu": 1.229,
-      "package_id": 1498,
+      "package_id": 1873,
       "legs": [
         {
           "market": "team_over05_home",
@@ -39821,7 +39592,7 @@
       "feed_mode": "full",
       "lambda": 1.026,
       "mu": 1.04,
-      "package_id": 1499,
+      "package_id": 1874,
       "legs": [
         {
           "market": "ou35",
@@ -39942,7 +39713,7 @@
       "feed_mode": "full",
       "lambda": 1.293,
       "mu": 1.182,
-      "package_id": 1500,
+      "package_id": 1875,
       "legs": [
         {
           "market": "team_over05_home",
@@ -40050,7 +39821,7 @@
       "feed_mode": "full",
       "lambda": 0.925,
       "mu": 1.342,
-      "package_id": 1501,
+      "package_id": 1876,
       "legs": [
         {
           "market": "ou35",
@@ -40158,7 +39929,7 @@
       "feed_mode": "full",
       "lambda": 0.898,
       "mu": 1.166,
-      "package_id": 1502,
+      "package_id": 1877,
       "legs": [
         {
           "market": "ou35",
@@ -40266,7 +40037,7 @@
       "feed_mode": "full",
       "lambda": 1.574,
       "mu": 2.029,
-      "package_id": 1503,
+      "package_id": 1878,
       "legs": [
         {
           "market": "team_over05_away",
@@ -40374,7 +40145,7 @@
       "feed_mode": "full",
       "lambda": 1.574,
       "mu": 2.029,
-      "package_id": 1504,
+      "package_id": 1879,
       "legs": [
         {
           "market": "team_over05_away",
@@ -40482,7 +40253,7 @@
       "feed_mode": "full",
       "lambda": 1.678,
       "mu": 1.463,
-      "package_id": 1505,
+      "package_id": 1880,
       "legs": [
         {
           "market": "team_over05_home",
@@ -40603,7 +40374,7 @@
       "feed_mode": "full",
       "lambda": 1.433,
       "mu": 1.227,
-      "package_id": 1506,
+      "package_id": 1881,
       "legs": [
         {
           "market": "team_over05_home",
@@ -40698,7 +40469,7 @@
       "feed_mode": "full",
       "lambda": 1.433,
       "mu": 1.227,
-      "package_id": 1507,
+      "package_id": 1882,
       "legs": [
         {
           "market": "team_over05_home",
@@ -40779,33 +40550,3452 @@
           "agreement_spread": 0.016697948746418168
         }
       ]
+    },
+    {
+      "match_id": "sm_19714144",
+      "utc_date": "2026-11-08T12:00:00.000Z",
+      "competition_id": "sm:229",
+      "competition_name": "First League",
+      "canonical_id": "sm:229",
+      "home": "Spartak Varna",
+      "away": "Arda",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.22,
+      "mu": 1.564,
+      "package_id": 1883,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.750605304003958,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7329000000000001,
+          "agreement_spread": 0.017705304003957867
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7907026216885202,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7545999999999999,
+          "agreement_spread": 0.0361026216885203
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7047698114352235,
+          "effective_prob": 0.7323,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1326,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.626,
+          "agreement_spread": 0.07876981143522355
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7661832175043962,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7231000000000001,
+          "agreement_spread": 0.04308321750439614
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.702527582803944,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7255000000000001,
+          "agreement_spread": 0.02297241719605614
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6954957053330354,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7519,
+          "agreement_spread": 0.056404294666964616
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19725002",
+      "utc_date": "2026-11-08T12:00:00.000Z",
+      "competition_id": "sm:262",
+      "competition_name": "Chance Liga",
+      "canonical_id": "sm:262",
+      "home": "Teplice",
+      "away": "Pardubice",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.492,
+      "mu": 1.03,
+      "package_id": 1884,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.775077521462368,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6926000000000001,
+          "agreement_spread": 0.08247752146236786
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7528635720263218,
+          "effective_prob": 0.7525,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1002,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7273000000000001,
+          "agreement_spread": 0.025563572026321757
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.717187304090702,
+          "effective_prob": 0.7344,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1472,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7387,
+          "agreement_spread": 0.021512695909298052
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7386907702823641,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6274000000000001,
+          "agreement_spread": 0.111290770282364
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.739969315009939,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7164,
+          "agreement_spread": 0.023569315009938974
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6429930345992049,
+          "effective_prob": 0.618,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1034,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.7147,
+          "agreement_spread": 0.07170696540079513
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19784509",
+      "utc_date": "2026-11-08T12:00:00.000Z",
+      "competition_id": "sm:45",
+      "competition_name": "Women's Super League",
+      "canonical_id": "sm:45",
+      "home": "Aston Villa W",
+      "away": "Manchester United W",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.015,
+      "mu": 1.797,
+      "package_id": 1885,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8342039606180762,
+          "effective_prob": 0.8136,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1057,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8456,
+          "agreement_spread": 0.011396039381923795
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7689794567701586,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7842,
+          "agreement_spread": 0.015220543229841454
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7881853032305316,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7914,
+          "agreement_spread": 0.0032146967694683948
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7709564060667927,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8301000000000001,
+          "agreement_spread": 0.05914359393320734
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6892686354499338,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.61,
+          "agreement_spread": 0.07926863544993379
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6375975659363778,
+          "effective_prob": 0.6437,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 449,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5928,
+          "agreement_spread": 0.04479756593637785
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19784511",
+      "utc_date": "2026-11-08T12:00:00.000Z",
+      "competition_id": "sm:45",
+      "competition_name": "Women's Super League",
+      "canonical_id": "sm:45",
+      "home": "Liverpool W",
+      "away": "Arsenal W",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 0.948,
+      "mu": 2.138,
+      "package_id": 1886,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.882107810310106,
+          "effective_prob": 0.8814,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 489,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.851,
+          "agreement_spread": 0.03110781031010601
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8027811784022886,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7811,
+          "agreement_spread": 0.02168117840228856
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.8434953766581882,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7897,
+          "agreement_spread": 0.05379537665818823
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8133309874170608,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8534999999999999,
+          "agreement_spread": 0.040169012582939145
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6279816956603104,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5472,
+          "agreement_spread": 0.08078169566031035
+        },
+        {
+          "market": "1x2",
+          "selection": "2",
+          "model_prob": 0.6462765550604779,
+          "effective_prob": 0.6288,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 590,
+          "grade": "B",
+          "market_prob": 0.5218,
+          "sm_prob": 0.5707,
+          "agreement_spread": 0.12447655506047783
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6124847182317348,
+          "effective_prob": 0.6437,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 449,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6037,
+          "agreement_spread": 0.008784718231734767
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19872943",
+      "utc_date": "2026-11-08T12:15:00.000Z",
+      "competition_id": "sm:1073",
+      "competition_name": "V-League",
+      "canonical_id": "sm:1073",
+      "home": "Thể Công - Viettel",
+      "away": "Thanh Hoa FC",
+      "gate_status": "uncalibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.587,
+      "mu": 1.28,
+      "package_id": 1887,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7954614989352752,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8108,
+          "agreement_spread": 0.015338501064724785
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.753874564981004,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.748,
+          "agreement_spread": 0.005874564981004027
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7800862646623531,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7333,
+          "agreement_spread": 0.04678626466235314
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6770002483028742,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7258,
+          "agreement_spread": 0.048799751697125804
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7219626668212679,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5315,
+          "agreement_spread": 0.1904626668212679
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6916951465939778,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8156,
+          "agreement_spread": 0.1239048534060222
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19726017",
+      "utc_date": "2026-11-08T12:30:00.000Z",
+      "competition_id": "sm:208",
+      "competition_name": "Pro League",
+      "canonical_id": "sm:208",
+      "home": "Club Brugge",
+      "away": "Anderlecht",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.336,
+      "mu": 1.323,
+      "package_id": 1888,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.9032830043001107,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8509,
+          "agreement_spread": 0.05238300430011067
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8799881917967146,
+          "effective_prob": 0.8553,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1320,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8205,
+          "agreement_spread": 0.05948819179671461
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8073709034821952,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7889,
+          "agreement_spread": 0.018470903482195156
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7929297219471831,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8045,
+          "agreement_spread": 0.011570278052816851
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7336648596716301,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5647,
+          "agreement_spread": 0.1689648596716301
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.707552925479511,
+          "effective_prob": 0.6789,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 517,
+          "grade": "B",
+          "market_prob": 0.6783,
+          "sm_prob": 0.6156,
+          "agreement_spread": 0.09195292547951095
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.6003006254293772,
+          "effective_prob": 0.6288,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 590,
+          "grade": "B",
+          "market_prob": 0.6385,
+          "sm_prob": 0.5935,
+          "agreement_spread": 0.04499999999999993
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6627069985936085,
+          "effective_prob": 0.6276,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 878,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5861999999999999,
+          "agreement_spread": 0.07650699859360854
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19735407",
+      "utc_date": "2026-11-08T12:30:00.000Z",
+      "competition_id": "sm:85",
+      "competition_name": "2. Bundesliga",
+      "canonical_id": "sm:85",
+      "home": "Magdeburg",
+      "away": "St. Pauli",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.613,
+      "mu": 1.497,
+      "package_id": 1889,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8007109295181962,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7954000000000001,
+          "agreement_spread": 0.005310929518196117
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7623429180346107,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7526999999999999,
+          "agreement_spread": 0.009642918034610815
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7761993231583029,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6225999999999999,
+          "agreement_spread": 0.15359932315830294
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8166897713813706,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7827,
+          "agreement_spread": 0.033989771381370604
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6226045760710998,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6635,
+          "agreement_spread": 0.04089542392890022
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6439165282352348,
+          "effective_prob": 0.6536,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 2292,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7424,
+          "agreement_spread": 0.09848347176476513
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6009969657582266,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.5881,
+          "sm_prob": 0.5555,
+          "agreement_spread": 0.04549696575822659
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6215112815374797,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.564,
+          "agreement_spread": 0.05751128153747975
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19735410",
+      "utc_date": "2026-11-08T12:30:00.000Z",
+      "competition_id": "sm:85",
+      "competition_name": "2. Bundesliga",
+      "canonical_id": "sm:85",
+      "home": "VfL Bochum 1848",
+      "away": "Karlsruher SC",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.627,
+      "mu": 1.162,
+      "package_id": 1890,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8034815183166051,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7719,
+          "agreement_spread": 0.03158151831660505
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7543274988655255,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7484000000000001,
+          "agreement_spread": 0.00592749886552546
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7670418884820951,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7613,
+          "agreement_spread": 0.005741888482095114
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7275417019992214,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7232000000000001,
+          "agreement_spread": 0.004341701999221348
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6943846399631206,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6979000000000001,
+          "agreement_spread": 0.003515360036879467
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6871401507773429,
+          "effective_prob": 0.6506,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1428,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.636,
+          "agreement_spread": 0.05114015077734291
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19735413",
+      "utc_date": "2026-11-08T12:30:00.000Z",
+      "competition_id": "sm:85",
+      "competition_name": "2. Bundesliga",
+      "canonical_id": "sm:85",
+      "home": "FC Heidenheim",
+      "away": "Hannover 96",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.783,
+      "mu": 1.355,
+      "package_id": 1891,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8318665285432993,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7178,
+          "agreement_spread": 0.11406652854329935
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7687460870015782,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7654,
+          "agreement_spread": 0.003346087001578235
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8205366655877282,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8143,
+          "agreement_spread": 0.006236665587728174
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7072305115670201,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6067,
+          "agreement_spread": 0.10053051156702009
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7420526524899307,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7321,
+          "agreement_spread": 0.009952652489930713
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6163479567907814,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.607,
+          "agreement_spread": 0.009347956790781375
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6070055696060518,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.655,
+          "sm_prob": 0.608,
+          "agreement_spread": 0.04799443039394824
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.617288764023146,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6093999999999999,
+          "agreement_spread": 0.007888764023146089
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19883479",
+      "utc_date": "2026-11-08T12:45:00.000Z",
+      "competition_id": "sm:902",
+      "competition_name": "Persian Gulf Pro League",
+      "canonical_id": "sm:902",
+      "home": "Gol Gohar",
+      "away": "Zob Ahan",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.091,
+      "mu": 0.558,
+      "package_id": 1892,
+      "legs": [
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.9142893105145546,
+          "effective_prob": 0.8675,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 385,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8503000000000001,
+          "agreement_spread": 0.06398931051455459
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8126584548273716,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8012999999999999,
+          "agreement_spread": 0.011358454827371744
+        },
+        {
+          "market": "ou25",
+          "selection": "under",
+          "model_prob": 0.7706216147334279,
+          "effective_prob": 0.7706216147334279,
+          "effective_source": "stated-fallback",
+          "band": "75–80",
+          "band_n": 199,
+          "grade": "B",
+          "market_prob": 0.6364,
+          "sm_prob": 0.6766,
+          "agreement_spread": 0.13422161473342797
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.664119546637121,
+          "effective_prob": 0.6986,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 793,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6994,
+          "agreement_spread": 0.035280453362878994
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.6716616667982273,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6727,
+          "agreement_spread": 0.001038333201772712
+        },
+        {
+          "market": "btts",
+          "selection": "no",
+          "model_prob": 0.7159910193078007,
+          "effective_prob": 0.6387,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 274,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6084,
+          "agreement_spread": 0.10759101930780068
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19889052",
+      "utc_date": "2026-11-08T12:55:00.000Z",
+      "competition_id": "sm:959",
+      "competition_name": "UAE Pro League",
+      "canonical_id": "sm:959",
+      "home": "Al Jazira",
+      "away": "Al Wasl",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.702,
+      "mu": 1.54,
+      "package_id": 1893,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8176811416533527,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7518,
+          "agreement_spread": 0.06588114165335268
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7682222844404537,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7511,
+          "agreement_spread": 0.017122284440453717
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7856187462021528,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7148,
+          "agreement_spread": 0.07081874620215278
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8341982678293244,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8101999999999999,
+          "agreement_spread": 0.02399826782932446
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6502585790904998,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6522,
+          "agreement_spread": 0.0019414209095002244
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5931844280424692,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.626,
+          "agreement_spread": 0.03281557195753082
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6287916533443229,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.5873,
+          "sm_prob": 0.6051,
+          "agreement_spread": 0.04149165334432281
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6423856332988513,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6145,
+          "agreement_spread": 0.027885633298851298
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19889053",
+      "utc_date": "2026-11-08T12:55:00.000Z",
+      "competition_id": "sm:959",
+      "competition_name": "UAE Pro League",
+      "canonical_id": "sm:959",
+      "home": "Al Nasr",
+      "away": "Dubai United",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.231,
+      "mu": 1.576,
+      "package_id": 1894,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8925766333528709,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8648,
+          "agreement_spread": 0.02777663335287084
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8932113336170258,
+          "effective_prob": 0.8553,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1320,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.85,
+          "agreement_spread": 0.04321133361702578
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7973806826528748,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8027,
+          "agreement_spread": 0.0053193173471252075
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7931991679666547,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5722999999999999,
+          "agreement_spread": 0.22089916796665476
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7287357292685587,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8069,
+          "agreement_spread": 0.07816427073144128
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.732225819547297,
+          "effective_prob": 0.6789,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 517,
+          "grade": "B",
+          "market_prob": 0.6279,
+          "sm_prob": 0.6692,
+          "agreement_spread": 0.10432581954729703
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.7079910429219751,
+          "effective_prob": 0.6387,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 274,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6095,
+          "agreement_spread": 0.09849104292197508
+        }
+      ]
+    },
+    {
+      "match_id": "mt_988903129",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "comp_8814",
+      "competition_name": "LaLiga",
+      "canonical_id": "sm:564",
+      "home": "Elche",
+      "away": "Real Betis",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.645,
+      "mu": 1.461,
+      "package_id": 1895,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8069871795337915,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6122,
+          "agreement_spread": 0.19478717953379154
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.762808125515576,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7397,
+          "agreement_spread": 0.02310812551557595
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.767995746210148,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7642,
+          "agreement_spread": 0.003795746210147999
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8161341601527325,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7325,
+          "agreement_spread": 0.0836341601527325
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6234991161055577,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7151000000000001,
+          "agreement_spread": 0.09160088389444232
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6583827629874693,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5223,
+          "agreement_spread": 0.13608276298746935
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6001335331014925,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.4921,
+          "agreement_spread": 0.10803353310149255
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6197627211280777,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5156000000000001,
+          "agreement_spread": 0.10416272112807767
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19635824",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:573",
+      "competition_name": "Allsvenskan",
+      "canonical_id": "sm:573",
+      "home": "Halmstad",
+      "away": "Djurgården",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 0.594,
+      "mu": 2.15,
+      "package_id": 1896,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.9110608599655307,
+          "effective_prob": 0.891,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 908,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8722,
+          "agreement_spread": 0.03886085996553068
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8835139695494182,
+          "effective_prob": 0.8814,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 489,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8623999999999999,
+          "agreement_spread": 0.021113969549418243
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8232939665690877,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7963,
+          "agreement_spread": 0.026993966569087702
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7592098242593613,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7746999999999999,
+          "agreement_spread": 0.015490175740638601
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7043804524572218,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6640999999999999,
+          "agreement_spread": 0.040280452457221894
+        },
+        {
+          "market": "1x2",
+          "selection": "2",
+          "model_prob": 0.7343548265346179,
+          "effective_prob": 0.7343548265346179,
+          "effective_source": "stated-fallback",
+          "band": "70–75",
+          "band_n": 187,
+          "grade": "B",
+          "market_prob": 0.6951,
+          "sm_prob": 0.6685,
+          "agreement_spread": 0.06585482653461794
+        },
+        {
+          "market": "btts",
+          "selection": "no",
+          "model_prob": 0.6042868194682637,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5451,
+          "agreement_spread": 0.05918681946826365
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19635829",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:573",
+      "competition_name": "Allsvenskan",
+      "canonical_id": "sm:573",
+      "home": "IFK Göteborg",
+      "away": "Malmö FF",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.271,
+      "mu": 1.452,
+      "package_id": 1897,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7658982893158097,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7426999999999999,
+          "agreement_spread": 0.023198289315809806
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7194490386681838,
+          "effective_prob": 0.7323,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1326,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7248,
+          "agreement_spread": 0.005350961331816229
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7554828164874894,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8033,
+          "agreement_spread": 0.04781718351251063
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7090154811685758,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6429,
+          "agreement_spread": 0.0661154811685758
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7443010779102376,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7465,
+          "agreement_spread": 0.0021989220897624673
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6693471531034125,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6402,
+          "agreement_spread": 0.029147153103412538
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19713860",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:271",
+      "competition_name": "Superliga",
+      "canonical_id": "sm:271",
+      "home": "AGF",
+      "away": "Horsens",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.872,
+      "mu": 1.471,
+      "package_id": 1898,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8461835843764098,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8134999999999999,
+          "agreement_spread": 0.032683584376409947
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7759594598738453,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7633,
+          "agreement_spread": 0.012659459873845313
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7703042204057601,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6086,
+          "agreement_spread": 0.16170422040576005
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8465575473409308,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7884,
+          "agreement_spread": 0.058157547340930815
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6955136379505354,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7639,
+          "agreement_spread": 0.06838636204946458
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5708611674556309,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6601,
+          "agreement_spread": 0.08923883254436915
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6518187862832225,
+          "effective_prob": 0.6276,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 878,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5666,
+          "agreement_spread": 0.08521878628322255
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6491342233003057,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.5954,
+          "sm_prob": 0.5672,
+          "agreement_spread": 0.08193422330030564
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19719961",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:591",
+      "competition_name": "Super League",
+      "canonical_id": "sm:591",
+      "home": "St. Gallen",
+      "away": "Lugano",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.456,
+      "mu": 1.463,
+      "package_id": 1899,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7668328233034283,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.65,
+          "agreement_spread": 0.11683282330342826
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7531710394680721,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7602,
+          "agreement_spread": 0.007028960531927919
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7684592896988367,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7968999999999999,
+          "agreement_spread": 0.02844071030116324
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7884222283456466,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8205,
+          "agreement_spread": 0.03207777165435344
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6653731357638323,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.607,
+          "agreement_spread": 0.058373135763832296
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6218561653204508,
+          "effective_prob": 0.6536,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 2292,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5198,
+          "agreement_spread": 0.10205616532045081
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6249727952114763,
+          "effective_prob": 0.6536,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 2292,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7206,
+          "agreement_spread": 0.09562720478852371
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19732630",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:564",
+      "competition_name": "La Liga",
+      "canonical_id": "sm:564",
+      "home": "Elche",
+      "away": "Real Betis",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.645,
+      "mu": 1.461,
+      "package_id": 1900,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8069871795337915,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6122,
+          "agreement_spread": 0.19478717953379154
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.762808125515576,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7397,
+          "agreement_spread": 0.02310812551557595
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.767995746210148,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7642,
+          "agreement_spread": 0.003795746210147999
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8161341601527325,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7325,
+          "agreement_spread": 0.0836341601527325
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6234991161055577,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7151000000000001,
+          "agreement_spread": 0.09160088389444232
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6583827629874693,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5223,
+          "agreement_spread": 0.13608276298746935
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6001335331014925,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.5686,
+          "sm_prob": 0.4921,
+          "agreement_spread": 0.10803353310149255
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6197627211280777,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5156000000000001,
+          "agreement_spread": 0.10416272112807767
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19745000",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:567",
+      "competition_name": "La Liga 2",
+      "canonical_id": "sm:567",
+      "home": "FC Andorra",
+      "away": "Mallorca",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.421,
+      "mu": 1.293,
+      "package_id": 1901,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7585274973677378,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7219,
+          "agreement_spread": 0.03662749736773785
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7538686838983804,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7323000000000001,
+          "agreement_spread": 0.021568683898380292
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7110035924210452,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7279000000000001,
+          "agreement_spread": 0.01689640757895494
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7432035039851147,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7332,
+          "agreement_spread": 0.010003503985114737
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7255537561019825,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6718000000000001,
+          "agreement_spread": 0.05375375610198241
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6578073885228397,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6668000000000001,
+          "agreement_spread": 0.00899261147716035
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19746559",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:600",
+      "competition_name": "Super Lig",
+      "canonical_id": "sm:600",
+      "home": "Çorum FK",
+      "away": "Fenerbahçe",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.825,
+      "mu": 1.89,
+      "package_id": 1902,
+      "legs": [
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8851631213512039,
+          "effective_prob": 0.8553,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1320,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8109999999999999,
+          "agreement_spread": 0.07416312135120395
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8387817828224754,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7140000000000001,
+          "agreement_spread": 0.12478178282247532
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8489274470841172,
+          "effective_prob": 0.8136,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1057,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7514,
+          "agreement_spread": 0.0975274470841172
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7845346233738829,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7522,
+          "agreement_spread": 0.03233462337388293
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.7170942347626853,
+          "effective_prob": 0.6789,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 517,
+          "grade": "B",
+          "market_prob": 0.5885,
+          "sm_prob": 0.5914,
+          "agreement_spread": 0.12859423476268528
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.6207024445756232,
+          "effective_prob": 0.6536,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 2292,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6509999999999999,
+          "agreement_spread": 0.030297555424376732
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.7120648775521485,
+          "effective_prob": 0.6387,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 274,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6039,
+          "agreement_spread": 0.10816487755214854
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19748597",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:603",
+      "competition_name": "1. Lig",
+      "canonical_id": "sm:603",
+      "home": "Boluspor",
+      "away": "Bodrum FK",
+      "gate_status": "uncalibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 0.998,
+      "mu": 1.651,
+      "package_id": 1903,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8081417801432123,
+          "effective_prob": 0.8136,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1057,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7831,
+          "agreement_spread": 0.025041780143212233
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7549932128516175,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7556,
+          "agreement_spread": 0.0006067871483825815
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7715525693980468,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7369,
+          "agreement_spread": 0.03465256939804684
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7253032234728796,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6925,
+          "agreement_spread": 0.03280322347287956
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7419354291286713,
+          "effective_prob": 0.7344,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1472,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7641,
+          "agreement_spread": 0.022164570871328726
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6313840600668841,
+          "effective_prob": 0.6437,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 449,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6289,
+          "agreement_spread": 0.002484060066884064
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19748598",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:603",
+      "competition_name": "1. Lig",
+      "canonical_id": "sm:603",
+      "home": "Ümraniyespor",
+      "away": "Kayserispor",
+      "gate_status": "uncalibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 0.994,
+      "mu": 1.595,
+      "package_id": 1904,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7641788016665915,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6686,
+          "agreement_spread": 0.0955788016665915
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7970912696598731,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7393000000000001,
+          "agreement_spread": 0.057791269659873024
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7383936332265811,
+          "effective_prob": 0.7485,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1499,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7034999999999999,
+          "agreement_spread": 0.03489363322658123
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7304834238992832,
+          "effective_prob": 0.7344,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1472,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7598999999999999,
+          "agreement_spread": 0.029416576100716685
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7494659034610357,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7375,
+          "agreement_spread": 0.011965903461035654
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.6299066435885589,
+          "effective_prob": 0.6437,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 449,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.685,
+          "agreement_spread": 0.0550933564114412
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19878224",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:292",
+      "competition_name": "Veikkausliiga",
+      "canonical_id": "sm:292",
+      "home": "KuPS",
+      "away": "Inter Turku",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.322,
+      "mu": 1.171,
+      "package_id": 1905,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7333983916397385,
+          "effective_prob": 0.7323,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1326,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7256,
+          "agreement_spread": 0.0077983916397385
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7590715811648167,
+          "effective_prob": 0.7525,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1002,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7012999999999999,
+          "agreement_spread": 0.05777158116481673
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7112629376166396,
+          "effective_prob": 0.7344,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1472,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7620999999999999,
+          "agreement_spread": 0.050837062383360276
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7304524134636058,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7369,
+          "agreement_spread": 0.006447586536394212
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6707673270710601,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6563,
+          "agreement_spread": 0.014467327071060132
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6899432554060789,
+          "effective_prob": 0.6506,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1428,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6997,
+          "agreement_spread": 0.009756744593921063
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19878233",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:292",
+      "competition_name": "Veikkausliiga",
+      "canonical_id": "sm:292",
+      "home": "Gnistan",
+      "away": "VPS",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.802,
+      "mu": 1.14,
+      "package_id": 1906,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8350308584290714,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7441,
+          "agreement_spread": 0.09093085842907145
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7599889368087874,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6705,
+          "agreement_spread": 0.08948893680878744
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7687138581850859,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7381,
+          "agreement_spread": 0.030613858185085885
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.7920190099065403,
+          "effective_prob": 0.7505,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 2168,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7764,
+          "agreement_spread": 0.015619009906540304
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.6602259705570134,
+          "effective_prob": 0.7038,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1644,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6875,
+          "agreement_spread": 0.027274029442986625
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6801809662272872,
+          "effective_prob": 0.6506,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 1428,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6893,
+          "agreement_spread": 0.009119033772712837
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19878241",
+      "utc_date": "2026-11-08T13:00:00.000Z",
+      "competition_id": "sm:292",
+      "competition_name": "Veikkausliiga",
+      "canonical_id": "sm:292",
+      "home": "HJK",
+      "away": "Oulu",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.7,
+      "mu": 1.204,
+      "package_id": 1907,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.8529013576570009,
+          "effective_prob": 0.891,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 908,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7807999999999999,
+          "agreement_spread": 0.07210135765700099
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.9327864180803895,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8367,
+          "agreement_spread": 0.09608641808038954
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.9011180611169329,
+          "effective_prob": 0.8553,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1320,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8168000000000001,
+          "agreement_spread": 0.08431806111693285
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8373102258701142,
+          "effective_prob": 0.8288,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1852,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7656000000000001,
+          "agreement_spread": 0.07171022587011411
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.6902115835271154,
+          "effective_prob": 0.7332,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 386,
+          "grade": "B",
+          "market_prob": 0.8593,
+          "sm_prob": 0.5464,
+          "agreement_spread": 0.31289999999999996
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7000081392951207,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6025,
+          "agreement_spread": 0.0975081392951207
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.7474597221063681,
+          "effective_prob": 0.6789,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 517,
+          "grade": "B",
+          "market_prob": 0.7175,
+          "sm_prob": 0.6046,
+          "agreement_spread": 0.1428597221063681
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6529580848802142,
+          "effective_prob": 0.6276,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 878,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.602,
+          "agreement_spread": 0.05095808488021425
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19726750",
+      "utc_date": "2026-11-08T13:15:00.000Z",
+      "competition_id": "sm:486",
+      "competition_name": "Premier League",
+      "canonical_id": "sm:486",
+      "home": "Spartak Moskva",
+      "away": "Akron",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.706,
+      "mu": 0.93,
+      "package_id": 1908,
+      "legs": [
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.896076939215316,
+          "effective_prob": 0.891,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 908,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.9247,
+          "agreement_spread": 0.028623060784684018
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.8518588508482188,
+          "effective_prob": 0.891,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 908,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8255000000000001,
+          "agreement_spread": 0.02635885084821865
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.9331883380235101,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.8867,
+          "agreement_spread": 0.046488338023510045
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8777913810092676,
+          "effective_prob": 0.8553,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1320,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7654000000000001,
+          "agreement_spread": 0.11239138100926749
+        },
+        {
+          "market": "1x2",
+          "selection": "1",
+          "model_prob": 0.7479357900635346,
+          "effective_prob": 0.7479357900635346,
+          "effective_source": "stated-fallback",
+          "band": "70–75",
+          "band_n": 187,
+          "grade": "B",
+          "market_prob": 0.7789,
+          "sm_prob": 0.7501000000000001,
+          "agreement_spread": 0.030964209936465426
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.7035400265514912,
+          "effective_prob": 0.6789,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 517,
+          "grade": "B",
+          "market_prob": 0.6595,
+          "sm_prob": 0.5421,
+          "agreement_spread": 0.16144002655149114
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6054462877265652,
+          "effective_prob": 0.618,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1034,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.3527,
+          "agreement_spread": 0.25274628772656516
+        }
+      ]
+    },
+    {
+      "match_id": "mt_988479133",
+      "utc_date": "2026-11-08T13:30:00.000Z",
+      "competition_id": "comp_3809",
+      "competition_name": "Eredivisie",
+      "canonical_id": "sm:72",
+      "home": "FC Twente",
+      "away": "AFC Ajax",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.032,
+      "mu": 1.225,
+      "package_id": 1909,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8689256275909121,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7298,
+          "agreement_spread": 0.13912562759091207
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.785137519017834,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5915,
+          "agreement_spread": 0.193637519017834
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7636680803900462,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7598,
+          "agreement_spread": 0.003868080390046158
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8475893387714014,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8501000000000001,
+          "agreement_spread": 0.002510661228598665
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7062422772548875,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7681999999999999,
+          "agreement_spread": 0.061957722745112354
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5898608931157522,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5664,
+          "agreement_spread": 0.02346089311575217
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.631861269074411,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6585,
+          "agreement_spread": 0.026638730925588994
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6251733454142219,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.665,
+          "agreement_spread": 0.039826654585778165
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19629533",
+      "utc_date": "2026-11-08T13:30:00.000Z",
+      "competition_id": "sm:444",
+      "competition_name": "Eliteserien",
+      "canonical_id": "sm:444",
+      "home": "Tromsø",
+      "away": "Bodø / Glimt",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.357,
+      "mu": 1.939,
+      "package_id": 1910,
+      "legs": [
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.8561513761865354,
+          "effective_prob": 0.8814,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 489,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7143,
+          "agreement_spread": 0.14185137618653532
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7792667903519509,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.759,
+          "agreement_spread": 0.020266790351950892
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7425680308655463,
+          "effective_prob": 0.7323,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1326,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7092,
+          "agreement_spread": 0.033368030865546294
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8409138166499418,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7826000000000001,
+          "agreement_spread": 0.05831381664994173
+        },
+        {
+          "market": "dc",
+          "selection": "x2",
+          "model_prob": 0.7315309249143875,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6228,
+          "agreement_spread": 0.10873092491438752
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.581225754972602,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6609,
+          "agreement_spread": 0.07967424502739806
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6397672609212839,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.6798,
+          "sm_prob": 0.5635,
+          "agreement_spread": 0.11629999999999996
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6357506415376628,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5674,
+          "agreement_spread": 0.06835064153766279
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19714595",
+      "utc_date": "2026-11-08T13:30:00.000Z",
+      "competition_id": "sm:72",
+      "competition_name": "Eredivisie",
+      "canonical_id": "sm:72",
+      "home": "FC Twente",
+      "away": "Ajax",
+      "gate_status": "partial",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 2.075,
+      "mu": 1.217,
+      "package_id": 1911,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8744421109826557,
+          "effective_prob": 0.8715,
+          "effective_source": "lab-band",
+          "band": "85+",
+          "band_n": 1875,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7298,
+          "agreement_spread": 0.14464211098265567
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7810934978854575,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.5915,
+          "agreement_spread": 0.18959349788545743
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7901155126338671,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7598,
+          "agreement_spread": 0.030315512633867114
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8404240769428791,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8501000000000001,
+          "agreement_spread": 0.00967592305712095
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7038827915264196,
+          "effective_prob": 0.7014,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1845,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7681999999999999,
+          "agreement_spread": 0.06431720847358025
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5821129465075956,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5664,
+          "agreement_spread": 0.015712946507595582
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.638960143320593,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.6554,
+          "sm_prob": 0.6585,
+          "agreement_spread": 0.01953985667940694
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6155047541067269,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.665,
+          "agreement_spread": 0.04949524589327314
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19729228",
+      "utc_date": "2026-11-08T13:30:00.000Z",
+      "competition_id": "sm:181",
+      "competition_name": "Admiral Bundesliga",
+      "canonical_id": "sm:181",
+      "home": "WSG Tirol",
+      "away": "Austria Wien",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.564,
+      "mu": 1.45,
+      "package_id": 1912,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7907026216885205,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.6481,
+          "agreement_spread": 0.14260262168852045
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7580666722993118,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7373999999999999,
+          "agreement_spread": 0.02066667229931185
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7654296186320296,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7553,
+          "agreement_spread": 0.010129618632029658
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8029328070787413,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7531,
+          "agreement_spread": 0.04983280707874127
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.644096124663434,
+          "effective_prob": 0.6882,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1440,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7005,
+          "agreement_spread": 0.05640387533656599
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6459717936882579,
+          "effective_prob": 0.6536,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 2292,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.5556,
+          "agreement_spread": 0.09037179368825787
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6052272061703899,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5428000000000001,
+          "agreement_spread": 0.06242720617038988
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19729230",
+      "utc_date": "2026-11-08T13:30:00.000Z",
+      "competition_id": "sm:181",
+      "competition_name": "Admiral Bundesliga",
+      "canonical_id": "sm:181",
+      "home": "Hartberg",
+      "away": "Rheindorf Altach",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.519,
+      "mu": 0.904,
+      "package_id": 1913,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7810691554043993,
+          "effective_prob": 0.7612,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1784,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7625,
+          "agreement_spread": 0.018569155404399296
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7756643647024046,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7166,
+          "agreement_spread": 0.059064364702404615
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.7739024431389431,
+          "effective_prob": 0.7525,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1002,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7143,
+          "agreement_spread": 0.05960244313894303
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7408579978856213,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7394,
+          "agreement_spread": 0.0014579978856213982
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.6965328810756767,
+          "effective_prob": 0.6747,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 793,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7483,
+          "agreement_spread": 0.051767118924323285
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.5950533692103378,
+          "effective_prob": 0.5874,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 601,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6347999999999999,
+          "agreement_spread": 0.03974663078966212
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19716296",
+      "utc_date": "2026-11-08T13:45:00.000Z",
+      "competition_id": "sm:453",
+      "competition_name": "Ekstraklasa",
+      "canonical_id": "sm:453",
+      "home": "Jagiellonia Białystok",
+      "away": "Katowice",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.83,
+      "mu": 1.464,
+      "package_id": 1914,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.8395858472658777,
+          "effective_prob": 0.815,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 1973,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7521,
+          "agreement_spread": 0.08748584726587771
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7733799896870327,
+          "effective_prob": 0.7519,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 6263,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7584000000000001,
+          "agreement_spread": 0.014979989687032624
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.7686907140124453,
+          "effective_prob": 0.746,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 1642,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7017,
+          "agreement_spread": 0.06699071401244527
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.8406699142345057,
+          "effective_prob": 0.7852,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 2155,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7918999999999999,
+          "agreement_spread": 0.04876991423450572
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.6900994733829633,
+          "effective_prob": 0.6855,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 2658,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.6606000000000001,
+          "agreement_spread": 0.029499473382963215
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.5816664021367517,
+          "effective_prob": 0.6417,
+          "effective_source": "lab-band",
+          "band": "55–60",
+          "band_n": 1147,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6607999999999999,
+          "agreement_spread": 0.07913359786324825
+        },
+        {
+          "market": "ou25",
+          "selection": "over",
+          "model_prob": 0.6393656642958698,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.6368,
+          "sm_prob": 0.5675,
+          "agreement_spread": 0.07186566429586982
+        },
+        {
+          "market": "btts",
+          "selection": "yes",
+          "model_prob": 0.6453818444095515,
+          "effective_prob": 0.5849,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1872,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.5893,
+          "agreement_spread": 0.05608184440955144
+        }
+      ]
     }
   ],
   "unrated": [
-    {
-      "match_id": "sm_19862267",
-      "utc_date": "2026-11-05T12:15:00.000Z",
-      "competition_name": "AFC Champions League Two",
-      "home": "Kuching FA",
-      "away": "Gangwon",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19862270",
-      "utc_date": "2026-11-05T12:15:00.000Z",
-      "competition_name": "AFC Champions League Two",
-      "home": "Svay Rieng",
-      "away": "Tampines Rovers",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
-    {
-      "match_id": "sm_19862277",
-      "utc_date": "2026-11-05T12:15:00.000Z",
-      "competition_name": "AFC Champions League Two",
-      "home": "BG Pathum United",
-      "away": "Wofoo Tai Po",
-      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
-    },
     {
       "match_id": "sm_19873913",
       "utc_date": "2026-11-05T17:45:00.000Z",
@@ -41029,6 +44219,14 @@
       "home": "Fortuna Sittard",
       "away": "SC Telstar",
       "reason": "ratings tim tidak ditemukan (homeSource=fallback, awaySource=primary_league)"
+    },
+    {
+      "match_id": "sm_19900800",
+      "utc_date": "2026-11-08T12:00:00.000Z",
+      "competition_name": "FA Cup",
+      "home": "Stafford Rangers",
+      "away": "Grimsby Town",
+      "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
     }
   ],
   "parlays": [
