@@ -123,6 +123,8 @@ export function getPicksDb(): DatabaseSync {
     );
     CREATE UNIQUE INDEX IF NOT EXISTS idx_picks_lab_unique
       ON picks(match_id, market, selection, source) WHERE source = 'lab';
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_picks_live_unique
+      ON picks(match_id, market, selection, source) WHERE source = 'live-run';
     CREATE INDEX IF NOT EXISTS idx_picks_match ON picks(match_id);
     CREATE INDEX IF NOT EXISTS idx_picks_market_band ON picks(market, model_prob);
   `);
@@ -198,17 +200,17 @@ function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boo
     p.package_id ?? null,
   ];
 
-  if (p.source === "lab") {
+  if (p.source === "lab" || p.source === "live-run") {
     const result = db
       .prepare(`INSERT OR IGNORE INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(...values);
     if (Number(result.changes) > 0) {
       return { id: Number(result.lastInsertRowid), inserted: true };
     }
-    // Konflik unik lab: kembalikan id baris yang sudah ada (idempoten).
+    // Konflik unik: kembalikan id baris yang sudah ada (idempoten).
     const existing = db
-      .prepare("SELECT id FROM picks WHERE match_id = ? AND market = ? AND selection = ? AND source = 'lab'")
-      .get(p.match_id, p.market, p.selection) as { id: number } | undefined;
+      .prepare("SELECT id FROM picks WHERE match_id = ? AND market = ? AND selection = ? AND source = ?")
+      .get(p.match_id, p.market, p.selection, p.source) as { id: number } | undefined;
     if (!existing) {
       throw new Error(`recordPick: INSERT OR IGNORE gagal tanpa baris existing untuk ${p.match_id}/${p.market}/${p.selection}`);
     }
