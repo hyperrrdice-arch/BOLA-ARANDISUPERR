@@ -1,15 +1,60 @@
 {
   "version": 1,
-  "generated_at": "2026-11-05T10:20:16.892Z",
+  "generated_at": "2026-11-06T21:22:20.905Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
-    "fixtures": 3774,
-    "duplicate_groups": 168,
-    "twin_rows": 174,
+    "fixtures": 3818,
+    "duplicate_groups": 172,
+    "twin_rows": 183,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
+    {
+      "twin_id": "fd_D1_20261108_1-fc-koln_bayer-leverkusen",
+      "canonical_id": "sm_19735118",
+      "kickoff_utc": "2026-11-08T14:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D1_20261108_tsg-1899-hoffenheim_fc-schalke-04",
+      "canonical_id": "sm_19735122",
+      "kickoff_utc": "2026-11-08T18:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261107_1-fc-nurnberg_sv-darmstadt-98",
+      "canonical_id": "sm_19735411",
+      "kickoff_utc": "2026-11-07T12:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261108_1-fc-magdeburg_fc-st-pauli",
+      "canonical_id": "sm_19735407",
+      "kickoff_utc": "2026-11-08T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261108_az-alkmaar_groningen",
+      "canonical_id": "sm_19714593",
+      "kickoff_utc": "2026-11-08T15:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261108_cambuur_psv-eindhoven",
+      "canonical_id": "sm_19714598",
+      "kickoff_utc": "2026-11-08T15:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261108_heerenveen_feyenoord",
+      "canonical_id": "sm_19714596",
+      "kickoff_utc": "2026-11-08T11:15:00.000Z"
+    },
+    {
+      "twin_id": "fd_SC0_20261107_st-johnstone_dundee",
+      "canonical_id": "sm_19722748",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SC0_20261107_st-mirren_rangers",
+      "canonical_id": "sm_19722747",
+      "kickoff_utc": "2026-11-07T20:00:00.000Z"
+    },
     {
       "twin_id": "mt_022015219",
       "canonical_id": "sm_19735099",
