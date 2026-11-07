@@ -584,17 +584,6 @@ export function getTeamSquad(teamId: string): SquadPlayerRecord[] {
   return stmt.all(teamId) as unknown as SquadPlayerRecord[];
 }
 
-export function getH2HLogs(teamAId: string, teamBId: string, limit: number = 6): TeamMatchLogRecord[] {
-  const db = getTheStatsDb();
-  const stmt = db.prepare(`
-    SELECT * FROM team_match_logs
-    WHERE team_id = ? AND opponent_id = ?
-    ORDER BY match_date DESC
-    LIMIT ?
-  `);
-  return stmt.all(teamAId, teamBId, limit) as unknown as TeamMatchLogRecord[];
-}
-
 export function getDatabaseMetrics() {
   const db = getTheStatsDb();
   const teamsCount = (db.prepare("SELECT count(*) as c FROM teams").get() as any)?.c || 0;

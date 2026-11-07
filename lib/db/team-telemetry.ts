@@ -1,7 +1,6 @@
 import {
   getTheStatsDb,
   getTeamSquad,
-  getH2HLogs,
   type TeamMatchLogRecord,
   type SquadPlayerRecord,
 } from "./thestats-dataset";
