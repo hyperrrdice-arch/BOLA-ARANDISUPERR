@@ -62,7 +62,7 @@ Watford tanpa seri).
 | A1 | Harrogate Town vs Fylde | 1-4 | Harrogate gol @1,11 | KENA | Over 2,5 @1,43 | KENA |
 | A2 | Port Vale vs Scunthorpe United | 4-2 | Port Vale 1X @1,13 | KENA | Over 2,5 @1,67 | KENA |
 | A3 | Cheltenham Town vs Halifax Town | 2-0 | Over 1,5 @1,14 | KENA | Over 2,5 @1,55 | GAGAL |
-| A4 | Milton Keynes Dons vs Swindon Town | 2-1 | Over 1,5 @1,13 | KENA | Over 2,5 @1,54 | GAGAL |
+| A4 | Milton Keynes Dons vs Swindon Town | 2-1 | Over 1,5 @1,13 | KENA | Over 2,5 @1,54 | KENA |
 | A5 | Barnet vs Tranmere Rovers | 3-0 | Barnet 1X @1,19 | KENA | Barnet menang @1,74 | KENA |
 | A6 | Luton Town vs Forest Green Rovers | 2-0 | Tanpa seri @1,11 | KENA | Luton menang @1,29 | KENA |
 | A7 | Chesterfield vs Yeovil Town | 4-3 | Over 1,5 @1,11 | KENA | Over 2,5 @1,46 | KENA |
@@ -80,17 +80,16 @@ Watford tanpa seri).
 | A19 | Watford vs Middlesbrough | 0-0 | Tanpa seri @1,16 | GAGAL | (sama) | GAGAL |
 | A20 | Cardiff City vs Burnley | 5-4 | Tanpa seri @1,23 | KENA | BTTS Ya @1,40 | KENA |
 
-**Total slate: AMAN 17/20 kena (85%), LONGGAR 14/20 kena (70%).**
+**Total slate: AMAN 17/20 kena (85%), LONGGAR 15/20 kena (75%).**
 
 **Catatan slate:**
 - AMAN hanya gagal di 3 laga: Carlisle over 1,5 (1-0, gol tunggal), Preston X2
   (Preston menang 1-0), Watford tanpa seri (0-0). Rata-rata model AMAN 83,6%
   vs realisasi 85% — jujur.
-- LONGGAR kehilangan 3 tambahan di langkah Over 2,5 (Cheltenham 2-0, MK Dons
-  2-1 — dua-duanya cuma 2 dan 3 gol, selisih satu gol dari garis) plus
-  Huddersfield menang (kalah 1-2 dari Exeter, kejutan). Rata-rata model
-  LONGGAR 71,8% vs realisasi 70% — jujur juga, tapi langkah naik odds-nya
-  yang meleset.
+- LONGGAR kehilangan 2 tambahan: Cheltenham Over 2,5 (2-0, selisih satu gol dari
+  garis) dan Huddersfield menang (kalah 1-2 dari Exeter, kejutan). MK Dons 2-1 =
+  3 gol, Over 2,5 KENA. Rata-rata model LONGGAR 71,8% vs realisasi 75% — jujur,
+  sedikit under-confident.
 - Laga paling gila malam itu: Cardiff 5-4 Burnley — Burnley sempat unggul 4-1,
   Cardiff membalikkan jadi 5-4 di menit 90+4. Kedua versi tetap kena
   (tanpa seri / BTTS).
