@@ -93,7 +93,8 @@ football-agent/
 ├── scripts/               perkakas operasional (tsx) — per peran di §2
 ├── data/                  store runtime — rinci §3
 ├── tasks/                 dokumen kerja + bukti per fase — peta di §7
-├── docs/                  PRD & dokumen desain DB (docs/plans/, DATABASE.md)
+├── docs/                  PRD & dokumen desain DB (DATABASE.md,
+│                          prd-database-expansion-sportmonks.md, dll.)
 ├── design-system/         artefak desain (bukan runtime)
 ├── archive/               ⛔ arsip legacy owner — tidak disentuh, tidak
 │                          dihapus, dikecualikan dari paket deploy
