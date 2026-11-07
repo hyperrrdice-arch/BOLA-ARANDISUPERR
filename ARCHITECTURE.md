@@ -70,6 +70,30 @@ terbukti.
 
 ## 2. Gambaran pipeline
 
+> **Keadaan final (7 Nov 2026, pasca-cleanup pra-deploy).** Ada dua jalur:
+>
+> **(A) Jalur saji AKTIF — frontend v2 + mesin pick.** Halaman adalah
+> Server Component yang membaca store lokal langsung lewat
+> `lib/web/data.ts` (koneksi read-only; tanpa API route di tengah):
+> `/` (landing + statistik ledger), `/pertandingan` (daftar laga dari
+> paket terbaru per fixture), `/pertandingan/[matchId]` (detail paket:
+> probabilitas 3 sumber, λ/μ, matriks skor, form kanonik),
+> `/pilihan` (pick live-run ber-grade dari ledger), `/bukti` (kejujuran
+> grade: promised vs actual, per grade & per pasar). Paket kuant
+> dihasilkan `scripts/pick-slate.ts` → disimpan sebagai paket versi di
+> `analysis_snapshots.db` (`packages`) → pick diterbitkan ke ledger
+> `data/picks.db` oleh `lib/picks/engine.ts` dan dinilai hasilnya oleh
+> `scripts/resolve-pick-outcomes.ts`. Setiap paket membawa
+> `feed_mode`: `full` (panel Sportmonks ikut) atau `free` (tanpa SM —
+> kesepakatan = model × pasar saja, `sm_prob` NULL jujur).
+>
+> **(B) Jalur planner/sindikat — DORMAN (diagram di bawah).** Shell HTTP
+> `app/api/agent` + planner 🔒 + debat 5-LLM tetap utuh atas aturan
+> owner, tapi frontend v2 tidak memanggilnya; rute API warisan
+> (`agent`, `betting`, `matches`, `odds`) adalah permukaan HTTP lama
+> tanpa auth — utang deploy A2: diputuskan di langkah deploy (hapus
+> rute atau gating reverse proxy), bukan di cleanup ini.
+
 ```
 User buka dashboard (app/page.tsx) ──► GET /api/matches?hours=12|24|48|72   [katalog, offline dari store]
 User klik match ──► GET /api/agent?match_id=...                              [analisis]
@@ -190,11 +214,15 @@ fungsi saja** — bukan berdasarkan sumber atau benua (lihat §3.4).
 | Store | Isi kunci | Baris saat ini | Catatan |
 |---|---|---|---|
 | `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta | Disposable; horizon bergulir 60 hari dari ritme harian |
-| `thestats_dataset.db` (±1,5 GB) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.114; team_match_logs 85.521 (83.098 Sportmonks); teams 6.450; match_odds_history 4.071; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
+| `thestats_dataset.db` (±3,0 GB per 7 Nov 2026) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.114; team_match_logs 85.521 (83.098 Sportmonks); teams 6.450; match_odds_history 4.071; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
 | `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 | Prior historis fit legacy |
 | `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 80 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
-| `analysis_snapshots.db` | `packages` (paket kuant per run: payload lengkap + provenance + cap waktu input), `meta` | 78 paket (audit 5 Nov 2026) | **Store paket kuant** — sejak 5 Nov 2026 menggantikan snapshot legacy atas keputusan owner (ADR-003); 21 baris legacy diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`. Satu baris per fixture per versi run; dirujuk pick ledger lewat `package_id`. Detail: `docs/DATABASE.md` §6 |
-| `thestats_raw_vault.db` | `raw_api_vault` (payload mentah API) | 1.991 | Beku sejak 18 Okt 2026 (API TheStats mati) — "retensi 90 hari bergulir" adalah maksud PRD, bukan keadaan; tidak ada penulis aktif |
+| `analysis_snapshots.db` | `packages` (paket kuant per run: payload lengkap + provenance + cap waktu input), `meta` | 78 paket (audit 5 Nov 2026); 3.802 paket (audit 7 Nov 2026) | **Store paket kuant** — sejak 5 Nov 2026 menggantikan snapshot legacy atas keputusan owner (ADR-003); 21 baris legacy diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`. Satu baris per fixture per versi run; dirujuk pick ledger lewat `package_id`. Detail: `docs/DATABASE.md` §6 |
+| `picks.db` | `picks` (ledger pick lab + live-run), `pick_outcomes` (resolusi skor akhir) | 167.273 pick / 163.008 outcome (audit 7 Nov 2026) | **Ledger pick** — sumber halaman `/pilihan` & `/bukti`; indeks parsial unik `idx_picks_live_unique` mencegah pick live ganda (perbaikan A1) |
+
+Baris yang dihapus dari tabel ini: `thestats_raw_vault.db` — dihapus
+pada cleanup pra-deploy 7 Nov 2026 (batch B2) bersama modul pembacanya
+yang sudah mati; payload mentah era TheStats tidak lagi disimpan.
 
 Ruang ID per sumber: match `mt_*` (TheStats) / `sm_<fixtureId>`
 (Sportmonks); kompetisi `comp_*` / `sm:<leagueId>`; tim `tm_*` / angka
@@ -660,8 +688,9 @@ lewat pseudo.
 ### 7.2 Sumber yang sudah mati / beku
 
 - **TheStatsAPI mati permanen** 18 Okt 2026 (`403 KEY_REVOKED`).
-  `statsFetch` gagal cepat dengan pesan eksplisit; tidak ada panggilan
-  API di jalur render.
+  Modul fetcher era itu (`lib/stats-fetch.ts` + rantai vault/budget)
+  dihapus pada cleanup 7 Nov 2026 (batch B1, 0 referensi terverifikasi);
+  tidak ada panggilan API di jalur render.
 - **Sportmonks Pro trial berakhir 10 Nov 2026.** Sesudah itu semua
   jalur tulis berhenti di batas data 3–10 Nov; store lokal tetap utuh
   dan terbaca offline.
@@ -741,10 +770,20 @@ expected lineups makin lengkap ≤24 jam sebelum kickoff.
 **Otomasi:** cron `football-daily-refresh-trial` menjalankan rantai ini
 **tiap 6 jam s/d 10 Nov 2026** (Asia/Jakarta; diam bila sukses, melapor
 bila gagal), token hanya lewat env di konfigurasi job (persetujuan
-owner). Job penutup sekali-jalan **11 Nov 2026 09:00 WIB** menghapus
+owner). Job penutup sekali-jalan **10 Nov 2026 09:00 WIB** menghapus
 jadwalnya dan melaporkan ringkasan penutup jendela + kesiapan benchmark
 closing line. Token mati bersama trial — sesudah 10 Nov tidak ada run
 yang berguna dijalankan.
+
+**Ritme yang bertahan (mode free, tanpa token):**
+`scripts/free-refresh.ts` — rantai 7 langkah yang mengambil alih
+setelah trial berakhir: (1) `import-free-feed` (hasil + closing odds +
+fixture football-data.co.uk), (2) `build-team-canonical`,
+(3) `build-fixture-links`, (4) `calibrate-ratings`,
+(5) `fit-global-offsets`, (6) `build-canonical-telemetry`,
+(7) `pick-slate --hours 72`. Dijalankan cron `football-free-refresh`
+tiap 12 jam; di VPS nanti cukup satu baris crontab yang sama. Paket
+yang terbit di mode ini ber-`feed_mode='free'` (lihat §2).
 
 > Catatan keadaan saat dokumen ini ditulis (4 Nov 2026): satu run
 > rantai-LAMA (dimulai sebelum fase piala mengubah `daily-refresh.ts`)
@@ -833,6 +872,21 @@ in-app mati; Spark adalah jalur aktif), J2 sering membalas kosong,
 cache snapshot tanpa single-flight, dan benchmark closing line yang
 masih ber-sampel kecil (n=21 berpasangan) — ia tumbuh sendiri selama
 ritme harian berjalan.
+
+Addendum cleanup pra-deploy (7 Nov 2026; laporan:
+`tasks/pre-deploy-cleanup-report-2026-11-07.md`): temuan audit lama
+yang DITUTUP — A4 (ESLint hidup lagi, `eslint-config-next ^16`),
+A5 (4 npm script mati dihapus), A6 (`getH2HLogs` dihapus), A13 (19 file
+`components/dashboard/` mati dihapus; tersisa `types.ts` yang terikat
+keputusan A2). Yang SENGAJA dibiarkan: A2 (rute API warisan —
+keputusan langkah deploy), A3 (optimasi `SELECT *` telemetri dicoba
+dan di-revert: fase tulis mendominasi, bukan pola baca — lihat
+laporan), A7/A14 (duplikasi predikat/tepi pita — butuh uji kesetaraan
+dulu), A8–A12 (minor robustness/satuan — antrean terpisah). Performa
+saji diperbaiki di `lib/web/data.ts`: cache `landingStats` bertanda
+tangan file + COUNT upcoming tanpa parse, dan cache fixture di
+`ledgerStats().recent` (median `/` 2,05s → 1,59s, `/bukti` 1,68s →
+1,52s; teks render identik).
 
 ---
 
