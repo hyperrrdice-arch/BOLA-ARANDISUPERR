@@ -1,6 +1,6 @@
-# Slate Pick — 2026-11-07 04:32 WIB (jendela 72 jam ke depan)
+# Slate Pick — 2026-11-07 16:25 WIB (jendela 72 jam ke depan)
 
-Fixture terpindai **497** · ter-rate **483** · tidak ter-rate **14** · total kaki **3365** (A 1319 / B 1426 / C 620) · paket kuant tersimpan **483** · baris ledger live-run tertulis **280**.
+Fixture terpindai **476** · ter-rate **462** · tidak ter-rate **14** · total kaki **3227** (A 1274 / B 1353 / C 600) · paket kuant tersimpan **462** · baris ledger live-run tertulis **8**.
 
 Fixture ter-rate mode free (feed gratis football-data): **37**.
 Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).
@@ -8,237 +8,25 @@ Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — d
 ## Contoh parlay
 
 ### Utama (4 kaki — grade lalu efektif)
-- FC Tokyo vs Kashima Antlers — dc/1x [A] — stated 86.0%, efektif 89.1%
 - Fakel vs Dinamo Moskva — dc/x2 [A] — stated 87.1%, efektif 89.1%
 - Tractor Sazi vs Kheybar Khorramabad — dc/1x [A] — stated 87.5%, efektif 89.1%
 - Manchester City W vs West Ham W — dc/1x [A] — stated 90.5%, efektif 89.1%
-**Kombinasi: 63.0% (estimasi titik) s.d. 59.3% (batas atas)**
+- Chelsea W vs Everton W — dc/1x [A] — stated 93.7%, efektif 89.1%
+**Kombinasi: 63.0% (estimasi titik) s.d. 64.7% (batas atas)**
 
 ### Aman (3 kaki — hanya A/B, efektif tertinggi)
-- FC Tokyo vs Kashima Antlers — dc/1x [A] — stated 86.0%, efektif 89.1%
 - Fakel vs Dinamo Moskva — dc/x2 [A] — stated 87.1%, efektif 89.1%
 - Tractor Sazi vs Kheybar Khorramabad — dc/1x [A] — stated 87.5%, efektif 89.1%
-**Kombinasi: 70.7% (estimasi titik) s.d. 65.5% (batas atas)**
+- Manchester City W vs West Ham W — dc/1x [A] — stated 90.5%, efektif 89.1%
+**Kombinasi: 70.7% (estimasi titik) s.d. 69.0% (batas atas)**
 
 ### Alternatif (3 kaki — di luar laga Utama)
-- Chelsea W vs Everton W — dc/1x [A] — stated 93.7%, efektif 89.1%
 - 1. FSV Mainz 05 vs FC Bayern München — dc/12 [A] — stated 85.0%, efektif 89.1%
 - FSV Mainz 05 vs FC Bayern München — dc/x2 [A] — stated 85.1%, efektif 89.1%
-**Kombinasi: 70.7% (estimasi titik) s.d. 67.8% (batas atas)**
+- Al Ettifaq vs Al Hilal — dc/12 [A] — stated 85.7%, efektif 89.1%
+**Kombinasi: 70.7% (estimasi titik) s.d. 62.0% (batas atas)**
 
 ## Fixture ter-rate
-
-### Independiente vs Deportivo Riestra — Liga Profesional de Fútbol (partial)
-Kickoff 2026-11-07 05:15 WIB · λ 1.208 / μ 0.707
-- [A] ou35/under — stated 87.2%, efektif 86.8% (lab-band, pita 85+ n=385) · SM 83.5% · spread 3.7pp
-- [A] dc/1x — stated 78.3%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 77.7% · spread 0.6pp
-- [A] team_over05_home/yes — stated 70.1%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 72.8% · spread 2.7pp
-- [B] dc/12 — stated 69.7%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 71.1% · spread 1.4pp
-- [C] ou25/under — stated 70.0%, efektif 63.9% (lab-band, pita 65–70 n=1119) · pasar 64.7% · SM 64.2% · spread 5.8pp
-- [C] btts/no — stated 64.5%, efektif 58.5% (lab-band, pita 60–65 n=1872) · SM 59.3% · spread 5.1pp
-- [C] ou15/over — stated 57.0%, efektif 58.4% (lab-band, pita 55–60 n=209) · SM 62.6% · spread 5.6pp
-
-### Unión Santa Fe vs Vélez Sarsfield — Liga Profesional de Fútbol (partial)
-Kickoff 2026-11-07 05:15 WIB · λ 1.418 / μ 1.533
-- [A] team_over05_home/yes — stated 75.8%, efektif 76.1% (lab-band, pita 75–80 n=1784) · SM 68.7% · spread 7.1pp
-- [A] dc/12 — stated 75.5%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 72.0% · spread 3.5pp
-- [A] team_over05_away/yes — stated 78.4%, efektif 74.6% (lab-band, pita 75–80 n=1642) · SM 66.3% · spread 12.1pp
-- [B] ou15/over — stated 79.3%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 68.5% · spread 10.8pp
-- [B] ou35/under — stated 65.8%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 77.9% · spread 12.1pp
-- [B] dc/x2 — stated 64.8%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 62.5% · spread 2.3pp
-
-### San Lorenzo vs Platense — Liga Profesional de Fútbol (partial)
-Kickoff 2026-11-07 05:15 WIB · λ 0.98 / μ 1.052
-- [A] ou35/under — stated 85.1%, efektif 86.8% (lab-band, pita 85+ n=385) · SM 78.4% · spread 6.7pp
-- [B] ou15/over — stated 60.3%, efektif 68.6% (lab-band, pita 60–65 n=398) · SM 67.6% · spread 7.3pp
-- [B] dc/12 — stated 69.5%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 71.0% · spread 1.5pp
-- [B] dc/x2 — stated 67.1%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 63.7% · spread 3.4pp
-- [B] dc/1x — stated 63.4%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 65.3% · spread 1.9pp
-- [C] team_over05_away/yes — stated 65.1%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 66.2% · spread 1.1pp
-- [C] team_over05_home/yes — stated 62.5%, efektif 64.4% (lab-band, pita 60–65 n=449) · SM 67.8% · spread 5.3pp
-- [C] ou25/under — stated 66.8%, efektif 63.9% (lab-band, pita 65–70 n=1119) · pasar 66.5% · SM 58.4% · spread 8.4pp
-
-### Operário PR vs Sport Recife — Serie B (partial)
-Kickoff 2026-11-07 05:30 WIB · λ 1.249 / μ 1.386
-- [A] team_over05_home/yes — stated 71.3%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 75.7% · spread 4.4pp
-- [B] ou35/under — stated 72.8%, efektif 74.9% (lab-band, pita 70–75 n=1499) · SM 73.0% · spread 0.2pp
-- [B] ou15/over — stated 73.9%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 73.8% · spread 0.1pp
-- [B] dc/12 — stated 73.9%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 73.3% · spread 0.6pp
-- [B] team_over05_away/yes — stated 75.0%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 66.0% · spread 9.0pp
-- [B] dc/x2 — stated 66.2%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 56.8% · spread 9.4pp
-
-### Vitória vs Fluminense — Serie A (partial)
-Kickoff 2026-11-07 06:00 WIB · λ 1.386 / μ 1.338
-- [A] team_over05_home/yes — stated 75.0%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 74.1% · spread 0.9pp
-- [B] ou15/over — stated 75.6%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 73.2% · spread 2.4pp
-- [B] ou35/under — stated 70.9%, efektif 74.9% (lab-band, pita 70–75 n=1499) · SM 74.2% · spread 3.3pp
-- [B] dc/12 — stated 74.3%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 73.0% · spread 1.4pp
-- [B] team_over05_away/yes — stated 73.8%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 66.0% · spread 7.8pp
-- [B] dc/1x — stated 63.9%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 69.3% · spread 5.4pp
-- [B] dc/x2 — stated 61.7%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 57.7% · spread 4.0pp
-
-### Boyacá Chicó vs Internacional de Bogotá — Liga BetPlay (partial)
-Kickoff 2026-11-07 06:00 WIB · λ 1.093 / μ 1.363
-- [B] ou35/under — stated 76.7%, efektif 75.3% (lab-band, pita 75–80 n=1002) · SM 77.9% · spread 1.2pp
-- [B] ou15/over — stated 70.4%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 68.5% · spread 1.8pp
-- [B] dc/12 — stated 73.0%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 71.0% · spread 2.1pp
-- [B] team_over05_away/yes — stated 74.4%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 65.0% · spread 9.4pp
-- [B] team_over05_home/yes — stated 66.5%, efektif 69.9% (lab-band, pita 65–70 n=793) · SM 70.5% · spread 4.1pp
-- [B] dc/x2 — stated 70.0%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 61.1% · spread 8.8pp
-
-### Fortaleza CEIF vs Independiente Medellín — Liga BetPlay (partial)
-Kickoff 2026-11-07 08:00 WIB · λ 1.336 / μ 1.272
-- [A] team_over05_home/yes — stated 73.7%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 72.9% · spread 0.8pp
-- [B] ou35/under — stated 73.4%, efektif 74.9% (lab-band, pita 70–75 n=1499) · SM 69.5% · spread 4.0pp
-- [B] ou15/over — stated 73.4%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 76.8% · spread 3.3pp
-- [B] dc/12 — stated 73.7%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 72.9% · spread 0.8pp
-- [B] team_over05_away/yes — stated 72.0%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 71.9% · spread 0.1pp
-- [B] dc/1x — stated 64.7%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 63.7% · spread 1.0pp
-- [B] dc/x2 — stated 61.7%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 63.6% · spread 1.9pp
-
-### Necaxa vs Tijuana — Liga MX (partial)
-Kickoff 2026-11-07 08:00 WIB · λ 1.957 / μ 1.62
-- [A] team_over05_home/yes — stated 85.9%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 78.4% · spread 7.5pp
-- [A] ou15/over — stated 87.2%, efektif 85.5% (lab-band, pita 85+ n=1320) · SM 76.2% · spread 11.0pp
-- [A] team_over05_away/yes — stated 80.2%, efektif 81.4% (lab-band, pita 80–85 n=1057) · SM 62.7% · spread 17.5pp
-- [A] dc/12 — stated 78.3%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 74.8% · spread 3.5pp
-- [B] dc/1x — stated 67.7%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 73.9% · spread 6.3pp
-- [C] ou25/over — stated 69.3%, efektif 63.9% (lab-band, pita 65–70 n=1119) · pasar 60.3% · SM 52.8% · spread 16.5pp
-- [C] btts/yes — stated 68.9%, efektif 62.8% (lab-band, pita 65–70 n=878) · SM 54.6% · spread 14.3pp
-
-### Atlético San Luis vs Juárez — Liga MX (partial)
-Kickoff 2026-11-07 08:00 WIB · λ 2.096 / μ 1.346
-- [A] team_over05_home/yes — stated 87.7%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 83.3% · spread 4.5pp
-- [A] ou15/over — stated 85.8%, efektif 85.5% (lab-band, pita 85+ n=1320) · SM 82.7% · spread 3.1pp
-- [A] dc/1x — stated 75.7%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 76.0% · spread 0.4pp
-- [A] dc/12 — stated 79.0%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 78.5% · spread 0.5pp
-- [B] team_over05_away/yes — stated 74.0%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 61.4% · spread 12.6pp
-- [C] ou25/over — stated 66.8%, efektif 63.9% (lab-band, pita 65–70 n=1119) · pasar 54.5% · SM 61.5% · spread 12.3pp
-- [C] btts/yes — stated 64.9%, efektif 58.5% (lab-band, pita 60–65 n=1872) · SM 60.2% · spread 4.6pp
-
-### Tigre vs Sarmiento — Liga Profesional de Fútbol (partial)
-Kickoff 2026-11-07 08:00 WIB · λ 1.884 / μ 0.896
-- [A] dc/1x — stated 82.6%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 75.7% · spread 6.9pp
-- [A] team_over05_home/yes — stated 84.8%, efektif 81.5% (lab-band, pita 80–85 n=1973) · SM 76.0% · spread 8.8pp
-- [A] dc/12 — stated 78.0%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 73.8% · spread 4.2pp
-- [B] ou15/over — stated 76.5%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 68.6% · spread 7.9pp
-- [B] ou35/under — stated 69.6%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 78.0% · spread 8.4pp
-- [B] 1x2/1 — stated 60.6%, efektif 62.9% (lab-band, pita 60–65 n=590) · pasar 56.8% · SM 49.5% · spread 11.1pp
-- [C] team_over05_away/yes — stated 59.2%, efektif 58.7% (lab-band, pita 55–60 n=601) · SM 57.2% · spread 1.9pp
-
-### Banfield vs Atlético Tucumán — Liga Profesional de Fútbol (partial)
-Kickoff 2026-11-07 08:00 WIB · λ 1.346 / μ 1.316
-- [A] team_over05_home/yes — stated 74.0%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 66.6% · spread 7.4pp
-- [B] ou35/under — stated 72.2%, efektif 74.9% (lab-band, pita 70–75 n=1499) · SM 79.1% · spread 6.8pp
-- [B] ou15/over — stated 74.4%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 67.5% · spread 7.0pp
-- [B] dc/12 — stated 74.0%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 71.9% · spread 2.0pp
-- [B] team_over05_away/yes — stated 73.2%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 67.3% · spread 5.8pp
-- [B] dc/1x — stated 63.7%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 63.1% · spread 0.6pp
-- [B] dc/x2 — stated 62.3%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 65.0% · spread 2.6pp
-
-### Atlante vs Santos Laguna — Liga MX (partial)
-Kickoff 2026-11-07 10:00 WIB · λ 1.697 / μ 1.328
-- [A] team_over05_home/yes — stated 81.7%, efektif 81.5% (lab-band, pita 80–85 n=1973) · SM 83.3% · spread 1.6pp
-- [A] dc/12 — stated 76.3%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 77.4% · spread 1.1pp
-- [B] ou15/over — stated 80.5%, efektif 78.5% (lab-band, pita 80–85 n=2155) · SM 82.3% · spread 1.8pp
-- [B] team_over05_away/yes — stated 73.5%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 61.3% · spread 12.2pp
-- [B] ou35/under — stated 64.2%, efektif 68.8% (lab-band, pita 60–65 n=1440) · SM 61.2% · spread 3.0pp
-- [B] dc/1x — stated 69.9%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 76.8% · spread 6.9pp
-- [C] btts/yes — stated 60.0%, efektif 58.5% (lab-band, pita 60–65 n=1872) · SM 59.8% · spread 0.2pp
-
-### Shimizu S-Pulse vs Tokyo Verdy — J1 League (calibrated)
-Kickoff 2026-11-07 11:00 WIB · λ 1.241 / μ 1.058
-- [A] team_over05_home/yes — stated 71.1%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 64.3% · spread 6.8pp
-- [B] ou35/under — stated 80.0%, efektif 75.3% (lab-band, pita 75–80 n=1002) · SM 81.9% · spread 2.0pp
-- [B] dc/12 — stated 71.8%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 69.5% · spread 2.3pp
-- [B] dc/1x — stated 68.6%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 64.5% · spread 4.2pp
-- [B] ou15/over — stated 66.9%, efektif 67.5% (lab-band, pita 65–70 n=793) · SM 64.3% · spread 2.6pp
-- [C] team_over05_away/yes — stated 65.3%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 65.6% · spread 0.3pp
-
-### Auckland vs Wellington Phoenix — A-League Men (uncalibrated)
-Kickoff 2026-11-07 11:00 WIB · λ 1.739 / μ 1.095
-- [A] team_over05_home/yes — stated 82.4%, efektif 81.5% (lab-band, pita 80–85 n=1973) · SM 81.0% · spread 1.4pp
-- [A] dc/1x — stated 76.1%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 75.2% · spread 1.0pp
-- [A] dc/12 — stated 76.3%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 76.4% · spread 0.1pp
-- [B] ou15/over — stated 77.5%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 79.6% · spread 2.1pp
-- [B] ou35/under — stated 68.4%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 65.5% · spread 3.0pp
-- [C] team_over05_away/yes — stated 66.5%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 62.7% · spread 3.8pp
-
-### Nagoya Grampus vs Kyoto Sanga — J1 League (calibrated)
-Kickoff 2026-11-07 12:00 WIB · λ 1.764 / μ 1.098
-- [A] team_over05_home/yes — stated 82.9%, efektif 81.5% (lab-band, pita 80–85 n=1973) · SM 74.8% · spread 8.1pp
-- [A] dc/1x — stated 76.4%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 71.7% · spread 4.7pp
-- [A] dc/12 — stated 76.5%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 73.7% · spread 2.9pp
-- [B] ou15/over — stated 77.9%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 72.2% · spread 5.7pp
-- [B] ou35/under — stated 67.8%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 74.5% · spread 6.6pp
-- [C] team_over05_away/yes — stated 66.6%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 63.0% · spread 3.7pp
-
-### Yokohama F. Marinos vs Fagiano Okayama — J1 League (calibrated)
-Kickoff 2026-11-07 12:00 WIB · λ 1.914 / μ 0.967
-- [A] team_over05_home/yes — stated 85.3%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 76.2% · spread 9.1pp
-- [A] dc/1x — stated 81.4%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 67.2% · spread 14.2pp
-- [A] dc/12 — stated 78.1%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 75.3% · spread 2.8pp
-- [B] ou15/over — stated 78.2%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 80.3% · spread 2.0pp
-- [B] ou35/under — stated 67.4%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 65.1% · spread 2.3pp
-- [C] team_over05_away/yes — stated 62.0%, efektif 61.8% (lab-band, pita 60–65 n=1034) · SM 69.0% · spread 7.0pp
-
-### Jeju United vs Gwangju — K League 1 (calibrated)
-Kickoff 2026-11-07 12:00 WIB · λ 1.505 / μ 1.303
-- [A] team_over05_home/yes — stated 77.8%, efektif 76.1% (lab-band, pita 75–80 n=1784) · SM 78.9% · spread 1.1pp
-- [B] ou15/over — stated 77.0%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 76.5% · spread 0.5pp
-- [B] dc/12 — stated 74.9%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 72.3% · spread 2.6pp
-- [B] ou35/under — stated 69.0%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 70.9% · spread 1.9pp
-- [B] team_over05_away/yes — stated 72.8%, efektif 70.1% (lab-band, pita 70–75 n=1845) · SM 63.9% · spread 8.9pp
-- [B] dc/1x — stated 67.1%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 74.7% · spread 7.6pp
-
-### Avispa Fukuoka vs V-Varen Nagasaki — J1 League (calibrated)
-Kickoff 2026-11-07 13:00 WIB · λ 1.259 / μ 1.547
-- [A] dc/12 — stated 75.0%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 74.2% · spread 0.9pp
-- [A] team_over05_away/yes — stated 78.7%, efektif 74.6% (lab-band, pita 75–80 n=1642) · SM 62.9% · spread 15.8pp
-- [A] team_over05_home/yes — stated 71.6%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 75.6% · spread 4.0pp
-- [B] ou15/over — stated 77.0%, efektif 75.0% (lab-band, pita 75–80 n=2168) · SM 72.8% · spread 4.2pp
-- [B] ou35/under — stated 69.1%, efektif 70.4% (lab-band, pita 65–70 n=1644) · SM 73.6% · spread 4.6pp
-- [B] dc/x2 — stated 69.0%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 53.9% · spread 15.1pp
-
-### FC Tokyo vs Kashima Antlers — J1 League (calibrated)
-Kickoff 2026-11-07 13:00 WIB · λ 2.445 / μ 1.024
-- [A] dc/1x — stated 86.0%, efektif 89.1% (lab-band, pita 85+ n=908) · SM 70.8% · spread 15.2pp
-- [A] team_over05_home/yes — stated 91.3%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 78.6% · spread 12.7pp
-- [A] ou15/over — stated 86.1%, efektif 85.5% (lab-band, pita 85+ n=1320) · SM 81.0% · spread 5.1pp
-- [A] dc/12 — stated 82.6%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 74.4% · spread 8.2pp
-- [B] 1x2/1 — stated 68.6%, efektif 73.3% (lab-band, pita 65–70 n=386) · pasar 46.3% · SM 45.2% · spread 23.4pp
-- [C] ou25/over — stated 67.3%, efektif 63.9% (lab-band, pita 65–70 n=1119) · pasar 54.9% · SM 59.0% · spread 12.4pp
-- [C] team_over05_away/yes — stated 64.1%, efektif 61.8% (lab-band, pita 60–65 n=1034) · SM 67.3% · spread 3.2pp
-
-### Kashiwa Reysol vs Kawasaki Frontale — J1 League (calibrated)
-Kickoff 2026-11-07 14:00 WIB · λ 2.293 / μ 1.725
-- [A] team_over05_home/yes — stated 89.9%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 79.5% · spread 10.4pp
-- [A] ou15/over — stated 91.0%, efektif 85.5% (lab-band, pita 85+ n=1320) · SM 80.6% · spread 10.4pp
-- [A] dc/12 — stated 80.1%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 74.8% · spread 5.3pp
-- [A] team_over05_away/yes — stated 82.2%, efektif 81.4% (lab-band, pita 80–85 n=1057) · SM 66.4% · spread 15.8pp
-- [B] ou25/over — stated 76.5%, efektif 76.5% (stated-fallback, pita 75–80 n=199) · pasar 64.1% · SM 59.0% · spread 17.5pp
-- [B] dc/1x — stated 70.8%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 72.2% · spread 1.4pp
-- [C] ou35/over — stated 57.0%, efektif 64.2% (lab-band, pita 55–60 n=1147) · SM 35.8% · spread 21.2pp
-- [C] btts/yes — stated 73.9%, efektif 63.9% (lab-band, pita 70–75 n=274) · SM 60.8% · spread 13.1pp
-
-### Gimcheon Sangmu vs Anyang — K League 1 (calibrated)
-Kickoff 2026-11-07 14:30 WIB · λ 1.275 / μ 1.166
-- [A] team_over05_home/yes — stated 72.1%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 72.4% · spread 0.3pp
-- [B] ou35/under — stated 77.0%, efektif 75.3% (lab-band, pita 75–80 n=1002) · SM 73.5% · spread 3.6pp
-- [B] ou15/over — stated 70.0%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 74.4% · spread 4.4pp
-- [B] dc/12 — stated 72.7%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 72.5% · spread 0.2pp
-- [B] dc/1x — stated 66.3%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 65.8% · spread 0.5pp
-- [B] dc/x2 — stated 61.0%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 61.6% · spread 0.6pp
-- [C] team_over05_away/yes — stated 68.8%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 69.0% · spread 0.1pp
-
-### Melbourne City vs Western Sydney Wanderers — A-League Men (uncalibrated)
-Kickoff 2026-11-07 15:40 WIB · λ 1.364 / μ 1.201
-- [A] team_over05_home/yes — stated 74.4%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 72.9% · spread 1.5pp
-- [B] ou35/under — stated 74.4%, efektif 74.9% (lab-band, pita 70–75 n=1499) · SM 68.0% · spread 6.4pp
-- [B] ou15/over — stated 72.6%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 76.8% · spread 4.3pp
-- [B] dc/12 — stated 73.5%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 75.0% · spread 1.5pp
-- [B] dc/1x — stated 67.1%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 65.5% · spread 1.6pp
-- [C] team_over05_away/yes — stated 69.9%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 68.6% · spread 1.3pp
 
 ### Hoàng Anh Gia Lai vs Hà Nội — V-League (uncalibrated)
 Kickoff 2026-11-07 17:00 WIB · λ 1.355 / μ 2.105
@@ -1236,15 +1024,15 @@ Kickoff 2026-11-07 22:00 WIB · λ 1.54 / μ 2.168
 - [C] btts/yes — stated 69.6%, efektif 69.6% (stated-fallback, pita 65–70 n=180) · SM 54.5% · spread 15.1pp
 
 ### Accrington Stanley vs Wycombe Wanderers — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-07 22:00 WIB · λ 1.433 / μ 1.983
-- [A] team_over05_away/yes — stated 86.2%, efektif 86.2% (stated-fallback, pita 85+ n=131) · SM 71.4% · spread 14.9pp
+Kickoff 2026-11-07 22:00 WIB · λ 1.432 / μ 1.982
+- [A] team_over05_away/yes — stated 86.2%, efektif 86.2% (stated-fallback, pita 85+ n=131) · SM 71.4% · spread 14.8pp
 - [A] ou15/over — stated 85.5%, efektif 84.4% (lab-band, pita 85+ n=237) · SM 78.2% · spread 7.3pp
-- [A] dc/12 — stated 78.2%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 75.8% · spread 2.5pp
+- [A] dc/12 — stated 78.2%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 75.8% · spread 2.4pp
 - [A] team_over05_home/yes — stated 76.1%, efektif 72.6% (lab-band, pita 75–80 n=270) · SM 71.8% · spread 4.3pp
 - [B] dc/x2 — stated 72.2%, efektif 74.4% (lab-band, pita 70–75 n=710) · SM 61.6% · spread 10.6pp
-- [C] btts/yes — stated 65.7%, efektif 65.7% (stated-fallback, pita 65–70 n=180) · SM 57.7% · spread 7.9pp
-- [C] ou25/over — stated 66.3%, efektif 63.8% (lab-band, pita 65–70 n=243) · pasar 57.0% · SM 55.2% · spread 11.2pp
-- [C] ou35/under — stated 55.5%, efektif 55.5% (stated-fallback, pita 55–60 n=188) · SM 67.0% · spread 11.6pp
+- [C] btts/yes — stated 65.6%, efektif 65.6% (stated-fallback, pita 65–70 n=180) · SM 57.7% · spread 7.9pp
+- [C] ou25/over — stated 66.3%, efektif 63.8% (lab-band, pita 65–70 n=243) · pasar 57.0% · SM 55.2% · spread 11.1pp
+- [C] ou35/under — stated 55.5%, efektif 55.5% (stated-fallback, pita 55–60 n=188) · SM 67.0% · spread 11.5pp
 
 ### Gillingham vs Barrow — FA Cup (uncalibrated, piala/offset)
 Kickoff 2026-11-07 22:00 WIB · λ 2.206 / μ 1.329
@@ -1278,14 +1066,14 @@ Kickoff 2026-11-07 22:00 WIB · λ 2.323 / μ 1.191
 - [C] btts/yes — stated 62.8%, efektif 56.9% (lab-band, pita 60–65 n=327) · SM 59.7% · spread 3.1pp
 
 ### Eastleigh vs Shrewsbury Town — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-07 22:00 WIB · λ 1.778 / μ 1.66
+Kickoff 2026-11-07 22:00 WIB · λ 1.778 / μ 1.659
 - [A] ou15/over — stated 85.7%, efektif 84.4% (lab-band, pita 85+ n=237) · SM 77.6% · spread 8.2pp
 - [A] team_over05_home/yes — stated 83.1%, efektif 82.9% (lab-band, pita 80–85 n=287) · SM 57.3% · spread 25.8pp
 - [A] team_over05_away/yes — stated 81.0%, efektif 81.0% (stated-fallback, pita 80–85 n=146) · SM 81.0% · spread 0.0pp
 - [A] dc/12 — stated 77.5%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 77.8% · spread 0.3pp
 - [B] dc/1x — stated 63.7%, efektif 61.7% (lab-band, pita 60–65 n=311) · SM 44.5% · spread 19.2pp
 - [C] btts/yes — stated 67.3%, efektif 67.3% (stated-fallback, pita 65–70 n=180) · SM 55.4% · spread 11.9pp
-- [C] ou25/over — stated 66.8%, efektif 63.8% (lab-band, pita 65–70 n=243) · pasar 53.7% · SM 54.4% · spread 13.0pp
+- [C] ou25/over — stated 66.7%, efektif 63.8% (lab-band, pita 65–70 n=243) · pasar 53.7% · SM 54.4% · spread 13.0pp
 - [C] ou35/under — stated 55.0%, efektif 55.0% (stated-fallback, pita 55–60 n=188) · SM 67.4% · spread 12.4pp
 
 ### Luton Town vs Forest Green Rovers — FA Cup (uncalibrated, piala/offset)
@@ -1320,24 +1108,24 @@ Kickoff 2026-11-07 22:00 WIB · λ 2.179 / μ 1.556
 - [C] btts/yes — stated 70.0%, efektif 70.0% (stated-fallback, pita 65–70 n=180) · SM 58.4% · spread 11.6pp
 
 ### Barnsley vs Aldershot Town — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-07 22:00 WIB · λ 3.233 / μ 1.091
+Kickoff 2026-11-07 22:00 WIB · λ 3.232 / μ 1.091
 - [A] dc/1x — stated 90.9%, efektif 87.3% (lab-band, pita 85+ n=416) · SM 65.1% · spread 25.8pp
 - [A] dc/12 — stated 87.8%, efektif 87.3% (lab-band, pita 85+ n=416) · SM 77.7% · spread 10.2pp
 - [A] team_over05_home/yes — stated 96.1%, efektif 85.8% (lab-band, pita 85+ n=387) · SM 75.0% · spread 21.1pp
 - [A] ou15/over — stated 92.9%, efektif 84.4% (lab-band, pita 85+ n=237) · SM 81.9% · spread 11.0pp
-- [B] ou25/over — stated 80.6%, efektif 80.6% (stated-fallback, pita 80–85 n=14) · pasar 68.0% · SM 61.7% · spread 18.8pp
-- [B] 1x2/1 — stated 78.8%, efektif 78.8% (stated-fallback, pita 75–80 n=63) · pasar 76.3% · SM 42.8% · spread 36.0pp
+- [B] ou25/over — stated 80.5%, efektif 80.5% (stated-fallback, pita 80–85 n=14) · pasar 68.0% · SM 61.7% · spread 18.8pp
+- [B] 1x2/1 — stated 78.7%, efektif 78.7% (stated-fallback, pita 75–80 n=63) · pasar 76.3% · SM 42.8% · spread 36.0pp
 - [B] ou35/over — stated 62.7%, efektif 63.8% (lab-band, pita 60–65 n=235) · SM 38.6% · spread 24.1pp
 - [C] team_over05_away/yes — stated 66.4%, efektif 64.9% (lab-band, pita 65–70 n=225) · SM 70.2% · spread 3.8pp
 - [C] btts/yes — stated 63.8%, efektif 56.9% (lab-band, pita 60–65 n=327) · SM 59.3% · spread 4.5pp
 
 ### Boreham Wood vs Wigan Athletic — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-07 22:00 WIB · λ 1.348 / μ 1.302
+Kickoff 2026-11-07 22:00 WIB · λ 1.348 / μ 1.301
 - [A] team_over05_home/yes — stated 74.0%, efektif 74.0% (stated-fallback, pita 70–75 n=183) · SM 88.9% · spread 14.9pp
 - [B] dc/12 — stated 73.9%, efektif 74.4% (lab-band, pita 70–75 n=710) · SM 83.0% · spread 9.1pp
 - [B] team_over05_away/yes — stated 72.8%, efektif 73.4% (lab-band, pita 70–75 n=222) · SM 47.3% · spread 25.5pp
 - [B] ou15/over — stated 74.2%, efektif 69.8% (lab-band, pita 70–75 n=225) · SM 86.6% · spread 12.4pp
-- [B] ou35/under — stated 72.5%, efektif 65.6% (lab-band, pita 70–75 n=212) · SM 50.8% · spread 21.7pp
+- [B] ou35/under — stated 72.5%, efektif 65.6% (lab-band, pita 70–75 n=212) · SM 50.8% · spread 21.8pp
 - [B] dc/1x — stated 64.1%, efektif 61.7% (lab-band, pita 60–65 n=311) · SM 84.6% · spread 20.5pp
 - [B] dc/x2 — stated 62.0%, efektif 61.7% (lab-band, pita 60–65 n=311) · SM 32.4% · spread 29.6pp
 
@@ -1351,14 +1139,14 @@ Kickoff 2026-11-07 22:00 WIB · λ 1.715 / μ 1.022
 - [C] team_over05_away/yes — stated 64.0%, efektif 64.0% (stated-fallback, pita 60–65 n=187) · SM 46.9% · spread 17.1pp
 
 ### Huddersfield Town vs Exeter City — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-07 22:00 WIB · λ 2.024 / μ 1.028
+Kickoff 2026-11-07 22:00 WIB · λ 2.024 / μ 1.027
 - [A] team_over05_home/yes — stated 86.8%, efektif 85.8% (lab-band, pita 85+ n=387) · SM 84.6% · spread 2.1pp
-- [A] dc/1x — stated 81.4%, efektif 84.1% (lab-band, pita 80–85 n=471) · SM 83.5% · spread 2.1pp
+- [A] dc/1x — stated 81.5%, efektif 84.1% (lab-band, pita 80–85 n=471) · SM 83.5% · spread 2.0pp
 - [A] dc/12 — stated 79.0%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 80.1% · spread 1.2pp
 - [B] ou15/over — stated 80.8%, efektif 79.0% (lab-band, pita 80–85 n=352) · SM 78.0% · spread 2.8pp
 - [B] ou35/under — stated 63.6%, efektif 63.8% (lab-band, pita 60–65 n=235) · SM 66.6% · spread 3.0pp
 - [B] 1x2/1 — stated 60.4%, efektif 60.4% (stated-fallback, pita 60–65 n=132) · pasar 73.9% · SM 63.7% · spread 13.4pp
-- [C] team_over05_away/yes — stated 64.2%, efektif 64.2% (stated-fallback, pita 60–65 n=187) · SM 49.0% · spread 15.2pp
+- [C] team_over05_away/yes — stated 64.2%, efektif 64.2% (stated-fallback, pita 60–65 n=187) · SM 49.0% · spread 15.1pp
 
 ### Port Vale vs Scunthorpe United — FA Cup (uncalibrated, piala/offset)
 Kickoff 2026-11-07 22:00 WIB · λ 2.576 / μ 0.885
@@ -1931,14 +1719,14 @@ Kickoff 2026-11-08 00:30 WIB · λ 2.046 / μ 1.313
 - [C] btts/yes — stated 63.7%, efektif 58.5% (lab-band, pita 60–65 n=1872) · SM 53.2% · spread 10.5pp
 
 ### Altrincham vs Notts County — FA Cup (uncalibrated, piala/offset)
-Kickoff 2026-11-08 00:30 WIB · λ 1.28 / μ 1.928
+Kickoff 2026-11-08 00:30 WIB · λ 1.28 / μ 1.931
 - [A] team_over05_away/yes — stated 85.5%, efektif 85.5% (stated-fallback, pita 85+ n=131) · SM 68.2% · spread 17.3pp
-- [A] dc/12 — stated 77.8%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 76.1% · spread 1.7pp
+- [A] dc/12 — stated 77.9%, efektif 78.9% (lab-band, pita 75–80 n=943) · SM 76.1% · spread 1.7pp
 - [A] team_over05_home/yes — stated 72.2%, efektif 72.2% (stated-fallback, pita 70–75 n=183) · SM 72.8% · spread 0.6pp
 - [B] ou15/over — stated 83.0%, efektif 79.0% (lab-band, pita 80–85 n=352) · SM 76.9% · spread 6.1pp
 - [B] dc/x2 — stated 74.7%, efektif 74.4% (lab-band, pita 70–75 n=710) · SM 59.6% · spread 15.1pp
-- [B] ou35/under — stated 60.1%, efektif 63.8% (lab-band, pita 60–65 n=235) · SM 68.0% · spread 7.9pp
-- [C] ou25/over — stated 62.2%, efektif 60.6% (lab-band, pita 60–65 n=320) · pasar 55.9% · SM 54.0% · spread 8.2pp
+- [B] ou35/under — stated 60.0%, efektif 63.8% (lab-band, pita 60–65 n=235) · SM 68.0% · spread 8.0pp
+- [C] ou25/over — stated 62.2%, efektif 60.6% (lab-band, pita 60–65 n=320) · pasar 55.9% · SM 54.0% · spread 8.3pp
 - [C] btts/yes — stated 61.7%, efektif 56.9% (lab-band, pita 60–65 n=327) · SM 54.4% · spread 7.3pp
 
 ### Aris vs Panetolikos — Super League (calibrated) · mode: free
@@ -4841,6 +4629,17 @@ Kickoff 2026-11-10 03:15 WIB · λ 1.31 / μ 1.425
 - [B] dc/12 — stated 74.4%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 71.9% · spread 2.5pp
 - [B] dc/x2 — stated 65.4%, efektif 68.5% (lab-band, pita 65–70 n=2658) · SM 73.5% · spread 8.0pp
 - [B] dc/1x — stated 60.2%, efektif 65.4% (lab-band, pita 60–65 n=2292) · SM 54.6% · spread 5.5pp
+
+### Junior FC vs Cúcuta Deportivo — Liga BetPlay (partial)
+Kickoff 2026-11-10 07:00 WIB · λ 2.094 / μ 1.068
+- [A] team_over05_home/yes — stated 87.7%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 87.5% · spread 0.2pp
+- [A] dc/1x — stated 81.4%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 88.1% · spread 6.6pp
+- [A] dc/12 — stated 79.5%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 79.6% · spread 0.1pp
+- [B] ou15/over — stated 82.4%, efektif 78.5% (lab-band, pita 80–85 n=2155) · SM 78.0% · spread 4.4pp
+- [B] ou35/under — stated 61.1%, efektif 68.8% (lab-band, pita 60–65 n=1440) · SM 68.1% · spread 7.0pp
+- [B] 1x2/1 — stated 60.9%, efektif 62.9% (lab-band, pita 60–65 n=590) · pasar 60.7% · SM 67.7% · spread 7.0pp
+- [C] team_over05_away/yes — stated 65.6%, efektif 65.1% (lab-band, pita 65–70 n=1428) · SM 45.6% · spread 20.0pp
+- [C] ou25/over — stated 61.2%, efektif 58.8% (lab-band, pita 60–65 n=1785) · pasar 52.8% · SM 54.8% · spread 8.4pp
 
 ## Tidak ter-rate (dengan alasan)
 - Mansfield Town vs Macclesfield — FA Cup, kickoff 2026-11-07 22:00 WIB: kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)
