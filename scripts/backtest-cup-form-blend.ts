@@ -64,7 +64,6 @@ import {
   type GraphId,
   type MatchPrediction,
   type ResolvedTeam,
-  type StoreMatch,
 } from "../lib/quant/cup-offset-fit";
 import type { CanonicalLeague } from "../lib/quant/league-identity";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";

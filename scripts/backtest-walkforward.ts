@@ -460,8 +460,6 @@ const FOLDS = [
   { name: "V2", trainEnd: 0.7, testStart: 0.7, testEnd: 0.85 },
   { name: "H", trainEnd: 0.85, testStart: 0.85, testEnd: 1.0 },
 ] as const;
-type FoldName = (typeof FOLDS)[number]["name"];
-
 function foldSlice(lg: LeagueData, fold: (typeof FOLDS)[number]): { train: MatchRow[]; test: MatchRow[]; refMs: number } {
   const n = lg.matches.length;
   const train = lg.matches.slice(0, Math.floor(n * fold.trainEnd));

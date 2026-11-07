@@ -1,4 +1,4 @@
-import { getTheStatsDb, getTeamRecentLogs, TeamMatchLogRecord } from "../db/thestats-dataset";
+import { getTheStatsDb, TeamMatchLogRecord } from "../db/thestats-dataset";
 import { resolveTeamId } from "../db/team-telemetry";
 import {
   canonicalIdForTeamId,

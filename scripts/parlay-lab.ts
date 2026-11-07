@@ -73,9 +73,7 @@ import {
   type AnchorMatch,
   type GraphId,
   type ResolvedTeam,
-  type StoreMatch,
 } from "../lib/quant/cup-offset-fit";
-import type { CanonicalLeague } from "../lib/quant/league-identity";
 
 const args = process.argv.slice(2);
 const SKIP_CUPS = args.includes("--skip-cups");

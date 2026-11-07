@@ -32,11 +32,6 @@ interface SmSeason { id: number; league_id: number; is_current?: boolean }
 interface StandingRow { participant_id: number; position?: number; points?: number }
 interface NewsItem { fixture_id: number }
 interface LineupEntry { team_id?: number; participant_id?: number }
-interface CatalogFixture {
-  match_id: string; sm_id: number; league_sm: number;
-  home_team_id: string | null; away_team_id: string | null; kickoff_utc: string;
-}
-
 async function main() {
   const db = new DatabaseSync(dataPath("thestats_dataset.db"));
   db.exec("PRAGMA journal_mode = WAL;");
