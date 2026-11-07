@@ -1,18 +1,18 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-07T09:22:03.967Z
+Dibangun: 2026-11-07T13:51:11.398Z
 
 ## Angka
 
-- Baris tim sumber (tabel teams): **6764**
-- Tim kanonik hasil: **6557**
-- Grup tergabung (>1 baris sumber): **204** (menyerap 215 baris ekstra)
+- Baris tim sumber (tabel teams): **6766**
+- Tim kanonik hasil: **6553**
+- Grup tergabung (>1 baris sumber): **205** (menyerap 218 baris ekstra)
 - Grup lintas sistem (>1 sumber): **189**
 - Tim bernama sengketa (≥2 negara): **2** entri
 - Pasangan kandidat mirip BELUM digabung: **8**
 - Keputusan resolusi fase 3 diterapkan: **25 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
-- Permukaan standings: **164 id** tanpa baris teams didaftarkan dari nama fixture; **3 id** terdaftar id-only (name_unknown: 828, 5632, 976). Cakupan standings sekarang penuh.
-- Permukaan fixture: **111 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
+- Permukaan standings: **167 id** tanpa baris teams didaftarkan dari nama fixture; **0 id** terdaftar id-only (name_unknown: -). Cakupan standings sekarang penuh.
+- Permukaan fixture: **107 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
 
 ## Keputusan resolusi fase 3 (bukti terukur + web untuk identitas ambigu)
 

@@ -1,15 +1,15 @@
 # Telemetri Kanonik — Laporan Build (Fase 4)
 
-Dibangun: 2026-11-07T09:25:41.648Z
+Dibangun: 2026-11-07T14:14:48.675Z
 
 ## Angka
 
-- Baris asal team_match_logs: **86359** (tidak diubah)
-- Baris kanonik team_match_logs_canonical: **84086**
-- Baris kembar dilebur: **2273**
+- Baris asal team_match_logs: **86687** (tidak diubah)
+- Baris kanonik team_match_logs_canonical: **84388**
+- Baris kembar dilebur: **2299**
 - Baris tak ter-resolusi ke registry: **0**
 - Isi xG dari kembaran (pemenang tak punya xG): **0** baris
-- Pemenang per sumber: sportmonks=83028, thestats=334, football-data=706, master=18
+- Pemenang per sumber: sportmonks=83356, thestats=334, football-data=680, master=18
 
 ## Contoh konflik skor antar sumber (goals_conflict=1)
 

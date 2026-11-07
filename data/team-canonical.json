@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-07T09:22:03.967Z",
+  "generated_at": "2026-11-07T13:51:11.398Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -18960,7 +18960,7 @@
     {
       "canonical_id": "sm:16675",
       "name": "Siroco",
-      "country": null,
+      "country": "France",
       "members": [
         {
           "system": "sportmonks",
@@ -47773,7 +47773,7 @@
     {
       "canonical_id": "sm:255250",
       "name": "Olympique Cayenne",
-      "country": null,
+      "country": "France",
       "members": [
         {
           "system": "sportmonks",
@@ -51974,7 +51974,7 @@
     {
       "canonical_id": "sm:260070",
       "name": "Sporting Baie-Mahault",
-      "country": null,
+      "country": "France",
       "members": [
         {
           "system": "sportmonks",
@@ -69826,22 +69826,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:282965",
-      "name": "Chambery Savoie",
-      "country": null,
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "282965",
-          "name_as_stored": "Chambéry Savoie"
-        }
-      ],
-      "aliases": [
-        "Chambéry Savoie"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "sm:282966",
       "name": "Chamois Niortais St Flo",
       "country": null,
@@ -87249,24 +87233,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:5632",
-      "name": "Sportmonks team 5632 (nama belum diketahui)",
-      "country": null,
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "5632",
-          "name_as_stored": ""
-        }
-      ],
-      "aliases": [],
-      "contested_name": false,
-      "resolution_notes": [
-        "Id dirujuk standings tapi tidak bernama di permukaan lokal mana pun (0 match, 0 telemetri). Didaftarkan id-only; nama diisi bila tim ini kelak punya match/fixture bernama."
-      ],
-      "name_unknown": true
-    },
-    {
       "canonical_id": "sm:5633",
       "name": "Varzim",
       "country": "Portugal",
@@ -94210,6 +94176,11 @@
           "system": "sportmonks",
           "team_id": "7035",
           "name_as_stored": "Nacional"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "828",
+          "name_as_stored": "Nacional"
         }
       ],
       "aliases": [
@@ -97581,6 +97552,11 @@
           "system": "sportmonks",
           "team_id": "8",
           "name_as_stored": "Liverpool"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "976",
+          "name_as_stored": "Liverpool"
         }
       ],
       "aliases": [
@@ -98794,24 +98770,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:828",
-      "name": "Sportmonks team 828 (nama belum diketahui)",
-      "country": null,
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "828",
-          "name_as_stored": ""
-        }
-      ],
-      "aliases": [],
-      "contested_name": false,
-      "resolution_notes": [
-        "Id dirujuk standings tapi tidak bernama di permukaan lokal mana pun (0 match, 0 telemetri). Didaftarkan id-only; nama diisi bila tim ini kelak punya match/fixture bernama."
-      ],
-      "name_unknown": true
-    },
-    {
       "canonical_id": "sm:8283",
       "name": "Young Africans",
       "country": "Africa",
@@ -99110,6 +99068,11 @@
         {
           "system": "sportmonks",
           "team_id": "8364",
+          "name_as_stored": "Racing"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "5632",
           "name_as_stored": "Racing"
         }
       ],
@@ -104939,24 +104902,6 @@
         "Gardabani"
       ],
       "contested_name": false
-    },
-    {
-      "canonical_id": "sm:976",
-      "name": "Sportmonks team 976 (nama belum diketahui)",
-      "country": null,
-      "members": [
-        {
-          "system": "sportmonks",
-          "team_id": "976",
-          "name_as_stored": ""
-        }
-      ],
-      "aliases": [],
-      "contested_name": false,
-      "resolution_notes": [
-        "Id dirujuk standings tapi tidak bernama di permukaan lokal mana pun (0 match, 0 telemetri). Didaftarkan id-only; nama diisi bila tim ini kelak punya match/fixture bernama."
-      ],
-      "name_unknown": true
     },
     {
       "canonical_id": "sm:9769",
