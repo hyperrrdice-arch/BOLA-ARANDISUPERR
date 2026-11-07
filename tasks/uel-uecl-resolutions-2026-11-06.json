@@ -1,0 +1,1886 @@
+{
+  "provenance": {
+    "scores_source": "tasks/slate-review-uel-uecl-2026-11-06.md — skor final diverifikasi UEFA.com + TNT Sports + AP, 6 Nov 2026 pagi",
+    "hit_logic": "lib/picks/ledger.ts evaluatePick (aturan yang sama dengan recordOutcome)",
+    "built_utc": "2026-11-06T05:18:18.709Z",
+    "note": "GROUNDWORK ONLY — belum ditulis ke picks.db. Penerapan butuh keputusan owner karena skor di luar dataset lokal (kontrak scripts/resolve-pick-outcomes.ts: hanya skor lokal).",
+    "dataset_state_at_build": "thestats_dataset.db: 0 laga 5 Nov, skor terakhir 2026-11-04T20:00:00Z; 3.928 live-run picks masih unresolved."
+  },
+  "verification": {
+    "total_picks": 156,
+    "hits": 110,
+    "by_grade": {
+      "B": [
+        77,
+        103
+      ],
+      "C": [
+        17,
+        32
+      ],
+      "A": [
+        16,
+        21
+      ]
+    },
+    "by_market": {
+      "team_over05_away": [
+        17,
+        22
+      ],
+      "ou35": [
+        16,
+        20
+      ],
+      "dc": [
+        36,
+        47
+      ],
+      "ou15": [
+        15,
+        22
+      ],
+      "team_over05_home": [
+        14,
+        22
+      ],
+      "btts": [
+        5,
+        8
+      ],
+      "1x2": [
+        3,
+        4
+      ],
+      "ou25": [
+        4,
+        11
+      ]
+    },
+    "internally_consistent": true,
+    "internal_checks_failed": [],
+    "review_reference": {
+      "total": 153,
+      "hits": 108,
+      "byGrade": {
+        "A": [
+          40,
+          54
+        ],
+        "B": [
+          53,
+          70
+        ],
+        "C": [
+          15,
+          29
+        ]
+      },
+      "byMarket": {
+        "dc": [
+          36,
+          47
+        ],
+        "ou35": [
+          16,
+          20
+        ],
+        "team_over05_away": [
+          17,
+          22
+        ],
+        "ou15": [
+          15,
+          22
+        ],
+        "team_over05_home": [
+          14,
+          22
+        ],
+        "ou25": [
+          4,
+          10
+        ],
+        "btts": [
+          3,
+          6
+        ],
+        "1x2": [
+          3,
+          4
+        ]
+      }
+    },
+    "diff_vs_review": {
+      "total": 3,
+      "hits": 2,
+      "by_grade": {
+        "A": [
+          -24,
+          -33
+        ],
+        "B": [
+          24,
+          33
+        ],
+        "C": [
+          2,
+          3
+        ]
+      },
+      "by_market": {
+        "dc": [
+          0,
+          0
+        ],
+        "ou35": [
+          0,
+          0
+        ],
+        "team_over05_away": [
+          0,
+          0
+        ],
+        "ou15": [
+          0,
+          0
+        ],
+        "team_over05_home": [
+          0,
+          0
+        ],
+        "ou25": [
+          0,
+          1
+        ],
+        "btts": [
+          2,
+          2
+        ],
+        "1x2": [
+          0,
+          0
+        ]
+      }
+    },
+    "ledger_provenance": "156 pick live-run ini dibuat 4 Nov 17:54 UTC (13 laga, paket legacy-import) + 20:26 UTC (9 laga, paket slate) — BUKAN dari paket slate 20:53 WIB 5 Nov yang dinilai review. Paket 20:53 (id 1511-1533, computed 13:52 UTC) ada di analysis_snapshots.db tapi pick-nya tidak masuk ledger karena INSERT OR IGNORE."
+  },
+  "resolutions": [
+    {
+      "pick_id": 326273,
+      "match_id": "sm_19873882",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7764230111905095,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326274,
+      "match_id": "sm_19873882",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.758217649919157,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326275,
+      "match_id": "sm_19873882",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.739936639804222,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326276,
+      "match_id": "sm_19873882",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.7477305603408607,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326277,
+      "match_id": "sm_19873882",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7120861533773598,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326278,
+      "match_id": "sm_19873882",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6317524917234362,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326279,
+      "match_id": "sm_19873888",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.80070206010628,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326280,
+      "match_id": "sm_19873888",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7581234826818214,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326281,
+      "match_id": "sm_19873888",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7546328716962228,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326282,
+      "match_id": "sm_19873888",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7968882606484207,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326283,
+      "match_id": "sm_19873888",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6624499805016946,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326284,
+      "match_id": "sm_19873888",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6474567603630734,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326285,
+      "match_id": "sm_19873888",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6013580765541255,
+      "home_goals": 3,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326286,
+      "match_id": "sm_19873892",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8870693878439294,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326287,
+      "match_id": "sm_19873892",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.8393977614817606,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326288,
+      "match_id": "sm_19873892",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.8049862775449608,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326289,
+      "match_id": "sm_19873892",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8252408414357956,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326290,
+      "match_id": "sm_19873892",
+      "market": "1x2",
+      "selection": "1",
+      "grade": "B",
+      "model_prob": 0.6443840390267213,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326291,
+      "match_id": "sm_19873892",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6085463567284188,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326292,
+      "match_id": "sm_19873892",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6291657162659003,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326293,
+      "match_id": "sm_19873892",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6144257443205123,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326294,
+      "match_id": "sm_19873898",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.8096332376779339,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326295,
+      "match_id": "sm_19873898",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7141661751756673,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326296,
+      "match_id": "sm_19873898",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7044744337573434,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326297,
+      "match_id": "sm_19873898",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.6899703553920515,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326298,
+      "match_id": "sm_19873898",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.6572152764770148,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326299,
+      "match_id": "sm_19873898",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6429930345992055,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326300,
+      "match_id": "sm_19873898",
+      "market": "ou25",
+      "selection": "under",
+      "grade": "C",
+      "model_prob": 0.6096061261644116,
+      "home_goals": 1,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326301,
+      "match_id": "sm_19873902",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.8684377002719832,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326302,
+      "match_id": "sm_19873902",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.9198562196718497,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326303,
+      "match_id": "sm_19873902",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8680650928160684,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326304,
+      "match_id": "sm_19873902",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.8329664909779699,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326305,
+      "match_id": "sm_19873902",
+      "market": "1x2",
+      "selection": "1",
+      "grade": "B",
+      "model_prob": 0.7014041912499525,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326306,
+      "match_id": "sm_19873902",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6861030156543156,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326307,
+      "match_id": "sm_19873902",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6372349822825415,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326308,
+      "match_id": "sm_19873907",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8682686428396543,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326309,
+      "match_id": "sm_19873907",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.87072204124185,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326310,
+      "match_id": "sm_19873907",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7856344314956925,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326311,
+      "match_id": "sm_19873907",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7849746395954111,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326312,
+      "match_id": "sm_19873907",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.7060227881499581,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326313,
+      "match_id": "sm_19873907",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6815688649850539,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326314,
+      "match_id": "sm_19873907",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6908249068389064,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326315,
+      "match_id": "sm_19873910",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8833974331416974,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326316,
+      "match_id": "sm_19873910",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8560785528917113,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326317,
+      "match_id": "sm_19873910",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.7783945403129022,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326318,
+      "match_id": "sm_19873910",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7947747859881498,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326319,
+      "match_id": "sm_19873910",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7211273031507129,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326320,
+      "match_id": "sm_19873910",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6652432014096954,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326321,
+      "match_id": "sm_19873910",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6370420085717345,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 0
+    },
+    {
+      "pick_id": 326322,
+      "match_id": "sm_19873910",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "C",
+      "model_prob": 0.5526907699827666,
+      "home_goals": 0,
+      "away_goals": 2,
+      "hit": 1
+    },
+    {
+      "pick_id": 326225,
+      "match_id": "sm_19873920",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8360176933931924,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326226,
+      "match_id": "sm_19873920",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8119186168791648,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326227,
+      "match_id": "sm_19873920",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.769566739135261,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326228,
+      "match_id": "sm_19873920",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.7313404507099782,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326229,
+      "match_id": "sm_19873920",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.718606122752108,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326230,
+      "match_id": "sm_19873920",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6302122254024198,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326231,
+      "match_id": "sm_19873920",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6007674332014431,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326232,
+      "match_id": "sm_19873922",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.801150022242684,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326233,
+      "match_id": "sm_19873922",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7573119784363416,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326234,
+      "match_id": "sm_19873922",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7677636265715438,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326235,
+      "match_id": "sm_19873922",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7860470783258722,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326236,
+      "match_id": "sm_19873922",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6467845456101796,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326237,
+      "match_id": "sm_19873922",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6393666938885747,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326238,
+      "match_id": "sm_19873922",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.603321327675084,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326239,
+      "match_id": "sm_19873922",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.603498355511438,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326240,
+      "match_id": "sm_19873925",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7440430854616026,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326241,
+      "match_id": "sm_19873925",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7015043541380298,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326242,
+      "match_id": "sm_19873925",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7725897245700177,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326243,
+      "match_id": "sm_19873925",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7495191947219528,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326244,
+      "match_id": "sm_19873925",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6905668332151206,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326245,
+      "match_id": "sm_19873925",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.716296010443468,
+      "home_goals": 1,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326246,
+      "match_id": "sm_19873929",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8672106097672841,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326247,
+      "match_id": "sm_19873929",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8277507875583293,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326248,
+      "match_id": "sm_19873929",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7863482139092062,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326249,
+      "match_id": "sm_19873929",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.7829909581359068,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326250,
+      "match_id": "sm_19873929",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.6905627489366787,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326251,
+      "match_id": "sm_19873929",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6043065982395969,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 0
+    },
+    {
+      "pick_id": 326252,
+      "match_id": "sm_19873929",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6184206587802646,
+      "home_goals": 1,
+      "away_goals": 3,
+      "hit": 1
+    },
+    {
+      "pick_id": 326253,
+      "match_id": "sm_19873936",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.8038741597295606,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326254,
+      "match_id": "sm_19873936",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8172438432717836,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326255,
+      "match_id": "sm_19873936",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7627426497550877,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326256,
+      "match_id": "sm_19873936",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7734975458971988,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326257,
+      "match_id": "sm_19873936",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6217102766755923,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326258,
+      "match_id": "sm_19873936",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.649745766774642,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326259,
+      "match_id": "sm_19873936",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6018590935429436,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326260,
+      "match_id": "sm_19873936",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6217946897609875,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326261,
+      "match_id": "sm_19873938",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.806600770579777,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326262,
+      "match_id": "sm_19873938",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7561529398619794,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326263,
+      "match_id": "sm_19873938",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7753130599180695,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326264,
+      "match_id": "sm_19873938",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.7220977564389508,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326265,
+      "match_id": "sm_19873938",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6834732835366858,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326266,
+      "match_id": "sm_19873938",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6972960277424368,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326872,
+      "match_id": "sm_19873969",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "A",
+      "model_prob": 0.8451549408366369,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326873,
+      "match_id": "sm_19873969",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.8495305156265123,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326874,
+      "match_id": "sm_19873969",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.7834434219154267,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326875,
+      "match_id": "sm_19873969",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7527863479166153,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326876,
+      "match_id": "sm_19873969",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.7123312366775609,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326877,
+      "match_id": "sm_19873969",
+      "market": "1x2",
+      "selection": "1",
+      "grade": "B",
+      "model_prob": 0.6285983627520636,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326878,
+      "match_id": "sm_19873969",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.5569178113695369,
+      "home_goals": 2,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326879,
+      "match_id": "sm_19873971",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.8575826506049321,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326880,
+      "match_id": "sm_19873971",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.7799232246077171,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326881,
+      "match_id": "sm_19873971",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8365894326949639,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326882,
+      "match_id": "sm_19873971",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.742956591480333,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326883,
+      "match_id": "sm_19873971",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7307190040525933,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326884,
+      "match_id": "sm_19873971",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6326786435139743,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326885,
+      "match_id": "sm_19873971",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "C",
+      "model_prob": 0.5889723843257606,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326886,
+      "match_id": "sm_19873971",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6266519403428192,
+      "home_goals": 1,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326887,
+      "match_id": "sm_19873974",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "A",
+      "model_prob": 0.774022001694712,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326888,
+      "match_id": "sm_19873974",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.8211194473875557,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326889,
+      "match_id": "sm_19873974",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7220271555077064,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326890,
+      "match_id": "sm_19873974",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7451295178041241,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326891,
+      "match_id": "sm_19873974",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.6432305225196728,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326892,
+      "match_id": "sm_19873974",
+      "market": "ou25",
+      "selection": "under",
+      "grade": "C",
+      "model_prob": 0.6251281578351112,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326893,
+      "match_id": "sm_19873974",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.5613265527367934,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326894,
+      "match_id": "sm_19873982",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.8832807801183862,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326895,
+      "match_id": "sm_19873982",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "A",
+      "model_prob": 0.8311042814221181,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326896,
+      "match_id": "sm_19873982",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.8011885775294617,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326897,
+      "match_id": "sm_19873982",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8240416387813275,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326898,
+      "match_id": "sm_19873982",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6105521519279182,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326899,
+      "match_id": "sm_19873982",
+      "market": "1x2",
+      "selection": "1",
+      "grade": "B",
+      "model_prob": 0.6322928589515804,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326900,
+      "match_id": "sm_19873982",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6379597871874625,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326901,
+      "match_id": "sm_19873982",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.6125261663400983,
+      "home_goals": 2,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326838,
+      "match_id": "sm_19873984",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.754913379072982,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326839,
+      "match_id": "sm_19873984",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.7621225462300705,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326840,
+      "match_id": "sm_19873984",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.7801916816723414,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326841,
+      "match_id": "sm_19873984",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7934123123860459,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326842,
+      "match_id": "sm_19873984",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6582090990534814,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326843,
+      "match_id": "sm_19873984",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6400404175018928,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326844,
+      "match_id": "sm_19873984",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.6050462034251256,
+      "home_goals": 0,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326845,
+      "match_id": "sm_19873990",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "A",
+      "model_prob": 0.7524308909105845,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326846,
+      "match_id": "sm_19873990",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.7775381021189617,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326847,
+      "match_id": "sm_19873990",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.7603518394714666,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326848,
+      "match_id": "sm_19873990",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7401731971326041,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326849,
+      "match_id": "sm_19873990",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7100241575265982,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326850,
+      "match_id": "sm_19873990",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6261871438630213,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326851,
+      "match_id": "sm_19873993",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.8391038911495035,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326852,
+      "match_id": "sm_19873993",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.7738488716495158,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326853,
+      "match_id": "sm_19873993",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.7768697167387147,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326854,
+      "match_id": "sm_19873993",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.8446572628758922,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326855,
+      "match_id": "sm_19873993",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6814422624875515,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326856,
+      "match_id": "sm_19873993",
+      "market": "btts",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6518744022316676,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326857,
+      "match_id": "sm_19873993",
+      "market": "ou25",
+      "selection": "over",
+      "grade": "C",
+      "model_prob": 0.645965591060267,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 1
+    },
+    {
+      "pick_id": 326858,
+      "match_id": "sm_19873993",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "C",
+      "model_prob": 0.5743834729832611,
+      "home_goals": 3,
+      "away_goals": 1,
+      "hit": 0
+    },
+    {
+      "pick_id": 326859,
+      "match_id": "sm_19873995",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.8234229230210696,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 1
+    },
+    {
+      "pick_id": 326860,
+      "match_id": "sm_19873995",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "A",
+      "model_prob": 0.7599888225767482,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 0
+    },
+    {
+      "pick_id": 326861,
+      "match_id": "sm_19873995",
+      "market": "dc",
+      "selection": "12",
+      "grade": "A",
+      "model_prob": 0.762855663032447,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 1
+    },
+    {
+      "pick_id": 326862,
+      "match_id": "sm_19873995",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.7741472204695475,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 1
+    },
+    {
+      "pick_id": 326863,
+      "match_id": "sm_19873995",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.6850347395461347,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 0
+    },
+    {
+      "pick_id": 326864,
+      "match_id": "sm_19873995",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "C",
+      "model_prob": 0.6661287951287135,
+      "home_goals": 1,
+      "away_goals": 6,
+      "hit": 1
+    },
+    {
+      "pick_id": 326865,
+      "match_id": "sm_19873999",
+      "market": "team_over05_home",
+      "selection": "yes",
+      "grade": "A",
+      "model_prob": 0.7529092796835799,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326866,
+      "match_id": "sm_19873999",
+      "market": "ou15",
+      "selection": "over",
+      "grade": "B",
+      "model_prob": 0.757975516731835,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326867,
+      "match_id": "sm_19873999",
+      "market": "dc",
+      "selection": "12",
+      "grade": "B",
+      "model_prob": 0.7439767140947248,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326868,
+      "match_id": "sm_19873999",
+      "market": "team_over05_away",
+      "selection": "yes",
+      "grade": "B",
+      "model_prob": 0.7378923067819141,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 0
+    },
+    {
+      "pick_id": 326869,
+      "match_id": "sm_19873999",
+      "market": "ou35",
+      "selection": "under",
+      "grade": "B",
+      "model_prob": 0.7059191697029261,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326870,
+      "match_id": "sm_19873999",
+      "market": "dc",
+      "selection": "1x",
+      "grade": "B",
+      "model_prob": 0.6415243543505709,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 1
+    },
+    {
+      "pick_id": 326871,
+      "match_id": "sm_19873999",
+      "market": "dc",
+      "selection": "x2",
+      "grade": "B",
+      "model_prob": 0.6144989315547046,
+      "home_goals": 0,
+      "away_goals": 0,
+      "hit": 1
+    }
+  ]
+}
