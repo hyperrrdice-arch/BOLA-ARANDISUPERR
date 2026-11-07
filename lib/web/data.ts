@@ -454,6 +454,35 @@ export interface LedgerStats {
   recent_resolved: (PickRow & { home: string; away: string })[];
 }
 
+/**
+ * Cache fixture (nama home/away) per package_id untuk ledgerStats().recent:
+ * 40 baris terakhir biasanya hanya milik belasan paket — tanpa cache, paket
+ * yang sama di-query + di-parse payload-nya berulang per pick. Payload paket
+ * immutable per id, jadi cache proses ini aman.
+ */
+const fixtureNameCache = new Map<number, { home: string; away: string } | null>();
+function packageFixtureNames(
+  packageId: number,
+  matchId: string,
+  kickoffUtc: string,
+): { home: string; away: string } | null {
+  const hit = fixtureNameCache.get(packageId);
+  if (hit !== undefined) return hit;
+  const prow = packagesDb()
+    .prepare(`SELECT payload_json FROM packages WHERE id = ?`)
+    .get(packageId) as { payload_json: string } | undefined;
+  const fx = prow
+    ? normalizePayload(
+        JSON.parse(prow.payload_json) as Record<string, unknown>,
+        matchId,
+        kickoffUtc,
+      ).fixture
+    : null;
+  const val = fx ? { home: fx.home, away: fx.away } : null;
+  fixtureNameCache.set(packageId, val);
+  return val;
+}
+
 export function ledgerStats(): LedgerStats {
   const d = picksDb();
   const one = (sql: string) => (d.prepare(sql).get() as { n: number }).n;
@@ -580,15 +609,12 @@ export function ledgerStats(): LedgerStats {
     )
     .all() as Record<string, unknown>[])
     .map((r) => {
-      const prow = r.package_id
-        ? (packagesDb().prepare(`SELECT payload_json FROM packages WHERE id = ?`).get(r.package_id as number) as { payload_json: string } | undefined)
-        : undefined;
-      const fx = prow
-        ? normalizePayload(
-            JSON.parse(prow.payload_json) as Record<string, unknown>,
+      const fx = r.package_id
+        ? packageFixtureNames(
+            r.package_id as number,
             r.match_id as string,
             r.kickoff_utc as string,
-          ).fixture
+          )
         : null;
       return {
         ...(r as unknown as PickRow),
@@ -618,14 +644,46 @@ export interface LandingStats {
   upcoming: number;
 }
 
+/** Tanda tangan file (mtime+ukuran) untuk kunci cache statistik landing. */
+function fileSig(p: string): string {
+  try {
+    const s = fs.statSync(p);
+    return `${s.mtimeMs}:${s.size}`;
+  } catch {
+    return "absen";
+  }
+}
+
+let landingCache: { sig: string; stats: LandingStats } | null = null;
+
+/**
+ * Statistik landing di-cache per tanda tangan file sumber (ratings + ketiga
+ * DB beserta WAL-nya): tanpa cache, setiap request membayar parse JSON
+ * ratings 545 KB + ±6 agregat picks. Bucket waktu 5 menit ikut di kunci
+ * karena hitungan `upcoming` bergantung jendela jam dinding — angka bisa
+ * basi paling lama 5 menit, imbalan yang wajar untuk halaman depan.
+ */
 export function landingStats(): LandingStats {
+  const dataDir = path.join(process.cwd(), "data");
+  const sig = [
+    fileSig(path.join(dataDir, "calibrated_ratings.json")),
+    fileSig(path.join(dataDir, "picks.db")),
+    fileSig(path.join(dataDir, "picks.db-wal")),
+    fileSig(path.join(dataDir, "analysis_snapshots.db")),
+    fileSig(path.join(dataDir, "analysis_snapshots.db-wal")),
+    fileSig(path.join(dataDir, "thestats_dataset.db")),
+    fileSig(path.join(dataDir, "thestats_dataset.db-wal")),
+    String(Math.floor(Date.now() / 300_000)),
+  ].join("|");
+  if (landingCache && landingCache.sig === sig) return landingCache.stats;
+
   const d = picksDb();
   const one = (sql: string) => (d.prepare(sql).get() as { n: number }).n;
   let leagues_fitted = 0;
   let leagues_calibrated = 0;
   try {
     const ratings = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), "data", "calibrated_ratings.json"), "utf8"),
+      fs.readFileSync(path.join(dataDir, "calibrated_ratings.json"), "utf8"),
     ) as { leagues: Record<string, unknown> };
     leagues_fitted = Object.keys(ratings.leagues).length;
   } catch { /* angka tampil — bila file tidak ada */ }
@@ -634,7 +692,22 @@ export function landingStats(): LandingStats {
       .prepare(`SELECT COUNT(*) n FROM league_calibration WHERE status = 'calibrated'`)
       .get() as { n: number }).n;
   } catch { /* tabel registry opsional */ }
-  return {
+  // Jumlah laga mendatang via COUNT — semantik sama dengan
+  // listUpcoming(72).length (paket terbaru per laga, jendela sama) tapi
+  // tanpa mengambil & mem-parse satu pun payload paket.
+  const now = Date.now();
+  const upcoming = (packagesDb()
+    .prepare(
+      `SELECT COUNT(*) AS n FROM packages p
+       JOIN (SELECT match_id, MAX(id) AS mid FROM packages GROUP BY match_id) t
+         ON t.mid = p.id
+       WHERE p.kickoff_utc >= ? AND p.kickoff_utc <= ?`,
+    )
+    .get(
+      new Date(now - 3 * 3_600_000).toISOString(),
+      new Date(now + 72 * 3_600_000).toISOString(),
+    ) as { n: number }).n;
+  const stats: LandingStats = {
     lab_picks: one(`SELECT COUNT(*) n FROM picks WHERE source='lab'`),
     lab_resolved: one(
       `SELECT COUNT(*) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='lab'`,
@@ -643,8 +716,10 @@ export function landingStats(): LandingStats {
     leagues_fitted,
     leagues_calibrated,
     packages: (packagesDb().prepare(`SELECT COUNT(*) n FROM packages`).get() as { n: number }).n,
-    upcoming: listUpcoming(72).length,
+    upcoming,
   };
+  landingCache = { sig, stats };
+  return stats;
 }
 
 /** Pick ledger milik satu paket beserta hasil resolusinya (untuk daftar selesai). */
