@@ -33,6 +33,8 @@ export interface PickInput {
   model_prob: number; // 0..1
   market_prob?: number | null; // Shin-stripped market prob if available
   sm_prob?: number | null; // Sportmonks panel prob if available
+  effective_prob?: number | null; // Probabilitas terkoreksi lab (dari engine); null = tak ada koreksi
+  effective_source?: string | null; // 'lab-band' | 'stated-fallback'
   gate_status?: string | null; // canonical status at pick time
   grade?: string | null; // null in Phase A
   source: string; // 'lab' | 'live-run' | 'verdict' | 'smoke'
@@ -67,6 +69,8 @@ interface RawPickRow {
   model_prob: number;
   market_prob: number | null;
   sm_prob: number | null;
+  effective_prob: number | null;
+  effective_source: string | null;
   agreement_spread: number | null;
   gate_status: string | null;
   grade: string | null;
@@ -108,6 +112,8 @@ export function getPicksDb(): DatabaseSync {
       model_prob REAL NOT NULL,
       market_prob REAL,
       sm_prob REAL,
+      effective_prob REAL,
+      effective_source TEXT,
       agreement_spread REAL,
       gate_status TEXT,
       grade TEXT,
@@ -139,6 +145,33 @@ export function getPicksDb(): DatabaseSync {
     db.exec("ALTER TABLE picks ADD COLUMN package_id INTEGER");
     db.exec("CREATE INDEX IF NOT EXISTS idx_picks_package ON picks(package_id)");
   }
+  // Migrasi aditif (audit T3, 2026-11-09): probabilitas efektif terkoreksi
+  // lab sebagai kolom terstruktur. Sebelumnya koreksi ini hanya hidup
+  // sebagai teks di notes ("eff=0.8720 lab-band") dan tak pernah sampai
+  // ke builder/UI — model_prob mentah yang tampil di sana.
+  if (!pickCols.has("effective_prob")) {
+    db.exec("ALTER TABLE picks ADD COLUMN effective_prob REAL");
+  }
+  if (!pickCols.has("effective_source")) {
+    db.exec("ALTER TABLE picks ADD COLUMN effective_source TEXT");
+  }
+  // Backfill satu kali dari notes warisan pick-slate. Baris yang notes-nya
+  // tak memuat pola eff= tetap NULL — artinya memang tak ada koreksi lab
+  // untuk baris itu; pembaca wajib menampilkannya sebagai model mentah.
+  const legacyEff = db
+    .prepare(
+      "SELECT id, notes FROM picks WHERE source = 'live-run' AND effective_prob IS NULL AND notes LIKE '%eff=%'",
+    )
+    .all() as { id: number; notes: string }[];
+  if (legacyEff.length > 0) {
+    const upd = db.prepare(
+      "UPDATE picks SET effective_prob = ?, effective_source = ? WHERE id = ?",
+    );
+    for (const r of legacyEff) {
+      const m = /eff=(\d+(?:\.\d+)?)\s+(lab-band|stated-fallback)/.exec(r.notes);
+      if (m) upd.run(Number(m[1]), m[2], r.id);
+    }
+  }
 
   dbInstance = db;
   return dbInstance;
@@ -166,6 +199,8 @@ function toPickRow(r: RawPickRow): PickRow {
     model_prob: r.model_prob,
     market_prob: r.market_prob,
     sm_prob: r.sm_prob,
+    effective_prob: r.effective_prob,
+    effective_source: r.effective_source,
     agreement_spread: r.agreement_spread,
     gate_status: r.gate_status,
     grade: r.grade,
@@ -177,7 +212,8 @@ function toPickRow(r: RawPickRow): PickRow {
 
 const PICK_COLUMNS =
   "created_utc, match_id, competition_canonical_id, kickoff_utc, market, selection, " +
-  "model_prob, market_prob, sm_prob, agreement_spread, gate_status, grade, source, notes, package_id";
+  "model_prob, market_prob, sm_prob, agreement_spread, gate_status, grade, source, notes, package_id, " +
+  "effective_prob, effective_source";
 
 function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boolean } {
   const createdUtc = p.created_utc ?? new Date().toISOString();
@@ -198,11 +234,13 @@ function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boo
     p.source,
     p.notes ?? null,
     p.package_id ?? null,
+    p.effective_prob ?? null,
+    p.effective_source ?? null,
   ];
 
   if (p.source === "lab" || p.source === "live-run") {
     const result = db
-      .prepare(`INSERT OR IGNORE INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .prepare(`INSERT OR IGNORE INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(...values);
     if (Number(result.changes) > 0) {
       return { id: Number(result.lastInsertRowid), inserted: true };
@@ -218,7 +256,7 @@ function insertPick(db: DatabaseSync, p: PickInput): { id: number; inserted: boo
   }
 
   const result = db
-    .prepare(`INSERT INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .prepare(`INSERT INTO picks (${PICK_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(...values);
   return { id: Number(result.lastInsertRowid), inserted: true };
 }

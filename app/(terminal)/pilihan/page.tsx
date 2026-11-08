@@ -43,7 +43,13 @@ async function PilihanContent() {
     grade: p.grade,
     market: p.market,
     selection: p.selection,
-    prob: p.model_prob,
+    // Builder memakai probabilitas EFEKTIF (koreksi lab) bila kolomnya ada;
+    // model mentah hanya jadi cadangan, dan basisnya dinyatakan eksplisit
+    // lewat probBasis (audit T3 — sebelumnya baris ini selalu model_prob
+    // mentah walau antarmuka menjanjikan angka efektif).
+    prob: p.effective_prob ?? p.model_prob,
+    probBasis: p.effective_source === "lab-band" ? "lab" : "model",
+    modelProb: p.model_prob,
     sourcesAgree: p.sources_agree,
     packageId: p.package_id,
   }));

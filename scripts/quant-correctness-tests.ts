@@ -13,6 +13,7 @@
  */
 import { getShrunkMatchParameters } from "../lib/quant/ratings-loader";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
+import { combineSlip, type SlipPick } from "../lib/web/parlay";
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
@@ -118,5 +119,126 @@ console.log("Temuan 2: matrix Dixon-Coles (cutoff adaptif)");
   check("input patologik (lambda=300): throw eksplisit", threw);
 }
 
-console.log(failures === 0 ? "\nSEMUA LOLOS" : `\n${failures} KEGAGALAN`);
-process.exit(failures === 0 ? 0 : 1);
+// ---------------------------------------------------------------------------
+// Temuan 3 — wiring effective_prob: basis eksplisit di combineSlip
+// ---------------------------------------------------------------------------
+console.log("Temuan 3: wiring effective_prob (parlay basis)");
+{
+  const M: number[][] = [
+    [0.1, 0.08, 0.02],
+    [0.12, 0.1, 0.03],
+    [0.2, 0.15, 0.2],
+  ]; // jumlah = 1,00
+  const pick = (over: Partial<SlipPick>): SlipPick => ({
+    key: "k", matchId: "m1", market: "dc", selection: "1x",
+    prob: 0.8, probBasis: "lab", matrix: null, ...over,
+  });
+
+  const single = combineSlip([pick({})]);
+  check("pilihan tunggal lab: combined = prob efektif, basis lab",
+    approx(single.combined, 0.8, 1e-12) && single.basis === "lab");
+
+  const twoModel = combineSlip([
+    pick({}),
+    pick({ key: "k2", matchId: "m2", prob: 0.7, probBasis: "model" }),
+  ]);
+  check("campuran lab + model antar laga: basis mixed", twoModel.basis === "mixed",
+    `basis=${twoModel.basis}`);
+
+  const allModel = combineSlip([
+    pick({ probBasis: "model" }),
+    pick({ key: "k2", matchId: "m2", prob: 0.7, probBasis: "model" }),
+  ]);
+  check("semua model: basis model", allModel.basis === "model");
+
+  // Satu laga, dua pilihan + matriks: joint EKSAK dari matriks (basis
+  // "matrix"), bukan produk marginal. dc 1x marginal = 0,87; 1x2 "1"
+  // marginal = 0,47; joint (1x AND 1) = sel h>a = 0,47; produk = 0,4089.
+  const sameMatch = combineSlip([
+    pick({ key: "a", market: "dc", selection: "1x", prob: 0.87, probBasis: "lab", matrix: M }),
+    pick({ key: "b", market: "1x2", selection: "1", prob: 0.47, probBasis: "lab", matrix: M }),
+  ]);
+  check("satu laga multi: joint eksak matriks (0,47), bukan produk (0,4089)",
+    approx(sameMatch.combined, 0.47, 1e-9), `combined=${sameMatch.combined}`);
+  check("satu laga multi: grup berlabel exact + basis matrix",
+    sameMatch.groups[0].exact === true && sameMatch.groups[0].basis === "matrix");
+  check("hasil berisi grup matrix saja: basis hasil = model (bukan lab)",
+    sameMatch.basis === "model", `basis=${sameMatch.basis}`);
+
+  // Monotonisitas: menambah pilihan tak pernah menaikkan peluang gabungan.
+  const grown = combineSlip([
+    pick({}),
+    pick({ key: "k2", matchId: "m2", prob: 0.7 }),
+  ]);
+  check("monoton: slip 2 pilihan <= slip 1 pilihan (basis sama)",
+    grown.combined <= single.combined && approx(grown.combined, 0.56, 1e-12));
+}
+
+// ---------------------------------------------------------------------------
+// Temuan 3 (lanjutan, async) — migrasi + backfill + roundtrip ledger.
+// Ledger dibuka di direktori sementara: DB produksi tidak disentuh.
+// ---------------------------------------------------------------------------
+void (async () => {
+  console.log("Temuan 3b: ledger effective_prob (migrasi + backfill + roundtrip)");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const { DatabaseSync } = await import("node:sqlite");
+  const origCwd = process.cwd();
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "picks-ledger-test-"));
+  try {
+    fs.mkdirSync(path.join(tmp, "data"), { recursive: true });
+    const raw = new DatabaseSync(path.join(tmp, "data", "picks.db"));
+    raw.exec(`
+      CREATE TABLE picks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, created_utc TEXT NOT NULL,
+        match_id TEXT NOT NULL, competition_canonical_id TEXT, kickoff_utc TEXT,
+        market TEXT NOT NULL, selection TEXT NOT NULL, model_prob REAL NOT NULL,
+        market_prob REAL, sm_prob REAL, agreement_spread REAL, gate_status TEXT,
+        grade TEXT, source TEXT NOT NULL DEFAULT 'lab', notes TEXT, package_id INTEGER
+      );
+      INSERT INTO picks (created_utc, match_id, market, selection, model_prob, source, notes)
+        VALUES ('2026-11-08T00:00:00Z', 'm-backfill', 'dc', '1x', 0.75, 'live-run',
+                'pick-slate fase B; eff=0.7271 lab-band pita 70–75 n=4621');
+      INSERT INTO picks (created_utc, match_id, market, selection, model_prob, source, notes)
+        VALUES ('2026-11-08T00:00:00Z', 'm-noeff', 'dc', '1x', 0.75, 'live-run', NULL);
+    `);
+    raw.close();
+
+    process.chdir(tmp);
+    const ledger = await import("../lib/picks/ledger");
+    const db = ledger.getPicksDb();
+    const cols = (db.prepare("PRAGMA table_info(picks)").all() as { name: string }[]).map((c) => c.name);
+    check("migrasi: kolom effective_prob + effective_source dibuat",
+      cols.includes("effective_prob") && cols.includes("effective_source"));
+
+    const bf = db.prepare("SELECT effective_prob, effective_source FROM picks WHERE match_id = 'm-backfill'").get() as
+      { effective_prob: number | null; effective_source: string | null };
+    check("backfill: eff dari notes terisi terstruktur (0,7271 / lab-band)",
+      bf.effective_prob === 0.7271 && bf.effective_source === "lab-band",
+      JSON.stringify(bf));
+    const ne = db.prepare("SELECT effective_prob, effective_source FROM picks WHERE match_id = 'm-noeff'").get() as
+      { effective_prob: number | null; effective_source: string | null };
+    check("baris tanpa eff di notes tetap NULL (tak dikarang)",
+      ne.effective_prob === null && ne.effective_source === null);
+
+    ledger.recordPick({
+      match_id: "m-new", market: "dc", selection: "1x", model_prob: 0.8,
+      effective_prob: 0.75, effective_source: "lab-band", source: "live-run",
+      kickoff_utc: "2099-01-01T00:00:00Z",
+    });
+    const nw = db.prepare("SELECT effective_prob, effective_source FROM picks WHERE match_id = 'm-new'").get() as
+      { effective_prob: number | null; effective_source: string | null };
+    check("roundtrip: recordPick menyimpan kolom efektif",
+      nw.effective_prob === 0.75 && nw.effective_source === "lab-band", JSON.stringify(nw));
+  } catch (err) {
+    failures++;
+    console.log(`  FAIL pengecualian ledger test: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    process.chdir(origCwd);
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+
+  console.log(failures === 0 ? "\nSEMUA LOLOS" : `\n${failures} KEGAGALAN`);
+  process.exit(failures === 0 ? 0 : 1);
+})();

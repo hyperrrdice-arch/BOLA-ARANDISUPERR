@@ -26,8 +26,12 @@ export interface BuilderPick {
   grade: string;
   market: string;
   selection: string;
-  /** Effective probability (already corrected by the lab band). */
+  /** Effective probability (lab-corrected when probBasis is "lab"). */
   prob: number;
+  /** "lab" = prob is the lab-corrected probability; "model" = raw model prob. */
+  probBasis: "lab" | "model";
+  /** Raw model probability, kept for reference/display. */
+  modelProb: number;
   sourcesAgree: number;
   packageId: number | null;
 }
@@ -72,6 +76,7 @@ export default function ParlayBuilder({
       market: p.market,
       selection: p.selection,
       prob: p.prob,
+      probBasis: p.probBasis,
       matrix: p.packageId !== null ? matrices[p.packageId] ?? null : null,
     }));
     return combineSlip(slip);
@@ -178,8 +183,12 @@ export default function ParlayBuilder({
               )}
 
               <p className="mt-5 text-[12px] leading-relaxed text-faint">
-                Singles use graded probabilities. Same-match picks are combined exactly from the
-                matrix.
+                {result.basis === "lab" &&
+                  "Every number in this slip is a lab-corrected probability. Same-match picks are combined exactly from the score matrix."}
+                {result.basis === "model" &&
+                  "These numbers are raw model probabilities — no lab correction applies to this slip. Same-match picks are combined exactly from the model score matrix."}
+                {result.basis === "mixed" &&
+                  "Mixed bases: singles use lab-corrected probabilities where available; same-match combos are computed exactly from the model score matrix, not lab-corrected."}
               </p>
 
               <button

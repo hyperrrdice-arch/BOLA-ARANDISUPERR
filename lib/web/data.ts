@@ -98,6 +98,9 @@ export interface PickRow {
   model_prob: number;
   market_prob: number | null;
   sm_prob: number | null;
+  /** Koreksi lab terstruktur (kolom ledger, audit T3); null = tak ada koreksi. */
+  effective_prob: number | null;
+  effective_source: string | null;
   agreement_spread: number | null;
   gate_status: string;
   grade: string;

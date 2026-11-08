@@ -580,6 +580,8 @@ async function main() {
           model_prob: leg.model_prob,
           market_prob: leg.market_prob,
           sm_prob: leg.sm_prob,
+          effective_prob: leg.effective_prob,
+          effective_source: leg.effective_source,
           gate_status: entry.gate_status,
           grade: leg.grade,
           source: "live-run",

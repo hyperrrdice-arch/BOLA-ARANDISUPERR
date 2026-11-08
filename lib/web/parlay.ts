@@ -18,7 +18,18 @@
  *   1,5–4 poin persentase pada konteks survival. Angka di sini
  *   ditampilkan APA ADANYA beserta label metodenya — tidak dikurangi
  *   diam-diam, tidak dibulatkan ke atas.
+ * - BASIS probabilitas (audit T3, 2026-11-09): setiap angka membawa basis
+ *   eksplisit. "lab" = marginal terkoreksi empiris dari band lab;
+ *   "model" = probabilitas model mentah (koreksi lab tak tersedia /
+ *   fallback stated); "matrix" = joint eksak dari matriks skor MODEL
+ *   (bukan koreksi empiris). Hasil gabungan mewarisi basis: semua grup
+ *   "lab" → "lab"; semua grup model/matrix → "model"; selain itu
+ *   "mixed". UI wajib menampilkan basis ini di samping angka gabungan —
+ *   angka joint model tidak boleh tampil seolah kalibrasi empiris.
  */
+
+/** Basis satu probabilitas: "lab" = terkoreksi empiris, "model" = model mentah. */
+export type ProbBasis = "lab" | "model";
 
 export interface SlipPick {
   /** Kunci unik baris pilihan (id ledger). */
@@ -26,9 +37,14 @@ export interface SlipPick {
   matchId: string;
   market: string;
   selection: string;
-  /** Probabilitas tersimpan — sudah probabilitas efektif dari lab. */
+  /**
+   * Probabilitas yang dipakai builder: probabilitas EFEKTIF (terkoreksi
+   * lab) bila tersedia, jika tidak probabilitas model mentah. Basisnya
+   * dinyatakan eksplisit lewat probBasis — jangan menebak dari nilainya.
+   */
   prob: number;
-  /** Matriks skor 11x11 paket laga ini (indeks [gol kandang][gol tamu]), bila ada. */
+  probBasis: ProbBasis;
+  /** Matriks skor paket laga ini (indeks [gol kandang][gol tamu]), bila ada. */
   matrix?: number[][] | null;
 }
 
@@ -104,6 +120,9 @@ function sumWhere(matrix: number[][], preds: ScorePredicate[]): number {
   return sum;
 }
 
+/** Basis probabilitas grup: "matrix" = joint eksak dari matriks model. */
+export type GroupBasis = ProbBasis | "matrix" | "mixed";
+
 export interface SlipGroup {
   matchId: string;
   /** Probabilitas gabungan grup ini (persis dari matriks bila exact). */
@@ -112,6 +131,8 @@ export interface SlipGroup {
   exact: boolean;
   /** Jumlah pilihan dalam grup. */
   count: number;
+  /** Basis angka grup ini (lihat header file). */
+  basis: GroupBasis;
 }
 
 export interface SlipResult {
@@ -119,6 +140,11 @@ export interface SlipResult {
   combined: number;
   /** True bila ada grup satu-laga multi-pilihan yang dihitung persis. */
   exactSameMatch: boolean;
+  /**
+   * Basis angka gabungan: "lab" bila SEMUA grup berbasis lab; "model"
+   * bila semua grup model/matrix; "mixed" untuk kombinasi keduanya.
+   */
+  basis: ProbBasis | "mixed";
   groups: SlipGroup[];
 }
 
@@ -130,7 +156,7 @@ export interface SlipResult {
  * Antar laga: perkalian (asumsi independen — lihat header file).
  */
 export function combineSlip(picks: SlipPick[]): SlipResult {
-  if (picks.length === 0) return { combined: 0, exactSameMatch: false, groups: [] };
+  if (picks.length === 0) return { combined: 0, exactSameMatch: false, basis: "model", groups: [] };
 
   const byMatch = new Map<string, SlipPick[]>();
   for (const p of picks) {
@@ -146,8 +172,10 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
   for (const [matchId, group] of byMatch) {
     let prob: number;
     let exact = false;
+    let basis: GroupBasis;
     if (group.length === 1) {
       prob = group[0].prob;
+      basis = group[0].probBasis;
     } else {
       const matrix = group.find((g) => g.matrix)?.matrix ?? null;
       const preds = group.map((g) => selectionPredicate(g.market, g.selection));
@@ -155,13 +183,27 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
         prob = sumWhere(matrix, preds);
         exact = true;
         exactSameMatch = true;
+        // Joint eksak dihitung dari matriks MODEL — basisnya "matrix",
+        // bukan koreksi empiris lab, seberapa pun akuratnya penjumlahan itu.
+        basis = "matrix";
       } else {
         prob = group.reduce((acc, g) => acc * g.prob, 1);
+        basis = group.every((g) => g.probBasis === group[0].probBasis)
+          ? group[0].probBasis
+          : "mixed";
       }
     }
-    groups.push({ matchId, prob, exact, count: group.length });
+    groups.push({ matchId, prob, exact, count: group.length, basis });
     combined *= prob;
   }
 
-  return { combined, exactSameMatch, groups };
+  const kinds = new Set(groups.map((g) => g.basis));
+  const basis: SlipResult["basis"] =
+    kinds.size === 1 && kinds.has("lab")
+      ? "lab"
+      : [...kinds].every((k) => k === "model" || k === "matrix")
+        ? "model"
+        : "mixed";
+
+  return { combined, exactSameMatch, basis, groups };
 }
