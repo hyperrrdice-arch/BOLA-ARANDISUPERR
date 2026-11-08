@@ -845,9 +845,12 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   // Nilai awal (8/14/16, asumsi tanpa fit) DIGANDAKAN berdasarkan validasi
   // walk-forward out-of-sample Fase 3 (scripts/backtest-walkforward.ts,
   // tasks/oos-results.json): skala κ ×2 terpilih di lipatan validasi V2 dan
-  // terkonfirmasi di held-out — log-loss jalur blend 1,0340 → 1,0205,
-  // slope kalibrasi 0,631 → 0,953. Telemetri 6 laga terbukti terlalu
-  // berisik untuk bobot sebesar asumsi lama.
+  // terkonfirmasi di held-out. Adopsi awal 2026-11-04; TERKONFIRMASI ULANG
+  // oleh re-run point-in-time 2026-11-09 (audit T5, tanpa look-ahead):
+  // held-out jalur blend produksi κ×1 1,0251 → winner κ×2 1,0092, slope
+  // 0,649 → 1,146 (n=6.317; rincian + caveat perbandingan di
+  // tasks/oos-rerun-pointintime-2026-11-09.md). Telemetri 6 laga terbukti
+  // terlalu berisik untuk bobot sebesar asumsi lama.
   const kappaHome = homeTelemetrySource === "thestats_observed_xg" ? 16.0 : (homeTelemetrySource === "thestats_observed_goals" ? 28.0 : 32.0);
   const kappaAway = awayTelemetrySource === "thestats_observed_xg" ? 16.0 : (awayTelemetrySource === "thestats_observed_goals" ? 28.0 : 32.0);
 
