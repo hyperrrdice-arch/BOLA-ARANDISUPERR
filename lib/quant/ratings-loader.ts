@@ -781,7 +781,7 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
     telem: TeamRollingTelemetry | null | undefined
   ): TeamRollingTelemetry | null | undefined => {
     if (!telem || telem.xg_weighted_toward === targetCompId || !telem.recent_logs?.length) return telem;
-    const agg = aggregateRollingXg(telem.recent_logs, divCode);
+    const agg = aggregateRollingXg(telem.recent_logs, divCode, options.matchDateCutoff);
     return {
       ...telem,
       rolling_xg_for: agg.rolling_xg_for,

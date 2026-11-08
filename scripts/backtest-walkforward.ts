@@ -295,18 +295,34 @@ function fitRhoOnTrain(matches: MatchRow[], fit: Fit, refMs: number, halfLifeDay
  * prob_* yang dibulatkan 4 desimal. Pembulatan λ/μ 3 desimal di dalam
  * lib adalah perilaku produksi yang sama, jadi harness mengukur model
  * persis seperti yang tersaji di produksi.
+ *
+ * FIT PATOLOGIK (audit T5, 2026-11-09): konfigurasi eksplorasi (mis.
+ * kfit:0 di liga bersampel tipis) bisa menghasilkan λ > 62 — ditolak
+ * calculateDixonColes sebagai distribusi non-sepakbola. Harness menilai
+ * laga itu sebagai prediksi UNIFORM (1/3, 1/3, 1/3): penalti "tanpa
+ * informasi" (log-loss ln 3 ≈ 1,0986/laga), terhitung terbuka lewat
+ * invalidFitFallbacks dan tercatat di file hasil. Laga TIDAK dibuang
+ * dari sampel (itu akan memoles konfigurasi rusak) dan TIDAK dinilai
+ * dari matrix sampah ternormalisasi (perilaku lama sebelum guard T2).
  */
+let invalidFitFallbacks = 0;
 function probsFromLib(lam: number, mu: number, rho: number): [number, number, number] {
-  const dc = calculateDixonColes({
-    homeAttack: 1,
-    homeDefense: 1,
-    awayAttack: 1,
-    awayDefense: 1,
-    homeAdvantage: lam / mu,
-    leagueAvgGoals: mu,
-    rho,
-    maxGoals: 10,
-  });
+  let dc;
+  try {
+    dc = calculateDixonColes({
+      homeAttack: 1,
+      homeDefense: 1,
+      awayAttack: 1,
+      awayDefense: 1,
+      homeAdvantage: lam / mu,
+      leagueAvgGoals: mu,
+      rho,
+      maxGoals: 10,
+    });
+  } catch {
+    invalidFitFallbacks++;
+    return [1 / 3, 1 / 3, 1 / 3];
+  }
   let ph = 0,
     pd = 0,
     pa = 0;
@@ -614,8 +630,10 @@ function evalNaive(fold: (typeof FOLDS)[number], acc: Acc, perLeague?: Map<strin
 // κ = 8 (xG, ≥3 sampel) / 14 (gol) / 16 (form saja), clamp rasio produksi.
 // Aproksimasi terdokumentasi: form goals avg + sample N dari intel
 // direplikasi dari store matches lokal (rata-rata gol 6 laga terakhir tim),
-// dan rata-rata kompetisi untuk bobot xG dihitung dari SELURUH store —
-// persis seperti getCompetitionAvgGoals produksi.
+// dan rata-rata kompetisi untuk bobot xG kini POINT-IN-TIME — hanya laga
+// sebelum tanggal evaluasi — sama seperti getCompetitionAvgGoals produksi
+// bila diberi cutoff (audit T5, 2026-11-09; versi lama memakai SELURUH
+// store tanpa batas tanggal = look-ahead leakage).
 // ---------------------------------------------------------------------------
 const LEGACY_COMP_AVG: Record<string, number> = {
   comp_3039: 1.48,
@@ -626,20 +644,41 @@ const LEGACY_COMP_AVG: Record<string, number> = {
   comp_3809: 1.87,
   comp_3498: 2.04,
 };
-const measuredCompAvg = new Map<string, number>();
+// Indeks prefix-sum per kompetisi atas laga selesai (terurut tanggal):
+// rata-rata point-in-time = total gol / (2 × jumlah laga) untuk semua
+// laga dengan tanggal < cutoff. Tanggal = bagian tanggal utc_date —
+// konvensi yang sama dengan jendela log (strictly-before tanggal laga).
+interface CompAvgIndex {
+  dates: string[];
+  prefixGoals: number[]; // prefixGoals[i] = total gol (home+away) i laga pertama
+}
+const compAvgIndex = new Map<string, CompAvgIndex>();
 {
   const rows = ds
     .prepare(
-      `SELECT competition_id, AVG((home_score + away_score) / 2.0) AS a FROM matches
+      `SELECT competition_id, substr(utc_date, 1, 10) AS d, (home_score + away_score) AS g FROM matches
        WHERE status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
-       GROUP BY competition_id`
+       ORDER BY competition_id, utc_date`
     )
-    .all() as unknown as { competition_id: string; a: number }[];
-  for (const r of rows) if (Number.isFinite(r.a) && r.a > 0) measuredCompAvg.set(r.competition_id, r.a);
+    .all() as unknown as { competition_id: string; d: string; g: number }[];
+  for (const r of rows) {
+    let idx = compAvgIndex.get(r.competition_id);
+    if (!idx) {
+      idx = { dates: [], prefixGoals: [0] };
+      compAvgIndex.set(r.competition_id, idx);
+    }
+    idx.dates.push(r.d);
+    idx.prefixGoals.push(idx.prefixGoals[idx.prefixGoals.length - 1] + r.g);
+  }
 }
-function compAvgGoals(compId: string | null): number | null {
+function compAvgGoalsAt(compId: string | null, cutoff: string): number | null {
   if (!compId) return null;
-  return measuredCompAvg.get(compId) ?? LEGACY_COMP_AVG[compId] ?? null;
+  const idx = compAvgIndex.get(compId);
+  if (idx) {
+    const n = upperBoundDate(idx.dates, cutoff);
+    if (n > 0) return idx.prefixGoals[n] / (2 * n);
+  }
+  return LEGACY_COMP_AVG[compId] ?? null;
 }
 for (const arr of matchesByTeam.values()) arr.sort((x, y) => x.utc_date.localeCompare(y.utc_date));
 
@@ -678,7 +717,7 @@ function rollingTelem(teamId: string, cutoff: string, targetCompId: string): Rol
   const end = upperBoundDate(dates, cutoff);
   const win = logs.slice(Math.max(0, end - 6), end);
   if (!win.length) return empty;
-  const targetAvg = compAvgGoals(targetCompId) ?? 1.48;
+  const targetAvg = compAvgGoalsAt(targetCompId, cutoff) ?? 1.48;
   let gf = 0,
     ga = 0,
     sxf = 0,
@@ -690,7 +729,7 @@ function rollingTelem(teamId: string, cutoff: string, targetCompId: string): Rol
     ga += log.goals_against;
     let wgt = 1.0;
     if (log.competition_id && log.competition_id !== targetCompId) {
-      const logAvg = compAvgGoals(log.competition_id);
+      const logAvg = compAvgGoalsAt(log.competition_id, cutoff);
       if (logAvg && logAvg > 0) wgt = round3(targetAvg / logAvg);
     }
     if (log.xg_for !== null && log.xg_for !== undefined) {
@@ -1211,6 +1250,7 @@ function main(): void {
       model_winner_same_subset: clWin.metrics(),
     },
     sample_floor_buckets: buckets,
+    invalid_fit_fallbacks: invalidFitFallbacks,
     runtime_seconds: Number(((performance.now() - t0) / 1000).toFixed(1)),
   };
   fs.writeFileSync(path.join(process.cwd(), "tasks", "oos-results.json"), JSON.stringify(results, null, 2));

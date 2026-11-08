@@ -166,15 +166,51 @@ export function competitionIdForDiv(div: string | null | undefined): string | nu
 }
 
 let measuredCompAvg: Map<string, number> | null = null;
+const measuredCompAvgAt = new Map<string, number | null>();
 
 /**
  * Rata-rata gol per tim per match per kompetisi, DIHITUNG dari store hasil
  * (dataset.matches, hanya laga selesai berskor) — menggantikan konstanta
  * tulisan tangan untuk semua kompetisi di luar 7 entri legacy di atas.
  * Return null bila kompetisi tak dikenal / belum ada hasil terukur.
+ *
+ * Parameter beforeUtc (audit T5, 2026-11-09): bila diberikan, rata-rata
+ * HANYA dihitung dari laga selesai dengan utc_date < beforeUtc —
+ * point-in-time, tanpa look-ahead. Tanpa beforeUtc, perilaku warisan
+ * (seluruh dataset) dipertahankan untuk pemanggil non-evaluasi. Bila
+ * belum ada laga terukur sebelum cutoff, jatuh ke konstanta legacy —
+ * BUKAN ke rata-rata seluruh dataset (itu membocorkan masa depan).
  */
-export function getCompetitionAvgGoals(competitionId: string | null | undefined): number | null {
+export function getCompetitionAvgGoals(
+  competitionId: string | null | undefined,
+  beforeUtc?: string | null
+): number | null {
   if (!competitionId) return null;
+  if (beforeUtc) {
+    const key = `${competitionId}|${beforeUtc}`;
+    const cached = measuredCompAvgAt.get(key);
+    if (cached !== undefined) return cached;
+    let value: number | null = null;
+    try {
+      const db = getTheStatsDb();
+      const row = db
+        .prepare(
+          `SELECT AVG((home_score + away_score) / 2.0) AS avg_goals
+           FROM matches
+           WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
+             AND utc_date < ?`
+        )
+        .get(competitionId, beforeUtc) as { avg_goals: number | null } | undefined;
+      if (row && Number.isFinite(row.avg_goals) && (row.avg_goals as number) > 0) {
+        value = row.avg_goals;
+      }
+    } catch {
+      // DB belum tersedia: jatuh ke konstanta legacy di bawah.
+    }
+    if (value === null) value = COMPETITION_AVG_GOALS[competitionId] ?? null;
+    measuredCompAvgAt.set(key, value);
+    return value;
+  }
   if (!measuredCompAvg) {
     measuredCompAvg = new Map();
     try {
@@ -327,17 +363,23 @@ export interface RollingXgAggregate {
  * bisa membawa targetDivCode). Bobot per log = round3(targetAvg/logAvg)
  * dari rata-rata gol kompetisi TERUKUR; log sekompetisi dengan target /
  * kompetisi tak terukur → bobot 1.0. Rata-rata = round2(Σ(xG·bobot)/count).
+ *
+ * cutoffUtc (audit T5): bila diberikan, SEMUA rata-rata kompetisi dihitung
+ * point-in-time (hanya laga sebelum cutoff) — jalur evaluasi/backtest dan
+ * serving pra-laga wajib memberikannya; tanpa cutoff = warisan seluruh
+ * dataset (berpotensi look-ahead, hanya untuk pemanggil non-evaluasi).
  */
 export function aggregateRollingXg(
   logs: (TeamMatchLogRecord & { competition_id?: string })[],
-  targetDivCode?: string
+  targetDivCode?: string,
+  cutoffUtc?: string | null
 ): RollingXgAggregate {
   // Resolusi bobot target liga untuk normalisasi xG.
   // Rata-rata gol kompetisi kini TERUKUR dari store hasil (semua ruang ID:
   // comp_* legacy + sm:* Sportmonks); 1.48 hanya fallback terakhir bila
   // kompetisi target benar-benar tidak punya hasil terukur.
   const targetCompId = targetDivCode ? competitionIdForDiv(targetDivCode) : null;
-  const targetAvgGoals = (targetCompId ? getCompetitionAvgGoals(targetCompId) : null) ?? 1.48;
+  const targetAvgGoals = (targetCompId ? getCompetitionAvgGoals(targetCompId, cutoffUtc) : null) ?? 1.48;
 
   let sumXgFor = 0, countXg = 0;
   let sumXgAgainst = 0, countXgAgainst = 0;
@@ -350,7 +392,7 @@ export function aggregateRollingXg(
     // 7 konstanta legacy); kompetisi tak terukur → bobot 1.0 (netral).
     let xgWeight = 1.0;
     if (log.competition_id && targetCompId && log.competition_id !== targetCompId) {
-      const logCompAvg = getCompetitionAvgGoals(log.competition_id);
+      const logCompAvg = getCompetitionAvgGoals(log.competition_id, cutoffUtc);
       if (logCompAvg && logCompAvg > 0) {
         xgWeight = Number((targetAvgGoals / logCompAvg).toFixed(3));
       }
@@ -449,7 +491,7 @@ export function getTeamRollingTelemetry(
 
   // Agregasi xG/npxG tertimbang rasio kompetisi — definisi tunggal di
   // aggregateRollingXg (bobot, counter per sisi, dan penanda targetnya).
-  const xgAgg = aggregateRollingXg(logs, targetDivCode);
+  const xgAgg = aggregateRollingXg(logs, targetDivCode, beforeDate);
   const countXg = xgAgg.xg_for_samples;
 
   // Akumulator metrik aktual
