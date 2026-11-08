@@ -51,6 +51,22 @@ kecuali satu yang tidak bisa diverifikasi (no. 15, lihat catatan).
   kompetisinya "Liga Portugal 2" — tidak bisa dipercaya sebagai laga 7 Nov.
   Skor tidak ditebak; perlu dicek ulang dari sumber lain.
 
+## Update 8 Nov 2026 (13:00 WIB) — laga no. 15 kemungkinan DITUNDA
+
+Pengecekan ulang 8 Nov: dua sumber mencatat laga ini ditunda — oddalerts
+("Nacional Postp Academico Viseu") dan langerball.de (tabel musim:
+"07.11.2026 16:30 Nacional Funchal vs Académico Viseu — Abgesagt",
+terakhir diperbarui 7 Nov 17:01 CET). Satu sumber lain (theyscored)
+mengklaim laga selesai 0-0, tapi tidak konsisten soal jam kick-off
+(07:30 vs 15:30 GMT di crawl yang berbeda) dan teks overview-nya masih
+menyebut laga ini sebagai "next up". Skor 1-1 di SoccerPunter berasal
+dari pertemuan lama yang salah label (Liga Portugal 2) — diabaikan.
+
+Status paling mungkin: **DITUNDA → pilihan no. 15 VOID** (bukan kalah,
+bukan menang). Rekap akhir 15 pilihan utama: **11 KENA / 3 GAGAL /
+1 VOID** (dari 14 yang terverifikasi: 78,6% kena). Perlu konfirmasi
+resmi (mis. zerozero/Flashscore) sebelum void ini dianggap final.
+
 ## Bagian 2 — Slate 20 laga FA Cup + Championship (KO 22:00 WIB)
 
 Versi AMAN vs LONGGAR dinilai dari skor FT yang sama. 6 laga identik di kedua
