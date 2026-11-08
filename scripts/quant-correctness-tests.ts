@@ -20,6 +20,8 @@ import {
   calculateCardsMarket,
 } from "../lib/quant/special-markets-engine";
 import type { TeamRollingTelemetry } from "../lib/db/team-telemetry";
+import { getCompetitionAvgGoals } from "../lib/db/team-telemetry";
+import { DatabaseSync } from "node:sqlite";
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
@@ -111,6 +113,17 @@ console.log("Temuan 2: matrix Dixon-Coles (cutoff adaptif)");
     approx(matrixMean(stress.score_matrix), 17.56, 0.05), `mean=${matrixMean(stress.score_matrix).toFixed(2)}`);
   check("kasus ekstrem: ekor terbuang <= 1e-8", stress.score_matrix_tail_mass <= 1e-8,
     `tail=${stress.score_matrix_tail_mass.toExponential(2)}`);
+
+  // Fit ekstrem yang NYATA dari harness OOS (fit liga bersampel tipis,
+  // lambda 33,754): harus tetap terhitung benar — grid melebar ke ~67,
+  // ekor <= 1e-8, mean konsisten. (Di kode lama kasus ini dinilai dari
+  // matrix 11x11 yang massanya nyaris nol — sampah ternormalisasi.)
+  const extremeFit = harness(33.754, 0.3, 0);
+  check("fit ekstrem nyata (lambda=33,754): terhitung, mean ~ 34,05 (tol 0,05)",
+    approx(matrixMean(extremeFit.score_matrix), 34.054, 0.05),
+    `mean=${matrixMean(extremeFit.score_matrix).toFixed(2)} grid=${extremeFit.score_matrix.length}`);
+  check("fit ekstrem nyata: ekor <= 1e-8", extremeFit.score_matrix_tail_mass <= 1e-8,
+    `tail=${extremeFit.score_matrix_tail_mass.toExponential(2)}`);
 
   // Input patologik: lambda 300 — harus gagal eksplisit, bukan distribusi jadi-jadian.
   let threw = false;
@@ -267,6 +280,45 @@ console.log("Temuan 4: confidence special markets (coverage metrik)");
   check("cards: counter kartu 1 -> LOW + terestimasi (bukan dari sample_size)",
     cardsThin.confidence_tier === "LOW" && cardsThin.is_estimated === true,
     `tier=${cardsThin.confidence_tier}`);
+}
+
+// ---------------------------------------------------------------------------
+// Temuan 5 — normalisasi xG point-in-time (tanpa look-ahead)
+// ---------------------------------------------------------------------------
+console.log("Temuan 5: rata-rata kompetisi point-in-time");
+{
+  const db = new DatabaseSync("data/thestats_dataset.db", { readOnly: true });
+  const bounded = (comp: string, cutoff: string) =>
+    (
+      db
+        .prepare(
+          `SELECT AVG((home_score + away_score) / 2.0) AS a FROM matches
+           WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL
+             AND away_score IS NOT NULL AND utc_date < ?`
+        )
+        .get(comp, cutoff) as { a: number | null }
+    ).a;
+
+  const CUTOFF = "2025-06-01"; // dataset sm:8 mulai 2024-08; titik tengah
+  const expected = bounded("sm:8", CUTOFF);
+  const got = getCompetitionAvgGoals("sm:8", CUTOFF);
+  check("avg point-in-time == query berbatas tanggal (sm:8 @2025-06-01)",
+    expected !== null && got !== null && approx(got, expected, 1e-9),
+    `got=${got} expected=${expected}`);
+
+  const whole = getCompetitionAvgGoals("sm:8");
+  const expectedWhole = bounded("sm:8", "9999-12-31");
+  check("tanpa cutoff: perilaku warisan seluruh dataset dipertahankan",
+    whole !== null && expectedWhole !== null && approx(whole, expectedWhole, 1e-9));
+  check("point-in-time != seluruh dataset (leakage benar-benar tertutup)",
+    expected !== null && expectedWhole !== null && !approx(expected, expectedWhole, 1e-9),
+    `bounded=${expected} whole=${expectedWhole}`);
+
+  const early = getCompetitionAvgGoals("sm:8", "2000-01-01");
+  check("cutoff sebelum semua laga: null/konstanta legacy, BUKAN rata-rata masa depan",
+    early === null || (whole !== null && !approx(early, whole, 1e-9)),
+    `early=${early} whole=${whole}`);
+  db.close();
 }
 
 // ---------------------------------------------------------------------------

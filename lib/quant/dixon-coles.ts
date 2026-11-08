@@ -149,7 +149,11 @@ export function tauAdjustment(x: number, y: number, lambda: number, mu: number, 
  */
 const MATRIX_TAIL_TOLERANCE = 1e-8;
 const MATRIX_FAIL_TOLERANCE = 1e-6;
-const MATRIX_MAX_GOALS_CAP = 60;
+// Cap 100 gol: mencakup fit ekstrem yang masih terhitung sah di harness
+// OOS (λ 33,754 dari fit liga bersampel tipis butuh grid ~67). λ yang
+// ekornya di cap ini pun masih > FAIL_TOLERANCE (λ ≳ 62) bukan lagi
+// distribusi sepakbola — itu fit rusak, dan throw adalah respons benar.
+const MATRIX_MAX_GOALS_CAP = 100;
 
 function poissonCdf(lambda: number, k: number): number {
   // CDF Poisson via rekurens PMF (stabil untuk λ & k pada rentang matrix).
@@ -163,8 +167,15 @@ function poissonCdf(lambda: number, k: number): number {
 }
 
 function poissonCutoff(lambda: number, tolerance: number): number {
+  // Satu lintasan rekurens: akumulasi PMF sampai ekor <= tolerance.
+  let p = Math.exp(-lambda);
+  let cdf = p;
   let k = 0;
-  while (1 - poissonCdf(lambda, k) > tolerance && k < MATRIX_MAX_GOALS_CAP) k++;
+  while (1 - cdf > tolerance && k < MATRIX_MAX_GOALS_CAP) {
+    k++;
+    p *= lambda / k;
+    cdf += p;
+  }
   return k;
 }
 
