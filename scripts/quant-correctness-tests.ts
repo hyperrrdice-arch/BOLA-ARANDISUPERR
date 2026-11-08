@@ -67,5 +67,56 @@ console.log("Temuan 1: fallback rating (ratings-loader)");
   check("liga dikenal, tim asing: defense tetap prior 1,0", pE0.homeDefense === 1.0 && pE0.awayDefense === 1.0);
 }
 
+// ---------------------------------------------------------------------------
+// Temuan 2 — matrix Dixon-Coles: ekor tidak dibuang diam-diam
+// ---------------------------------------------------------------------------
+console.log("Temuan 2: matrix Dixon-Coles (cutoff adaptif)");
+{
+  const matrixMean = (m: number[][]) => {
+    let mean = 0;
+    m.forEach((row, x) => row.forEach((p, y) => (mean += (x + y) * p)));
+    return mean;
+  };
+  const harness = (lam: number, mu: number, rho = 0) =>
+    calculateDixonColes({
+      homeAttack: 1, homeDefense: 1, awayAttack: 1, awayDefense: 1,
+      leagueAvgGoals: mu, homeAdvantage: lam / mu, rho, maxGoals: 10,
+    });
+
+  const normal = harness(1.959, 0.996, -0.04);
+  const flat = normal.score_matrix.flat();
+  check("kasus normal: probabilitas finite, >= 0, jumlah ~1",
+    flat.every((v) => Number.isFinite(v) && v >= 0) &&
+    approx(flat.reduce((a, b) => a + b, 0), 1, 1e-9));
+  check("kasus normal: ekor terbuang <= 1e-8", normal.score_matrix_tail_mass <= 1e-8,
+    `tail=${normal.score_matrix_tail_mass.toExponential(2)}`);
+
+  const mid = harness(2.3, 1.1, 0);
+  check("rho=0: mean matrix konsisten dgn lambda+mu (tol 0,01)",
+    approx(matrixMean(mid.score_matrix), 3.4, 0.01), `mean=${matrixMean(mid.score_matrix).toFixed(3)}`);
+
+  // Stress case audit: lambda 16,019 / mu 1,540 — dulu 92,3% massa dibuang
+  // diam-diam (mean matrix 10,49 vs expected total 17,56).
+  const stress = harness(16.019, 1.54, 0);
+  check("kasus ekstrem: grid melebar melebihi 11x11", stress.score_matrix.length > 11,
+    `grid=${stress.score_matrix.length}`);
+  check("kasus ekstrem: mean matrix ~ expected total 17,56 (tol 0,05)",
+    approx(matrixMean(stress.score_matrix), 17.56, 0.05), `mean=${matrixMean(stress.score_matrix).toFixed(2)}`);
+  check("kasus ekstrem: ekor terbuang <= 1e-8", stress.score_matrix_tail_mass <= 1e-8,
+    `tail=${stress.score_matrix_tail_mass.toExponential(2)}`);
+
+  // Input patologik: lambda 300 — harus gagal eksplisit, bukan distribusi jadi-jadian.
+  let threw = false;
+  try {
+    calculateDixonColes({
+      homeAttack: 300 / 1.35, awayDefense: 1, awayAttack: 1, homeDefense: 1,
+      homeAdvantage: 1, leagueAvgGoals: 1.35, rho: 0,
+    });
+  } catch {
+    threw = true;
+  }
+  check("input patologik (lambda=300): throw eksplisit", threw);
+}
+
 console.log(failures === 0 ? "\nSEMUA LOLOS" : `\n${failures} KEGAGALAN`);
 process.exit(failures === 0 ? 0 : 1);

@@ -84,6 +84,8 @@ export interface DixonColesResult {
   expected_total_goals: number;
   top_scorelines: ScorelineProbability[];
   score_matrix: number[][]; // [home][away]
+  score_matrix_max_goals: number; // Batas grid efektif (adaptif, >= maxGoals yang diminta)
+  score_matrix_tail_mass: number; // Massa Poisson terbuang di luar grid SEBELUM normalisasi
 }
 
 // Factorial helper with memoization up to 12!
@@ -138,6 +140,35 @@ export function tauAdjustment(x: number, y: number, lambda: number, mu: number, 
 }
 
 /**
+ * Batas ekor matrix (audit correctness 2026-11-09): grid diperpanjang
+ * adaptif sampai massa Poisson yang terbuang per sisi <= TAIL_TOLERANCE.
+ * Di batas keras MAX_GOALS_CAP, ekor yang masih > FAIL_TOLERANCE berarti
+ * input patologik — fungsi melempar error, BUKAN menormalisasi sisa massa
+ * kecil menjadi distribusi yang tampak sah (bug lama: cutoff tetap 10 +
+ * normalisasi membuang sampai 92% massa secara diam-diam).
+ */
+const MATRIX_TAIL_TOLERANCE = 1e-8;
+const MATRIX_FAIL_TOLERANCE = 1e-6;
+const MATRIX_MAX_GOALS_CAP = 60;
+
+function poissonCdf(lambda: number, k: number): number {
+  // CDF Poisson via rekurens PMF (stabil untuk λ & k pada rentang matrix).
+  let p = Math.exp(-lambda);
+  let cdf = p;
+  for (let i = 1; i <= k; i++) {
+    p *= lambda / i;
+    cdf += p;
+  }
+  return cdf;
+}
+
+function poissonCutoff(lambda: number, tolerance: number): number {
+  let k = 0;
+  while (1 - poissonCdf(lambda, k) > tolerance && k < MATRIX_MAX_GOALS_CAP) k++;
+  return k;
+}
+
+/**
  * Compute Dixon-Coles Bivariate Goal Expectancy and Full Market Probabilities
  */
 export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: number }): DixonColesResult {
@@ -149,7 +180,10 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
   const safeAwayAtk = Number.isFinite(input.awayAttack) && input.awayAttack > 0 ? input.awayAttack : 1.0;
   const safeHomeDef = Number.isFinite(input.homeDefense) && input.homeDefense > 0 ? input.homeDefense : 1.0;
   const rho = Number.isFinite(input.rho) ? (input.rho as number) : -0.04;
-  const maxGoals = Math.min(10, Math.max(5, Number.isFinite(input.maxGoals) ? (input.maxGoals as number) : 10));
+  // maxGoals pemanggil = batas grid MINIMUM (lantai 5); grid efektif bisa
+  // lebih besar mengikuti kebutuhan ekor distribusi (lihat blok adaptif
+  // sesudah lambda/mu dihitung).
+  const requestedMaxGoals = Math.max(5, Number.isFinite(input.maxGoals) ? Math.floor(input.maxGoals as number) : 10);
 
   // Konvensi rasio: lambda = leagueAvg * attack * defense * homeAdv
   const rawLambda = Math.max(
@@ -163,6 +197,20 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
 
   const lambda = Math.round(rawLambda * 1000) / 1000;
   const mu = Math.round(rawMu * 1000) / 1000;
+
+  // Grid adaptif: perluas sampai ekor gabungan <= TAIL_TOLERANCE; gagal
+  // eksplisit bila di batas keras pun ekor masih > FAIL_TOLERANCE.
+  const maxGoals = Math.max(
+    requestedMaxGoals,
+    poissonCutoff(lambda, MATRIX_TAIL_TOLERANCE),
+    poissonCutoff(mu, MATRIX_TAIL_TOLERANCE)
+  );
+  const tailMass = 1 - poissonCdf(lambda, maxGoals) * poissonCdf(mu, maxGoals);
+  if (tailMass > MATRIX_FAIL_TOLERANCE) {
+    throw new Error(
+      `calculateDixonColes: ekor matrix ${tailMass.toExponential(2)} > toleransi gagal ${MATRIX_FAIL_TOLERANCE} pada batas ${MATRIX_MAX_GOALS_CAP} gol (lambda=${lambda}, mu=${mu}) — input patologik, distribusi tidak dikembalikan.`
+    );
+  }
 
   // Build bivariate score probability matrix
   const matrix: number[][] = [];
@@ -180,8 +228,16 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
     }
   }
 
-  // Guard sumProb agar tidak membagi dengan nol
-  const safeSumProb = sumProb > 0 ? sumProb : 1;
+  // Massa pra-normalisasi harus positif (deviasi kecil dari 1 berasal dari
+  // faktor tau skor rendah; ekor sudah dijamin <= toleransi di atas).
+  // Nol/negatif = kegagalan numerik — gagal eksplisit, jangan membagi
+  // dengan 1 diam-diam lalu menyajikan matrix nol sebagai distribusi sah.
+  if (!(sumProb > 0)) {
+    throw new Error(
+      `calculateDixonColes: massa matrix tidak positif (sumProb=${sumProb}, lambda=${lambda}, mu=${mu}).`
+    );
+  }
+  const safeSumProb = sumProb;
 
   // Normalize matrix so probabilities sum exactly to 1.0
   const scorelines: ScorelineProbability[] = [];
@@ -321,5 +377,7 @@ export function calculateDixonColes(input: DixonColesInput & { leagueAvgGoals?: 
       prob: Math.round(s.prob * 1000) / 10, // percentage e.g. 14.5%
     })),
     score_matrix: matrix,
+    score_matrix_max_goals: maxGoals,
+    score_matrix_tail_mass: tailMass,
   };
 }
