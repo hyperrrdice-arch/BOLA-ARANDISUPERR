@@ -621,12 +621,22 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   // Gerbang kalibrasi (registry league_calibration) — sumber kebenaran status.
   const gate = divCode !== "UNKNOWN" && divCode !== "UCL" ? getLeagueGate(divCode) : null;
 
+  // Attack fallback = RASIO terhadap rata-rata liga (skala yang sama dengan
+  // jalur utama dan kontrak Dixon-Coles), BUKAN rata-rata gol absolut.
+  // Form 0 yang terobservasi dihormati sebagai 0; form tak tersedia / tak
+  // valid → prior rasio eksplisit 1,0 (tim rata-rata liga). Defense tanpa
+  // observasi = prior 1,0 — tidak pernah ditebak dari attack lawan (pola
+  // lama membuat λ non-monoton terhadap form kandang: form naik, λ turun).
+  const FALLBACK_LEAGUE_AVG = 1.35;
+  const fallbackAttackRatio = (form: number | undefined, avg: number): number =>
+    Number.isFinite(form) && (form as number) >= 0 ? (form as number) / avg : 1.0;
+
   // Default fallback jika data JSON tidak tersedia sama sekali
   const defaultFallback: ShrunkMatchParameters = {
-    homeAttack: options.liveHomeFormGoalsAvg || 1.35,
-    homeDefense: Math.max(0.6, 2.5 - (options.liveAwayFormGoalsAvg || 1.2)),
-    awayAttack: options.liveAwayFormGoalsAvg || 1.15,
-    awayDefense: Math.max(0.7, 2.6 - (options.liveHomeFormGoalsAvg || 1.35)),
+    homeAttack: fallbackAttackRatio(options.liveHomeFormGoalsAvg, FALLBACK_LEAGUE_AVG),
+    homeDefense: 1.0,
+    awayAttack: fallbackAttackRatio(options.liveAwayFormGoalsAvg, FALLBACK_LEAGUE_AVG),
+    awayDefense: 1.0,
     homeAdvantage: 1.15,
     leagueAvgGoals: 1.35,
     rho: -0.04,
@@ -706,10 +716,13 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
 
   // Jika kedua tim tidak ditemukan sama sekali di database historis
   if (!homeResolved && !awayResolved) {
+    const fbLeagueAvg = Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : FALLBACK_LEAGUE_AVG;
     return {
       ...defaultFallback,
+      homeAttack: fallbackAttackRatio(options.liveHomeFormGoalsAvg, fbLeagueAvg),
+      awayAttack: fallbackAttackRatio(options.liveAwayFormGoalsAvg, fbLeagueAvg),
       homeAdvantage: Number.isFinite(league.homeAdvantage) && league.homeAdvantage > 0 ? league.homeAdvantage : 1.15,
-      leagueAvgGoals: Number.isFinite(league.leagueAvgGoals) && league.leagueAvgGoals > 0 ? league.leagueAvgGoals : 1.35,
+      leagueAvgGoals: fbLeagueAvg,
       rho: Number.isFinite(league.rho) ? league.rho : -0.04,
       metadata: {
         ...(defaultFallback.metadata as NonNullable<ShrunkMatchParameters["metadata"]>),
@@ -784,8 +797,11 @@ export function getShrunkMatchParameters(options: ShrunkMatchParametersOptions):
   // 1. Evaluasi Likelihood Home Team
   let liveHomeAttack = (Number.isFinite(options.liveHomeFormGoalsAvg) && (options.liveHomeFormGoalsAvg as number) > 0 ? (options.liveHomeFormGoalsAvg as number) : 1.35) / safeLeagueAvg;
   let liveAwayAttack = (Number.isFinite(options.liveAwayFormGoalsAvg) && (options.liveAwayFormGoalsAvg as number) > 0 ? (options.liveAwayFormGoalsAvg as number) : 1.15) / safeLeagueAvg;
-  let liveHomeDefense = Math.max(0.6, 2.0 - liveAwayAttack);
-  let liveAwayDefense = Math.max(0.7, 2.0 - liveHomeAttack);
+  // Defense awal = prior rasio eksplisit 1,0 (tim rata-rata liga); ditimpa
+  // telemetri bila tersedia. Jangan ditebak dari attack lawan — pola lama
+  // (2,0 − attack lawan) membuat defense bergerak melawan form tim sendiri.
+  let liveHomeDefense = 1.0;
+  let liveAwayDefense = 1.0;
   let nHome = Math.max(0, Number.isFinite(options.homeSampleN) ? (options.homeSampleN as number) : 5);
   let nAway = Math.max(0, Number.isFinite(options.awaySampleN) ? (options.awaySampleN as number) : 5);
   let homeTelemetrySource: "thestats_observed_xg" | "thestats_observed_goals" | "macro_prior_only" = "macro_prior_only";
