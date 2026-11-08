@@ -14,6 +14,12 @@
 import { getShrunkMatchParameters } from "../lib/quant/ratings-loader";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
 import { combineSlip, type SlipPick } from "../lib/web/parlay";
+import {
+  calculateHeadedGoalMarket,
+  calculateCornersMarket,
+  calculateCardsMarket,
+} from "../lib/quant/special-markets-engine";
+import type { TeamRollingTelemetry } from "../lib/db/team-telemetry";
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
@@ -172,6 +178,95 @@ console.log("Temuan 3: wiring effective_prob (parlay basis)");
   ]);
   check("monoton: slip 2 pilihan <= slip 1 pilihan (basis sama)",
     grown.combined <= single.combined && approx(grown.combined, 0.56, 1e-12));
+}
+
+// ---------------------------------------------------------------------------
+// Temuan 4 — confidence pasar khusus mengikuti coverage metrik
+// ---------------------------------------------------------------------------
+console.log("Temuan 4: confidence special markets (coverage metrik)");
+{
+  const team = (over: Partial<TeamRollingTelemetry>): TeamRollingTelemetry => ({
+    team_id: "tm_test",
+    sample_size: 6,
+    observed_xg_samples: 6, observed_shots_samples: 6, observed_passes_samples: 6,
+    observed_aerial_samples: 6, observed_crosses_samples: 6,
+    observed_corners_samples: 6, observed_yellows_samples: 6,
+    observed_box_touches_samples: 6,
+    rolling_xg_for: 1.5, rolling_xg_against: 1.2,
+    rolling_npxg_for: 1.4, rolling_npxg_against: 1.1,
+    rolling_goals_for: 1.5, rolling_goals_against: 1.2,
+    win_rate: 0.5, clean_sheet_rate: 0.3, form_sequence: "W-D-W",
+    avg_possession_pct: 52, avg_shots_for: 13, avg_shots_on_target_for: 4.5,
+    avg_shots_inside_box_for: 8, avg_big_chances_for: 1.8, avg_box_touches_for: 25,
+    avg_passes_accurate_for: 380, avg_pass_accuracy_pct: 82,
+    avg_crosses_accurate_for: 4.13, avg_aerial_duels_pct_for: 31.1,
+    avg_duels_won_pct_for: 100, avg_ground_duels_pct_for: 68.9,
+    avg_tackles_for: 16, avg_corners_for: 5.2, avg_fouls_committed: 11,
+    avg_yellow_cards: 1.9,
+    recent_logs: [],
+    ...over,
+  });
+
+  // Reproduksi brief: aerial 6/6 tapi crosses 0 — dulu HIGH + tidak
+  // terestimasi; sekarang cakupan terlemah yang bicara.
+  const noCross = calculateHeadedGoalMarket(
+    team({ observed_crosses_samples: 0, avg_crosses_accurate_for: null }),
+    team({ observed_crosses_samples: 0, avg_crosses_accurate_for: null }),
+    "E0"
+  );
+  check("headed: crosses kosong -> bukan HIGH, terestimasi",
+    noCross.confidence_tier !== "HIGH" && noCross.is_estimated === true,
+    `tier=${noCross.confidence_tier} est=${noCross.is_estimated}`);
+  check("headed: crosses kosong -> INSUFFICIENT_DATA",
+    noCross.confidence_tier === "INSUFFICIENT_DATA");
+
+  // Semua metrik ter-cover penuh -> HIGH tetap bisa dicapai.
+  const full = calculateHeadedGoalMarket(team({}), team({}), "E0");
+  check("headed: coverage penuh -> HIGH + tidak terestimasi",
+    full.confidence_tier === "HIGH" && full.is_estimated === false,
+    `tier=${full.confidence_tier} est=${full.is_estimated}`);
+
+  // Counter penuh tapi satu metrik terimputasi (share aerial tak terhitung
+  // karena duels_won null) -> HIGH tertutup, jatuh ke MODERATE + estimated.
+  const imputed = calculateHeadedGoalMarket(
+    team({ avg_duels_won_pct_for: null }),
+    team({}),
+    "E0"
+  );
+  check("headed: satu metrik terimputasi -> MODERATE + terestimasi (bukan HIGH)",
+    imputed.confidence_tier === "MODERATE" && imputed.is_estimated === true,
+    `tier=${imputed.confidence_tier} est=${imputed.is_estimated}`);
+
+  // Corners: 6 laga tapi data corner tak pernah terobservasi.
+  const cornersNone = calculateCornersMarket(
+    team({ observed_corners_samples: 0, avg_corners_for: null }),
+    team({ observed_corners_samples: 0, avg_corners_for: null }),
+    "E0"
+  );
+  check("corners: counter corner 0 -> INSUFFICIENT_DATA + observed {0,0}",
+    cornersNone.confidence_tier === "INSUFFICIENT_DATA" &&
+      cornersNone.observed_samples.home === 0 && cornersNone.observed_samples.away === 0,
+    `tier=${cornersNone.confidence_tier} obs=${JSON.stringify(cornersNone.observed_samples)}`);
+
+  const cornersFull = calculateCornersMarket(
+    team({ observed_corners_samples: 5 }),
+    team({ observed_corners_samples: 6 }),
+    "E0"
+  );
+  check("corners: observed_samples = counter metrik {5,6}, tier HIGH",
+    cornersFull.observed_samples.home === 5 && cornersFull.observed_samples.away === 6 &&
+      cornersFull.confidence_tier === "HIGH",
+    `obs=${JSON.stringify(cornersFull.observed_samples)} tier=${cornersFull.confidence_tier}`);
+
+  // Cards: cakupan kartu cuma 1 laga walau sample_size 6.
+  const cardsThin = calculateCardsMarket(
+    team({ observed_yellows_samples: 1 }),
+    team({ observed_yellows_samples: 1 }),
+    "E0"
+  );
+  check("cards: counter kartu 1 -> LOW + terestimasi (bukan dari sample_size)",
+    cardsThin.confidence_tier === "LOW" && cardsThin.is_estimated === true,
+    `tier=${cardsThin.confidence_tier}`);
 }
 
 // ---------------------------------------------------------------------------

@@ -40,6 +40,7 @@ export interface SpecialMarketsPackage {
     is_estimated: boolean;
     observed_aerial_samples: { home: number; away: number };
     observed_crosses_samples: { home: number; away: number };
+    observed_box_touches_samples: { home: number; away: number };
   };
   corners: {
     expected_total_corners: number;
@@ -142,8 +143,8 @@ export function calculateHeadedGoalMarket(
   const awayAerialSamples = awayTelemetry.observed_aerial_samples || 0;
   const homeCrossSamples = homeTelemetry.observed_crosses_samples || 0;
   const awayCrossSamples = awayTelemetry.observed_crosses_samples || 0;
-
-  const minSamples = Math.min(homeAerialSamples, awayAerialSamples);
+  const homeBoxSamples = homeTelemetry.observed_box_touches_samples || 0;
+  const awayBoxSamples = awayTelemetry.observed_box_touches_samples || 0;
 
   // Aerial share = duel udara yang dimenangkan / total duel yang dimenangkan.
   const aerialShare = (t: TeamRollingTelemetry): number | null => {
@@ -204,6 +205,30 @@ export function calculateHeadedGoalMarket(
 
   // Tier keyakinan dihitung SESUDAH clamp: multiplier yang mentok batas berarti
   // metrik sudah tidak diskriminatif, jadi tidak boleh diklaim HIGH.
+  //
+  // Cakupan yang menentukan tier = cakupan TERLEMAH di antara SEMUA metrik
+  // yang dipakai faktor di atas, untuk kedua tim (audit T4, 2026-11-09).
+  // Sebelumnya hanya sampel aerial yang dihitung: crosses/box-touches yang
+  // kosong total membuat faktornya jatuh ke benchmark 1,0 secara diam-diam
+  // dan hasilnya tetap bisa terbit sebagai HIGH + is_estimated=false.
+  // Metrik yang rata-ratanya tak terobservasi (faktor -> 1,0) = imputasi:
+  // menyalakan is_estimated dan menutup akses ke HIGH.
+  const minSamples = Math.min(
+    homeAerialSamples,
+    awayAerialSamples,
+    homeCrossSamples,
+    awayCrossSamples,
+    homeBoxSamples,
+    awayBoxSamples
+  );
+  const anyImputed =
+    !(homeTelemetry.avg_crosses_accurate_for !== null && homeTelemetry.avg_crosses_accurate_for > 0) ||
+    !(awayTelemetry.avg_crosses_accurate_for !== null && awayTelemetry.avg_crosses_accurate_for > 0) ||
+    homeAerialShare === null ||
+    awayAerialShare === null ||
+    !(homeTelemetry.avg_box_touches_for !== null && homeTelemetry.avg_box_touches_for > 0) ||
+    !(awayTelemetry.avg_box_touches_for !== null && awayTelemetry.avg_box_touches_for > 0);
+
   let confidenceTier: "HIGH" | "MODERATE" | "LOW" | "INSUFFICIENT_DATA" = "MODERATE";
   let isEstimated = false;
 
@@ -213,10 +238,11 @@ export function calculateHeadedGoalMarket(
   } else if (minSamples === 1 || anyClamped) {
     confidenceTier = "LOW";
     isEstimated = true;
-  } else if (minSamples >= 4) {
+  } else if (minSamples >= 4 && !anyImputed) {
     confidenceTier = "HIGH";
   } else {
     confidenceTier = "MODERATE";
+    isEstimated = anyImputed;
   }
 
   // Estimasi lambda gol sundulan
@@ -242,6 +268,7 @@ export function calculateHeadedGoalMarket(
     is_estimated: isEstimated,
     observed_aerial_samples: { home: homeAerialSamples, away: awayAerialSamples },
     observed_crosses_samples: { home: homeCrossSamples, away: awayCrossSamples },
+    observed_box_touches_samples: { home: homeBoxSamples, away: awayBoxSamples },
   };
 }
 
@@ -289,8 +316,11 @@ export function calculateCornersMarket(
   const under10_5 = Number(poissonCDF(10, totalCorners).toFixed(3));
   const over10_5 = Number((1 - under10_5).toFixed(3));
 
-  const observedHome = homeTelemetry.sample_size;
-  const observedAway = awayTelemetry.sample_size;
+  // observed_samples = laga dengan data CORNER terukur per tim, BUKAN
+  // total laga (sample_size): total laga menutupi metrik yang tak pernah
+  // terobservasi dan menggelembungkan tier (audit T4, 2026-11-09).
+  const observedHome = homeTelemetry.observed_corners_samples || 0;
+  const observedAway = awayTelemetry.observed_corners_samples || 0;
   const tier = tierForSamples(Math.min(observedHome, observedAway));
 
   return {
@@ -341,8 +371,9 @@ export function calculateCardsMarket(
   const under4_5 = Number(poissonCDF(4, totalCards).toFixed(3));
   const over4_5 = Number((1 - under4_5).toFixed(3));
 
-  const observedHome = homeTelemetry.sample_size;
-  const observedAway = awayTelemetry.sample_size;
+  // Sama seperti corners: cakupan metrik kartu per tim, bukan total laga.
+  const observedHome = homeTelemetry.observed_yellows_samples || 0;
+  const observedAway = awayTelemetry.observed_yellows_samples || 0;
   const tier = tierForSamples(Math.min(observedHome, observedAway));
 
   return {

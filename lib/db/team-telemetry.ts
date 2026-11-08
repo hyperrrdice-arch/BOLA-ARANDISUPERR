@@ -19,6 +19,11 @@ export interface TeamRollingTelemetry {
   observed_passes_samples: number;
   observed_aerial_samples: number;
   observed_crosses_samples: number;
+  // Counter per-metrik (audit T4, 2026-11-09): confidence pasar khusus
+  // harus membaca cakupan metrik yang dipakai, bukan total laga.
+  observed_corners_samples: number;
+  observed_yellows_samples: number;
+  observed_box_touches_samples: number;
 
   // 2. Kualitas Peluang Murni (NULL jika data tidak tersedia di raw)
   rolling_xg_for: number | null;
@@ -407,6 +412,9 @@ export function getTeamRollingTelemetry(
       observed_passes_samples: 0,
       observed_aerial_samples: 0,
       observed_crosses_samples: 0,
+      observed_corners_samples: 0,
+      observed_yellows_samples: 0,
+      observed_box_touches_samples: 0,
       rolling_xg_for: null,
       rolling_xg_against: null,
       rolling_npxg_for: null,
@@ -565,6 +573,9 @@ export function getTeamRollingTelemetry(
     observed_passes_samples: countPasses,
     observed_aerial_samples: countAerial,
     observed_crosses_samples: countCrosses,
+    observed_corners_samples: countCorners,
+    observed_yellows_samples: countYellows,
+    observed_box_touches_samples: countBoxTouches,
 
     // Rata-rata terukur (NULL jika 0 sampel observed) — dari aggregateRollingXg
     rolling_xg_for: xgAgg.rolling_xg_for,
