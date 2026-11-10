@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-10T11:03:47.237Z",
+  "generated_at": "2026-11-10T11:07:57.533Z",
   "window": {
-    "from": "2026-11-10T11:03:39.919Z",
-    "to": "2026-11-13T11:03:39.919Z",
+    "from": "2026-11-10T11:07:50.860Z",
+    "to": "2026-11-13T11:07:50.860Z",
     "hours": 72
   },
   "stats": {
@@ -21,8 +21,8 @@
     },
     "packages_written": 12,
     "fixtures_rated_free_mode": 0,
-    "ledger_live_run_rows_written": 7,
-    "ledger_skipped_already_recorded": 11
+    "ledger_live_run_rows_written": 0,
+    "ledger_skipped_already_recorded": 12
   },
   "rated": [
     {
@@ -38,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 1.66,
       "mu": 1.221,
-      "package_id": 4761,
+      "package_id": 4773,
       "legs": [
         {
           "market": "team_over05_home",
@@ -133,7 +133,7 @@
       "feed_mode": "full",
       "lambda": 0.918,
       "mu": 1.331,
-      "package_id": 4762,
+      "package_id": 4774,
       "legs": [
         {
           "market": "ou35",
@@ -241,7 +241,7 @@
       "feed_mode": "full",
       "lambda": 1.258,
       "mu": 1.242,
-      "package_id": 4763,
+      "package_id": 4775,
       "legs": [
         {
           "market": "team_over05_home",
@@ -349,7 +349,7 @@
       "feed_mode": "full",
       "lambda": 1.291,
       "mu": 0.761,
-      "package_id": 4764,
+      "package_id": 4776,
       "legs": [
         {
           "market": "dc",
@@ -457,7 +457,7 @@
       "feed_mode": "full",
       "lambda": 1.853,
       "mu": 0.721,
-      "package_id": 4765,
+      "package_id": 4777,
       "legs": [
         {
           "market": "dc",
@@ -552,7 +552,7 @@
       "feed_mode": "full",
       "lambda": 1.646,
       "mu": 0.807,
-      "package_id": 4766,
+      "package_id": 4778,
       "legs": [
         {
           "market": "dc",
@@ -647,7 +647,7 @@
       "feed_mode": "full",
       "lambda": 2.067,
       "mu": 1.001,
-      "package_id": 4767,
+      "package_id": 4779,
       "legs": [
         {
           "market": "team_over05_home",
@@ -755,7 +755,7 @@
       "feed_mode": "full",
       "lambda": 2.032,
       "mu": 0.731,
-      "package_id": 4768,
+      "package_id": 4780,
       "legs": [
         {
           "market": "dc",
@@ -850,7 +850,7 @@
       "feed_mode": "full",
       "lambda": 1.582,
       "mu": 1.262,
-      "package_id": 4769,
+      "package_id": 4781,
       "legs": [
         {
           "market": "team_over05_home",
@@ -945,7 +945,7 @@
       "feed_mode": "full",
       "lambda": 1.232,
       "mu": 1.31,
-      "package_id": 4770,
+      "package_id": 4782,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1053,7 +1053,7 @@
       "feed_mode": "full",
       "lambda": 1.865,
       "mu": 0.787,
-      "package_id": 4771,
+      "package_id": 4783,
       "legs": [
         {
           "market": "dc",
@@ -1148,7 +1148,7 @@
       "feed_mode": "full",
       "lambda": 1.274,
       "mu": 0.996,
-      "package_id": 4772,
+      "package_id": 4784,
       "legs": [
         {
           "market": "team_over05_home",

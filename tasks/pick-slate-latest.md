@@ -1,6 +1,6 @@
-# Slate Pick — 2026-11-10 18:03 WIB (jendela 72 jam ke depan)
+# Slate Pick — 2026-11-10 18:07 WIB (jendela 72 jam ke depan)
 
-Fixture terpindai **31** · ter-rate **12** · tidak ter-rate **19** · total kaki **78** (A 24 / B 46 / C 8) · paket kuant tersimpan **12** · baris ledger live-run tertulis **7**.
+Fixture terpindai **31** · ter-rate **12** · tidak ter-rate **19** · total kaki **78** (A 24 / B 46 / C 8) · paket kuant tersimpan **12** · baris ledger live-run tertulis **0**.
 
 Fixture ter-rate mode free (feed gratis football-data): **0**.
 Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).
