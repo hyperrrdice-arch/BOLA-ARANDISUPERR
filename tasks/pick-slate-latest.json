@@ -1,125 +1,30 @@
 {
-  "generated_at": "2026-11-09T21:27:40.417Z",
+  "generated_at": "2026-11-10T11:03:47.237Z",
   "window": {
-    "from": "2026-11-09T21:27:33.215Z",
-    "to": "2026-11-12T21:27:33.215Z",
+    "from": "2026-11-10T11:03:39.919Z",
+    "to": "2026-11-13T11:03:39.919Z",
     "hours": 72
   },
   "stats": {
-    "fixtures_scanned": 28,
+    "fixtures_scanned": 31,
     "fixtures_rated": 12,
-    "fixtures_unrated": 16,
-    "legs_total": 77,
+    "fixtures_unrated": 19,
+    "legs_total": 78,
     "legs_by_grade": {
-      "A": 26,
-      "B": 44,
-      "C": 7
+      "A": 24,
+      "B": 46,
+      "C": 8
     },
     "unrated_reason_counts": {
-      "ratings tim tidak ditemukan": 15,
+      "ratings tim tidak ditemukan": 18,
       "kompetisi piala tapi jalur offset tidak me-rate fixture ini": 1
     },
     "packages_written": 12,
     "fixtures_rated_free_mode": 0,
-    "ledger_live_run_rows_written": 0,
-    "ledger_skipped_already_recorded": 12
+    "ledger_live_run_rows_written": 7,
+    "ledger_skipped_already_recorded": 11
   },
   "rated": [
-    {
-      "match_id": "sm_19712934",
-      "utc_date": "2026-11-10T00:00:00.000Z",
-      "competition_id": "sm:672",
-      "competition_name": "Liga BetPlay",
-      "canonical_id": "sm:672",
-      "home": "Junior FC",
-      "away": "Cúcuta Deportivo",
-      "gate_status": "partial",
-      "population": "domestic",
-      "feed_mode": "full",
-      "lambda": 1.996,
-      "mu": 1.039,
-      "package_id": 4749,
-      "legs": [
-        {
-          "market": "team_over05_home",
-          "selection": "yes",
-          "model_prob": 0.8641222909907995,
-          "effective_prob": 0.8715,
-          "effective_source": "lab-band",
-          "band": "85+",
-          "band_n": 1875,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.8734999999999999,
-          "agreement_spread": 0.00937770900920043
-        },
-        {
-          "market": "dc",
-          "selection": "1x",
-          "model_prob": 0.8086471534928167,
-          "effective_prob": 0.8288,
-          "effective_source": "lab-band",
-          "band": "80–85",
-          "band_n": 1852,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.8809,
-          "agreement_spread": 0.07225284650718333
-        },
-        {
-          "market": "dc",
-          "selection": "12",
-          "model_prob": 0.786945339264751,
-          "effective_prob": 0.7519,
-          "effective_source": "lab-band",
-          "band": "75–80",
-          "band_n": 6263,
-          "grade": "A",
-          "market_prob": null,
-          "sm_prob": 0.7948000000000001,
-          "agreement_spread": 0.007854660735249097
-        },
-        {
-          "market": "ou15",
-          "selection": "over",
-          "model_prob": 0.806018734565428,
-          "effective_prob": 0.7852,
-          "effective_source": "lab-band",
-          "band": "80–85",
-          "band_n": 2155,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.7761,
-          "agreement_spread": 0.02991873456542804
-        },
-        {
-          "market": "ou35",
-          "selection": "under",
-          "model_prob": 0.6393909584570836,
-          "effective_prob": 0.6882,
-          "effective_source": "lab-band",
-          "band": "60–65",
-          "band_n": 1440,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": 0.6844,
-          "agreement_spread": 0.045009041542916406
-        },
-        {
-          "market": "team_over05_away",
-          "selection": "yes",
-          "model_prob": 0.6461916865728148,
-          "effective_prob": 0.618,
-          "effective_source": "lab-band",
-          "band": "60–65",
-          "band_n": 1034,
-          "grade": "C",
-          "market_prob": null,
-          "sm_prob": 0.4549,
-          "agreement_spread": 0.19129168657281476
-        }
-      ]
-    },
     {
       "match_id": "sm_19667064",
       "utc_date": "2026-11-11T22:00:00.000Z",
@@ -133,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 1.66,
       "mu": 1.221,
-      "package_id": 4750,
+      "package_id": 4761,
       "legs": [
         {
           "market": "team_over05_home",
@@ -228,7 +133,7 @@
       "feed_mode": "full",
       "lambda": 0.918,
       "mu": 1.331,
-      "package_id": 4751,
+      "package_id": 4762,
       "legs": [
         {
           "market": "ou35",
@@ -336,7 +241,7 @@
       "feed_mode": "full",
       "lambda": 1.258,
       "mu": 1.242,
-      "package_id": 4752,
+      "package_id": 4763,
       "legs": [
         {
           "market": "team_over05_home",
@@ -444,7 +349,7 @@
       "feed_mode": "full",
       "lambda": 1.291,
       "mu": 0.761,
-      "package_id": 4753,
+      "package_id": 4764,
       "legs": [
         {
           "market": "dc",
@@ -552,7 +457,7 @@
       "feed_mode": "full",
       "lambda": 1.853,
       "mu": 0.721,
-      "package_id": 4754,
+      "package_id": 4765,
       "legs": [
         {
           "market": "dc",
@@ -647,7 +552,7 @@
       "feed_mode": "full",
       "lambda": 1.646,
       "mu": 0.807,
-      "package_id": 4755,
+      "package_id": 4766,
       "legs": [
         {
           "market": "dc",
@@ -742,7 +647,7 @@
       "feed_mode": "full",
       "lambda": 2.067,
       "mu": 1.001,
-      "package_id": 4756,
+      "package_id": 4767,
       "legs": [
         {
           "market": "team_over05_home",
@@ -850,7 +755,7 @@
       "feed_mode": "full",
       "lambda": 2.032,
       "mu": 0.731,
-      "package_id": 4757,
+      "package_id": 4768,
       "legs": [
         {
           "market": "dc",
@@ -945,7 +850,7 @@
       "feed_mode": "full",
       "lambda": 1.582,
       "mu": 1.262,
-      "package_id": 4758,
+      "package_id": 4769,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1040,7 +945,7 @@
       "feed_mode": "full",
       "lambda": 1.232,
       "mu": 1.31,
-      "package_id": 4759,
+      "package_id": 4770,
       "legs": [
         {
           "market": "team_over05_home",
@@ -1148,7 +1053,7 @@
       "feed_mode": "full",
       "lambda": 1.865,
       "mu": 0.787,
-      "package_id": 4760,
+      "package_id": 4771,
       "legs": [
         {
           "market": "dc",
@@ -1227,6 +1132,114 @@
           "market_prob": null,
           "sm_prob": 0.5168,
           "agreement_spread": 0.11233010971720214
+        }
+      ]
+    },
+    {
+      "match_id": "sm_19904783",
+      "utc_date": "2026-11-12T23:00:00.000Z",
+      "competition_id": "sm:770",
+      "competition_name": "Primera Division",
+      "canonical_id": "sm:770",
+      "home": "Cerro Largo",
+      "away": "Atlético Progreso",
+      "gate_status": "calibrated",
+      "population": "domestic",
+      "feed_mode": "full",
+      "lambda": 1.274,
+      "mu": 0.996,
+      "package_id": 4772,
+      "legs": [
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7202894607265723,
+          "effective_prob": 0.7323,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 1326,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": 0.7016,
+          "agreement_spread": 0.018689460726572293
+        },
+        {
+          "market": "ou35",
+          "selection": "under",
+          "model_prob": 0.805418020445887,
+          "effective_prob": 0.7817,
+          "effective_source": "lab-band",
+          "band": "80–85",
+          "band_n": 623,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.8114,
+          "agreement_spread": 0.005981979554113059
+        },
+        {
+          "market": "dc",
+          "selection": "1x",
+          "model_prob": 0.7099799247487408,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7079000000000001,
+          "agreement_spread": 0.002079924748740747
+        },
+        {
+          "market": "dc",
+          "selection": "12",
+          "model_prob": 0.7176557434925395,
+          "effective_prob": 0.7271,
+          "effective_source": "lab-band",
+          "band": "70–75",
+          "band_n": 4621,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.7059000000000001,
+          "agreement_spread": 0.011755743492539383
+        },
+        {
+          "market": "ou15",
+          "selection": "over",
+          "model_prob": 0.6621691707192093,
+          "effective_prob": 0.6747,
+          "effective_source": "lab-band",
+          "band": "65–70",
+          "band_n": 793,
+          "grade": "B",
+          "market_prob": null,
+          "sm_prob": 0.653,
+          "agreement_spread": 0.009169170719209307
+        },
+        {
+          "market": "team_over05_away",
+          "selection": "yes",
+          "model_prob": 0.6306460940779877,
+          "effective_prob": 0.618,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1034,
+          "grade": "C",
+          "market_prob": null,
+          "sm_prob": 0.6126,
+          "agreement_spread": 0.01804609407798763
+        },
+        {
+          "market": "ou25",
+          "selection": "under",
+          "model_prob": 0.604009495978189,
+          "effective_prob": 0.5877,
+          "effective_source": "lab-band",
+          "band": "60–65",
+          "band_n": 1785,
+          "grade": "C",
+          "market_prob": 0.5393,
+          "sm_prob": 0.61,
+          "agreement_spread": 0.07069999999999999
         }
       ]
     }
@@ -1359,6 +1372,30 @@
       "home": "Chambéry Savoie",
       "away": "Grenoble Foot 38",
       "reason": "kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)"
+    },
+    {
+      "match_id": "sm_19883299",
+      "utc_date": "2026-11-13T00:00:00.000Z",
+      "competition_name": "Friendly International",
+      "home": "Jordan",
+      "away": "Indonesia",
+      "reason": "ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)"
+    },
+    {
+      "match_id": "sm_19904928",
+      "utc_date": "2026-11-13T00:00:00.000Z",
+      "competition_name": "Friendly International",
+      "home": "United Arab Emirates",
+      "away": "Honduras",
+      "reason": "ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)"
+    },
+    {
+      "match_id": "sm_19890861",
+      "utc_date": "2026-11-13T11:00:00.000Z",
+      "competition_name": "Club Friendlies 3",
+      "home": "Västerås SK",
+      "away": "Brommapojkarna",
+      "reason": "ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)"
     }
   ],
   "parlays": [
@@ -1376,19 +1413,19 @@
           "effective_prob": 0.891
         },
         {
-          "label": "Junior FC vs Cúcuta Deportivo — team_over05_home/yes [A]",
-          "stated_prob": 0.8641222909907995,
-          "effective_prob": 0.8715
-        },
-        {
           "label": "Cúcuta Deportivo vs Jaguares de Córdoba — team_over05_home/yes [A]",
           "stated_prob": 0.8734350917908807,
           "effective_prob": 0.8715
+        },
+        {
+          "label": "Llaneros vs Boyacá Chicó — dc/1x [A]",
+          "stated_prob": 0.8176486770713582,
+          "effective_prob": 0.8288
         }
       ],
-      "combined_stated": 0.5693233448852717,
-      "combined_effective": 0.6029623445422502,
-      "range_note": "Kombinasi efektif 60.3% adalah estimasi titik; produk stated 56.9% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
+      "combined_stated": 0.5387043993941355,
+      "combined_effective": 0.5734196111952001,
+      "range_note": "Kombinasi efektif 57.3% adalah estimasi titik; produk stated 53.9% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
     },
     {
       "name": "Aman (3 kaki — hanya A/B, efektif tertinggi)",
@@ -1404,23 +1441,18 @@
           "effective_prob": 0.891
         },
         {
-          "label": "Junior FC vs Cúcuta Deportivo — team_over05_home/yes [A]",
-          "stated_prob": 0.8641222909907995,
+          "label": "Cúcuta Deportivo vs Jaguares de Córdoba — team_over05_home/yes [A]",
+          "stated_prob": 0.8734350917908807,
           "effective_prob": 0.8715
         }
       ],
-      "combined_stated": 0.6518210113563654,
+      "combined_stated": 0.6588458032166808,
       "combined_effective": 0.6918672915000001,
-      "range_note": "Kombinasi efektif 69.2% adalah estimasi titik; produk stated 65.2% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
+      "range_note": "Kombinasi efektif 69.2% adalah estimasi titik; produk stated 65.9% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
     },
     {
       "name": "Alternatif (3 kaki — di luar laga Utama)",
       "units": [
-        {
-          "label": "Llaneros vs Boyacá Chicó — dc/1x [A]",
-          "stated_prob": 0.8176486770713582,
-          "effective_prob": 0.8288
-        },
         {
           "label": "Atlético Nacional vs Once Caldas — dc/1x [A]",
           "stated_prob": 0.8479026739381603,
@@ -1430,11 +1462,16 @@
           "label": "Londrina vs Náutico — team_over05_home/yes [A]",
           "stated_prob": 0.8098610193364297,
           "effective_prob": 0.815
+        },
+        {
+          "label": "Rionegro Águilas vs Independiente Medellín — team_over05_home/yes [A]",
+          "stated_prob": 0.7944364399828513,
+          "effective_prob": 0.7612
         }
       ],
-      "combined_stated": 0.5614657112831882,
-      "combined_effective": 0.5598311936,
-      "range_note": "Kombinasi efektif 56.0% adalah estimasi titik; produk stated 56.1% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
+      "combined_stated": 0.545526255166102,
+      "combined_effective": 0.5141692863999999,
+      "range_note": "Kombinasi efektif 51.4% adalah estimasi titik; produk stated 54.6% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
     }
   ]
 }

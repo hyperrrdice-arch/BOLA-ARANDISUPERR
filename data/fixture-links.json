@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-09T21:22:09.199Z",
+  "generated_at": "2026-11-10T11:00:29.230Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {

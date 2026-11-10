@@ -1,6 +1,6 @@
-# Slate Pick — 2026-11-10 04:27 WIB (jendela 72 jam ke depan)
+# Slate Pick — 2026-11-10 18:03 WIB (jendela 72 jam ke depan)
 
-Fixture terpindai **28** · ter-rate **12** · tidak ter-rate **16** · total kaki **77** (A 26 / B 44 / C 7) · paket kuant tersimpan **12** · baris ledger live-run tertulis **0**.
+Fixture terpindai **31** · ter-rate **12** · tidak ter-rate **19** · total kaki **78** (A 24 / B 46 / C 8) · paket kuant tersimpan **12** · baris ledger live-run tertulis **7**.
 
 Fixture ter-rate mode free (feed gratis football-data): **0**.
 Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).
@@ -10,32 +10,23 @@ Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — d
 ### Utama (4 kaki — grade lalu efektif)
 - Atlético Bucaramanga vs Fortaleza CEIF — dc/1x [A] — stated 86.1%, efektif 89.1%
 - Millonarios vs Alianza Petrolera — dc/1x [A] — stated 87.6%, efektif 89.1%
-- Junior FC vs Cúcuta Deportivo — team_over05_home/yes [A] — stated 86.4%, efektif 87.2%
 - Cúcuta Deportivo vs Jaguares de Córdoba — team_over05_home/yes [A] — stated 87.3%, efektif 87.2%
-**Kombinasi: 60.3% (estimasi titik) s.d. 56.9% (batas atas)**
+- Llaneros vs Boyacá Chicó — dc/1x [A] — stated 81.8%, efektif 82.9%
+**Kombinasi: 57.3% (estimasi titik) s.d. 53.9% (batas atas)**
 
 ### Aman (3 kaki — hanya A/B, efektif tertinggi)
 - Atlético Bucaramanga vs Fortaleza CEIF — dc/1x [A] — stated 86.1%, efektif 89.1%
 - Millonarios vs Alianza Petrolera — dc/1x [A] — stated 87.6%, efektif 89.1%
-- Junior FC vs Cúcuta Deportivo — team_over05_home/yes [A] — stated 86.4%, efektif 87.2%
-**Kombinasi: 69.2% (estimasi titik) s.d. 65.2% (batas atas)**
+- Cúcuta Deportivo vs Jaguares de Córdoba — team_over05_home/yes [A] — stated 87.3%, efektif 87.2%
+**Kombinasi: 69.2% (estimasi titik) s.d. 65.9% (batas atas)**
 
 ### Alternatif (3 kaki — di luar laga Utama)
-- Llaneros vs Boyacá Chicó — dc/1x [A] — stated 81.8%, efektif 82.9%
 - Atlético Nacional vs Once Caldas — dc/1x [A] — stated 84.8%, efektif 82.9%
 - Londrina vs Náutico — team_over05_home/yes [A] — stated 81.0%, efektif 81.5%
-**Kombinasi: 56.0% (estimasi titik) s.d. 56.1% (batas atas)**
+- Rionegro Águilas vs Independiente Medellín — team_over05_home/yes [A] — stated 79.4%, efektif 76.1%
+**Kombinasi: 51.4% (estimasi titik) s.d. 54.6% (batas atas)**
 
 ## Fixture ter-rate
-
-### Junior FC vs Cúcuta Deportivo — Liga BetPlay (partial)
-Kickoff 2026-11-10 07:00 WIB · λ 1.996 / μ 1.039
-- [A] team_over05_home/yes — stated 86.4%, efektif 87.2% (lab-band, pita 85+ n=1875) · SM 87.3% · spread 0.9pp
-- [A] dc/1x — stated 80.9%, efektif 82.9% (lab-band, pita 80–85 n=1852) · SM 88.1% · spread 7.2pp
-- [A] dc/12 — stated 78.7%, efektif 75.2% (lab-band, pita 75–80 n=6263) · SM 79.5% · spread 0.8pp
-- [B] ou15/over — stated 80.6%, efektif 78.5% (lab-band, pita 80–85 n=2155) · SM 77.6% · spread 3.0pp
-- [B] ou35/under — stated 63.9%, efektif 68.8% (lab-band, pita 60–65 n=1440) · SM 68.4% · spread 4.5pp
-- [C] team_over05_away/yes — stated 64.6%, efektif 61.8% (lab-band, pita 60–65 n=1034) · SM 45.5% · spread 19.1pp
 
 ### Londrina vs Náutico — Serie B (partial)
 Kickoff 2026-11-12 05:00 WIB · λ 1.66 / μ 1.221
@@ -141,6 +132,16 @@ Kickoff 2026-11-12 07:00 WIB · λ 1.865 / μ 0.787
 - [B] ou15/over — stated 74.2%, efektif 73.4% (lab-band, pita 70–75 n=1472) · SM 76.0% · spread 1.8pp
 - [B] 1x2/1 — stated 62.9%, efektif 62.9% (lab-band, pita 60–65 n=590) · SM 51.7% · spread 11.2pp
 
+### Cerro Largo vs Atlético Progreso — Primera Division (calibrated)
+Kickoff 2026-11-13 06:00 WIB · λ 1.274 / μ 0.996
+- [A] team_over05_home/yes — stated 72.0%, efektif 73.2% (lab-band, pita 70–75 n=1326) · SM 70.2% · spread 1.9pp
+- [B] ou35/under — stated 80.5%, efektif 78.2% (lab-band, pita 80–85 n=623) · SM 81.1% · spread 0.6pp
+- [B] dc/1x — stated 71.0%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 70.8% · spread 0.2pp
+- [B] dc/12 — stated 71.8%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 70.6% · spread 1.2pp
+- [B] ou15/over — stated 66.2%, efektif 67.5% (lab-band, pita 65–70 n=793) · SM 65.3% · spread 0.9pp
+- [C] team_over05_away/yes — stated 63.1%, efektif 61.8% (lab-band, pita 60–65 n=1034) · SM 61.3% · spread 1.8pp
+- [C] ou25/under — stated 60.4%, efektif 58.8% (lab-band, pita 60–65 n=1785) · pasar 53.9% · SM 61.0% · spread 7.1pp
+
 ## Tidak ter-rate (dengan alasan)
 - Real Madrid W vs Paris W — UEFA Women's Champions League, kickoff 2026-11-11 00:45 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
 - Häcken W vs Chelsea W — UEFA Women's Champions League, kickoff 2026-11-11 00:45 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
@@ -158,3 +159,6 @@ Kickoff 2026-11-12 07:00 WIB · λ 1.865 / μ 0.787
 - Malta vs Eswatini — Friendly International, kickoff 2026-11-13 00:30 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
 - Barcelona W vs Arsenal W — UEFA Women's Champions League, kickoff 2026-11-13 00:45 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
 - Chambéry Savoie vs Grenoble Foot 38 — Coupe de France, kickoff 2026-11-13 01:00 WIB: kompetisi piala tapi jalur offset tidak me-rate fixture ini (cupOffset absen — tim/liga di luar graf offset)
+- Jordan vs Indonesia — Friendly International, kickoff 2026-11-13 07:00 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
+- United Arab Emirates vs Honduras — Friendly International, kickoff 2026-11-13 07:00 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
+- Västerås SK vs Brommapojkarna — Club Friendlies 3, kickoff 2026-11-13 18:00 WIB: ratings tim tidak ditemukan (homeSource=fallback, awaySource=fallback)
