@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-12T09:22:12.315Z",
+  "generated_at": "2026-11-15T09:22:09.284Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [

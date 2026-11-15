@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-11-12T09:22:13.927Z",
+  "generated_at": "2026-11-15T09:22:10.435Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
-    "fixtures": 3884,
-    "duplicate_groups": 170,
-    "twin_rows": 181,
+    "fixtures": 3887,
+    "duplicate_groups": 171,
+    "twin_rows": 182,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
@@ -54,6 +54,11 @@
       "twin_id": "fd_SC0_20261107_st-mirren_rangers",
       "canonical_id": "sm_19722747",
       "kickoff_utc": "2026-11-07T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SP2_20261114_ud-almeria_andorra",
+      "canonical_id": "sm_19744988",
+      "kickoff_utc": "2026-11-14T17:30:00.000Z"
     },
     {
       "twin_id": "mt_022015219",
