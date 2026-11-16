@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-04T20:22:45.846Z",
+  "generated_at": "2026-11-16T06:09:04.746Z",
   "generator": "scripts/build-league-canonical.ts",
   "note": "Identitas = canonical_id. Referensi liga = name + country, tidak pernah nama polos sendirian. Regenerasi: npx tsx scripts/build-league-canonical.ts",
   "leagues": [
@@ -34,7 +34,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -80,7 +80,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -113,7 +113,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -185,7 +185,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -205,7 +205,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -225,7 +225,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -245,7 +245,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -265,7 +265,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -285,7 +285,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -305,7 +305,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -325,7 +325,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -358,7 +358,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -417,7 +417,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -437,7 +437,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -457,7 +457,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -508,7 +508,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -541,7 +541,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -561,7 +561,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -581,7 +581,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -601,7 +601,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -634,7 +634,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -654,7 +654,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -674,7 +674,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -733,7 +733,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -753,7 +753,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -773,7 +773,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -793,7 +793,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -826,7 +826,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -841,26 +841,6 @@
         }
       ],
       "fits": []
-    },
-    {
-      "canonical_id": "comp_3615",
-      "name": "Scottish League One",
-      "country": "Scotland",
-      "aliases": [
-        {
-          "system": "thestats",
-          "id": "comp_3615",
-          "name_as_stored": "Scottish League One"
-        }
-      ],
-      "fits": [],
-      "cup_offset": {
-        "graph": "europe",
-        "delta": null,
-        "anchors": 0,
-        "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
-      }
     },
     {
       "canonical_id": "comp_364464",
@@ -879,7 +859,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -899,7 +879,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -919,7 +899,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -939,7 +919,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -972,7 +952,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1005,7 +985,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1038,7 +1018,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1084,7 +1064,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1104,7 +1084,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1124,7 +1104,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1144,7 +1124,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1177,7 +1157,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1197,7 +1177,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1230,7 +1210,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1250,7 +1230,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1283,7 +1263,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1303,7 +1283,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1323,7 +1303,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1343,7 +1323,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1363,7 +1343,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1396,7 +1376,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1416,7 +1396,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1449,7 +1429,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1469,7 +1449,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1489,7 +1469,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1548,7 +1528,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1568,7 +1548,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1588,7 +1568,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1647,27 +1627,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
-      }
-    },
-    {
-      "canonical_id": "comp_6236",
-      "name": "Scottish Championship",
-      "country": "Scotland",
-      "aliases": [
-        {
-          "system": "thestats",
-          "id": "comp_6236",
-          "name_as_stored": "Scottish Championship"
-        }
-      ],
-      "fits": [],
-      "cup_offset": {
-        "graph": "europe",
-        "delta": null,
-        "anchors": 0,
-        "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1687,7 +1647,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1707,7 +1667,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1740,7 +1700,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1760,7 +1720,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1793,7 +1753,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1813,7 +1773,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1833,7 +1793,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1853,7 +1813,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1886,7 +1846,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1919,7 +1879,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1952,27 +1912,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
-      }
-    },
-    {
-      "canonical_id": "comp_7454",
-      "name": "Scottish League Two",
-      "country": "Scotland",
-      "aliases": [
-        {
-          "system": "thestats",
-          "id": "comp_7454",
-          "name_as_stored": "Scottish League Two"
-        }
-      ],
-      "fits": [],
-      "cup_offset": {
-        "graph": "europe",
-        "delta": null,
-        "anchors": 0,
-        "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -1992,7 +1932,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2012,7 +1952,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2032,7 +1972,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2078,7 +2018,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2176,7 +2116,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2196,7 +2136,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2229,7 +2169,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2275,7 +2215,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2295,7 +2235,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2315,7 +2255,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2348,7 +2288,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2368,7 +2308,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2388,7 +2328,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2408,7 +2348,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2441,7 +2381,130 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
+      }
+    },
+    {
+      "canonical_id": "SC1",
+      "name": "Scottish Championship",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "SC1",
+          "name_as_stored": "Scottish Championship"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SC1",
+          "name_as_stored": "Scottish Championship"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_6236",
+          "name_as_stored": "Scottish Championship"
+        },
+        {
+          "system": "thestats",
+          "id": "SC1",
+          "name_as_stored": "Scottish Championship"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "SC1",
+          "status": "calibrated"
+        }
+      ],
+      "cup_offset": {
+        "graph": "europe",
+        "delta": null,
+        "anchors": 0,
+        "identified": false,
+        "fitted_at": "2026-11-16T06:10:50.415Z"
+      }
+    },
+    {
+      "canonical_id": "SC2",
+      "name": "Scottish League One",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "SC2",
+          "name_as_stored": "Scottish League One"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SC2",
+          "name_as_stored": "Scottish League One"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_3615",
+          "name_as_stored": "Scottish League One"
+        },
+        {
+          "system": "thestats",
+          "id": "SC2",
+          "name_as_stored": "Scottish League One"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "SC2",
+          "status": "calibrated"
+        }
+      ],
+      "cup_offset": {
+        "graph": "europe",
+        "delta": null,
+        "anchors": 0,
+        "identified": false,
+        "fitted_at": "2026-11-16T06:10:50.415Z"
+      }
+    },
+    {
+      "canonical_id": "SC3",
+      "name": "Scottish League Two",
+      "country": "Scotland",
+      "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "SC3",
+          "name_as_stored": "Scottish League Two"
+        },
+        {
+          "system": "ratings-key",
+          "id": "SC3",
+          "name_as_stored": "Scottish League Two"
+        },
+        {
+          "system": "thestats",
+          "id": "comp_7454",
+          "name_as_stored": "Scottish League Two"
+        },
+        {
+          "system": "thestats",
+          "id": "SC3",
+          "name_as_stored": "Scottish League Two"
+        }
+      ],
+      "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "SC3",
+          "status": "calibrated"
+        }
+      ],
+      "cup_offset": {
+        "graph": "europe",
+        "delta": null,
+        "anchors": 0,
+        "identified": false,
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2474,10 +2537,10 @@
       ],
       "cup_offset": {
         "graph": "afc",
-        "delta": -0.3194,
+        "delta": -0.3193,
         "anchors": 2,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2513,7 +2576,7 @@
         "delta": -0.102,
         "anchors": 59,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2541,7 +2604,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM1073",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -2549,7 +2612,7 @@
         "delta": -0.6117,
         "anchors": 16,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2595,13 +2658,13 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM1085",
-          "status": "partial"
+          "status": "calibrated"
         }
       ],
       "cup_model": {
         "graph": "afc",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2629,13 +2692,13 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM1088",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_model": {
         "graph": "afc",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2658,7 +2721,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2713,7 +2776,7 @@
       "cup_model": {
         "graph": "conmebol",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2731,7 +2794,7 @@
       "cup_model": {
         "graph": "conmebol",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2751,7 +2814,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2759,6 +2822,16 @@
       "name": "League One",
       "country": "England",
       "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "E2",
+          "name_as_stored": "English League One"
+        },
+        {
+          "system": "ratings-key",
+          "id": "E2",
+          "name_as_stored": "English League One"
+        },
         {
           "system": "ratings-key",
           "id": "SM12",
@@ -2773,9 +2846,19 @@
           "system": "thestats",
           "id": "comp_0196",
           "name_as_stored": "League One"
+        },
+        {
+          "system": "thestats",
+          "id": "E2",
+          "name_as_stored": "English League One"
         }
       ],
       "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "E2",
+          "status": "partial"
+        },
         {
           "system": "sportmonks",
           "ratings_key": "SM12",
@@ -2787,7 +2870,7 @@
         "delta": -0.5877,
         "anchors": 174,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2807,7 +2890,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2840,7 +2923,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2868,7 +2951,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM1356",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -2876,7 +2959,7 @@
         "delta": -0.2352,
         "anchors": 26,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2896,7 +2979,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2904,6 +2987,16 @@
       "name": "League Two",
       "country": "England",
       "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "E3",
+          "name_as_stored": "English League Two"
+        },
+        {
+          "system": "ratings-key",
+          "id": "E3",
+          "name_as_stored": "English League Two"
+        },
         {
           "system": "ratings-key",
           "id": "SM14",
@@ -2918,13 +3011,23 @@
           "system": "thestats",
           "id": "comp_4023",
           "name_as_stored": "League Two"
+        },
+        {
+          "system": "thestats",
+          "id": "E3",
+          "name_as_stored": "English League Two"
         }
       ],
       "fits": [
         {
+          "system": "legacy-div",
+          "ratings_key": "E3",
+          "status": "calibrated"
+        },
+        {
           "system": "sportmonks",
           "ratings_key": "SM14",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -2932,7 +3035,7 @@
         "delta": -0.8648,
         "anchors": 137,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -2988,7 +3091,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3008,7 +3111,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3028,7 +3131,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3061,7 +3164,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3081,7 +3184,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3101,7 +3204,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3121,7 +3224,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3141,7 +3244,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3149,6 +3252,16 @@
       "name": "Enterprise National League",
       "country": "England",
       "aliases": [
+        {
+          "system": "legacy-div",
+          "id": "EC",
+          "name_as_stored": "English National League"
+        },
+        {
+          "system": "ratings-key",
+          "id": "EC",
+          "name_as_stored": "English National League"
+        },
         {
           "system": "ratings-key",
           "id": "SM17",
@@ -3163,9 +3276,19 @@
           "system": "thestats",
           "id": "comp_5878",
           "name_as_stored": "National League"
+        },
+        {
+          "system": "thestats",
+          "id": "EC",
+          "name_as_stored": "English National League"
         }
       ],
       "fits": [
+        {
+          "system": "legacy-div",
+          "ratings_key": "EC",
+          "status": "calibrated"
+        },
         {
           "system": "sportmonks",
           "ratings_key": "SM17",
@@ -3177,7 +3300,7 @@
         "delta": -1.0919,
         "anchors": 77,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3197,7 +3320,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3217,7 +3340,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3237,7 +3360,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3257,7 +3380,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3293,7 +3416,7 @@
         "delta": -0.5766,
         "anchors": 85,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3313,7 +3436,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3336,7 +3459,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "partial",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3397,7 +3520,7 @@
         "delta": -0.3005,
         "anchors": 113,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3433,7 +3556,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3451,7 +3574,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3482,7 +3605,7 @@
         "delta": -0.9358,
         "anchors": 51,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3507,7 +3630,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3530,7 +3653,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3566,7 +3689,7 @@
         "delta": -0.6835,
         "anchors": 45,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3636,7 +3759,7 @@
         "delta": -0.576,
         "anchors": 108,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3654,7 +3777,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "partial",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3682,7 +3805,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM271",
-          "status": "calibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -3690,7 +3813,7 @@
         "delta": -0.4277,
         "anchors": 79,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3713,7 +3836,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM274",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -3721,7 +3844,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3757,7 +3880,7 @@
         "delta": -0.8483,
         "anchors": 35,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3808,7 +3931,7 @@
         "delta": -0.2072,
         "anchors": 222,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3856,7 +3979,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM304",
-          "status": "calibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -3864,7 +3987,7 @@
         "delta": -0.384,
         "anchors": 36,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3887,7 +4010,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3907,7 +4030,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3944,6 +4067,11 @@
           "system": "thestats",
           "id": "comp_4008",
           "name_as_stored": "Stoiximan Super League"
+        },
+        {
+          "system": "thestats",
+          "id": "G1",
+          "name_as_stored": "Super League"
         }
       ],
       "fits": [
@@ -3963,7 +4091,7 @@
         "delta": -0.5972,
         "anchors": 104,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -3994,7 +4122,7 @@
         "delta": -0.8965,
         "anchors": 47,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4045,7 +4173,7 @@
         "delta": -0.2099,
         "anchors": 288,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4077,6 +4205,11 @@
           "system": "thestats",
           "id": "comp_5450",
           "name_as_stored": "Serie B"
+        },
+        {
+          "system": "thestats",
+          "id": "I2",
+          "name_as_stored": "Serie B"
         }
       ],
       "fits": [
@@ -4096,7 +4229,7 @@
         "delta": -0.5948,
         "anchors": 59,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4119,7 +4252,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "partial",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4155,7 +4288,7 @@
         "delta": -0.4412,
         "anchors": 101,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4191,7 +4324,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4224,10 +4357,10 @@
       ],
       "cup_offset": {
         "graph": "europe",
-        "delta": -0.5169,
+        "delta": -0.517,
         "anchors": 84,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4264,6 +4397,11 @@
           "system": "thestats",
           "id": "comp_8385",
           "name_as_stored": "Liga Portugal Betclic"
+        },
+        {
+          "system": "thestats",
+          "id": "P1",
+          "name_as_stored": "Liga Portugal"
         }
       ],
       "fits": [
@@ -4283,7 +4421,7 @@
         "delta": -0.3149,
         "anchors": 172,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4319,7 +4457,7 @@
         "delta": -0.49,
         "anchors": 29,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4342,7 +4480,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4378,7 +4516,7 @@
         "delta": -0.7447,
         "anchors": 53,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4414,7 +4552,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4434,7 +4572,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4457,7 +4595,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "partial",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4494,6 +4632,11 @@
           "system": "thestats",
           "id": "comp_6387",
           "name_as_stored": "Scottish Premiership"
+        },
+        {
+          "system": "thestats",
+          "id": "SC0",
+          "name_as_stored": "Premiership"
         }
       ],
       "fits": [
@@ -4513,7 +4656,7 @@
         "delta": -0.7058,
         "anchors": 89,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4533,7 +4676,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4584,7 +4727,7 @@
         "delta": -0.0812,
         "anchors": 279,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4616,6 +4759,11 @@
           "system": "thestats",
           "id": "comp_0976",
           "name_as_stored": "LaLiga 2"
+        },
+        {
+          "system": "thestats",
+          "id": "SP2",
+          "name_as_stored": "La Liga 2"
         }
       ],
       "fits": [
@@ -4635,7 +4783,7 @@
         "delta": -0.2389,
         "anchors": 48,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4658,7 +4806,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4694,7 +4842,7 @@
         "delta": -0.6863,
         "anchors": 61,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4730,7 +4878,7 @@
         "delta": -0.5649,
         "anchors": 80,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4762,6 +4910,11 @@
           "system": "sportmonks",
           "id": "sm:600",
           "name_as_stored": "Super Lig"
+        },
+        {
+          "system": "thestats",
+          "id": "T1",
+          "name_as_stored": "Super Lig"
         }
       ],
       "fits": [
@@ -4781,7 +4934,7 @@
         "delta": -0.4836,
         "anchors": 114,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4809,7 +4962,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM603",
-          "status": "uncalibrated"
+          "status": "partial"
         }
       ],
       "cup_offset": {
@@ -4817,7 +4970,7 @@
         "delta": null,
         "anchors": 0,
         "identified": false,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4853,7 +5006,7 @@
         "delta": -0.6788,
         "anchors": 56,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4889,7 +5042,7 @@
         "delta": -0.0752,
         "anchors": 148,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4920,7 +5073,7 @@
         "delta": 0,
         "anchors": 448,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4951,7 +5104,7 @@
         "delta": -0.2821,
         "anchors": 85,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -4974,7 +5127,7 @@
       "cup_model": {
         "graph": "conmebol",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5005,7 +5158,7 @@
         "delta": -0.2468,
         "anchors": 112,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5036,7 +5189,7 @@
         "delta": -0.2949,
         "anchors": 93,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5068,6 +5221,11 @@
           "system": "thestats",
           "id": "comp_3809",
           "name_as_stored": "Eredivisie"
+        },
+        {
+          "system": "thestats",
+          "id": "N1",
+          "name_as_stored": "Eredivisie"
         }
       ],
       "fits": [
@@ -5087,7 +5245,7 @@
         "delta": -0.4663,
         "anchors": 199,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5123,7 +5281,7 @@
         "delta": -0.7483,
         "anchors": 39,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5156,7 +5314,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM743",
-          "status": "partial"
+          "status": "uncalibrated"
         }
       ]
     },
@@ -5188,7 +5346,7 @@
         "delta": -0.2461,
         "anchors": 138,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5235,7 +5393,7 @@
       "cup_model": {
         "graph": "europe",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5286,7 +5444,7 @@
         "delta": 0,
         "anchors": 409,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5342,6 +5500,11 @@
           "system": "thestats",
           "id": "comp_4643",
           "name_as_stored": "Bundesliga"
+        },
+        {
+          "system": "thestats",
+          "id": "D1",
+          "name_as_stored": "Bundesliga"
         }
       ],
       "fits": [
@@ -5361,7 +5524,7 @@
         "delta": -0.1549,
         "anchors": 279,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5422,6 +5585,11 @@
           "system": "thestats",
           "id": "comp_0406",
           "name_as_stored": "2. Bundesliga"
+        },
+        {
+          "system": "thestats",
+          "id": "D2",
+          "name_as_stored": "2. Bundesliga"
         }
       ],
       "fits": [
@@ -5438,10 +5606,10 @@
       ],
       "cup_offset": {
         "graph": "europe",
-        "delta": -0.5311,
+        "delta": -0.531,
         "anchors": 70,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5469,7 +5637,7 @@
         {
           "system": "sportmonks",
           "ratings_key": "SM860",
-          "status": "uncalibrated"
+          "status": "calibrated"
         }
       ]
     },
@@ -5526,7 +5694,7 @@
         "delta": -0.5303,
         "anchors": 190,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5562,7 +5730,7 @@
         "delta": -0.3942,
         "anchors": 38,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5598,7 +5766,7 @@
         "delta": -0.2914,
         "anchors": 66,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5634,7 +5802,7 @@
         "delta": 0,
         "anchors": 142,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5657,7 +5825,7 @@
       "cup_model": {
         "graph": "afc",
         "status": "uncalibrated",
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5693,7 +5861,7 @@
         "delta": -0.2003,
         "anchors": 58,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5729,7 +5897,7 @@
         "delta": 0.1917,
         "anchors": 78,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     },
     {
@@ -5789,7 +5957,7 @@
         "delta": -0.3258,
         "anchors": 47,
         "identified": true,
-        "fitted_at": "2026-11-16T05:33:11.555Z"
+        "fitted_at": "2026-11-16T06:10:50.415Z"
       }
     }
   ]

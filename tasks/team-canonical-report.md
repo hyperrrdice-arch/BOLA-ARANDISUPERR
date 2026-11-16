@@ -1,15 +1,15 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-16T05:31:07.048Z
+Dibangun: 2026-11-16T06:10:11.850Z
 
 ## Angka
 
-- Baris tim sumber (tabel teams): **6766**
-- Tim kanonik hasil: **6551**
+- Baris tim sumber (tabel teams): **6815**
+- Tim kanonik hasil: **6600**
 - Grup tergabung (>1 baris sumber): **207** (menyerap 220 baris ekstra)
 - Grup lintas sistem (>1 sumber): **191**
 - Tim bernama sengketa (≥2 negara): **2** entri
-- Pasangan kandidat mirip BELUM digabung: **8**
+- Pasangan kandidat mirip BELUM digabung: **10**
 - Keputusan resolusi fase 3 diterapkan: **25 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
 - Permukaan standings: **167 id** tanpa baris teams didaftarkan dari nama fixture; **0 id** terdaftar id-only (name_unknown: -). Cakupan standings sekarang penuh.
 - Permukaan fixture: **107 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
@@ -74,6 +74,8 @@ Dibangun: 2026-11-16T05:31:07.048Z
 
 ## Kandidat mirip (keputusan fase resolusi)
 
+- kunci "hornchurch": `fd_hornchurch` Hornchurch  vs  `sm:1151` AFC Hornchurch
+- kunci "mansfield": `fd_mansfield` Mansfield  vs  `sm:20249` AFC Mansfield
 - kunci "river plate": `sm:10002` River Plate  vs  `sm:2837` River Plate
 - kunci "melilla": `sm:10016` Melilla  vs  `sm:238136` Melilla CD
 - kunci "ourense": `sm:132434` Ourense CF  vs  `sm:94617` UD Ourense

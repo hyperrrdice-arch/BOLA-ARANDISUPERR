@@ -1,6 +1,6 @@
-# Slate Pick — 2026-11-16 12:35 WIB (jendela 72 jam ke depan)
+# Slate Pick — 2026-11-16 13:13 WIB (jendela 72 jam ke depan)
 
-Fixture terpindai **30** · ter-rate **9** · tidak ter-rate **21** · total kaki **68** (A 26 / B 21 / C 21) · paket kuant tersimpan **9** · baris ledger live-run tertulis **45**.
+Fixture terpindai **30** · ter-rate **9** · tidak ter-rate **21** · total kaki **68** (A 26 / B 21 / C 21) · paket kuant tersimpan **9** · baris ledger live-run tertulis **0**.
 
 Fixture ter-rate mode free (feed gratis football-data): **1**.
 Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).
@@ -36,7 +36,7 @@ Kickoff 2026-11-17 02:30 WIB · λ 1.888 / μ 1.451
 - [B] ou15/over — stated 84.6%, efektif 78.5% (lab-band, pita 80–85 n=2155) · SM 77.6% · spread 7.0pp
 - [B] dc/1x — stated 70.3%, efektif 72.7% (lab-band, pita 70–75 n=4621) · SM 75.6% · spread 5.3pp
 - [C] ou35/under — stated 57.2%, efektif 64.2% (lab-band, pita 55–60 n=1147) · SM 67.9% · spread 10.8pp
-- [C] ou25/over — stated 64.8%, efektif 58.8% (lab-band, pita 60–65 n=1785) · SM 54.9% · spread 9.9pp
+- [C] ou25/over — stated 64.8%, efektif 58.8% (lab-band, pita 60–65 n=1785) · pasar 58.1% · SM 54.9% · spread 9.9pp
 - [C] btts/yes — stated 65.0%, efektif 58.5% (lab-band, pita 60–65 n=1872) · SM 57.8% · spread 7.2pp
 
 ### Albacete vs Celta B — La Liga 2 (partial) · mode: free

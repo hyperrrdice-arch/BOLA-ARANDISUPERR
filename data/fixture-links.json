@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-11-16T05:31:16.092Z",
+  "generated_at": "2026-11-16T06:10:12.607Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
-    "fixtures": 3887,
-    "duplicate_groups": 175,
-    "twin_rows": 186,
+    "fixtures": 3924,
+    "duplicate_groups": 177,
+    "twin_rows": 188,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
@@ -29,6 +29,16 @@
       "twin_id": "fd_D2_20261108_1-fc-magdeburg_fc-st-pauli",
       "canonical_id": "sm_19735407",
       "kickoff_utc": "2026-11-08T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261114_sheffield-weds_plymouth-argyle",
+      "canonical_id": "sm_19728162",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261114_wigan_barnsley",
+      "canonical_id": "sm_19728159",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
     },
     {
       "twin_id": "fd_N1_20261108_az-alkmaar_groningen",

@@ -1,8 +1,8 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-16T05:31:16.986Z",
-  "totalLeagues": 78,
-  "totalTeams": 1985,
+  "compiledAt": "2026-11-16T06:10:13.534Z",
+  "totalLeagues": 84,
+  "totalTeams": 2088,
   "leagues": {
     "B1": {
       "div": "B1",
@@ -19146,15 +19146,1044 @@
           "lastMatchDate": "2026-11-01"
         }
       }
+    },
+    "E2": {
+      "div": "E2",
+      "leagueName": "English League One",
+      "country": "England",
+      "seasonCount": 1,
+      "totalMatches": 114,
+      "leagueAvgGoals": 1.1811,
+      "homeAdvantage": 1.3328,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "partial",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:12",
+      "teams": {
+        "Blackpool": {
+          "name": "Blackpool",
+          "attack": 1.023,
+          "defense": 0.9761,
+          "matchesCount": 6,
+          "goalsScored": 9,
+          "goalsConceded": 8,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Wycombe": {
+          "name": "Wycombe",
+          "attack": 1.0807,
+          "defense": 1.1015,
+          "matchesCount": 13,
+          "goalsScored": 21,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Bradford": {
+          "name": "Bradford",
+          "attack": 0.7457,
+          "defense": 0.5936,
+          "matchesCount": 13,
+          "goalsScored": 10,
+          "goalsConceded": 8,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Peterborough United": {
+          "name": "Peterborough United",
+          "attack": 0.7503,
+          "defense": 1.0576,
+          "matchesCount": 13,
+          "goalsScored": 11,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Burton": {
+          "name": "Burton",
+          "attack": 0.9552,
+          "defense": 1.0682,
+          "matchesCount": 14,
+          "goalsScored": 18,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Stevenage": {
+          "name": "Stevenage",
+          "attack": 0.858,
+          "defense": 1.0283,
+          "matchesCount": 5,
+          "goalsScored": 4,
+          "goalsConceded": 5,
+          "lastMatchDate": "2026-10-17"
+        },
+        "Cambridge": {
+          "name": "Cambridge",
+          "attack": 1.0446,
+          "defense": 1.0745,
+          "matchesCount": 14,
+          "goalsScored": 21,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Wigan Athletic": {
+          "name": "Wigan Athletic",
+          "attack": 0.6802,
+          "defense": 0.9979,
+          "matchesCount": 14,
+          "goalsScored": 11,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Huddersfield Town": {
+          "name": "Huddersfield Town",
+          "attack": 1.2398,
+          "defense": 0.7497,
+          "matchesCount": 14,
+          "goalsScored": 28,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-11-03"
+        },
+        "AFC Wimbledon": {
+          "name": "AFC Wimbledon",
+          "attack": 0.7184,
+          "defense": 1.1871,
+          "matchesCount": 9,
+          "goalsScored": 6,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Leyton Orient": {
+          "name": "Leyton Orient",
+          "attack": 1.0572,
+          "defense": 0.9892,
+          "matchesCount": 6,
+          "goalsScored": 9,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Sheffield Wednesday": {
+          "name": "Sheffield Wednesday",
+          "attack": 1.1182,
+          "defense": 0.9184,
+          "matchesCount": 13,
+          "goalsScored": 22,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-11-01"
+        },
+        "Mansfield": {
+          "name": "Mansfield",
+          "attack": 1.108,
+          "defense": 1.0307,
+          "matchesCount": 13,
+          "goalsScored": 20,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Doncaster": {
+          "name": "Doncaster",
+          "attack": 0.8348,
+          "defense": 1.0819,
+          "matchesCount": 13,
+          "goalsScored": 14,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Plymouth Argyle": {
+          "name": "Plymouth Argyle",
+          "attack": 1.071,
+          "defense": 1.0686,
+          "matchesCount": 7,
+          "goalsScored": 10,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Stockport": {
+          "name": "Stockport",
+          "attack": 1.1005,
+          "defense": 0.8388,
+          "matchesCount": 14,
+          "goalsScored": 26,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Barnsley": {
+          "name": "Barnsley",
+          "attack": 0.8694,
+          "defense": 1.0587,
+          "matchesCount": 3,
+          "goalsScored": 2,
+          "goalsConceded": 5,
+          "lastMatchDate": "2026-10-17"
+        },
+        "Bromley": {
+          "name": "Bromley",
+          "attack": 1.0156,
+          "defense": 1.2121,
+          "matchesCount": 7,
+          "goalsScored": 9,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Leicester City": {
+          "name": "Leicester City",
+          "attack": 1.1356,
+          "defense": 1.2183,
+          "matchesCount": 5,
+          "goalsScored": 11,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-27"
+        },
+        "Milton Keynes Dons": {
+          "name": "Milton Keynes Dons",
+          "attack": 1.2148,
+          "defense": 1.1644,
+          "matchesCount": 5,
+          "goalsScored": 12,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Notts County": {
+          "name": "Notts County",
+          "attack": 0.9784,
+          "defense": 0.7953,
+          "matchesCount": 8,
+          "goalsScored": 9,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Luton Town": {
+          "name": "Luton Town",
+          "attack": 1.2528,
+          "defense": 0.9597,
+          "matchesCount": 7,
+          "goalsScored": 14,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Oxford United": {
+          "name": "Oxford United",
+          "attack": 1.0106,
+          "defense": 0.8378,
+          "matchesCount": 7,
+          "goalsScored": 9,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-10-27"
+        },
+        "Reading": {
+          "name": "Reading",
+          "attack": 1.1372,
+          "defense": 0.9915,
+          "matchesCount": 5,
+          "goalsScored": 9,
+          "goalsConceded": 6,
+          "lastMatchDate": "2026-10-17"
+        }
+      }
+    },
+    "E3": {
+      "div": "E3",
+      "leagueName": "English League Two",
+      "country": "England",
+      "seasonCount": 1,
+      "totalMatches": 144,
+      "leagueAvgGoals": 1.0923,
+      "homeAdvantage": 1.4613,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "calibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:14",
+      "teams": {
+        "Oldham": {
+          "name": "Oldham",
+          "attack": 0.8921,
+          "defense": 0.9919,
+          "matchesCount": 14,
+          "goalsScored": 15,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Port Vale": {
+          "name": "Port Vale",
+          "attack": 0.6881,
+          "defense": 0.918,
+          "matchesCount": 8,
+          "goalsScored": 4,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Accrington": {
+          "name": "Accrington",
+          "attack": 1.127,
+          "defense": 0.9277,
+          "matchesCount": 14,
+          "goalsScored": 23,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Colchester": {
+          "name": "Colchester",
+          "attack": 0.8334,
+          "defense": 1.069,
+          "matchesCount": 13,
+          "goalsScored": 12,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Barnet": {
+          "name": "Barnet",
+          "attack": 1.2465,
+          "defense": 1.0041,
+          "matchesCount": 11,
+          "goalsScored": 22,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Salford": {
+          "name": "Salford",
+          "attack": 1.2064,
+          "defense": 0.876,
+          "matchesCount": 14,
+          "goalsScored": 25,
+          "goalsConceded": 15,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Cheltenham": {
+          "name": "Cheltenham",
+          "attack": 1.1236,
+          "defense": 1.1522,
+          "matchesCount": 14,
+          "goalsScored": 23,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Rotherham United": {
+          "name": "Rotherham United",
+          "attack": 1.0029,
+          "defense": 1.2052,
+          "matchesCount": 14,
+          "goalsScored": 18,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Crawley Town": {
+          "name": "Crawley Town",
+          "attack": 0.8317,
+          "defense": 1.1558,
+          "matchesCount": 10,
+          "goalsScored": 9,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Crewe": {
+          "name": "Crewe",
+          "attack": 0.948,
+          "defense": 1.0069,
+          "matchesCount": 14,
+          "goalsScored": 17,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Grimsby": {
+          "name": "Grimsby",
+          "attack": 1.1651,
+          "defense": 0.9987,
+          "matchesCount": 14,
+          "goalsScored": 24,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Exeter": {
+          "name": "Exeter",
+          "attack": 0.732,
+          "defense": 0.6323,
+          "matchesCount": 14,
+          "goalsScored": 11,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Northampton": {
+          "name": "Northampton",
+          "attack": 0.6673,
+          "defense": 0.732,
+          "matchesCount": 13,
+          "goalsScored": 9,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-03"
+        },
+        "Swindon": {
+          "name": "Swindon",
+          "attack": 0.8676,
+          "defense": 0.9272,
+          "matchesCount": 14,
+          "goalsScored": 15,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Tranmere": {
+          "name": "Tranmere",
+          "attack": 0.9907,
+          "defense": 0.9759,
+          "matchesCount": 14,
+          "goalsScored": 19,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Shrewsbury": {
+          "name": "Shrewsbury",
+          "attack": 0.9634,
+          "defense": 1.1135,
+          "matchesCount": 14,
+          "goalsScored": 17,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-10-31"
+        },
+        "York": {
+          "name": "York",
+          "attack": 1.206,
+          "defense": 1.059,
+          "matchesCount": 14,
+          "goalsScored": 24,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Bristol Rvs": {
+          "name": "Bristol Rvs",
+          "attack": 0.9307,
+          "defense": 1.1071,
+          "matchesCount": 14,
+          "goalsScored": 17,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Newport County": {
+          "name": "Newport County",
+          "attack": 0.9542,
+          "defense": 1.0127,
+          "matchesCount": 10,
+          "goalsScored": 12,
+          "goalsConceded": 15,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Chesterfield": {
+          "name": "Chesterfield",
+          "attack": 1.2103,
+          "defense": 0.9167,
+          "matchesCount": 8,
+          "goalsScored": 17,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Walsall": {
+          "name": "Walsall",
+          "attack": 1.2,
+          "defense": 0.9973,
+          "matchesCount": 9,
+          "goalsScored": 15,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Rochdale": {
+          "name": "Rochdale",
+          "attack": 1.003,
+          "defense": 1.1243,
+          "matchesCount": 8,
+          "goalsScored": 11,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Gillingham": {
+          "name": "Gillingham",
+          "attack": 1.1334,
+          "defense": 1.084,
+          "matchesCount": 8,
+          "goalsScored": 14,
+          "goalsConceded": 13,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Fleetwood Town": {
+          "name": "Fleetwood Town",
+          "attack": 1.0766,
+          "defense": 1.0125,
+          "matchesCount": 8,
+          "goalsScored": 13,
+          "goalsConceded": 11,
+          "lastMatchDate": "2026-10-31"
+        }
+      }
+    },
+    "EC": {
+      "div": "EC",
+      "leagueName": "English National League",
+      "country": "England",
+      "seasonCount": 1,
+      "totalMatches": 162,
+      "leagueAvgGoals": 1.434,
+      "homeAdvantage": 1.1897,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "calibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "sm:17",
+      "teams": {
+        "Altrincham": {
+          "name": "Altrincham",
+          "attack": 1.0402,
+          "defense": 0.9234,
+          "matchesCount": 11,
+          "goalsScored": 17,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Southend": {
+          "name": "Southend",
+          "attack": 1.2992,
+          "defense": 1.0809,
+          "matchesCount": 16,
+          "goalsScored": 38,
+          "goalsConceded": 27,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Boston Utd": {
+          "name": "Boston Utd",
+          "attack": 0.8745,
+          "defense": 1.1103,
+          "matchesCount": 16,
+          "goalsScored": 21,
+          "goalsConceded": 29,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Aldershot": {
+          "name": "Aldershot",
+          "attack": 0.8242,
+          "defense": 0.8974,
+          "matchesCount": 16,
+          "goalsScored": 19,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Carlisle": {
+          "name": "Carlisle",
+          "attack": 1.1967,
+          "defense": 0.9218,
+          "matchesCount": 16,
+          "goalsScored": 32,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Worthing": {
+          "name": "Worthing",
+          "attack": 1.168,
+          "defense": 0.9594,
+          "matchesCount": 10,
+          "goalsScored": 21,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Forest Green": {
+          "name": "Forest Green",
+          "attack": 1.0378,
+          "defense": 1.0683,
+          "matchesCount": 14,
+          "goalsScored": 23,
+          "goalsConceded": 24,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Halifax": {
+          "name": "Halifax",
+          "attack": 1.0401,
+          "defense": 0.8679,
+          "matchesCount": 16,
+          "goalsScored": 28,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Harrogate": {
+          "name": "Harrogate",
+          "attack": 1.1742,
+          "defense": 0.9804,
+          "matchesCount": 16,
+          "goalsScored": 34,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Solihull": {
+          "name": "Solihull",
+          "attack": 0.8862,
+          "defense": 1.3035,
+          "matchesCount": 16,
+          "goalsScored": 19,
+          "goalsConceded": 40,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Hartlepool": {
+          "name": "Hartlepool",
+          "attack": 0.879,
+          "defense": 1.0406,
+          "matchesCount": 16,
+          "goalsScored": 18,
+          "goalsConceded": 27,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Barrow": {
+          "name": "Barrow",
+          "attack": 1.0929,
+          "defense": 0.9122,
+          "matchesCount": 11,
+          "goalsScored": 19,
+          "goalsConceded": 14,
+          "lastMatchDate": "2026-10-27"
+        },
+        "Hornchurch": {
+          "name": "Hornchurch",
+          "attack": 0.8662,
+          "defense": 1.0154,
+          "matchesCount": 16,
+          "goalsScored": 18,
+          "goalsConceded": 26,
+          "lastMatchDate": "2026-10-30"
+        },
+        "Kidderminster": {
+          "name": "Kidderminster",
+          "attack": 0.7831,
+          "defense": 0.7534,
+          "matchesCount": 16,
+          "goalsScored": 17,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Scunthorpe": {
+          "name": "Scunthorpe",
+          "attack": 0.898,
+          "defense": 1.1103,
+          "matchesCount": 15,
+          "goalsScored": 19,
+          "goalsConceded": 30,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Yeovil": {
+          "name": "Yeovil",
+          "attack": 1.2153,
+          "defense": 0.892,
+          "matchesCount": 16,
+          "goalsScored": 35,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Woking": {
+          "name": "Woking",
+          "attack": 0.8807,
+          "defense": 1.0436,
+          "matchesCount": 10,
+          "goalsScored": 12,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-10-24"
+        },
+        "Sutton": {
+          "name": "Sutton",
+          "attack": 0.8808,
+          "defense": 0.9181,
+          "matchesCount": 16,
+          "goalsScored": 20,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Boreham Wood": {
+          "name": "Boreham Wood",
+          "attack": 1.3499,
+          "defense": 0.7993,
+          "matchesCount": 10,
+          "goalsScored": 28,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Eastleigh": {
+          "name": "Eastleigh",
+          "attack": 0.8829,
+          "defense": 1.0269,
+          "matchesCount": 11,
+          "goalsScored": 13,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-10-28"
+        },
+        "Wealdstone": {
+          "name": "Wealdstone",
+          "attack": 0.9453,
+          "defense": 1.1512,
+          "matchesCount": 11,
+          "goalsScored": 15,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Tamworth": {
+          "name": "Tamworth",
+          "attack": 1.0698,
+          "defense": 1.1827,
+          "matchesCount": 9,
+          "goalsScored": 15,
+          "goalsConceded": 21,
+          "lastMatchDate": "2026-10-27"
+        },
+        "Gateshead": {
+          "name": "Gateshead",
+          "attack": 0.5873,
+          "defense": 1.2541,
+          "matchesCount": 10,
+          "goalsScored": 5,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-10-31"
+        },
+        "Fylde": {
+          "name": "Fylde",
+          "attack": 1.1276,
+          "defense": 0.7867,
+          "matchesCount": 10,
+          "goalsScored": 21,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-10-30"
+        },
+        "AFC Hornchurch": {
+          "name": "Hornchurch",
+          "attack": 0.8662,
+          "defense": 1.0154,
+          "matchesCount": 16,
+          "goalsScored": 18,
+          "goalsConceded": 26,
+          "lastMatchDate": "2026-10-30"
+        }
+      }
+    },
+    "SC1": {
+      "div": "SC1",
+      "leagueName": "Scottish Championship",
+      "country": "Scotland",
+      "seasonCount": 1,
+      "totalMatches": 69,
+      "leagueAvgGoals": 1.0152,
+      "homeAdvantage": 1.2363,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "calibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "SC1",
+      "teams": {
+        "Ayr": {
+          "name": "Ayr",
+          "attack": 0.9973,
+          "defense": 1.2052,
+          "matchesCount": 13,
+          "goalsScored": 14,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Arbroath": {
+          "name": "Arbroath",
+          "attack": 0.8123,
+          "defense": 1.2159,
+          "matchesCount": 14,
+          "goalsScored": 11,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Inverness C": {
+          "name": "Inverness C",
+          "attack": 1.1366,
+          "defense": 1.0777,
+          "matchesCount": 14,
+          "goalsScored": 18,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Dunfermline": {
+          "name": "Dunfermline",
+          "attack": 0.9677,
+          "defense": 0.6148,
+          "matchesCount": 14,
+          "goalsScored": 15,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-11-06"
+        },
+        "Livingston": {
+          "name": "Livingston",
+          "attack": 1.1328,
+          "defense": 0.8676,
+          "matchesCount": 14,
+          "goalsScored": 19,
+          "goalsConceded": 12,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Queens Park": {
+          "name": "Queens Park",
+          "attack": 0.7004,
+          "defense": 1.2286,
+          "matchesCount": 14,
+          "goalsScored": 8,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Morton": {
+          "name": "Morton",
+          "attack": 1.1025,
+          "defense": 1.3737,
+          "matchesCount": 13,
+          "goalsScored": 16,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Partick": {
+          "name": "Partick",
+          "attack": 1.0144,
+          "defense": 0.6456,
+          "matchesCount": 14,
+          "goalsScored": 18,
+          "goalsConceded": 7,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Raith Rvs": {
+          "name": "Raith Rvs",
+          "attack": 1.1162,
+          "defense": 0.7546,
+          "matchesCount": 14,
+          "goalsScored": 20,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-06"
+        },
+        "Stenhousemuir": {
+          "name": "Stenhousemuir",
+          "attack": 1.0198,
+          "defense": 1.0162,
+          "matchesCount": 14,
+          "goalsScored": 16,
+          "goalsConceded": 16,
+          "lastMatchDate": "2026-11-07"
+        }
+      }
+    },
+    "SC2": {
+      "div": "SC2",
+      "leagueName": "Scottish League One",
+      "country": "Scotland",
+      "seasonCount": 1,
+      "totalMatches": 69,
+      "leagueAvgGoals": 1.2775,
+      "homeAdvantage": 1.2729,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "calibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "SC2",
+      "teams": {
+        "Alloa": {
+          "name": "Alloa",
+          "attack": 0.8508,
+          "defense": 1.029,
+          "matchesCount": 14,
+          "goalsScored": 15,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-07"
+        },
+        "East Fife": {
+          "name": "East Fife",
+          "attack": 0.7825,
+          "defense": 0.9408,
+          "matchesCount": 14,
+          "goalsScored": 13,
+          "goalsConceded": 17,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Cove Rangers": {
+          "name": "Cove Rangers",
+          "attack": 0.915,
+          "defense": 1.0194,
+          "matchesCount": 13,
+          "goalsScored": 14,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Airdrie Utd": {
+          "name": "Airdrie Utd",
+          "attack": 0.8431,
+          "defense": 1.0134,
+          "matchesCount": 14,
+          "goalsScored": 13,
+          "goalsConceded": 22,
+          "lastMatchDate": "2026-11-07"
+        },
+        "East Kilbride": {
+          "name": "East Kilbride",
+          "attack": 1.1231,
+          "defense": 0.9755,
+          "matchesCount": 13,
+          "goalsScored": 23,
+          "goalsConceded": 18,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Queen of Sth": {
+          "name": "Queen of Sth",
+          "attack": 0.8816,
+          "defense": 1.4279,
+          "matchesCount": 14,
+          "goalsScored": 14,
+          "goalsConceded": 38,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Montrose": {
+          "name": "Montrose",
+          "attack": 1.0326,
+          "defense": 1.056,
+          "matchesCount": 14,
+          "goalsScored": 19,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Hamilton": {
+          "name": "Hamilton",
+          "attack": 1.1792,
+          "defense": 0.7321,
+          "matchesCount": 14,
+          "goalsScored": 27,
+          "goalsConceded": 10,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Peterhead": {
+          "name": "Peterhead",
+          "attack": 0.7542,
+          "defense": 1.1077,
+          "matchesCount": 14,
+          "goalsScored": 12,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Ross County": {
+          "name": "Ross County",
+          "attack": 1.638,
+          "defense": 0.6982,
+          "matchesCount": 14,
+          "goalsScored": 49,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-07"
+        }
+      }
+    },
+    "SC3": {
+      "div": "SC3",
+      "leagueName": "Scottish League Two",
+      "country": "Scotland",
+      "seasonCount": 1,
+      "totalMatches": 65,
+      "leagueAvgGoals": 1.4314,
+      "homeAdvantage": 1.3184,
+      "rho": 0,
+      "calibrationDate": "2026-11-16",
+      "source": "football-data-fit",
+      "calibrationStatus": "calibrated",
+      "fitMethod": "ipf-time-decay-half-life-365d+rho-zero+shrink-10",
+      "canonicalId": "SC3",
+      "teams": {
+        "Annan Athletic": {
+          "name": "Annan Athletic",
+          "attack": 0.8024,
+          "defense": 1.0925,
+          "matchesCount": 13,
+          "goalsScored": 14,
+          "goalsConceded": 26,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Spartans": {
+          "name": "Spartans",
+          "attack": 1.1732,
+          "defense": 1.1053,
+          "matchesCount": 13,
+          "goalsScored": 27,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Clyde": {
+          "name": "Clyde",
+          "attack": 1.2309,
+          "defense": 0.9953,
+          "matchesCount": 13,
+          "goalsScored": 30,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Stranraer": {
+          "name": "Stranraer",
+          "attack": 1.11,
+          "defense": 0.5984,
+          "matchesCount": 13,
+          "goalsScored": 28,
+          "goalsConceded": 9,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Edinburgh City": {
+          "name": "Edinburgh City",
+          "attack": 1.0334,
+          "defense": 0.9536,
+          "matchesCount": 13,
+          "goalsScored": 23,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Elgin": {
+          "name": "Elgin",
+          "attack": 1.156,
+          "defense": 0.9995,
+          "matchesCount": 13,
+          "goalsScored": 28,
+          "goalsConceded": 19,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Forfar": {
+          "name": "Forfar",
+          "attack": 0.7914,
+          "defense": 1.0805,
+          "matchesCount": 13,
+          "goalsScored": 14,
+          "goalsConceded": 25,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Kelty Hearts": {
+          "name": "Kelty Hearts",
+          "attack": 0.8899,
+          "defense": 1.0369,
+          "matchesCount": 13,
+          "goalsScored": 18,
+          "goalsConceded": 23,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Stirling": {
+          "name": "Stirling",
+          "attack": 0.9945,
+          "defense": 1.2232,
+          "matchesCount": 13,
+          "goalsScored": 19,
+          "goalsConceded": 29,
+          "lastMatchDate": "2026-11-07"
+        },
+        "Dumbarton": {
+          "name": "Dumbarton",
+          "attack": 0.8183,
+          "defense": 0.9148,
+          "matchesCount": 13,
+          "goalsScored": 15,
+          "goalsConceded": 20,
+          "lastMatchDate": "2026-11-07"
+        }
+      }
     }
   },
   "canonical": {
     "registry": "data/league-canonical.json",
     "registryVersion": 1,
-    "registryGeneratedAt": "2026-11-04T20:22:45.846Z",
+    "registryGeneratedAt": "2026-11-16T06:09:04.746Z",
     "note": "keys are fit keys; canonicalId maps each fit to its canonical league",
     "cupOffsets": {
-      "fittedAt": "2026-11-16T05:33:11.555Z",
+      "fittedAt": "2026-11-16T06:10:50.415Z",
       "graphs": {
         "europe": {
           "reference": "sm:8",

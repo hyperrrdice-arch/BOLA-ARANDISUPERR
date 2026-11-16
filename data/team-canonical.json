@@ -1,9 +1,73 @@
 {
   "version": 1,
-  "generated_at": "2026-11-16T05:31:07.048Z",
+  "generated_at": "2026-11-16T06:10:11.850Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
+    {
+      "canonical_id": "fd_accrington",
+      "name": "Accrington",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_accrington",
+          "name_as_stored": "Accrington"
+        }
+      ],
+      "aliases": [
+        "Accrington"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_airdrie-utd",
+      "name": "Airdrie Utd",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_airdrie-utd",
+          "name_as_stored": "Airdrie Utd"
+        }
+      ],
+      "aliases": [
+        "Airdrie Utd"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_aldershot",
+      "name": "Aldershot",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_aldershot",
+          "name_as_stored": "Aldershot"
+        }
+      ],
+      "aliases": [
+        "Aldershot"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_alloa",
+      "name": "Alloa",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_alloa",
+          "name_as_stored": "Alloa"
+        }
+      ],
+      "aliases": [
+        "Alloa"
+      ],
+      "contested_name": false
+    },
     {
       "canonical_id": "fd_amedspor",
       "name": "Amedspor",
@@ -17,6 +81,22 @@
       ],
       "aliases": [
         "Amedspor"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_ayr",
+      "name": "Ayr",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_ayr",
+          "name_as_stored": "Ayr"
+        }
+      ],
+      "aliases": [
+        "Ayr"
       ],
       "contested_name": false
     },
@@ -85,6 +165,70 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_boston-utd",
+      "name": "Boston Utd",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_boston-utd",
+          "name_as_stored": "Boston Utd"
+        }
+      ],
+      "aliases": [
+        "Boston Utd"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_bradford",
+      "name": "Bradford",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_bradford",
+          "name_as_stored": "Bradford"
+        }
+      ],
+      "aliases": [
+        "Bradford"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_bristol-rvs",
+      "name": "Bristol Rvs",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_bristol-rvs",
+          "name_as_stored": "Bristol Rvs"
+        }
+      ],
+      "aliases": [
+        "Bristol Rvs"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_burton",
+      "name": "Burton",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_burton",
+          "name_as_stored": "Burton"
+        }
+      ],
+      "aliases": [
+        "Burton"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_buyuksehyr",
       "name": "Buyuksehyr",
       "country": "Turkey",
@@ -101,6 +245,38 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_cambridge",
+      "name": "Cambridge",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_cambridge",
+          "name_as_stored": "Cambridge"
+        }
+      ],
+      "aliases": [
+        "Cambridge"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_carlisle",
+      "name": "Carlisle",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_carlisle",
+          "name_as_stored": "Carlisle"
+        }
+      ],
+      "aliases": [
+        "Carlisle"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_charlton",
       "name": "Charlton",
       "country": "England",
@@ -113,6 +289,38 @@
       ],
       "aliases": [
         "Charlton"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_cheltenham",
+      "name": "Cheltenham",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_cheltenham",
+          "name_as_stored": "Cheltenham"
+        }
+      ],
+      "aliases": [
+        "Cheltenham"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_colchester",
+      "name": "Colchester",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_colchester",
+          "name_as_stored": "Colchester"
+        }
+      ],
+      "aliases": [
+        "Colchester"
       ],
       "contested_name": false
     },
@@ -149,6 +357,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_crewe",
+      "name": "Crewe",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_crewe",
+          "name_as_stored": "Crewe"
+        }
+      ],
+      "aliases": [
+        "Crewe"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_den-haag",
       "name": "Den Haag",
       "country": "Netherlands",
@@ -165,6 +389,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_doncaster",
+      "name": "Doncaster",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_doncaster",
+          "name_as_stored": "Doncaster"
+        }
+      ],
+      "aliases": [
+        "Doncaster"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_dresden",
       "name": "Dresden",
       "country": "Germany",
@@ -177,6 +417,38 @@
       ],
       "aliases": [
         "Dresden"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_dunfermline",
+      "name": "Dunfermline",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_dunfermline",
+          "name_as_stored": "Dunfermline"
+        }
+      ],
+      "aliases": [
+        "Dunfermline"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_elgin",
+      "name": "Elgin",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_elgin",
+          "name_as_stored": "Elgin"
+        }
+      ],
+      "aliases": [
+        "Elgin"
       ],
       "contested_name": false
     },
@@ -213,6 +485,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_exeter",
+      "name": "Exeter",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_exeter",
+          "name_as_stored": "Exeter"
+        }
+      ],
+      "aliases": [
+        "Exeter"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_for-sittard",
       "name": "For Sittard",
       "country": "Netherlands",
@@ -225,6 +513,38 @@
       ],
       "aliases": [
         "For Sittard"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_forest-green",
+      "name": "Forest Green",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_forest-green",
+          "name_as_stored": "Forest Green"
+        }
+      ],
+      "aliases": [
+        "Forest Green"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_forfar",
+      "name": "Forfar",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_forfar",
+          "name_as_stored": "Forfar"
+        }
+      ],
+      "aliases": [
+        "Forfar"
       ],
       "contested_name": false
     },
@@ -245,6 +565,22 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_grimsby",
+      "name": "Grimsby",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_grimsby",
+          "name_as_stored": "Grimsby"
+        }
+      ],
+      "aliases": [
+        "Grimsby"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_guimaraes",
       "name": "Guimaraes",
       "country": "Portugal",
@@ -261,6 +597,102 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_halifax",
+      "name": "Halifax",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_halifax",
+          "name_as_stored": "Halifax"
+        }
+      ],
+      "aliases": [
+        "Halifax"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_hamilton",
+      "name": "Hamilton",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_hamilton",
+          "name_as_stored": "Hamilton"
+        }
+      ],
+      "aliases": [
+        "Hamilton"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_harrogate",
+      "name": "Harrogate",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_harrogate",
+          "name_as_stored": "Harrogate"
+        }
+      ],
+      "aliases": [
+        "Harrogate"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_hartlepool",
+      "name": "Hartlepool",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_hartlepool",
+          "name_as_stored": "Hartlepool"
+        }
+      ],
+      "aliases": [
+        "Hartlepool"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_hornchurch",
+      "name": "Hornchurch",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_hornchurch",
+          "name_as_stored": "Hornchurch"
+        }
+      ],
+      "aliases": [
+        "Hornchurch"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_inverness-c",
+      "name": "Inverness C",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_inverness-c",
+          "name_as_stored": "Inverness C"
+        }
+      ],
+      "aliases": [
+        "Inverness C"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_iraklis",
       "name": "Iraklis",
       "country": "Greece",
@@ -273,6 +705,22 @@
       ],
       "aliases": [
         "Iraklis"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_kidderminster",
+      "name": "Kidderminster",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_kidderminster",
+          "name_as_stored": "Kidderminster"
+        }
+      ],
+      "aliases": [
+        "Kidderminster"
       ],
       "contested_name": false
     },
@@ -309,6 +757,38 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_mansfield",
+      "name": "Mansfield",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_mansfield",
+          "name_as_stored": "Mansfield"
+        }
+      ],
+      "aliases": [
+        "Mansfield"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_morton",
+      "name": "Morton",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_morton",
+          "name_as_stored": "Morton"
+        }
+      ],
+      "aliases": [
+        "Morton"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_nijmegen",
       "name": "Nijmegen",
       "country": "Netherlands",
@@ -321,6 +801,38 @@
       ],
       "aliases": [
         "Nijmegen"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_northampton",
+      "name": "Northampton",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_northampton",
+          "name_as_stored": "Northampton"
+        }
+      ],
+      "aliases": [
+        "Northampton"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_oldham",
+      "name": "Oldham",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_oldham",
+          "name_as_stored": "Oldham"
+        }
+      ],
+      "aliases": [
+        "Oldham"
       ],
       "contested_name": false
     },
@@ -353,6 +865,150 @@
       ],
       "aliases": [
         "Panetolikos"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_partick",
+      "name": "Partick",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_partick",
+          "name_as_stored": "Partick"
+        }
+      ],
+      "aliases": [
+        "Partick"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_queen-of-sth",
+      "name": "Queen of Sth",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_queen-of-sth",
+          "name_as_stored": "Queen of Sth"
+        }
+      ],
+      "aliases": [
+        "Queen of Sth"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_queens-park",
+      "name": "Queens Park",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_queens-park",
+          "name_as_stored": "Queens Park"
+        }
+      ],
+      "aliases": [
+        "Queens Park"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_raith-rvs",
+      "name": "Raith Rvs",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_raith-rvs",
+          "name_as_stored": "Raith Rvs"
+        }
+      ],
+      "aliases": [
+        "Raith Rvs"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_salford",
+      "name": "Salford",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_salford",
+          "name_as_stored": "Salford"
+        }
+      ],
+      "aliases": [
+        "Salford"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_scunthorpe",
+      "name": "Scunthorpe",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_scunthorpe",
+          "name_as_stored": "Scunthorpe"
+        }
+      ],
+      "aliases": [
+        "Scunthorpe"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_shrewsbury",
+      "name": "Shrewsbury",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_shrewsbury",
+          "name_as_stored": "Shrewsbury"
+        }
+      ],
+      "aliases": [
+        "Shrewsbury"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_solihull",
+      "name": "Solihull",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_solihull",
+          "name_as_stored": "Solihull"
+        }
+      ],
+      "aliases": [
+        "Solihull"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_southend",
+      "name": "Southend",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_southend",
+          "name_as_stored": "Southend"
+        }
+      ],
+      "aliases": [
+        "Southend"
       ],
       "contested_name": false
     },
@@ -405,6 +1061,86 @@
       "contested_name": false
     },
     {
+      "canonical_id": "fd_stirling",
+      "name": "Stirling",
+      "country": "Scotland",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_stirling",
+          "name_as_stored": "Stirling"
+        }
+      ],
+      "aliases": [
+        "Stirling"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_stockport",
+      "name": "Stockport",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_stockport",
+          "name_as_stored": "Stockport"
+        }
+      ],
+      "aliases": [
+        "Stockport"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_sutton",
+      "name": "Sutton",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_sutton",
+          "name_as_stored": "Sutton"
+        }
+      ],
+      "aliases": [
+        "Sutton"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_swindon",
+      "name": "Swindon",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_swindon",
+          "name_as_stored": "Swindon"
+        }
+      ],
+      "aliases": [
+        "Swindon"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_tranmere",
+      "name": "Tranmere",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_tranmere",
+          "name_as_stored": "Tranmere"
+        }
+      ],
+      "aliases": [
+        "Tranmere"
+      ],
+      "contested_name": false
+    },
+    {
       "canonical_id": "fd_vfl-bochum",
       "name": "VfL Bochum",
       "country": "Germany",
@@ -433,6 +1169,54 @@
       ],
       "aliases": [
         "Waregem"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_wycombe",
+      "name": "Wycombe",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_wycombe",
+          "name_as_stored": "Wycombe"
+        }
+      ],
+      "aliases": [
+        "Wycombe"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_yeovil",
+      "name": "Yeovil",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_yeovil",
+          "name_as_stored": "Yeovil"
+        }
+      ],
+      "aliases": [
+        "Yeovil"
+      ],
+      "contested_name": false
+    },
+    {
+      "canonical_id": "fd_york",
+      "name": "York",
+      "country": "England",
+      "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_york",
+          "name_as_stored": "York"
+        }
+      ],
+      "aliases": [
+        "York"
       ],
       "contested_name": false
     },

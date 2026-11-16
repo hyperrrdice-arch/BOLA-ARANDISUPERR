@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-16T05:36:01.916Z",
+  "generated_at": "2026-11-16T06:13:24.563Z",
   "window": {
-    "from": "2026-11-16T05:35:54.772Z",
-    "to": "2026-11-19T05:35:54.772Z",
+    "from": "2026-11-16T06:13:15.637Z",
+    "to": "2026-11-19T06:13:15.637Z",
     "hours": 72
   },
   "stats": {
@@ -21,8 +21,8 @@
     },
     "packages_written": 9,
     "fixtures_rated_free_mode": 1,
-    "ledger_live_run_rows_written": 45,
-    "ledger_skipped_already_recorded": 3
+    "ledger_live_run_rows_written": 0,
+    "ledger_skipped_already_recorded": 9
   },
   "rated": [
     {
@@ -38,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 1.888,
       "mu": 1.451,
-      "package_id": 5345,
+      "package_id": 5366,
       "legs": [
         {
           "market": "team_over05_home",
@@ -127,7 +127,7 @@
           "band": "60–65",
           "band_n": 1785,
           "grade": "C",
-          "market_prob": null,
+          "market_prob": 0.5814,
           "sm_prob": 0.5490999999999999,
           "agreement_spread": 0.09924564014123138
         },
@@ -159,7 +159,7 @@
       "feed_mode": "free",
       "lambda": 1.827,
       "mu": 1.735,
-      "package_id": 5346,
+      "package_id": 5367,
       "legs": [
         {
           "market": "ou15",
@@ -267,7 +267,7 @@
       "feed_mode": "full",
       "lambda": 1.016,
       "mu": 1.01,
-      "package_id": 5347,
+      "package_id": 5368,
       "legs": [
         {
           "market": "ou35",
@@ -388,7 +388,7 @@
       "feed_mode": "full",
       "lambda": 1.709,
       "mu": 1.6,
-      "package_id": 5348,
+      "package_id": 5369,
       "legs": [
         {
           "market": "team_over05_home",
@@ -509,7 +509,7 @@
       "feed_mode": "full",
       "lambda": 2.051,
       "mu": 1.122,
-      "package_id": 5349,
+      "package_id": 5370,
       "legs": [
         {
           "market": "team_over05_home",
@@ -617,7 +617,7 @@
       "feed_mode": "full",
       "lambda": 1.439,
       "mu": 1.725,
-      "package_id": 5350,
+      "package_id": 5371,
       "legs": [
         {
           "market": "team_over05_away",
@@ -738,7 +738,7 @@
       "feed_mode": "full",
       "lambda": 2.522,
       "mu": 0.908,
-      "package_id": 5351,
+      "package_id": 5372,
       "legs": [
         {
           "market": "dc",
@@ -859,7 +859,7 @@
       "feed_mode": "full",
       "lambda": 2.031,
       "mu": 1.348,
-      "package_id": 5352,
+      "package_id": 5373,
       "legs": [
         {
           "market": "team_over05_home",
@@ -980,7 +980,7 @@
       "feed_mode": "full",
       "lambda": 1.712,
       "mu": 1.221,
-      "package_id": 5353,
+      "package_id": 5374,
       "legs": [
         {
           "market": "team_over05_home",
