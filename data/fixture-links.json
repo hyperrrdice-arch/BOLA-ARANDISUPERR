@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-11-15T09:22:10.435Z",
+  "generated_at": "2026-11-16T05:31:16.092Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
     "fixtures": 3887,
-    "duplicate_groups": 171,
-    "twin_rows": 182,
+    "duplicate_groups": 175,
+    "twin_rows": 186,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
@@ -56,9 +56,29 @@
       "kickoff_utc": "2026-11-07T20:00:00.000Z"
     },
     {
+      "twin_id": "fd_SP2_20261107_burgos-cf_celta-b",
+      "canonical_id": "sm_19744999",
+      "kickoff_utc": "2026-11-07T13:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SP2_20261109_sabadell_sociedad-b",
+      "canonical_id": "sm_19744991",
+      "kickoff_utc": "2026-11-09T19:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_SP2_20261114_sociedad-b_sporting-gijon",
+      "canonical_id": "sm_19744981",
+      "kickoff_utc": "2026-11-14T15:15:00.000Z"
+    },
+    {
       "twin_id": "fd_SP2_20261114_ud-almeria_andorra",
       "canonical_id": "sm_19744988",
       "kickoff_utc": "2026-11-14T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_SP2_20261116_albacete-balompie_celta-b",
+      "canonical_id": "sm_19744989",
+      "kickoff_utc": "2026-11-16T19:30:00.000Z"
     },
     {
       "twin_id": "mt_022015219",

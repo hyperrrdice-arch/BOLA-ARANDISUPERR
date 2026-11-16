@@ -58,8 +58,15 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "athletic bilbao": "Athletic Club",
   "celta": "Celta Vigo",
   "celta de vigo": "Celta Vigo",
+  // Tim cadangan Celta: nama lama "Celta B" = nama resmi kini "Celta Fortuna"
+  // (ganti nama 2023). JANGAN diarahkan ke tim utama Celta Vigo.
+  "celta b": "Celta Fortuna",
+  "celta fortuna": "Celta Fortuna",
   "betis": "Real Betis",
   "sociedad": "Real Sociedad",
+  // Tim cadangan Real Sociedad (Sanse): CSV fd "Sociedad B" = SM "Real Sociedad II".
+  "sociedad b": "Real Sociedad II",
+  "real sociedad ii": "Real Sociedad II",
   "vallecano": "Rayo Vallecano",
   "rayo": "Rayo Vallecano",
   "espanol": "Espanyol",

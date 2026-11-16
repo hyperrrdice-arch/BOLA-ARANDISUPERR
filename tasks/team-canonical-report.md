@@ -1,13 +1,13 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-15T09:22:09.284Z
+Dibangun: 2026-11-16T05:31:07.048Z
 
 ## Angka
 
 - Baris tim sumber (tabel teams): **6766**
-- Tim kanonik hasil: **6553**
-- Grup tergabung (>1 baris sumber): **205** (menyerap 218 baris ekstra)
-- Grup lintas sistem (>1 sumber): **189**
+- Tim kanonik hasil: **6551**
+- Grup tergabung (>1 baris sumber): **207** (menyerap 220 baris ekstra)
+- Grup lintas sistem (>1 sumber): **191**
 - Tim bernama sengketa (≥2 negara): **2** entri
 - Pasangan kandidat mirip BELUM digabung: **8**
 - Keputusan resolusi fase 3 diterapkan: **25 penggabungan terbukti**, **8 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
@@ -43,6 +43,8 @@ Dibangun: 2026-11-15T09:22:09.284Z
 - GABUNG `3608` + `8364` — Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda.
 - GABUNG `4508` + `tm_11910` — 'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG.
 - GABUNG `fd_goztep` + `3897` — Nama CSV football-data 'Goztep' adalah Göztepe yang terpotek diakritiknya (Turki, id SM 3897 'Göztepe') — ketahuan dari baris form 31 Okt: lawan Fenerbahçe tercatat dua kali karena dua id ini tidak tergabung.
+- GABUNG `fd_celta-b` + `384` — Satu tim cadangan: 'Celta B' berganti nama resmi jadi 'Celta Fortuna' sejak 2023-24 (terverifikasi web: Wikipedia/rccelta.es). fd memakai nama CSV lama, SM nama kini. Bukti data: fixture kembar La Liga 2 — Albacete vs keduanya 2026-11-16T19:30Z dan Burgos vs keduanya 2026-11-07T13:00Z. Tim utama Celta Vigo (sm:36) entitas BERBEDA, tidak digabung.
+- GABUNG `fd_sociedad-b` + `9656` — Satu tim cadangan: Real Sociedad B (Sanse). fd memakai nama CSV pendek 'Sociedad B', SM memakai 'Real Sociedad II'. Bukti data: fixture kembar La Liga 2 — Sabadell vs keduanya 2026-11-09T19:30Z dan vs Sporting Gijón 2026-11-14T15:15Z, kickoff identik. Tim utama Real Sociedad (sm:594) dan Real Sociedad III (sm:28124) entitas BERBEDA, tidak digabung.
 - BEDA `10002` + `2837` — River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar).
 - BEDA `132434` + `94617` — Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah).
 - BEDA `2079` + `28207` — San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda.

@@ -83,6 +83,11 @@ const MERGE_PAIRS: [string, string, string][] = [
   ["3608", "8364", "Racing Club: baris sintetis standings (Copa Sudamericana sm:1116) = id 8364 'Racing' yang membawa 237 match di sm:636/sm:770/sm:1116 — Racing Club de Avellaneda."],
   ["4508", "tm_11910", "'Paris' (id 4508) di fixture + standings Ligue 1 = Paris FC — PSG entitasnya terpisah di SM (id 591) dan ikut Ligue 1 yang sama, jadi 'Paris' bukan PSG."],
   ["fd_goztep", "3897", "Nama CSV football-data 'Goztep' adalah Göztepe yang terpotek diakritiknya (Turki, id SM 3897 'Göztepe') — ketahuan dari baris form 31 Okt: lawan Fenerbahçe tercatat dua kali karena dua id ini tidak tergabung."],
+  // Gelombang 4 (2026-11-16): tim cadangan yang tampil dengan dua nama —
+  // nama lama/pendek di CSV football-data vs nama resmi kini di Sportmonks.
+  // Bukti penentu = fixture kembar: kompetisi + kickoff + lawan identik.
+  ["fd_celta-b", "384", "Satu tim cadangan: 'Celta B' berganti nama resmi jadi 'Celta Fortuna' sejak 2023-24 (terverifikasi web: Wikipedia/rccelta.es). fd memakai nama CSV lama, SM nama kini. Bukti data: fixture kembar La Liga 2 — Albacete vs keduanya 2026-11-16T19:30Z dan Burgos vs keduanya 2026-11-07T13:00Z. Tim utama Celta Vigo (sm:36) entitas BERBEDA, tidak digabung."],
+  ["fd_sociedad-b", "9656", "Satu tim cadangan: Real Sociedad B (Sanse). fd memakai nama CSV pendek 'Sociedad B', SM memakai 'Real Sociedad II'. Bukti data: fixture kembar La Liga 2 — Sabadell vs keduanya 2026-11-09T19:30Z dan vs Sporting Gijón 2026-11-14T15:15Z, kickoff identik. Tim utama Real Sociedad (sm:594) dan Real Sociedad III (sm:28124) entitas BERBEDA, tidak digabung."],
 ];
 
 /** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */

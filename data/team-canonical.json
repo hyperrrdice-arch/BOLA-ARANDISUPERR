@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-15T09:22:09.284Z",
+  "generated_at": "2026-11-16T05:31:07.048Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -97,22 +97,6 @@
       ],
       "aliases": [
         "Buyuksehyr"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_celta-b",
-      "name": "Celta B",
-      "country": "Spain",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_celta-b",
-          "name_as_stored": "Celta B"
-        }
-      ],
-      "aliases": [
-        "Celta B"
       ],
       "contested_name": false
     },
@@ -369,22 +353,6 @@
       ],
       "aliases": [
         "Panetolikos"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_sociedad-b",
-      "name": "Sociedad B",
-      "country": "Spain",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_sociedad-b",
-          "name_as_stored": "Sociedad B"
-        }
-      ],
-      "aliases": [
-        "Sociedad B"
       ],
       "contested_name": false
     },
@@ -79157,9 +79125,15 @@
           "system": "sportmonks",
           "team_id": "384",
           "name_as_stored": "Celta Fortuna"
+        },
+        {
+          "system": "football-data",
+          "team_id": "fd_celta-b",
+          "name_as_stored": "Celta B"
         }
       ],
       "aliases": [
+        "Celta B",
         "Celta Fortuna"
       ],
       "contested_name": false
@@ -104672,10 +104646,16 @@
           "system": "sportmonks",
           "team_id": "9656",
           "name_as_stored": "Real Sociedad II"
+        },
+        {
+          "system": "football-data",
+          "team_id": "fd_sociedad-b",
+          "name_as_stored": "Sociedad B"
         }
       ],
       "aliases": [
-        "Real Sociedad II"
+        "Real Sociedad II",
+        "Sociedad B"
       ],
       "contested_name": false
     },
