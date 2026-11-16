@@ -476,8 +476,12 @@ function main() {
   // Liga legacy: tercatat sebagai calibrated dari file rating yang sudah ada.
   // (n_teams dihitung dari roster ASLI, sebelum alias bentuk-nama ditambah —
   // kolom itu menghitung tim ter-fit dari match, bukan kunci JSON.)
+  // Entri source='football-data-fit' DIKECUALIKAN: itu milik jalur fit
+  // legacy fd di bawah (di-fit ulang tiap run dengan gerbang penuh) —
+  // menstempelnya 'calibrated' di sini akan menimpa status gerbangnya.
   for (const [div, lg] of Object.entries(ratings.leagues)) {
     if (div.startsWith("SM")) continue;
+    if ((lg as { source?: string }).source === "football-data-fit") continue;
     insReg.run(
       div, String(lg.leagueName ?? div), String(lg.country ?? ""), null, "calibrated",
       Number(lg.totalMatches ?? 0), Object.keys((lg.teams as object) ?? {}).length,
@@ -667,7 +671,11 @@ function main() {
   let nLegacyFit = 0, nLegacyUncal = 0;
   for (const fdDiv of FD_DIVISIONS) {
     const div = fdDiv.code;
-    if (ratings.leagues[div]) continue; // sudah ada fit — jangan disentuh
+    // Entri warisan/sumber lain tidak disentuh; entri hasil jalur ini
+    // sendiri (source='football-data-fit') di-fit ULANG tiap run — sama
+    // seperti liga SM — supaya fitnya segar mengikuti hasil fd terbaru
+    // dan status registry-nya selalu keluaran gerbang run terakhir.
+    if (ratings.leagues[div] && (ratings.leagues[div] as { source?: string }).source !== "football-data-fit") continue;
     const matches = ds
       .prepare(
         `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
