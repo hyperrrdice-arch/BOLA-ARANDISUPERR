@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-11-16T05:44:01.993Z",
+  "rule": "tasks/telemetry-combined-arm-report.md §0 kriteria (c)",
+  "populations": {
+    "slate_latest": {
+      "fixtures": 9,
+      "team_fixtures": 18,
+      "unresolved": 0,
+      "gainers": 3,
+      "gainers_share": 0.1667,
+      "gainers_from_empty_sm": 1,
+      "examples": [
+        {
+          "match_id": "sm_19744989",
+          "team_id": "3169",
+          "kickoff": "2026-11-16",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "fd_SP2_20261116_albacete-balompie_celta-b",
+          "team_id": "3169",
+          "kickoff": "2026-11-16",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "fd_SP2_20261116_albacete-balompie_celta-b",
+          "team_id": "fd_celta-b",
+          "kickoff": "2026-11-16",
+          "sm_newest": null,
+          "combined_newest": "2026-11-07"
+        }
+      ]
+    },
+    "upcoming_2026_11_20_24": {
+      "fixtures": 528,
+      "team_fixtures": 1056,
+      "unresolved": 0,
+      "gainers": 204,
+      "gainers_share": 0.1932,
+      "gainers_from_empty_sm": 16,
+      "examples": [
+        {
+          "match_id": "sm_19735397",
+          "team_id": "3527",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-08"
+        },
+        {
+          "match_id": "sm_19717542",
+          "team_id": "1838",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-30",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "mt_377364754",
+          "team_id": "tm_98299",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-11-03",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "mt_377364754",
+          "team_id": "tm_20721",
+          "kickoff": "2026-11-20",
+          "sm_newest": null,
+          "combined_newest": "2026-11-08"
+        },
+        {
+          "match_id": "sm_19744978",
+          "team_id": "844",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-11-02",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "sm_19768802",
+          "team_id": "1234",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "mt_733041959",
+          "team_id": "tm_97782",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "mt_733041959",
+          "team_id": "tm_97714",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-30",
+          "combined_newest": "2026-11-08"
+        },
+        {
+          "match_id": "sm_19726008",
+          "team_id": "2641",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-11-01",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "sm_19726008",
+          "team_id": "357",
+          "kickoff": "2026-11-20",
+          "sm_newest": "2026-10-31",
+          "combined_newest": "2026-11-07"
+        },
+        {
+          "match_id": "sm_19746551",
+          "team_id": "286",
+          "kickoff": "2026-11-21",
+          "sm_newest": "2026-11-02",
+          "combined_newest": "2026-11-08"
+        },
+        {
+          "match_id": "sm_19735399",
+          "team_id": "956",
+          "kickoff": "2026-11-21",
+          "sm_newest": "2026-11-01",
+          "combined_newest": "2026-11-07"
+        }
+      ]
+    }
+  },
+  "gate_c": {
+    "total_gainers": 207,
+    "share_population_ii": 0.1932,
+    "thresholds": {
+      "min_total_gainers": 10,
+      "min_share_ii": 0.05
+    },
+    "benefit_real": true
+  }
+}

@@ -1,0 +1,539 @@
+{
+  "generated_at": "2026-11-16T05:47:57.969Z",
+  "cutoff": "2026-11-16",
+  "fd_teams": 277,
+  "equal": 232,
+  "explained_extra": 3,
+  "material_count": 42,
+  "material_examples": [
+    {
+      "team_id": "2811",
+      "combined_only": [
+        "2026-10-18|tm_master_kasimpasa|1|4"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-18|sm:1071|1|4",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "9919",
+      "combined_only": [
+        "2026-10-18|tm_master_ofi_crete|4|3"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-18|sm:118|4|3",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_bayer-leverkusen",
+      "combined_only": [
+        "2026-09-20|sm:277|2|0",
+        "2026-10-10|tm_64398|4|3",
+        "2026-10-18|sm:3543|2|1"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-22|sm:118|2|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-28|sm:956|5|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-05|sm:44|0|1",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_cambuur",
+      "combined_only": [
+        "2026-10-11|sm:1016|1|0"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-11|fd_zwolle|1|0",
+          "chosen": "football-data"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_goztep",
+      "combined_only": [
+        "2026-09-20|sm:1041|2|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-25|sm:13871|2|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_sv-darmstadt-98",
+      "combined_only": [
+        "2026-09-18|sm:510|1|5",
+        "2026-10-10|fd_cottbus|3|1"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-10|sm:3322|3|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-27|sm:3588|2|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_telstar",
+      "combined_only": [
+        "2026-10-11|sm:1128|2|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-11|fd_den-haag|2|2",
+          "chosen": "football-data"
+        }
+      ]
+    },
+    {
+      "team_id": "fd_tsg-1899-hoffenheim",
+      "combined_only": [
+        "2026-09-20|sm:2642|1|3",
+        "2026-10-10|sm:2708|2|3",
+        "2026-10-18|fd_borussia-monchengladbach|2|1"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-18|sm:683|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-22|sm:79|3|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-05|sm:51|1|1",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_01158",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-10|sm:266|1|5",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-18|sm:44|2|5",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-25|sm:9257|0|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-01|sm:79|0|2",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_02413",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|sm:2642|2|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:794|3|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-27|sm:68|2|3",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_02599",
+      "combined_only": [
+        "2026-09-18|sm:1099|1|3"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|tm_64681|0|1",
+          "chosen": "thestats"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_10401",
+      "combined_only": [
+        "2026-09-19|sm:1053|0|4"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|tm_26373|3|2",
+          "chosen": "thestats"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_15093",
+      "combined_only": [
+        "2026-10-11|sm:3543|1|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|tm_64398|0|1",
+          "chosen": "thestats"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_15641",
+      "combined_only": [
+        "2026-10-10|sm:503|2|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|tm_89026|3|4",
+          "chosen": "thestats"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_17744",
+      "combined_only": [
+        "2026-08-15|fd_waregem|0|0",
+        "2026-09-02|fd_st-truiden|3|0"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-22|sm:516|4|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-25|sm:2641|5|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-31|sm:1272|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-05|sm:36|2|1",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_20116",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-18|sm:2975|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-22|sm:53|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-25|sm:265948|0|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-31|sm:377|0|3",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-05|sm:3958|1|2",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_20677",
+      "combined_only": [
+        "2026-09-20|sm:2726|3|1"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-17|sm:82|2|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:2708|1|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-28|sm:3319|0|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-31|sm:683|0|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_20721",
+      "combined_only": [
+        "2026-08-29|sm:2726|3|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-16|sm:366|0|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:67|0|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-27|sm:1079|5|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-01|sm:1079|1|1",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_26936",
+      "combined_only": [
+        "2026-08-08|fd_estrela|2|2",
+        "2026-08-14|fd_guimaraes|3|2",
+        "2026-10-09|fd_sp-braga|3|1"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-13|sm:271|2|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-21|sm:3369|2|3",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-25|sm:8297|1|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-30|sm:11741|2|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-03|sm:621|1|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_37885",
+      "combined_only": [
+        "2026-09-05|sm:3321|0|4"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-10|tm_89026|1|0",
+          "chosen": "thestats"
+        },
+        {
+          "key": "2026-10-17|sm:68|0|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:90|1|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-27|sm:3320|0|5",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-01|sm:3320|1|1",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_40658",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-03|sm:1628|2|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-10|sm:776|5|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-17|sm:690|1|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-23|sm:450|1|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-02|sm:9257|2|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_44984",
+      "combined_only": [
+        "2026-08-29|fd_dresden|5|3",
+        "2026-09-20|fd_bielefeld|2|2"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-10-09|sm:1638|0|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-17|sm:510|1|3",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:3322|1|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-31|sm:3114|1|2",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_459777",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-03|sm:17303|2|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-10|sm:108|0|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-19|sm:581|0|3",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:6842|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-30|sm:1281|1|0",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_46499",
+      "combined_only": [],
+      "canonical_only": [
+        {
+          "key": "2026-10-11|sm:214|2|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-18|sm:459|0|2",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-24|sm:528|2|1",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-10-29|sm:29356|2|0",
+          "chosen": "sportmonks"
+        },
+        {
+          "key": "2026-11-01|sm:3468|0|3",
+          "chosen": "sportmonks"
+        }
+      ]
+    },
+    {
+      "team_id": "tm_47798",
+      "combined_only": [
+        "2026-08-22|sm:9849|1|0",
+        "2026-08-30|sm:2934|1|0"
+      ],
+      "canonical_only": [
+        {
+          "key": "2026-09-20|tm_master_levadeiakos|1|0",
+          "chosen": "master"
+        },
+        {
+          "key": "2026-10-11|sm:57|1|0",
+          "chosen": "master"
+        }
+      ]
+    }
+  ],
+  "goals_mismatch_on_equal": 0,
+  "xg_diff_on_equal": 2,
+  "lib_spot_checks": [
+    {
+      "team_id": "3527",
+      "name": "Magdeburg",
+      "sample_size": 6,
+      "rolling_goals_for": 2,
+      "rolling_goals_against": 2.17,
+      "rolling_xg_for": 1.5,
+      "newest_match": "2026-11-08",
+      "sources": [
+        "football-data",
+        "sportmonks"
+      ]
+    },
+    {
+      "team_id": "1838",
+      "name": "Pau",
+      "sample_size": 6,
+      "rolling_goals_for": 2.17,
+      "rolling_goals_against": 1.5,
+      "rolling_xg_for": 1.42,
+      "newest_match": "2026-11-07",
+      "sources": [
+        "football-data",
+        "sportmonks"
+      ]
+    },
+    {
+      "team_id": "tm_98299",
+      "name": "FC Bayern München",
+      "sample_size": 6,
+      "rolling_goals_for": 2.83,
+      "rolling_goals_against": 1.17,
+      "rolling_xg_for": 2.71,
+      "newest_match": "2026-11-07",
+      "sources": [
+        "football-data",
+        "sportmonks"
+      ]
+    }
+  ]
+}

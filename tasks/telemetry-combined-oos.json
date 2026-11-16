@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-11-16T05:45:51.543Z",
+  "runtime_seconds": 2.9,
+  "config": {
+    "params_from_oos_results_levelB_selected": {
+      "label": "winner kx2",
+      "params": "hl365|rho:zero|kfit:20",
+      "kappaScale": 2
+    },
+    "half_life": 365,
+    "kfit": 10,
+    "rho": 0,
+    "kappa_scale": 2,
+    "min_matches": 120,
+    "leagues": 63,
+    "folds_evaluated": [
+      "V2",
+      "H"
+    ],
+    "folds_skipped": [
+      "V1 (dilewati untuk membatasi runtime)"
+    ]
+  },
+  "pre_registered_rule": {
+    "source": "tasks/telemetry-combined-arm-report.md §0 (di-commit sebelum run)",
+    "gate_a": "LL pooled combined − fixed ≤ +0,002",
+    "gate_b": "|slope_combined − 1| ≤ |slope_fixed − 1| + 0,02 (pooled)",
+    "gate_c": "kesegaran nyata — dievaluasi dari tasks/telemetry-freshness.json di laporan"
+  },
+  "arms_definition": {
+    "fixed": "logs source='sportmonks' saja + bobot xG rasio kompetisi (definisi tervalidasi saat ini)",
+    "combined": "logs SM ∪ football-data, dedupe kunci tanggal(10)|opponent|GF|GA (SM menang), jendela 6 laga fisik berbeda, bobot xG sama; xG NULL = gol saja, penyebut count non-null per sisi",
+    "canonical": "DESKRIPTIF — jendela team_match_logs_canonical via registry (saji live); tanpa pemetaan → jendela fixed"
+  },
+  "combined_pool_stats": {
+    "fdRows": 1102,
+    "collisions": 120,
+    "fdKept": 1006
+  },
+  "recorded_reference": {
+    "note": "tasks/telemetry-oos.json per 2026-11-04 (store sudah tumbuh sejak itu; reproduksi persis TIDAK diharapkan — perbandingan sah = antar-lengan satu run)",
+    "fixed_pooled_2026_11_04": {
+      "n": 12409,
+      "logloss": 1.0152,
+      "brier": 0.6078,
+      "slope": 0.982
+    }
+  },
+  "arms": {
+    "fixed": {
+      "folds": {
+        "V2": {
+          "n": 6683,
+          "logloss": 1.0237,
+          "brier": 0.6139,
+          "slope": 0.925
+        },
+        "H": {
+          "n": 6708,
+          "logloss": 1.0134,
+          "brier": 0.6066,
+          "slope": 1.03
+        }
+      },
+      "pooled_H_V2": {
+        "n": 13391,
+        "logloss": 1.0185,
+        "brier": 0.6102,
+        "slope": 0.976
+      }
+    },
+    "combined": {
+      "folds": {
+        "V2": {
+          "n": 6683,
+          "logloss": 1.0236,
+          "brier": 0.6139,
+          "slope": 0.925
+        },
+        "H": {
+          "n": 6708,
+          "logloss": 1.0137,
+          "brier": 0.6068,
+          "slope": 1.026
+        }
+      },
+      "pooled_H_V2": {
+        "n": 13391,
+        "logloss": 1.0186,
+        "brier": 0.6103,
+        "slope": 0.974
+      }
+    },
+    "canonical": {
+      "folds": {
+        "V2": {
+          "n": 6683,
+          "logloss": 1.0237,
+          "brier": 0.6139,
+          "slope": 0.925
+        },
+        "H": {
+          "n": 6708,
+          "logloss": 1.0136,
+          "brier": 0.6067,
+          "slope": 1.03
+        }
+      },
+      "pooled_H_V2": {
+        "n": 13391,
+        "logloss": 1.0186,
+        "brier": 0.6103,
+        "slope": 0.976
+      }
+    }
+  },
+  "diagnostics_window_differs": {
+    "folds": {
+      "V2": {
+        "n_differs": 15,
+        "fixed": {
+          "n": 15,
+          "logloss": 1.3717,
+          "brier": 0.8496,
+          "slope": null
+        },
+        "combined": {
+          "n": 15,
+          "logloss": 1.3567,
+          "brier": 0.8436,
+          "slope": null
+        }
+      },
+      "H": {
+        "n_differs": 623,
+        "fixed": {
+          "n": 623,
+          "logloss": 0.9694,
+          "brier": 0.5752,
+          "slope": 1.206
+        },
+        "combined": {
+          "n": 623,
+          "logloss": 0.9724,
+          "brier": 0.5775,
+          "slope": 1.154
+        }
+      }
+    },
+    "pooled": {
+      "n_differs": 638,
+      "fixed": {
+        "n": 638,
+        "logloss": 0.9789,
+        "brier": 0.5817,
+        "slope": 1.134
+      },
+      "combined": {
+        "n": 638,
+        "logloss": 0.9814,
+        "brier": 0.5838,
+        "slope": 1.086
+      }
+    }
+  },
+  "gate": {
+    "a_logloss": {
+      "delta": 0.0001,
+      "threshold": 0.002,
+      "pass": true
+    },
+    "b_slope": {
+      "worsen": 0.002,
+      "threshold": 0.02,
+      "pass": true
+    },
+    "c_freshness": "lihat tasks/telemetry-freshness.json + laporan §4"
+  }
+}

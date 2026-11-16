@@ -1,6 +1,6 @@
 # Laporan Validasi Lengan Telemetri Gabungan (SM ∪ football-data) — Level B OOS
 
-Tanggal: 2026-11-16 · Branch `master` · Status: **ATURAN PRA-TERDAFTAR DITULIS & DI-COMMIT SEBELUM HARNESS DIJALANKAN — hasil di §5 ke bawah diisi sesudah run**
+Tanggal: 2026-11-16 · Branch `master` · Status: **SELESAI — gerbang pra-terdaftar PASS (3/3 kriteria); penerimaan baris football-data ke telemetri saji ter-backing OOS; tidak ada perubahan kode saji yang diperlukan (jalur kanonik live terverifikasi ekuivalen)**
 
 ---
 
@@ -147,22 +147,126 @@ sebenarnya sudah bergerak lebih jauh:
   Tidak ada sumber data baru yang bocor ke fit — fit hanya membaca
   `matches`, identik antar-lengan.
 
-## 3 · Hasil OOS
+## 3 · Hasil OOS (run 2026-11-16; bukti `tasks/telemetry-combined-oos.json`)
 
-_(diisi sesudah run)_
+Populasi run ini: 63 liga, n pooled **13.391** (store sudah tumbuh sejak
+referensi 2026-11-04: 58 liga / n 12.409 — angka absolut bergeser seperti
+diperingatkan §0; perbandingan sah = antar-lengan satu run).
 
-## 4 · Kesegaran (kriteria c)
+Pool gabungan: 1.102 baris fd masuk; **120 tabrakan kunci** ter-resolve,
+**96 baris fd terbuang sebagai duplikat baris SM** (SM dipertahankan —
+persis hitungan kembaran independen di §1); 1.006 baris fd bertahan di
+pool ter-dedupe.
 
-_(diisi sesudah run)_
+| Lengan | V2 (n=6.683) LL / Brier / slope | H (n=6.708) LL / Brier / slope | Pooled (n=13.391) LL / Brier / slope |
+|---|---|---|---|
+| fixed (SM-only) | 1,0237 / 0,6139 / 0,925 | 1,0134 / 0,6066 / 1,030 | 1,0185 / 0,6102 / 0,976 |
+| **combined (SM ∪ fd)** | 1,0236 / 0,6139 / 0,925 | 1,0137 / 0,6068 / 1,026 | 1,0186 / 0,6103 / 0,974 |
+| canonical (deskriptif) | 1,0237 / 0,6139 / 0,925 | 1,0136 / 0,6067 / 1,030 | 1,0186 / 0,6103 / 0,976 |
+
+**Kriteria (a) — LULUS.** ΔLL pooled = **+0,0001** (ambang ≤ +0,002).
+Per lipatan: V2 −0,0001 (gabungan sedikit lebih baik), H +0,0003.
+**Kriteria (b) — LULUS.** |slope−1|: fixed 0,024 → combined 0,026;
+memburuk **0,002** (ambang ≤ 0,02).
+
+**Diagnostik subset berjendela beda** (deskriptif): 638 dari 13.391 laga
+uji (4,8%) benar-benar berubah inputnya — V2 hanya 15 (era fd baru mulai
+Agustus 2026), H 623. Pada subset itu saja: LL fixed 0,9789 vs combined
+0,9814 (Δ +0,0025 — biaya kecil terkonsentrasi persis di laga yang
+tersentuh), tetapi slope subset membaik: 1,134 → **1,086** (gabungan
+kurang overconfident di laga-laga itu). Di 95,2% laga sisanya kedua
+lengan identik, sehingga efek pooled menipis ke +0,0001 — pola yang sama
+seperti dicatat laporan divergensi §3b. Lengan `canonical` deskriptif
+mendarat di angka pooled yang sama dengan `combined` (LL 1,0186, slope
+0,976): definisi yang benar-benar disajikan saji live berperilaku sama
+dengan definisi yang lulus gerbang.
+
+## 4 · Kesegaran (kriteria c) — LULUS, manfaat nyata
+
+Bukti `tasks/telemetry-freshness.json` (diukur sebelum harness, sesudah
+aturan §0 di-commit):
+
+- **Populasi (i) slate terakhir** (9 fixture rated, 18 tim-fixture):
+  **3 gainers (16,7%)**, 1 di antaranya dari jendela SM kosong.
+- **Populasi (ii) akhir pekan 20–24 Nov 2026** (528 fixture, 1.056
+  tim-fixture): **204 gainers (19,3%)**, 16 dari jendela SM kosong.
+- Total gainers **207** (ambang ≥ 10) dan share populasi (ii) **19,3%**
+  (ambang ≥ 5%) → manfaat **bukan ~nol**: kira-kira satu dari lima
+  jendela form akhir pekan ini memuat laga 8–9 Nov yang tidak akan
+  terlihat oleh definisi SM-only (SM berhenti 7 Nov; sesudah itu setiap
+  akhir pekan baru menambah jaraknya).
 
 ## 5 · Verdict
 
-_(diisi sesudah run)_
+**PASS — ketiga kriteria pra-terdaftar terpenuhi** ((a) +0,0001 ≤
++0,002; (b) memburuk 0,002 ≤ 0,02; (c) 207 gainers, 19,3% ≥ ambang).
+Memasukkan baris football-data ke telemetri saji **tidak menurunkan
+akurasi out-of-sample** pada populasi identik, dan membeli kesegaran
+form yang terukur. Sesuai pemetaan §0, implementasi berjalan lewat
+verifikasi lapisan kanonik live (§6) — bukan penulisan ulang filter,
+karena jalur utama saji sudah berbentuk kanonik sejak pakem.
 
 ## 6 · Yang diubah / tidak diubah
 
-_(diisi sesudah run)_
+**Tidak ada perubahan kode saji yang diperlukan — dan tidak ada yang
+dibuat.** Jalur utama (`getPreMatchLogs`, `calculateTeamLuckMetrics`)
+sudah membaca `team_match_logs_canonical`, yang memuat fd; gerbang ini
+memberi backing OOS yang selama ini belum ada untuk penerimaan itu.
+Verifikasi ekuivalensi (bukti
+`tasks/telemetry-canonical-equivalence.json`, cutoff 2026-11-16,
+seluruh 277 tim berbaris fd):
+
+- **232/277 tim: jendela kanonik identik** dengan definisi `combined`
+  (kunci tanggal|lawan kanonik|GF|GA); pada yang identik, rata-rata
+  GF/GA sama persis (0 mismatch); 2 tim berbeda xG saja — efek
+  `xg_filled_from` builder yang terdokumentasi.
+- **3/277: ekstra terjelaskan** — kanonik memuat baris fallback
+  thestats/master untuk laga tanpa baris SM/fd (sesuai desain builder).
+- **42/277: selisih representasi identitas, bukan selisih laga** —
+  pemeriksaan contoh menunjukkan dua pola: (1) laga fisik yang sama
+  dengan lawan tertulis di namespace anggota berbeda (mis.
+  `tm_master_kasimpasa` vs `sm:1071`, tanggal+skor sama); (2) tim
+  ber-id `fd_<slug>` yang jendela kanoniknya justru **lebih kaya/baru**
+  karena registry melebur log namespace SM mereka (yang tidak terlihat
+  pool mentah per-id). Pemeriksaan riwayat penuh (bukan hanya last-6):
+  dari **13.305** baris pool gabungan milik tim-tim fd, yang tidak
+  ditemukan padanannya (tanggal|GF|GA) di tabel kanonik hanya
+  **9 baris (0,07%)** — kesembilannya pada id warisan berkonflasi
+  identitas yang sudah dikenal (dua di antaranya `tm_0406`, keluarga
+  residual laporan divergensi §6) dan bertanggal ≤ 2026-08-16; tidak
+  ada baris dari akhir pekan mana pun sesudah itu yang hilang, dan
+  sebaliknya 0 baris fd pilihan kanonik yang berada di luar pool
+  per-id. Jendela era-fd yang tersaji utuh.
+- **Spot-check fungsi saji asli** (`getTeamRollingTelemetry`, cutoff
+  fixture 20 Nov): Magdeburg — jendela 6 laga, laga terbaru **2026-11-08
+  dari football-data**; Pau FC — terbaru 2026-11-07, sumber campuran
+  fd+SM; Bayern München — terbaru 2026-11-07, sumber campuran. Form
+  pasca-Sportmonks hidup lewat jalur saji yang sebenarnya, bukan hanya
+  di tabel.
+
+Yang TIDAK diubah, sesuai §0: jalur fallback SM-only untuk tim di luar
+registry (baris fd tidak bisa diatribusikan ke tim tanpa identitas
+kanonik); definisi harness; tabel asal; builder kanonik. 🔒 tidak
+disentuh.
 
 ## 7 · Verifikasi & commit
 
-_(diisi sesudah run)_
+- **Acceptance engine** (`scripts/pick-engine-acceptance.ts`): **PASS,
+  tidak berubah** — kedua paket tersimpan mereproduksi semua kuantitas
+  dalam toleransi (Δ maks 0,00005 « toleransi 0,0011); kombo Fenerbahçe
+  tetap 57,27% vs produk naif 44,89%. (Wajar: tidak ada kode saji yang
+  berubah; run ini mengonfirmasi ulang.)
+- **Slate smoke** (`pick-slate.ts --limit 5 --no-ledger`): selesai tanpa
+  error — 3 rated (paket tertulis), 2 unrated fail-closed dengan alasan
+  eksplisit, ledger +0 sesuai flag. File `pick-slate-latest.*` hasil
+  smoke dikembalikan ke keadaan commit terakhir (file output ritme,
+  diregenerasi cron berikutnya).
+- **`npx tsc --noEmit` = 0** pada setiap checkpoint dan pohon final.
+- 🔒 **utuh**: tidak ada perubahan di `lib/agent/*`, `lib/coverage.ts`,
+  `lib/syndicate-orchestrator.ts`, `lib/llm/*` — pekerjaan ini tidak
+  mengubah `lib/` sama sekali. `.env.local` tidak dibuka. Nol panggilan
+  API.
+- Commit: `57e3948` (pra-registrasi: laporan §0–§2 + harness + pengukur
+  kesegaran — sebelum run) · commit bukti+hasil (JSON OOS, JSON
+  kesegaran, script+JSON ekuivalensi, acceptance ter-regenerasi, laporan
+  final ini).

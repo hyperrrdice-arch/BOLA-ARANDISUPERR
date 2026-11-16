@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T17:51:52.096Z",
+  "generated_at": "2026-11-16T05:50:30.018Z",
   "tolerance": 0.0011,
   "fixtures": [
     {
@@ -16,71 +16,71 @@
         {
           "quantity": "1X2 home (1)",
           "published": 0.4722,
-          "recomputed": 0.4721762888677676,
-          "abs_diff": 0.000023711132232429044,
+          "recomputed": 0.4721766771746862,
+          "abs_diff": 0.00002332282531380958,
           "within_tolerance": true
         },
         {
           "quantity": "1X2 draw (x)",
           "published": 0.2527,
-          "recomputed": 0.2526523541170303,
-          "abs_diff": 0.00004764588296968242,
+          "recomputed": 0.25265215285142734,
+          "abs_diff": 0.00004784714857264394,
           "within_tolerance": true
         },
         {
           "quantity": "1X2 away (2)",
           "published": 0.2752,
-          "recomputed": 0.2751713570152017,
-          "abs_diff": 0.000028642984798321613,
+          "recomputed": 0.2751711699738865,
+          "abs_diff": 0.000028830026113479956,
           "within_tolerance": true
         },
         {
           "quantity": "OU2.5 over",
           "published": 0.5002,
-          "recomputed": 0.5002312949157569,
-          "abs_diff": 0.000031294915756929775,
+          "recomputed": 0.500231693036962,
+          "abs_diff": 0.00003169303696204384,
           "within_tolerance": true
         },
         {
           "quantity": "OU2.5 under",
           "published": 0.4998,
-          "recomputed": 0.4997687050842426,
-          "abs_diff": 0.000031294915757429376,
+          "recomputed": 0.4997683069630376,
+          "abs_diff": 0.00003169303696243242,
           "within_tolerance": true
         },
         {
           "quantity": "BTTS yes",
           "published": 0.5318,
-          "recomputed": 0.5317803865848677,
-          "abs_diff": 0.000019613415132346823,
+          "recomputed": 0.5317805040840878,
+          "abs_diff": 0.000019495915912215445,
           "within_tolerance": true
         },
         {
           "quantity": "BTTS no",
           "published": 0.46819999999999995,
-          "recomputed": 0.46821961341513235,
-          "abs_diff": 0.000019613415132402334,
+          "recomputed": 0.468219495915912,
+          "abs_diff": 0.00001949591591204891,
           "within_tolerance": true
         },
         {
           "quantity": "DC 1x",
           "published": 0.7249,
-          "recomputed": 0.7248286429847981,
-          "abs_diff": 0.00007135701520188942,
+          "recomputed": 0.7248288300261131,
+          "abs_diff": 0.00007116997388689761,
           "within_tolerance": true
         },
         {
           "quantity": "DC 12",
           "published": 0.7474000000000001,
-          "recomputed": 0.7473476458829696,
-          "abs_diff": 0.00005235411703041759,
+          "recomputed": 0.7473478471485722,
+          "abs_diff": 0.00005215285142790016,
           "within_tolerance": true
         },
         {
           "quantity": "DC x2",
           "published": 0.5279,
-          "recomputed": 0.5278237111322325,
-          "abs_diff": 0.00007628886776755994,
+          "recomputed": 0.5278233228253139,
+          "abs_diff": 0.0000766771746861794,
           "within_tolerance": true
         }
       ],
@@ -89,7 +89,7 @@
         {
           "market": "team_over05_home",
           "selection": "yes",
-          "model_prob": 0.7881759357095539,
+          "model_prob": 0.7881760976379774,
           "effective_prob": 0.7612,
           "effective_source": "lab-band",
           "band": "75–80",
@@ -102,7 +102,7 @@
         {
           "market": "ou35",
           "selection": "under",
-          "model_prob": 0.7195965569888615,
+          "model_prob": 0.7195959837503904,
           "effective_prob": 0.7485,
           "effective_source": "lab-band",
           "band": "70–75",
@@ -115,7 +115,7 @@
         {
           "market": "ou15",
           "selection": "over",
-          "model_prob": 0.7467672035938347,
+          "model_prob": 0.7467674053218436,
           "effective_prob": 0.7344,
           "effective_source": "lab-band",
           "band": "70–75",
@@ -128,7 +128,7 @@
         {
           "market": "dc",
           "selection": "1x",
-          "model_prob": 0.7248286429847981,
+          "model_prob": 0.7248288300261131,
           "effective_prob": 0.7271,
           "effective_source": "lab-band",
           "band": "70–75",
@@ -136,12 +136,12 @@
           "grade": "B",
           "market_prob": null,
           "sm_prob": 0.7081999999999999,
-          "agreement_spread": 0.01662864298479816
+          "agreement_spread": 0.01662883002611315
         },
         {
           "market": "dc",
           "selection": "12",
-          "model_prob": 0.7473476458829696,
+          "model_prob": 0.7473478471485722,
           "effective_prob": 0.7271,
           "effective_source": "lab-band",
           "band": "70–75",
@@ -149,12 +149,12 @@
           "grade": "B",
           "market_prob": null,
           "sm_prob": 0.7472,
-          "agreement_spread": 0.0001476458829696714
+          "agreement_spread": 0.00014784714857218884
         },
         {
           "market": "team_over05_away",
           "selection": "yes",
-          "model_prob": 0.6746975674994867,
+          "model_prob": 0.6746975779622579,
           "effective_prob": 0.6506,
           "effective_source": "lab-band",
           "band": "65–70",
@@ -180,71 +180,71 @@
         {
           "quantity": "1X2 home (1)",
           "published": 0.2582,
-          "recomputed": 0.2581671573735274,
-          "abs_diff": 0.00003284262647257341,
+          "recomputed": 0.2581642440767377,
+          "abs_diff": 0.00003575592326227062,
           "within_tolerance": true
         },
         {
           "quantity": "1X2 draw (x)",
           "published": 0.211,
-          "recomputed": 0.21100444037821658,
-          "abs_diff": 0.0000044403782165913785,
+          "recomputed": 0.2110018115797116,
+          "abs_diff": 0.0000018115797116025067,
           "within_tolerance": true
         },
         {
           "quantity": "1X2 away (2)",
           "published": 0.5308,
-          "recomputed": 0.5308284022482561,
-          "abs_diff": 0.0000284022482560653,
+          "recomputed": 0.5308339443435506,
+          "abs_diff": 0.00003394434355052933,
           "within_tolerance": true
         },
         {
           "quantity": "OU2.5 over",
           "published": 0.6782,
-          "recomputed": 0.6782230043186193,
-          "abs_diff": 0.000023004318619235242,
+          "recomputed": 0.6782270131810424,
+          "abs_diff": 0.00002701318104236794,
           "within_tolerance": true
         },
         {
           "quantity": "OU2.5 under",
           "published": 0.3218,
-          "recomputed": 0.32177699568138085,
-          "abs_diff": 0.00002300431861912422,
+          "recomputed": 0.32177298681895783,
+          "abs_diff": 0.000027013181042145895,
           "within_tolerance": true
         },
         {
           "quantity": "BTTS yes",
           "published": 0.6619,
-          "recomputed": 0.6618971375661897,
-          "abs_diff": 0.0000028624338103133695,
+          "recomputed": 0.6618983444823445,
+          "abs_diff": 0.0000016555176555188567,
           "within_tolerance": true
         },
         {
           "quantity": "BTTS no",
           "published": 0.33809999999999996,
-          "recomputed": 0.3381028624338105,
-          "abs_diff": 0.000002862433810535414,
+          "recomputed": 0.3381016555176556,
+          "abs_diff": 0.000001655517655629879,
           "within_tolerance": true
         },
         {
           "quantity": "DC 1x",
           "published": 0.46919999999999995,
-          "recomputed": 0.46917159775174405,
-          "abs_diff": 0.000028402248255898765,
+          "recomputed": 0.4691660556564492,
+          "abs_diff": 0.00003394434355075138,
           "within_tolerance": true
         },
         {
           "quantity": "DC 12",
           "published": 0.789,
-          "recomputed": 0.7889955596217834,
-          "abs_diff": 0.000004440378216674645,
+          "recomputed": 0.7889981884202883,
+          "abs_diff": 0.0000018115797116857735,
           "within_tolerance": true
         },
         {
           "quantity": "DC x2",
           "published": 0.7418,
-          "recomputed": 0.7418328426264725,
-          "abs_diff": 0.0000328426264725179,
+          "recomputed": 0.7418357559232625,
+          "abs_diff": 0.00003575592326243715,
           "within_tolerance": true
         }
       ],
@@ -253,12 +253,12 @@
         {
           "market": "team_over05_away",
           "selection": "yes",
-          "model_prob": 0.875691367979152,
-          "effective_prob": 0.875691367979152,
+          "model_prob": 0.8756928790040523,
+          "effective_prob": 0.8756928790040523,
           "effective_source": "stated-fallback",
           "band": "85+",
           "band_n": 131,
-          "grade": "B",
+          "grade": "A",
           "market_prob": null,
           "sm_prob": null,
           "agreement_spread": null
@@ -266,12 +266,12 @@
         {
           "market": "ou15",
           "selection": "over",
-          "model_prob": 0.863580675279769,
+          "model_prob": 0.8635823748615045,
           "effective_prob": 0.8439,
           "effective_source": "lab-band",
           "band": "85+",
           "band_n": 237,
-          "grade": "B",
+          "grade": "A",
           "market_prob": null,
           "sm_prob": null,
           "agreement_spread": null
@@ -279,20 +279,33 @@
         {
           "market": "dc",
           "selection": "12",
-          "model_prob": 0.7889955596217834,
+          "model_prob": 0.7889981884202883,
           "effective_prob": 0.789,
           "effective_source": "lab-band",
           "band": "75–80",
           "band_n": 943,
-          "grade": "B",
+          "grade": "A",
           "market_prob": null,
           "sm_prob": 0.7622999999999999,
-          "agreement_spread": 0.026695559621783493
+          "agreement_spread": 0.026698188420288482
+        },
+        {
+          "market": "team_over05_home",
+          "selection": "yes",
+          "model_prob": 0.7558567168379152,
+          "effective_prob": 0.7259,
+          "effective_source": "lab-band",
+          "band": "75–80",
+          "band_n": 270,
+          "grade": "A",
+          "market_prob": null,
+          "sm_prob": null,
+          "agreement_spread": null
         },
         {
           "market": "dc",
           "selection": "x2",
-          "model_prob": 0.7418328426264725,
+          "model_prob": 0.7418357559232625,
           "effective_prob": 0.7437,
           "effective_source": "lab-band",
           "band": "70–75",
@@ -300,38 +313,25 @@
           "grade": "B",
           "market_prob": null,
           "sm_prob": 0.6363,
-          "agreement_spread": 0.10553284262647256
-        },
-        {
-          "market": "team_over05_home",
-          "selection": "yes",
-          "model_prob": 0.7558566428417135,
-          "effective_prob": 0.7259,
-          "effective_source": "lab-band",
-          "band": "75–80",
-          "band_n": 270,
-          "grade": "B",
-          "market_prob": null,
-          "sm_prob": null,
-          "agreement_spread": null
+          "agreement_spread": 0.10553575592326248
         },
         {
           "market": "btts",
           "selection": "yes",
-          "model_prob": 0.6618971375661897,
-          "effective_prob": 0.6618971375661897,
+          "model_prob": 0.6618983444823445,
+          "effective_prob": 0.6618983444823445,
           "effective_source": "stated-fallback",
           "band": "65–70",
           "band_n": 180,
           "grade": "C",
           "market_prob": null,
           "sm_prob": 0.6086,
-          "agreement_spread": 0.0532971375661897
+          "agreement_spread": 0.053298344482344495
         },
         {
           "market": "ou25",
           "selection": "over",
-          "model_prob": 0.6782230043186193,
+          "model_prob": 0.6782270131810424,
           "effective_prob": 0.6379,
           "effective_source": "lab-band",
           "band": "65–70",
@@ -339,7 +339,7 @@
           "grade": "C",
           "market_prob": null,
           "sm_prob": 0.5987,
-          "agreement_spread": 0.07952300431861925
+          "agreement_spread": 0.07952701318104238
         }
       ]
     }
@@ -355,30 +355,30 @@
         "selection": "yes"
       }
     ],
-    "joint_exact": 0.5726752573039491,
-    "naive_product_for_comparison": 0.4489138651900356,
+    "joint_exact": 0.5726775757919318,
+    "naive_product_for_comparison": 0.44891733720773724,
     "effective_source": "joint-exact-stated"
   },
   "example_cross_match_parlay": {
     "units": [
       {
         "label": "Everton vs Coventry: team_over05_home/yes",
-        "stated_prob": 0.7881759357095539,
+        "stated_prob": 0.7881760976379774,
         "effective_prob": 0.7612
       },
       {
         "label": "Fenerbahçe vs Liverpool: team_over05_away/yes",
-        "stated_prob": 0.875691367979152,
-        "effective_prob": 0.875691367979152
+        "stated_prob": 0.8756928790040523,
+        "effective_prob": 0.8756928790040523
       },
       {
         "label": "Fenerbahçe vs Liverpool kombo OU2.5+BTTS (eksak)",
-        "stated_prob": 0.5726752573039491,
-        "effective_prob": 0.5726752573039491
+        "stated_prob": 0.5726775757919318,
+        "effective_prob": 0.5726775757919318
       }
     ],
-    "combined_stated": 0.3952598116597098,
-    "combined_effective": 0.3817317365373657,
+    "combined_stated": 0.3952621751152557,
+    "combined_effective": 0.3817339406756901,
     "range_note": "Kombinasi efektif 38.2% adalah estimasi titik; produk stated 39.5% adalah batas atas — lab Fase A mengukur produk independensi melebih-lebihkan survival parlay ~1,5–4pp."
   }
 }
