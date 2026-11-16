@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-16T06:13:24.563Z",
+  "generated_at": "2026-11-16T09:35:39.885Z",
   "window": {
-    "from": "2026-11-16T06:13:15.637Z",
-    "to": "2026-11-19T06:13:15.637Z",
+    "from": "2026-11-16T09:35:23.861Z",
+    "to": "2026-11-19T09:35:23.861Z",
     "hours": 72
   },
   "stats": {
@@ -38,7 +38,7 @@
       "feed_mode": "full",
       "lambda": 1.888,
       "mu": 1.451,
-      "package_id": 5366,
+      "package_id": 5375,
       "legs": [
         {
           "market": "team_over05_home",
@@ -159,7 +159,7 @@
       "feed_mode": "free",
       "lambda": 1.827,
       "mu": 1.735,
-      "package_id": 5367,
+      "package_id": 5376,
       "legs": [
         {
           "market": "ou15",
@@ -267,7 +267,7 @@
       "feed_mode": "full",
       "lambda": 1.016,
       "mu": 1.01,
-      "package_id": 5368,
+      "package_id": 5377,
       "legs": [
         {
           "market": "ou35",
@@ -388,7 +388,7 @@
       "feed_mode": "full",
       "lambda": 1.709,
       "mu": 1.6,
-      "package_id": 5369,
+      "package_id": 5378,
       "legs": [
         {
           "market": "team_over05_home",
@@ -509,7 +509,7 @@
       "feed_mode": "full",
       "lambda": 2.051,
       "mu": 1.122,
-      "package_id": 5370,
+      "package_id": 5379,
       "legs": [
         {
           "market": "team_over05_home",
@@ -617,7 +617,7 @@
       "feed_mode": "full",
       "lambda": 1.439,
       "mu": 1.725,
-      "package_id": 5371,
+      "package_id": 5380,
       "legs": [
         {
           "market": "team_over05_away",
@@ -738,7 +738,7 @@
       "feed_mode": "full",
       "lambda": 2.522,
       "mu": 0.908,
-      "package_id": 5372,
+      "package_id": 5381,
       "legs": [
         {
           "market": "dc",
@@ -859,7 +859,7 @@
       "feed_mode": "full",
       "lambda": 2.031,
       "mu": 1.348,
-      "package_id": 5373,
+      "package_id": 5382,
       "legs": [
         {
           "market": "team_over05_home",
@@ -980,7 +980,7 @@
       "feed_mode": "full",
       "lambda": 1.712,
       "mu": 1.221,
-      "package_id": 5374,
+      "package_id": 5383,
       "legs": [
         {
           "market": "team_over05_home",

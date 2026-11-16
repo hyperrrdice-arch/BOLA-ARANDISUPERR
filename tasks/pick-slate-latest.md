@@ -1,4 +1,4 @@
-# Slate Pick — 2026-11-16 13:13 WIB (jendela 72 jam ke depan)
+# Slate Pick — 2026-11-16 16:35 WIB (jendela 72 jam ke depan)
 
 Fixture terpindai **30** · ter-rate **9** · tidak ter-rate **21** · total kaki **68** (A 26 / B 21 / C 21) · paket kuant tersimpan **9** · baris ledger live-run tertulis **0**.
 
