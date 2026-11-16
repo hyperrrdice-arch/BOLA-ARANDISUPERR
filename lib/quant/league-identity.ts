@@ -205,6 +205,10 @@ export function parseSourceId(raw: string): { system: LeagueSourceSystem; id: st
   if (/^comp_/i.test(s)) return { system: "thestats", id: s };
   m = s.match(/^master_([A-Z0-9]+)$/i);
   if (m) return { system: "legacy-div", id: `master_${m[1].toUpperCase()}` };
+  // 'EC' (English National League / Conference di football-data) adalah
+  // satu-satunya kode divisi legacy TANPA digit akhir — tanpa pengecualian
+  // eksplisit ini ia tidak pernah ter-parse sebagai id sumber legacy.
+  if (/^EC$/i.test(s)) return { system: "legacy-div", id: "EC" };
   if (/^[A-Z]{1,3}\d$/i.test(s)) return { system: "legacy-div", id: s.toUpperCase() };
   return null;
 }
