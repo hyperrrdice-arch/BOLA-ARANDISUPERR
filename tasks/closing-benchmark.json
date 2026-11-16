@@ -1,0 +1,2159 @@
+{
+  "generated_at": "2026-11-16T05:59:48.719Z",
+  "method": "Lab walk-forward OOS probs (picks.db source='lab') vs Pinnacle closing (football-data CSV), Shin strip (1X2) / two-way strip (OU2.5), score-verified join. See tasks/closing-benchmark-report.md §1.",
+  "inventory": {
+    "files": [
+      {
+        "file": "B1_2122.csv",
+        "div": "B1",
+        "season": "2122",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "B1_2223.csv",
+        "div": "B1",
+        "season": "2223",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "B1_2324.csv",
+        "div": "B1",
+        "season": "2324",
+        "rows": 312,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 312,
+        "rowsWithPinOu": 312
+      },
+      {
+        "file": "B1_2425.csv",
+        "div": "B1",
+        "season": "2425",
+        "rows": 312,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 312,
+        "rowsWithPinOu": 312
+      },
+      {
+        "file": "B1_2526.csv",
+        "div": "B1",
+        "season": "2526",
+        "rows": 311,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 96,
+        "rowsWithPinOu": 96
+      },
+      {
+        "file": "B1_2627.csv",
+        "div": "B1",
+        "season": "2627",
+        "rows": 72,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 72,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "D1_2122.csv",
+        "div": "D1",
+        "season": "2122",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 302
+      },
+      {
+        "file": "D1_2223.csv",
+        "div": "D1",
+        "season": "2223",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 294
+      },
+      {
+        "file": "D1_2324.csv",
+        "div": "D1",
+        "season": "2324",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 293
+      },
+      {
+        "file": "D1_2425.csv",
+        "div": "D1",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 297
+      },
+      {
+        "file": "D1_2526.csv",
+        "div": "D1",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 149,
+        "rowsWithPinOu": 142
+      },
+      {
+        "file": "D1_2627.csv",
+        "div": "D1",
+        "season": "2627",
+        "rows": 45,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 45,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "D2_2122.csv",
+        "div": "D2",
+        "season": "2122",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "D2_2223.csv",
+        "div": "D2",
+        "season": "2223",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "D2_2324.csv",
+        "div": "D2",
+        "season": "2324",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "D2_2425.csv",
+        "div": "D2",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "D2_2526.csv",
+        "div": "D2",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 90,
+        "rowsWithPinOu": 90
+      },
+      {
+        "file": "D2_2627.csv",
+        "div": "D2",
+        "season": "2627",
+        "rows": 63,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 63,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "E0_2122.csv",
+        "div": "E0",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "E0_2223.csv",
+        "div": "E0",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 379
+      },
+      {
+        "file": "E0_2324.csv",
+        "div": "E0",
+        "season": "2324",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 373
+      },
+      {
+        "file": "E0_2425.csv",
+        "div": "E0",
+        "season": "2425",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 377
+      },
+      {
+        "file": "E0_2526.csv",
+        "div": "E0",
+        "season": "2526",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 210,
+        "rowsWithPinOu": 210
+      },
+      {
+        "file": "E0_2627.csv",
+        "div": "E0",
+        "season": "2627",
+        "rows": 60,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 60,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "E1_2122.csv",
+        "div": "E1",
+        "season": "2122",
+        "rows": 552,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 552,
+        "rowsWithPinOu": 552
+      },
+      {
+        "file": "E1_2223.csv",
+        "div": "E1",
+        "season": "2223",
+        "rows": 552,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 552,
+        "rowsWithPinOu": 552
+      },
+      {
+        "file": "E1_2324.csv",
+        "div": "E1",
+        "season": "2324",
+        "rows": 552,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 552,
+        "rowsWithPinOu": 552
+      },
+      {
+        "file": "E1_2425.csv",
+        "div": "E1",
+        "season": "2425",
+        "rows": 552,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 552,
+        "rowsWithPinOu": 552
+      },
+      {
+        "file": "E1_2526.csv",
+        "div": "E1",
+        "season": "2526",
+        "rows": 552,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 271,
+        "rowsWithPinOu": 271
+      },
+      {
+        "file": "E1_2627.csv",
+        "div": "E1",
+        "season": "2627",
+        "rows": 119,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 118,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "F1_2122.csv",
+        "div": "F1",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "F1_2223.csv",
+        "div": "F1",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 378
+      },
+      {
+        "file": "F1_2324.csv",
+        "div": "F1",
+        "season": "2324",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "F1_2425.csv",
+        "div": "F1",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 304
+      },
+      {
+        "file": "F1_2526.csv",
+        "div": "F1",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 153,
+        "rowsWithPinOu": 152
+      },
+      {
+        "file": "F1_2627.csv",
+        "div": "F1",
+        "season": "2627",
+        "rows": 54,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 54,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "F2_2122.csv",
+        "div": "F2",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "F2_2223.csv",
+        "div": "F2",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "F2_2324.csv",
+        "div": "F2",
+        "season": "2324",
+        "rows": 379,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 379,
+        "rowsWithPinOu": 379
+      },
+      {
+        "file": "F2_2425.csv",
+        "div": "F2",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "F2_2526.csv",
+        "div": "F2",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 99,
+        "rowsWithPinOu": 99
+      },
+      {
+        "file": "F2_2627.csv",
+        "div": "F2",
+        "season": "2627",
+        "rows": 72,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 72,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "G1_2122.csv",
+        "div": "G1",
+        "season": "2122",
+        "rows": 240,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 240,
+        "rowsWithPinOu": 240
+      },
+      {
+        "file": "G1_2223.csv",
+        "div": "G1",
+        "season": "2223",
+        "rows": 240,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 240,
+        "rowsWithPinOu": 240
+      },
+      {
+        "file": "G1_2324.csv",
+        "div": "G1",
+        "season": "2324",
+        "rows": 240,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 240,
+        "rowsWithPinOu": 240
+      },
+      {
+        "file": "G1_2425.csv",
+        "div": "G1",
+        "season": "2425",
+        "rows": 233,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 233,
+        "rowsWithPinOu": 233
+      },
+      {
+        "file": "G1_2526.csv",
+        "div": "G1",
+        "season": "2526",
+        "rows": 236,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 55,
+        "rowsWithPinOu": 55
+      },
+      {
+        "file": "G1_2627.csv",
+        "div": "G1",
+        "season": "2627",
+        "rows": 42,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 42,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "I1_2122.csv",
+        "div": "I1",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I1_2223.csv",
+        "div": "I1",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I1_2324.csv",
+        "div": "I1",
+        "season": "2324",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I1_2425.csv",
+        "div": "I1",
+        "season": "2425",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I1_2526.csv",
+        "div": "I1",
+        "season": "2526",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 198,
+        "rowsWithPinOu": 198
+      },
+      {
+        "file": "I1_2627.csv",
+        "div": "I1",
+        "season": "2627",
+        "rows": 60,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 60,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "I2_2122.csv",
+        "div": "I2",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I2_2223.csv",
+        "div": "I2",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I2_2324.csv",
+        "div": "I2",
+        "season": "2324",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I2_2425.csv",
+        "div": "I2",
+        "season": "2425",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "I2_2526.csv",
+        "div": "I2",
+        "season": "2526",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 90,
+        "rowsWithPinOu": 90
+      },
+      {
+        "file": "I2_2627.csv",
+        "div": "I2",
+        "season": "2627",
+        "rows": 60,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 60,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "N1_2122.csv",
+        "div": "N1",
+        "season": "2122",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "N1_2223.csv",
+        "div": "N1",
+        "season": "2223",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "N1_2324.csv",
+        "div": "N1",
+        "season": "2324",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "N1_2425.csv",
+        "div": "N1",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "N1_2526.csv",
+        "div": "N1",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 142,
+        "rowsWithPinOu": 142
+      },
+      {
+        "file": "N1_2627.csv",
+        "div": "N1",
+        "season": "2627",
+        "rows": 72,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 72,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "P1_2122.csv",
+        "div": "P1",
+        "season": "2122",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "P1_2223.csv",
+        "div": "P1",
+        "season": "2223",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "P1_2324.csv",
+        "div": "P1",
+        "season": "2324",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "P1_2425.csv",
+        "div": "P1",
+        "season": "2425",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 306,
+        "rowsWithPinOu": 306
+      },
+      {
+        "file": "P1_2526.csv",
+        "div": "P1",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 153,
+        "rowsWithPinOu": 153
+      },
+      {
+        "file": "P1_2627.csv",
+        "div": "P1",
+        "season": "2627",
+        "rows": 71,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 71,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "SC0_2122.csv",
+        "div": "SC0",
+        "season": "2122",
+        "rows": 228,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 228,
+        "rowsWithPinOu": 228
+      },
+      {
+        "file": "SC0_2223.csv",
+        "div": "SC0",
+        "season": "2223",
+        "rows": 228,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 228,
+        "rowsWithPinOu": 228
+      },
+      {
+        "file": "SC0_2324.csv",
+        "div": "SC0",
+        "season": "2324",
+        "rows": 228,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 228,
+        "rowsWithPinOu": 228
+      },
+      {
+        "file": "SC0_2425.csv",
+        "div": "SC0",
+        "season": "2425",
+        "rows": 228,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 228,
+        "rowsWithPinOu": 228
+      },
+      {
+        "file": "SC0_2526.csv",
+        "div": "SC0",
+        "season": "2526",
+        "rows": 228,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 55,
+        "rowsWithPinOu": 55
+      },
+      {
+        "file": "SC0_2627.csv",
+        "div": "SC0",
+        "season": "2627",
+        "rows": 48,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 48,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "SP1_2122.csv",
+        "div": "SP1",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "SP1_2223.csv",
+        "div": "SP1",
+        "season": "2223",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "SP1_2324.csv",
+        "div": "SP1",
+        "season": "2324",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "SP1_2425.csv",
+        "div": "SP1",
+        "season": "2425",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 378
+      },
+      {
+        "file": "SP1_2526.csv",
+        "div": "SP1",
+        "season": "2526",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 188,
+        "rowsWithPinOu": 189
+      },
+      {
+        "file": "SP1_2627.csv",
+        "div": "SP1",
+        "season": "2627",
+        "rows": 78,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 78,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "SP2_2122.csv",
+        "div": "SP2",
+        "season": "2122",
+        "rows": 462,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 462,
+        "rowsWithPinOu": 462
+      },
+      {
+        "file": "SP2_2223.csv",
+        "div": "SP2",
+        "season": "2223",
+        "rows": 462,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 462,
+        "rowsWithPinOu": 462
+      },
+      {
+        "file": "SP2_2324.csv",
+        "div": "SP2",
+        "season": "2324",
+        "rows": 462,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 462,
+        "rowsWithPinOu": 462
+      },
+      {
+        "file": "SP2_2425.csv",
+        "div": "SP2",
+        "season": "2425",
+        "rows": 462,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 462,
+        "rowsWithPinOu": 462
+      },
+      {
+        "file": "SP2_2526.csv",
+        "div": "SP2",
+        "season": "2526",
+        "rows": 462,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 198,
+        "rowsWithPinOu": 198
+      },
+      {
+        "file": "SP2_2627.csv",
+        "div": "SP2",
+        "season": "2627",
+        "rows": 99,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 99,
+        "rowsWithPinOu": 0
+      },
+      {
+        "file": "T1_2122.csv",
+        "div": "T1",
+        "season": "2122",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 379,
+        "rowsWithPinOu": 379
+      },
+      {
+        "file": "T1_2223.csv",
+        "div": "T1",
+        "season": "2223",
+        "rows": 342,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 313,
+        "rowsWithPinOu": 313
+      },
+      {
+        "file": "T1_2324.csv",
+        "div": "T1",
+        "season": "2324",
+        "rows": 380,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 380,
+        "rowsWithPinOu": 380
+      },
+      {
+        "file": "T1_2425.csv",
+        "div": "T1",
+        "season": "2425",
+        "rows": 342,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 342,
+        "rowsWithPinOu": 342
+      },
+      {
+        "file": "T1_2526.csv",
+        "div": "T1",
+        "season": "2526",
+        "rows": 306,
+        "hasPscClosing": true,
+        "hasPpcClosing": false,
+        "hasPinOuClosing": true,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 135,
+        "rowsWithPinOu": 135
+      },
+      {
+        "file": "T1_2627.csv",
+        "div": "T1",
+        "season": "2627",
+        "rows": 63,
+        "hasPscClosing": false,
+        "hasPpcClosing": true,
+        "hasPinOuClosing": false,
+        "hasBttsCols": false,
+        "rowsWithPin1x2": 62,
+        "rowsWithPinOu": 0
+      }
+    ],
+    "totals": {
+      "files": 96,
+      "csvRows": 28923,
+      "rowsWithPin1x2": 25722,
+      "rowsWithPinOu": 24584,
+      "anyBttsCols": false
+    }
+  },
+  "join_diagnostics": {
+    "joined_by_season": {
+      "2526": 2615,
+      "2627": 664
+    },
+    "residual_team_aliases": {
+      "Atlético de Madrid": "Ath Madrid",
+      "Deportivo A Coruña": "La Coruna",
+      "Girona FC": "Girona",
+      "Levante UD": "Levante",
+      "Racing Santander": "Santander",
+      "Real Oviedo": "Oviedo",
+      "Bari 1908": "Bari",
+      "Calcio Padova": "Padova",
+      "Hellas Verona": "Verona",
+      "AS Monaco": "Monaco",
+      "LOSC Lille": "Lille",
+      "Olympique Lyonnais": "Lyon",
+      "Olympique Marseille": "Marseille",
+      "Paris Saint-Germain": "Paris SG",
+      "RC Lens": "Lens",
+      "RC Strasbourg": "Strasbourg",
+      "Angers SCO": "Angers",
+      "Grenoble Foot 38": "Grenoble",
+      "Red Star FC": "Red Star",
+      "Saint-Étienne": "St Etienne",
+      "US Dunkerque": "Dunkerque",
+      "Pau": "Pau FC",
+      "AEK Athens": "AEK",
+      "Iraklis 1908 FC": "Iraklis",
+      "Larissa": "Larisa",
+      "Levadiakos": "Levadeiakos",
+      "OFI": "OFI Crete",
+      "Olympiacos F.C.": "Olympiakos",
+      "Panaitolikos": "Panetolikos",
+      "Amed SK": "Amedspor",
+      "Erzurumspor FK": "Erzurumspor",
+      "Fatih Karagümrük": "Karagumruk",
+      "Gaziantep F.K.": "Gaziantep",
+      "Çorum FK": "Corum",
+      "İstanbul Başakşehir": "Buyuksehyr",
+      "Estrela Amadora": "Estrela",
+      "FC Porto": "Porto",
+      "Sporting Braga": "Sp Braga",
+      "Sporting CP": "Sp Lisbon",
+      "Vitória Guimarães": "Guimaraes",
+      "DSC Arminia Bielefeld": "Bielefeld",
+      "Darmstadt 98": "Darmstadt",
+      "Dynamo Dresden": "Dresden",
+      "Eintracht Braunschweig": "Braunschweig",
+      "Energie Cottbus": "Cottbus",
+      "FC Heidenheim": "Heidenheim",
+      "FC Schalke 04": "Schalke 04",
+      "FC St. Pauli": "St Pauli",
+      "Hannover 96": "Hannover",
+      "Hertha BSC": "Hertha",
+      "Karlsruher SC": "Karlsruhe",
+      "SpVgg Greuther Fürth": "Greuther Furth",
+      "VfL Bochum 1848": "Bochum",
+      "VfL Wolfsburg": "Wolfsburg"
+    },
+    "by_div": {
+      "P1": {
+        "labMatches": 316,
+        "joinedExact": 297,
+        "joinedShifted": 0,
+        "unmatched": 19,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 153,
+        "joinedNoPinOu": 224
+      },
+      "SC0": {
+        "labMatches": 237,
+        "joinedExact": 216,
+        "joinedShifted": 0,
+        "unmatched": 21,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 168,
+        "joinedNoPinOu": 216
+      },
+      "F1": {
+        "labMatches": 312,
+        "joinedExact": 285,
+        "joinedShifted": 0,
+        "unmatched": 27,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 152,
+        "joinedNoPinOu": 206
+      },
+      "G1": {
+        "labMatches": 241,
+        "joinedExact": 221,
+        "joinedShifted": 0,
+        "unmatched": 20,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 179,
+        "joinedNoPinOu": 221
+      },
+      "SP1": {
+        "labMatches": 392,
+        "joinedExact": 361,
+        "joinedShifted": 0,
+        "unmatched": 31,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 192,
+        "joinedNoPinOu": 269
+      },
+      "T1": {
+        "labMatches": 332,
+        "joinedExact": 271,
+        "joinedShifted": 0,
+        "unmatched": 61,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 153,
+        "joinedNoPinOu": 208
+      },
+      "I1": {
+        "labMatches": 387,
+        "joinedExact": 347,
+        "joinedShifted": 0,
+        "unmatched": 40,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 182,
+        "joinedNoPinOu": 242
+      },
+      "I2": {
+        "labMatches": 396,
+        "joinedExact": 346,
+        "joinedShifted": 0,
+        "unmatched": 50,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 286,
+        "joinedNoPinOu": 346
+      },
+      "E0": {
+        "labMatches": 383,
+        "joinedExact": 353,
+        "joinedShifted": 0,
+        "unmatched": 30,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 170,
+        "joinedNoPinOu": 230
+      },
+      "D2": {
+        "labMatches": 316,
+        "joinedExact": 289,
+        "joinedShifted": 0,
+        "unmatched": 27,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 216,
+        "joinedNoPinOu": 279
+      },
+      "F2": {
+        "labMatches": 320,
+        "joinedExact": 293,
+        "joinedShifted": 0,
+        "unmatched": 27,
+        "scoreMismatch": 0,
+        "joinedNoPin1x2": 205,
+        "joinedNoPinOu": 277
+      }
+    },
+    "unmatched_lab_sample": [
+      {
+        "matchId": "sm_19722765",
+        "div": "SC0",
+        "date": "2026-10-24",
+        "home": "Rangers",
+        "away": "St Johnstone"
+      },
+      {
+        "matchId": "sm_19732638",
+        "div": "SP1",
+        "date": "2026-10-31",
+        "home": "Barcelona",
+        "away": "Deportivo Alavés"
+      },
+      {
+        "matchId": "sm_19722137",
+        "div": "E0",
+        "date": "2026-10-17",
+        "home": "Manchester City",
+        "away": "Ipswich Town"
+      },
+      {
+        "matchId": "sm_19763850",
+        "div": "G1",
+        "date": "2026-10-24",
+        "home": "AEK Athens",
+        "away": "Panaitolikos"
+      },
+      {
+        "matchId": "sm_19763837",
+        "div": "G1",
+        "date": "2026-11-01",
+        "home": "PAOK",
+        "away": "Asteras Tripolis"
+      },
+      {
+        "matchId": "sm_19763852",
+        "div": "G1",
+        "date": "2026-10-18",
+        "home": "Panaitolikos",
+        "away": "Olympiacos F.C."
+      },
+      {
+        "matchId": "sm_19736778",
+        "div": "P1",
+        "date": "2026-10-25",
+        "home": "Sporting CP",
+        "away": "Academico Viseu"
+      },
+      {
+        "matchId": "sm_19763846",
+        "div": "G1",
+        "date": "2026-10-25",
+        "home": "Olympiacos F.C.",
+        "away": "Kalamata"
+      },
+      {
+        "matchId": "sm_19763853",
+        "div": "G1",
+        "date": "2026-10-18",
+        "home": "Panathinaikos",
+        "away": "Asteras Tripolis"
+      },
+      {
+        "matchId": "sm_19732655",
+        "div": "SP1",
+        "date": "2026-10-18",
+        "home": "Real Madrid",
+        "away": "Sevilla"
+      },
+      {
+        "matchId": "sm_19713528",
+        "div": "I1",
+        "date": "2026-10-28",
+        "home": "Venezia",
+        "away": "Inter"
+      },
+      {
+        "matchId": "sm_19736769",
+        "div": "P1",
+        "date": "2026-10-31",
+        "home": "FC Porto",
+        "away": "Estoril"
+      },
+      {
+        "matchId": "sm_19736773",
+        "div": "P1",
+        "date": "2026-10-30",
+        "home": "Casa Pia",
+        "away": "Sporting CP"
+      },
+      {
+        "matchId": "sm_19735440",
+        "div": "D2",
+        "date": "2026-10-17",
+        "home": "VfL Wolfsburg",
+        "away": "FC Heidenheim"
+      },
+      {
+        "matchId": "sm_19443206",
+        "div": "T1",
+        "date": "2026-04-25",
+        "home": "Göztepe",
+        "away": "Antalyaspor"
+      },
+      {
+        "matchId": "sm_19763847",
+        "div": "G1",
+        "date": "2026-10-25",
+        "home": "Volos NFC",
+        "away": "Panathinaikos"
+      },
+      {
+        "matchId": "sm_19713533",
+        "div": "I1",
+        "date": "2026-10-28",
+        "home": "Monza",
+        "away": "Napoli"
+      },
+      {
+        "matchId": "sm_19713525",
+        "div": "I1",
+        "date": "2026-11-01",
+        "home": "Como",
+        "away": "Venezia"
+      },
+      {
+        "matchId": "sm_19722762",
+        "div": "SC0",
+        "date": "2026-10-28",
+        "home": "Celtic",
+        "away": "Dundee United"
+      },
+      {
+        "matchId": "sm_19763851",
+        "div": "G1",
+        "date": "2026-10-18",
+        "home": "PAOK",
+        "away": "Iraklis 1908 FC"
+      },
+      {
+        "matchId": "sm_19746585",
+        "div": "T1",
+        "date": "2026-10-17",
+        "home": "Fenerbahçe",
+        "away": "Alanyaspor"
+      },
+      {
+        "matchId": "sm_19735422",
+        "div": "D2",
+        "date": "2026-10-31",
+        "home": "VfL Wolfsburg",
+        "away": "Osnabrück"
+      },
+      {
+        "matchId": "sm_19713541",
+        "div": "I1",
+        "date": "2026-10-25",
+        "home": "Lecce",
+        "away": "Juventus"
+      },
+      {
+        "matchId": "sm_19746587",
+        "div": "T1",
+        "date": "2026-10-17",
+        "home": "Gençlerbirliği",
+        "away": "Galatasaray"
+      },
+      {
+        "matchId": "sm_19746573",
+        "div": "T1",
+        "date": "2026-11-01",
+        "home": "Trabzonspor",
+        "away": "Gaziantep F.K."
+      },
+      {
+        "matchId": "sm_19715562",
+        "div": "F1",
+        "date": "2026-11-01",
+        "home": "Olympique Lyonnais",
+        "away": "Angers SCO"
+      },
+      {
+        "matchId": "sm_19722753",
+        "div": "SC0",
+        "date": "2026-10-31",
+        "home": "Motherwell",
+        "away": "St Mirren"
+      },
+      {
+        "matchId": "sm_19713527",
+        "div": "I1",
+        "date": "2026-11-02",
+        "home": "Atalanta",
+        "away": "Parma"
+      },
+      {
+        "matchId": "sm_19732650",
+        "div": "SP1",
+        "date": "2026-10-24",
+        "home": "Atlético de Madrid",
+        "away": "Deportivo A Coruña"
+      },
+      {
+        "matchId": "sm_19443107",
+        "div": "T1",
+        "date": "2026-01-31",
+        "home": "Göztepe",
+        "away": "Fatih Karagümrük"
+      },
+      {
+        "matchId": "sm_19768841",
+        "div": "I2",
+        "date": "2026-10-25",
+        "home": "Palermo",
+        "away": "Carrarese"
+      },
+      {
+        "matchId": "sm_19746570",
+        "div": "T1",
+        "date": "2026-11-01",
+        "home": "Amed SK",
+        "away": "Eyüpspor"
+      },
+      {
+        "matchId": "sm_19713531",
+        "div": "I1",
+        "date": "2026-10-27",
+        "home": "Roma",
+        "away": "Cagliari"
+      },
+      {
+        "matchId": "sm_19443124",
+        "div": "T1",
+        "date": "2026-02-15",
+        "home": "Göztepe",
+        "away": "Kayserispor"
+      },
+      {
+        "matchId": "sm_19443188",
+        "div": "T1",
+        "date": "2026-04-12",
+        "home": "Göztepe",
+        "away": "Kasımpaşa"
+      },
+      {
+        "matchId": "sm_19763841",
+        "div": "G1",
+        "date": "2026-10-31",
+        "home": "Kifisia",
+        "away": "Olympiacos F.C."
+      },
+      {
+        "matchId": "sm_19443044",
+        "div": "T1",
+        "date": "2025-11-23",
+        "home": "Göztepe",
+        "away": "Kocaelispor"
+      },
+      {
+        "matchId": "sm_19701634",
+        "div": "I2",
+        "date": "2026-05-19",
+        "home": "Monza",
+        "away": "Juve Stabia"
+      },
+      {
+        "matchId": "sm_19713526",
+        "div": "I1",
+        "date": "2026-10-31",
+        "home": "Bologna",
+        "away": "Monza"
+      },
+      {
+        "matchId": "sm_19732648",
+        "div": "SP1",
+        "date": "2026-10-25",
+        "home": "Barcelona",
+        "away": "Real Madrid"
+      },
+      {
+        "matchId": "sm_19713543",
+        "div": "I1",
+        "date": "2026-10-25",
+        "home": "Inter",
+        "away": "Fiorentina"
+      },
+      {
+        "matchId": "sm_19763845",
+        "div": "G1",
+        "date": "2026-10-25",
+        "home": "OFI",
+        "away": "PAOK"
+      },
+      {
+        "matchId": "sm_19732633",
+        "div": "SP1",
+        "date": "2026-10-30",
+        "home": "Villarreal",
+        "away": "Espanyol"
+      },
+      {
+        "matchId": "sm_19735431",
+        "div": "D2",
+        "date": "2026-10-24",
+        "home": "FC Heidenheim",
+        "away": "Energie Cottbus"
+      },
+      {
+        "matchId": "sm_19715578",
+        "div": "F1",
+        "date": "2026-10-18",
+        "home": "Olympique Lyonnais",
+        "away": "Nice"
+      },
+      {
+        "matchId": "sm_19715566",
+        "div": "F1",
+        "date": "2026-10-26",
+        "home": "Paris Saint-Germain",
+        "away": "Olympique Lyonnais"
+      },
+      {
+        "matchId": "sm_19443026",
+        "div": "T1",
+        "date": "2025-11-01",
+        "home": "Göztepe",
+        "away": "Gençlerbirliği"
+      },
+      {
+        "matchId": "sm_19768821",
+        "div": "I2",
+        "date": "2026-11-01",
+        "home": "Palermo",
+        "away": "Vicenza"
+      },
+      {
+        "matchId": "sm_19701637",
+        "div": "I2",
+        "date": "2026-05-22",
+        "home": "Südtirol",
+        "away": "Bari 1908"
+      },
+      {
+        "matchId": "sm_19732653",
+        "div": "SP1",
+        "date": "2026-10-17",
+        "home": "Villarreal",
+        "away": "Elche"
+      }
+    ],
+    "unmatched_lab_total": 353,
+    "unmatched_dataset_teams_by_div": {
+      "SC0": [
+        "dataset:Aberdeen",
+        "dataset:Celtic",
+        "dataset:Dundee",
+        "dataset:Dundee United",
+        "dataset:Falkirk",
+        "dataset:Hearts",
+        "dataset:Hibernian",
+        "dataset:Kilmarnock",
+        "dataset:Motherwell",
+        "dataset:Rangers",
+        "dataset:St Johnstone",
+        "dataset:St Mirren"
+      ],
+      "SP1": [
+        "dataset:Athletic Club",
+        "dataset:Atlético de Madrid",
+        "dataset:Barcelona",
+        "dataset:Celta de Vigo",
+        "dataset:Deportivo A Coruña",
+        "dataset:Deportivo Alavés",
+        "dataset:Elche",
+        "dataset:Espanyol",
+        "dataset:Getafe",
+        "dataset:Levante UD",
+        "dataset:Málaga",
+        "dataset:Osasuna",
+        "dataset:Racing Santander",
+        "dataset:Rayo Vallecano",
+        "dataset:Real Betis",
+        "dataset:Real Madrid",
+        "dataset:Real Sociedad",
+        "dataset:Sevilla",
+        "dataset:Valencia",
+        "dataset:Villarreal"
+      ],
+      "E0": [
+        "dataset:Arsenal",
+        "dataset:Aston Villa",
+        "dataset:Bournemouth",
+        "dataset:Brentford",
+        "dataset:Brighton & Hove Albion",
+        "dataset:Chelsea",
+        "dataset:Coventry City",
+        "dataset:Crystal Palace",
+        "dataset:Everton",
+        "dataset:Fulham",
+        "dataset:Hull City",
+        "dataset:Ipswich Town",
+        "dataset:Leeds United",
+        "dataset:Liverpool",
+        "dataset:Manchester City",
+        "dataset:Manchester United",
+        "dataset:Newcastle United",
+        "dataset:Nottingham Forest",
+        "dataset:Sunderland",
+        "dataset:Tottenham Hotspur"
+      ],
+      "G1": [
+        "dataset:AEK Athens",
+        "dataset:Aris",
+        "dataset:Asteras Tripolis",
+        "dataset:Atromitos",
+        "dataset:Iraklis 1908 FC",
+        "dataset:Kalamata",
+        "dataset:Kifisia",
+        "dataset:Levadiakos",
+        "dataset:OFI",
+        "dataset:Olympiacos F.C.",
+        "dataset:PAOK",
+        "dataset:Panaitolikos",
+        "dataset:Panathinaikos",
+        "dataset:Volos NFC"
+      ],
+      "P1": [
+        "dataset:Academico Viseu",
+        "dataset:Alverca",
+        "dataset:Arouca",
+        "dataset:CF Benfica",
+        "dataset:Casa Pia",
+        "dataset:Estoril",
+        "dataset:Estrela Amadora",
+        "dataset:FC Porto",
+        "dataset:Famalicão",
+        "dataset:Gil Vicente",
+        "dataset:Maritimo",
+        "dataset:Moreirense",
+        "dataset:Nacional",
+        "dataset:Rio Ave",
+        "dataset:Santa Clara",
+        "dataset:Sporting Braga",
+        "dataset:Sporting CP",
+        "dataset:Vitória Guimarães"
+      ],
+      "I1": [
+        "dataset:Atalanta",
+        "dataset:Bologna",
+        "dataset:Cagliari",
+        "dataset:Como",
+        "dataset:Fiorentina",
+        "dataset:Frosinone",
+        "dataset:Genoa",
+        "dataset:Inter",
+        "dataset:Juventus",
+        "dataset:Lazio",
+        "dataset:Lecce",
+        "dataset:Milan",
+        "dataset:Monza",
+        "dataset:Napoli",
+        "dataset:Parma",
+        "dataset:Roma",
+        "dataset:Sassuolo",
+        "dataset:Torino",
+        "dataset:Udinese",
+        "dataset:Venezia"
+      ],
+      "D2": [
+        "dataset:DSC Arminia Bielefeld",
+        "dataset:Darmstadt 98",
+        "dataset:Dynamo Dresden",
+        "dataset:Eintracht Braunschweig",
+        "dataset:Energie Cottbus",
+        "dataset:FC Heidenheim",
+        "dataset:FC St. Pauli",
+        "dataset:Hannover 96",
+        "dataset:Hertha BSC",
+        "dataset:Holstein Kiel",
+        "dataset:Kaiserslautern",
+        "dataset:Karlsruher SC",
+        "dataset:Magdeburg",
+        "dataset:Nürnberg",
+        "dataset:Osnabrück",
+        "dataset:SpVgg Greuther Fürth",
+        "dataset:VfL Bochum 1848",
+        "dataset:VfL Wolfsburg"
+      ],
+      "T1": [
+        "dataset:Alanyaspor",
+        "dataset:Amed SK",
+        "dataset:Antalyaspor",
+        "dataset:Beşiktaş",
+        "dataset:Erzurumspor FK",
+        "dataset:Eyüpspor",
+        "dataset:Fatih Karagümrük",
+        "dataset:Fenerbahçe",
+        "dataset:Galatasaray",
+        "dataset:Gaziantep F.K.",
+        "dataset:Gençlerbirliği",
+        "dataset:Göztepe",
+        "dataset:Kasımpaşa",
+        "dataset:Kayserispor",
+        "dataset:Kocaelispor",
+        "dataset:Konyaspor",
+        "dataset:Rizespor",
+        "dataset:Samsunspor",
+        "dataset:Trabzonspor",
+        "dataset:Çorum FK",
+        "dataset:İstanbul Başakşehir"
+      ],
+      "F1": [
+        "dataset:AS Monaco",
+        "dataset:Angers SCO",
+        "dataset:Auxerre",
+        "dataset:Brest",
+        "dataset:LOSC Lille",
+        "dataset:Le Havre",
+        "dataset:Le Mans",
+        "dataset:Lorient",
+        "dataset:Nice",
+        "dataset:Olympique Lyonnais",
+        "dataset:Olympique Marseille",
+        "dataset:Paris FC",
+        "dataset:Paris Saint-Germain",
+        "dataset:RC Lens",
+        "dataset:RC Strasbourg",
+        "dataset:Rennes",
+        "dataset:Toulouse",
+        "dataset:Troyes"
+      ],
+      "I2": [
+        "dataset:Arezzo",
+        "dataset:Ascoli",
+        "dataset:Avellino",
+        "dataset:Bari 1908",
+        "dataset:Benevento",
+        "dataset:Carrarese",
+        "dataset:Catanzaro",
+        "dataset:Cesena",
+        "dataset:Cremonese",
+        "dataset:Empoli",
+        "dataset:Hellas Verona",
+        "dataset:Juve Stabia",
+        "dataset:Mantova",
+        "dataset:Modena",
+        "dataset:Monza",
+        "dataset:Padova",
+        "dataset:Palermo",
+        "dataset:Pisa",
+        "dataset:Sampdoria",
+        "dataset:Südtirol",
+        "dataset:Vicenza",
+        "dataset:Virtus Entella"
+      ],
+      "F2": [
+        "dataset:Annecy",
+        "dataset:Boulogne",
+        "dataset:Clermont",
+        "dataset:Dijon",
+        "dataset:Grenoble Foot 38",
+        "dataset:Guingamp",
+        "dataset:Laval",
+        "dataset:Metz",
+        "dataset:Montpellier",
+        "dataset:Nancy",
+        "dataset:Nantes",
+        "dataset:Pau",
+        "dataset:Red Star FC",
+        "dataset:Reims",
+        "dataset:Rodez",
+        "dataset:Saint-Étienne",
+        "dataset:Sochaux",
+        "dataset:US Dunkerque"
+      ]
+    }
+  },
+  "pooled": {
+    "1x2": {
+      "n": 1223,
+      "model_logloss": 1.0089518717010817,
+      "closing_logloss": 0.9769154545120882,
+      "delta": 0.03203641718899353,
+      "mean_abs_fav_gap": 0.07023972085702196,
+      "indicative_only": false
+    },
+    "ou25": {
+      "n": 561,
+      "model_logloss": 0.7000147949296637,
+      "closing_logloss": 0.6829570358351651,
+      "delta": 0.01705775909449858,
+      "mean_abs_fav_gap": null,
+      "indicative_only": false
+    }
+  },
+  "leagues": [
+    {
+      "canonical_id": "sm:387",
+      "div": "I2",
+      "name": "Serie B",
+      "1x2": {
+        "n": 60,
+        "model_logloss": 1.0552526780960794,
+        "closing_logloss": 1.0609883372881,
+        "delta": -0.00573565919202057,
+        "mean_abs_fav_gap": 0.06643800707378827,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 0,
+        "model_logloss": null,
+        "closing_logloss": null,
+        "delta": null,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:501",
+      "div": "SC0",
+      "name": "Premiership",
+      "1x2": {
+        "n": 48,
+        "model_logloss": 0.9934190209878007,
+        "closing_logloss": 0.982181045201097,
+        "delta": 0.011237975786703713,
+        "mean_abs_fav_gap": 0.050502937242721584,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 0,
+        "model_logloss": null,
+        "closing_logloss": null,
+        "delta": null,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:85",
+      "div": "D2",
+      "name": "2. Bundesliga",
+      "1x2": {
+        "n": 73,
+        "model_logloss": 1.065338907703543,
+        "closing_logloss": 1.0499174074162334,
+        "delta": 0.015421500287309486,
+        "mean_abs_fav_gap": 0.054503666737250656,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 10,
+        "model_logloss": 0.7480176146432638,
+        "closing_logloss": 0.7316357566371686,
+        "delta": 0.01638185800609515,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:304",
+      "div": "F2",
+      "name": "Ligue 2",
+      "1x2": {
+        "n": 88,
+        "model_logloss": 1.0958662530963859,
+        "closing_logloss": 1.074438283687396,
+        "delta": 0.021427969408989833,
+        "mean_abs_fav_gap": 0.05757851672504635,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 16,
+        "model_logloss": 0.6377656702785334,
+        "closing_logloss": 0.6480212062479356,
+        "delta": -0.010255535969402207,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:8",
+      "div": "E0",
+      "name": "Premier League",
+      "1x2": {
+        "n": 183,
+        "model_logloss": 1.0344470945215378,
+        "closing_logloss": 1.0113780026248342,
+        "delta": 0.023069091896703586,
+        "mean_abs_fav_gap": 0.07570418669652453,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 123,
+        "model_logloss": 0.6916035731094495,
+        "closing_logloss": 0.6784526809666585,
+        "delta": 0.013150892142791082,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:384",
+      "div": "I1",
+      "name": "Serie A",
+      "1x2": {
+        "n": 165,
+        "model_logloss": 0.9751789317818228,
+        "closing_logloss": 0.9504556274944728,
+        "delta": 0.024723304287350034,
+        "mean_abs_fav_gap": 0.07202010696135697,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 105,
+        "model_logloss": 0.7142193681254552,
+        "closing_logloss": 0.716004851186757,
+        "delta": -0.0017854830613018846,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:301",
+      "div": "F1",
+      "name": "Ligue 1",
+      "1x2": {
+        "n": 133,
+        "model_logloss": 1.0274600984013176,
+        "closing_logloss": 0.9989194432549358,
+        "delta": 0.02854065514638182,
+        "mean_abs_fav_gap": 0.0717336062583382,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 79,
+        "model_logloss": 0.7433273816712509,
+        "closing_logloss": 0.6853618123638708,
+        "delta": 0.05796556930738006,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:600",
+      "div": "T1",
+      "name": "Super Lig",
+      "1x2": {
+        "n": 118,
+        "model_logloss": 1.0322972534602777,
+        "closing_logloss": 0.993714230462758,
+        "delta": 0.0385830229975197,
+        "mean_abs_fav_gap": 0.06303177454856687,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 63,
+        "model_logloss": 0.6708434053309618,
+        "closing_logloss": 0.6620283182456058,
+        "delta": 0.008815087085355944,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:325",
+      "div": "G1",
+      "name": "Super League",
+      "1x2": {
+        "n": 42,
+        "model_logloss": 0.9399542934343953,
+        "closing_logloss": 0.899538695733246,
+        "delta": 0.04041559770114933,
+        "mean_abs_fav_gap": 0.09609046957623611,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 0,
+        "model_logloss": null,
+        "closing_logloss": null,
+        "delta": null,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:462",
+      "div": "P1",
+      "name": "Liga Portugal",
+      "1x2": {
+        "n": 144,
+        "model_logloss": 0.9380515125938316,
+        "closing_logloss": 0.8947069348621172,
+        "delta": 0.04334457773171441,
+        "mean_abs_fav_gap": 0.07613757141722975,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 73,
+        "model_logloss": 0.6714774757593492,
+        "closing_logloss": 0.6712887085159429,
+        "delta": 0.00018876724340632922,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    },
+    {
+      "canonical_id": "sm:564",
+      "div": "SP1",
+      "name": "La Liga",
+      "1x2": {
+        "n": 169,
+        "model_logloss": 0.9793715129438826,
+        "closing_logloss": 0.9120043121306778,
+        "delta": 0.0673672008132048,
+        "mean_abs_fav_gap": 0.07533708404127647,
+        "indicative_only": true
+      },
+      "ou25": {
+        "n": 92,
+        "model_logloss": 0.7060842013120119,
+        "closing_logloss": 0.673571392997798,
+        "delta": 0.03251280831421388,
+        "mean_abs_fav_gap": null,
+        "indicative_only": true
+      }
+    }
+  ]
+}
