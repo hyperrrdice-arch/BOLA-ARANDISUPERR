@@ -48,6 +48,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { poissonLogProb, tauAdjustment } from "../lib/quant/dixon-coles";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
+import { FD_DIVISIONS } from "../lib/feeds/football-data";
 
 const args = process.argv.slice(2);
 const NO_OOS_GATE = args.includes("--no-oos-gate");
@@ -644,6 +645,142 @@ function main() {
     lg.canonicalId = cid;
     totalAliases += augmentTeamNameAliases(key, (lg.teams ?? {}) as Record<string, unknown>, cid);
     augmentedKeys.add(key);
+  }
+
+  // ---------------------------------------------------------------------
+  // Fit divisi legacy BARU (ekspansi feed gratis 2026-11-16): divisi
+  // football-data yang hasil fd-nya sudah mendarat di dataset.matches
+  // (competition_id = kode divisi) tapi BELUM punya entri ratings sama
+  // sekali (E2/E3/EC/SC1/SC2/SC3) difit di sini dengan mesin + gerbang
+  // yang PERSIS sama dengan jalur Sportmonks di atas: fitLeague yang
+  // sama, uji skala 2% yang sama, tangga gerbang OOS yang sama. Bedanya
+  // hanya sumber cakupan telemetri: log hasil fd (impor menulis 2 baris
+  // log per match yang di-insert) — cakupan = match musim berjalan yang
+  // punya ≥1 baris log / total match musim berjalan populasi ini.
+  // Entri yang SUDAH ada (16 divisi warisan + semua SM) tidak pernah
+  // disentuh jalur ini — kontrak lama "tanpa mengubah liga legacy yang
+  // sudah terpasang" tetap berlaku; jalur ini hanya mengisi yang kosong.
+  // Status TIDAK pernah ditulis tangan: hasil gerbang yang menentukan,
+  // dan baris registry di-INSERT OR REPLACE setelah loop registrasi
+  // legacy di atas supaya status jujur inilah yang bertahan.
+  // ---------------------------------------------------------------------
+  let nLegacyFit = 0, nLegacyUncal = 0;
+  for (const fdDiv of FD_DIVISIONS) {
+    const div = fdDiv.code;
+    if (ratings.leagues[div]) continue; // sudah ada fit — jangan disentuh
+    const matches = ds
+      .prepare(
+        `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
+         FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
+         ORDER BY utc_date`,
+      )
+      .all(div) as MatchRow[];
+    if (matches.length === 0) continue; // divisi ini belum mengimpor hasil apa pun
+    const teamSet = new Set<string>();
+    for (const m of matches) { teamSet.add(m.home_team_id); teamSet.add(m.away_team_id); }
+    const seasons = [...new Set(matches.map((m) => m.season))].sort();
+    const currentSeason = seasons[seasons.length - 1];
+    let coverage: number | null = null;
+    if (currentSeason) {
+      const cur = matches.filter((m) => m.season === currentSeason);
+      if (cur.length > 0) {
+        const curIds = (ds
+          .prepare("SELECT match_id FROM matches WHERE competition_id = ? AND season = ?")
+          .all(div, currentSeason) as { match_id: string }[]).map((r) => r.match_id);
+        const logged = (
+          ds.prepare(
+            `SELECT COUNT(DISTINCT match_id) AS n FROM team_match_logs WHERE match_id IN (${curIds.map(() => "?").join(",")})`,
+          ).get(...curIds) as { n: number }
+        ).n;
+        coverage = Math.min(1, logged / cur.length);
+      }
+    }
+    const fdCanonicalId = canonicalIdForLegacyDiv(div);
+    if (matches.length < MIN_MATCHES) {
+      insReg.run(div, fdDiv.name, fdDiv.country, null, "uncalibrated", matches.length, teamSet.size,
+        coverage, null, null, "legacy-csv-fit", `Data hasil football-data belum cukup untuk fit (n=${matches.length} < ${MIN_MATCHES}).`,
+        fdCanonicalId);
+      nLegacyUncal += 1;
+      continue;
+    }
+    const fit = fitLeague(matches, now.getTime(), HALF_LIFE_DAYS);
+    if (!fit) {
+      insReg.run(div, fdDiv.name, fdDiv.country, null, "uncalibrated", matches.length, teamSet.size,
+        coverage, null, null, "legacy-csv-fit", "Fit gagal (tim/gol tidak memadai).",
+        fdCanonicalId);
+      nLegacyUncal += 1;
+      continue;
+    }
+    const scalePass = Math.abs(fit.scaleRatio - 1) <= 0.02;
+    const covPass = coverage != null && coverage >= 0.8;
+    let status: "calibrated" | "partial" = scalePass && covPass ? "calibrated" : "partial";
+    let oosNote = "";
+    const oos = oosGate.get(div);
+    let forcedUncal = false;
+    const oosFail = !!oos && oos.n >= 20 && oos.heldout_logloss >= oos.naive_logloss;
+    if (oosFail && status === "calibrated") {
+      status = "partial";
+      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → diturunkan ke partial.`;
+    } else if (oosFail) {
+      forcedUncal = true;
+      oosNote = ` Gerbang OOS gagal: log-loss held-out ${oos.heldout_logloss.toFixed(4)} >= naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}) → status uncalibrated (fit tetap ditulis; tersaji berlabel per keputusan owner 2026-11-05).`;
+    } else if (oos && oos.n >= 20) {
+      oosNote = ` Gerbang OOS lolos: log-loss held-out ${oos.heldout_logloss.toFixed(4)} < naive ${oos.naive_logloss.toFixed(4)} (n=${oos.n}).`;
+    } else if (oos) {
+      oosNote = ` Gerbang OOS belum teruji: n held-out=${oos.n} < 20 (lantai sampel).`;
+    }
+    const perTeam = new Map<string, { matchesCount: number; goalsScored: number; goalsConceded: number; lastMatchDate: string }>();
+    for (const m of matches) {
+      for (const [tid, gf, ga] of [[m.home_team_id, m.home_score, m.away_score], [m.away_team_id, m.away_score, m.home_score]] as const) {
+        const cur2 = perTeam.get(tid) ?? { matchesCount: 0, goalsScored: 0, goalsConceded: 0, lastMatchDate: "" };
+        cur2.matchesCount += 1; cur2.goalsScored += gf; cur2.goalsConceded += ga;
+        if (m.utc_date > cur2.lastMatchDate) cur2.lastMatchDate = m.utc_date;
+        perTeam.set(tid, cur2);
+      }
+    }
+    const teamsJson: Record<string, unknown> = {};
+    for (const [tid, agg] of perTeam) {
+      const name = teamName.get(tid) ?? tid;
+      teamsJson[name] = {
+        name,
+        attack: Number((fit.attack.get(tid) ?? 1).toFixed(4)),
+        defense: Number((fit.defense.get(tid) ?? 1).toFixed(4)),
+        matchesCount: agg.matchesCount,
+        goalsScored: agg.goalsScored,
+        goalsConceded: agg.goalsConceded,
+        lastMatchDate: agg.lastMatchDate.slice(0, 10),
+      };
+      if (status === "calibrated" && !forcedUncal) addedTeams += 1;
+    }
+    totalAliases += augmentTeamNameAliases(div, teamsJson, fdCanonicalId);
+    augmentedKeys.add(div);
+    ratings.leagues[div] = {
+      div,
+      leagueName: fdDiv.name,
+      country: fdDiv.country,
+      seasonCount: seasons.length,
+      totalMatches: matches.length,
+      leagueAvgGoals: Number(fit.leagueAvgGoals.toFixed(4)),
+      homeAdvantage: Number(fit.homeAdvantage.toFixed(4)),
+      rho: rhoForLeague(fit, matches),
+      calibrationDate: nowIso.slice(0, 10),
+      source: "football-data-fit",
+      calibrationStatus: forcedUncal ? "uncalibrated" : status,
+      fitMethod: `ipf-time-decay-half-life-${HALF_LIFE_DAYS}d+rho-${RHO_MODE}+shrink-${SHRINK_KAPPA}`,
+      canonicalId: fdCanonicalId,
+      teams: teamsJson,
+    };
+    insReg.run(div, fdDiv.name, fdDiv.country, null, forcedUncal ? "uncalibrated" : status, matches.length, teamSet.size,
+      coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "legacy-csv-fit",
+      (forcedUncal
+        ? "Fit ditulis; status uncalibrated karena gerbang bukti (OOS) — tersaji berlabel (keputusan owner 2026-11-05)."
+        : status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote,
+      fdCanonicalId);
+    nLegacyFit += 1;
+    console.log(`Legacy fd ${div} (${fdDiv.name}): fit ditulis, status ${forcedUncal ? "uncalibrated" : status} (n=${matches.length}, skala=${fit.scaleRatio.toFixed(3)}, cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}).`);
+  }
+  if (nLegacyFit + nLegacyUncal > 0) {
+    console.log(`Fit legacy fd baru: ${nLegacyFit} tertulis, ${nLegacyUncal} uncalibrated (data kurang/fit gagal).`);
   }
 
   // Baris status kanonik (butir d): baris turunan source='canonical' dibangun

@@ -21,7 +21,16 @@ export interface FdDivision {
   country: string;
 }
 
-/** 16 divisi warisan — persis daftar script unduh historis proyek. */
+/**
+ * 16 divisi warisan — persis daftar script unduh historis proyek.
+ * Ekspansi 2026-11-16 (tasks/free-divisions-expansion-report.md): +6 divisi
+ * mmz4281 yang memang diterbitkan situsnya untuk musim berjalan — E2/E3/EC
+ * (Inggris kasta 3/4/5) dan SC1/SC2/SC3 (Skotlandia kasta 2/3/4). Semua
+ * membawa odds closing Pinnacle; xG hanya E2/E3 (divisi lain: tembakan saja).
+ * Liga ekstra dunia (file new/<KODE>.csv) TIDAK dimasukkan: skema kolomnya
+ * berbeda total (Home/Away/HG/AG, multi-musim per file) sehingga tidak
+ * ter-parse oleh pola importer ini.
+ */
 export const FD_DIVISIONS: FdDivision[] = [
   { code: "E0", name: "English Premier League", country: "England" },
   { code: "SP1", name: "Spanish La Liga", country: "Spain" },
@@ -39,6 +48,12 @@ export const FD_DIVISIONS: FdDivision[] = [
   { code: "SC0", name: "Scottish Premiership", country: "Scotland" },
   { code: "T1", name: "Turkish Super Lig", country: "Turkey" },
   { code: "G1", name: "Greek Super League", country: "Greece" },
+  { code: "E2", name: "English League One", country: "England" },
+  { code: "E3", name: "English League Two", country: "England" },
+  { code: "EC", name: "English National League", country: "England" },
+  { code: "SC1", name: "Scottish Championship", country: "Scotland" },
+  { code: "SC2", name: "Scottish League One", country: "Scotland" },
+  { code: "SC3", name: "Scottish League Two", country: "Scotland" },
 ];
 
 export const FD_DIVISION_CODES: string[] = FD_DIVISIONS.map((d) => d.code);

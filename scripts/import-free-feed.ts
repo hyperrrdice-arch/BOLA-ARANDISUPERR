@@ -2,14 +2,14 @@
  * IMPORT FEED GRATIS football-data.co.uk → store lokal (mode tanpa Sportmonks).
  *
  * Desain: tasks/free-feed-research.md (§A, §D). Mengisi:
- *  - Hasil musim berjalan (16 divisi)      → dataset.matches (+ teams fd_ baru)
+ *  - Hasil musim berjalan (22 divisi)      → dataset.matches (+ teams fd_ baru)
  *  - Telemetri gol/tembakan/xG hasil fd    → dataset.team_match_logs
  *    (source='football-data' — filter saji source='sportmonks' TIDAK diubah;
  *    baris fd adalah arsip hasil + sumber odds closing, bukan telemetri saji)
  *  - Odds closing tiap hasil               → dataset.match_odds_history
  *    (source='football-data', capture_kind='closing'; Pinnacle closing
  *    didahulukan, Bet365 closing hanya bila Pinnacle absen — label jujur)
- *  - Fixture dari fixtures.csv (16 divisi) → upcoming_fixtures (id fd_*)
+ *  - Fixture dari fixtures.csv (22 divisi) → upcoming_fixtures (id fd_*)
  *  - Odds pra-laga fixture                 → match_odds_history
  *    (capture_kind='fd-prematch', envelope books Pinnacle/Bet365 terpisah)
  *
