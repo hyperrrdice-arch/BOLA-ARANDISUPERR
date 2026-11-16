@@ -144,8 +144,7 @@ sudah ada untuk semua divisi, bukan hal baru dari ekspansi ini.
   diteruskan lewat flag `--env-file` tsx pada driver slate/acceptance,
   resep standar proyek).
 - Commit: `045c6ea` (kode ekspansi + jalur fit), `60251e8` (fix re-fit
-  status gerbang), lalu commit kode `parseSourceId` EC + commit data/hasil
-  rantai (ratings, registry kanonik, fixture-links, team-canonical, slate,
-  laporan ini). Master = branch kerja; status git final: bersih kecuali
-  tidak ada — semua file hasil kerja tugas ini ter-commit, file dirty lain
-  tidak ada.
+  status gerbang), `81448df` (fix `parseSourceId` EC), `ec97019` (data/hasil
+  rantai: ratings, registry kanonik, fixture-links, team-canonical, slate,
+  laporan ini). Branch kerja: master. Status git final: bersih — semua file
+  hasil kerja tugas ini ter-commit, tidak ada file dirty tersisa.
