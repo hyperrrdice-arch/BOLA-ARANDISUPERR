@@ -12,6 +12,10 @@
  *   6. build-canonical-telemetry.ts — tabel form kanonik dibangun ulang
  *      supaya saji membaca data resmi terbaru
  *   7. pick-slate.ts --hours=72 — slate pick dari store lokal (offline)
+ *   8. resolve-pick-outcomes.ts — skor final lokal (hasil fd yang baru
+ *      diimpor di langkah 1 termasuk) ditulis ke ledger pick; tanpa langkah
+ *      ini pick menumpuk tak pernah dinilai (regresi 7–16 Nov 2026: rantai
+ *      lama memanggilnya, rantai bebas awal tidak).
  *
  * Setiap langkah spawnSync npx tsx dengan stdio inherit; ringkasan satu
  * baris per langkah (nama + exit code + durasi); exit non-nol bila ada
@@ -36,6 +40,9 @@ const STEPS: Step[] = [
   { name: "build-canonical-telemetry", script: "scripts/build-canonical-telemetry.ts", scriptArgs: [] },
   // pick-slate mem-parse "--hours <n>" (bentuk spasi), bukan "--hours=<n>".
   { name: "pick-slate", script: "scripts/pick-slate.ts", scriptArgs: ["--hours", "72"] },
+  // Penilai ledger: jalan terakhir, sesudah impor hasil + slate, supaya
+  // hasil yang baru tiba di langkah 1 langsung menilai pick yang menunggu.
+  { name: "resolve-pick-outcomes", script: "scripts/resolve-pick-outcomes.ts", scriptArgs: [] },
 ];
 
 function main() {

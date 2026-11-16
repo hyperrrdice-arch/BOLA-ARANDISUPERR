@@ -3,10 +3,15 @@
  *
  * Sumber skor (semua read-only, tanpa API call):
  *  1. data/thestats_dataset.db `matches` by exact match_id,
- *     hanya status='finished' + skor non-null.
+ *     hanya status='finished' + skor non-null. (Store yang sama kini juga
+ *     menampung hasil era bebas: baris fd_ dari importer football-data.)
  *  2. Fallback bridge: data/upcoming_fixtures.db `sm_id_map`
  *     (match_id → sm_fixture_id) → cari 'sm_' || sm_fixture_id di dataset.
- *  3. Tidak ketemu → biarkan unresolved (JANGAN tebak skor).
+ *  3. Bridge kembar katalog: data/fixture-links.json (twin_id ↔ canonical_id,
+ *     dua arah) → cari skor finished milik id kembarnya di dataset. Ini yang
+ *     menjangkau pick sm_ yang hasil fisiknya tiba sebagai baris fd_ (dan
+ *     sebaliknya) setelah Sportmonks berhenti.
+ *  4. Tidak ketemu → biarkan unresolved (JANGAN tebak skor).
  *
  * Idempoten: pick yang sudah punya outcome tidak diperiksa lagi
  * (listUnresolved), jadi run kedua me-resolve 0 pick baru.
@@ -48,10 +53,30 @@ function finishedScore(db: DatabaseSync, matchId: string): ScoreRow | null {
   return row ?? null;
 }
 
+/** Peta kembar dua arah dari data/fixture-links.json (boleh tidak ada). */
+function loadTwinMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  const p = path.join(process.cwd(), "data", "fixture-links.json");
+  if (!fs.existsSync(p)) return map;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(p, "utf8")) as {
+      links?: { twin_id: string; canonical_id: string }[];
+    };
+    for (const link of parsed.links ?? []) {
+      map.set(link.canonical_id, link.twin_id);
+      map.set(link.twin_id, link.canonical_id);
+    }
+  } catch {
+    // File rusak → jembatan kembar dilewati, jalur lain tetap jalan.
+  }
+  return map;
+}
+
 function main(): void {
   const unresolved = listUnresolved(limit);
   const dataset = openRo("thestats_dataset.db");
   const upcoming = openRo("upcoming_fixtures.db");
+  const twinMap = loadTwinMap();
 
   let resolved = 0;
   try {
@@ -69,7 +94,13 @@ function main(): void {
         if (bridge) score = finishedScore(dataset, `sm_${bridge.sm_fixture_id}`);
       }
 
-      // 3. Tidak ada skor final lokal → tetap unresolved.
+      // 3. Bridge kembar katalog: id kembar (fd_ ↔ sm_/mt_) di fixture-links.
+      if (!score && dataset) {
+        const twinId = twinMap.get(pick.match_id);
+        if (twinId) score = finishedScore(dataset, twinId);
+      }
+
+      // 4. Tidak ada skor final lokal → tetap unresolved.
       if (!score) continue;
 
       recordOutcome(pick.id, score.home_score, score.away_score);
