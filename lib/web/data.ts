@@ -439,6 +439,10 @@ export interface GradeStat {
   claimed: number | null;
   gap_pp: number | null;
 }
+/** GradeStat live yang dipotong menurut gate_status pick (segmentasi R-01). */
+export interface GradeGateStat extends GradeStat {
+  gate_status: string;
+}
 export interface MarketStat {
   market: string;
   n: number;
@@ -451,6 +455,8 @@ export interface LedgerStats {
   live_total: number;
   live_resolved: number;
   by_grade: GradeStat[];
+  /** Segmen by_grade menurut gate_status (calibrated/partial/uncalibrated). */
+  live_by_grade_gate: GradeGateStat[];
   by_market: { market: string; n: number; hits: number; hit_rate: number | null }[];
   lab_by_grade: GradeStat[];
   lab_by_market: MarketStat[];
@@ -494,6 +500,24 @@ export function ledgerStats(): LedgerStats {
   const live_resolved = one(
     `SELECT COUNT(*) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='live-run'`,
   );
+  const toGradeStat = (r: Record<string, unknown>): GradeStat => {
+    const resolved = r.resolved as number;
+    const hits = r.hits as number;
+    const claimed = (r.claimed as number | null) ?? null;
+    const hit_rate = resolved > 0 ? hits / resolved : null;
+    return {
+      grade: r.grade as string,
+      n: r.n as number,
+      resolved,
+      hits,
+      hit_rate,
+      claimed,
+      gap_pp:
+        hit_rate !== null && claimed !== null
+          ? Math.round((hit_rate - claimed) * 1000) / 10
+          : null,
+    };
+  };
   const by_grade = (d
     .prepare(
       `SELECT p.grade AS grade, COUNT(*) AS n,
@@ -503,24 +527,28 @@ export function ledgerStats(): LedgerStats {
        FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
        WHERE p.source='live-run' GROUP BY p.grade ORDER BY p.grade`,
     )
-    .all() as Record<string, unknown>[]).map((r) => {
-      const resolved = r.resolved as number;
-      const hits = r.hits as number;
-      const claimed = (r.claimed as number | null) ?? null;
-      const hit_rate = resolved > 0 ? hits / resolved : null;
-      return {
-        grade: r.grade as string,
-        n: r.n as number,
-        resolved,
-        hits,
-        hit_rate,
-        claimed,
-        gap_pp:
-          hit_rate !== null && claimed !== null
-            ? Math.round((hit_rate - claimed) * 1000) / 10
-            : null,
-      } satisfies GradeStat;
-    });
+    .all() as Record<string, unknown>[]).map(toGradeStat);
+  // Segmentasi gate (R-01): potongan yang sama persis dengan by_grade,
+  // hanya dikelompokkan juga menurut gate_status yang tersimpan di baris
+  // pick itu sendiri — bukan klasifikasi baru. Urutan gate tetap:
+  // calibrated, partial, uncalibrated.
+  const live_by_grade_gate = (d
+    .prepare(
+      `SELECT p.grade AS grade, p.gate_status AS gate_status, COUNT(*) AS n,
+              SUM(CASE WHEN o.pick_id IS NOT NULL THEN 1 ELSE 0 END) AS resolved,
+              SUM(COALESCE(o.hit,0)) AS hits,
+              AVG(CASE WHEN o.pick_id IS NOT NULL THEN p.model_prob END) AS claimed
+       FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
+       WHERE p.source='live-run' GROUP BY p.grade, p.gate_status
+       ORDER BY p.grade,
+                CASE p.gate_status WHEN 'calibrated' THEN 0
+                                   WHEN 'partial' THEN 1
+                                   WHEN 'uncalibrated' THEN 2 ELSE 3 END`,
+    )
+    .all() as Record<string, unknown>[]).map((r) => ({
+      ...toGradeStat(r),
+      gate_status: (r.gate_status as string | null) ?? "unknown",
+    }));
   const by_market = (d
     .prepare(
       `SELECT p.market AS market, COUNT(*) AS n, SUM(o.hit) AS hits
@@ -630,6 +658,7 @@ export function ledgerStats(): LedgerStats {
     live_total,
     live_resolved,
     by_grade,
+    live_by_grade_gate,
     by_market,
     lab_by_grade,
     lab_by_market,

@@ -8,8 +8,8 @@
  * its result. Live picks (issued from real slates) follow below, once
  * any of them have finished.
  */
-import { Suspense } from "react";
-import { GradeMark, PageLoading, Prob, SectionHead } from "../../../components/ui";
+import { Fragment, Suspense } from "react";
+import { GateStatus, GradeMark, PageLoading, Prob, SectionHead } from "../../../components/ui";
 import { connection } from "next/server";
 import { landingStats, ledgerStats } from "../../../lib/web/data";
 import { MARKET_LABEL, int, jamWibOnly, labelPilihan, pct, tanggalWib } from "../../../lib/web/format";
@@ -141,10 +141,11 @@ async function BuktiContent() {
         ) : (
           <>
             <div className="mt-6 overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
+              <table className="w-full min-w-[640px] text-sm">
                 <thead>
                   <tr>
                     <th className={TH}>Grade</th>
+                    <th className={TH}>Gate</th>
                     <th className={THR}>Promised</th>
                     <th className={THR}>Actual</th>
                     <th className={THR}>Picks</th>
@@ -152,22 +153,52 @@ async function BuktiContent() {
                 </thead>
                 <tbody>
                   {s.by_grade.map((g) => (
-                    <tr key={g.grade} className="border-t border-hairline/50">
-                      <td className={TD}>
-                        <GradeMark grade={g.grade} className="text-base" />
-                      </td>
-                      <td className={TDR}>
-                        <Prob value={g.claimed} />
-                      </td>
-                      <td className={`${TDR} font-medium text-ink`}>
-                        <Prob value={g.hit_rate} />
-                      </td>
-                      <td className={TDR}>{int(g.n)}</td>
-                    </tr>
+                    <Fragment key={g.grade}>
+                      <tr className="border-t border-hairline/50">
+                        <td className={TD}>
+                          <GradeMark grade={g.grade} className="text-base" />
+                        </td>
+                        <td className={`${TD} text-faint`}>All gates</td>
+                        <td className={TDR}>
+                          <Prob value={g.claimed} />
+                        </td>
+                        <td className={`${TDR} font-medium text-ink`}>
+                          <Prob value={g.hit_rate} />
+                        </td>
+                        <td className={TDR}>{int(g.n)}</td>
+                      </tr>
+                      {s.live_by_grade_gate
+                        .filter((seg) => seg.grade === g.grade)
+                        .map((seg) => (
+                          <tr
+                            key={`${g.grade}-${seg.gate_status}`}
+                            className="border-t border-hairline/30"
+                          >
+                            <td className={TD} />
+                            <td className={`${TD} pl-5`}>
+                              <GateStatus status={seg.gate_status} />
+                            </td>
+                            <td className={TDR}>
+                              <Prob value={seg.claimed} />
+                            </td>
+                            <td className={`${TDR} font-medium text-ink`}>
+                              <Prob value={seg.hit_rate} />
+                            </td>
+                            <td className={TDR}>{int(seg.n)}</td>
+                          </tr>
+                        ))}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
             </div>
+            <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
+              Live picks are split by the calibration gate of the league each pick came from.
+              Calibrated leagues passed the gate in full, partial leagues in part; leagues that
+              are not calibrated have not passed it — their picks are still published, but they
+              land less often, so the record shows them separately instead of blending them into
+              the grade totals above.
+            </p>
             {s.live_resolved < 100 && (
               <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
                 The live sample is still small (n={int(s.live_resolved)}) — read it as an early
