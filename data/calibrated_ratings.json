@@ -1,6 +1,6 @@
 {
   "version": "2.0-dixon-coles-mle",
-  "compiledAt": "2026-11-17T09:22:44.311Z",
+  "compiledAt": "2026-11-17T21:29:01.229Z",
   "totalLeagues": 84,
   "totalTeams": 2088,
   "leagues": {
@@ -20183,7 +20183,7 @@
     "registryGeneratedAt": "2026-11-16T06:09:04.746Z",
     "note": "keys are fit keys; canonicalId maps each fit to its canonical league",
     "cupOffsets": {
-      "fittedAt": "2026-11-17T09:26:37.834Z",
+      "fittedAt": "2026-11-17T21:30:37.301Z",
       "graphs": {
         "europe": {
           "reference": "sm:8",
