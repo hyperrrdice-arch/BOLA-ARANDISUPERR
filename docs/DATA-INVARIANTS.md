@@ -33,13 +33,31 @@ Periksa: (a) bandingkan COUNT(pick_outcomes) vs COUNT(picks lab);
 (b) live-run tanpa outcome yang match_id-nya sudah finished → harus 0.
 Audit: **PASS** — (a) 163,008 = 163,008; (b) 483 belum ter-resolve, 0 di antaranya sudah finished.
 
-**INV-04 · Kaki live-run tidak pernah lahir dari kompetisi uncalibrated.**
-Mesin pick fail-closed: gate_status='uncalibrated' ⇒ tidak ada kaki live.
-(Populasi lab dikecualikan — ia populasi *pengukuran* yang memang
-memuat status apa adanya: lab calibrated 138,432 / partial 10,896 /
-uncalibrated 13,680.)
-Periksa: `SELECT COUNT(*) FROM picks WHERE source='live-run' AND gate_status='uncalibrated'` → 0.
-Audit: **PASS** — 0 (live-run: calibrated 86, partial 397).
+**INV-04 · Gerbang kalibrasi adalah label, bukan pembatas — dan labelnya wajib terbawa sampai ke konsumen.**
+*(Amendemen 18 Nov 2026 — Fase 0 R-02, menyusul R-01. Rumusan awal invarian
+ini (5 Nov 2026, "mesin pick fail-closed: uncalibrated ⇒ tidak ada kaki
+live") sudah tidak cocok dengan keputusan owner 2026-11-05 bahwa gerbang
+adalah label, bukan pembatas — audit Fase 0 §6 mengukur 537 pick live-run
+dari liga uncalibrated, termasuk grade A, sementara kontrak lama masih
+menyatakan 0. Kontrak di bawah ini yang berlaku sekarang.)*
+Pick live-run BOLEH lahir dari kompetisi uncalibrated; mesin pick tidak
+menolaknya (`lib/picks/engine.ts::applyGateCap` pass-through by design).
+Yang dikontrakkan: (a) setiap pick live-run membawa `gate_status` ∈
+{calibrated, partial, uncalibrated} — tidak pernah NULL atau di luar
+domain itu; (b) label tersebut wajib tampil di permukaan konsumen —
+statistik /bukti tersegmentasi menurut `gate_status` (R-01), dan setiap
+pilihan di output tiket membawa label gerbangnya: contoh parlay slate
+(`scripts/pick-slate.ts`) dan slip /pilihan (R-02).
+(Populasi lab dikecualikan dari kewajiban tampil — ia populasi
+*pengukuran* yang memang memuat status apa adanya: lab calibrated
+138,432 / partial 10,896 / uncalibrated 13,680.)
+Periksa: (a) `SELECT COUNT(*) FROM picks WHERE source='live-run' AND (gate_status IS NULL OR gate_status NOT IN ('calibrated','partial','uncalibrated'))` → 0;
+(b) inspeksi render: segmentasi di `app/(terminal)/bukti/page.tsx`, label per pilihan di slip `components/pilihan/ParlayBuilder.tsx` dan di contoh parlay `tasks/pick-slate-latest.md`.
+Audit: **PASS** — (a) 0 (live-run per status: calibrated 2,147 /
+partial 2,839 / uncalibrated 537 — angka bergerak mengikuti ritme harian;
+yang dikontrakkan relasinya, bukan jumlahnya). Hasil audit 5 Nov 2026
+("PASS — 0 uncalibrated") berlaku bagi rumusan lama dan dinyatakan
+**superseded** oleh amendemen ini.
 
 **INV-05 · Probabilitas klaim selalu waras.**
 `picks.model_prob` ∈ (0, 1]; payload paket valid JSON.

@@ -66,6 +66,7 @@ import {
 } from "../lib/picks/engine";
 import { recordPicks, type PickInput } from "../lib/picks/ledger";
 import { writePackage } from "../lib/picks/packages";
+import { GATE_LABEL } from "../lib/web/format";
 
 function openRo(p: string): DatabaseSync {
   return new DatabaseSync(p, { readOnly: true });
@@ -629,7 +630,7 @@ async function main() {
   };
   const toUnits = (items: typeof flatLegs) =>
     items.map(({ r, leg }) => ({
-      label: `${r.fixture.home_team_name} vs ${r.fixture.away_team_name} — ${leg.market}/${leg.selection} [${leg.grade}]`,
+      label: `${r.fixture.home_team_name} vs ${r.fixture.away_team_name} — ${leg.market}/${leg.selection} [${leg.grade} · ${GATE_LABEL[r.gate_status] ?? r.gate_status}]`,
       stated_prob: leg.model_prob,
       effective_prob: leg.effective_prob,
     }));
@@ -727,6 +728,11 @@ async function main() {
   md.push(
     "Probabilitas efektif = hit-rate empiris lab Fase A untuk sel (pasar, pita) — dipakai untuk matematika parlay. " +
       "Kombinasi dilaporkan sebagai RANGE: efektif = estimasi titik, produk stated = batas atas (lab mengukur produk independensi melebih-lebihkan survival ~1,5–4pp).",
+  );
+  md.push(
+    "Setiap pilihan membawa label gerbang kalibrasi liganya (Calibrated / Partial / Not calibrated). " +
+      "Gerbang adalah label, bukan pembatas (keputusan owner 2026-11-05): pilihan dari liga Not calibrated tetap terbit " +
+      "dan tetap tercatat di ledger, dengan labelnya terlihat — bukan disembunyikan (Fase 0 R-02; kontrak INV-04).",
   );
   md.push("");
   md.push("## Contoh parlay");

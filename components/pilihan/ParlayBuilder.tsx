@@ -137,8 +137,11 @@ export default function ParlayBuilder({
                     <span className="block truncate text-sm text-ink">
                       {labelPilihan(p.market, p.selection, p.home, p.away)}
                     </span>
-                    <span className="block truncate text-[12px] text-faint">
-                      {p.home} vs {p.away}
+                    <span className="flex items-center gap-2 text-[12px] text-faint">
+                      <span className="truncate">
+                        {p.home} vs {p.away}
+                      </span>
+                      <GateStatus status={p.gateStatus} />
                     </span>
                   </span>
                   <Prob value={p.prob} className="text-sm" />
