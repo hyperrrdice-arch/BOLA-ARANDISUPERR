@@ -29,6 +29,15 @@
  * Fixture yang tidak bisa di-rate TIDAK pernah dibuang diam-diam: semuanya
  * masuk daftar unrated beserta alasannya.
  *
+ * Kembar mt_ (Fase 0 R-03): fixture mt_ yang tertaut sebagai kembar katalog
+ * di data/fixture-links.json (twin_id → canonical_id) TIDAK di-rate dan
+ * TIDAK menulis paket/pick — laga fisiknya diwakili baris kanoniknya.
+ * Tanpa saringan ini ledger menerima dua paket + dua set pick per laga
+ * (preseden 4–8 Nov: 438 paket / 422 pick mt_). Fixture mt_ TANPA kembar
+ * kanonik adalah cakupan sah dan tetap di-rate normal. Kembar yang
+ * dilewati tercatat di daftar unrated dengan alasan eksplisit, bukan
+ * dibuang diam-diam.
+ *
  * OFFLINE PENUH — tidak ada panggilan Sportmonks/TheStats. Env dijalankan
  * dengan resep driver E2E: .env.local dimuat hanya agar impor planner 🔒
  * tidak throw (base URL NineRouter), lalu STATS_API_KEY dan
@@ -153,6 +162,30 @@ const SM_MARKET_MAP: Record<string, Record<string, string>> = {
   "Away Over/Under 0.5 Probability": { yes: "team_over05_away:yes" },
 };
 
+/**
+ * Peta kembar mt_ → baris kanonik dari data/fixture-links.json (boleh tidak
+ * ada). Hanya entri twin_id berawalan mt_ yang dimuat: saringan R-03 khusus
+ * kelas kembar TheStats; kembar fd_/sm_ di luar cakupannya. File dibangun
+ * ulang oleh build-fixture-links di rantai free-refresh SEBELUM pick-slate,
+ * jadi peta yang dibaca di sini selalu versi segar run yang sama.
+ */
+function loadMtTwinMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  const p = path.join(process.cwd(), "data", "fixture-links.json");
+  if (!fs.existsSync(p)) return map;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(p, "utf8")) as {
+      links?: { twin_id: string; canonical_id: string }[];
+    };
+    for (const link of parsed.links ?? []) {
+      if (link.twin_id.startsWith("mt_")) map.set(link.twin_id, link.canonical_id);
+    }
+  } catch {
+    // File rusak → saringan kembar dilewati (perilaku lama), bukan ditebak.
+  }
+  return map;
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const hours = Number(args[args.indexOf("--hours") + 1]) || 48;
@@ -184,6 +217,7 @@ async function main() {
   const dsDb = openRo("data/thestats_dataset.db");
   const prDb = openRo("data/predictions.db");
   const ratings = loadCalibratedRatings();
+  const mtTwinOf = loadMtTwinMap();
 
   // Penanda versi artefak ratings untuk provenance paket (hash isi file).
   let ratingsMarker: string | null = null;
@@ -370,12 +404,25 @@ async function main() {
   const ledgerRows: PickInput[] = [];
   let processed = 0;
   let packagesWritten = 0;
+  let mtTwinsSkipped = 0;
 
   for (const fx of fixtures) {
     if (processed >= limit) break;
     processed++;
     const tag = `[${processed}/${Math.min(fixtures.length, limit)}] ${fx.home_team_name} vs ${fx.away_team_name}`;
     const t0 = Date.now();
+
+    // --- Saringan kembar mt_ (Fase 0 R-03): baris mt_ yang merupakan
+    // kembar katalog dari baris kanonik tidak menulis paket/pick kedua
+    // untuk laga fisik yang sama; baris kanoniknya yang mewakili.
+    const twinCanonical = mtTwinOf.get(fx.match_id);
+    if (twinCanonical) {
+      mtTwinsSkipped++;
+      const reason = `kembar mt_ dari ${twinCanonical} — paket/pick hanya dari baris kanonik (Fase 0 R-03)`;
+      unrated.push({ fixture: fx, reason });
+      console.log(`${tag} → dilewati: ${reason}`);
+      continue;
+    }
 
     // --- Gerbang kompetisi (pra-cek; status final dari metadata paket).
     const canonical = getCanonicalBySourceId(fx.competition_id);
@@ -673,6 +720,7 @@ async function main() {
       legs_by_grade: legsByGrade,
       unrated_reason_counts: reasonCounts,
       packages_written: packagesWritten,
+      mt_twin_fixtures_skipped: mtTwinsSkipped,
       fixtures_rated_free_mode: rated.filter((r) => r.feed_mode === "free").length,
       ledger_live_run_rows_written: ledgerWritten,
       ledger_skipped_already_recorded: writeLedger
@@ -719,6 +767,7 @@ async function main() {
       `tidak ter-rate **${result.stats.fixtures_unrated}** · total kaki **${result.stats.legs_total}** ` +
       `(A ${legsByGrade.A} / B ${legsByGrade.B} / C ${legsByGrade.C}) · ` +
       `paket kuant tersimpan **${packagesWritten}** · ` +
+      `kembar mt_ dilewati **${mtTwinsSkipped}** · ` +
       `baris ledger live-run tertulis **${ledgerWritten}**.`,
   );
   md.push("");
