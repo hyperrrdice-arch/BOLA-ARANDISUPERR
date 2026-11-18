@@ -15,18 +15,21 @@ menyusun debat dan verdict di atas paket kuant.
 
 ## Cara kerja sekilas
 
-1. Ritme harian (`scripts/daily-refresh.ts`) menarik katalog, odds
-   (titik T-24j/T-6j/T-1j/T-15m), predictions, dan telemetri
-   Sportmonks ke store lokal SQLite — jalur render tidak memanggil
-   API sama sekali.
+1. Ritme 12 jam (`scripts/free-refresh.ts`) mengimpor hasil, odds
+   closing, dan fixture dari football-data.co.uk (22 divisi),
+   membangun ulang registry kanonik + telemetri form, mengkalibrasi
+   rating, lalu menulis slate pick ke ledger (`data/picks.db`) —
+   tanpa API berbayar; jalur render tidak memanggil API sama sekali.
+   Jalur Sportmonks sudah berhenti (trial berakhir 10 Nov 2026);
+   panel Sportmonks kini hanya arsip pembanding.
 2. Setiap liga dari semua sumber dirujuk ke satu identitas kanonik
    (`data/league-canonical.json`); fit yang melayani fixture selalu
    yang se-sumber dengannya.
 3. Paket kuant dibangun offline: ratings domestik terkalibrasi
    (atau, untuk piala, parameter domestik yang ditransformasi offset
    antar-liga per benua) → probabilitas 1X2/O-U/BTTS.
-4. Lapisan debat/verdict aktif adalah **Spark**; sindikat 5-LLM lama
-   dipertahankan utuh dan dorman (file 🔒 read-only).
+4. Lapisan debat/verdict aktif adalah **Hikari** (agent owner);
+   sindikat 5-LLM lama dipertahankan utuh dan dorman (file 🔒 read-only).
 
 ## Dokumen
 
@@ -42,13 +45,17 @@ menyusun debat dan verdict di atas paket kuant.
 npm run dev   # dashboard di http://localhost:3101
 ```
 
-## Keadaan backend saat ini (4–5 Nov 2026)
+Produksi: **https://bola.mhmdarandi.biz.id** (VPS owner, port 3101).
+
+## Keadaan saat ini (18 Nov 2026)
 
 - Registri kanonik: 250 liga, 412/412 identitas sumber terpetakan.
 - Rekalibrasi domestik selesai (basis kanonik: 28 calibrated /
   29 partial / 26 uncalibrated); model piala offset global selesai
   (17 kompetisi: 0 calibrated / 4 partial / 13 uncalibrated — status
   dari gerbang OOS, tidak dilonggarkan).
-- Ritme harian berjalan via cron selama trial Sportmonks (s/d
-  10 Nov 2026). Berikutnya: fase frontend; deploy ke VPS owner
-  paling akhir.
+- Mode gratis penuh sejak 10 Nov 2026: free-refresh 12 jam menulis
+  slate pick ke ledger live-run; app live di VPS dengan frontend v2.
+- Audit jalur data Fase 0 selesai 16 Nov 2026; perbaikan R-01–R-03
+  sudah masuk (segmentasi /bukti per gerbang, label gerbang per pick,
+  filter fixture kembar mt_).
