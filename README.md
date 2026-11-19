@@ -1,61 +1,130 @@
 # Football Pre-Match Analyst — Safe-Bet Parlay Finder
 
-App analisis sepak bola **pre-match** yang bertujuan satu hal:
-**menemukan safe bet buat parlay** — outcome dengan probabilitas
-kejadian tertinggi untuk dijadikan kaki parlay. App ini **bukan**
-alat melawan pasar dan **bukan** pemburu value bet tunggal: pick
-diperingkat dari probabilitas model + kesepakatan lintas sumber
-(model × pasar × panel Sportmonks) sebagai sinyal keamanan; EV/Kelly
-hanya catatan sekunder, tidak pernah jadi gerbang keputusan.
+> Find the **highest-probability outcomes** in football, grade them honestly,
+> and build parlays out of the selections most likely to land.
 
-**Aturan emas:** semua angka datang dari code kuantitatif
-deterministik di `lib/quant/*` (Dixon-Coles, shrinkage, gerbang
-kalibrasi). LLM tidak pernah menghitung atau mengarang angka — hanya
-menyusun debat dan verdict di atas paket kuant.
+[![Live](https://img.shields.io/badge/live-bola.mhmdarandi.biz.id-FFA02E)](https://bola.mhmdarandi.biz.id)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)
+![Data](https://img.shields.io/badge/data-free%20feeds%20only-success)
 
-## Cara kerja sekilas
+A pre-match football analytics app with one job: **safe bets for parlays**.
+It is deliberately *not* a value-bet hunter and *not* a beat-the-market tool.
+Selections are ranked by model probability plus cross-source agreement
+(model × market × archived prediction panel) as a safety signal.
+Expected value and Kelly sizing exist only as secondary notes — they never
+gate a decision.
 
-1. Ritme 12 jam (`scripts/free-refresh.ts`) mengimpor hasil, odds
-   closing, dan fixture dari football-data.co.uk (22 divisi),
-   membangun ulang registry kanonik + telemetri form, mengkalibrasi
-   rating, lalu menulis slate pick ke ledger (`data/picks.db`) —
-   tanpa API berbayar; jalur render tidak memanggil API sama sekali.
-   Jalur Sportmonks sudah berhenti (trial berakhir 10 Nov 2026);
-   panel Sportmonks kini hanya arsip pembanding.
-2. Setiap liga dari semua sumber dirujuk ke satu identitas kanonik
-   (`data/league-canonical.json`); fit yang melayani fixture selalu
-   yang se-sumber dengannya.
-3. Paket kuant dibangun offline: ratings domestik terkalibrasi
-   (atau, untuk piala, parameter domestik yang ditransformasi offset
-   antar-liga per benua) → probabilitas 1X2/O-U/BTTS.
-4. Lapisan debat/verdict aktif adalah **Hikari** (agent owner);
-   sindikat 5-LLM lama dipertahankan utuh dan dorman (file 🔒 read-only).
+**The golden rule:** every number comes from deterministic quantitative code
+(`lib/quant/*`). No LLM ever computes or invents a figure; the language model
+layer only narrates a verdict on top of the finished quant package.
 
-## Dokumen
+**Live:** https://bola.mhmdarandi.biz.id
 
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — arsitektur lengkap: lapisan
-  data, identitas kanonik, model domestik + gerbang kalibrasi, model
-  piala offset global, pipeline analisis, ritme harian.
-- [`STRUCTURE.md`](STRUCTURE.md) — peta repo teranotasi: pohon file,
-  skrip per peran, artefak tergenerasi, zona read-only.
+---
 
-## Menjalankan
+## What it does
 
-```bash
-npm run dev   # dashboard di http://localhost:3101
+- **Rates upcoming fixtures** across ~250 canonical leagues with calibrated
+  team ratings (Dixon–Coles score matrices, James–Stein shrinkage,
+  Shin method for stripping the bookmaker's margin).
+- **Grades every market selection A / B / C** by empirical hit-rate bands
+  measured on 163,008 fully resolved historical picks — e.g. double-chance
+  reaches grade A at ≥ 75%, over 1.5 at ≥ 85%, while BTTS is capped at C
+  (measured as the least honest market).
+- **Labels calibration honestly.** Each league carries a gate status —
+  `calibrated`, `partial`, or `not calibrated` — earned through a
+  pre-registered out-of-sample gate that is never loosened. The gate is a
+  **label, not a limiter**: picks from uncalibrated leagues are published
+  with their status attached, never hidden and never silently upgraded.
+- **Builds parlay suggestions** (a safer 3-selection slip and a standard
+  4-selection slip) and always shows the combined probability as an honest
+  range — the independence product is labelled an upper bound, because the
+  lab measured it overstating survival by ~1.5–4 points.
+- **Keeps a public proof ledger.** Every live pick is written to a ledger
+  and resolved against real results; the record page shows hit-rates split
+  by grade *and* by gate segment, so a blended headline can never flatter
+  the weak segments.
+
+## How it works
+
+```
+free data feeds ──► 12-hour refresh chain ──► canonical registries
+                                                    │
+                              calibrated ratings + cup offsets
+                                                    │
+                                          quant package per fixture
+                                                    │
+                              pick engine (grades, gate labels, dedup)
+                                                    │
+                                    ledger ──► web app ──► resolver
+                                      ▲                         │
+                                      └──── real results ───────┘
 ```
 
-Produksi: **https://bola.mhmdarandi.biz.id** (VPS owner, port 3101).
+1. **Ingest (every 12 hours, fully offline-capable).** Results, closing
+   odds and fixtures are imported from free feeds (football-data.co.uk,
+   22 divisions, plus fixture catalogues). No paid API is required to run
+   the app; the render path calls no external API at all.
+2. **Canonical identity.** Teams and leagues from every source are merged
+   into single canonical registries (~6,600 teams, 250 leagues), so a club
+   is never double-counted under two spellings or two source IDs — and
+   duplicate fixtures from overlapping catalogues are filtered before
+   they can double-record in the ledger.
+3. **Modelling.** Domestic leagues get per-league calibrated ratings;
+   cup ties are handled by a global cross-league offset model instead of
+   pretending a cup is a league. Model quality is reported out-of-sample
+   (log-loss 1.0092 on 6,317 held-out matches) — including where the model
+   provably loses to the closing market line.
+4. **Pick engine.** Selections are graded, gate-labelled per pick, and
+   combined into parlay suggestions with the combined probability shown
+   up front.
+5. **Resolution loop.** After matches finish, the resolver scores every
+   ledger pick against the real result. Picks whose competitions have no
+   free results source stay *unresolved* — they are never guessed.
 
-## Keadaan saat ini (18 Nov 2026)
+Full detail: [`ARCHITECTURE.md`](ARCHITECTURE.md) ·
+Repo map: [`STRUCTURE.md`](STRUCTURE.md)
 
-- Registri kanonik: 250 liga, 412/412 identitas sumber terpetakan.
-- Rekalibrasi domestik selesai (basis kanonik: 28 calibrated /
-  29 partial / 26 uncalibrated); model piala offset global selesai
-  (17 kompetisi: 0 calibrated / 4 partial / 13 uncalibrated — status
-  dari gerbang OOS, tidak dilonggarkan).
-- Mode gratis penuh sejak 10 Nov 2026: free-refresh 12 jam menulis
-  slate pick ke ledger live-run; app live di VPS dengan frontend v2.
-- Audit jalur data Fase 0 selesai 16 Nov 2026; perbaikan R-01–R-03
-  sudah masuk (segmentasi /bukti per gerbang, label gerbang per pick,
-  filter fixture kembar mt_).
+## Data sources
+
+| Source | Role | Status |
+| --- | --- | --- |
+| football-data.co.uk | Results + closing odds, 22 divisions | Active — main feed |
+| Fixture catalogues (TheStats) | Upcoming fixtures | Active |
+| Sportmonks | Historical predictions archive (panel comparison only) | Trial ended 10 Nov 2026 — never in the odds path |
+| football-data.org | Extra fixtures (12 competitions) | Importer ready, dormant |
+
+## Tech stack
+
+- **Next.js 16 + React + TypeScript** (App Router), GSAP, Three.js
+  (landing visual only, lazy-loaded)
+- **SQLite** stores for dataset, fixtures, quant packages and the pick ledger
+- **Quant core:** Dixon–Coles, iterative proportional fitting with
+  shrinkage, James–Stein blending, Shin margin removal — all hand-rolled,
+  no ML framework
+- **Automation:** a single idempotent refresh script on a 12-hour cron;
+  the whole pipeline runs on one small server
+
+## Project status
+
+- **Live and in free mode** since 10 Nov 2026 — no paid data dependency.
+- Canonical registries: 250 leagues, all source identities mapped.
+- Domestic recalibration complete; cup offset model complete
+  (0 calibrated / 4 partial / 13 not calibrated — the gate was not loosened).
+- Data-path audit (16 Nov 2026) closed its urgent chain: proof page
+  segmented by gate, per-pick gate labels, duplicate-fixture filter.
+- **Current objective:** the live ledger must prove the app produces
+  winning tickets by **5 January 2027**, when the fixture catalogue ends.
+  Progress is public on the [/bukti](https://bola.mhmdarandi.biz.id/bukti)
+  page — wins and losses alike.
+
+## Run it locally
+
+```bash
+npm install
+npm run dev   # dashboard at http://localhost:3101
+```
+
+The refresh chain and slate builder live in `scripts/`; see
+[`STRUCTURE.md`](STRUCTURE.md) for the annotated map.
