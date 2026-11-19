@@ -13,6 +13,22 @@
 > berburu value bet tunggal. §1 ditulis ulang sesuai koreksi ini dan
 > framing tujuan di seluruh dokumen disesuaikan; seluruh angka teknis
 > tidak berubah.
+>
+> Sinkronisasi 19 Nov 2026 (dokumen ini acuan owner — diselaraskan ke
+> keadaan live era bebas): jalur operasional utama kini **mode free** —
+> feed football-data.co.uk + rantai `free-refresh` 12 jam 8 langkah
+> (§8); trial Sportmonks **berakhir 10 Nov 2026** dan arsip
+> predictions-nya panel banding saja, tidak pernah masuk jalur odds
+> (§3, §7.2). Yang ikut diselaraskan: gerbang kalibrasi = **label,
+> bukan pembatas** (INV-04 amendemen 18 Nov 2026 — §5.3, §9),
+> resolver ter-wire sebagai langkah 8 rantai (16 Nov 2026 — §7.5, §8),
+> ekspansi divisi fd 16 → 22 (16 Nov 2026 — §3.1, §3.4), segmentasi
+> /bukti per `gate_status` (R-01), label gerbang per pilihan tiket
+> (R-02), dan filter kembar mt_ di slate (R-03) — §7.5, §10. Angka
+> yang disegarkan dibaca ulang langsung dari store (read-only) pada
+> 19 Nov 2026 dan ditandai tanggalnya; angka lama yang dipertahankan
+> tetap membawa tanggal ukurnya masing-masing. Basis audit:
+> `tasks/reports/fase0-audit-jalur-data-report.md` (16 Nov 2026).
 
 ---
 
@@ -32,6 +48,10 @@ desain awal app digantikan; angka backtest lama di laporan fase
 Konsekuensinya pada lapisan debat/verdict di bawah: pick diperingkat
 dari **probabilitas model + kesepakatan lintas sumber** (model ×
 konsensus pasar tanpa vig × panel Sportmonks) sebagai sinyal keamanan.
+Di era bebas (pasca-10 Nov 2026) panel Sportmonks adalah arsip beku
+bertanggal ≤7 Nov 2026; fixture tanpa panel menyepakati model × pasar
+saja (mode `free`, §2) — ketiadaan panel dicatat jujur, tidak diisi
+karangan.
 Outcome yang sumber-sumbernya sepakat berprobabilitas tinggi = kaki
 aman; outcome berprobabilitas rendah tetap bukan pick betapa pun besar
 EV-nya. **EV/Kelly adalah catatan sekunder di paket — tidak pernah
@@ -63,14 +83,17 @@ Guard deterministik di luar jangkauan LLM mana pun:
 `lib/quant/fallback-guard.ts` — pick yang sisinya bersumber `fallback`
 hanya lolos bila margin probabilitas model atas konsensus pasar >50%
 (ambang code yang sudah terdaftar); kalau tidak, pick itu gugur.
-Gerbang kalibrasi (§5.3) menandai atau memblokir liga yang belum
-terbukti.
+Gerbang kalibrasi (§5.3) menandai liga yang belum terbukti — dan
+sejak keputusan owner 5 Nov 2026 label itu **bukan pembatas**: pick
+dari liga uncalibrated tetap terbit, dengan `gate_status`-nya terbawa
+sampai ke tiket dan /bukti (INV-04, diamendemen 18 Nov 2026; §5.3).
 
 ---
 
 ## 2. Gambaran pipeline
 
-> **Keadaan final (7 Nov 2026, pasca-cleanup pra-deploy).** Ada dua jalur:
+> **Keadaan final (7 Nov 2026, pasca-cleanup pra-deploy; disegarkan
+> 19 Nov 2026 untuk era bebas).** Ada dua jalur:
 >
 > **(A) Jalur saji AKTIF — frontend v2 + mesin pick.** Halaman adalah
 > Server Component yang membaca store lokal langsung lewat
@@ -78,12 +101,19 @@ terbukti.
 > `/` (landing + statistik ledger), `/pertandingan` (daftar laga dari
 > paket terbaru per fixture), `/pertandingan/[matchId]` (detail paket:
 > probabilitas 3 sumber, λ/μ, matriks skor, form kanonik),
-> `/pilihan` (pick live-run ber-grade dari ledger), `/bukti` (kejujuran
-> grade: promised vs actual, per grade & per pasar). Paket kuant
+> `/pilihan` (pick live-run ber-grade dari ledger, tiap pilihan
+> berlabel gerbangnya — R-02), `/bukti` (kejujuran
+> grade: promised vs actual, per grade & per pasar, **tersegmentasi
+> per `gate_status`** sejak R-01, 17 Nov 2026). Paket kuant
 > dihasilkan `scripts/pick-slate.ts` → disimpan sebagai paket versi di
 > `analysis_snapshots.db` (`packages`) → pick diterbitkan ke ledger
 > `data/picks.db` oleh `lib/picks/engine.ts` dan dinilai hasilnya oleh
-> `scripts/resolve-pick-outcomes.ts`. Setiap paket membawa
+> `scripts/resolve-pick-outcomes.ts` — yang sejak 16 Nov 2026 adalah
+> **langkah 8 rantai free-refresh** (§8), bukan lagi panggilan lepas.
+> Jalur tulis yang menghidupkan jalur saji ini sekarang adalah rantai
+> mode free itu; jalur sync Sportmonks pada diagram jalur (B) adalah
+> warisan era trial (berakhir 10 Nov 2026), dipertahankan sebagai
+> penjelasan asal-usul data yang tersimpan. Setiap paket membawa
 > `feed_mode`: `full` (panel Sportmonks ikut) atau `free` (tanpa SM —
 > kesepakatan = model × pasar saja, `sm_prob` NULL jujur).
 >
@@ -151,9 +181,9 @@ dasar re-plan yang sah (trigger: `FIELD_KOSONG`, `CONSENSUS_LEMAH`,
 
 ```mermaid
 flowchart TD
-    SM["Sportmonks API<br/>(Pro trial, s/d 10 Nov 2026)"]
-    FD["football-data.co.uk CSV<br/>(historis legacy)"]
-    subgraph SYNC["scripts/ — sync & capture (hanya di ritme harian)"]
+    SM["Sportmonks API<br/>(trial BERAKHIR 10 Nov 2026 —<br/>jalur sync warisan, mati)"]
+    FD["football-data.co.uk CSV<br/>(FEED UTAMA era bebas — hasil, odds,<br/>fixture; 22 divisi)"]
+    subgraph SYNC["scripts/ — sync & capture era trial (PENSIUN 10 Nov 2026)"]
         CAT["sync-sportmonks-fixtures"]
         ODDS["capture-odds<br/>T-24j / T-6j / T-1j / T-15m"]
         PRED["sync-predictions"]
@@ -183,6 +213,8 @@ flowchart TD
     end
     SM --> CAT & ODDS & PRED & TELE & CTX
     FD --> MA
+    FD --> DS
+    FD --> UP
     CAT --> UP
     ODDS --> DS
     PRED --> PR
@@ -204,21 +236,36 @@ flowchart TD
     VIEW -. "jalur tulis resmi app saja" .-> SN
 ```
 
-### 3.2 Store SQLite (angka per 4 Nov 2026, dibaca langsung dari store)
+Sejak 10 Nov 2026 rantai tulis yang benar-benar berjalan adalah
+`free-refresh` (§8): importer fd menulis hasil + telemetri + odds ke
+`thestats_dataset.db` dan fixture ke `upcoming_fixtures.db`; subgraph
+SYNC di atas adalah rantai era trial yang sudah pensiun —
+dipertahankan di diagram karena ia menjelaskan asal-usul baris era SM
+di store. Cakupan feed fd: **22 divisi** sejak ekspansi 16 Nov 2026
+(16 warisan + E2/E3/EC/SC1/SC2/SC3; status gerbang divisi baru: E2
+partial, lima lainnya calibrated — gerbang yang sama, tidak
+dilonggarkan). Kesegaran hasil fd dibatasi ritme publikasi situs itu
+sendiri (Selasa/Jumat): ekor hasil fd di store mencapai laga
+16 Nov 2026 per bacaan 19 Nov 2026.
+
+### 3.2 Store SQLite (angka audit 4–7 Nov 2026, disegarkan 19 Nov 2026)
 
 Semua store di `data/`, semua **gitignored** (data runtime; bisa dibangun
 ulang dari API; pengecualian satu-satunya adalah arsip legacy beku di
 `archive/`). Prinsip pemisahan file: **berdasarkan
 fungsi saja** — bukan berdasarkan sumber atau benua (lihat §3.4).
+Sel "Baris saat ini" di tabel bawah memuat angka audit 4–7 Nov 2026;
+angka segar hasil bacaan read-only 19 Nov 2026 dicantumkan dalam
+kurung bertanggal sesudahnya — angka lama tidak ditimpa diam-diam.
 
 | Store | Isi kunci | Baris saat ini | Catatan |
 |---|---|---|---|
-| `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta | Disposable; horizon bergulir 60 hari dari ritme harian |
-| `thestats_dataset.db` (±3,0 GB per 7 Nov 2026) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.114; team_match_logs 85.521 (83.098 Sportmonks); teams 6.450; match_odds_history 4.071; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
-| `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 | Prior historis fit legacy |
-| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 80 value bets; 5.590 predictability (86 liga) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
-| `analysis_snapshots.db` | `packages` (paket kuant per run: payload lengkap + provenance + cap waktu input), `meta` | 78 paket (audit 5 Nov 2026); 3.802 paket (audit 7 Nov 2026) | **Store paket kuant** — sejak 5 Nov 2026 menggantikan snapshot legacy atas keputusan owner (ADR-003); 21 baris legacy diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`. Satu baris per fixture per versi run; dirujuk pick ledger lewat `package_id`. Detail: `docs/DATABASE.md` §6 |
-| `picks.db` | `picks` (ledger pick lab + live-run), `pick_outcomes` (resolusi skor akhir) | 167.273 pick / 163.008 outcome (audit 7 Nov 2026) | **Ledger pick** — sumber halaman `/pilihan` & `/bukti`; indeks parsial unik `idx_picks_live_unique` mencegah pick live ganda (perbaikan A1) |
+| `upcoming_fixtures.db` | `upcoming_fixtures` (katalog), `competition_catalog` (317), `sm_id_map` (fixture SM → match katalog) | 3.770 fixture; 3.420 peta (19 Nov 2026: 3.924 fixture) | Disposable; horizon katalog beku di maks 2027-01-05 (era SM); fixture baru kini hanya dari feed fd |
+| `thestats_dataset.db` (±3,0 GB per 7 Nov 2026; ukuran file 3,0 GB terverifikasi 19 Nov 2026) | `matches` (hasil), `team_match_logs` (telemetri per tim per laga), `teams`, `match_odds_history`, `league_calibration` (registry), `standings`, `expected_lineups`, `prematch_news`, `h2h_cache`, `team_squads` | matches 70.114; team_match_logs 85.521 (83.098 Sportmonks); teams 6.450; match_odds_history 4.071; standings 1.308 (69 liga); expected_lineups 620 (310 fixture); prematch_news 18; h2h_cache 610 (19 Nov 2026: matches 71.503; team_match_logs 88.299; teams 6.541; match_odds_history 8.426 — NULL 500 · sportmonks 4.091 · football-data 3.835; registry league_calibration 131 baris) | Store kerja utama; semua baris berlabel sumber; skor/statistik absen = NULL, tidak pernah dikarang |
+| `football_master.db` | `matches` historis football-data.co.uk (16 divisi legacy) | 28.922 (tetap — terverifikasi 19 Nov 2026) | Prior historis fit legacy |
+| `predictions.db` | `sm_predictions` (nilai probabilitas per fixture), `sm_value_bets`, `sm_predictability` | 70.553 nilai; 80 value bets; 5.590 predictability (86 liga) (19 Nov 2026: 84.721 nilai — tangkapan terakhir 7 Nov 2026, 924 fixture per audit Fase 0; beku by design sebagai panel arsip) | **TERISOLASI — aturan keras: predictions tidak pernah masuk `match_odds_history` / jalur odds kuant.** Hanya tampil sebagai panel banding berlabel di view |
+| `analysis_snapshots.db` | `packages` (paket kuant per run: payload lengkap + provenance + cap waktu input), `meta` | 78 paket (audit 5 Nov 2026); 3.802 paket (audit 7 Nov 2026); 6.806 paket (19 Nov 2026) | **Store paket kuant** — sejak 5 Nov 2026 menggantikan snapshot legacy atas keputusan owner (ADR-003); 21 baris legacy diarsipkan utuh ke `archive/analysis_snapshots-legacy-2026-10.db`. Satu baris per fixture per versi run; dirujuk pick ledger lewat `package_id`. Detail: `docs/DATABASE.md` §6 |
+| `picks.db` | `picks` (ledger pick lab + live-run), `pick_outcomes` (resolusi skor akhir) | 167.273 pick / 163.008 outcome (audit 7 Nov 2026) (19 Nov 2026: 169.942 pick = lab 163.008 + live-run 6.934; 164.329 outcome; live-run ter-resolve 1.321) | **Ledger pick** — sumber halaman `/pilihan` & `/bukti`; indeks parsial unik `idx_picks_live_unique` mencegah pick live ganda (perbaikan A1) |
 
 Baris yang dihapus dari tabel ini: `thestats_raw_vault.db` — dihapus
 pada cleanup pra-deploy 7 Nov 2026 (batch B2) bersama modul pembacanya
@@ -234,8 +281,10 @@ unik: 9 grup nama persis dan 12 grup ternormalisasi dipakai >1 team_id
 ejaan berbeda menunjuk tim yang sama, dan 26 grup kunci ganda ada di
 dalam satu liga ratings yang sama (salinan alias berstatistik
 identik — mis. Bournemouth/AFC Bournemouth di E0 dan SM8) — tim
-belum punya registry kanonik seperti liga (proposal P-05 di
-laporan audit);
+sempat tidak punya registry kanonik seperti liga (proposal P-05 di
+laporan audit); **kini sudah punya**: `data/team-canonical.json`
+(§3.4 — 6.600 entri per 19 Nov 2026), dibangun ulang tiap refresh
+dan menjadi acuan identitas tim lintas sumber;
 resolusi nama→ID wajib sadar konteks liga (sudah diterapkan di loader +
 resolver telemetri bersama: log terbanyak menang, seri → id terkecil).
 
@@ -249,11 +298,17 @@ terbit dicatat `has_odds = 0` — jujur kosong, bukan hilang. Backfill
 premium history = **0 baris**: semua endpoint `/odds/premium*`
 mengembalikan data kosong pada probe berulang meski entitlement
 tercatat; mekanisme `capture_kind='backfill'` siap bila endpoint hidup.
+Per 19 Nov 2026 total tangkapan **8.426**: 500 legacy (NULL) + 4.091
+Sportmonks (beku ≤7 Nov 2026) + **3.835 football-data** (`closing` +
+`fd-prematch` dari importer mode free — satu-satunya sumber odds yang
+masih tumbuh).
 
-### 3.4 Dua artefak JSON terpadu (git-tracked)
+### 3.4 Artefak JSON terpadu (git-tracked)
 
 - **`data/league-canonical.json`** — registry identitas liga (§4).
   Dihasilkan `scripts/build-league-canonical.ts` dari store lokal.
+  (250 entri — terverifikasi tetap 19 Nov 2026; diregenerasi pada
+  ekspansi divisi 16 Nov 2026.)
 - **`data/calibrated_ratings.json`** — output fit: **72 entri liga /
   1.842 tim** (56 kunci SM + 16 divisi legacy; status registry hasil
   join kanonik, terukur audit 5 Nov 2026: kunci SM 28 calibrated /
@@ -262,7 +317,21 @@ tercatat; mekanisme `capture_kind='backfill'` siap bila endpoint hidup.
   `canonical` (registry + versi + `generated_at`) dan blok
   `canonical.cupOffsets` (model piala, §6). Dihasilkan
   `scripts/calibrate-ratings.ts`; blok `cupOffsets` ditanam
-  `scripts/fit-global-offsets.ts` tepat sesudahnya dalam ritme harian.
+  `scripts/fit-global-offsets.ts` tepat sesudahnya dalam rantai
+  free-refresh (langkah 5, tepat sesudah calibrate di langkah 4 —
+  urutan kontraktual, §8). (19 Nov 2026: **84 entri liga / 2.088 tim**
+  — compile terakhir 18 Nov 2026 dari rantai free-refresh; sensus
+  status di file: 32 calibrated / 35 partial / 1 uncalibrated /
+  16 tanpa status — ke-16-nya fit warisan beku 11–14 Okt, §10 R-04.)
+- **`data/team-canonical.json`** — registry identitas tim (pasangan
+  §4 untuk tim): **6.600 entri** (19 Nov 2026), dibangun ulang tiap
+  refresh (`build-team-canonical`, langkah 2) dari semua store;
+  merge alias dieksekusi di sini (mis. Celta B = Celta Fortuna,
+  16 Nov 2026).
+- **`data/fixture-links.json`** — peta kembar fixture lintas sumber
+  (twin_id ↔ canonical_id): 188 tautan (19 Nov 2026), dibangun ulang
+  tiap refresh (langkah 3); dikonsumsi resolver (jembatan skor
+  kembar) dan filter slate R-03 (§7.5).
 
 **Prinsip file terpadu** (keputusan owner, 4 Nov 2026): satu sumber
 kebenaran per jenis data. Graf benua model piala adalah **data di dalam
@@ -297,8 +366,9 @@ sportmonks 109, thestats 208, legacy-div 22 (16 divisi + 6 `master_*`),
 ratings-key 73; 0 tak terpetakan.
 
 - **Identitas = `canonical_id`**: `sm:<leagueId>` bila liga ada di
-  Sportmonks (sumber live); selain itu kode divisi legacy; selain itu id
-  TheStats `comp_*`.
+  Sportmonks (identitas primer era SM — dipertahankan sebagai id
+  kanonik walau feed-nya sudah berakhir); selain itu kode divisi
+  legacy; selain itu id TheStats `comp_*`.
 - **Referensi = `name` + `country`** sebagai pasangan (negara kolom
   sendiri) — nama polos sendirian tidak pernah jadi kunci.
 - Setiap entri memuat `aliases` (semua identitas sumber + `name_as_stored`
@@ -336,7 +406,8 @@ Urutan resolusi:
 **Aturan fit yang melayani:** fit yang sistemnya sama dengan sumber
 fixture (fixture `sm:` → fit Sportmonks; fixture legacy/TheStats → fit
 legacy); entri ber-fit tunggal → fit itu; sumber tak diketahui + dua fit
-memuat kedua tim → fit Sportmonks (sumber live). Konsekuensi gerbang yang
+memuat kedua tim → fit Sportmonks (warisan era trial, kini beku).
+Konsekuensi gerbang yang
 disadari: untuk 5 liga dual-fit yang fit SM-nya partial sementara fit
 legacy-nya calibrated (Championship, Bundesliga, La Liga 2, Eredivisie,
 Pro League Belgia), gerbang kini melaporkan status kanonik **partial** —
@@ -351,8 +422,12 @@ Jalur non-🔒 yang dipakai: loader memulihkan ID dari baris
 yang cocok ke entri kanonik yang sama. Konsekuensi terukur: 80 pasangan
 pertandingan terdaftar sebagai **kembaran mt_/sm_** (laga sama, kickoff
 identik, dijembatani `sm_id_map`); untuk kembaran ID `sm:` yang menang
-(Sportmonks = katalog live; baris mt_ hanya jembatan identitas), jadi
-kedua baris dilayani fit yang sama. Kesetiaan per-baris untuk kembaran
+(id kanonik katalog; baris mt_ hanya jembatan identitas), jadi
+kedua baris dilayani fit yang sama. Peta kembar yang lebih luas kini
+hidup di `data/fixture-links.json` (§3.4): audit Fase 0 (16 Nov 2026)
+menghitung 177 grup duplikat / 188 baris tertaut di katalog — peta
+inilah yang sejak R-03 (18 Nov 2026) menyaring kembar mt_ di slate
+(§7.5). Kesetiaan per-baris untuk kembaran
 hanya bisa dicapai dengan meneruskan `match_id` — pekerjaan 🔒, terbuka
 sebagai keputusan owner (§10).
 
@@ -426,11 +501,23 @@ Status per liga diputuskan berurutan; tidak ada liga tersaji diam-diam:
 3. **Gerbang OOS walk-forward** — fit harus mengalahkan baseline naive
    pada lipatan held-out yang tidak pernah dipakai tuning (lantai
    sampel n≥20): calibrated gagal OOS → partial; partial gagal OOS →
-   uncalibrated (diblokir, entri JSON dihapus).
+   uncalibrated (status terendah di registry — konsekuensi
+   penyajiannya diatur paragraf berikut, bukan diuji di sini).
 
 Penyajian menurut status: `calibrated` = normal; `partial` = tersaji +
 flag eksplisit yang merambat sampai view (`calibration_gate`);
-`uncalibrated` = diblokir dengan alasan eksplisit. Gerbang dibaca
+`uncalibrated` = di jalur planner/driver (§7.1–7.3) diblokir dengan
+alasan eksplisit. **Untuk jalur live-run (slate → ledger → tiket),
+keputusan owner 5 Nov 2026 berlaku: gerbang adalah label, bukan
+pembatas** — liga uncalibrated tetap di-rate slate, pick-nya terbit
+membawa `gate_status`, dan label itu wajib tampil di konsumen:
+statistik /bukti tersegmentasi per status (R-01, 17 Nov 2026) dan
+setiap pilihan tiket berlabel gerbangnya (R-02, 18 Nov 2026).
+Kontraknya tertulis di INV-04 `docs/DATA-INVARIANTS.md` (diamendemen
+18 Nov 2026; rumusan lama "uncalibrated ⇒ tidak ada kaki live"
+dinyatakan superseded). Uji penentu status di atas **tidak berubah
+dan tidak dilonggarkan** — yang berubah adalah konsumsi statusnya,
+bukan ambangnya. Gerbang dibaca
 `lib/quant/league-gate.ts` dari **status kanonik**: divisi apa pun
 di-resolve ke entri kanoniknya dulu, lalu baris `league_id =
 canonical_id` yang dibaca. Registry kini 125 baris, kolom
@@ -442,6 +529,14 @@ canonical_id` yang dibaca. Registry kini 125 baris, kolom
 |---|---|---|---|
 | Kanonik — 83 liga pembawa fixture/fit (rekalibrasi) | **28** | **29** | **26** |
 | Registry 125 baris (query langsung) | 44 (28 SM + 16 legacy) | 32 (28 liga + 4 piala via `source='cup-offset'`) | 49 (36 liga + 13 piala) |
+
+**Status segar (audit Fase 0, 16 Nov 2026; terverifikasi ulang
+19 Nov 2026):** registry kini **131 baris — 48 calibrated / 39 partial
+/ 44 uncalibrated** (menurut sumber fit: sportmonks-fit 92,
+legacy-csv-fit 22 — kini 22 divisi fd, cup-offset 17). Di file
+`calibrated_ratings.json` (compile 18 Nov 2026): 84 fit / 2.088 tim;
+16 fit warisan tanpa `calibrationStatus` adalah fit beku 11–14 Okt
+(R-04, §10).
 
 Rekalibrasi kanonik menghasilkan tepat **satu perubahan status final**:
 `sm:1085` AFC Champions League Elite calibrated → partial (held-out
@@ -472,6 +567,23 @@ mengalahkan baseline naive dan terkalibrasi baik secara OOS. Sesuai
 adalah taksiran pasar paling matang, jadi selisih log-loss ke closing
 mengukur jarak taksiran model dari taksiran terbaik yang tersedia;
 bukan target "edge" yang dikejar.
+
+**Pembaruan 9 Nov 2026 (re-run point-in-time, leakage dibersihkan —
+`tasks/oos-rerun-pointintime-2026-11-09.md`):** angka tabel di atas
+berasal dari run 4 Nov yang oleh laporan re-run itu dinyatakan masih
+mengandung leakage; dipertahankan di sini sebagai catatan bertanggal.
+Re-run bersih (n held-out 6.317): Level A winner (kfit:20) **LL
+1,0179**; Level B winner (κ blend ×2 — konfigurasi produksi) **LL
+1,0092**. Produksi Level A masih memakai kfit:10; pergeseran winner
+ke kfit:20 (margin validasi 0,0026) adalah keputusan owner yang
+terbuka (§10).
+
+**Benchmark closing skala besar (16 Nov 2026, metode dikunci sebelum
+run — `tasks/closing-benchmark-report.md`):** menggantikan sampel
+kecil di atas: 1X2 pooled **n=1.223**, LL model 1,0090 vs closing
+Pinnacle murni 0,9769 → **Δ +0,0320** (model masih di belakang
+closing; tidak ada edge — konsisten dengan §1: closing adalah
+referensi akurasi, bukan target).
 
 ---
 
@@ -640,6 +752,13 @@ lewat pseudo.
 - **AFC (8 liga, graf paling tipis — 226 jangkar):** sm:1007 Indian
   Super League teridentifikasi dari 2 jangkar saja; sm:1356 A-League
   dan sm:1073 V-League tidak teridentifikasi.
+- **Copa del Rey (sm:570)** — lubang bernama: status uncalibrated
+  (cakupan 0,19, §6.4) karena mayoritas tim pesertanya dari divisi
+  bawah Spanyol yang tidak punya fit domestik maupun δ — fixture
+  mereka tidak ter-rate oleh jalur offset, dan tidak ada angka yang
+  dikarang sebagai gantinya. Contoh live: CD Badajoz vs Tenerife
+  (katalog `sm_19893321`, kickoff 19 Nov 2026) — Badajoz di luar
+  graf, jadi laga ini tidak punya rating yang bisa disajikan.
 - Di luar graf secara desain: **CAF tidak dibangun** (enumerasi saja —
   sm:1107 CAF Champions League, 378 hasil, saat ini tetap ter-fit
   sebagai liga biasa berstatus partial; keputusan owner, §10);
@@ -738,11 +857,48 @@ Catatan kualitas data lain dari run E2E: `form_split` intel bisa
 ber-sampel 0/0 tetapi rata-rata golnya terisi (inkonsistensi builder
 offline); validator H2H tidak selalu sinkron dengan `h2h_cache`.
 
+### 7.5 Jalur slate live-run (mesin pick — jalur operasional era bebas)
+
+Inilah jalur yang benar-benar menghasilkan pick sejak ritme SM
+berakhir; ia berjalan sebagai langkah 7–8 rantai free-refresh (§8):
+
+1. **Scan slate** — `scripts/pick-slate.ts` memindai katalog 72 jam
+   ke depan. **Filter kembar mt_ (R-03, commit `079787c`, 18 Nov
+   2026):** fixture `mt_` yang punya kembar kanonik di
+   `fixture-links.json` dilewati sebelum rating (paket/pick hanya
+   lahir dari baris kanonik) — menutup pengulangan dobel era trial
+   4–8 Nov (438 paket + 422 pick mt_, audit Fase 0 §6). Fixture mt_
+   tanpa kembar tetap di-rate normal.
+2. **Paket + pick** — tiap fixture ter-rate menjadi paket versi di
+   `analysis_snapshots.db` dengan provenance lengkap (`feed_mode`,
+   `fit_source`, `gate_status`, stempel odds/panel), lalu
+   `lib/picks/engine.ts` menerbitkan pick ke ledger. Gerbang di sini
+   adalah label: `applyGateCap` pass-through by design (INV-04);
+   `gate_status` tertulis di paket dan di baris pick.
+3. **Resolver (langkah 8)** — `scripts/resolve-pick-outcomes.ts`
+   menilai pick dari skor final lokal: exact match_id → jembatan
+   `sm_id_map` → jembatan kembar `fixture-links` (jalur terakhir
+   ditambahkan 16 Nov 2026, commit `09da4fe`, bersama wiring-nya ke
+   free-refresh; regresi sebelumnya: resolver tak terpanggil sejak
+   cron era trial dihapus 10 Nov, sehingga outcome membeku di 7 Nov
+   selama 9 hari). Skor tak ketemu = tetap unresolved, tidak
+   ditebak: per 19 Nov 2026, **1.321 pick live-run ter-resolve**;
+   sisa lampau terbesar adalah kompetisi tanpa sumber hasil gratis
+   (2.104 pick per audit Fase 0 — FA Cup, Liga BetPlay, MLS, WSL,
+   Brasileirão, dst.), yang tidak akan pernah bisa dinilai ledger
+   dengan sumber saat ini.
+4. **Konsumsi** — /bukti membaca ledger langsung per request dan
+   sejak R-01 menyajikan rekor tersegmentasi per `gate_status`;
+   output tiket (contoh parlay slate + slip /pilihan) sejak R-02
+   membawa label gerbang per pilihan.
+
 ---
 
 ## 8. Ritme harian & jadwal tangkapan
 
-Satu entrypoint: `scripts/daily-refresh.ts` — semua langkah idempoten
+Satu entrypoint era trial: `scripts/daily-refresh.ts` (**pensiun
+10 Nov 2026** bersama trial; diuraikan di bawah sebagai catatan era
+itu) — semua langkah idempoten
 (menjalankan dua kali berturut: diff baris = 0 kecuali tangkapan
 terjadwal yang sah baru jatuh tempo):
 
@@ -775,15 +931,35 @@ jadwalnya dan melaporkan ringkasan penutup jendela + kesiapan benchmark
 closing line. Token mati bersama trial — sesudah 10 Nov tidak ada run
 yang berguna dijalankan.
 
-**Ritme yang bertahan (mode free, tanpa token):**
-`scripts/free-refresh.ts` — rantai 7 langkah yang mengambil alih
-setelah trial berakhir: (1) `import-free-feed` (hasil + closing odds +
-fixture football-data.co.uk), (2) `build-team-canonical`,
-(3) `build-fixture-links`, (4) `calibrate-ratings`,
-(5) `fit-global-offsets`, (6) `build-canonical-telemetry`,
-(7) `pick-slate --hours 72`. Dijalankan cron `football-free-refresh`
-tiap 12 jam; di VPS nanti cukup satu baris crontab yang sama. Paket
+**Ritme yang bertahan — dan kini satu-satunya ritme (mode free,
+tanpa token):** `scripts/free-refresh.ts` — rantai **8 langkah** yang
+mengambil alih setelah trial berakhir: (1) `import-free-feed` (hasil
++ odds closing + telemetri + fixture football-data.co.uk),
+(2) `build-team-canonical`, (3) `build-fixture-links`,
+(4) `calibrate-ratings`, (5) `fit-global-offsets`,
+(6) `build-canonical-telemetry`, (7) `pick-slate --hours 72`,
+(8) `resolve-pick-outcomes` (ditambahkan 16 Nov 2026 — sebelumnya
+rantai berhenti di langkah 7 dan outcome membeku sejak 7 Nov, §7.5).
+Satu langkah exit non-nol → rantai berhenti dan run cron gagal
+terlihat (tidak senyap). Dijalankan cron `football-free-refresh`
+**tiap 12 jam (05:21 & 17:21 WITA)** di VM ini — sehat: run 16–18 Nov
+2026 semua langkah exit 0 (tercatat di commit refresh git). Paket
 yang terbit di mode ini ber-`feed_mode='free'` (lihat §2).
+
+**Status VPS (per 19 Nov 2026):** salinan rantai yang sama berjalan
+via crontab di VPS, tetapi rantainya **mati di langkah 6
+(`build-canonical-telemetry`) — Node heap OOM, exit 134**: langkah
+itu memuat tabel form kanonik sekaligus (±86 ribu baris, ±1,9 GB)
+sementara RAM VPS hanya 3,7 GB berbagi dengan app + Caddy + 9Router.
+Akibatnya langkah slate tidak pernah jalan di sana dan **pick di
+situs live beku sejak 9 Nov 2026**; impor + kalibrasi di VPS tetap
+berjalan, dan app-nya sendiri sehat (empat rute publik — `/`,
+`/pertandingan`, `/pilihan`, `/bukti` — terverifikasi 200 pada
+19 Nov 2026). Di VM (RAM 7,7 GB) langkah yang sama lolos — karena
+itu angka ledger acuan adalah angka VM. Obat permanen yang
+direkomendasikan: telemetri diproses per chunk (bukan dimuat
+sekaligus); alternatifnya memindahkan hitungan ke VPS baru 16 GB.
+**Keputusan owner — belum dieksekusi** (§10).
 
 > Catatan keadaan saat dokumen ini ditulis (4 Nov 2026): satu run
 > rantai-LAMA (dimulai sebelum fase piala mengubah `daily-refresh.ts`)
@@ -814,9 +990,11 @@ yang terbit di mode ini ber-`feed_mode='free'` (lihat §2).
 5. **Gerbang tidak dilonggarkan diam-diam** — toleransi skala 2%,
    definisi cakupan gerbang piala, dan ambang OOS adalah pradaftar;
    mengubahnya = keputusan owner tercatat.
-6. **Status jujur selalu tersaji** — partial ber-flag, uncalibrated
-   terblokir dengan alasan; tidak ada liga/kompetisi yang tersaji
-   diam-diam di bawah statusnya.
+6. **Status jujur selalu tersaji** — partial ber-flag; uncalibrated
+   terblokir dengan alasan di jalur planner/driver, dan di jalur
+   live-run terbit sebagai pick **berlabel** `gate_status` yang wajib
+   tampil di konsumen (INV-04 amendemen 18 Nov 2026); tidak ada
+   liga/kompetisi yang tersaji diam-diam di bawah statusnya.
 7. **Anti-leakage fail-closed** — telemetri/form/H2H lokal terikat
    cutoff waktu; `utc_date` absen → sumber dilewati total.
 8. **Perbandingan pasar hanya dari odds pasar nyata** (dan lihat
@@ -833,6 +1011,28 @@ yang terbit di mode ini ber-`feed_mode='free'` (lihat §2).
 ---
 
 ## 10. Keputusan owner yang terbuka & utang terukur
+
+**Ditutup sejak 7 Nov 2026 (pernah terbuka/bermasalah, kini selesai):**
+
+- **Resolver ter-wire ke free-refresh** (16 Nov 2026, commit
+  `09da4fe`) — outcome live-run hidup lagi; backfill +297 saat
+  perbaikan, 1.289 ter-resolve hari itu juga (§7.5).
+- **Ekspansi divisi fd 16 → 22** (16 Nov 2026) — E3/EC/SC1/SC2/SC3
+  calibrated, E2 partial; gerbang tidak dilonggarkan (§3.1, §3.4).
+- **R-01 segmentasi /bukti per `gate_status`** (17 Nov 2026, commit
+  `2de80db`) — headline grade A tidak lagi mencampur segmen
+  (A calibrated 83,6% / partial 83,1% / uncalibrated 71,4% saat R-01
+  diukur terhadap query SQL langsung).
+- **R-02 label gerbang per pilihan tiket + amendemen INV-04**
+  (18 Nov 2026, commit `8db6f70`) — kontrak gerbang = label kini
+  tertulis dan cocok dengan perilaku kode (§5.3).
+- **R-03 filter kembar mt_ di slate** (18 Nov 2026, commit `079787c`)
+  — mendarat ±30 jam sebelum jendela mt_ 20 Nov (§7.5).
+- **Rumah kode + backup** — repo GitHub
+  `hyperrrdice-arch/BOLA-ARANDISUPERR` menjadi rumah kode sejak
+  16 Nov 2026 (riwayat Oktober terarsip di branch
+  `arsip-versi-oktober`); backup data mingguan ke VPS berjalan
+  (script `~/workspace/football-backup/`, cron Senin dini hari WIB).
 
 Belum diputuskan (diparkir eksplisit oleh fase-fase sebelumnya; tidak
 diselesaikan sepihak):
@@ -866,12 +1066,30 @@ diselesaikan sepihak):
    Belanda** (PEC/ADO/NEC — sisa cakupan comp_3809; himpunan imbuhan
    jembatan nama sengaja tidak diperluas sepihak).
 9. **Aturan kesegaran harga** untuk perbandingan pasar (§7.4).
+10. **kfit:10 vs kfit:20 (Level A)** — re-run OOS point-in-time
+    9 Nov 2026: winner validasi bergeser ke kfit:20 (margin 0,0026
+    LL); produksi masih kfit:10. Menaikkannya mengubah angka
+    produksi → keputusan owner (§5.4).
+11. **Perbaikan rantai refresh VPS** — telemetri OOM di VPS (§8):
+    chunking telemetri (obat permanen yang direkomendasikan) vs
+    memindahkan hitungan ke VPS baru 16 GB. Selama belum diputuskan,
+    pick situs live beku sejak 9 Nov 2026; ledger VM adalah acuan.
+12. **Token football-data.org** — importer suplemen fixture sudah
+    jadi dan dorman (`scripts/import-fdorg-fixtures.ts`); menunggu
+    owner mendaftar token gratis. Nilai tambahnya terkecil di daftar
+    ini (12 kompetisi, tanpa odds, skor tertunda).
+13. **R-04: fit-ulang 16 fit warisan** — 16 fit legacy (E0, SP1,
+    SP2, D1, dst.) beku di vintage 11–14 Okt 2026 dan — lewat aturan
+    fit-sesuai-sumber — melayani fixture fd_ di liga-liga besar
+    (selisih μ terukur 0,28 pada satu laga fisik, audit Fase 0
+    Trace A). Jalur fit-ulang atau pengalihan ke fit SM segar adalah
+    pekerjaan berikutnya di daftar Fase 0, menunggu aba-aba owner.
 
 Utang operasional yang diketahui: kredit NineRouter = 0 (jalur verdict
 in-app mati; Spark adalah jalur aktif), J2 sering membalas kosong,
-cache snapshot tanpa single-flight, dan benchmark closing line yang
-masih ber-sampel kecil (n=21 berpasangan) — ia tumbuh sendiri selama
-ritme harian berjalan.
+cache snapshot tanpa single-flight, dan benchmark closing line
+sampel kecil yang sudah digantikan benchmark skala besar 16 Nov 2026
+(n=1.223, §5.4).
 
 Addendum cleanup pra-deploy (7 Nov 2026; laporan:
 `tasks/pre-deploy-cleanup-report-2026-11-07.md`): temuan audit lama
@@ -902,3 +1120,10 @@ tangan file + COUNT upcoming tanpa parse, dan cache fixture di
 | Model piala (δ, gerbang, status 0/4/13) | `tasks/cup-offset-report.md`, `tasks/cup-oos.json` |
 | Cakupan harian terakhir | `tasks/coverage-latest.md` (dibangkitkan tiap run ritme) |
 | Paket penerimaan E2E | `tasks/e2e-run-1-package.json` (+ `.pre-canonical` / `.canonical`), `tasks/e2e-cup-package.json` |
+| Re-run OOS point-in-time + keputusan kfit | `tasks/oos-rerun-pointintime-2026-11-09.md`, `tasks/oos-results.json` |
+| Benchmark closing skala besar (Δ +0,0320 @ n=1.223) | `tasks/closing-benchmark-report.md`, `tasks/closing-benchmark.json` |
+| Mode free (importer fd, feed_mode, importer fdorg dorman) | `tasks/free-mode-report.md`, `tasks/free-feed-research.md` |
+| Ekspansi divisi fd 16 → 22 | `tasks/free-divisions-expansion-report.md` |
+| Audit jalur data era bebas + daftar R-01…R-10 | `tasks/reports/fase0-audit-jalur-data-report.md` |
+| Resolver ter-wire (langkah 8) + backfill 297 | `tasks/reports/resolver-wiring-report.md`, commit `09da4fe` |
+| R-01 / R-02 / R-03 | commit `2de80db` / `8db6f70` / `079787c`; kontrak INV-04 di `docs/DATA-INVARIANTS.md` |
