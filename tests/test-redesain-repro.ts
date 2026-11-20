@@ -11,6 +11,18 @@
  * sini mengunci FAKTA hasil pengukuran; langkah 2 brief yang akan
  * mengubah perilaku dan memperbarui suite ini. Jangan dirantai ke
  * test:web — jalankan eksplisit: npx tsx tests/test-redesain-repro.ts
+ *
+ * PEMBARUAN LANGKAH 2 (keandalan, 2026-11-21):
+ * - Kasus 1 TIDAK berubah: sandbox-nya menyemai fixture registry
+ *   PRA-perbaikan (registry-tim.json, ekstrak verbatim registry lama
+ *   yang terbelah), jadi defek tetap ter-reproduksi sebagai catatan
+ *   historis. Perilaku SESUDAH perbaikan (registry gabung nyata)
+ *   dikunci oleh tests/test-redesain-keandalan.ts Kasus A + R.
+ * - Kasus 3 DIPERBARUI: status kini berdimensi waktu — assertion lama
+ *   ('scheduled' + label 'Akan datang' walau kickoff lewat) diganti
+ *   perilaku brief §4 ('menunggu-pembaruan' + labelnya). Kasus 2
+ *   (isolasi detail) diperkuat diam-diam oleh Fix C langkah 2 dan
+ *   assertion-nya tetap sama.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -193,6 +205,8 @@ interface ProbeStatus {
   statusDariScheduled: string;
   label: string;
   labelMenungguAda: boolean;
+  labelTampilAda: boolean;
+  labelKeadaan: string | null;
 }
 
 async function kasus23(): Promise<void> {
@@ -225,11 +239,17 @@ async function kasus23(): Promise<void> {
       d["sm_19719152"].alasan ?? "");
 
     const s = runProbe<ProbeStatus>(env, "status");
-    suite.eq("K3 keadaan laga dari sumber 'scheduled' = scheduled", s.state?.status, "scheduled");
-    suite.eq("K3 label tampil = 'Akan datang' walau kickoff 19 Nov 20:00Z sudah lewat",
-      s.label, "Akan datang");
-    suite.eq("K3 label 'Menunggu pembaruan pertandingan' BELUM ADA di STATUS_LABEL_ID",
-      s.labelMenungguAda, false);
+    // L2: perilaku brief §4 menggantikan defek langkah 1 — sumber masih
+    // 'scheduled' tetapi kickoff 19 Nov 20:00Z sudah lewat pada jam
+    // proses (21 Nov), jadi keadaan tampil = menunggu-pembaruan.
+    suite.eq("K3 (L2) keadaan laga: 'scheduled' + kickoff lewat = menunggu-pembaruan",
+      s.state?.status, "menunggu-pembaruan");
+    suite.eq("K3 (L2) label keadaan = 'Menunggu pembaruan pertandingan'",
+      s.labelKeadaan, "Menunggu pembaruan pertandingan");
+    suite.eq("K3 (L2) label terjadwal murni kini 'Belum mulai' (brief §4)",
+      s.label, "Belum mulai");
+    suite.eq("K3 (L2) label menunggu terdaftar di peta label tampil",
+      s.labelTampilAda, true);
   } catch (e) {
     gagal = true;
     suite.check("K2/K3 sandbox berjalan", false, e instanceof Error ? e.message : String(e));

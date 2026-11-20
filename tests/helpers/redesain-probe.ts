@@ -12,7 +12,12 @@ import { DatabaseSync } from "node:sqlite";
 import { combineSlip, type SlipPick } from "../../lib/web/parlay";
 import { daftarPilihanPraLaga, ambilRekam, type FilterRekam } from "../../lib/web/rekam";
 import { getMatchDetail, getMatchState, getPackageMatrix } from "../../lib/web/data";
-import { displayStatus, STATUS_LABEL_ID } from "../../lib/web/status";
+import {
+  displayStatus,
+  labelStatus,
+  LABEL_STATUS_TAMPIL,
+  STATUS_LABEL_ID,
+} from "../../lib/web/status";
 import { getUidForMatchId } from "../../lib/identity/fixture-resolver";
 
 const aksi = process.argv[2];
@@ -90,6 +95,12 @@ if (aksi === "marseille") {
     labelMenungguAda: (Object.values(STATUS_LABEL_ID) as string[]).includes(
       "Menunggu pembaruan pertandingan",
     ),
+    // Langkah 2: label menunggu hidup di peta label TAMPIL (status dasar
+    // tetap 7 anggota); label keadaan = labelStatus atas status tampil.
+    labelTampilAda: (Object.values(LABEL_STATUS_TAMPIL) as string[]).includes(
+      "Menunggu pembaruan pertandingan",
+    ),
+    labelKeadaan: state ? labelStatus(state.status, state.menit) : null,
   });
 } else if (aksi === "arsip") {
   const now = "2026-11-21T12:00:00.000Z";
