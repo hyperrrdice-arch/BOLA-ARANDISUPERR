@@ -19,11 +19,18 @@ import {
 import { MARKET_GRADE_THRESHOLDS } from "../picks/engine";
 import {
   getSiblingIds,
+  getUidForMatchId,
+  identityTablesExist,
   isFinishedStatus,
   linkSiblingsOf,
   loadFixtureLinkGroups,
   type FixtureLinkGroup,
 } from "../identity/fixture-resolver";
+import {
+  displayStatus,
+  skorTerlihat,
+  type FixtureStatus,
+} from "./status";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -41,6 +48,15 @@ function db(file: string): Db {
 const packagesDb = () => db("analysis_snapshots.db");
 const picksDb = () => db("picks.db");
 const datasetDb = () => db("thestats_dataset.db");
+/** Katalog jadwal hidup di file terpisah dan boleh absen (degrade kosong). */
+function upcomingDb(): Db | null {
+  if (!fs.existsSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"))) return null;
+  try {
+    return db("upcoming_fixtures.db");
+  } catch {
+    return null;
+  }
+}
 
 /* ------------------------------------------------------------------ types */
 
@@ -385,6 +401,14 @@ export interface MatchDetail {
   result: MatchResult | null;
   formHome: FormEntry[];
   formAway: FormEntry[];
+  /** Identitas kanonik lintas provider (K1); null bila store identitas tak mengenal laga ini. */
+  fixtureUid: string | null;
+  /** Keadaan tampil laga (status + skor yang lolos gerbang visibilitas). */
+  keadaan: KeadaanLaga | null;
+  /** Pilihan RESMI terbit untuk laga ini (K2) — satu-satunya yang boleh ditautkan sebagai pilihan. */
+  officialPicks: OfficialPick[];
+  /** Tiket RESMI (K3) yang memuat pilihan resmi laga ini. */
+  officialTickets: TiketResmiRef[];
 }
 
 export function getMatchDetail(matchId: string): MatchDetail | null {
@@ -401,12 +425,18 @@ export function getMatchDetail(matchId: string): MatchDetail | null {
     )
     .all(pkg.id) as unknown as PickRow[];
   const f = pkg.payload.fixture;
+  const fixtureUid = fixtureUidOf(matchId);
+  const officialPicks = getOfficialPicks(matchId, fixtureUid);
   return {
     pkg,
     picks,
     result: getResult(matchId),
     formHome: getForm(f.home, f.kickoff_utc),
     formAway: getForm(f.away, f.kickoff_utc),
+    fixtureUid,
+    keadaan: getMatchState(matchId),
+    officialPicks,
+    officialTickets: getOfficialTickets(officialPicks.map((p) => p.pick_uid)),
   };
 }
 
@@ -785,6 +815,572 @@ export function getPackagePicks(packageId: number): PickRow[] {
        WHERE pk.package_id = ? ORDER BY pk.grade ASC, pk.model_prob DESC`,
     )
     .all(packageId) as unknown as PickRow[];
+}
+
+/* ============================ K6 · keadaan, jadwal, tautan resmi ====== */
+
+/** UID kanonik laga dari store identitas K1; null bila tak dikenal/degrade. */
+function fixtureUidOf(matchId: string): string | null {
+  try {
+    const d = datasetDb();
+    if (!identityTablesExist(d)) return null;
+    return getUidForMatchId(d, matchId);
+  } catch {
+    return null;
+  }
+}
+
+export interface KeadaanLaga {
+  status: FixtureStatus;
+  /** Skor yang LOLOS gerbang visibilitas status (cancelled selalu null). */
+  home_goals: number | null;
+  away_goals: number | null;
+}
+
+/**
+ * Keadaan tampil satu laga dari baris dataset + katalog (via sibling K1).
+ * Dataset adalah otoritas skor/status final; katalog memberi status
+ * penundaan/pembatalan untuk laga yang belum punya baris hasil. Skor
+ * digerbang `skorTerlihat`: batal → tidak pernah tampil, dihentikan →
+ * parsial, selesai → penuh.
+ */
+export function getMatchState(matchId: string): KeadaanLaga | null {
+  const ids = siblingsOf(matchId);
+  let datasetRow: { statusRaw: string | null; home: number | null; away: number | null } | null =
+    null;
+  try {
+    const d = datasetDb();
+    for (const id of ids) {
+      const r = d
+        .prepare(`SELECT status, home_score, away_score FROM matches WHERE match_id = ?`)
+        .get(id) as
+        | { status: string; home_score: number | null; away_score: number | null }
+        | undefined;
+      if (!r) continue;
+      const cand = { statusRaw: r.status, home: r.home_score, away: r.away_score };
+      if (!datasetRow) datasetRow = cand;
+      const st = displayStatus(r.status);
+      if (st === "finished" || st === "abandoned") {
+        datasetRow = cand;
+        break;
+      }
+    }
+  } catch {
+    /* dataset tak tersedia */
+  }
+  let catalogStatus: string | null = null;
+  let catalogAda = false;
+  const up = upcomingDb();
+  if (up) {
+    try {
+      for (const id of ids) {
+        const r = up
+          .prepare(`SELECT status FROM upcoming_fixtures WHERE match_id = ?`)
+          .get(id) as { status: string | null } | undefined;
+        if (r) {
+          catalogAda = true;
+          catalogStatus = r.status;
+          break;
+        }
+      }
+    } catch {
+      /* tabel katalog tak ada */
+    }
+  }
+  if (!datasetRow && !catalogAda) return null;
+  let status = displayStatus(datasetRow?.statusRaw ?? catalogStatus);
+  if (datasetRow && catalogAda) {
+    const cs = displayStatus(catalogStatus);
+    // Baris dataset "terjadwal" polos kalah oleh status katalog yang lebih
+    // informatif (ditunda/dibatalkan/berlangsung); final dataset selalu menang.
+    if (
+      status === "scheduled" &&
+      (cs === "postponed" || cs === "cancelled" || cs === "live" || cs === "abandoned")
+    ) {
+      status = cs;
+    }
+  }
+  const vis = skorTerlihat(status);
+  return {
+    status,
+    home_goals: vis === "tidak" ? null : (datasetRow?.home ?? null),
+    away_goals: vis === "tidak" ? null : (datasetRow?.away ?? null),
+  };
+}
+
+function kolomAda(d: Db, table: string, kolom: string): boolean {
+  try {
+    const cols = d.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    return cols.some((c) => c.name === kolom);
+  } catch {
+    return false;
+  }
+}
+
+export interface OfficialPick extends PickRow {
+  pick_uid: string;
+  /** Waktu hitung paket penerbit — pembanding "analisis terbaru" di detail. */
+  package_computed_utc: string | null;
+}
+
+/**
+ * Pilihan RESMI laga ini: hanya baris ledger yang diterbitkan jalur
+ * publikasi K2 (pick_uid terisi). Baris lab/warisan tanpa pick_uid tidak
+ * pernah ditautkan sebagai pilihan (U03). DB pra-K2 tanpa kolom pick_uid
+ * degrade ke daftar kosong.
+ */
+export function getOfficialPicks(matchId: string, fixtureUid: string | null): OfficialPick[] {
+  const d = picksDb();
+  if (!kolomAda(d, "picks", "pick_uid")) return [];
+  const ids = siblingsOf(matchId);
+  const marks = ids.map(() => "?").join(",");
+  const rows = d
+    .prepare(
+      `SELECT pk.*, po.hit, po.home_goals, po.away_goals
+       FROM picks pk LEFT JOIN pick_outcomes po ON po.pick_id = pk.id
+       WHERE pk.pick_uid IS NOT NULL
+         AND (pk.match_id IN (${marks})${fixtureUid ? " OR pk.fixture_uid = ?" : ""})
+       ORDER BY pk.grade ASC, pk.published_prob DESC`,
+    )
+    .all(...(fixtureUid ? [...ids, fixtureUid] : ids)) as unknown as (PickRow & {
+    pick_uid: string;
+  })[];
+  const computedCache = new Map<number, string | null>();
+  return rows.map((r) => {
+    let computed: string | null = null;
+    if (r.package_id !== null && r.package_id !== undefined) {
+      const cached = computedCache.get(r.package_id);
+      if (cached !== undefined) {
+        computed = cached;
+      } else {
+        try {
+          const prow = packagesDb()
+            .prepare(`SELECT computed_utc FROM packages WHERE id = ?`)
+            .get(r.package_id) as { computed_utc: string } | undefined;
+          computed = prow?.computed_utc ?? null;
+        } catch {
+          computed = null;
+        }
+        computedCache.set(r.package_id, computed);
+      }
+    }
+    return { ...r, package_computed_utc: computed };
+  });
+}
+
+export interface TiketResmiRef {
+  slip_uid: string;
+  state: string;
+  combined_prob: number | null;
+  combined_basis: string | null;
+  published_utc: string;
+  pick_uids: string[];
+}
+
+/**
+ * Tiket RESMI (K3) yang memuat salah satu pick_uid resmi yang diberikan.
+ * Slip draf browser tidak hidup di tabel ini, jadi tidak akan pernah
+ * tertaut dari sini.
+ */
+export function getOfficialTickets(pickUids: string[]): TiketResmiRef[] {
+  if (pickUids.length === 0) return [];
+  const d = picksDb();
+  try {
+    const ada = d
+      .prepare(
+        `SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table'
+         AND name IN ('published_slips', 'slip_legs')`,
+      )
+      .get() as { n: number };
+    if (ada.n < 2) return [];
+  } catch {
+    return [];
+  }
+  const marks = pickUids.map(() => "?").join(",");
+  const rows = d
+    .prepare(
+      `SELECT s.slip_uid, s.state, s.combined_prob, s.combined_basis, s.published_utc,
+              GROUP_CONCAT(l.pick_uid) AS uids
+       FROM published_slips s JOIN slip_legs l ON l.slip_uid = s.slip_uid
+       WHERE l.pick_uid IN (${marks})
+       GROUP BY s.slip_uid ORDER BY s.published_utc DESC`,
+    )
+    .all(...pickUids) as Record<string, unknown>[];
+  return rows.map((r) => ({
+    slip_uid: r.slip_uid as string,
+    state: r.state as string,
+    combined_prob: (r.combined_prob as number | null) ?? null,
+    combined_basis: (r.combined_basis as string | null) ?? null,
+    published_utc: r.published_utc as string,
+    pick_uids: String(r.uids ?? "")
+      .split(",")
+      .filter(Boolean),
+  }));
+}
+
+/* ------------------------------------------------------- peta liga kanonik */
+
+interface LigaKanonikFile {
+  leagues: {
+    canonical_id: string;
+    name: string;
+    fits?: unknown[];
+    aliases?: { id?: string; name_as_stored?: string }[];
+  }[];
+}
+
+let petaLigaCache: { prioritas: Map<string, number>; nama: Map<string, string> } | null = null;
+function petaLiga(): { prioritas: Map<string, number>; nama: Map<string, string> } {
+  if (petaLigaCache) return petaLigaCache;
+  const prioritas = new Map<string, number>();
+  const nama = new Map<string, string>();
+  try {
+    const raw = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "data", "league-canonical.json"), "utf8"),
+    ) as LigaKanonikFile;
+    for (const lg of raw.leagues ?? []) {
+      const p = (lg.fits?.length ?? 0) > 0 ? 0 : 1;
+      prioritas.set(lg.canonical_id, p);
+      nama.set(lg.canonical_id, lg.name);
+      if (lg.name) prioritas.set(`nama:${lg.name.toLowerCase()}`, p);
+      for (const a of lg.aliases ?? []) {
+        if (a.id) {
+          prioritas.set(a.id, p);
+          nama.set(a.id, lg.name);
+        }
+        if (a.name_as_stored) prioritas.set(`nama:${a.name_as_stored.toLowerCase()}`, p);
+      }
+    }
+  } catch {
+    /* tanpa registry: prioritas seragam, nama apa adanya */
+  }
+  petaLigaCache = { prioritas, nama };
+  return petaLigaCache;
+}
+
+/**
+ * Prioritas liga untuk urutan jadwal: 0 = liga yang punya fit rating
+ * (universe yang benar-benar dinilai aplikasi), 1 = lainnya. Deterministik
+ * dari registry kanonik, bukan tebakan nama.
+ */
+export function prioritasLiga(
+  competitionCanonicalId: string | null,
+  competitionName: string | null,
+): number {
+  const { prioritas } = petaLiga();
+  if (competitionCanonicalId && prioritas.has(competitionCanonicalId)) {
+    return prioritas.get(competitionCanonicalId)!;
+  }
+  if (competitionName) {
+    const p = prioritas.get(`nama:${competitionName.toLowerCase()}`);
+    if (p !== undefined) return p;
+  }
+  return 1;
+}
+
+/* ------------------------------------------------------------- jadwal */
+
+export interface JadwalItem {
+  match_id: string;
+  fixture_uid: string | null;
+  home: string;
+  away: string;
+  competition_name: string;
+  competition_country: string | null;
+  competition_canonical_id: string | null;
+  kickoff_utc: string;
+  status: FixtureStatus;
+  home_goals: number | null;
+  away_goals: number | null;
+  /** Untuk laga ditunda: jadwal asal (tanggal baris katalognya sendiri). */
+  jadwal_asal_utc: string | null;
+  /** Untuk laga ditunda: kickoff jadwal ulang bila baris sibling terjadwal ada. */
+  jadwal_ulang_utc: string | null;
+  package_id: number | null;
+  gate_status: string | null;
+  pickCounts: { A: number; B: number; C: number };
+  topLeg: Leg | null;
+}
+
+function ringkasPaket(pkg: PackageRow): { pickCounts: { A: number; B: number; C: number }; topLeg: Leg | null } {
+  const counts = { A: 0, B: 0, C: 0 };
+  for (const leg of pkg.payload.legs ?? []) {
+    if (leg.grade === "A") counts.A += 1;
+    else if (leg.grade === "B") counts.B += 1;
+    else if (leg.grade === "C") counts.C += 1;
+  }
+  const legs = [...(pkg.payload.legs ?? [])].sort((a, b) => {
+    const rank = (gr: string) => (gr === "A" ? 0 : gr === "B" ? 1 : 2);
+    return rank(a.grade) - rank(b.grade) || b.effective_prob - a.effective_prob;
+  });
+  return { pickCounts: counts, topLeg: legs[0] ?? null };
+}
+
+function jadwalUlangOf(matchId: string, kickoffUtc: string): string | null {
+  const up = upcomingDb();
+  if (!up) return null;
+  try {
+    for (const id of siblingsOf(matchId)) {
+      const r = up
+        .prepare(`SELECT utc_date, status FROM upcoming_fixtures WHERE match_id = ?`)
+        .get(id) as { utc_date: string; status: string | null } | undefined;
+      if (r && r.utc_date !== kickoffUtc && displayStatus(r.status) === "scheduled") {
+        return r.utc_date;
+      }
+    }
+  } catch {
+    /* katalog tak terbaca */
+  }
+  return null;
+}
+
+/**
+ * Daftar jadwal kanonik untuk jendela UTC [dariUtc, sampaiUtc): sumbernya
+ * katalog upcoming_fixtures (termasuk laga TANPA paket), diperkaya paket
+ * analisis terbaru per laga dan keadaan hasil dari dataset. Urutan stabil:
+ * kickoff, lalu prioritas liga, lalu nama kompetisi, lalu id pertandingan.
+ */
+export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
+  interface Mentah {
+    match_id: string;
+    home: string;
+    away: string;
+    competition_name: string;
+    competition_country: string | null;
+    competition_canonical_id: string | null;
+    kickoff_utc: string;
+    statusRaw: string | null;
+    dariKatalog: boolean;
+  }
+  const byId = new Map<string, Mentah>();
+  const up = upcomingDb();
+  if (up) {
+    try {
+      const rows = up
+        .prepare(
+          `SELECT * FROM upcoming_fixtures WHERE utc_date >= ? AND utc_date < ?`,
+        )
+        .all(dariUtc, sampaiUtc) as Record<string, unknown>[];
+      for (const r of rows) {
+        byId.set(r.match_id as string, {
+          match_id: r.match_id as string,
+          home: (r.home_team_name as string | null) ?? "?",
+          away: (r.away_team_name as string | null) ?? "?",
+          competition_name: (r.competition_name as string | null) ?? "",
+          competition_country: (r.competition_country as string | null) ?? null,
+          competition_canonical_id: null,
+          kickoff_utc: r.utc_date as string,
+          statusRaw: (r.status as string | null) ?? null,
+          dariKatalog: true,
+        });
+      }
+    } catch {
+      /* tabel katalog belum ada di DB ini */
+    }
+  }
+  const pkgById = new Map<string, PackageRow>();
+  const pkgRows = packagesDb()
+    .prepare(`${LATEST_PER_MATCH} WHERE p.kickoff_utc >= ? AND p.kickoff_utc < ?`)
+    .all(dariUtc, sampaiUtc) as Record<string, unknown>[];
+  for (const r of pkgRows) {
+    const pkg = parsePackage(r);
+    pkgById.set(pkg.match_id, pkg);
+    if (!byId.has(pkg.match_id)) {
+      const f = pkg.payload.fixture;
+      byId.set(pkg.match_id, {
+        match_id: pkg.match_id,
+        home: f.home,
+        away: f.away,
+        competition_name: f.competition_name,
+        competition_country: null,
+        competition_canonical_id: pkg.competition_canonical_id,
+        kickoff_utc: pkg.kickoff_utc,
+        statusRaw: null,
+        dariKatalog: false,
+      });
+    } else {
+      const m = byId.get(pkg.match_id)!;
+      m.competition_canonical_id = pkg.competition_canonical_id;
+      if (m.home === "?") m.home = pkg.payload.fixture.home;
+      if (m.away === "?") m.away = pkg.payload.fixture.away;
+      if (!m.competition_name) m.competition_name = pkg.payload.fixture.competition_name;
+    }
+  }
+
+  const items: JadwalItem[] = [];
+  for (const m of byId.values()) {
+    const pkg = pkgById.get(m.match_id) ?? null;
+    const keadaan = getMatchState(m.match_id);
+    let status: FixtureStatus;
+    if (keadaan) {
+      status = keadaan.status;
+    } else if (m.dariKatalog) {
+      const ds = displayStatus(m.statusRaw);
+      status = ds !== "unknown" ? ds : "scheduled";
+    } else {
+      status = "scheduled";
+    }
+    const ringkas = pkg ? ringkasPaket(pkg) : { pickCounts: { A: 0, B: 0, C: 0 }, topLeg: null };
+    items.push({
+      match_id: m.match_id,
+      fixture_uid: fixtureUidOf(m.match_id),
+      home: m.home,
+      away: m.away,
+      competition_name: m.competition_name,
+      competition_country: m.competition_country,
+      competition_canonical_id: m.competition_canonical_id,
+      kickoff_utc: m.kickoff_utc,
+      status,
+      home_goals: keadaan?.home_goals ?? null,
+      away_goals: keadaan?.away_goals ?? null,
+      jadwal_asal_utc: status === "postponed" ? m.kickoff_utc : null,
+      jadwal_ulang_utc: status === "postponed" ? jadwalUlangOf(m.match_id, m.kickoff_utc) : null,
+      package_id: pkg?.id ?? null,
+      gate_status: pkg?.gate_status ?? null,
+      pickCounts: ringkas.pickCounts,
+      topLeg: ringkas.topLeg,
+    });
+  }
+  items.sort(
+    (a, b) =>
+      a.kickoff_utc.localeCompare(b.kickoff_utc) ||
+      prioritasLiga(a.competition_canonical_id, a.competition_name) -
+        prioritasLiga(b.competition_canonical_id, b.competition_name) ||
+      a.competition_name.localeCompare(b.competition_name) ||
+      a.match_id.localeCompare(b.match_id),
+  );
+  return items;
+}
+
+/** Jendela liputan jadwal yang benar-benar diketahui (katalog ∪ paket). */
+export function cakupanJadwal(): { dariUtc: string; sampaiUtc: string } | null {
+  const bounds: { a: string; b: string }[] = [];
+  const up = upcomingDb();
+  if (up) {
+    try {
+      const r = up
+        .prepare(`SELECT MIN(utc_date) AS a, MAX(utc_date) AS b FROM upcoming_fixtures`)
+        .get() as { a: string | null; b: string | null };
+      if (r.a && r.b) bounds.push({ a: r.a, b: r.b });
+    } catch {
+      /* abaikan */
+    }
+  }
+  try {
+    const r = packagesDb()
+      .prepare(`SELECT MIN(kickoff_utc) AS a, MAX(kickoff_utc) AS b FROM packages`)
+      .get() as { a: string | null; b: string | null };
+    if (r.a && r.b) bounds.push({ a: r.a, b: r.b });
+  } catch {
+    /* abaikan */
+  }
+  if (bounds.length === 0) return null;
+  return {
+    dariUtc: bounds.map((x) => x.a).sort()[0],
+    sampaiUtc: bounds.map((x) => x.b).sort()[bounds.length - 1],
+  };
+}
+
+export interface InfoFixture {
+  match_id: string;
+  fixture_uid: string | null;
+  home: string;
+  away: string;
+  competition_name: string;
+  competition_country: string | null;
+  kickoff_utc: string;
+  status: FixtureStatus;
+}
+
+/**
+ * Info dasar satu laga TANPA syarat paket — detail laga terjadwal tanpa
+ * paket tetap bisa dibuka (U3.6). Urutan sumber: katalog, dataset, paket.
+ * Null hanya untuk ID yang benar-benar asing.
+ */
+export function getFixtureInfo(matchId: string): InfoFixture | null {
+  const ids = siblingsOf(matchId);
+  const fixtureUid = fixtureUidOf(matchId);
+  const up = upcomingDb();
+  if (up) {
+    try {
+      for (const id of ids) {
+        const r = up
+          .prepare(`SELECT * FROM upcoming_fixtures WHERE match_id = ?`)
+          .get(id) as Record<string, unknown> | undefined;
+        if (r) {
+          const keadaan = getMatchState(matchId);
+          return {
+            match_id: matchId,
+            fixture_uid: fixtureUid,
+            home: (r.home_team_name as string | null) ?? "?",
+            away: (r.away_team_name as string | null) ?? "?",
+            competition_name: (r.competition_name as string | null) ?? "",
+            competition_country: (r.competition_country as string | null) ?? null,
+            kickoff_utc: r.utc_date as string,
+            status: keadaan?.status ?? displayStatus(r.status as string | null),
+          };
+        }
+      }
+    } catch {
+      /* lanjut ke sumber berikutnya */
+    }
+  }
+  try {
+    const d = datasetDb();
+    for (const id of ids) {
+      const r = d
+        .prepare(`SELECT * FROM matches WHERE match_id = ?`)
+        .get(id) as Record<string, unknown> | undefined;
+      if (r) {
+        const namaTim = (tid: string) => {
+          const t = d
+            .prepare(`SELECT name FROM teams WHERE team_id = ?`)
+            .get(tid) as { name: string } | undefined;
+          if (t?.name) return t.name;
+          const cid = canonicalIdForTeamId(tid);
+          return cid ? opponentName(cid) : tid;
+        };
+        const keadaan = getMatchState(matchId);
+        return {
+          match_id: matchId,
+          fixture_uid: fixtureUid,
+          home: namaTim(r.home_team_id as string),
+          away: namaTim(r.away_team_id as string),
+          competition_name:
+            petaLiga().nama.get(r.competition_id as string) ?? (r.competition_id as string),
+          competition_country: null,
+          kickoff_utc: r.utc_date as string,
+          status: keadaan?.status ?? displayStatus(r.status as string),
+        };
+      }
+    }
+  } catch {
+    /* lanjut */
+  }
+  try {
+    for (const id of ids) {
+      const row = packagesDb()
+        .prepare(`SELECT * FROM packages WHERE match_id = ? ORDER BY id DESC LIMIT 1`)
+        .get(id) as Record<string, unknown> | undefined;
+      if (row) {
+        const pkg = parsePackage(row);
+        const f = pkg.payload.fixture;
+        return {
+          match_id: matchId,
+          fixture_uid: fixtureUid,
+          home: f.home,
+          away: f.away,
+          competition_name: f.competition_name,
+          competition_country: null,
+          kickoff_utc: pkg.kickoff_utc,
+          status: getMatchState(matchId)?.status ?? "scheduled",
+        };
+      }
+    }
+  } catch {
+    /* tak ada sumber yang mengenal id ini */
+  }
+  return null;
 }
 
 /** Matriks skor paket untuk halaman analisis + pembangun parlay (client-safe data). */
