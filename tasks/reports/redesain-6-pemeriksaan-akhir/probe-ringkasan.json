@@ -1,0 +1,44 @@
+{
+ "total": 67,
+ "lulus": 59,
+ "gagal": 6,
+ "info": 2,
+ "daftarGagal": [
+  {
+   "grup": "marseille",
+   "nama": "daftar pilihan: Marseille tampil SATU laga (bukan dua)",
+   "ok": false,
+   "detail": "grup Marseille: 2, total: 14 pilihan · 2 laga"
+  },
+  {
+   "grup": "marseille",
+   "nama": "tambah 'Minimal dua gol' 85,5% → 1 pilihan dari 1 laga, gabungan 85,5%",
+   "ok": false,
+   "detail": "{\"adaBaris\":true,\"terklik\":true}"
+  },
+  {
+   "grup": "penemuan",
+   "nama": "jadwal: cari 'koge' menemukan Køge",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "grup": "penemuan",
+   "nama": "jadwal: hasil cari punya tautan detail",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "grup": "akses",
+   "nama": "gerak minimum: media query aktif + durasi animasi bilah ≈ 0",
+   "ok": false,
+   "detail": "{\"anim\":\"1e-05s\",\"trans\":\"1e-05s\",\"cocok\":true}"
+  },
+  {
+   "grup": "3d",
+   "nama": "putar: tampilan berubah sesudah tombol putar",
+   "ok": false,
+   "detail": ""
+  }
+ ]
+}
