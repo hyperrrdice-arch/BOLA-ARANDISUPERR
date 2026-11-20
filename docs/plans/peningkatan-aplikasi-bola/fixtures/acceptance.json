@@ -1,0 +1,429 @@
+{
+  "purpose": "Data sintetis untuk acceptance. Dua grup alias menyalin ID registry dari commit audit. Seluruh skor pada fixture uji adalah rekaan.",
+  "source_commit": "b9b38713b214f4e34c5e56c4cb5c222e4ab50c64",
+  "unit": "Probabilitas 0..1. Gol regulasi 90 menit termasuk injury time. Tanggal persistensi UTC, tampilan Asia/Jakarta.",
+  "import_replay": {
+    "test_id": "D01",
+    "division": "E0",
+    "rows": [
+      {
+        "sm_id": "sm_901",
+        "initial_row": "catalog_only",
+        "home": "Alpha Athletic",
+        "away": "Beta Town",
+        "kickoff_utc": "2026-11-18T15:00:00Z",
+        "regulation": [
+          2,
+          1
+        ],
+        "market": "1x2",
+        "selection": "home",
+        "expected": "hit"
+      },
+      {
+        "sm_id": "sm_902",
+        "initial_row": "catalog_and_scheduled_match",
+        "home": "Gamma FC",
+        "away": "Delta United",
+        "kickoff_utc": "2026-11-18T16:00:00Z",
+        "regulation": [
+          0,
+          1
+        ],
+        "market": "1x2",
+        "selection": "home",
+        "expected": "miss"
+      }
+    ],
+    "expected_unique_fixtures": 2,
+    "expected_resolved": 2,
+    "expected_team_logs_if_telemetry_supplied": 4
+  },
+  "existing_aliases": {
+    "test_id": "D02",
+    "groups": [
+      {
+        "canonical_id": "sm_19735411",
+        "other_ids": [
+          "fd_D2_20261107_1-fc-nurnberg_sv-darmstadt-98"
+        ],
+        "legacy_pick_ids": [
+          "sm_19735411",
+          "fd_D2_20261107_1-fc-nurnberg_sv-darmstadt-98"
+        ],
+        "score_stored_at": "fd_D2_20261107_1-fc-nurnberg_sv-darmstadt-98",
+        "regulation": [
+          2,
+          1
+        ]
+      },
+      {
+        "canonical_id": "sm_19735118",
+        "other_ids": [
+          "fd_D1_20261108_1-fc-koln_bayer-leverkusen",
+          "mt_466402698"
+        ],
+        "legacy_pick_ids": [
+          "sm_19735118",
+          "mt_466402698"
+        ],
+        "score_stored_at": "fd_D1_20261108_1-fc-koln_bayer-leverkusen",
+        "regulation": [
+          2,
+          1
+        ]
+      }
+    ],
+    "expected_traceable_rows": 4,
+    "expected_unique_identical_home_picks": 2
+  },
+  "corrections": {
+    "test_id": "D04",
+    "observations": [
+      {
+        "status": "FT",
+        "regulation": [
+          1,
+          0
+        ],
+        "revision": 1
+      },
+      {
+        "status": "finished",
+        "regulation": [
+          1,
+          0
+        ],
+        "revision": 1
+      },
+      {
+        "status": "FT",
+        "regulation": [
+          0,
+          0
+        ],
+        "revision": 2
+      },
+      {
+        "status": "scheduled",
+        "regulation": null,
+        "revision": 2
+      }
+    ],
+    "expected_home_pick_history": [
+      "hit",
+      "miss"
+    ],
+    "cup": {
+      "regulation": [
+        1,
+        1
+      ],
+      "after_extra_time": [
+        2,
+        1
+      ],
+      "expected_1x2": "draw"
+    }
+  },
+  "publication_cutoff": {
+    "test_id": "D05",
+    "kickoff_utc": "2026-11-20T13:00:00.000Z",
+    "try_independently": [
+      {
+        "published_utc": "2026-11-20T12:59:59.999Z",
+        "accept": true
+      },
+      {
+        "published_utc": "2026-11-20T13:00:00.000Z",
+        "accept": false
+      },
+      {
+        "published_utc": "2026-11-20T13:00:00.001Z",
+        "accept": false
+      }
+    ]
+  },
+  "immutable_pick": {
+    "test_id": "D06",
+    "packages": [
+      {
+        "ref": "A",
+        "decision_utc": "2026-11-20T10:30:00Z",
+        "published_utc": "2026-11-20T10:40:00Z",
+        "model_prob": 0.79,
+        "effective_prob": 0.74
+      },
+      {
+        "ref": "B",
+        "decision_utc": "2026-11-20T11:30:00Z",
+        "computed_utc": "2026-11-20T11:32:00Z",
+        "model_prob": 0.85,
+        "effective_prob": 0.76
+      }
+    ],
+    "expected_first": "A",
+    "expected_published_prob": 0.74,
+    "expected_latest": "B",
+    "legacy_no_snapshot": {
+      "probability_basis": "unknown_legacy",
+      "published_prob": null,
+      "eligible_for_probability_comparison": false
+    }
+  },
+  "coverage": {
+    "test_id": "D07",
+    "future": 2,
+    "hit": 3,
+    "miss": 1,
+    "overdue_pending": 2,
+    "void": 1,
+    "expected": {
+      "issued": 9,
+      "settled": 4,
+      "due": 6,
+      "hit_ratio": 0.75,
+      "coverage_fraction": [
+        4,
+        6
+      ]
+    }
+  },
+  "offered_quote": {
+    "test_id": "D08",
+    "market": "1x2",
+    "selection": "home",
+    "book": "test-book",
+    "decision_utc": "2026-11-20T10:30:00Z",
+    "snapshots": [
+      {
+        "source": "book",
+        "type": "prematch",
+        "available_utc": "2026-11-20T09:00:00Z",
+        "prices": [
+          2.1,
+          3.2,
+          3.85
+        ]
+      },
+      {
+        "source": "book",
+        "type": "closing",
+        "available_utc": "2026-11-20T12:59:00Z",
+        "prices": [
+          1.8,
+          3.4,
+          4.75
+        ]
+      },
+      {
+        "source": "archived_panel",
+        "type": "probability",
+        "available_utc": "2026-11-19T13:00:00Z",
+        "probs": [
+          0.44,
+          0.3,
+          0.26
+        ]
+      }
+    ],
+    "expected_offered_decimal": 2.1
+  },
+  "ticket_settlement": {
+    "test_id": "D09",
+    "vectors": [
+      {
+        "legs": [
+          "hit",
+          "hit"
+        ],
+        "expected": "hit"
+      },
+      {
+        "legs": [
+          "hit",
+          "miss"
+        ],
+        "expected": "miss"
+      },
+      {
+        "legs": [
+          "hit",
+          "void"
+        ],
+        "expected": "void"
+      },
+      {
+        "legs": [
+          "miss",
+          "void"
+        ],
+        "expected": "miss"
+      },
+      {
+        "legs": [
+          "miss",
+          "pending"
+        ],
+        "expected": "pending"
+      }
+    ]
+  },
+  "joint_matrix": {
+    "test_id": "Q01",
+    "axis_order": [
+      "home_goals",
+      "away_goals"
+    ],
+    "matrix": [
+      [
+        0.1,
+        0.08,
+        0.02
+      ],
+      [
+        0.12,
+        0.1,
+        0.03
+      ],
+      [
+        0.2,
+        0.15,
+        0.2
+      ]
+    ],
+    "expected": {
+      "home": 0.47,
+      "draw": 0.4,
+      "away": 0.13,
+      "one_x": 0.87,
+      "home_and_one_x": 0.47,
+      "home_and_away": 0
+    }
+  },
+  "identity_and_independence": {
+    "test_id": "Q04",
+    "alias_duplicate": {
+      "same_pick_marginals": [
+        0.8,
+        0.8
+      ],
+      "expected_unique": 1,
+      "expected_prob": 0.8
+    },
+    "distinct_matches": {
+      "marginals": [
+        0.8,
+        0.7
+      ],
+      "assumption": "independence_across_matches",
+      "expected_prob": 0.56
+    },
+    "same_fixture_missing_matrix": {
+      "expected_prob": null,
+      "reason": "joint_unavailable"
+    }
+  },
+  "interface_demo": {
+    "test_id": "U03",
+    "fixture": "Persada FC vs Rawa United",
+    "kickoff_utc": "2026-11-20T13:00:00Z",
+    "issued_utc": "2026-11-20T10:40:00Z",
+    "score_cells_percent": [
+      [
+        0,
+        0,
+        12
+      ],
+      [
+        1,
+        1,
+        13
+      ],
+      [
+        2,
+        2,
+        4
+      ],
+      [
+        1,
+        0,
+        12
+      ],
+      [
+        2,
+        0,
+        10
+      ],
+      [
+        2,
+        1,
+        16
+      ],
+      [
+        3,
+        1,
+        8
+      ],
+      [
+        0,
+        1,
+        8
+      ],
+      [
+        0,
+        2,
+        4
+      ],
+      [
+        1,
+        2,
+        10
+      ],
+      [
+        1,
+        3,
+        3
+      ]
+    ],
+    "expected_1x2": [
+      0.46,
+      0.29,
+      0.25
+    ],
+    "expected_1x": 0.75,
+    "expected_over_1_5": 0.68,
+    "expected_joint_one_x_over_1_5": 0.51,
+    "other_fixture_one_x": 0.69,
+    "expected_two_fixture_joint": 0.3519
+  },
+  "record_display": {
+    "test_id": "U05",
+    "settled_probs": [
+      0.78,
+      0.62,
+      0.7,
+      0.76,
+      0.72,
+      0.7,
+      0.74,
+      0.68
+    ],
+    "verdicts": [
+      "hit",
+      "hit",
+      "miss",
+      "hit",
+      "hit",
+      "hit",
+      "hit",
+      "miss"
+    ],
+    "unique_settled_matches": 4,
+    "pending": 4,
+    "expected_total": 12,
+    "expected_hits": 6,
+    "expected_hit_ratio": 0.75,
+    "expected_average_prob": 0.7125
+  }
+}

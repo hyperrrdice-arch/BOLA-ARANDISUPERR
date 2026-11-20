@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>Bola — Beranda</title>
+  <style>
+    :root{--paper:#f7f6f2;--white:#fffefa;--ink:#18201e;--body:#424a45;--muted:#59635d;--line:#d5d7ce;--strong:#a8afa4;--green:#234e3c;--green-light:#e6ece5;--amber:#f3b34b;--gold-light:#f4ead6;--red:#973e38;--sans:Arial,Helvetica,sans-serif}
+    *,*::before,*::after{box-sizing:border-box}
+    body{background:var(--paper);color:var(--ink);font:16px/1.46 var(--sans);margin:0;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}button,select{font:inherit;color:inherit}button{cursor:pointer}
+    a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #925500;outline-offset:3px}
+    [hidden]{display:none!important}.skip{position:absolute;top:-60px;left:16px;background:var(--ink);color:white;padding:10px;z-index:10}.skip:focus{top:5px}
+    .wrap{width:min(1224px,calc(100% - 96px));margin:auto}.mast{border-bottom:1px solid var(--strong)}
+    .head{display:flex;gap:54px;align-items:center;min-height:84px}
+    .brand{display:inline-flex;align-items:center;line-height:1;font-size:48px;letter-spacing:-4px;font-weight:900;padding:5px 5px 6px 0}
+    .brand::after{content:"";width:9px;height:9px;margin:20px 0 0 5px;background:var(--amber);transform:skew(-12deg)}
+    nav{display:flex;align-self:stretch;gap:26px}nav a{display:grid;align-content:center;min-height:44px;border-bottom:3px solid transparent;padding-top:3px;color:var(--muted);font-size:14px;font-weight:600}
+    nav a[aria-current="page"]{border-bottom-color:var(--amber);color:var(--ink)}nav a:hover,.textlink:hover,.back:hover{text-decoration:underline;text-underline-offset:3px}
+    .edition{margin-left:auto;text-align:right;font-size:13px;line-height:1.5;color:var(--body)}.edition small{display:block;color:var(--muted);font-size:11px}
+    main{min-height:66vh}.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:38px 0 24px;border-bottom:2px solid var(--ink)}
+    h1,h2,h3,p,figure{margin:0}h1,h2,h3{line-height:1.09}
+    h1{font-size:clamp(38px,4.25vw,64px);font-weight:800;letter-spacing:-.066em}
+    h2{font-size:clamp(24px,2.1vw,31px);font-weight:750;letter-spacing:-.048em}
+    h3{font-size:19px;font-weight:700;letter-spacing:-.025em}
+    .meta,.small,small{font-size:13px;color:var(--muted)}.meta{font-variant-numeric:tabular-nums}
+    .fresh{display:flex;align-items:center;gap:7px}.mark-time{display:inline-block;width:7px;height:7px;border:1px solid var(--green);border-radius:50%;background:var(--green-light)}
+    .grid{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(250px,.83fr);column-gap:36px;align-items:start}
+    .bodygrid{padding:26px 0 32px}.rail{border-left:1px solid var(--line);padding-left:30px}
+    .sectionhead,.rowline,.info-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .sectionhead{margin-bottom:15px}.sectionhead .textlink{margin-left:auto}
+    .section-marker{display:inline-block;width:9px;height:9px;background:var(--amber);margin:0 9px 2px 0;transform:skew(-10deg)}
+    .textlink,.back{display:inline-flex;align-items:center;min-height:40px;gap:7px;font-weight:650;font-size:14px}.textlink span[aria-hidden]{font-size:16px}
+    .board{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--ink)}
+    .board-line{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 22px;font-size:13px;color:var(--body);border-bottom:1px solid var(--line)}
+    .league{font-weight:700;color:var(--ink)}.board-line time{font-weight:700;font-variant-numeric:tabular-nums}
+    .stage{position:relative;isolation:isolate;background:#efeee5;display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);align-items:center;text-align:center;padding:22px 30px 20px;overflow:hidden}
+    .field{position:absolute;inset:12px 15px;z-index:-1;border:1px solid #d9dbcd;pointer-events:none}
+    .field::before{content:"";position:absolute;top:0;bottom:0;left:50%;border-left:1px solid #d9dbcd}
+    .field::after{content:"";position:absolute;left:50%;top:50%;width:70px;height:70px;transform:translate(-50%,-50%);border:1px solid #d9dbcd;border-radius:50%}
+    .team{display:flex;align-items:center;flex-direction:column;gap:9px}.club{font-size:clamp(18px,2vw,27px);letter-spacing:-.045em;font-weight:750;line-height:1.1}
+    .crest{width:48px;height:54px;display:grid;place-items:center;position:relative;isolation:isolate;clip-path:polygon(0 8%,50% 0,100% 8%,96% 61%,81% 79%,50% 100%,19% 79%,4% 61%);background:#254d3c;color:white;font-style:italic;font-weight:900;font-size:19px;line-height:1;letter-spacing:-1px}
+    .crest::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.35;background:#92b09b;clip-path:polygon(0 18%,100% 62%,100% 76%,0 32%)}
+    .crest.away{background:#edb559;color:#49361d}.crest.away::before{background:#70562c;clip-path:polygon(17% 0,33% 0,33% 100%,17% 100%);opacity:.19}
+    .versus{font:600 13px var(--sans);color:var(--muted);background:#efeee5;border:1px solid #ced1c2;border-radius:50%;display:grid;place-items:center;width:32px;height:32px;z-index:1}
+    .board-body{padding:18px 22px 19px}.rowline .small{font-size:12px}
+    .result-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:13px}
+    .key-name{display:flex;align-items:center;gap:6px;color:var(--body);font-size:13px}.result-key b{display:block;font-size:clamp(24px,2.15vw,34px);line-height:1.12;font-weight:750;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+    .inkdot{display:inline-block;width:8px;height:8px;background:var(--green);flex:none}.inkdot.d{background:#a4aa9e}.inkdot.a{background:var(--amber)}
+    .bars{display:flex;gap:3px;height:7px;margin-top:11px}.bars span{height:100%;min-width:0}.bars .h{background:var(--green)}.bars .d{background:#a4aa9e}.bars .a{background:var(--amber)}
+    .board-bottom{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:17px}.board-bottom .small{font-size:12px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;gap:14px;min-height:44px;border:1px solid var(--ink);border-radius:3px;padding:7px 15px;background:var(--ink);color:white;font-weight:650;font-size:14px}.btn:hover{background:var(--green)}
+    .btn.light{background:transparent;border-color:var(--strong);color:var(--ink)}.btn.light:hover{background:var(--green-light)}.btn[aria-pressed="true"]{background:var(--green-light);color:var(--green);border-color:#9bb19f}
+    .rail .sectionhead{margin-bottom:4px}.schedule-row{display:grid;grid-template-columns:48px minmax(0,1fr) 15px;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid var(--line)}
+    .schedule-row:hover .team-pair,.match-link:hover .team-pair,.finish:hover strong{text-decoration:underline;text-underline-offset:3px}
+    .schedule-row time,.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"} .schedule-row time{color:var(--green);font-size:15px;font-weight:700}
+    .team-pair{font-size:16px;letter-spacing:-.015em;font-weight:650;line-height:1.25}.schedule-row .team-pair small,.match-link small{display:block;font-size:12px;letter-spacing:0;font-weight:400;color:var(--muted);margin-top:5px}
+    .arrow{color:var(--muted);font-size:18px}.rail-link{margin-top:6px}
+    .subsection{border-top:1px solid var(--strong);padding:23px 0 10px}.subsection .sectionhead{margin-bottom:0}
+    .finish{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:14px 0}.finish strong{display:block;font-size:16px}.finish small{display:block;font-size:12px}
+    .score{font-size:20px;font-weight:700;letter-spacing:.01em;font-variant-numeric:tabular-nums}.simplebox{border-top:2px solid var(--ink);padding-top:16px}.simplebox p{margin:8px 0}
+    .big-num{font-size:40px;font-weight:750;letter-spacing:-.05em;line-height:1.15}.green{color:var(--green)}.red{color:var(--red)}
+    .eyebrow{font-size:13px;color:var(--muted);font-weight:600}.intro{max-width:70ch;color:var(--body);margin-top:8px}
+    .back{color:var(--muted);font-size:13px}.detailhead{padding:17px 0 22px;border-bottom:2px solid var(--ink)}.detailhead h1{margin:8px 0 12px}.detailmeta{display:flex;gap:7px 14px;flex-wrap:wrap;font-size:14px;color:var(--body)}
+    .detailbody{padding:23px 0 36px}.insight{margin-bottom:16px;max-width:62ch;font-size:18px;color:var(--body);line-height:1.5}.compact-board .board-body{padding:20px 24px 22px}
+    .fine{font-size:13px;color:var(--muted);line-height:1.5;margin-top:9px}.divider{border-top:1px solid var(--line);padding-top:20px;margin-top:23px}
+    .pick-card{border-left:4px solid var(--amber);padding:16px 17px;margin:13px 0 16px;background:var(--gold-light)}
+    .pick-card h3{font-size:19px}.pick-card .big-num{margin:8px 0}.pick-card .textlink{margin-top:5px}
+    details{border-top:1px solid var(--line);padding:0 1px}details:last-child{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:650;font-size:15px;padding:13px 0}details p{max-width:70ch;margin:0 0 15px;color:var(--body)}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin:17px 0}.chips button{background:transparent;border:1px solid var(--strong);border-radius:3px;min-height:44px;padding:6px 13px;color:var(--body);font-weight:600;font-size:14px}.chips button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:white}
+    .day{margin:18px 0 4px}.day h2{font-size:22px}.match-link{display:grid;grid-template-columns:72px minmax(0,1fr) fit-content(145px) 14px;gap:13px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.match-link time{font-size:15px;color:var(--green);font-weight:700}.tag{font-size:12px;color:var(--green);font-weight:650}.match-link .score{font-size:17px}
+    .group{margin-top:18px}.group h2{font-size:22px}.group .eyebrow{margin-bottom:4px}.pickline{display:grid;grid-template-columns:minmax(0,1fr) 56px auto;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.pickline strong{display:block}.pickline .btn{min-width:89px}.pickline small{font-size:12px}.pickline .mono{font-weight:700;color:var(--green);text-align:right}
+    .resultbox{background:var(--white);border-top:3px solid var(--ink);padding:18px 20px;border-bottom:1px solid var(--line)}.resultbox .big-num{margin:7px 0}
+    .combo-list{padding-left:18px;margin:8px 0 12px;font-size:14px;color:var(--body)}.combo-list li{margin:6px 0}
+    .statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:22px 0 15px}.statgrid div{border-top:2px solid var(--ink);padding-top:11px}.statgrid strong{font-size:36px;line-height:1.2;font-weight:750;letter-spacing:-.05em;display:block;font-variant-numeric:tabular-nums}.statgrid small{font-size:13px}
+    .booktab{width:100%;border-collapse:collapse;margin-top:6px}.booktab caption{text-align:left;color:var(--muted);font-size:13px;padding-bottom:7px}
+    .booktab th,.booktab td{text-align:left;border-bottom:1px solid var(--line);padding:11px 6px;font-size:14px}.booktab th{font-size:12px;color:var(--muted);font-weight:600}.booktab th:first-child,.booktab td:first-child{padding-left:0}.booktab strong{display:block;font-size:15px}.booktab small{display:block;font-size:12px}.booktab .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .panel-note{padding:14px 16px;background:var(--green-light);border-left:3px solid var(--green);font-size:14px;color:var(--green);margin:12px 0}.foot{border-top:1px solid var(--strong);margin-top:34px}.foot .wrap{display:flex;align-items:center;justify-content:space-between;gap:15px;color:var(--muted);font-size:12px;padding:18px 0}.foot b{color:var(--ink);font-size:16px;letter-spacing:-.06em}
+    .visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(min-width:1500px){.wrap{width:min(1320px,calc(100% - 160px))}}
+    @media(max-width:1000px){.wrap{width:calc(100% - 48px)}.head{gap:32px}.grid{grid-template-columns:minmax(0,1.6fr) minmax(235px,.85fr);gap:23px}.rail{padding-left:20px}.stage{padding:19px 16px}.board-line,.board-body{padding-left:16px;padding-right:16px}}
+    @media(max-width:730px){.wrap{width:calc(100% - 36px)}.head{display:grid;grid-template-columns:1fr auto;gap:0;min-height:0}.brand{font-size:38px;justify-self:start;padding:10px 0}.brand::after{width:7px;height:7px;margin-top:16px}.edition{grid-column:2;grid-row:1;font-size:11px}.edition small{font-size:10px}nav{grid-column:1/-1;grid-row:2;justify-content:space-between;gap:8px}nav a{padding:0 1px;min-height:44px;font-size:13px}.page-head{padding:22px 0 15px;align-items:flex-start;flex-direction:column;gap:7px}.page-head h1{font-size:40px}.grid{grid-template-columns:1fr;gap:24px}.bodygrid,.detailbody{padding:18px 0 22px}.rail{border-left:0;padding-left:0}.sectionhead{margin-bottom:11px}h2{font-size:24px}.stage{padding:16px 12px}.club{font-size:20px}.team{gap:7px}.crest{width:40px;height:45px;font-size:15px}.board-line{padding:9px 12px;font-size:12px;gap:6px}.board-body,.compact-board .board-body{padding:13px}.result-key{gap:7px;margin-top:10px}.result-key b{font-size:26px}.key-name{font-size:12px}.board-bottom{margin-top:12px;gap:6px}.rowline{gap:10px}.rowline h3{font-size:17px}.fresh{font-size:12px}.rail .schedule-row{padding:12px 0}.detailhead h1{font-size:35px}.detailhead{padding:9px 0 16px}.detailmeta{font-size:13px}.insight{font-size:16px}.subsection{padding:17px 0 4px}.statgrid{gap:12px}.statgrid strong{font-size:29px}.statgrid small{font-size:12px}.match-link{grid-template-columns:52px minmax(0,1fr) auto 10px;column-gap:6px}.match-link .team-pair{font-size:15px}.match-link .tag{font-size:11px;max-width:66px}.pickline .btn{min-width:74px;padding:6px 8px}.booktab th,.booktab td{font-size:12px;padding:9px 4px}.booktab strong{font-size:14px}.booktab small{font-size:11px}.foot{margin-top:24px}.foot .wrap{align-items:flex-start}}
+    @media(max-width:400px){.wrap{width:calc(100% - 28px)}.board-bottom .small{max-width:120px}.rowline{align-items:flex-start;flex-direction:column;gap:3px}.rowline .small{font-size:11px}.pickline{grid-template-columns:minmax(0,1fr) 42px auto;gap:6px}.key-name{gap:4px}.intro{font-size:15px}.booktab th:nth-child(2),.booktab td:nth-child(2){max-width:66px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#isi">Lewati ke isi</a>
+  <header class="mast">
+    <div class="wrap head">
+      <a class="brand" href="#beranda" aria-label="Bola, beranda">Bola</a>
+      <nav aria-label="Navigasi utama">
+        <a href="#beranda" aria-current="page">Beranda</a><a href="#jadwal">Jadwal</a><a href="#pilihan">Pilihan</a><a href="#rekam">Rekam hasil</a>
+      </nav>
+      <div class="edition">Jumat, 20 November 2026<small>Edisi contoh · Data ilustrasi</small></div>
+    </div>
+  </header>
+  <main class="wrap" id="isi" tabindex="-1">
+    <noscript><h1>Bola hari ini</h1><p>Liga Nusantara · Persada FC vs Rawa United · Jumat, 20 November, 20.00 WIB.</p><p>Model memperkirakan peluang Persada menang 46%, seri 29%, dan Rawa menang 25%. Prediksi terbit sebelum laga, pukul 17.40 WIB. Aktifkan JavaScript untuk menjelajahi prototipe interaktif.</p></noscript>
+  </main>
+  <footer class="foot"><div class="wrap"><b>Bola</b><span>Tim, jadwal, dan angka dalam edisi contoh ini adalah ilustrasi.</span></div></footer>
+  <script>
+    "use strict";
+    const clubs={
+      persada:["Persada FC","Persada","PFC"],rawa:["Rawa United","Rawa","RU"],sagara:["Sagara City","Sagara","SC"],teras:["Teras FC","Teras","TFC"],
+      tanjung:["Tanjung FC","Tanjung","TFC"],lintang:["Lintang United","Lintang","LU"],utara:["Utara FC","Utara","UFC"],kota:["Kota Pesisir","Pesisir","KP"]
+    };
+    const league="Liga Nusantara";
+    const matches=[
+      {id:"persada",h:"persada",a:"rawa",day:20,time:"20.00",issued:"17.40",scores:[[0,0,12],[1,1,13],[2,2,4],[1,0,12],[2,0,10],[2,1,16],[3,1,8],[0,1,8],[0,2,4],[1,2,10],[1,3,3]]},
+      {id:"sagara",h:"sagara",a:"teras",day:20,time:"21.15",issued:"17.55",scores:[[0,0,11],[1,1,16],[2,2,5],[1,0,9],[2,0,10],[2,1,13],[3,1,5],[0,1,10],[0,2,5],[1,2,11],[1,3,5]]},
+      {id:"tanjung",h:"tanjung",a:"lintang",day:20,time:"22.00"},
+      {id:"utara",h:"utara",a:"kota",day:20,time:"15.30",issued:"12.10",final:[2,1]},
+      {id:"rawa",h:"rawa",a:"tanjung",day:19,time:"20.00",issued:"16.20",final:[0,1]},
+      {id:"teras",h:"teras",a:"persada",day:18,time:"20.00",issued:"16.40",final:[1,1]},
+      {id:"lintang",h:"lintang",a:"sagara",day:17,time:"20.00",issued:"15.25",final:[2,0]}
+    ];
+    const mr=id=>matches.find(m=>m.id===id);
+    const name=key=>clubs[key][0],short=key=>clubs[key][1],code=key=>clubs[key][2];
+    const sum=(m,test)=>m.scores.reduce((s,row)=>s+(test(row[0],row[1])?row[2]:0),0);
+    const published=[
+      ["utara","Utara menang atau seri",78,true],["utara","Kedua tim mencetak gol",62,true],
+      ["rawa","Rawa menang atau seri",70,false],["rawa","Maksimal tiga gol",76,true],
+      ["teras","Teras mencetak gol",72,true],["teras","Persada mencetak gol",70,true],
+      ["lintang","Minimal dua gol",74,true],["lintang","Sagara mencetak gol",68,false]
+    ];
+    const marketRules={dc:(h,a)=>h>=a,goals:(h,a)=>h+a>=2};
+    const futurePicks=matches.filter(m=>m.scores).flatMap(m=>Object.keys(marketRules).map(key=>({
+      id:m.id+"-"+key,match:m.id,key,label:key==="dc"?short(m.h)+" menang atau seri":"Minimal dua gol",p:sum(m,marketRules[key])
+    })));
+    const formatPct=n=>new Intl.NumberFormat("id-ID",{maximumFractionDigits:1}).format(n)+"%";
+    const weekdays={20:"Jumat",19:"Kamis",18:"Rabu",17:"Selasa"};
+    const date=m=>weekdays[m.day]+", "+m.day+" November";
+    const selected=new Set();
+    let scheduleFilter="all",recordFilter="done";
+    const head=(title,side,sub="")=>'<div class="page-head"><div><h1>'+title+'</h1>'+(sub?'<p class="intro">'+sub+'</p>':'')+'</div>'+(side||"")+'</div>';
+    const fresh='<span class="fresh meta"><i class="mark-time" aria-hidden="true"></i>Data per 18.20 WIB</span>';
+    const link=(href,label)=>'<a class="textlink" href="#'+href+'">'+label+' <span aria-hidden="true">→</span></a>';
+    const btn=(href,label)=>'<a class="btn" href="#'+href+'">'+label+' <span aria-hidden="true">→</span></a>';
+    const heading=(s,right="")=>'<div class="sectionhead"><h2>'+s+'</h2>'+right+'</div>';
+    const navToMatch=id=>id==="persada"?"laga":"laga/"+id;
+    const stamp=s=>'<span class="eyebrow">'+s+'</span>';
+    function team(key,away) {
+      return '<div class="team"><span class="crest'+(away?' away':'')+'" aria-hidden="true">'+code(key)+'</span><strong class="club">'+name(key)+'</strong></div>';
+    }
+    function chart(m) {
+      const ps=[sum(m,(h,a)=>h>a),sum(m,(h,a)=>h===a),sum(m,(h,a)=>h<a)];
+      const names=[short(m.h)+" menang","Seri",short(m.a)+" menang"],styles=["h","d","a"];
+      return '<div class="result-key">'+ps.map((p,i)=>'<div><span class="key-name"><i class="inkdot '+styles[i]+'" aria-hidden="true"></i>'+names[i]+'</span><b>'+p+'%</b></div>').join("")+'</div><div class="bars" aria-hidden="true">'+ps.map((p,i)=>'<span class="'+styles[i]+'" style="flex:'+p+'"></span>').join("")+'</div>';
+    }
+    function leadBoard(m) {
+      return '<article class="board"><div class="board-line"><span><b class="league">'+league+'</b> · Pekan 11</span><time>Hari ini · '+m.time+' WIB</time></div><div class="stage"><span class="field" aria-hidden="true"></span>'+team(m.h,false)+'<span class="versus">vs</span>'+team(m.a,true)+'</div><div class="board-body"><div class="rowline"><h3>Peluang hasil pertandingan</h3><span class="small">Model pra-laga</span></div>'+chart(m)+'<div class="board-bottom">'+btn(navToMatch(m.id),"Baca analisis")+'<span class="small">Terbit pukul '+m.issued+' WIB</span></div></div></article>';
+    }
+    function scheduleRow(m) {
+      return '<a class="schedule-row" href="#'+navToMatch(m.id)+'"><time>'+m.time+'</time><span class="team-pair">'+short(m.h)+' vs '+short(m.a)+'<small>'+league+'</small></span><span class="arrow" aria-hidden="true">›</span></a>';
+    }
+    function finishedRow(m) {
+      return '<a class="finish" href="#'+navToMatch(m.id)+'"><span><strong>'+name(m.h)+' vs '+name(m.a)+'</strong><small>'+m.day+' Nov · '+league+'</small></span><span class="score">'+m.final.join('–')+'</span><span aria-hidden="true" class="arrow">›</span></a>';
+    }
+    function home() {
+      const upcoming=matches.filter(m=>!m.final),results=matches.filter(m=>m.final);
+      return head("Bola hari ini",fresh)+'<div class="grid bodygrid"><section>'+heading('<span aria-hidden="true" class="section-marker"></span>Laga sorotan')+leadBoard(mr("persada"))+'</section><aside class="rail">'+heading("Jadwal malam ini")+'<p class="small">Semua waktu dalam WIB</p>'+upcoming.map(scheduleRow).join("")+'<div class="rail-link">'+link("jadwal","Jadwal selengkapnya")+'</div></aside></div><div class="grid subsection"><section>'+heading("Hasil terbaru",link("rekam","Rekam hasil"))+results.slice(0,2).map(finishedRow).join("")+'</section><aside class="rail"><div class="simplebox"><h3>Pilihan yang sudah dinilai</h3><p class="big-num green">6 dari 8</p><p class="small">Pilihan pra-laga yang tepat, dari empat laga yang sudah selesai.</p>'+link("rekam","Lihat rinciannya")+'</div></aside></div>';
+    }
+    function matchRow(m) {
+      return '<a class="match-link" href="#'+navToMatch(m.id)+'"><time class="mono">'+m.time+'</time><span class="team-pair">'+name(m.h)+' vs '+name(m.a)+'<small>'+league+'</small></span>'+(m.final?'<span class="score">'+m.final.join("–")+'</span>':'<span class="tag">'+(m.scores?'Pra-laga':'Belum ada analisis')+'</span>')+'<span class="arrow" aria-hidden="true">›</span></a>';
+    }
+    function filters(kind,items,active) {
+      return '<div class="chips" aria-label="'+(kind==="sch"?'Pilih status laga':'Pilih status penilaian')+'">'+items.map(x=>'<button data-action="'+kind+'" data-id="'+x[0]+'" aria-pressed="'+(x[0]===active)+'">'+x[1]+'</button>').join("")+'</div>';
+    }
+    function schedule() {
+      const subset=matches.filter(m=>scheduleFilter==="all"||Boolean(m.final)===(scheduleFilter==="done"));
+      const days=[...new Set(subset.map(m=>m.day))];
+      return head("Jadwal pertandingan",fresh)+'<div class="grid bodygrid"><section>'+filters("sch",[["all","Semua"],["next","Akan datang"],["done","Selesai"]],scheduleFilter)+days.map(day=>'<div class="day"><h2>'+weekdays[day]+', '+day+' November</h2></div>'+subset.filter(m=>m.day===day).sort((a,b)=>a.time.localeCompare(b.time)).map(matchRow).join("")).join("")+'</section><aside class="rail"><div class="simplebox"><h3>Waktu pertandingan</h3><p class="small">Sepak mula mengikuti waktu Jakarta (WIB). Buka laga untuk melihat prediksi yang tersedia atau hasil akhirnya.</p></div></aside></div>';
+    }
+    function detail(m) {
+      const title=name(m.h)+' vs '+name(m.a);
+      let top='<div class="detailhead"><a class="back" href="#jadwal">← Kembali ke jadwal</a><h1>'+title+'</h1><div class="detailmeta"><strong>'+league+'</strong><span>'+date(m)+' · '+m.time+' WIB</span><span class="tag">'+(m.final?'Selesai':'Terjadwal')+'</span></div></div>';
+      if(m.final) {
+        const rows=published.filter(p=>p[0]===m.id);
+        return top+'<div class="grid detailbody"><section>'+heading("Skor akhir")+'<div class="board"><div class="stage"><span class="field" aria-hidden="true"></span>'+team(m.h,false)+'<span class="score">'+m.final.join("–")+'</span>'+team(m.a,true)+'</div></div><div class="divider">'+heading("Pilihan sebelum laga")+recordTable(rows)+'</div></section><aside class="rail"><div class="simplebox"><h3>Waktu terbit</h3><p>'+date(m)+' · '+m.issued+' WIB</p><p class="small">Peluang pada tabel berasal dari pilihan yang terbit sebelum sepak mula.</p>'+link("rekam","Rekam hasil selengkapnya")+'</div></aside></div>';
+      }
+      if(!m.scores) return top+'<div class="grid detailbody"><section>'+heading("Analisis belum tersedia")+'<p class="intro">Jadwal '+short(m.h)+' vs '+short(m.a)+' sudah tercatat. Peluang hasil pertandingan akan tampil setelah analisis pra-laga terbit.</p>'+link("jadwal","Kembali ke jadwal")+'</section></div>';
+      const pick=futurePicks.find(p=>p.match===m.id),ranking=[...m.scores].sort((a,b)=>b[2]-a[2]).slice(0,3);
+      return top+'<div class="grid detailbody"><section>'+heading("Peta peluang")+'<p class="insight">'+(m.id==='persada'?'Persada punya peluang menang tertinggi. Menurut model, hasil seri dan kemenangan Rawa jika digabung masih lebih mungkin daripada kemenangan Persada.':'Sagara memimpin tipis dalam hitungan model. Peluang seri dan kemenangan Teras berdekatan.')+'</p><div class="board compact-board"><div class="board-line"><b class="league">Hasil pertandingan</b><span>Model pra-laga</span></div><div class="board-body">'+chart(m)+'<p class="fine">Prediksi terbit '+date(m)+', '+m.issued+' WIB. Sepak mula '+m.time+' WIB.</p></div></div><div class="divider">'+heading("Skor yang paling mungkin")+'<table class="booktab"><caption>Skor ditulis dari sisi tim tuan rumah.</caption><thead><tr><th>Skor</th><th class="num">Peluang model</th></tr></thead><tbody>'+ranking.map(r=>'<tr><td>'+name(m.h)+' '+r[0]+'–'+r[1]+' '+name(m.a)+'</td><td class="num">'+r[2]+'%</td></tr>').join("")+'</tbody></table></div></section><aside class="rail"><h2>Pilihan pra-laga</h2><div class="pick-card"><h3>'+pick.label+'</h3><p class="big-num">'+pick.p+'%</p><p class="small">Peluang saat terbit · model skor</p>'+link("pilihan","Lihat pilihan laga")+'</div>'+heading("Sumber angka")+'<p class="fine">Model skor · '+m.issued+' WIB</p><p class="fine">Pembanding pasar belum tersedia untuk laga ini.</p><div class="divider"><details><summary>Cara membaca peluang</summary><p>Menang, seri, dan kalah mencakup seluruh kemungkinan hasil. Pilihan menang atau seri menjumlahkan dua hasil tersebut dari model yang sama.</p></details></div></aside></div>';
+    }
+    function combo() {
+      const picks=futurePicks.filter(p=>selected.has(p.id));
+      if(!picks.length) return '<h3>Gabungan pilihan</h3><p class="fine">Tambahkan pilihan untuk melihat peluang semuanya tepat.</p>';
+      const ids=[...new Set(picks.map(p=>p.match))];
+      const joint=ids.map(id=>sum(mr(id),(h,a)=>picks.filter(p=>p.match===id).every(p=>marketRules[p.key](h,a)))/100).reduce((a,b)=>a*b,1);
+      return '<h3>Peluang seluruh pilihan tepat</h3><p class="big-num green">'+formatPct(joint*100)+'</p><p class="small">'+picks.length+' pilihan dari '+ids.length+' laga</p><ul class="combo-list">'+picks.map(p=>'<li>'+p.label+' · '+short(mr(p.match).h)+' vs '+short(mr(p.match).a)+'</li>').join("")+'</ul><p class="fine">'+(ids.length>1?'Peluang antarlaga dikalikan dengan asumsi hasilnya saling bebas.':picks.length>1?'Model menjumlahkan skor yang memenuhi semua pilihan di laga ini.':'Angka ini mengikuti peluang yang tercatat saat pilihan terbit.')+'</p>'+(ids.length>1&&ids.length<picks.length?'<p class="fine">Pilihan dalam satu laga digabung lewat matriks skor terlebih dahulu.</p>':'')+'<p class="fine"><button data-action="clear" class="btn light">Kosongkan</button></p>';
+    }
+    function picks() {
+      const groups=matches.filter(m=>m.scores).map(m=>'<section class="group"><p class="eyebrow">'+m.time+' WIB · '+league+'</p><h2><a href="#'+navToMatch(m.id)+'">'+name(m.h)+' vs '+name(m.a)+'</a></h2>'+futurePicks.filter(p=>p.match===m.id).map(p=>'<div class="pickline"><div><strong>'+p.label+'</strong><small>Peluang saat terbit · '+m.issued+' WIB</small></div><span class="mono">'+p.p+'%</span><button class="btn light" data-action="pick" data-id="'+p.id+'" aria-label="'+(selected.has(p.id)?"Hapus ":"Tambah ")+p.label+', '+name(m.h)+' vs '+name(m.a)+'" aria-pressed="'+selected.has(p.id)+'">'+(selected.has(p.id)?'Terpilih':'Tambah')+'</button></div>').join("")+'</section>').join("");
+      return head("Pilihan pra-laga",fresh,"Pilih hasil yang ingin kamu gabungkan. Setiap peluang tercatat sebelum sepak mula.")+'<div class="grid bodygrid"><div>'+groups+'</div><aside class="rail"><div class="resultbox" id="combo" aria-live="polite">'+combo()+'</div></aside></div>';
+    }
+    function recordTable(rows) {
+      return '<table class="booktab"><thead><tr><th scope="col">Pilihan</th><th scope="col" class="num">Saat terbit</th><th scope="col" class="num">Hasil</th></tr></thead><tbody>'+rows.map(p=>{const m=mr(p[0]);return '<tr><td><strong>'+p[1]+'</strong><small><a href="#'+navToMatch(m.id)+'">'+short(m.h)+' '+m.final.join("–")+' '+short(m.a)+' · '+m.day+' Nov</a></small></td><td class="num">'+p[2]+'%</td><td class="num '+(p[3]?'green':'red')+'">'+(p[3]?'Tepat':'Meleset')+'</td></tr>';}).join("")+'</tbody></table>';
+    }
+    function record() {
+      const resolved=published.length,hits=published.filter(x=>x[3]).length,avg=published.reduce((n,r)=>n+r[2],0)/resolved;
+      const upcoming='<table class="booktab"><thead><tr><th scope="col">Pilihan</th><th scope="col" class="num">Saat terbit</th><th scope="col" class="num">Sepak mula</th></tr></thead><tbody>'+futurePicks.map(p=>{const m=mr(p.match);return '<tr><td><strong>'+p.label+'</strong><small><a href="#'+navToMatch(m.id)+'">'+short(m.h)+' vs '+short(m.a)+'</a></small></td><td class="num">'+p.p+'%</td><td class="num">'+m.time+' WIB</td></tr>';}).join("")+'</tbody></table>';
+      return head("Rekam hasil",fresh,"Pilihan pra-laga yang sudah terbit, lalu diperiksa memakai skor akhir.")+'<div class="statgrid"><div><strong>'+String(published.length+futurePicks.length)+'</strong><small>Pilihan diterbitkan</small></div><div><strong>'+resolved+'</strong><small>Sudah dinilai</small></div><div><strong>'+futurePicks.length+'</strong><small>Menunggu hasil</small></div></div><div class="grid bodygrid"><section>'+heading("Catatan per pilihan")+filters("rec",[["done","Sudah dinilai"],["open","Menunggu hasil"]],recordFilter)+(recordFilter==="done"?recordTable(published):upcoming)+'</section><aside class="rail"><div class="resultbox"><h3>Pilihan yang tepat</h3><p class="big-num green">'+hits+' dari '+resolved+'</p><p class="small">Pada empat laga yang sudah selesai, '+formatPct(hits/resolved*100)+' pilihan tepat. Rata-rata peluang saat terbit untuk delapan pilihan itu '+formatPct(avg)+'.</p></div><p class="fine">Rangkaian contoh 17–20 November. Beberapa pilihan bisa berasal dari pertandingan yang sama.</p></aside></div>';
+    }
+    const root=document.getElementById("isi");
+    function render(change) {
+      const bits=location.hash.replace(/^#/,"").split("/");const tab=bits[0]||"beranda";
+      if(tab==="isi"){root.focus();return;}
+      let nav=tab,title;
+      if(tab==="laga"){const m=mr(bits[1]||"persada");root.innerHTML=m?detail(m):head("Laga tidak ditemukan","")+link("jadwal","Kembali ke jadwal");nav="jadwal";title=m?name(m.h)+" vs "+name(m.a):"Laga tidak ditemukan";}
+      else if(tab==="jadwal"){root.innerHTML=schedule();title="Jadwal";}
+      else if(tab==="pilihan"){root.innerHTML=picks();title="Pilihan";}
+      else if(tab==="rekam"){root.innerHTML=record();title="Rekam hasil";}
+      else{root.innerHTML=home();nav="beranda";title="Beranda";}
+      document.title="Bola — "+title;
+      for(const a of document.querySelectorAll("nav a")){if(a.hash==="#"+nav)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");}
+      if(change){root.focus({preventScroll:true});window.scrollTo(0,0);}
+    }
+    document.querySelector(".skip").addEventListener("click",e=>{e.preventDefault();root.focus();});
+    document.addEventListener("click",e=>{
+      const b=e.target.closest("button[data-action]");if(!b)return;
+      const kind=b.dataset.action,id=b.dataset.id;
+      if(kind==="sch")scheduleFilter=id;
+      if(kind==="rec")recordFilter=id;
+      if(kind==="pick"){if(selected.has(id))selected.delete(id);else selected.add(id);b.setAttribute("aria-pressed",String(selected.has(id)));b.textContent=selected.has(id)?"Terpilih":"Tambah";const picked=futurePicks.find(p=>p.id===id),fixture=mr(picked.match);b.setAttribute("aria-label",(selected.has(id)?"Hapus ":"Tambah ")+picked.label+", "+name(fixture.h)+" vs "+name(fixture.a));document.getElementById("combo").innerHTML=combo();return;}
+      if(kind==="clear")selected.clear();
+      render(false);
+      const target=kind==="clear"?document.querySelector('[data-action="pick"]'):document.querySelector('[data-action="'+kind+'"][data-id="'+id+'"]');
+      if(target)target.focus({preventScroll:true});
+    });
+    window.addEventListener("hashchange",()=>render(true));render(false);
+  </script>
+</body>
+</html>
