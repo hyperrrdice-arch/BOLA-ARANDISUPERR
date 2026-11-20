@@ -46,7 +46,17 @@ const XBET_OFF: Record<string, string> = {
 interface ProbeOut {
   status: number;
   cacheHeader: string | null;
-  body: Record<string, any> | null;
+  body: unknown;
+}
+
+/** Ambil nilai bersarang dari body respons tanpa `any` (gerbang lint). */
+function dig(body: unknown, ...path: (string | number)[]): unknown {
+  let cur: unknown = body;
+  for (const k of path) {
+    if (cur === null || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string, unknown>)[String(k)];
+  }
+  return cur;
 }
 
 function runScenario(
@@ -90,122 +100,123 @@ function skenario(name: string): boolean {
 if (skenario("m-local")) {
   const r = runScenario("m-local", {});
   suite.check("matches lokal: status 200", r?.status === 200, `status=${r?.status}`);
-  suite.check("matches lokal: offline=true dari store lokal", r?.body?.offline === true);
-  suite.eq("matches lokal: total 1", r?.body?.total, 1);
-  suite.eq("matches lokal: id laga dari store", r?.body?.matches?.[0]?.id, "sm_local_1");
+  suite.check("matches lokal: offline=true dari store lokal", dig(r?.body, "offline") === true);
+  suite.eq("matches lokal: total 1", dig(r?.body, "total"), 1);
+  suite.eq("matches lokal: id laga dari store", dig(r?.body, "matches", 0, "id"), "sm_local_1");
 }
 if (skenario("m-clamp")) {
   const r = runScenario("m-clamp", {});
-  suite.eq("matches: hours=999 di-clamp ke 48", r?.body?.hours, 48);
+  suite.eq("matches: hours=999 di-clamp ke 48", dig(r?.body, "hours"), 48);
 }
 if (skenario("m-authdead")) {
   const r = runScenario("m-authdead", {});
   suite.check("matches upstream mati-auth: tetap 200 (degradasi jujur)", r?.status === 200, `status=${r?.status}`);
-  suite.eq("matches upstream mati-auth: total 0", r?.body?.total, 0);
-  suite.check("matches upstream mati-auth: matches [] + offline", Array.isArray(r?.body?.matches) && r?.body?.offline === true);
+  suite.eq("matches upstream mati-auth: total 0", dig(r?.body, "total"), 0);
+  suite.check("matches upstream mati-auth: matches [] + offline", Array.isArray(dig(r?.body, "matches")) && dig(r?.body, "offline") === true);
 }
 if (skenario("m-500")) {
   const r = runScenario("m-500", {});
   suite.check("matches upstream 500: status 500", r?.status === 500, `status=${r?.status}`);
-  suite.check("matches upstream 500: body {error: string}", typeof r?.body?.error === "string");
+  suite.check("matches upstream 500: body {error: string}", typeof dig(r?.body, "error") === "string");
 }
 if (skenario("m-ok")) {
   const r = runScenario("m-ok", {});
-  suite.check("matches upstream ok: 200 + offline=false", r?.status === 200 && r?.body?.offline === false);
-  suite.eq("matches upstream ok: total 1", r?.body?.total, 1);
-  suite.eq("matches upstream ok: nama tim terpetakan", r?.body?.matches?.[0]?.home_team?.name, "Arsenal");
+  suite.check("matches upstream ok: 200 + offline=false", r?.status === 200 && dig(r?.body, "offline") === false);
+  suite.eq("matches upstream ok: total 1", dig(r?.body, "total"), 1);
+  suite.eq("matches upstream ok: nama tim terpetakan", dig(r?.body, "matches", 0, "home_team", "name"), "Arsenal");
 }
 if (skenario("m-empty")) {
   const r = runScenario("m-empty", {});
-  suite.check("matches upstream kosong: 200 total 0", r?.status === 200 && r?.body?.total === 0);
+  suite.check("matches upstream kosong: 200 total 0", r?.status === 200 && dig(r?.body, "total") === 0);
 }
 
 // ------------------------------------------------------------------- /api/odds
 if (skenario("o-400")) {
   const r = runScenario("o-400", {});
   suite.check("odds tanpa match_id: 400", r?.status === 400, `status=${r?.status}`);
-  suite.check("odds tanpa match_id: error menyebut match_id", String(r?.body?.error ?? "").includes("match_id"));
+  suite.check("odds tanpa match_id: error menyebut match_id", String(dig(r?.body, "error") ?? "").includes("match_id"));
 }
 if (skenario("o-anchor-empty")) {
   const r = runScenario("o-anchor-empty", {});
   suite.check("odds anchor kosong: 200", r?.status === 200);
-  suite.eq("odds anchor kosong: source local_anchor_empty", r?.body?.source, "local_anchor_empty");
-  suite.check("odds anchor kosong: is_available=false, bookmakers []", r?.body?.is_available === false && Array.isArray(r?.body?.bookmakers) && r.body.bookmakers.length === 0);
+  suite.eq("odds anchor kosong: source local_anchor_empty", dig(r?.body, "source"), "local_anchor_empty");
+  const bm = dig(r?.body, "bookmakers");
+  suite.check("odds anchor kosong: is_available=false, bookmakers []", dig(r?.body, "is_available") === false && Array.isArray(bm) && bm.length === 0);
 }
 if (skenario("o-upstream-error")) {
   const r = runScenario("o-upstream-error", {});
-  suite.eq("odds provider gagal: source upstream_error (tetap 200)", r?.body?.source, "upstream_error");
-  suite.check("odds provider gagal: is_available=false", r?.body?.is_available === false);
+  suite.eq("odds provider gagal: source upstream_error (tetap 200)", dig(r?.body, "source"), "upstream_error");
+  suite.check("odds provider gagal: is_available=false", dig(r?.body, "is_available") === false);
 }
 if (skenario("o-upstream-empty")) {
   const r = runScenario("o-upstream-empty", {});
-  suite.eq("odds upstream kosong: source upstream_empty", r?.body?.source, "upstream_empty");
+  suite.eq("odds upstream kosong: source upstream_empty", dig(r?.body, "source"), "upstream_empty");
 }
 if (skenario("o-ok")) {
   const r = runScenario("o-ok", {});
-  suite.check("odds ok: is_available=true", r?.body?.is_available === true);
-  suite.eq("odds ok: bookmaker terurai", r?.body?.bookmakers?.[0]?.name, "Pinnacle");
-  suite.eq("odds ok: best_odds.home harga upstream", r?.body?.best_odds?.home?.price, 2.1);
+  suite.check("odds ok: is_available=true", dig(r?.body, "is_available") === true);
+  suite.eq("odds ok: bookmaker terurai", dig(r?.body, "bookmakers", 0, "name"), "Pinnacle");
+  suite.eq("odds ok: best_odds.home harga upstream", dig(r?.body, "best_odds", "home", "price"), 2.1);
 }
 
 // ---------------------------------------------------------------- /api/betting
 if (skenario("b-503-get")) {
   const r = runScenario("b-503-get", XBET_OFF);
   suite.check("betting GET belum terkonfigurasi: 503", r?.status === 503, `status=${r?.status}`);
-  suite.eq("betting GET belum terkonfigurasi: status unavailable", r?.body?.status, "unavailable");
+  suite.eq("betting GET belum terkonfigurasi: status unavailable", dig(r?.body, "status"), "unavailable");
 }
 if (skenario("b-503-post")) {
   const r = runScenario("b-503-post", XBET_OFF);
-  suite.check("betting POST belum terkonfigurasi: 503 unavailable", r?.status === 503 && r?.body?.status === "unavailable");
+  suite.check("betting POST belum terkonfigurasi: 503 unavailable", r?.status === 503 && dig(r?.body, "status") === "unavailable");
 }
 if (skenario("b-400-get")) {
   const r = runScenario("b-400-get", XBET_ENV);
-  suite.check("betting GET tanpa parameter: 400 {error}", r?.status === 400 && typeof r?.body?.error === "string");
+  suite.check("betting GET tanpa parameter: 400 {error}", r?.status === 400 && typeof dig(r?.body, "error") === "string");
 }
 if (skenario("b-400-post")) {
   const r = runScenario("b-400-post", XBET_ENV);
-  suite.check("betting POST tanpa tim/id: 400 {error}", r?.status === 400 && typeof r?.body?.error === "string");
+  suite.check("betting POST tanpa tim/id: 400 {error}", r?.status === 400 && typeof dig(r?.body, "error") === "string");
 }
 if (skenario("b-get-ok")) {
   const r = runScenario("b-get-ok", XBET_ENV);
-  suite.check("betting GET ok: 200 success", r?.status === 200 && r?.body?.status === "success");
-  suite.eq("betting GET ok: 1 pasar terhitung", r?.body?.total_markets_scanned, 1);
+  suite.check("betting GET ok: 200 success", r?.status === 200 && dig(r?.body, "status") === "success");
+  suite.eq("betting GET ok: 1 pasar terhitung", dig(r?.body, "total_markets_scanned"), 1);
 }
 if (skenario("b-get-fail")) {
   const r = runScenario("b-get-fail", XBET_ENV);
-  suite.check("betting GET provider gagal: 500 {error}", r?.status === 500 && typeof r?.body?.error === "string", `status=${r?.status}`);
+  suite.check("betting GET provider gagal: 500 {error}", r?.status === 500 && typeof dig(r?.body, "error") === "string", `status=${r?.status}`);
 }
 if (skenario("b-post-notfound")) {
   const r = runScenario("b-post-notfound", XBET_ENV);
-  suite.check("betting POST laga tak ada di 1xBet: 200 not_found", r?.status === 200 && r?.body?.status === "not_found");
+  suite.check("betting POST laga tak ada di 1xBet: 200 not_found", r?.status === 200 && dig(r?.body, "status") === "not_found");
 }
 if (skenario("b-post-empty")) {
   const r = runScenario("b-post-empty", XBET_ENV);
-  suite.check("betting POST pasar kosong: 200 empty", r?.status === 200 && r?.body?.status === "empty");
+  suite.check("betting POST pasar kosong: 200 empty", r?.status === 200 && dig(r?.body, "status") === "empty");
 }
 if (skenario("b-post-llmfail")) {
   const r = runScenario("b-post-llmfail", XBET_ENV);
-  suite.check("betting POST LLM mati: tetap 200 success (degradasi internal)", r?.status === 200 && r?.body?.status === "success", `status=${r?.status}`);
+  suite.check("betting POST LLM mati: tetap 200 success (degradasi internal)", r?.status === 200 && dig(r?.body, "status") === "success", `status=${r?.status}`);
   suite.check(
     "betting POST LLM mati: kedua model success=false",
-    r?.body?.model_a?.result?.success === false && r?.body?.model_b?.result?.success === false,
+    dig(r?.body, "model_a", "result", "success") === false && dig(r?.body, "model_b", "result", "success") === false,
   );
 }
 
 // ------------------------------------------------------------------ /api/agent
 if (skenario("a-400")) {
   const r = runScenario("a-400", {});
-  suite.check("agent tanpa match_id: 400 {error}", r?.status === 400 && typeof r?.body?.error === "string");
+  suite.check("agent tanpa match_id: 400 {error}", r?.status === 400 && typeof dig(r?.body, "error") === "string");
 }
 if (skenario("a-cache")) {
   const r = runScenario("a-cache", {});
   suite.check("agent cache snapshot: 200", r?.status === 200, `status=${r?.status}`);
   suite.eq("agent cache snapshot: header x-analysis-cache hit", r?.cacheHeader, "hit");
-  suite.eq("agent cache snapshot: view tersimpan disajikan persis", r?.body?.analisis?.penanda, "fixture-cache");
+  suite.eq("agent cache snapshot: view tersimpan disajikan persis", dig(r?.body, "analisis", "penanda"), "fixture-cache");
 }
 if (skenario("a-fail")) {
   const r = runScenario("a-fail", {});
-  suite.check("agent provider gagal: 500 {error}", r?.status === 500 && typeof r?.body?.error === "string", `status=${r?.status} body=${JSON.stringify(r?.body)?.slice(0, 120)}`);
+  suite.check("agent provider gagal: 500 {error}", r?.status === 500 && typeof dig(r?.body, "error") === "string", `status=${r?.status} body=${JSON.stringify(r?.body)?.slice(0, 120)}`);
 }
 
 suite.finish();

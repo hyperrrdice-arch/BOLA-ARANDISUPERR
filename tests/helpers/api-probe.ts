@@ -83,7 +83,7 @@ function statsResponse(url: string): Response {
   }
 }
 
-function xbetResponse(url: string): Response {
+function xbetResponse(): Response {
   switch (scenario) {
     case "b-get-fail":
       throw new Error("network down");
@@ -99,7 +99,7 @@ function xbetResponse(url: string): Response {
   }
 }
 
-globalThis.fetch = (async (input: unknown, _init?: unknown) => {
+globalThis.fetch = (async (input: unknown) => {
   const url =
     typeof input === "string"
       ? input
@@ -110,7 +110,7 @@ globalThis.fetch = (async (input: unknown, _init?: unknown) => {
     throw new Error("router unreachable");
   }
   if (url.includes("api.thestatsapi.com")) return statsResponse(url);
-  if (url.includes("fixture.rapidapi.test")) return xbetResponse(url);
+  if (url.includes("fixture.rapidapi.test")) return xbetResponse();
   throw new Error(`fetch tak terduga di probe: ${url}`);
 }) as typeof fetch;
 
