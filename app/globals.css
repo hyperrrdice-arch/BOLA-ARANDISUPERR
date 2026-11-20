@@ -107,6 +107,17 @@ body {
   animation: monoScan 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
+/* Kelompok jadwal masuk (brief §9): pudarkan 120 ms saat filter berganti.
+   Override gerak minimum global di bawah membuatnya seketika. */
+@keyframes grupMasuk {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.grup-masuk {
+  animation: grupMasuk 120ms ease-out;
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

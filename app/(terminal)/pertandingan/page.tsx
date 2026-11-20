@@ -1,9 +1,14 @@
 /**
  * JADWAL PERTANDINGAN — daftar kanonik dari katalog jadwal (termasuk
  * laga tanpa paket), dikelompokkan menurut TANGGAL LOKAL zona terpilih
- * dan disaring lewat query URL yang dapat dibagikan (K6, U01/U02).
- * Halaman ini tidak menghitung model apa pun; angka berasal dari paket
- * tersimpan dan keadaan hasil di adapter lib/web/data.ts.
+ * dan disaring lewat query URL yang dapat dibagikan.
+ *
+ * Redesain §3B: susunan judul → pencarian → pintasan Sekarang/Malam
+ * ini/Besok → Filter → laga. Pencarian meliput aksen dan mencakup
+ * SELURUH himpunan terfilter (jendela diperlebar ke liputan penuh
+ * saat kueri aktif). Tiga keadaan kosong dibedakan persis brief:
+ * filter tak cocok, tanggal belum tersedia, jadwal gagal dimuat.
+ * Halaman ini tidak menghitung model apa pun.
  */
 import { Suspense } from "react";
 import Link from "next/link";
@@ -16,9 +21,9 @@ import {
   type JadwalItem,
 } from "@/lib/web/data";
 import {
-  DAFTAR_ZONA,
   GATE_LABEL,
   jamWibOnly,
+  kunciTanggal,
   labelPilihan,
   labelVerdik,
   labelZona,
@@ -28,13 +33,18 @@ import {
 } from "@/lib/web/format";
 import { labelStatus } from "@/lib/web/status";
 import {
+  cocokPencarian,
+  jendelaPintasan,
   jendelaTanggalUtc,
   kelompokPerTanggal,
   parseFilterJadwal,
   queryJadwal,
+  urutSekarang,
+  urutTampilJadwal,
   type FilterJadwal,
 } from "@/lib/web/jadwal";
 import { EmptyState, GateStatus, GradeMark, PageLoading, Prob } from "@/components/ui";
+import KontrolJadwal from "@/components/jadwal/KontrolJadwal";
 
 export const metadata: Metadata = { title: "Jadwal pertandingan | Bola" };
 
@@ -64,6 +74,7 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
     <div className="border-t border-hairline/50 py-4 first:border-t-0">
       <Link
         href={hrefDetail(item, filter)}
+        aria-label={`${item.home} melawan ${item.away}, ${item.competition_name}, ${tanggalJamWib(item.kickoff_utc, tz)}`}
         className="flex items-start gap-4 transition-colors hover:bg-surface-alt/40 sm:gap-6"
       >
         <span className="w-[3.5rem] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums">
@@ -147,78 +158,6 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
   );
 }
 
-function FormFilter({
-  filter,
-  ligaTersedia,
-  negaraTersedia,
-}: {
-  filter: FilterJadwal;
-  ligaTersedia: string[];
-  negaraTersedia: string[];
-}) {
-  const kelasSelect =
-    "rounded-md border border-hairline bg-surface px-2.5 py-2 text-sm text-ink";
-  return (
-    <form method="get" action="/pertandingan" className="mt-8 flex flex-wrap items-end gap-3">
-      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
-        Tanggal
-        <input
-          type="date"
-          name="tanggal"
-          defaultValue={filter.tanggal}
-          className={kelasSelect}
-        />
-      </label>
-      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
-        Status
-        <select name="status" defaultValue={filter.status} className={kelasSelect}>
-          <option value="semua">Semua</option>
-          <option value="akan-datang">Belum mulai</option>
-          <option value="selesai">Selesai</option>
-        </select>
-      </label>
-      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
-        Liga
-        <select name="liga" defaultValue={filter.liga ?? ""} className={kelasSelect}>
-          <option value="">Semua liga</option>
-          {ligaTersedia.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
-        Negara
-        <select name="negara" defaultValue={filter.negara ?? ""} className={kelasSelect}>
-          <option value="">Semua negara</option>
-          {negaraTersedia.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
-        Zona waktu
-        <select name="tz" defaultValue={filter.tz} className={kelasSelect}>
-          {DAFTAR_ZONA.map((z) => (
-            <option key={z.id} value={z.id}>
-              {z.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button
-        type="submit"
-        className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink"
-      >
-        Terapkan
-      </button>
-    </form>
-  );
-}
-
 export default function PertandinganPage({
   searchParams,
 }: {
@@ -237,17 +176,35 @@ async function PertandinganContent({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await connection();
-  const filter = parseFilterJadwal(await searchParams);
-  const { dariUtc, sampaiUtc } = jendelaTanggalUtc(filter.tanggal, filter.tz);
-  const semua = listSchedule(dariUtc, sampaiUtc);
+  const now = new Date();
+  const filter = parseFilterJadwal(await searchParams, now);
   const cakupan = cakupanJadwal();
+
+  /* Jendela baca: mode menentukan jendela dasar; pencarian memperlebar
+     ke seluruh liputan supaya hasil mencakup himpunan terfilter penuh,
+     bukan hanya tanggal yang sedang tampil (brief §3B.4). */
+  let jendela =
+    filter.mode === "tanggal"
+      ? jendelaTanggalUtc(filter.tanggal, filter.tz)
+      : jendelaPintasan(filter.mode, filter.tz, now);
+  if (filter.q && cakupan) {
+    jendela = { dariUtc: cakupan.dariUtc, sampaiUtc: cakupan.sampaiUtc };
+  }
+
+  let semua: JadwalItem[] = [];
+  let gagalMuat = false;
+  try {
+    semua = listSchedule(jendela.dariUtc, jendela.sampaiUtc);
+  } catch {
+    gagalMuat = true;
+  }
 
   const ligaTersedia = [...new Set(semua.map((i) => i.competition_name).filter(Boolean))].sort();
   const negaraTersedia = [
     ...new Set(semua.map((i) => i.competition_country).filter((x): x is string => Boolean(x))),
   ].sort();
 
-  const tersaring = semua.filter((i) => {
+  let tersaring = semua.filter((i) => {
     if (filter.status === "akan-datang") {
       if (!(i.status === "scheduled" || i.status === "live" || i.status === "postponed" || i.status === "menunggu-pembaruan")) return false;
     } else if (filter.status === "selesai") {
@@ -257,10 +214,37 @@ async function PertandinganContent({
     if (filter.negara && i.competition_country !== filter.negara) return false;
     return true;
   });
+  if (filter.q) {
+    tersaring = tersaring.filter((i) =>
+      cocokPencarian(
+        [i.home, i.away, i.competition_name, i.competition_country ?? ""],
+        filter.q!,
+      ),
+    );
+  }
+
+  if (filter.mode === "sekarang") {
+    tersaring = urutSekarang(tersaring);
+  } else {
+    tersaring = urutTampilJadwal(tersaring);
+  }
 
   const diLuarLiputan =
-    cakupan !== null && (dariUtc > cakupan.sampaiUtc || sampaiUtc <= cakupan.dariUtc);
-  const kelompok = kelompokPerTanggal(tersaring, filter.tz);
+    !filter.q &&
+    filter.mode !== "sekarang" &&
+    cakupan !== null &&
+    (jendela.dariUtc > cakupan.sampaiUtc || jendela.sampaiUtc <= cakupan.dariUtc);
+  const kelompok = kelompokPerTanggal(tersaring, filter.tz, now);
+  const tanggalHariIni = kunciTanggal(now.toISOString(), filter.tz);
+
+  const subjudul =
+    filter.mode === "sekarang"
+      ? `Sedang berlangsung dan yang terdekat · Zona waktu ${labelZona(filter.tz)}`
+      : filter.mode === "malam-ini"
+        ? `Malam ini · ${tanggalWib(jendela.dariUtc, filter.tz)} – ${tanggalWib(jendela.sampaiUtc, filter.tz)} · Zona waktu ${labelZona(filter.tz)}`
+        : filter.mode === "besok"
+          ? `${tanggalPanjang(jendela.dariUtc, filter.tz)} · Zona waktu ${labelZona(filter.tz)}`
+          : `${tanggalPanjang(`${filter.tanggal}T12:00:00.000Z`, filter.tz)} · Zona waktu ${labelZona(filter.tz)}`;
 
   return (
     <div>
@@ -269,8 +253,7 @@ async function PertandinganContent({
           Jadwal pertandingan
         </h1>
         <p className="mt-2 text-[15px] text-mid-gray">
-          {tanggalPanjang(`${filter.tanggal}T12:00:00.000Z`, filter.tz)} · Zona waktu{" "}
-          {labelZona(filter.tz)}
+          {subjudul}
           {cakupan && (
             <>
               {" "}· Liputan {tanggalWib(cakupan.dariUtc, filter.tz)} –{" "}
@@ -280,58 +263,103 @@ async function PertandinganContent({
         </p>
       </header>
 
-      <FormFilter filter={filter} ligaTersedia={ligaTersedia} negaraTersedia={negaraTersedia} />
+      <KontrolJadwal
+        filter={filter}
+        ligaTersedia={ligaTersedia}
+        negaraTersedia={negaraTersedia}
+        tanggalHariIni={tanggalHariIni}
+      />
 
-      {diLuarLiputan ? (
-        <EmptyState
-          title="Jadwal setelah tanggal ini belum tersedia."
-          note="Sumber data belum mencakup tanggal atau kompetisi pada tanggal yang dipilih. Pilih tanggal lain di dalam jendela liputan."
-        />
+      {gagalMuat ? (
+        <div className="py-16 text-center">
+          <p className="text-[17px] font-medium text-ink">Jadwal belum bisa dimuat</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mid-gray">
+            Daftar pertandingan tidak dapat dibaca saat ini. Pilihan filter kamu tersimpan di
+            alamat halaman ini.
+          </p>
+          <p className="mt-6">
+            <Link
+              href={`/pertandingan?${queryJadwal(filter)}`}
+              className="text-[15px] font-medium text-accent-deep underline underline-offset-4"
+            >
+              Coba lagi
+            </Link>
+          </p>
+        </div>
+      ) : diLuarLiputan ? (
+        <div className="py-16 text-center">
+          <p className="text-[17px] font-medium text-ink">Jadwal untuk tanggal ini belum tersedia</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mid-gray">
+            Sumber data belum mencakup tanggal yang dipilih.
+          </p>
+          <p className="mt-6">
+            <Link
+              href="/pertandingan"
+              className="text-[15px] font-medium text-accent-deep underline underline-offset-4"
+            >
+              Pilih tanggal lain
+            </Link>
+          </p>
+        </div>
       ) : tersaring.length === 0 ? (
-        <EmptyState
-          title="Belum ada pertandingan pada tanggal ini."
-          note="Coba tanggal atau filter lain — tanggal dan filter tersimpan di alamat halaman ini."
-        />
+        <div className="py-16 text-center">
+          <p className="text-[17px] font-medium text-ink">Tidak ada laga yang cocok dengan filter ini</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mid-gray">
+            {filter.q
+              ? `Tidak ada tim atau liga yang cocok dengan “${filter.q}” pada filter yang aktif.`
+              : "Coba longgarkan status, liga, atau negara yang dipilih."}
+          </p>
+          <p className="mt-6">
+            <Link
+              href="/pertandingan"
+              className="text-[15px] font-medium text-accent-deep underline underline-offset-4"
+            >
+              Hapus filter
+            </Link>
+          </p>
+        </div>
       ) : (
-        kelompok.map((k) => {
-          const perKompetisi = new Map<string, JadwalItem[]>();
-          for (const it of k.items) {
-            const arr = perKompetisi.get(it.competition_name);
-            if (arr) arr.push(it);
-            else perKompetisi.set(it.competition_name, [it]);
-          }
-          return (
-            <section key={k.kunci} className="mt-14">
-              <h2 className="font-display text-xl font-semibold text-ink">
-                {k.label}
-                <span className="ml-3 text-sm font-normal text-faint">{k.tanggal}</span>
-              </h2>
-              {[...perKompetisi.entries()].map(([comp, items]) => (
-                <div key={comp} className="mt-8">
-                  <div className="flex flex-wrap items-center gap-2.5 pb-1">
-                    {items[0].gate_status && (
-                      <GateStatus status={items[0].gate_status} withLabel={false} />
-                    )}
-                    <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
-                    {items[0].gate_status && (
-                      <span className="text-[13px] text-mid-gray">
-                        {GATE_LABEL[items[0].gate_status] ?? items[0].gate_status}
-                      </span>
-                    )}
-                    {items[0].competition_country && (
-                      <span className="text-[13px] text-faint">{items[0].competition_country}</span>
-                    )}
+        <div key={queryJadwal(filter)} className="grup-masuk">
+          {kelompok.map((k) => {
+            const perKompetisi = new Map<string, JadwalItem[]>();
+            for (const it of k.items) {
+              const arr = perKompetisi.get(it.competition_name);
+              if (arr) arr.push(it);
+              else perKompetisi.set(it.competition_name, [it]);
+            }
+            return (
+              <section key={k.kunci} className="mt-14">
+                <h2 className="font-display text-xl font-semibold text-ink">
+                  {k.label}
+                  <span className="ml-3 text-sm font-normal text-faint">{k.tanggal}</span>
+                </h2>
+                {[...perKompetisi.entries()].map(([comp, items]) => (
+                  <div key={comp} className="mt-8">
+                    <div className="flex flex-wrap items-center gap-2.5 pb-1">
+                      {items[0].gate_status && (
+                        <GateStatus status={items[0].gate_status} withLabel={false} />
+                      )}
+                      <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
+                      {items[0].gate_status && (
+                        <span className="text-[13px] text-mid-gray">
+                          {GATE_LABEL[items[0].gate_status] ?? items[0].gate_status}
+                        </span>
+                      )}
+                      {items[0].competition_country && (
+                        <span className="text-[13px] text-faint">{items[0].competition_country}</span>
+                      )}
+                    </div>
+                    <div>
+                      {items.map((it) => (
+                        <BarisJadwal key={it.match_id} item={it} filter={filter} />
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    {items.map((it) => (
-                      <BarisJadwal key={it.match_id} item={it} filter={filter} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </section>
-          );
-        })
+                ))}
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );
