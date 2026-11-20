@@ -86,12 +86,17 @@ export function FormChips({ form, showScore = false }: { form: FormEntry[]; show
   );
 }
 
-/** Score-matrix heat colour: amber as heat, scaled to the hottest cell. */
+/**
+ * Warna panas matriks skor pada BIDANG GELAP brief §2 (#142C25):
+ * jingga #FF6935 sebagai panas, diskala ke sel terpanas; teks beralih
+ * ke tinta di atas sel yang cukup terang. (Amber warisan diganti
+ * palet redesain.)
+ */
 export function heatStyle(prob: number, max: number): { backgroundColor: string; color: string } {
   const t = max > 0 ? Math.pow(prob / max, 0.72) : 0;
   return {
-    backgroundColor: `rgba(255, 160, 46, ${(t * 0.85).toFixed(3)})`,
-    color: t > 0.55 ? "#1a1206" : "#e9e4d8",
+    backgroundColor: `rgba(255, 105, 53, ${(t * 0.88).toFixed(3)})`,
+    color: t > 0.55 ? "#162723" : "#f8f7f2",
   };
 }
 
