@@ -46,7 +46,7 @@
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
-import { poissonLogProb, tauAdjustment } from "../lib/quant/dixon-coles";
+import { fitLeagueRatings, fitRhoOnTrain, selectTrainingRows, type FitMatchRow, type LeagueFitResult } from "../lib/quant/fit";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { FD_DIVISIONS } from "../lib/feeds/football-data";
 
@@ -79,137 +79,20 @@ const SHRINK_KAPPA = (() => {
   return Number.isFinite(v) && v >= 0 ? v : 10;
 })();
 
-// Rumus Poisson-log + tau Dixon-Coles diambil dari modul kanonis
-// lib/quant/dixon-coles.ts (poissonLogProb / tauAdjustment) — jangan
-// diduplikasi di sini agar fit offline tidak pernah divergen dari produksi.
+// Inti fit (IPF + shrinkage + fit rho) hidup di lib/quant/fit.ts (K4) —
+// satu implementasi untuk jalur produksi dan lab, dibangun di atas rumus
+// Poisson-log + tau dari modul kanonis lib/quant/dixon-coles.ts. Jangan
 
 function dataPath(file: string): string {
   return path.join(process.cwd(), "data", file);
 }
 
-interface MatchRow {
-  competition_id: string; season: string; utc_date: string;
-  home_team_id: string; away_team_id: string; home_score: number; away_score: number;
-}
-
-interface FitResult {
-  leagueAvgGoals: number; homeAdvantage: number;
-  attack: Map<string, number>; defense: Map<string, number>;
-  scaleRatio: number; nMatches: number;
-  /** Lambda per match (selaras urutan `matches`) untuk fit rho. */
-  lamHome: number[]; lamAway: number[];
-  /** Bobot decay per match (dipakai fit rho agar konsisten dengan fit IPF). */
-  weights: number[];
-}
+type MatchRow = FitMatchRow;
+type FitResult = LeagueFitResult;
 
 /** IPF dengan bobot waktu; parameterisasi identik ratings-loader. */
 function fitLeague(matches: MatchRow[], nowMs: number, halfLifeDays: number = HALF_LIFE_DAYS): FitResult | null {
-  // IPF linear O(match) per iterasi (tim diindeks, array datar) — update
-  // multiplikatifnya IDENTIK dengan implementasi lama yang memindai semua
-  // match per tim per iterasi (O(tim × match)): λ/att_t menyisakan
-  // lgAvg × def_lawan (× HA) sehingga den penyebut bisa diakumulasi satu
-  // lintasan. Ekuivalensi terverifikasi 2026-11-04: selisih parameter
-  // maksimum 4,4e-16 pada sm:8/sm:1034/sm:779, runtime 50–300× lebih cepat.
-  const teamIdx = new Map<string, number>();
-  for (const m of matches) {
-    if (!teamIdx.has(m.home_team_id)) teamIdx.set(m.home_team_id, teamIdx.size);
-    if (!teamIdx.has(m.away_team_id)) teamIdx.set(m.away_team_id, teamIdx.size);
-  }
-  const T = teamIdx.size;
-  const n = matches.length;
-  if (T < 4 || n === 0) return null;
-  const hi = new Int32Array(n), ai = new Int32Array(n);
-  const hs = new Float64Array(n), as = new Float64Array(n), w = new Float64Array(n);
-  let wSum = 0, hSum = 0, aSum = 0;
-  for (let i = 0; i < n; i++) {
-    const m = matches[i];
-    hi[i] = teamIdx.get(m.home_team_id)!;
-    ai[i] = teamIdx.get(m.away_team_id)!;
-    hs[i] = m.home_score; as[i] = m.away_score;
-    w[i] = Math.pow(0.5, (nowMs - Date.parse(m.utc_date)) / (halfLifeDays * 86400_000));
-    wSum += w[i]; hSum += w[i] * hs[i]; aSum += w[i] * as[i];
-  }
-  const muH = hSum / wSum;
-  const muA = aSum / wSum;
-  if (!(muA > 0) || !(muH > 0)) return null;
-  const lgAvg = muA;
-  const ha = muH / muA;
-  const attack = new Float64Array(T).fill(1);
-  const defense = new Float64Array(T).fill(1);
-  const baseH = new Float64Array(n), baseA = new Float64Array(n);
-  const num = new Float64Array(T), den = new Float64Array(T);
-  for (let iter = 0; iter < 200; iter++) {
-    let maxDelta = 0;
-    // Serangan
-    for (let i = 0; i < n; i++) { baseH[i] = lgAvg * defense[ai[i]] * ha; baseA[i] = lgAvg * defense[hi[i]]; }
-    num.fill(0); den.fill(0);
-    for (let i = 0; i < n; i++) {
-      num[hi[i]] += w[i] * hs[i]; den[hi[i]] += w[i] * baseH[i];
-      num[ai[i]] += w[i] * as[i]; den[ai[i]] += w[i] * baseA[i];
-    }
-    for (let t = 0; t < T; t++) {
-      if (den[t] > 0) {
-        const next = num[t] / den[t];
-        const d = Math.abs(next - attack[t]);
-        if (d > maxDelta) maxDelta = d;
-        attack[t] = next;
-      }
-    }
-    // Pertahanan
-    for (let i = 0; i < n; i++) { baseH[i] = lgAvg * attack[hi[i]] * ha; baseA[i] = lgAvg * attack[ai[i]]; }
-    num.fill(0); den.fill(0);
-    for (let i = 0; i < n; i++) {
-      num[ai[i]] += w[i] * hs[i]; den[ai[i]] += w[i] * baseH[i];
-      num[hi[i]] += w[i] * as[i]; den[hi[i]] += w[i] * baseA[i];
-    }
-    for (let t = 0; t < T; t++) {
-      if (den[t] > 0) {
-        const next = num[t] / den[t];
-        const d = Math.abs(next - defense[t]);
-        if (d > maxDelta) maxDelta = d;
-        defense[t] = next;
-      }
-    }
-    // Normalisasi rata-rata 1
-    let ma = 0, md = 0;
-    for (let t = 0; t < T; t++) { ma += attack[t]; md += defense[t]; }
-    ma /= T; md /= T;
-    if (ma > 0) for (let t = 0; t < T; t++) attack[t] /= ma;
-    if (md > 0) for (let t = 0; t < T; t++) defense[t] /= md;
-    if (maxDelta < 1e-7) break;
-  }
-  // Shrinkage fit (lihat SHRINK_KAPPA): diterapkan SEBELUM uji skala dan
-  // penulisan ratings — parameter yang diuji gerbang = parameter tersaji.
-  if (SHRINK_KAPPA > 0) {
-    const counts = new Float64Array(T);
-    for (let i = 0; i < n; i++) { counts[hi[i]]++; counts[ai[i]]++; }
-    const shrinkArr = (arr: Float64Array) => {
-      let sum = 0;
-      for (let t = 0; t < T; t++) {
-        const wgt = counts[t] / (counts[t] + SHRINK_KAPPA);
-        arr[t] = Math.exp(Math.log(Math.max(1e-6, arr[t])) * wgt);
-        sum += arr[t];
-      }
-      const mean = sum / T;
-      if (mean > 0) for (let t = 0; t < T; t++) arr[t] /= mean;
-    };
-    shrinkArr(attack);
-    shrinkArr(defense);
-  }
-  const attackMap = new Map<string, number>();
-  const defenseMap = new Map<string, number>();
-  for (const [team, idx] of teamIdx) { attackMap.set(team, attack[idx]); defenseMap.set(team, defense[idx]); }
-  const lamHome = (m: MatchRow) => lgAvg * (attackMap.get(m.home_team_id) ?? 1) * (defenseMap.get(m.away_team_id) ?? 1) * ha;
-  const lamAway = (m: MatchRow) => lgAvg * (attackMap.get(m.away_team_id) ?? 1) * (defenseMap.get(m.home_team_id) ?? 1);
-  // Uji skala: Σλ (tanpa bobot, seluruh match) vs Σ gol aktual.
-  let lam = 0, goals = 0;
-  for (const m of matches) { lam += lamHome(m) + lamAway(m); goals += m.home_score + m.away_score; }
-  return {
-    leagueAvgGoals: lgAvg, homeAdvantage: ha, attack: attackMap, defense: defenseMap,
-    scaleRatio: goals > 0 ? lam / goals : 0, nMatches: n,
-    lamHome: matches.map((m) => lamHome(m)), lamAway: matches.map((m) => lamAway(m)),
-    weights: Array.from(w),
-  };
+  return fitLeagueRatings(matches, { nowMs, halfLifeDays, shrinkKappa: SHRINK_KAPPA });
 }
 
 /**
@@ -218,20 +101,7 @@ function fitLeague(matches: MatchRow[], nowMs: number, halfLifeDays: number = HA
  * Kebijakan pemakaiannya (zero/global/fitted) dipilih via validasi OOS.
  */
 function fitRho(matches: MatchRow[], fit: FitResult): number {
-  let bestRho = 0;
-  let bestLL = -Infinity;
-  for (let rho = -0.20; rho <= 0.0501; rho += 0.005) {
-    let ll = 0;
-    for (let i = 0; i < matches.length; i++) {
-      const m = matches[i];
-      const lam = fit.lamHome[i], mu = fit.lamAway[i];
-      const tau = tauAdjustment(m.home_score, m.away_score, lam, mu, rho);
-      if (tau <= 0) { ll = -Infinity; break; }
-      ll += fit.weights[i] * (poissonLogProb(lam, m.home_score) + poissonLogProb(mu, m.away_score) + Math.log(tau));
-    }
-    if (ll > bestLL) { bestLL = ll; bestRho = rho; }
-  }
-  return Number(bestRho.toFixed(3));
+  return fitRhoOnTrain(matches, fit);
 }
 
 function rhoForLeague(fit: FitResult, matches: MatchRow[]): number {
@@ -503,13 +373,18 @@ function main() {
   for (const cat of catalog) {
     const leagueId = cat.competition_id;
     const isCup = /cup|beker|pokal|coupe|coppa|copa|ta[çc]a|kupa|trofeo|play-?offs?|friendl|shield|trophy/i.test(cat.name) || cat.country === "Europe";
-    const matches = ds
-      .prepare(
-        `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
-         FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
-         ORDER BY utc_date`,
-      )
-      .all(leagueId) as MatchRow[];
+    // Pemisahan latih/uji (Q02): hanya hasil final bertanggal < waktu run
+    // yang masuk fit — baris "masa depan" relatif terhadap run ditolak.
+    const matches = selectTrainingRows(
+      ds
+        .prepare(
+          `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
+           FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
+           ORDER BY utc_date`,
+        )
+        .all(leagueId) as MatchRow[],
+      nowIso,
+    );
     const teamSet = new Set<string>();
     for (const m of matches) { teamSet.add(m.home_team_id); teamSet.add(m.away_team_id); }
 
@@ -676,13 +551,16 @@ function main() {
     // seperti liga SM — supaya fitnya segar mengikuti hasil fd terbaru
     // dan status registry-nya selalu keluaran gerbang run terakhir.
     if (ratings.leagues[div] && (ratings.leagues[div] as { source?: string }).source !== "football-data-fit") continue;
-    const matches = ds
-      .prepare(
-        `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
-         FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
-         ORDER BY utc_date`,
-      )
-      .all(div) as MatchRow[];
+    const matches = selectTrainingRows(
+      ds
+        .prepare(
+          `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
+           FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
+           ORDER BY utc_date`,
+        )
+        .all(div) as MatchRow[],
+      nowIso,
+    );
     if (matches.length === 0) continue; // divisi ini belum mengimpor hasil apa pun
     const teamSet = new Set<string>();
     for (const m of matches) { teamSet.add(m.home_team_id); teamSet.add(m.away_team_id); }
