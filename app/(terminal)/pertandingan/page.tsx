@@ -188,7 +188,13 @@ async function PertandinganContent({
       ? jendelaTanggalUtc(filter.tanggal, filter.tz)
       : jendelaPintasan(filter.mode, filter.tz, now);
   if (filter.q && cakupan) {
-    jendela = { dariUtc: cakupan.dariUtc, sampaiUtc: cakupan.sampaiUtc };
+    // Tepi cakupan adalah momen kickoff itu sendiri; jendela listSchedule
+    // setengah-terbuka [dari, sampai), jadi ujungnya diberi bantalan 2 jam
+    // supaya laga tepat di tepi cakupan tidak tersisih dari pencarian.
+    jendela = {
+      dariUtc: cakupan.dariUtc,
+      sampaiUtc: new Date(Date.parse(cakupan.sampaiUtc) + 2 * 3_600_000).toISOString(),
+    };
   }
 
   let semua: JadwalItem[] = [];
