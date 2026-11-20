@@ -59,6 +59,7 @@ import {
 } from "../lib/quant/league-identity";
 import { getLeagueGate, competitionIdToDiv } from "../lib/quant/league-gate";
 import { loadCalibratedRatings, resolveDivForMatch } from "../lib/quant/ratings-loader";
+import { ModelManifestError, loadActiveManifest } from "../lib/quant/model-manifest";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { parseFixtureDetail } from "../lib/odds/sportmonks-adapter";
 import { pickSmQuotes } from "../lib/odds/sportmonks-wire";
@@ -237,6 +238,20 @@ async function main() {
     ratingsMarker = `sha256:${createHash("sha256").update(raw).digest("hex").slice(0, 16)}`;
   } catch {
     ratingsMarker = null;
+  }
+
+  // Manifest model aktif (K4): identitas model yang dicap ke pilihan
+  // resmi. Hilang/rusak → berhenti bernama; TIDAK ada fallback ke
+  // konstanta identitas (praktik lama "quant-package-v1" dihapus).
+  let modelVersion: string;
+  try {
+    modelVersion = loadActiveManifest(path.join(process.cwd(), "data")).modelVersion;
+  } catch (err) {
+    if (err instanceof ModelManifestError) {
+      console.error(`[pick-slate] manifest model tidak dapat dipakai [${err.code}]: ${err.message}`);
+      process.exit(1);
+    }
+    throw err;
   }
 
   const fixtures = upDb
@@ -652,7 +667,7 @@ async function main() {
                 kickoff_utc: fx.utc_date,
                 scheduled_cutoff_utc: iso(now),
                 decision_at_utc: computedUtc,
-                model_version: "quant-package-v1",
+                model_version: modelVersion,
                 ratings_hash: ratingsMarker,
                 code_sha: codeSha,
                 package: {
