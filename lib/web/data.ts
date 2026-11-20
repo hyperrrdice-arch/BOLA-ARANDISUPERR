@@ -113,6 +113,11 @@ export interface PickRow {
   grade: string;
   source: string;
   package_id: number | null;
+  /* Bukti terbit beku (K2, kolom aditif — absen/null pada baris warisan
+     yang belum dimigrasi; basis 'unknown_legacy' sesudah migrasi). */
+  published_prob: number | null;
+  probability_basis: string | null;
+  published_at_utc: string | null;
   hit: number | null;
   home_goals: number | null;
   away_goals: number | null;

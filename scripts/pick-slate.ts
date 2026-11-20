@@ -73,9 +73,18 @@ import {
   type PickLeg,
   type Population,
 } from "../lib/picks/engine";
-import { recordPicks, type PickInput } from "../lib/picks/ledger";
-import { writePackage } from "../lib/picks/packages";
+import { writePackage, type PackageInput } from "../lib/picks/packages";
+import {
+  publishPicks,
+  type OddsSnapshot,
+  type PublishLegInput,
+} from "../lib/picks/publication";
+import {
+  getUidForMatchId,
+  identityTablesExist,
+} from "../lib/identity/fixture-resolver";
 import { GATE_LABEL } from "../lib/web/format";
+import { execSync } from "node:child_process";
 
 function openRo(p: string): DatabaseSync {
   return new DatabaseSync(p, { readOnly: true });
@@ -266,10 +275,12 @@ async function main() {
     /** Cap tangkapan odds yang benar-benar masuk paket; null bila tak ada. */
     captured_utc: string | null;
     bookmakers: string[] | null;
+    /** Harga desimal mentah per kunci "market:selection" (K2: bukti odds terbit). */
+    decimals: Record<string, { decimal: number; bookmaker: string | null }>;
   }
 
   const marketInfoFor = (fx: FixtureRow, smId: number | null): MarketInfo => {
-    const info: MarketInfo = { probs: {}, captured_utc: null, bookmakers: null };
+    const info: MarketInfo = { probs: {}, captured_utc: null, bookmakers: null, decimals: {} };
     const newest = dsDb
       .prepare(
         "SELECT captured_utc, payload_json, source FROM match_odds_history WHERE match_id = ? ORDER BY captured_utc DESC LIMIT 1",
@@ -298,11 +309,18 @@ async function main() {
               info.probs["1x2:x"] = shin.fair_prob.draw;
               info.probs["1x2:2"] = shin.fair_prob.away;
             }
+            const bk = typeof q.bookmaker === "string" ? q.bookmaker : null;
+            info.decimals["1x2:1"] = { decimal: quotes.home_last, bookmaker: bk };
+            info.decimals["1x2:x"] = { decimal: quotes.draw_last, bookmaker: bk };
+            info.decimals["1x2:2"] = { decimal: quotes.away_last, bookmaker: bk };
           }
           if (quotes.total_goals_over_2_5 && quotes.under_2_5) {
             const two = stripVigTwoWay(quotes.total_goals_over_2_5, quotes.under_2_5);
             info.probs["ou25:over"] = two.fair_prob.optionA;
             info.probs["ou25:under"] = two.fair_prob.optionB;
+            const bk = typeof q.bookmaker === "string" ? q.bookmaker : null;
+            info.decimals["ou25:over"] = { decimal: quotes.total_goals_over_2_5, bookmaker: bk };
+            info.decimals["ou25:under"] = { decimal: quotes.under_2_5, bookmaker: bk };
           }
         }
       } catch {
@@ -334,12 +352,17 @@ async function main() {
             info.probs["1x2:x"] = shin.fair_prob.draw;
             info.probs["1x2:2"] = shin.fair_prob.away;
           }
+          info.decimals["1x2:1"] = { decimal: primary["1x2"].home, bookmaker: primary.bookmaker };
+          info.decimals["1x2:x"] = { decimal: primary["1x2"].draw, bookmaker: primary.bookmaker };
+          info.decimals["1x2:2"] = { decimal: primary["1x2"].away, bookmaker: primary.bookmaker };
           const ordered = [primary, ...payload.books.filter((b) => b !== primary)];
           for (const b of ordered) {
             if (b.ou25) {
               const two = stripVigTwoWay(b.ou25.over, b.ou25.under);
               info.probs["ou25:over"] = two.fair_prob.optionA;
               info.probs["ou25:under"] = two.fair_prob.optionB;
+              info.decimals["ou25:over"] = { decimal: b.ou25.over, bookmaker: b.bookmaker };
+              info.decimals["ou25:under"] = { decimal: b.ou25.under, bookmaker: b.bookmaker };
               break;
             }
           }
@@ -399,9 +422,33 @@ async function main() {
     }
   }
 
+  /** Snapshot odds prematch per leg untuk bukti terbit K2 (harga mentah buku). */
+  const oddsSnapshotsFor = (leg: PickLeg, mInfo: MarketInfo): OddsSnapshot[] => {
+    const d = mInfo.decimals[`${leg.market}:${leg.selection}`];
+    if (!d || !mInfo.captured_utc) return [];
+    return [
+      {
+        source: "book",
+        type: "prematch",
+        available_utc: mInfo.captured_utc,
+        bookmaker: d.bookmaker,
+        decimal: d.decimal,
+      },
+    ];
+  };
+
+  /** SHA kode penerbit (best-effort; null bila git tak tersedia). */
+  let codeSha: string | null = null;
+  try {
+    codeSha = execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim() || null;
+  } catch {
+    codeSha = null;
+  }
+
   const rated: RatedFixture[] = [];
   const unrated: UnratedFixture[] = [];
-  const ledgerRows: PickInput[] = [];
+  let ledgerWritten = 0;
+  let ledgerCutoffRejected = 0;
   let processed = 0;
   let packagesWritten = 0;
   let mtTwinsSkipped = 0;
@@ -519,12 +566,13 @@ async function main() {
             );
           }
           const batchUtc = smBatchUtcFor(smId);
-          const pkg = writePackage({
+          const computedUtc = new Date().toISOString();
+          const pkgInput: PackageInput = {
             match_id: fx.match_id,
             competition_canonical_id:
               md?.leagueResolution?.canonicalId ?? canonicalId,
             kickoff_utc: fx.utc_date,
-            computed_utc: new Date().toISOString(),
+            computed_utc: computedUtc,
             trigger: "slate",
             fit_source: population === "cup" ? "cup-offset" : (md?.homeSource ?? null),
             gate_status: gateFinal,
@@ -575,9 +623,85 @@ async function main() {
               away_source: md?.awaySource ?? null,
               cup_offset: md?.cupOffset ?? null,
             },
-          });
-          packageId = pkg.id;
-          packagesWritten++;
+          };
+          if (writeLedger && !alreadyRecorded.has(fx.match_id)) {
+            // --- Jalur resmi K2: intent → paket → commit beku. Validasi
+            // cutoff terjadi SAAT COMMIT; run yang commit-nya lewat kickoff
+            // hanya menyisakan paket sebagai analisis internal.
+            const pubLegs: PublishLegInput[] = legs.map((leg) => ({
+              market: leg.market,
+              selection: leg.selection,
+              model_prob: leg.model_prob,
+              effective_prob: leg.effective_prob,
+              effective_source: leg.effective_source,
+              market_prob: leg.market_prob,
+              sm_prob: leg.sm_prob,
+              grade: leg.grade,
+              gate_status: gateFinal,
+              odds_snapshots: oddsSnapshotsFor(leg, mInfo),
+            }));
+            const res = publishPicks(
+              {
+                series: "live-run",
+                source_match_id: fx.match_id,
+                fixture_uid: identityTablesExist(dsDb)
+                  ? getUidForMatchId(dsDb, fx.match_id)
+                  : null,
+                competition_canonical_id:
+                  md?.leagueResolution?.canonicalId ?? canonicalId,
+                kickoff_utc: fx.utc_date,
+                scheduled_cutoff_utc: iso(now),
+                decision_at_utc: computedUtc,
+                model_version: "quant-package-v1",
+                ratings_hash: ratingsMarker,
+                code_sha: codeSha,
+                package: {
+                  trigger: "slate",
+                  computed_utc: computedUtc,
+                  fit_source: pkgInput.fit_source,
+                  gate_status: gateFinal,
+                  cup_delta: pkgInput.cup_delta,
+                  ratings_marker: ratingsMarker,
+                  odds_captured_utc: mInfo.captured_utc,
+                  bookmakers: mInfo.bookmakers,
+                  predictions_batch_utc: batchUtc,
+                  lambda: pure.dcOutput.lambda,
+                  mu: pure.dcOutput.mu,
+                  rho: pure.shrunkParams.rho ?? null,
+                  payload: pkgInput.payload,
+                  provenance: pkgInput.provenance,
+                },
+                legs: pubLegs,
+              },
+              {
+                now_utc: new Date().toISOString(),
+                fixture_status: () =>
+                  (
+                    upDb
+                      .prepare(
+                        "SELECT status FROM upcoming_fixtures WHERE match_id = ?",
+                      )
+                      .get(fx.match_id) as { status: string } | undefined
+                  )?.status ?? null,
+              },
+            );
+            packageId = res.package_id;
+            packagesWritten++;
+            if (res.status === "published" || res.status === "already_committed") {
+              ledgerWritten += res.pick_ids.length;
+            } else if (res.status === "rejected_cutoff") {
+              ledgerCutoffRejected++;
+              console.log(
+                `${tag} → publikasi ditolak saat commit (${res.reason ?? "cutoff"}) — paket tetap analisis internal`,
+              );
+            } else {
+              throw new Error(`publikasi gagal: ${res.reason ?? res.status}`);
+            }
+          } else {
+            const pkg = writePackage(pkgInput);
+            packageId = pkg.id;
+            packagesWritten++;
+          }
         } catch (e) {
           legs = null;
           failReason = `store paket gagal: ${e instanceof Error ? e.message : String(e)}`;
@@ -617,34 +741,9 @@ async function main() {
       `${tag} → rated (${entry.gate_status}/${entry.population}) ${legs.length} kaki (${dt}s)`,
     );
 
-    if (writeLedger && !alreadyRecorded.has(fx.match_id)) {
-      for (const leg of legs) {
-        ledgerRows.push({
-          match_id: fx.match_id,
-          competition_canonical_id: entry.canonical_id,
-          kickoff_utc: fx.utc_date,
-          market: leg.market,
-          selection: leg.selection,
-          model_prob: leg.model_prob,
-          market_prob: leg.market_prob,
-          sm_prob: leg.sm_prob,
-          effective_prob: leg.effective_prob,
-          effective_source: leg.effective_source,
-          gate_status: entry.gate_status,
-          grade: leg.grade,
-          source: "live-run",
-          package_id: entry.package_id,
-          notes:
-            `pick-slate fase B; eff=${leg.effective_prob.toFixed(4)} ${leg.effective_source}` +
-            (leg.band ? ` pita ${leg.band} n=${leg.band_n}` : ""),
-        });
-      }
-    }
-  }
-
-  let ledgerWritten = 0;
-  if (writeLedger && ledgerRows.length > 0) {
-    ledgerWritten = recordPicks(ledgerRows);
+    // Ledger live-run kini ditulis di dalam blok paket lewat jalur
+    // publikasi resmi K2 (publishPicks) — tidak ada lagi penumpukan
+    // ledgerRows + recordPicks di akhir run.
   }
 
   // --- Contoh parlay: lintas pertandingan, grup kembar (twin) dianggap satu laga.
@@ -723,6 +822,7 @@ async function main() {
       mt_twin_fixtures_skipped: mtTwinsSkipped,
       fixtures_rated_free_mode: rated.filter((r) => r.feed_mode === "free").length,
       ledger_live_run_rows_written: ledgerWritten,
+      ledger_cutoff_rejected_fixtures: ledgerCutoffRejected,
       ledger_skipped_already_recorded: writeLedger
         ? rated.filter((r) => alreadyRecorded.has(r.fixture.match_id)).length
         : 0,
