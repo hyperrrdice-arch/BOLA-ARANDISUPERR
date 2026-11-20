@@ -360,19 +360,43 @@ function opponentName(canonicalId: string): string {
   return teamNameByCanonical.get(canonicalId) ?? canonicalId;
 }
 
-/** Form 6 laga terakhir dari telemetri KANONIK (satu baris per laga fisik). */
+/**
+ * Penjaga isolasi bagian (redesain L2, brief §3C.5): satu pembaca
+ * bagian yang gagal (tabel bantu belum dibangun rantai refresh, DB
+ * parsial, dst.) terdegradasi ke keadaan kosong MILIKNYA — tidak
+ * meruntuhkan halaman yang memuatnya. Data inti laga tidak pernah
+ * lewat penjaga ini; yang dijaga hanya bagian analisis/pendukung.
+ */
+function bagian<T>(fn: () => T, fallback: T): T {
+  try {
+    return fn();
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Form 6 laga terakhir dari telemetri KANONIK (satu baris per laga fisik).
+ * Bagian pendukung: tabel telemetri yang belum ada (rantai refresh
+ * belum membangunnya) menghasilkan form kosong, BUKAN pengecualian —
+ * halaman detail tetap render dengan bagian form terdegradasi.
+ */
 export function getForm(teamName: string, beforeUtc: string, limit = 6): FormEntry[] {
   const cid = canonicalIdForTeamName(teamName);
   if (!cid) return [];
-  const rows = datasetDb()
-    .prepare(
-      `SELECT match_date, canonical_opponent_id, venue, goals_for, goals_against,
-              xg_for, xg_against
-       FROM team_match_logs_canonical
-       WHERE canonical_team_id = ? AND substr(match_date, 1, 10) < ?
-       ORDER BY match_date DESC LIMIT ?`,
-    )
-    .all(cid, beforeUtc.slice(0, 10), limit) as Record<string, unknown>[];
+  const rows = bagian(
+    () =>
+      datasetDb()
+        .prepare(
+          `SELECT match_date, canonical_opponent_id, venue, goals_for, goals_against,
+                  xg_for, xg_against
+           FROM team_match_logs_canonical
+           WHERE canonical_team_id = ? AND substr(match_date, 1, 10) < ?
+           ORDER BY match_date DESC LIMIT ?`,
+        )
+        .all(cid, beforeUtc.slice(0, 10), limit) as Record<string, unknown>[],
+    [] as Record<string, unknown>[],
+  );
   return rows.map((r) => {
     const gf = r.goals_for as number;
     const ga = r.goals_against as number;
@@ -513,26 +537,36 @@ export function getMatchDetail(matchId: string): MatchDetail | null {
     .get(matchId) as Record<string, unknown> | undefined;
   if (!row) return null;
   const pkg = parsePackage(row);
-  const picks = picksDb()
-    .prepare(
-      `SELECT pk.*, po.hit, po.home_goals, po.away_goals
-       FROM picks pk LEFT JOIN pick_outcomes po ON po.pick_id = pk.id
-       WHERE pk.package_id = ? ORDER BY pk.grade ASC, pk.model_prob DESC`,
-    )
-    .all(pkg.id) as unknown as PickRow[];
+  // Isolasi per bagian (brief §3C.5): paket = data inti dan tetap
+  // syarat; setiap bagian pendukung (pick paket, hasil, form, keadaan,
+  // pilihan/tiket resmi) gagal sebagai keadaan kosong miliknya sendiri.
+  const picks = bagian(
+    () =>
+      picksDb()
+        .prepare(
+          `SELECT pk.*, po.hit, po.home_goals, po.away_goals
+           FROM picks pk LEFT JOIN pick_outcomes po ON po.pick_id = pk.id
+           WHERE pk.package_id = ? ORDER BY pk.grade ASC, pk.model_prob DESC`,
+        )
+        .all(pkg.id) as unknown as PickRow[],
+    [] as PickRow[],
+  );
   const f = pkg.payload.fixture;
   const fixtureUid = fixtureUidOf(matchId);
-  const officialPicks = getOfficialPicks(matchId, fixtureUid);
+  const officialPicks = bagian(() => getOfficialPicks(matchId, fixtureUid), [] as OfficialPick[]);
   return {
     pkg,
     picks,
-    result: getResult(matchId),
+    result: bagian(() => getResult(matchId), null),
     formHome: getForm(f.home, f.kickoff_utc),
     formAway: getForm(f.away, f.kickoff_utc),
     fixtureUid,
-    keadaan: getMatchState(matchId),
+    keadaan: bagian(() => getMatchState(matchId), null),
     officialPicks,
-    officialTickets: getOfficialTickets(officialPicks.map((p) => p.pick_uid)),
+    officialTickets: bagian(
+      () => getOfficialTickets(officialPicks.map((p) => p.pick_uid)),
+      [] as TiketResmiRef[],
+    ),
   };
 }
 
