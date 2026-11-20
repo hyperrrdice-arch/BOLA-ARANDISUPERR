@@ -186,7 +186,7 @@ export function getPicksDb(): DatabaseSync {
 
 // Spread kesepakatan antar-sumber: max − min dari prob yang tersedia.
 // Null bila sumber pembanding kurang dari 2 (tidak ada yang bisa dibandingkan).
-function computeAgreementSpread(p: PickInput): number | null {
+export function computeAgreementSpread(p: PickInput): number | null {
   const probs = [p.model_prob, p.market_prob ?? null, p.sm_prob ?? null].filter(
     (v): v is number => v !== null && v !== undefined,
   );
