@@ -1,0 +1,52 @@
+{
+  "experiment": "k5-kappa",
+  "design_doc": "tasks/experiments/k5-kappa/DESIGN.md",
+  "design_commit": "14dfff5287a1d2c3f01a8405c9dbf5eb052c2d31",
+  "generated_at": "2026-11-20T09:13:24.691Z",
+  "code": {
+    "runner": "scripts/experiment-k5-kappa.ts",
+    "runner_sha256": "sha256:19f07c8fbaf1050cc3ca90ec47dbd9b315d6a63b675e2e2ff78c7f1975d7956d",
+    "stats_lib": "lib/quant/experiment-stats.ts",
+    "stats_lib_sha256": "sha256:c6d6cf7c77394e0273c072e0926fa26e9cfb697928ebde8d73408c05dc583f55"
+  },
+  "inputs": {
+    "dataset_path": "/home/hatch/workspace/coding/app-football/data/thestats_dataset.db",
+    "dataset_size_bytes": 3037769728,
+    "dataset_mtime": "2026-11-19T21:37:36.804Z",
+    "matches_rows": {
+      "count": 69065,
+      "sha256": "sha256:a9ce4587e3a7247e1c9910cce9a1ce3685f3a4594d26c295daebfac7ddf97a7b"
+    },
+    "team_log_rows": {
+      "count": 83426,
+      "sha256": "sha256:7c3b3068c60ce0a4737c3d8903a8df2405e76472ca3e45cb4887b47d20b30eed"
+    },
+    "in_scope_leagues": 63,
+    "in_scope_matches": 44528,
+    "heldout_rows": 6708,
+    "heldout_date_range": {
+      "start": "2026-03-21",
+      "end": "2026-11-07"
+    }
+  },
+  "config": {
+    "sweep_kfit": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "champion_kfit": 10,
+    "challenger_kfit": 20,
+    "halfLifeDays": 365,
+    "rho": 0,
+    "kappaScale": 2,
+    "minMatchesPerLeague": 120
+  },
+  "bootstrap": {
+    "resamples": 5000,
+    "seed": 20261120,
+    "block": "pekan ISO (UTC) tanggal laga, digabung lintas liga"
+  },
+  "availability_assumption": "rekonstruksi historis harness: fitur form/telemetri point-in-time dari store hasil (hanya laga < tanggal laga); fit lipatan hanya baris < awal blok uji"
+}

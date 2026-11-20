@@ -1,0 +1,30 @@
+[k5] liga dalam cakupan: 63, total match: 44528
+[k5] dataset: /home/hatch/workspace/coding/app-football/data/thestats_dataset.db (matches sm selesai=69065, logs=83426)
+  [val V1+V2] kfit=5 A: n=13359 LL=1.0325 Brier=0.6178 ECE=0.0159 slope=0.722 cov=1.0000
+  [val V1+V2] kfit=5 B: n=13359 LL=1.0203 Brier=0.6111 ECE=0.0156 slope=0.889 cov=1.0000
+  [val V1+V2] kfit=10 A: n=13359 LL=1.0289 Brier=0.6162 ECE=0.0105 slope=0.844 cov=1.0000
+  [val V1+V2] kfit=10 B: n=13359 LL=1.0193 Brier=0.6105 ECE=0.0134 slope=0.978 cov=1.0000
+  [val V1+V2] kfit=15 A: n=13359 LL=1.0272 Brier=0.6157 ECE=0.0109 slope=0.955 cov=1.0000
+  [val V1+V2] kfit=15 B: n=13359 LL=1.0191 Brier=0.6105 ECE=0.0141 slope=1.051 cov=1.0000
+  [val V1+V2] kfit=20 A: n=13359 LL=1.0268 Brier=0.6157 ECE=0.0125 slope=1.053 cov=1.0000
+  [val V1+V2] kfit=20 B: n=13359 LL=1.0194 Brier=0.6107 ECE=0.0155 slope=1.111 cov=1.0000
+[k5] baris H berpasangan: 6708
+  [H] Level A kfit=10: n=6708 LL=1.0227 Brier=0.6125 ECE=0.0077 slope=0.937 cov=1.0000
+  [H] Level A kfit=20: n=6708 LL=1.0225 Brier=0.6128 ECE=0.0111 slope=1.11 cov=1.0000
+  [H] Level B kfit=10: n=6708 LL=1.0134 Brier=0.6066 ECE=0.0149 slope=1.03 cov=1.0000
+  [H] Level B kfit=20: n=6708 LL=1.0142 Brier=0.6071 ECE=0.0161 slope=1.135 cov=1.0000
+  [H] naive Poisson: n=6708 LL=1.0711 Brier=0.6480 ECE=0.0067 slope=0.682 cov=1.0000
+  [H] frekuensi liga: n=6708 LL=1.0702 Brier=0.6479 ECE=0.0095 slope=0.541 cov=1.0000
+[k5] bootstrap Level B: meanΔ=0.000821 UB95=0.001594 CI=[-0.000140, 0.001735] n=6708 blok=33
+[k5] bootstrap Level A: meanΔ=-0.000272 UB95=0.000749 CI=[-0.001465, 0.000999]
+[k5] KEPUTUSAN: RETAIN
+  cek sample_floor: observed=1.65 threshold=1 → LOLOS
+  cek mean_delta: observed=0.0008212361119898341 threshold=-0.005 → GAGAL
+  cek bootstrap_upper: observed=0.0015937300459903205 threshold=0 → GAGAL
+  cek coverage_drop: observed=0 threshold=0.02 → LOLOS
+  cek brier_increase: observed=0.0005589467427687955 threshold=0.002 → LOLOS
+  [CL] closing: n=187 LL=0.9720 Brier=0.5742 ECE=0.0419 slope=0.994 cov=1.0000 (pre-kickoff=232, tak terparse=45, luar cakupan=42)
+  [CL] model kfit=10 subset sama: n=145 LL=1.0278 Brier=0.6144 ECE=0.0731 slope=0.71 cov=1.0000
+  [CL] model kfit=20 subset sama: n=145 LL=1.0192 Brier=0.6092 ECE=0.0624 slope=0.953 cov=1.0000
+[k5] determinisme: 63 liga, hash sama=true, cek silang lib fit max|Δ|=0
+[k5] selesai dalam 18.8s → tasks/experiments/k5-kappa/{summary,decision,experiment-manifest}.json + predictions-h.jsonl

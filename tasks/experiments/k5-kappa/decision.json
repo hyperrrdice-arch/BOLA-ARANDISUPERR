@@ -1,0 +1,58 @@
+{
+  "experiment": "k5-kappa",
+  "surface": "Level B (replikasi jalur produksi) pada lipatan H, baris berpasangan identik",
+  "champion": "kappa-fit 10",
+  "challenger": "kappa-fit 20",
+  "rule_source": "docs/plans/peningkatan-aplikasi-bola/02-model-quant.md bab Q4; dibekukan di tasks/experiments/k5-kappa/DESIGN.md §7",
+  "thresholds": {
+    "meanDeltaMax": -0.005,
+    "coverageDropMax": 0.02,
+    "brierIncreaseMax": 0.002,
+    "minMatches": 1000,
+    "minBlocks": 20
+  },
+  "input": {
+    "meanDelta": 0.0008212361119898341,
+    "bootstrapUpperOneSided95": 0.0015937300459903205,
+    "coverageChampion": 1,
+    "coverageChallenger": 1,
+    "brierChampion": 0.6065786004794814,
+    "brierChallenger": 0.6071375472222502,
+    "nMatches": 6708,
+    "nBlocks": 33
+  },
+  "checks": [
+    {
+      "id": "sample_floor",
+      "observed": 1.65,
+      "threshold": 1,
+      "pass": true
+    },
+    {
+      "id": "mean_delta",
+      "observed": 0.0008212361119898341,
+      "threshold": -0.005,
+      "pass": false
+    },
+    {
+      "id": "bootstrap_upper",
+      "observed": 0.0015937300459903205,
+      "threshold": 0,
+      "pass": false
+    },
+    {
+      "id": "coverage_drop",
+      "observed": 0,
+      "threshold": 0.02,
+      "pass": true
+    },
+    {
+      "id": "brier_increase",
+      "observed": 0.0005589467427687955,
+      "threshold": 0.002,
+      "pass": true
+    }
+  ],
+  "decision": "retain",
+  "decided_at": "2026-11-20T09:13:23.738Z"
+}
