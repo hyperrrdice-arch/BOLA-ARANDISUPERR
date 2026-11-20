@@ -51,6 +51,7 @@ async function PilihanContent() {
     grade: p.grade,
     market: p.market,
     selection: p.selection,
+    line: p.line,
     // Peluang builder = peluang SAAT TERBIT (beku K2). Basisnya memetakan
     // basis terbit: effective → koreksi lab yang dibekukan ("lab"),
     // model → peluang model saat terbit ("model").

@@ -118,6 +118,28 @@ body {
   animation: grupMasuk 120ms ease-out;
 }
 
+/* Bilah ringkasan Pilihan di HP (brief §9): masuk 6 px selama 160 ms
+   setiap isi draf berubah. */
+@keyframes ringkasanMasuk {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ringkasan-masuk {
+  animation: ringkasanMasuk 160ms cubic-bezier(.22,.72,.2,1);
+}
+
+/* Panel bawah Pilihanmu (brief §9): muncul dari bawah sejauh 12 px
+   selama 210 ms. */
+@keyframes panelMasuk {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-masuk {
+  animation: panelMasuk 210ms cubic-bezier(.22,.72,.2,1);
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

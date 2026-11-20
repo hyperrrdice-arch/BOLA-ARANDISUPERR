@@ -11,6 +11,12 @@
  *   menangkap tumpang-tindih antar pasar (mis. "kandang menang" dan
  *   "peluang ganda 1X" berbagi sel yang sama) — mengalikan keduanya
  *   akan menghitung tumpang-tindih itu dua kali.
+ * - Bila irisan satu laga TIDAK bisa dihitung persis (matriks skor
+ *   edisi bersama tidak tersedia, atau pasar tak dikenal matriks),
+ *   gabungannya TIDAK TERSEDIA — bukan dikalikan di dalam grup
+ *   (brief redesain §3D.4; sejalan kontrak tiket resmi K3
+ *   `joint_unavailable`). Grup ditandai `unavailable` + alasannya dan
+ *   `combined` menjadi null.
  * - Antar laga, probabilitas grup DIKALIKAN. Itu asumsi independen:
  *   hasil satu laga dianggap tidak memengaruhi laga lain.
  * - Peringatan kejujuran: lab historis menunjukkan produk naif antar
@@ -125,10 +131,18 @@ export type GroupBasis = ProbBasis | "matrix" | "mixed";
 
 export interface SlipGroup {
   matchId: string;
-  /** Probabilitas gabungan grup ini (persis dari matriks bila exact). */
-  prob: number;
+  /**
+   * Probabilitas gabungan grup ini (persis dari matriks bila exact).
+   * Null bila grup multi-pilihan satu laga tidak bisa dihitung persis
+   * (`unavailable`) — tidak pernah diganti perkalian dalam grup.
+   */
+  prob: number | null;
   /** True bila grup multi-pilihan dihitung persis dari matriks skor. */
   exact: boolean;
+  /** True bila irisan satu laga tidak tersedia (brief §3D.4). */
+  unavailable: boolean;
+  /** Alasan `unavailable` untuk ditampilkan ke pembaca; null bila tersedia. */
+  alasan: string | null;
   /** Jumlah pilihan dalam grup. */
   count: number;
   /** Basis angka grup ini (lihat header file). */
@@ -136,8 +150,13 @@ export interface SlipGroup {
 }
 
 export interface SlipResult {
-  /** Probabilitas gabungan seluruh slip (0 bila slip kosong). */
-  combined: number;
+  /**
+   * Probabilitas gabungan seluruh slip. 0 bila slip kosong; null bila
+   * ada grup yang irisannya tidak tersedia (`alasanGabungan` terisi).
+   */
+  combined: number | null;
+  /** Alasan gabungan tidak tersedia (brief §3D.4); null bila tersedia. */
+  alasanGabungan: string | null;
   /** True bila ada grup satu-laga multi-pilihan yang dihitung persis. */
   exactSameMatch: boolean;
   /**
@@ -151,8 +170,9 @@ export interface SlipResult {
 /**
  * Gabungkan pilihan slip menjadi satu probabilitas.
  * Per laga: satu pilihan → probabilitas tersimpan; banyak pilihan +
- * matriks → persis dari matriks; banyak pilihan tanpa matriks →
- * perkalian antar pilihan dalam grup (perkiraan, exact=false).
+ * matriks edisi bersama → persis dari matriks; banyak pilihan tanpa
+ * matriks/predikat yang bisa dihitung → TIDAK TERSEDIA (brief §3D.4),
+ * bukan perkalian dalam grup.
  * Antar laga: perkalian (asumsi independen — lihat header file).
  *
  * IDEMPOTENSI KEJADIAN (brief §4, redesain L2): kejadian semantik yang
@@ -165,7 +185,8 @@ export interface SlipResult {
  * lapisan umpan (`daftarPilihanPraLaga`), tidak sampai ke fungsi ini.
  */
 export function combineSlip(picks: SlipPick[]): SlipResult {
-  if (picks.length === 0) return { combined: 0, exactSameMatch: false, basis: "model", groups: [] };
+  if (picks.length === 0)
+    return { combined: 0, alasanGabungan: null, exactSameMatch: false, basis: "model", groups: [] };
 
   const sudahAda = new Set<string>();
   const unik = picks.filter((p) => {
@@ -184,11 +205,14 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
 
   const groups: SlipGroup[] = [];
   let combined = 1;
+  let alasanGabungan: string | null = null;
   let exactSameMatch = false;
 
   for (const [matchId, group] of byMatch) {
-    let prob: number;
+    let prob: number | null;
     let exact = false;
+    let unavailable = false;
+    let alasan: string | null = null;
     let basis: GroupBasis;
     if (group.length === 1) {
       prob = group[0].prob;
@@ -204,14 +228,26 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
         // bukan koreksi empiris lab, seberapa pun akuratnya penjumlahan itu.
         basis = "matrix";
       } else {
-        prob = group.reduce((acc, g) => acc * g.prob, 1);
+        // Brief §3D.4: tanpa matriks edisi bersama (atau ada pasar yang
+        // tak bisa dihitung dari matriks), irisan satu laga tidak
+        // tersedia — mengalikan di dalam grup akan menghitung
+        // tumpang-tindih dua kali dan mengarang angka gabungan.
+        prob = null;
+        unavailable = true;
+        alasan = !matrix
+          ? "matriks skor tidak tersedia untuk irisan satu laga"
+          : "ada pasar yang tidak bisa dihitung dari matriks skor";
         basis = group.every((g) => g.probBasis === group[0].probBasis)
           ? group[0].probBasis
           : "mixed";
       }
     }
-    groups.push({ matchId, prob, exact, count: group.length, basis });
-    combined *= prob;
+    groups.push({ matchId, prob, exact, unavailable, alasan, count: group.length, basis });
+    if (prob === null) {
+      if (alasanGabungan === null) alasanGabungan = alasan;
+    } else {
+      combined *= prob;
+    }
   }
 
   const kinds = new Set(groups.map((g) => g.basis));
@@ -222,7 +258,13 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
         ? "model"
         : "mixed";
 
-  return { combined, exactSameMatch, basis, groups };
+  return {
+    combined: alasanGabungan === null ? combined : null,
+    alasanGabungan,
+    exactSameMatch,
+    basis,
+    groups,
+  };
 }
 
 /**
