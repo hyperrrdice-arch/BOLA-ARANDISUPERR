@@ -414,12 +414,15 @@ async function main(): Promise<void> {
   const pick2: SlipPick = { key: "b", matchId: "fx_u03", market: "ou25", selection: "over", prob: 0.6, probBasis: "model", matrix: MATRIX_U03 };
   const pick3: SlipPick = { key: "c", matchId: "fx_lain", market: "1x2", selection: "1", prob: 0.69, probBasis: "model", matrix: null };
   const dekat = (a: number, b: number) => Math.abs(a - b) <= 1e-9;
-  suite.check("U03: satu pilihan = 75%", dekat(combineSlip([pick1]).combined, 0.75), String(combineSlip([pick1]).combined));
+  // combined bertipe number | null sejak brief redesain §3D.4 (gabungan
+  // bisa tidak tersedia); kasus U03 semuanya punya matriks sehingga
+  // angkanya tetap ada — null di sini harus menggagalkan uji (?? -1).
+  suite.check("U03: satu pilihan = 75%", dekat(combineSlip([pick1]).combined ?? -1, 0.75), String(combineSlip([pick1]).combined));
   const dua = combineSlip([pick1, pick2]);
-  suite.check("U03: dua pilihan satu laga = irisan matriks 51%", dekat(dua.combined, 0.51), String(dua.combined));
+  suite.check("U03: dua pilihan satu laga = irisan matriks 51%", dekat(dua.combined ?? -1, 0.51), String(dua.combined));
   suite.eq("U03: irisan ditandai eksak", dua.exactSameMatch, true);
   const tiga = combineSlip([pick1, pick2, pick3]);
-  suite.check("U03: tambah laga 69% = 35,19%", dekat(tiga.combined, 0.3519), String(tiga.combined));
+  suite.check("U03: tambah laga 69% = 35,19%", dekat(tiga.combined ?? -1, 0.3519), String(tiga.combined));
   suite.eq("U03: tampilan satu desimal = 35,2%", pct(tiga.combined, 1), "35,2%");
 
   /* ---- U08: contoh dokumen + literal lama ---- */

@@ -32,7 +32,7 @@ import {
   type SlipLegView,
   type SlipRecordStats,
 } from "../picks/tickets";
-import { MARKET_LABEL, ZONA_BAKU, zonaValid } from "./format";
+import { MARKET_LABEL, ZONA_BAKU, int, pct, zonaValid } from "./format";
 import { jendelaTanggalUtc } from "./jadwal";
 
 /** Seri produksi ledger — kolom `source` baris terbit diisi dari seri ini. */
@@ -809,6 +809,131 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
     });
   }
   return out;
+}
+
+/* ------------------------------------- tab rekam hasil (redesain §3E) */
+
+/** Satu laga fisik pada tab "Sudah dinilai" beserta pilihan-pilihannya. */
+export interface KelompokLagaRekam {
+  /** Kunci laga fisik (fixture_uid bila ada, jika tidak match_id). */
+  kunci: string;
+  /** match_id perwakilan untuk tautan detail (baris pertama kelompok). */
+  match_id: string;
+  fixture_uid: string | null;
+  home: string;
+  away: string;
+  competition_name: string;
+  kickoff_utc: string;
+  home_goals: number | null;
+  away_goals: number | null;
+  baris: BarisRekam[];
+}
+
+export interface TabRekamData {
+  /** Pilihan tepat/meleset, dikelompokkan per laga fisik. */
+  dinilai: KelompokLagaRekam[];
+  /** Lewat waktu tetapi belum dinilai: menunggu jendela + jatuh tempo. */
+  menungguLewat: BarisRekam[];
+  /** Belum mulai — dipisah dari yang lewat waktu (brief §3E.3). */
+  menungguMendatang: BarisRekam[];
+  /** Pilihan batal. */
+  batal: BarisRekam[];
+  /** Hitungan baris per tab (untuk label tab + keadaan kosong). */
+  hitungan: { dinilai: number; menunggu: number; batal: number };
+}
+
+/**
+ * Bagi baris rekam ke tiga tab brief §3E. Murni atas `keadaan` yang
+ * sudah dihitung `keadaanPilihan` — fungsi ini tidak menilai ulang dan
+ * tidak menyentuh statistik cohort: tab hanya mengatur DAFTAR, jadi
+ * mengganti tab tidak pernah mengubah pembilang/penyebut ringkasan.
+ * Baris masuk sudah terurut kickoff terbaru dulu (dari `ambilRekam`);
+ * kelompok "dinilai" mempertahankan urutan itu (laga paling baru
+ * dengan skor final terverifikasi di depan).
+ */
+export function kelompokkanTabRekam(baris: BarisRekam[]): TabRekamData {
+  const peta = new Map<string, KelompokLagaRekam>();
+  const menungguLewat: BarisRekam[] = [];
+  const menungguMendatang: BarisRekam[] = [];
+  const batal: BarisRekam[] = [];
+  let nDinilai = 0;
+  for (const b of baris) {
+    if (b.keadaan === "tepat" || b.keadaan === "meleset") {
+      nDinilai++;
+      const kunci = b.fixture_uid ?? b.match_id;
+      let k = peta.get(kunci);
+      if (!k) {
+        k = {
+          kunci,
+          match_id: b.match_id,
+          fixture_uid: b.fixture_uid,
+          home: b.home,
+          away: b.away,
+          competition_name: b.competition_name,
+          kickoff_utc: b.kickoff_utc,
+          home_goals: b.home_goals,
+          away_goals: b.away_goals,
+          baris: [],
+        };
+        peta.set(kunci, k);
+      }
+      if (k.home_goals === null && b.home_goals !== null) {
+        k.home_goals = b.home_goals;
+        k.away_goals = b.away_goals;
+      }
+      k.baris.push(b);
+    } else if (b.keadaan === "batal") {
+      batal.push(b);
+    } else if (b.keadaan === "belum-mulai") {
+      menungguMendatang.push(b);
+    } else {
+      menungguLewat.push(b);
+    }
+  }
+  return {
+    dinilai: [...peta.values()],
+    menungguLewat,
+    menungguMendatang,
+    batal,
+    hitungan: {
+      dinilai: nDinilai,
+      menunggu: menungguLewat.length + menungguMendatang.length,
+      batal: batal.length,
+    },
+  };
+}
+
+export interface KalimatRingkasan {
+  /**
+   * Kalimat utama "Ringkasan periode" (brief §3E.2): ketepatan atas
+   * yang sudah dinilai — atau keterangan kosong §5 bila belum ada
+   * satu pun yang dinilai. Akurasi 0% hanya muncul bila ada pilihan
+   * dinilai dan semuanya meleset (hit_ratio cohort memang null pada
+   * settled = 0, jadi 0% palsu tidak pernah tercetak).
+   */
+  utama: string;
+  /**
+   * Kalimat cakupan persis di bawah kalimat utama: penyebutnya SEMUA
+   * pilihan yang sudah waktunya dinilai (due cohort). Null bila belum
+   * ada yang jatuh tempo sama sekali.
+   */
+  cakupan: string | null;
+  /** Total pilihan menunggu (belum mulai + jendela + jatuh tempo). */
+  menunggu: number;
+}
+
+/** Susun dua kalimat "Ringkasan periode" dari statistik cohort apa adanya. */
+export function kalimatRingkasan(s: CohortStats, lagaDinilaiUnik: number): KalimatRingkasan {
+  const menunggu = s.not_started + s.awaiting_window + s.overdue_pending;
+  const utama =
+    s.settled > 0 && s.hit_ratio !== null
+      ? `${int(s.hits)} dari ${int(s.settled)} pilihan tepat (${pct(s.hit_ratio)}) di ${int(lagaDinilaiUnik)} laga`
+      : "Belum ada pilihan yang sudah dinilai untuk periode ini.";
+  const cakupan =
+    s.due > 0 && s.coverage_ratio !== null
+      ? `Dari ${int(s.due)} pilihan yang sudah waktunya dinilai, ${int(s.settled)} sudah memiliki hasil (${pct(s.coverage_ratio)}).`
+      : null;
+  return { utama, cakupan, menunggu };
 }
 
 /**

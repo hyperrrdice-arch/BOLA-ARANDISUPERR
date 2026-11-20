@@ -1,10 +1,13 @@
 /**
  * REKAM HASIL — buku besar terbuka pilihan RESMI dan tiket RESMI.
  *
- * Pure Server Component, read-only. Prinsip halaman (D4 + bab UI U4):
- * - Default "Pilihan yang diterbitkan": ringkasan dan tabel berasal dari
- *   cohort yang SAMA (cohortStats K2 dengan filter halaman) — filter
- *   mengubah anggota cohort, bukan definisi ukuran.
+ * Pure Server Component, read-only. Prinsip halaman (D4 + bab UI U4 +
+ * brief redesain §3E):
+ * - Urutan: judul, periode yang bisa diubah (default Semua periode),
+ *   "Ringkasan periode", lalu tab Sudah dinilai (default) / Menunggu /
+ *   Batal. Tab hanya mengatur DAFTAR — ringkasan dan daftar berasal
+ *   dari cohort yang SAMA (cohortStats K2 dengan filter halaman), jadi
+ *   mengganti tab tidak pernah mengubah pembilang/penyebut/cakupan.
  * - Angka terbit adalah snapshot beku saat terbit (K2); analisis terbaru
  *   tidak pernah menimpa angka rekam.
  * - Tiket resmi (K3) dipisah dari pilihan; slip draf browser tidak
@@ -24,6 +27,7 @@ import {
   Prob,
   SectionHead,
 } from "../../../components/ui";
+import TabRekam from "../../../components/bukti/TabRekam";
 import { landingStats, ledgerStats } from "../../../lib/web/data";
 import {
   DAFTAR_ZONA,
@@ -41,10 +45,13 @@ import {
   ambilDetailTiket,
   ambilRekam,
   bulatkanTampil,
+  kalimatRingkasan,
+  kelompokkanTabRekam,
   KEADAAN_LABEL,
   parseFilterRekam,
   type BarisRekam,
   type DetailTiket,
+  type KelompokLagaRekam,
   type RekamData,
 } from "../../../lib/web/rekam";
 import type { OfficialSlipView } from "../../../lib/picks/tickets";
@@ -201,7 +208,7 @@ function DetailTiketBlok({ detail, tz }: { detail: DetailTiket; tz: string }) {
         </table>
       </div>
       <p className="mt-6">
-        <Link href="/bukti" className="text-sm text-accent hover:text-ink">
+        <Link href="/bukti" className="text-sm text-accent-deep hover:text-ink">
           Kembali ke rekam hasil
         </Link>
       </p>
@@ -212,66 +219,118 @@ function DetailTiketBlok({ detail, tz }: { detail: DetailTiket; tz: string }) {
 /* ------------------------------------------------------------- baris */
 
 function alasanPending(b: BarisRekam): string | null {
-  if (b.keadaan === "menunggu-jendela") return "Menunggu hasil dari sumber data.";
+  if (b.keadaan === "menunggu-jendela") return "Menunggu hasil resmi dari sumber data.";
   if (b.keadaan === "jatuh-tempo") {
     return b.alasan_jatuh_tempo === "konflik"
       ? "Menunggu peninjauan konflik identitas."
-      : "Menunggu hasil dari sumber data.";
+      : "Menunggu hasil resmi dari sumber data.";
   }
   return null;
 }
 
-function BarisRekamTabel({ b, tz }: { b: BarisRekam; tz: string }) {
-  const alasan = alasanPending(b);
+/** Isi satu baris pilihan: kejadian + basis terbit | peluang | hasil. */
+function IsiBarisPilihan({ b, tz }: { b: BarisRekam; tz: string }) {
   return (
-    <tr className="border-t border-hairline/50">
-      <td className={TD}>
-        <Link href={`/pertandingan/${b.match_id}`} className="text-ink hover:underline">
-          {b.home} <span className="text-faint">vs</span> {b.away}
-        </Link>
-        <span className="block text-[12px] text-faint">
-          {tanggalWib(b.kickoff_utc, tz)} · {jamWibOnly(b.kickoff_utc, tz)}
-          {b.competition_name ? ` · ${b.competition_name}` : ""}
-        </span>
-      </td>
-      <td className={TD}>
-        <span className="flex items-start gap-2">
-          <GradeMark grade={b.grade ?? ""} className="pt-px" />
-          <span>
-            <span className="block text-ink">
-              {labelPilihan(b.market, b.selection, b.home, b.away)}
-            </span>
-            <span className="block text-[12px] text-faint">
-              {MARKET_LABEL[b.market] ?? b.market}
-              {b.gate_status ? " · " : ""}
-              {b.gate_status ? <GateStatus status={b.gate_status} /> : null}
-            </span>
+    <>
+      <span className="flex min-w-0 flex-1 items-start gap-2">
+        <GradeMark grade={b.grade ?? ""} className="pt-px" />
+        <span className="min-w-0">
+          <span className="block text-ink">
+            {labelPilihan(b.market, b.selection, b.home, b.away)}
+          </span>
+          <span className="block text-[12px] text-faint">
+            {MARKET_LABEL[b.market] ?? b.market}
+            {b.gate_status ? " · " : ""}
+            {b.gate_status ? <GateStatus status={b.gate_status} /> : null}
           </span>
         </span>
-      </td>
-      <td className={TDR}>
+      </span>
+      <span className="shrink-0 text-right">
         {typeof b.published_display === "number" ? (
           <Prob value={b.published_display} />
         ) : (
-          <span className="text-[13px]">{b.published_display}</span>
+          <span className="text-[13px] text-mid-gray">{b.published_display}</span>
         )}
         <span className="block text-[12px] text-faint">
           {labelBasisPeluang(b.probability_basis)}
           {b.published_at_utc ? ` · terbit ${jamWibOnly(b.published_at_utc, tz)}` : ""}
         </span>
-      </td>
-      <td className={TDR}>
-        {b.home_goals !== null && b.away_goals !== null
-          ? `${b.home_goals}–${b.away_goals}`
-          : "—"}
-      </td>
-      <td className={`${TDR} font-medium text-ink`}>
+      </span>
+      <span
+        className={`w-[86px] shrink-0 text-right font-medium ${
+          b.keadaan === "tepat"
+            ? "text-tepat"
+            : b.keadaan === "meleset"
+              ? "text-meleset"
+              : "text-ink"
+        }`}
+      >
         {KEADAAN_LABEL[b.keadaan]}
-        {alasan && (
-          <span className="block text-[12px] font-normal text-faint">{alasan}</span>
+      </span>
+    </>
+  );
+}
+
+/** Kelompok satu laga pada tab "Sudah dinilai" (brief §3E.1 + lembar 4). */
+function KelompokDinilai({ k, tz }: { k: KelompokLagaRekam; tz: string }) {
+  return (
+    <article className="border-t border-hairline/60 py-5 first:border-t-0">
+      <p className="text-[13px] text-faint">
+        {tanggalWib(k.kickoff_utc, tz)} · {jamWibOnly(k.kickoff_utc, tz)}
+        {k.competition_name ? ` · ${k.competition_name}` : ""}
+      </p>
+      <div className="mt-1 flex items-baseline justify-between gap-4">
+        <h3 className="font-display text-[19px] font-medium text-ink">
+          {k.home} <span className="font-normal text-faint">–</span> {k.away}
+        </h3>
+        {k.home_goals !== null && k.away_goals !== null && (
+          <span className="shrink-0 text-right">
+            <span className="tabular-nums font-display text-[22px] leading-none font-semibold text-ink">
+              {k.home_goals}–{k.away_goals}
+            </span>
+            <span className="block text-[11px] text-faint">Skor 90 menit</span>
+          </span>
         )}
-      </td>
-    </tr>
+      </div>
+      <ul className="mt-2">
+        {k.baris.map((b) => (
+          <li
+            key={b.pick_id}
+            className="flex flex-wrap items-start gap-x-3 gap-y-1 border-t border-hairline/40 py-2.5 first:border-t-0"
+          >
+            <IsiBarisPilihan b={b} tz={tz} />
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1">
+        <Link
+          href={`/pertandingan/${k.match_id}`}
+          className="text-sm font-medium text-accent-deep hover:text-ink"
+        >
+          Buka detail pertandingan
+        </Link>
+      </p>
+    </article>
+  );
+}
+
+/** Baris mandiri pada tab Menunggu/Batal — nama laga di atas isinya. */
+function BarisMandiri({ b, tz }: { b: BarisRekam; tz: string }) {
+  const alasan = alasanPending(b);
+  return (
+    <li className="border-t border-hairline/50 py-3 first:border-t-0">
+      <Link href={`/pertandingan/${b.match_id}`} className="text-ink hover:underline">
+        {b.home} <span className="text-faint">vs</span> {b.away}
+      </Link>
+      <span className="block text-[12px] text-faint">
+        {tanggalWib(b.kickoff_utc, tz)} · {jamWibOnly(b.kickoff_utc, tz)}
+        {b.competition_name ? ` · ${b.competition_name}` : ""}
+      </span>
+      <span className="mt-1.5 flex flex-wrap items-start gap-x-3 gap-y-1">
+        <IsiBarisPilihan b={b} tz={tz} />
+      </span>
+      {alasan && <span className="mt-0.5 block text-[12px] text-faint">{alasan}</span>}
+    </li>
   );
 }
 
@@ -285,16 +344,131 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
   const nowUtc = new Date().toISOString();
   const data: RekamData = ambilRekam(filter, nowUtc);
   const s = data.stats;
+  const ringkasan = kalimatRingkasan(s, data.laga_dinilai_unik);
+  const tab = kelompokkanTabRekam(data.baris);
 
   const tiketParam = Array.isArray(params.tiket) ? params.tiket[0] : params.tiket;
   const detailTiket =
     typeof tiketParam === "string" && tiketParam ? ambilDetailTiket(tiketParam) : null;
 
-  const menunggu = s.not_started + s.awaiting_window + s.overdue_pending;
   const konflikJatuhTempo = s.overdue_by_reason["konflik"] ?? 0;
   const kelasSelect =
     "rounded-md border border-hairline bg-surface px-2.5 py-2 text-sm text-ink";
   const labelKelas = "block text-[12px] text-faint mb-1";
+
+  /* Panel tab — dirender server; tab klien hanya memilih tampilannya. */
+  const grupTampil: KelompokLagaRekam[] = [];
+  {
+    let terpakai = 0;
+    for (const k of tab.dinilai) {
+      if (terpakai > 0 && terpakai + k.baris.length > MAKS_BARIS) break;
+      grupTampil.push(k);
+      terpakai += k.baris.length;
+    }
+  }
+  const panelDinilai =
+    tab.hitungan.dinilai === 0 ? (
+      <div className="py-8">
+        <h3 className="font-display text-xl font-semibold text-ink">
+          Belum ada pilihan yang sudah dinilai
+        </h3>
+        {tab.hitungan.menunggu > 0 ? (
+          <>
+            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
+              {int(tab.hitungan.menunggu)} pilihan masih menunggu hasil resmi.
+            </p>
+            <button
+              type="button"
+              data-alih-tab="menunggu"
+              className="mt-4 flex min-h-[44px] items-center rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
+            >
+              Lihat {int(tab.hitungan.menunggu)} yang menunggu
+            </button>
+          </>
+        ) : (
+          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
+            Tidak ada pilihan yang menunggu pada periode ini.
+          </p>
+        )}
+      </div>
+    ) : (
+      <div>
+        {grupTampil.map((k) => (
+          <KelompokDinilai key={k.kunci} k={k} tz={tz} />
+        ))}
+        {grupTampil.length < tab.dinilai.length && (
+          <p className="mt-4 text-[13px] text-faint">
+            Menampilkan {int(grupTampil.reduce((n, k) => n + k.baris.length, 0))} dari{" "}
+            {int(tab.hitungan.dinilai)} pilihan yang sudah dinilai — persempit periode atau
+            filter untuk melihat sisanya.
+          </p>
+        )}
+      </div>
+    );
+
+  const panelMenunggu =
+    tab.hitungan.menunggu === 0 ? (
+      <p className="max-w-2xl py-8 text-[15px] leading-relaxed text-mid-gray">
+        Tidak ada pilihan yang menunggu pada periode ini.
+      </p>
+    ) : (
+      <div>
+        {tab.menungguLewat.length > 0 && (
+          <section aria-label="Sudah lewat, menunggu hasil resmi">
+            <h3 className="pt-4 font-display text-[17px] font-medium text-ink">
+              Sudah lewat — menunggu hasil resmi
+            </h3>
+            <ul>
+              {tab.menungguLewat.slice(0, MAKS_BARIS).map((b) => (
+                <BarisMandiri key={b.pick_id} b={b} tz={tz} />
+              ))}
+            </ul>
+            {tab.menungguLewat.length > MAKS_BARIS && (
+              <p className="mt-4 text-[13px] text-faint">
+                Menampilkan {MAKS_BARIS} dari {int(tab.menungguLewat.length)} pilihan yang
+                menunggu hasil resmi.
+              </p>
+            )}
+          </section>
+        )}
+        {tab.menungguMendatang.length > 0 && (
+          <section aria-label="Belum mulai">
+            <h3 className="pt-6 font-display text-[17px] font-medium text-ink">Belum mulai</h3>
+            <ul>
+              {tab.menungguMendatang.slice(0, MAKS_BARIS).map((b) => (
+                <BarisMandiri key={b.pick_id} b={b} tz={tz} />
+              ))}
+            </ul>
+            {tab.menungguMendatang.length > MAKS_BARIS && (
+              <p className="mt-4 text-[13px] text-faint">
+                Menampilkan {MAKS_BARIS} dari {int(tab.menungguMendatang.length)} pilihan yang
+                belum mulai.
+              </p>
+            )}
+          </section>
+        )}
+      </div>
+    );
+
+  const panelBatal =
+    tab.hitungan.batal === 0 ? (
+      <p className="max-w-2xl py-8 text-[15px] leading-relaxed text-mid-gray">
+        Tidak ada pilihan yang dibatalkan pada periode ini.
+      </p>
+    ) : (
+      <div>
+        <ul>
+          {tab.batal.slice(0, MAKS_BARIS).map((b) => (
+            <BarisMandiri key={b.pick_id} b={b} tz={tz} />
+          ))}
+        </ul>
+        {tab.batal.length > MAKS_BARIS && (
+          <p className="mt-4 text-[13px] text-faint">
+            Menampilkan {MAKS_BARIS} dari {int(tab.batal.length)} pilihan batal.
+          </p>
+        )}
+      </div>
+    );
 
   return (
     <div>
@@ -303,8 +477,8 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
           Rekam hasil
         </h1>
         <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
-          Setiap pilihan resmi dicatat sebelum sepak mula dan dinilai dari skor akhir. Ringkasan
-          dan tabel di halaman ini dihitung dari cohort yang sama.
+          Setiap pilihan resmi dicatat sebelum sepak mula dan dinilai dari skor akhir.
+          Ringkasan dan daftar mengikuti periode serta filter yang kamu pilih.
         </p>
       </header>
 
@@ -317,7 +491,7 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
             <p className="mt-6 text-[15px] text-ink">Tiket tidak ditemukan</p>
             <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
               ID tiket pada tautan ini tidak ada di rekam resmi.{" "}
-              <Link href="/bukti" className="text-accent hover:text-ink">
+              <Link href="/bukti" className="text-accent-deep hover:text-ink">
                 Kembali ke rekam hasil
               </Link>
             </p>
@@ -325,10 +499,9 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
         )
       ) : null}
 
-      {/* ------------------------------------------- pilihan diterbitkan */}
-      <section className="mt-16" aria-label="Pilihan yang diterbitkan">
-        <SectionHead label="Pilihan yang diterbitkan" />
-        <p className="mt-4 text-[13px] text-mid-gray">
+      {/* ------------------------------------------- periode + filter */}
+      <section className="mt-12" aria-label="Periode dan filter">
+        <p className="text-[13px] text-mid-gray">
           Periode:{" "}
           {filter.dari || filter.sampai
             ? `${filter.dari ? tanggalPanjang(`${filter.dari}T12:00:00.000Z`, tz) : "awal"} – ${
@@ -402,7 +575,7 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
           </label>
           <button
             type="submit"
-            className="rounded-md border border-hairline bg-surface px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:text-accent"
+            className="rounded-md border border-hairline bg-surface px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
           >
             Terapkan
           </button>
@@ -412,56 +585,26 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
             </Link>
           )}
         </form>
+      </section>
 
-        <div className="mt-10 flex flex-wrap gap-x-14 gap-y-8" aria-label="Ringkasan rekam">
-          <div>
-            <p className="tabular-nums font-display text-[32px] leading-none font-semibold text-ink">
-              {int(s.issued)}
-            </p>
-            <p className="mt-2 text-[13px] text-mid-gray">Pilihan terbit</p>
-          </div>
-          <div>
-            <p className="tabular-nums font-display text-[32px] leading-none font-semibold text-ink">
-              {int(s.settled)}
-            </p>
-            <p className="mt-2 text-[13px] text-mid-gray">Sudah dinilai</p>
-          </div>
-          <div>
-            <p className="tabular-nums font-display text-[32px] leading-none font-semibold text-ink">
-              {int(menunggu)}
-            </p>
-            <p className="mt-2 text-[13px] text-mid-gray">
-              Menunggu · {int(s.not_started)} belum mulai
-            </p>
-          </div>
-          <div>
-            <p className="tabular-nums font-display text-[32px] leading-none font-semibold text-ink">
-              {int(s.voids)}
-            </p>
-            <p className="mt-2 text-[13px] text-mid-gray">Batal</p>
-          </div>
-          <div>
-            <p className="tabular-nums font-display text-[32px] leading-none font-semibold text-ink">
-              {s.coverage ? `${s.coverage[0]} dari ${s.coverage[1]}` : "—"}
-            </p>
-            <p className="mt-2 text-[13px] text-mid-gray">
-              Cakupan penilaian yang sudah jatuh tempo
-              {s.coverage_ratio !== null ? ` (${pct(s.coverage_ratio)})` : ""}
-            </p>
-          </div>
+      {/* ------------------------------------------- ringkasan periode */}
+      <section className="mt-12" aria-label="Ringkasan periode">
+        <SectionHead label="Ringkasan periode" />
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-x-14 gap-y-4">
+          <p className="max-w-xl font-display text-[32px] leading-tight font-semibold text-ink">
+            {ringkasan.utama}
+          </p>
+          {ringkasan.cakupan && (
+            <div>
+              <p className="text-[13px] text-faint">Cakupan penilaian</p>
+              <p className="mt-1 max-w-sm text-[15px] leading-relaxed text-mid-gray">
+                {ringkasan.cakupan}
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="mt-8 max-w-2xl space-y-2 text-[15px] leading-relaxed">
-          {s.empty ? (
-            <p className="text-ink">
-              Belum ada hasil — belum ada pilihan yang bisa dinilai pada rentang ini.
-            </p>
-          ) : (
-            <p className="text-ink">
-              {int(s.hits)} dari {int(s.settled)} pilihan tepat ({pct(s.hit_ratio)}) di{" "}
-              {int(data.laga_dinilai_unik)} laga
-            </p>
-          )}
+        <div className="mt-6 max-w-2xl space-y-2 text-[15px] leading-relaxed">
           {s.prob_slice.n > 0 && (
             <p className="text-mid-gray">
               Rata-rata peluang saat terbit {pct(bulatkanTampil(s.prob_slice.avg_published_prob))}{" "}
@@ -481,43 +624,27 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
               .
             </p>
           )}
+          <p className="text-[13px] text-faint">
+            {int(s.issued)} pilihan terbit pada periode ini · {int(s.voids)} batal ·{" "}
+            {int(tab.hitungan.menunggu)} menunggu
+          </p>
         </div>
+      </section>
 
+      {/* -------------------------------------------------------- tab */}
+      <section className="mt-10" aria-label="Daftar pilihan">
         {data.baris.length === 0 ? (
-          <p className="mt-10 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
-            Belum ada pilihan diterbitkan pada rentang ini.
+          <p className="max-w-2xl py-4 text-[15px] leading-relaxed text-mid-gray">
+            Belum ada pilihan diterbitkan pada rentang ini — ubah periode atau filter untuk
+            melihat rekam lain.
           </p>
         ) : (
-          <>
-            <div
-              className="mt-8 overflow-x-auto"
-              role="region"
-              aria-label="Tabel pilihan yang diterbitkan"
-            >
-              <table className="w-full min-w-[720px] text-sm">
-                <thead>
-                  <tr>
-                    <th className={TH}>Laga</th>
-                    <th className={TH}>Pilihan</th>
-                    <th className={THR}>Peluang saat terbit</th>
-                    <th className={THR}>Skor</th>
-                    <th className={THR}>Hasil</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.baris.slice(0, MAKS_BARIS).map((b) => (
-                    <BarisRekamTabel key={b.pick_id} b={b} tz={tz} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {data.baris.length > MAKS_BARIS && (
-              <p className="mt-4 text-[13px] text-faint">
-                Menampilkan {MAKS_BARIS} baris terbaru dari {int(data.baris.length)} pilihan
-                pada filter ini.
-              </p>
-            )}
-          </>
+          <TabRekam
+            hitungan={tab.hitungan}
+            panelDinilai={panelDinilai}
+            panelMenunggu={panelMenunggu}
+            panelBatal={panelBatal}
+          />
         )}
       </section>
 
@@ -587,6 +714,8 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
 /**
  * Angka lab (uji mundur) — bagian terpisah dan berlabel jelas; tidak
  * pernah dicampur ke cohort pilihan resmi di atas (D4 + bab UI U4).
+ * Satuan selalu disebut (brief §3E.4): kandidat = baris kandidat
+ * prediksi; laga = ID laga fisik unik di balik yang sudah dinilai.
  */
 function UjiHistoris() {
   const s = ledgerStats();
@@ -596,8 +725,10 @@ function UjiHistoris() {
       <SectionHead label="Uji historis" />
       <p className="mt-6 max-w-2xl text-[15px] leading-relaxed text-mid-gray">
         Hasil uji mundur laboratorium pada data historis — bukan pilihan resmi pra-laga.{" "}
-        {int(s.lab_total)} kandidat diuji, {int(landing.lab_resolved)} sudah dinilai. Kandidat
-        di bawah lantai kelas terendah tidak masuk tabel kelas.
+        {int(s.lab_total)} kandidat prediksi diuji pada data historis,{" "}
+        {int(landing.lab_resolved)} di antaranya sudah dinilai dari{" "}
+        {int(landing.lab_resolved_matches)} laga unik. Kandidat di bawah lantai kelas
+        terendah tidak masuk tabel kelas.
       </p>
       {s.lab_by_grade.length > 0 && (
         <div
