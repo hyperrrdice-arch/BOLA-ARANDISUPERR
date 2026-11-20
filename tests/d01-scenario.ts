@@ -8,8 +8,10 @@
  *   → adapter lib/web/data.ts (lewat web-probe)
  *
  * Dipakai bersama oleh perekam baseline (record-d01-baseline.ts) dan
- * pembanding baseline (test-baseline-d01.ts). Bug D01 TIDAK diperbaiki di
- * K0 — perilaku aktual apa pun yang terukur di sini menjadi baseline.
+ * pembanding baseline (test-baseline-d01.ts). Di K0 skenario ini merekam
+ * kegagalan 0/2 sebagai baseline; di K1 perilaku yang sama diukur ulang
+ * sesudah perbaikan identitas — baseline diperbarui dengan sadar dan
+ * assertion harapannya hidup di suite hijau (test:data, blok D01).
  */
 import {
   openRo,
@@ -43,6 +45,9 @@ export interface D01RunMetrics {
     odds_rows: number;
     picks_resolved: number;
     verdicts: string[];
+    canonical_fixtures: number;
+    fixture_aliases: number;
+    result_revisions: number;
   };
   adapter: {
     sm901_result: unknown;
@@ -65,6 +70,15 @@ function measureState(env: FixtureEnv): D01RunMetrics["state"] {
   const ds = openRo(env, "thestats_dataset.db");
   const one = (sql: string, ...p: string[]) =>
     (ds.prepare(sql).get(...p) as { n: number }).n;
+  // Tabel identitas K1: -1 bila belum ada (baseline kode lama tidak
+  // memilikinya — angka itu sendiri adalah sinyal perubahan perilaku).
+  const oneIfTable = (table: string) => {
+    try {
+      return one(`SELECT COUNT(*) AS n FROM ${table}`);
+    } catch {
+      return -1;
+    }
+  };
   const state = {
     dataset_matches_total: one("SELECT COUNT(*) AS n FROM matches"),
     finished_fixture_matches: one(
@@ -79,6 +93,9 @@ function measureState(env: FixtureEnv): D01RunMetrics["state"] {
       D01_IDS.sm902,
     ),
     odds_rows: one("SELECT COUNT(*) AS n FROM match_odds_history"),
+    canonical_fixtures: oneIfTable("canonical_fixtures"),
+    fixture_aliases: oneIfTable("fixture_aliases"),
+    result_revisions: oneIfTable("result_revisions"),
   };
   ds.close();
   const pk = openRo(env, "picks.db");
