@@ -111,7 +111,10 @@ async function main(): Promise<void> {
         gate_status: "calibrated",
       })),
     };
-    const r = pub.publishPicks(input, { now_utc: PUBLISH_NOW, fixture_status: scheduled });
+    const r = pub.publishPicks(input, {
+      now: () => PUBLISH_NOW,
+      fixture_state: () => ({ status: scheduled(), kickoff_utc: input.kickoff_utc }),
+    });
     if (r.status !== "published") {
       throw new Error(`publishLegs gagal untuk ${fixtureUid}: ${r.status} ${r.reason ?? ""}`);
     }

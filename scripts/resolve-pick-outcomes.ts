@@ -1,16 +1,20 @@
 /**
  * RESOLVE PICK OUTCOMES — isi outcome pick ledger dari skor final LOKAL.
  *
- * Sumber skor (semua read-only, tanpa API call), urut prioritas:
- *  1. data/thestats_dataset.db `matches` by exact match_id — status final
- *     dinormalisasi lewat lib/identity/fixture-resolver (kosakata dataset
- *     'finished' maupun 'FT' sumber lain sama-sama final) + skor non-null.
- *  2. Store identitas persisten (K1): seluruh alias satu UID dengan
- *     match_id pick (fixture_aliases di dataset) → skor di baris saudara.
- *  3. Bridge sm_id_map: match_id → sm_fixture_id → 'sm_<id>' di dataset.
- *  4. Bridge kembar katalog: data/fixture-links.json lewat parser
- *     tervalidasi yang sama dengan pembaca lain (bentuk `links`).
- *  5. Tidak ketemu → biarkan unresolved (JANGAN tebak skor).
+ * Sumber skor REGULASI / 90 menit (semua read-only, tanpa API call),
+ * urut prioritas (review K8 butir 3B):
+ *  1. Lapisan identitas K1: revisi skor ber-basis 'regulation' yang
+ *     terverifikasi pada fixture kanonik (result_revisions) — satu-satunya
+ *     sumber yang membedakan skor 90 menit dari skor perpanjangan
+ *     waktu/penalti. Fixture ber-basis 'pending_score_basis' TIDAK dinilai
+ *     dari sumber mana pun: pick tetap pending dengan penanda basis itu
+ *     (penanda tersimpan di canonical_fixtures.score_basis).
+ *  2. Baris dataset `matches` (id pick, saudara identitas, bridge
+ *     sm_id_map, registry tautan fixture-links.json) — HANYA bila status
+ *     mentahnya full-time polos. Baris berstatus AET/PEN membawa skor
+ *     sesudah 90 menit: tidak pernah dipakai menilai; keberadaannya
+ *     (tanpa skor regulasi lain) menandai pending_score_basis.
+ *  3. Tidak ketemu → biarkan unresolved (JANGAN tebak skor).
  *
  * Koreksi hasil (PRD D2): pick yang sudah ter-resolve diperiksa ulang —
  * bila skor final lokal saat ini berbeda dari skor outcome tersimpan
@@ -40,10 +44,12 @@ import {
 import {
   SETTLEMENT_POLICY_VERSION,
   getFixtureByUid,
+  getRegulationScore,
   getSiblingIds,
   getUidForMatchId,
   identityTablesExist,
   isFinishedStatus,
+  isPostRegulationStatus,
   linkSiblingsOf,
   loadFixtureLinkGroups,
   type FixtureLinkGroup,
@@ -67,7 +73,63 @@ interface ScoreRow {
   away_score: number;
 }
 
-function finishedScore(db: DatabaseSync, matchId: string): ScoreRow | null {
+/**
+ * Hasil pencarian skor regulasi untuk satu match_id:
+ *  - 'score' — skor 90 menit terverifikasi, boleh dipakai menilai.
+ *  - 'pending_score_basis' — laga selesai tetapi hanya hasil sesudah
+ *    90 menit (ET/penalti) yang diketahui; skor regulasi belum ada.
+ *    Pick TETAP pending: tidak dinilai, tidak divoid.
+ *  - 'none' — belum ada hasil apa pun yang bisa dipakai.
+ */
+type ScoreLookup =
+  | { kind: "score"; score: ScoreRow }
+  | { kind: "pending_score_basis" }
+  | { kind: "none" };
+
+/**
+ * Skor regulasi dari lapisan identitas (K1) untuk satu match_id: revisi
+ * 'regulation' fixture kanoniknya. Basis 'pending_score_basis' bersifat
+ * OTORITATIF — fixture yang basisnya tertunda tidak boleh dinilai dari
+ * baris mentah mana pun, jadi nilai itu dikembalikan apa adanya dan
+ * pemanggil tidak melanjutkan ke jalur baris mentah.
+ */
+function identityLookup(
+  dataset: DatabaseSync,
+  matchId: string,
+): ScoreLookup | null {
+  if (!identityTablesExist(dataset)) return null;
+  for (const id of getSiblingIds(dataset, matchId)) {
+    const uid = getUidForMatchId(dataset, id);
+    if (!uid) continue;
+    const fx = getFixtureByUid(dataset, uid);
+    if (!fx || fx.state !== "finished") continue;
+    if (fx.score_basis === "pending_score_basis") {
+      return { kind: "pending_score_basis" };
+    }
+    const reg = getRegulationScore(dataset, uid);
+    if (reg) {
+      return {
+        kind: "score",
+        score: { home_score: reg.home, away_score: reg.away },
+      };
+    }
+    // Basis 'regulation' tanpa revisi tersimpan (keadaan warisan ganjil):
+    // identitas tidak memutuskan — jalur baris mentah yang memutuskan.
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Skor regulasi dari baris dataset mentah: hanya status full-time POLOS
+ * yang diterima. Baris AET/PEN membawa skor sesudah 90 menit — dilewati
+ * selalu, dan dicatat keberadaannya (sawPostRegulation) supaya pemanggil
+ * tahu laga ini selesai tanpa skor regulasi yang diketahui.
+ */
+function rawRowScore(
+  db: DatabaseSync,
+  matchId: string,
+): { score: ScoreRow } | { postRegulation: true } | null {
   const row = db
     .prepare(
       `SELECT home_score, away_score, status FROM matches WHERE match_id = ?`,
@@ -77,8 +139,9 @@ function finishedScore(db: DatabaseSync, matchId: string): ScoreRow | null {
     | undefined;
   if (!row) return null;
   if (row.home_score === null || row.away_score === null) return null;
+  if (isPostRegulationStatus(row.status)) return { postRegulation: true };
   if (!isFinishedStatus(row.status)) return null;
-  return { home_score: row.home_score, away_score: row.away_score };
+  return { score: { home_score: row.home_score, away_score: row.away_score } };
 }
 
 /** Kandidat id untuk satu match_id, urut prioritas, tanpa duplikat. */
@@ -114,18 +177,26 @@ function candidateIds(
   return ordered;
 }
 
-function findScore(
+function findRegulationScore(
   dataset: DatabaseSync | null,
   upcoming: DatabaseSync | null,
   linkGroups: FixtureLinkGroup[],
   matchId: string,
-): ScoreRow | null {
-  if (!dataset) return null;
+): ScoreLookup {
+  if (!dataset) return { kind: "none" };
+  const viaIdentity = identityLookup(dataset, matchId);
+  if (viaIdentity) return viaIdentity;
+  let sawPostRegulation = false;
   for (const id of candidateIds(dataset, upcoming, linkGroups, matchId)) {
-    const score = finishedScore(dataset, id);
-    if (score) return score;
+    const found = rawRowScore(dataset, id);
+    if (!found) continue;
+    if ("postRegulation" in found) {
+      sawPostRegulation = true;
+      continue;
+    }
+    return { kind: "score", score: found.score };
   }
-  return null;
+  return sawPostRegulation ? { kind: "pending_score_basis" } : { kind: "none" };
 }
 
 /** State fixture menurut store identitas (null = tidak diketahui). */
@@ -146,16 +217,25 @@ function main(): void {
   let resolved = 0;
   let voided = 0;
   let corrected = 0;
+  let pendingBasis = 0;
   try {
     // --- Jalur utama: pick belum ber-outcome.
     const stillOpen: typeof unresolved = [];
     for (const pick of unresolved) {
-      const score = findScore(dataset, upcoming, linkGroups, pick.match_id);
-      if (!score) {
+      const found = findRegulationScore(dataset, upcoming, linkGroups, pick.match_id);
+      if (found.kind === "pending_score_basis") {
+        // Laga selesai hanya sampai ET/penalti; skor 90 menit belum
+        // diketahui. Pick tetap pending dengan penanda basis ini —
+        // TIDAK dinilai dari skor sesudah 90 menit, TIDAK divoid.
+        pendingBasis++;
         stillOpen.push(pick);
         continue;
       }
-      recordOutcome(pick.id, score.home_score, score.away_score);
+      if (found.kind !== "score") {
+        stillOpen.push(pick);
+        continue;
+      }
+      recordOutcome(pick.id, found.score.home_score, found.score.away_score);
       resolved++;
     }
 
@@ -181,10 +261,10 @@ function main(): void {
       )
       .all() as unknown as { id: number; match_id: string; hg: number; ag: number }[];
     for (const row of resolvedRows) {
-      const score = findScore(dataset, upcoming, linkGroups, row.match_id);
-      if (!score) continue;
-      if (score.home_score !== row.hg || score.away_score !== row.ag) {
-        recordOutcome(row.id, score.home_score, score.away_score);
+      const found = findRegulationScore(dataset, upcoming, linkGroups, row.match_id);
+      if (found.kind !== "score") continue;
+      if (found.score.home_score !== row.hg || found.score.away_score !== row.ag) {
+        recordOutcome(row.id, found.score.home_score, found.score.away_score);
         corrected++;
       }
     }
@@ -197,6 +277,7 @@ function main(): void {
   console.log(`resolved: ${resolved}`);
   console.log(`corrected: ${corrected}`);
   console.log(`voided: ${voided}`);
+  console.log(`pending-score-basis: ${pendingBasis}`);
   console.log(`still-unresolved: ${unresolved.length - resolved - voided}`);
 }
 

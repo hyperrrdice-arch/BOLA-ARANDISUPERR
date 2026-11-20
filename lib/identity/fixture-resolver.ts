@@ -97,6 +97,21 @@ export function isFinishedStatus(raw: string | null | undefined): boolean {
   return normalizeMatchStatus(raw) === "finished";
 }
 
+const POST_REGULATION_SPELLINGS = new Set(["aet", "pen", "pens"]);
+
+/**
+ * Status mentah yang skor barisnya adalah skor SESUDAH 90 menit
+ * (perpanjangan waktu / adu penalti), BUKAN skor regulasi.
+ * normalizeMatchStatus melipat ejaan ini ke 'finished', jadi pembaca
+ * skor regulasi wajib memeriksa ejaan mentahnya secara terpisah —
+ * menerima skor AET/PEN sebagai skor final menilai pasar 90 menit dari
+ * angka yang salah (review K8 butir 3B).
+ */
+export function isPostRegulationStatus(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) return false;
+  return POST_REGULATION_SPELLINGS.has(raw.trim().toLowerCase());
+}
+
 // ============================================================================
 // 2. PARSER REGISTRY TAUTAN (data/fixture-links.json)
 // ============================================================================
@@ -857,6 +872,37 @@ export interface ResultRevisionRow {
   score_basis: string;
   source: string | null;
   observed_at: string;
+}
+
+export interface RegulationScore {
+  home: number;
+  away: number;
+  /** Nomor revisi yang menjadi sumber skor ini. */
+  revision: number;
+}
+
+/**
+ * Skor regulasi TERVERIFIKASI terkini satu fixture: revisi ber-basis
+ * 'regulation' terakhir yang finished dan berskor, dari result_revisions.
+ * null bila fixture belum punya skor 90 menit yang terverifikasi (belum
+ * selesai, atau basisnya masih 'pending_score_basis'). Inilah satu-satunya
+ * bacaan skor yang boleh dipakai menilai pilihan pasar 90 menit dari
+ * lapisan identitas (review K8 butir 3B).
+ */
+export function getRegulationScore(db: Db, fixtureUid: string): RegulationScore | null {
+  const row = db
+    .prepare(
+      `SELECT home_score, away_score, revision FROM result_revisions
+       WHERE fixture_uid = ? AND score_basis = 'regulation' AND status = 'finished'
+         AND home_score IS NOT NULL AND away_score IS NOT NULL
+       ORDER BY revision DESC LIMIT 1`,
+    )
+    .get(fixtureUid) as
+    | { home_score: number; away_score: number; revision: number }
+    | undefined;
+  return row
+    ? { home: row.home_score, away: row.away_score, revision: row.revision }
+    : null;
 }
 
 /** Seluruh revisi hasil satu fixture, urut revisi menaik (jejak koreksi). */

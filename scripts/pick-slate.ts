@@ -689,15 +689,23 @@ async function main() {
                 legs: pubLegs,
               },
               {
-                now_utc: new Date().toISOString(),
-                fixture_status: () =>
-                  (
-                    upDb
-                      .prepare(
-                        "SELECT status FROM upcoming_fixtures WHERE match_id = ?",
-                      )
-                      .get(fx.match_id) as { status: string } | undefined
-                  )?.status ?? null,
+                // Jam terinjeksi sebagai fungsi yang dibaca ulang di
+                // dalam lock commit + keadaan fixture (status DAN kickoff)
+                // dibaca segar dari katalog pada momen yang sama
+                // (review K8 butir 3A).
+                now: () => new Date().toISOString(),
+                fixture_state: () => {
+                  const row = upDb
+                    .prepare(
+                      "SELECT status, utc_date FROM upcoming_fixtures WHERE match_id = ?",
+                    )
+                    .get(fx.match_id) as
+                    | { status: string; utc_date: string }
+                    | undefined;
+                  return row
+                    ? { status: row.status, kickoff_utc: row.utc_date }
+                    : null;
+                },
               },
             );
             packageId = res.package_id;

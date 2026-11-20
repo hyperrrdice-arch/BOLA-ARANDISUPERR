@@ -27,11 +27,17 @@ import {
 //      tulis paket ke store paket dengan unique computation key
 //      (match_id, trigger, computed_utc) yang deterministik per operasi.
 //      Retry menemukan paket yang sama persis.
-//   2. commitPublication — SATU transaksi picks.db: verifikasi identitas +
-//      hash paket, cek ulang decision_at ≤ published_at < kickoff dan
-//      status fixture masih scheduled, tulis baris pilihan beku, tandai
-//      intent committed. Crash sesudah commit → retry mengenali operation
-//      key yang sudah sukses dan mengembalikan pick yang sama.
+//   2. commitPublication — SATU transaksi picks.db: lock writer diambil
+//      DULU, lalu di dalam lock dibaca keadaan fixture terkini + jam
+//      aktual; bacaan jam terakhir itulah nilai verifikasi akhir yang
+//      memutuskan cutoff (decision_at ≤ published_at < kickoff, status
+//      fixture masih scheduled) SEKALIGUS menjadi cap published_at
+//      (review K8 butir 3A — jam statis tangkapan pemanggil tidak pernah
+//      cukup, karena waktu bisa melewati kickoff selagi commit menunggu
+//      lock atau membaca keadaan). Lalu verifikasi identitas + hash
+//      paket, tulis baris pilihan beku, tandai intent committed. Crash
+//      sesudah commit → retry mengenali operation key yang sudah sukses
+//      dan mengembalikan pick yang sama.
 //
 // Satu pilihan resmi = keputusan PERTAMA dalam seri produksi pada
 // (fixture_uid, market, line, selection, series). Baris resmi berikutnya
@@ -520,11 +526,25 @@ export function beginPublication(
 // Fase 2 — commit: verifikasi + validasi cutoff + tulis pilihan beku
 // ---------------------------------------------------------------------------
 
+/** Keadaan fixture TERKINI dari sumber otoritatif, dibaca segar di dalam lock commit. */
+export interface FixtureStateNow {
+  status: string | null;
+  /** Kickoff terkini menurut sumber; null = sumber tidak tahu — pakai kickoff intent. */
+  kickoff_utc: string | null;
+}
+
 export interface CommitOptions {
-  /** Jam commit — divalidasi terhadap kickoff di momen ini. */
-  now_utc: string;
-  /** Status fixture TERKINI dari sumber otoritatif (dibaca segar oleh pemanggil). */
-  fixture_status: () => string | null;
+  /**
+   * Jam yang BISA DIBACA ULANG (review K8 butir 3A). Commit mengambil
+   * lock writer lebih dulu, membaca keadaan fixture, lalu membaca jam
+   * ini TERAKHIR: nilai bacaan akhir itu ("nilai verifikasi akhir")
+   * memutuskan cutoff dan menjadi cap published_at. Nilai jam yang
+   * ditangkap pemanggil sebelum commit tidak dipakai — waktu bisa
+   * melewati kickoff selagi commit tertahan lock penulis lain.
+   */
+  now: () => string;
+  /** Keadaan fixture TERKINI (status + kickoff) dari sumber otoritatif. */
+  fixture_state: () => FixtureStateNow | null;
 }
 
 export type CommitStatus =
@@ -679,40 +699,7 @@ export function commitPublication(
       .get(operationKey) as { input_json: string }).input_json,
   ) as StoredInput;
 
-  const reject = (reason: string): CommitResult => {
-    beginImmediate(db);
-    try {
-      db.prepare(
-        `UPDATE publication_intents SET state = 'rejected_cutoff', detail = ?, updated_utc = ?
-         WHERE operation_key = ? AND state NOT IN ('committed','rejected_cutoff')`,
-      ).run(reason, opts.now_utc, operationKey);
-      db.exec("COMMIT");
-    } catch (err) {
-      safeRollback(db);
-      throw err;
-    }
-    return {
-      operation_key: operationKey,
-      status: "rejected_cutoff",
-      pick_ids: [],
-      package_id: intent0.package_id,
-      reason,
-    };
-  };
-
-  // --- Validasi cutoff pada SAAT COMMIT (bukan saat perhitungan mulai).
-  if (!(input.decision_at_utc <= opts.now_utc)) {
-    return reject("decision_after_publish");
-  }
-  if (!(opts.now_utc < input.kickoff_utc)) {
-    return reject("kickoff_reached");
-  }
-  const statusNow = normalizeMatchStatus(opts.fixture_status());
-  if (statusNow !== "scheduled") {
-    return reject(`fixture_not_scheduled:${statusNow}`);
-  }
-
-  // --- Verifikasi paket: identitas + hash isi harus cocok dengan intent.
+  // --- Paket harus sudah tertulis sebelum isinya bisa diverifikasi.
   if (intent0.package_id === null) {
     return {
       operation_key: operationKey,
@@ -722,6 +709,10 @@ export function commitPublication(
       reason: "package_not_written",
     };
   }
+
+  // --- Verifikasi paket: identitas + hash isi harus cocok dengan intent.
+  // Baris paket immutable sesudah tertulis, jadi bacaan ini aman di luar
+  // lock; keputusan cutoff TIDAK dibuat di sini (lihat transaksi di bawah).
   const pkgRow = getPackagesDb()
     .prepare(
       "SELECT match_id, trigger, computed_utc, payload_json FROM packages WHERE id = ?",
@@ -742,231 +733,263 @@ export function commitPublication(
     sha256(pkgRow.payload_json) === intent0.package_hash &&
     intent0.package_key ===
       packageKeyOf(pkgRow.match_id, pkgRow.trigger, pkgRow.computed_utc);
-  if (!pkgOk) {
-    beginImmediate(db);
-    try {
-      db.prepare(
-        `UPDATE publication_intents SET state = 'failed', detail = 'package_mismatch', updated_utc = ?
-         WHERE operation_key = ? AND state NOT IN ('committed','rejected_cutoff')`,
-      ).run(opts.now_utc, operationKey);
-      db.exec("COMMIT");
-    } catch (err) {
-      safeRollback(db);
-      throw err;
-    }
-    return {
-      operation_key: operationKey,
-      status: "failed",
-      pick_ids: [],
-      package_id: intent0.package_id,
-      reason: "package_mismatch",
-    };
-  }
 
-  // --- Bukti: sumber + umur pada waktu terbit.
-  const evidenceStamps = [
-    input.package.odds_captured_utc,
-    input.package.predictions_batch_utc,
-  ].filter(
-    (t): t is string => typeof t === "string" && t <= opts.now_utc,
-  );
-  const evidenceAgeSec =
-    evidenceStamps.length > 0
-      ? Math.max(
-          0,
-          Math.round(
-            (Date.parse(opts.now_utc) -
-              Date.parse(evidenceStamps.sort().slice(-1)[0])) /
-              1000,
-          ),
-        )
-      : null;
-
-  // --- SATU transaksi ledger: baris pilihan beku + intent committed.
+  // --- SATU transaksi commit (review K8 butir 3A): lock writer diambil
+  // DULU, lalu di dalam lock dibaca keadaan fixture terkini dan jam
+  // aktual — jam dibaca TERAKHIR, dan bacaan akhir itu (verifiedNow)
+  // memutuskan cutoff sekaligus menjadi cap published_at. Penulis kedua
+  // yang tertahan lock sampai melewati kickoff membaca jam yang sudah
+  // lewat di dalam lock-nya sendiri dan ditolak; tidak ada lagi jalur
+  // validasi-dulu-baru-lock dengan cap basi.
   const pickIds: number[] = [];
+  let result: CommitResult | null = null;
   beginImmediate(db);
   try {
     const fresh = loadIntent(db, operationKey);
-    if (fresh && fresh.state === "committed") {
-      db.exec("COMMIT");
-      return {
+    const intentTx = fresh ?? intent0;
+    if (intentTx.state === "committed") {
+      result = {
         operation_key: operationKey,
         status: "already_committed",
-        pick_ids: fresh.published_pick_ids
-          ? (JSON.parse(fresh.published_pick_ids) as number[])
+        pick_ids: intentTx.published_pick_ids
+          ? (JSON.parse(intentTx.published_pick_ids) as number[])
           : [],
-        package_id: fresh.package_id,
+        package_id: intentTx.package_id,
       };
-    }
-    if (fresh && fresh.state === "rejected_cutoff") {
-      db.exec("COMMIT");
-      return {
+    } else if (intentTx.state === "rejected_cutoff") {
+      result = {
         operation_key: operationKey,
         status: "rejected_cutoff",
         pick_ids: [],
-        package_id: fresh.package_id,
-        reason: fresh.detail ?? undefined,
+        package_id: intentTx.package_id,
+        reason: intentTx.detail ?? undefined,
       };
-    }
+    } else {
+      // Keadaan fixture TERKINI (status + kickoff) dari sumber otoritatif,
+      // lalu jam aktual. Urutan ini penting: bacaan status yang lambat
+      // tidak boleh menyisakan jam basi — jam dibaca sesudahnya.
+      const stateNow = opts.fixture_state();
+      const statusNow = normalizeMatchStatus(stateNow?.status ?? null);
+      const kickoffNow = stateNow?.kickoff_utc ?? input.kickoff_utc;
+      const verifiedNow = opts.now();
 
-    const findOfficialByUid = db.prepare(
-      `SELECT id FROM picks WHERE fixture_uid = ? AND market = ? AND line = ?
-         AND selection = ? AND series = ? AND pick_uid IS NOT NULL`,
-    );
-    const findOfficialByMatch = db.prepare(
-      `SELECT id FROM picks WHERE match_id = ? AND market = ? AND line = ?
-         AND selection = ? AND series = ? AND pick_uid IS NOT NULL`,
-    );
-    const findAnyByMatch = db.prepare(
-      `SELECT id FROM picks WHERE match_id = ? AND market = ? AND selection = ? AND source = ?`,
-    );
-    const insert = db.prepare(
-      `INSERT OR IGNORE INTO picks (${PICK_PUBLISH_COLUMNS})
-       VALUES (${PICK_PUBLISH_COLUMNS.split(",").map(() => "?").join(", ")})`,
-    );
+      const rejectReason =
+        !(input.decision_at_utc <= verifiedNow)
+          ? "decision_after_publish"
+          : !(verifiedNow < kickoffNow)
+            ? "kickoff_reached"
+            : statusNow !== "scheduled"
+              ? `fixture_not_scheduled:${statusNow}`
+              : null;
 
-    for (const leg of input.legs) {
-      const line = canonicalLineFor(leg.market, leg.line);
-      // Keputusan pertama dalam seri menang: baris resmi yang sudah ada
-      // dipakai apa adanya, tidak ditimpa versi yang lebih baru.
-      const existing =
-        (input.fixture_uid
-          ? (findOfficialByUid.get(
-              input.fixture_uid,
+      if (rejectReason !== null) {
+        db.prepare(
+          `UPDATE publication_intents SET state = 'rejected_cutoff', detail = ?, updated_utc = ?
+           WHERE operation_key = ? AND state NOT IN ('committed','rejected_cutoff')`,
+        ).run(rejectReason, verifiedNow, operationKey);
+        result = {
+          operation_key: operationKey,
+          status: "rejected_cutoff",
+          pick_ids: [],
+          package_id: intentTx.package_id,
+          reason: rejectReason,
+        };
+      } else if (!pkgOk) {
+        db.prepare(
+          `UPDATE publication_intents SET state = 'failed', detail = 'package_mismatch', updated_utc = ?
+           WHERE operation_key = ? AND state NOT IN ('committed','rejected_cutoff')`,
+        ).run(verifiedNow, operationKey);
+        result = {
+          operation_key: operationKey,
+          status: "failed",
+          pick_ids: [],
+          package_id: intentTx.package_id,
+          reason: "package_mismatch",
+        };
+      } else {
+        // --- Bukti: sumber + umur pada waktu verifikasi akhir.
+        const evidenceStamps = [
+          input.package.odds_captured_utc,
+          input.package.predictions_batch_utc,
+        ].filter(
+          (t): t is string => typeof t === "string" && t <= verifiedNow,
+        );
+        const evidenceAgeSec =
+          evidenceStamps.length > 0
+            ? Math.max(
+                0,
+                Math.round(
+                  (Date.parse(verifiedNow) -
+                    Date.parse(evidenceStamps.sort().slice(-1)[0])) /
+                    1000,
+                ),
+              )
+            : null;
+
+        const findOfficialByUid = db.prepare(
+          `SELECT id FROM picks WHERE fixture_uid = ? AND market = ? AND line = ?
+             AND selection = ? AND series = ? AND pick_uid IS NOT NULL`,
+        );
+        const findOfficialByMatch = db.prepare(
+          `SELECT id FROM picks WHERE match_id = ? AND market = ? AND line = ?
+             AND selection = ? AND series = ? AND pick_uid IS NOT NULL`,
+        );
+        const findAnyByMatch = db.prepare(
+          `SELECT id FROM picks WHERE match_id = ? AND market = ? AND selection = ? AND source = ?`,
+        );
+        const insert = db.prepare(
+          `INSERT OR IGNORE INTO picks (${PICK_PUBLISH_COLUMNS})
+           VALUES (${PICK_PUBLISH_COLUMNS.split(",").map(() => "?").join(", ")})`,
+        );
+
+        for (const leg of input.legs) {
+          const line = canonicalLineFor(leg.market, leg.line);
+          // Keputusan pertama dalam seri menang: baris resmi yang sudah ada
+          // dipakai apa adanya, tidak ditimpa versi yang lebih baru.
+          const existing =
+            (input.fixture_uid
+              ? (findOfficialByUid.get(
+                  input.fixture_uid,
+                  leg.market,
+                  line,
+                  leg.selection,
+                  input.series,
+                ) as { id: number } | undefined)
+              : undefined) ??
+            (findOfficialByMatch.get(
+              input.source_match_id,
               leg.market,
               line,
               leg.selection,
               input.series,
-            ) as { id: number } | undefined)
-          : undefined) ??
-        (findOfficialByMatch.get(
-          input.source_match_id,
-          leg.market,
-          line,
-          leg.selection,
-          input.series,
-        ) as { id: number } | undefined);
-      if (existing) {
-        pickIds.push(existing.id);
-        continue;
-      }
+            ) as { id: number } | undefined);
+          if (existing) {
+            pickIds.push(existing.id);
+            continue;
+          }
 
-      const frozen = freezeProb(leg);
-      const quote = selectOfferedQuote(leg, input.decision_at_utc);
-      const smProb = panelProbOf(leg, input.decision_at_utc);
-      const spread = computeAgreementSpread({
-        match_id: input.source_match_id,
-        market: leg.market,
-        selection: leg.selection,
-        model_prob: leg.model_prob,
-        market_prob: leg.market_prob ?? null,
-        sm_prob: smProb,
-        source: input.series,
-      });
-      const evidenceParts: string[] = [];
-      if (leg.market_prob !== null && leg.market_prob !== undefined)
-        evidenceParts.push("market");
-      if (smProb !== null) evidenceParts.push("panel");
-      const evidenceSource =
-        evidenceParts.length > 0 ? evidenceParts.join("+") : "model-only";
-      const pickUid = `pk_${sha256(
-        `${operationKey}|${leg.market}|${line}|${leg.selection}`,
-      ).slice(0, 32)}`;
+          const frozen = freezeProb(leg);
+          const quote = selectOfferedQuote(leg, input.decision_at_utc);
+          const smProb = panelProbOf(leg, input.decision_at_utc);
+          const spread = computeAgreementSpread({
+            match_id: input.source_match_id,
+            market: leg.market,
+            selection: leg.selection,
+            model_prob: leg.model_prob,
+            market_prob: leg.market_prob ?? null,
+            sm_prob: smProb,
+            source: input.series,
+          });
+          const evidenceParts: string[] = [];
+          if (leg.market_prob !== null && leg.market_prob !== undefined)
+            evidenceParts.push("market");
+          if (smProb !== null) evidenceParts.push("panel");
+          const evidenceSource =
+            evidenceParts.length > 0 ? evidenceParts.join("+") : "model-only";
+          const pickUid = `pk_${sha256(
+            `${operationKey}|${leg.market}|${line}|${leg.selection}`,
+          ).slice(0, 32)}`;
 
-      const res = insert.run(
-        opts.now_utc, // created_utc = published_at untuk baris resmi
-        input.source_match_id,
-        input.competition_canonical_id ?? null,
-        input.kickoff_utc,
-        leg.market,
-        leg.selection,
-        leg.model_prob,
-        leg.market_prob ?? null,
-        smProb,
-        spread,
-        leg.gate_status ?? input.package.gate_status ?? null,
-        leg.grade ?? null,
-        input.series, // source
-        null, // notes — bukti terbit kini terstruktur, bukan teks bebas
-        intent0.package_id,
-        leg.effective_prob ?? null,
-        leg.effective_source ?? null,
-        pickUid,
-        input.fixture_uid ?? null,
-        line,
-        input.series,
-        intent0.package_key,
-        intent0.package_hash,
-        input.decision_at_utc,
-        opts.now_utc,
-        input.kickoff_utc,
-        input.model_version ?? null,
-        input.ratings_hash ?? input.package.ratings_marker ?? null,
-        GRADE_POLICY_VERSION,
-        SETTLEMENT_POLICY_VERSION,
-        input.code_sha ?? null,
-        input.input_snapshot_id ?? operationKey,
-        frozen.published_prob,
-        frozen.basis,
-        frozen.error,
-        leg.evidence_quality ?? evidenceSource,
-        evidenceSource,
-        evidenceAgeSec,
-        quote.bookmaker,
-        quote.period,
-        quote.line,
-        quote.decimal,
-        quote.captured_utc,
-        quote.note,
-      );
-      if (Number(res.changes) > 0) {
-        pickIds.push(Number(res.lastInsertRowid));
-      } else {
-        // Terhalang indeks unik lain (baris warisan pra-K2 pada
-        // match/market/selection/source, atau kunci resmi alias): baris
-        // yang sudah ada adalah keputusan pertama — pakai id-nya.
-        const fallback =
-          (findAnyByMatch.get(
+          const res = insert.run(
+            verifiedNow, // created_utc = published_at untuk baris resmi
             input.source_match_id,
+            input.competition_canonical_id ?? null,
+            input.kickoff_utc,
             leg.market,
             leg.selection,
+            leg.model_prob,
+            leg.market_prob ?? null,
+            smProb,
+            spread,
+            leg.gate_status ?? input.package.gate_status ?? null,
+            leg.grade ?? null,
+            input.series, // source
+            null, // notes — bukti terbit kini terstruktur, bukan teks bebas
+            intentTx.package_id,
+            leg.effective_prob ?? null,
+            leg.effective_source ?? null,
+            pickUid,
+            input.fixture_uid ?? null,
+            line,
             input.series,
-          ) as { id: number } | undefined) ??
-          (input.fixture_uid
-            ? (findOfficialByUid.get(
-                input.fixture_uid,
+            intentTx.package_key,
+            intentTx.package_hash,
+            input.decision_at_utc,
+            verifiedNow,
+            input.kickoff_utc,
+            input.model_version ?? null,
+            input.ratings_hash ?? input.package.ratings_marker ?? null,
+            GRADE_POLICY_VERSION,
+            SETTLEMENT_POLICY_VERSION,
+            input.code_sha ?? null,
+            input.input_snapshot_id ?? operationKey,
+            frozen.published_prob,
+            frozen.basis,
+            frozen.error,
+            leg.evidence_quality ?? evidenceSource,
+            evidenceSource,
+            evidenceAgeSec,
+            quote.bookmaker,
+            quote.period,
+            quote.line,
+            quote.decimal,
+            quote.captured_utc,
+            quote.note,
+          );
+          if (Number(res.changes) > 0) {
+            pickIds.push(Number(res.lastInsertRowid));
+          } else {
+            // Terhalang indeks unik lain (baris warisan pra-K2 pada
+            // match/market/selection/source, atau kunci resmi alias): baris
+            // yang sudah ada adalah keputusan pertama — pakai id-nya.
+            const fallback =
+              (findAnyByMatch.get(
+                input.source_match_id,
                 leg.market,
-                line,
                 leg.selection,
                 input.series,
-              ) as { id: number } | undefined)
-            : undefined);
-        if (!fallback) {
-          throw new Error(
-            `commitPublication: INSERT ter-ignore tanpa baris existing untuk ${input.source_match_id}/${leg.market}/${leg.selection}`,
-          );
+              ) as { id: number } | undefined) ??
+              (input.fixture_uid
+                ? (findOfficialByUid.get(
+                    input.fixture_uid,
+                    leg.market,
+                    line,
+                    leg.selection,
+                    input.series,
+                  ) as { id: number } | undefined)
+                : undefined);
+            if (!fallback) {
+              throw new Error(
+                `commitPublication: INSERT ter-ignore tanpa baris existing untuk ${input.source_match_id}/${leg.market}/${leg.selection}`,
+              );
+            }
+            pickIds.push(fallback.id);
+          }
         }
-        pickIds.push(fallback.id);
+
+        db.prepare(
+          `UPDATE publication_intents
+           SET state = 'committed', published_pick_ids = ?, updated_utc = ?
+           WHERE operation_key = ?`,
+        ).run(JSON.stringify(pickIds), verifiedNow, operationKey);
+        result = {
+          operation_key: operationKey,
+          status: "published",
+          pick_ids: pickIds,
+          package_id: intentTx.package_id,
+        };
       }
     }
-
-    db.prepare(
-      `UPDATE publication_intents
-       SET state = 'committed', published_pick_ids = ?, updated_utc = ?
-       WHERE operation_key = ?`,
-    ).run(JSON.stringify(pickIds), opts.now_utc, operationKey);
     db.exec("COMMIT");
   } catch (err) {
     safeRollback(db);
     throw err;
   }
 
-  return {
-    operation_key: operationKey,
-    status: "published",
-    pick_ids: pickIds,
-    package_id: intent0.package_id,
-  };
+  if (result === null) {
+    throw new Error("commitPublication: hasil commit kosong (bug internal)");
+  }
+  return result;
 }
 
 /** Publikasi satu fase penuh: begin lalu commit. */
@@ -974,7 +997,7 @@ export function publishPicks(
   input: PublishFixtureInput,
   commitOpts: CommitOptions,
 ): CommitResult & { package_id: number | null } {
-  const begun = beginPublication(input, commitOpts.now_utc);
+  const begun = beginPublication(input, commitOpts.now());
   if (begun.state === "committed") {
     return {
       operation_key: begun.operation_key,

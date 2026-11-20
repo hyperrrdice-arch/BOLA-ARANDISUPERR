@@ -44,8 +44,11 @@ function main(): void {
     }
   }
   const commitOpts = {
-    now_utc: spec.now,
-    fixture_status: () => spec.fixture_status,
+    now: () => spec.now,
+    fixture_state: () => ({
+      status: spec.fixture_status,
+      kickoff_utc: spec.input.kickoff_utc,
+    }),
   };
   if (mode === "begin-crash") {
     const b = beginPublication(spec.input, spec.now);

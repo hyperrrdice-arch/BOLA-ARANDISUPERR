@@ -102,6 +102,19 @@ async function main(): Promise<void> {
     };
   };
   const scheduled = () => "scheduled";
+  /**
+   * Opsi commit dengan jam tetap + keadaan fixture tetap — semantik
+   * pemanggil D05 yang lama (terbit di T−1 diterima, di T/T+1 ditolak),
+   * kini lewat fungsi jam terinjeksi (review K8 butir 3A).
+   */
+  const optsAt = (
+    nowIso: string,
+    status: string | null = "scheduled",
+    kickoff: string | null = T,
+  ): import("../lib/picks/publication").CommitOptions => ({
+    now: () => nowIso,
+    fixture_state: () => ({ status, kickoff_utc: kickoff }),
+  });
 
   // ======================================================================
   console.log("\n— D05: cutoff divalidasi saat COMMIT —");
@@ -109,16 +122,13 @@ async function main(): Promise<void> {
   {
     // T−1ms diterima.
     const inp = makeInput();
-    const r = pub.publishPicks(inp, {
-      now_utc: "2026-11-20T12:59:59.999Z",
-      fixture_status: scheduled,
-    });
+    const r = pub.publishPicks(inp, optsAt("2026-11-20T12:59:59.999Z"));
     suite.eq("D05 publish T-1ms diterima", r.status, "published");
     suite.eq("D05 T-1ms menulis 1 pick", picksCountFor(inp.source_match_id), 1);
 
     // Tepat T ditolak.
     const inpT = makeInput();
-    const rT = pub.publishPicks(inpT, { now_utc: T, fixture_status: scheduled });
+    const rT = pub.publishPicks(inpT, optsAt(T));
     suite.eq("D05 publish tepat T ditolak", rT.status, "rejected_cutoff");
     suite.eq("D05 tepat T: 0 pick", picksCountFor(inpT.source_match_id), 0);
     suite.eq(
@@ -129,10 +139,7 @@ async function main(): Promise<void> {
 
     // T+1ms ditolak.
     const inpT1 = makeInput();
-    const rT1 = pub.publishPicks(inpT1, {
-      now_utc: "2026-11-20T13:00:00.001Z",
-      fixture_status: scheduled,
-    });
+    const rT1 = pub.publishPicks(inpT1, optsAt("2026-11-20T13:00:00.001Z"));
     suite.eq("D05 publish T+1ms ditolak", rT1.status, "rejected_cutoff");
     suite.eq("D05 T+1ms: 0 pick", picksCountFor(inpT1.source_match_id), 0);
 
@@ -140,10 +147,7 @@ async function main(): Promise<void> {
     const inpLate = makeInput();
     const begun = pub.beginPublication(inpLate, "2026-11-20T12:00:00.000Z");
     suite.eq("D05 begin sebelum T: paket tertulis", begun.state, "package_written");
-    const rLate = pub.commitPublication(begun.operation_key, {
-      now_utc: "2026-11-20T13:00:00.001Z",
-      fixture_status: scheduled,
-    });
+    const rLate = pub.commitPublication(begun.operation_key, optsAt("2026-11-20T13:00:00.001Z"));
     suite.eq("D05 commit lewat T ditolak", rLate.status, "rejected_cutoff");
     suite.eq("D05 commit lewat T: 0 pick", picksCountFor(inpLate.source_match_id), 0);
     suite.eq(
@@ -156,20 +160,14 @@ async function main(): Promise<void> {
     const inpFut = makeInput({}, {});
     inpFut.decision_at_utc = "2026-11-20T12:30:00.000Z";
     inpFut.package.computed_utc = "2026-11-20T12:30:00.000Z";
-    const rFut = pub.publishPicks(inpFut, {
-      now_utc: "2026-11-20T12:00:00.000Z",
-      fixture_status: scheduled,
-    });
+    const rFut = pub.publishPicks(inpFut, optsAt("2026-11-20T12:00:00.000Z"));
     suite.eq("D05 decision>publish ditolak", rFut.status, "rejected_cutoff");
     suite.eq("D05 decision>publish: alasan", rFut.reason, "decision_after_publish");
 
     // Status fixture berubah sebelum commit → ditolak.
     const inpFlip = makeInput();
     const begunFlip = pub.beginPublication(inpFlip, "2026-11-20T11:00:00.000Z");
-    const rFlip = pub.commitPublication(begunFlip.operation_key, {
-      now_utc: "2026-11-20T12:00:00.000Z",
-      fixture_status: () => "finished",
-    });
+    const rFlip = pub.commitPublication(begunFlip.operation_key, optsAt("2026-11-20T12:00:00.000Z", "finished"));
     suite.eq("D05 status berubah ditolak", rFlip.status, "rejected_cutoff");
     suite.check(
       "D05 status berubah: alasan fixture_not_scheduled",
@@ -271,15 +269,116 @@ async function main(): Promise<void> {
   }
 
   // ======================================================================
+  console.log("\n— D05-R: jam dibaca ulang di dalam lock (review K8 butir 3A) —");
+  // ======================================================================
+  {
+    // (1) Pembacaan status otoritatif lambat: selesai 100 ms SESUDAH
+    // kickoff walau statusnya masih mengaku scheduled, sementara jam
+    // saat commit dimulai masih T−400 ms. Kode lama memvalidasi cap
+    // T−400 itu dan menerbitkan; jalur baru membaca jam TERAKHIR, di
+    // dalam lock, sesudah status dibaca → ditolak, NOL pick resmi.
+    const inpSlow = makeInput();
+    let clockSlow = "2026-11-20T12:59:59.600Z";
+    const begunSlow = pub.beginPublication(inpSlow, clockSlow);
+    const rSlow = pub.commitPublication(begunSlow.operation_key, {
+      now: () => clockSlow,
+      fixture_state: () => {
+        clockSlow = "2026-11-20T13:00:00.100Z";
+        return { status: "scheduled", kickoff_utc: T };
+      },
+    });
+    suite.eq("3A-1 status lambat lewat kickoff: ditolak", rSlow.status, "rejected_cutoff");
+    suite.eq("3A-1 alasan kickoff_reached", rSlow.reason, "kickoff_reached");
+    suite.eq("3A-1 NOL pick resmi baru", picksCountFor(inpSlow.source_match_id), 0);
+
+    // (2) Kickoff DIMAJUKAN sesudah scan: intent menyimpan kickoff T,
+    // tetapi sumber otoritatif kini menyebut kickoff sudah lewat.
+    // Cutoff diputuskan dari kickoff verifikasi akhir → NOL pick.
+    const inpEarly = makeInput();
+    const rEarly = pub.publishPicks(inpEarly, {
+      now: () => "2026-11-20T12:30:00.000Z",
+      fixture_state: () => ({ status: "scheduled", kickoff_utc: "2026-11-20T12:00:00.000Z" }),
+    });
+    suite.eq("3A-2 kickoff dimajukan sesudah scan: ditolak", rEarly.status, "rejected_cutoff");
+    suite.eq("3A-2 alasan kickoff_reached", rEarly.reason, "kickoff_reached");
+    suite.eq("3A-2 NOL pick resmi baru", picksCountFor(inpEarly.source_match_id), 0);
+
+    // (3) Retry intent lama sesudah T — commit langsung maupun jalur
+    // penuh publishPicks — tetap NOL pick resmi baru.
+    const inpRetry = makeInput();
+    const begunRetry = pub.beginPublication(inpRetry, "2026-11-20T11:00:00.000Z");
+    suite.eq("3A-3 begin lama: package_written", begunRetry.state, "package_written");
+    const rRetryOld = pub.commitPublication(begunRetry.operation_key, optsAt("2026-11-20T13:00:00.001Z"));
+    suite.eq("3A-3 commit retry sesudah T: ditolak", rRetryOld.status, "rejected_cutoff");
+    const rRetryFull = pub.publishPicks(inpRetry, optsAt("2026-11-20T13:05:00.000Z"));
+    suite.eq("3A-3 publish ulang sesudah T: tetap ditolak", rRetryFull.status, "rejected_cutoff");
+    suite.eq("3A-3 NOL pick resmi baru", picksCountFor(inpRetry.source_match_id), 0);
+
+    // (4) Kasus sah T−1 ms: tepat SATU keputusan resmi, cap terbit =
+    // nilai verifikasi akhir, retry mengembalikan keputusan yang sama.
+    const inpOk = makeInput();
+    const rOk = pub.publishPicks(inpOk, optsAt("2026-11-20T12:59:59.999Z"));
+    suite.eq("3A-4 T-1ms sah: published", rOk.status, "published");
+    suite.eq("3A-4 tepat 1 pick resmi", picksCountFor(inpOk.source_match_id), 1);
+    const okRow = openRo(env, "picks.db")
+      .prepare("SELECT published_at_utc FROM picks WHERE match_id = ?")
+      .get(inpOk.source_match_id) as { published_at_utc: string };
+    suite.eq("3A-4 cap terbit = nilai verifikasi akhir", okRow.published_at_utc, "2026-11-20T12:59:59.999Z");
+    const rOk2 = pub.publishPicks(inpOk, optsAt("2026-11-20T12:59:59.999Z"));
+    suite.eq("3A-4 retry: already_committed", rOk2.status, "already_committed");
+    suite.eq("3A-4 retry: pick ids sama", rOk2.pick_ids, rOk.pick_ids);
+    suite.eq("3A-4 retry: tetap tepat 1 pick", picksCountFor(inpOk.source_match_id), 1);
+
+    // (5) Penulis kedua tertahan lock sampai melewati T: proses lain
+    // memegang lock writer picks.db; commit yang dimulai pada T−400 ms
+    // (jam palsu berbasis waktu nyata) harus MENUNGGU lock, lalu membaca
+    // jam yang sudah melewati kickoff di dalam lock → ditolak, NOL pick.
+    const inpLock = makeInput();
+    const begunLock = pub.beginPublication(inpLock, "2026-11-20T12:59:59.000Z");
+    const real0 = Date.now();
+    const fake0 = Date.parse("2026-11-20T12:59:59.600Z");
+    const clockLock = () => new Date(fake0 + (Date.now() - real0)).toISOString();
+    const readyFile = path.join(env.root, "lock-ready");
+    const holder = spawn(
+      path.join(REPO_ROOT, "node_modules", ".bin", "tsx"),
+      [
+        path.join(REPO_ROOT, "tests/helpers/lock-holder.ts"),
+        path.join(env.dataDir, "picks.db"),
+        "900",
+        readyFile,
+      ],
+      { cwd: env.root, stdio: "ignore" },
+    );
+    const holderDone = new Promise<void>((res) => holder.on("close", () => res()));
+    const wait0 = Date.now();
+    while (!fs.existsSync(readyFile) && Date.now() - wait0 < 15_000) {
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    suite.check("3A-5 lock penulis lain terpegang", fs.existsSync(readyFile));
+    const tCommit = Date.now();
+    const rLock = pub.commitPublication(begunLock.operation_key, {
+      now: clockLock,
+      fixture_state: () => ({ status: "scheduled", kickoff_utc: T }),
+    });
+    const elapsed = Date.now() - tCommit;
+    await holderDone;
+    suite.check(
+      "3A-5 commit benar-benar menunggu lock (≥400 ms)",
+      elapsed >= 400,
+      `${elapsed}ms`,
+    );
+    suite.eq("3A-5 jam terbaca sesudah lock lewat T: ditolak", rLock.status, "rejected_cutoff");
+    suite.eq("3A-5 alasan kickoff_reached", rLock.reason, "kickoff_reached");
+    suite.eq("3A-5 NOL pick resmi baru", picksCountFor(inpLock.source_match_id), 0);
+  }
+
+  // ======================================================================
   console.log("\n— D06: peluang saat terbit beku; warisan tak tercatat —");
   // ======================================================================
   let legacyPickId = 0;
   {
     const inp = makeInput();
-    const r = pub.publishPicks(inp, {
-      now_utc: "2026-11-20T10:40:00.000Z",
-      fixture_status: scheduled,
-    });
+    const r = pub.publishPicks(inp, optsAt("2026-11-20T10:40:00.000Z"));
     suite.eq("D06 paket A terbit", r.status, "published");
     const pickId = r.pick_ids[0];
     const viewA = pub.getPickPublication(pickId);
@@ -315,10 +414,7 @@ async function main(): Promise<void> {
       {},
       { market: "btts", selection: "no", model_prob: 0.3, effective_prob: 0 },
     );
-    const rZero = pub.publishPicks(inpZero, {
-      now_utc: "2026-11-20T10:40:00.000Z",
-      fixture_status: scheduled,
-    });
+    const rZero = pub.publishPicks(inpZero, optsAt("2026-11-20T10:40:00.000Z"));
     const viewZero = pub.getPickPublication(rZero.pick_ids[0]);
     suite.eq("D06 effective 0 terbit sebagai 0", viewZero?.published_prob, 0);
     suite.eq("D06 effective 0: basis effective", viewZero?.probability_basis, "effective");
@@ -429,10 +525,7 @@ async function main(): Promise<void> {
         ],
       },
     );
-    const r = pub.publishPicks(inp, {
-      now_utc: "2026-11-20T10:40:00.000Z",
-      fixture_status: scheduled,
-    });
+    const r = pub.publishPicks(inp, optsAt("2026-11-20T10:40:00.000Z"));
     suite.eq("D08 quote: terbit", r.status, "published");
     const row = openRo(env, "picks.db")
       .prepare("SELECT * FROM picks WHERE id = ?")
@@ -457,10 +550,7 @@ async function main(): Promise<void> {
         ],
       },
     );
-    const rBad = pub.publishPicks(inpBad, {
-      now_utc: "2026-11-20T10:40:00.000Z",
-      fixture_status: scheduled,
-    });
+    const rBad = pub.publishPicks(inpBad, optsAt("2026-11-20T10:40:00.000Z"));
     const rowBad = openRo(env, "picks.db")
       .prepare("SELECT * FROM picks WHERE id = ?")
       .get(rBad.pick_ids[0]) as Record<string, unknown>;
@@ -485,10 +575,7 @@ async function main(): Promise<void> {
       ),
       JSON.stringify(pending.map((i) => i.state)),
     );
-    const rRetry = pub.publishPicks(inpCrash, {
-      now_utc: "2026-11-20T11:05:00.000Z",
-      fixture_status: scheduled,
-    });
+    const rRetry = pub.publishPicks(inpCrash, optsAt("2026-11-20T11:05:00.000Z"));
     suite.eq("D08 retry crash paket: published", rRetry.status, "published");
     suite.eq("D08 retry: paket yang sama", rRetry.package_id, crashInfo.package_id);
     suite.eq("D08 retry: tepat 1 paket", packagesCountFor(inpCrash.source_match_id), 1);
@@ -511,10 +598,7 @@ async function main(): Promise<void> {
       .get(inpCrash2.source_match_id) as { published_pick_ids: string } | undefined;
     const committedIds = JSON.parse(committedRows?.published_pick_ids ?? "[]") as number[];
     suite.eq("D08 crash ledger: 1 pick ter-commit", picksCountFor(inpCrash2.source_match_id), 1);
-    const rRetry2 = pub.publishPicks(inpCrash2, {
-      now_utc: "2026-11-20T11:06:00.000Z",
-      fixture_status: scheduled,
-    });
+    const rRetry2 = pub.publishPicks(inpCrash2, optsAt("2026-11-20T11:06:00.000Z"));
     suite.eq("D08 retry crash ledger: already_committed", rRetry2.status, "already_committed");
     suite.eq("D08 retry crash ledger: pick ids sama", rRetry2.pick_ids, committedIds);
     suite.eq("D08 retry crash ledger: tetap 1 pick", picksCountFor(inpCrash2.source_match_id), 1);

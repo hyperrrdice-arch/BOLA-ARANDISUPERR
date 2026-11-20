@@ -628,7 +628,10 @@ try {
         },
       ],
     },
-    { now_utc: "2026-11-21T12:00:00.000Z", fixture_status: () => "scheduled" },
+    {
+      now: () => "2026-11-21T12:00:00.000Z",
+      fixture_state: () => ({ status: "scheduled", kickoff_utc: "2026-11-22T17:30:00.000Z" }),
+    },
   );
   suite.check("Q04 pick berseed terbit lewat jalur publikasi", published.status === "published", published.status);
   const picksDb = new DatabaseSync(path.join(env.dataDir, "picks.db"), { readOnly: true });
