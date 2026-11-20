@@ -15,6 +15,9 @@
  *    tidak pernah ditempelkan ke buku Pinnacle.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+
 export interface FdDivision {
   code: string;
   name: string;
@@ -353,14 +356,38 @@ export function hasBothClosingBooks(row: FdRawRow): boolean {
 // Fetchers
 // ---------------------------------------------------------------------------
 
+/**
+ * Injeksi sumber CSV lokal untuk pengujian (K0): bila env
+ * FOOTBALL_DATA_CSV_DIR di-set, CSV dibaca dari direktori itu dengan tata
+ * letak yang sama seperti URL-nya — `<dir>/mmz4281/<season>/<DIV>.csv` dan
+ * `<dir>/fixtures.csv`. File absen bersemantik sama seperti HTTP 404
+ * (null). Bila env tidak di-set, fungsi ini mengembalikan undefined dan
+ * jalur jaringan produksi dipakai persis seperti sebelumnya.
+ */
+function localCsvText(relPath: string): string | null | undefined {
+  const dir = process.env.FOOTBALL_DATA_CSV_DIR;
+  if (!dir) return undefined;
+  try {
+    return fs.readFileSync(path.join(dir, relPath), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 /** CSV hasil satu divisi satu musim (kode musim mis. '2627'). Null bila 404. */
 export async function fetchSeasonCsv(div: string, season: string): Promise<FdRawRow[] | null> {
-  const text = await fetchText(`https://www.football-data.co.uk/mmz4281/${season}/${div.toUpperCase()}.csv`);
+  const local = localCsvText(path.join("mmz4281", season, `${div.toUpperCase()}.csv`));
+  const text =
+    local !== undefined
+      ? local
+      : await fetchText(`https://www.football-data.co.uk/mmz4281/${season}/${div.toUpperCase()}.csv`);
   return text === null ? null : parseCsv(text);
 }
 
 /** CSV fixture semua divisi (jendela bergulir pendek). */
 export async function fetchFixturesCsv(): Promise<FdRawRow[]> {
-  const text = await fetchText("https://www.football-data.co.uk/fixtures.csv");
+  const local = localCsvText("fixtures.csv");
+  const text =
+    local !== undefined ? local : await fetchText("https://www.football-data.co.uk/fixtures.csv");
   return text === null ? [] : parseCsv(text);
 }
