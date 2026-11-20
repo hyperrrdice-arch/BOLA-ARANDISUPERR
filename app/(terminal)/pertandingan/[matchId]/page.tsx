@@ -38,7 +38,7 @@ import {
   tanggalWib,
   zonaValid,
 } from "@/lib/web/format";
-import { STATUS_LABEL_ID } from "@/lib/web/status";
+import { labelStatus } from "@/lib/web/status";
 import { parseFilterJadwal, queryJadwal } from "@/lib/web/jadwal";
 import {
   EmptyState,
@@ -202,7 +202,7 @@ async function AnalisisContent({
             {info.home} <span className="font-normal text-faint">vs</span> {info.away}
           </h1>
           <p className="mt-2.5 text-[15px] text-mid-gray">
-            {tanggalJamWib(info.kickoff_utc, tz)} · {STATUS_LABEL_ID[info.status]}
+            {tanggalJamWib(info.kickoff_utc, tz)} · {labelStatus(info.status)}
           </p>
         </header>
         <div className="mt-10">
@@ -290,7 +290,7 @@ async function AnalisisContent({
         <p className="mt-2.5 text-[15px] text-mid-gray">
           {tanggalJamWib(f.kickoff_utc, tz)}
           {tz !== "UTC" && <> · {jamWibOnly(f.kickoff_utc, "UTC")} UTC</>}
-          {statusTampil && <> · {STATUS_LABEL_ID[statusTampil]}</>}
+          {statusTampil && <> · {labelStatus(statusTampil, keadaan?.menit)}</>}
           {feedMode === "free" && <> · Mode data gratis</>}
         </p>
         {keadaan?.status === "finished" && keadaan.home_goals !== null && (

@@ -28,8 +28,10 @@ import {
 } from "../identity/fixture-resolver";
 import {
   displayStatus,
+  menitDariStatusMentah,
   skorTerlihat,
-  type FixtureStatus,
+  terapkanWaktu,
+  type StatusTampil,
 } from "./status";
 import { ZONA_BAKU, kunciTanggal } from "./format";
 
@@ -931,10 +933,13 @@ function fixtureUidOf(matchId: string): string | null {
 }
 
 export interface KeadaanLaga {
-  status: FixtureStatus;
+  /** Status tampil: status sumber + dimensi waktu (brief §4). */
+  status: StatusTampil;
   /** Skor yang LOLOS gerbang visibilitas status (cancelled selalu null). */
   home_goals: number | null;
   away_goals: number | null;
+  /** Menit berjalan bila sumber menyatakannya di string status; selain itu null. */
+  menit: number | null;
 }
 
 /**
@@ -944,20 +949,24 @@ export interface KeadaanLaga {
  * digerbang `skorTerlihat`: batal → tidak pernah tampil, dihentikan →
  * parsial, selesai → penuh.
  */
-export function getMatchState(matchId: string): KeadaanLaga | null {
+export function getMatchState(matchId: string, nowMs: number = Date.now()): KeadaanLaga | null {
   const ids = siblingsOf(matchId);
-  let datasetRow: { statusRaw: string | null; home: number | null; away: number | null } | null =
-    null;
+  let datasetRow: BarisDatasetMentah | null = null;
   try {
     const d = datasetDb();
     for (const id of ids) {
       const r = d
-        .prepare(`SELECT status, home_score, away_score FROM matches WHERE match_id = ?`)
+        .prepare(`SELECT status, home_score, away_score, utc_date FROM matches WHERE match_id = ?`)
         .get(id) as
-        | { status: string; home_score: number | null; away_score: number | null }
+        | { status: string; home_score: number | null; away_score: number | null; utc_date: string | null }
         | undefined;
       if (!r) continue;
-      const cand = { statusRaw: r.status, home: r.home_score, away: r.away_score };
+      const cand: BarisDatasetMentah = {
+        statusRaw: r.status,
+        home: r.home_score,
+        away: r.away_score,
+        kickoffUtc: r.utc_date,
+      };
       if (!datasetRow) datasetRow = cand;
       const st = displayStatus(r.status);
       if (st === "finished" || st === "abandoned") {
@@ -970,16 +979,18 @@ export function getMatchState(matchId: string): KeadaanLaga | null {
   }
   let catalogStatus: string | null = null;
   let catalogAda = false;
+  let catalogKickoff: string | null = null;
   const up = upcomingDb();
   if (up) {
     try {
       for (const id of ids) {
         const r = up
-          .prepare(`SELECT status FROM upcoming_fixtures WHERE match_id = ?`)
-          .get(id) as { status: string | null } | undefined;
+          .prepare(`SELECT status, utc_date FROM upcoming_fixtures WHERE match_id = ?`)
+          .get(id) as { status: string | null; utc_date: string | null } | undefined;
         if (r) {
           catalogAda = true;
           catalogStatus = r.status;
+          catalogKickoff = r.utc_date;
           break;
         }
       }
@@ -987,7 +998,13 @@ export function getMatchState(matchId: string): KeadaanLaga | null {
       /* tabel katalog tak ada */
     }
   }
-  return keadaanDariBaris(datasetRow, catalogStatus, catalogAda);
+  return keadaanDariBaris(
+    datasetRow,
+    catalogStatus,
+    catalogAda,
+    catalogKickoff ?? datasetRow?.kickoffUtc ?? null,
+    nowMs,
+  );
 }
 
 /** Baris dataset mentah untuk penggabungan keadaan (bentuk getMatchState). */
@@ -995,6 +1012,8 @@ interface BarisDatasetMentah {
   statusRaw: string | null;
   home: number | null;
   away: number | null;
+  /** Kickoff baris ini bila sumbernya menyediakannya (jalur tunggal). */
+  kickoffUtc?: string | null;
 }
 
 /**
@@ -1008,23 +1027,32 @@ function keadaanDariBaris(
   datasetRow: BarisDatasetMentah | null,
   catalogStatus: string | null,
   catalogAda: boolean,
+  kickoffUtc: string | null,
+  nowMs: number,
 ): KeadaanLaga | null {
   if (!datasetRow && !catalogAda) return null;
-  let status = displayStatus(datasetRow?.statusRaw ?? catalogStatus);
+  let dasar = displayStatus(datasetRow?.statusRaw ?? catalogStatus);
   if (datasetRow && catalogAda) {
     const cs = displayStatus(catalogStatus);
     if (
-      status === "scheduled" &&
+      dasar === "scheduled" &&
       (cs === "postponed" || cs === "cancelled" || cs === "live" || cs === "abandoned")
     ) {
-      status = cs;
+      dasar = cs;
     }
   }
-  const vis = skorTerlihat(status);
+  const vis = skorTerlihat(dasar);
   return {
-    status,
+    // Dimensi waktu (brief §4) diterapkan pada status gabungan: sumber
+    // yang mengonfirmasi selalu menang; yang berubah hanya keadaan
+    // terjadwal/tak-dikenal yang sepak mulanya sudah lewat.
+    status: terapkanWaktu(dasar, kickoffUtc, nowMs),
     home_goals: vis === "tidak" ? null : (datasetRow?.home ?? null),
     away_goals: vis === "tidak" ? null : (datasetRow?.away ?? null),
+    menit:
+      dasar === "live"
+        ? menitDariStatusMentah(datasetRow?.statusRaw ?? catalogStatus)
+        : null,
   };
 }
 
@@ -1186,7 +1214,12 @@ function muatKatalogBatch(
 }
 
 /** Keadaan satu laga dari konteks batch — semantik getMatchState persis. */
-function keadaanBatch(ctx: KonteksBatch, matchId: string): KeadaanLaga | null {
+function keadaanBatch(
+  ctx: KonteksBatch,
+  matchId: string,
+  kickoffUtc: string,
+  nowMs: number,
+): KeadaanLaga | null {
   const ids = ctx.siblingsById.get(matchId) ?? [matchId];
   const datasetRow = pilihBarisDataset(ids, ctx.datasetById);
   let catalogStatus: string | null = null;
@@ -1199,7 +1232,7 @@ function keadaanBatch(ctx: KonteksBatch, matchId: string): KeadaanLaga | null {
       break;
     }
   }
-  return keadaanDariBaris(datasetRow, catalogStatus, catalogAda);
+  return keadaanDariBaris(datasetRow, catalogStatus, catalogAda, kickoffUtc, nowMs);
 }
 
 /** Jadwal ulang untuk laga ditunda dari konteks batch — semantik jadwalUlangOf. */
@@ -1406,7 +1439,7 @@ export interface JadwalItem {
   competition_country: string | null;
   competition_canonical_id: string | null;
   kickoff_utc: string;
-  status: FixtureStatus;
+  status: StatusTampil;
   home_goals: number | null;
   away_goals: number | null;
   /** Untuk laga ditunda: jadwal asal (tanggal baris katalognya sendiri). */
@@ -1570,18 +1603,19 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
   muatDatasetBatch([...semuaSibling], ctx.datasetById);
   muatKatalogBatch([...semuaSibling], ctx.catalogById);
 
+  const nowMs = Date.now();
   const items: JadwalItem[] = [];
   for (const m of byId.values()) {
     const pkg = pkgById.get(m.match_id) ?? null;
-    const keadaan = keadaanBatch(ctx, m.match_id);
-    let status: FixtureStatus;
+    const keadaan = keadaanBatch(ctx, m.match_id, m.kickoff_utc, nowMs);
+    let status: StatusTampil;
     if (keadaan) {
       status = keadaan.status;
     } else if (m.dariKatalog) {
       const ds = displayStatus(m.statusRaw);
-      status = ds !== "unknown" ? ds : "scheduled";
+      status = terapkanWaktu(ds !== "unknown" ? ds : "scheduled", m.kickoff_utc, nowMs);
     } else {
-      status = "scheduled";
+      status = terapkanWaktu("scheduled", m.kickoff_utc, nowMs);
     }
     const ringkas = pkg ? ringkasPaket(pkg) : { pickCounts: { A: 0, B: 0, C: 0 }, topLeg: null };
     items.push({
@@ -1668,7 +1702,7 @@ export interface InfoFixture {
   competition_name: string;
   competition_country: string | null;
   kickoff_utc: string;
-  status: FixtureStatus;
+  status: StatusTampil;
 }
 
 /**
@@ -1696,7 +1730,9 @@ export function getFixtureInfo(matchId: string): InfoFixture | null {
             competition_name: (r.competition_name as string | null) ?? "",
             competition_country: (r.competition_country as string | null) ?? null,
             kickoff_utc: r.utc_date as string,
-            status: keadaan?.status ?? displayStatus(r.status as string | null),
+            status:
+              keadaan?.status ??
+              terapkanWaktu(displayStatus(r.status as string | null), r.utc_date as string, Date.now()),
           };
         }
       }
@@ -1729,7 +1765,9 @@ export function getFixtureInfo(matchId: string): InfoFixture | null {
             petaLiga().nama.get(r.competition_id as string) ?? (r.competition_id as string),
           competition_country: null,
           kickoff_utc: r.utc_date as string,
-          status: keadaan?.status ?? displayStatus(r.status as string),
+          status:
+            keadaan?.status ??
+            terapkanWaktu(displayStatus(r.status as string), r.utc_date as string, Date.now()),
         };
       }
     }
@@ -1752,7 +1790,9 @@ export function getFixtureInfo(matchId: string): InfoFixture | null {
           competition_name: f.competition_name,
           competition_country: null,
           kickoff_utc: pkg.kickoff_utc,
-          status: getMatchState(matchId)?.status ?? "scheduled",
+          status:
+            getMatchState(matchId)?.status ??
+            terapkanWaktu("scheduled", pkg.kickoff_utc, Date.now()),
         };
       }
     }

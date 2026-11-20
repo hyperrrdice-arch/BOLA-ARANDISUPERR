@@ -26,7 +26,7 @@ import {
   tanggalPanjang,
   tanggalWib,
 } from "@/lib/web/format";
-import { STATUS_LABEL_ID } from "@/lib/web/status";
+import { labelStatus } from "@/lib/web/status";
 import {
   jendelaTanggalUtc,
   kelompokPerTanggal,
@@ -109,7 +109,7 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
         </span>
         {item.status !== "scheduled" && item.status !== "unknown" ? (
           <span className="shrink-0 pt-0.5 text-[13px] font-medium text-mid-gray">
-            {STATUS_LABEL_ID[item.status]}
+            {labelStatus(item.status)}
           </span>
         ) : leg ? (
           <span className="shrink-0 text-right">
@@ -173,7 +173,7 @@ function FormFilter({
         Status
         <select name="status" defaultValue={filter.status} className={kelasSelect}>
           <option value="semua">Semua</option>
-          <option value="akan-datang">Akan datang</option>
+          <option value="akan-datang">Belum mulai</option>
           <option value="selesai">Selesai</option>
         </select>
       </label>
@@ -249,7 +249,7 @@ async function PertandinganContent({
 
   const tersaring = semua.filter((i) => {
     if (filter.status === "akan-datang") {
-      if (!(i.status === "scheduled" || i.status === "live" || i.status === "postponed")) return false;
+      if (!(i.status === "scheduled" || i.status === "live" || i.status === "postponed" || i.status === "menunggu-pembaruan")) return false;
     } else if (filter.status === "selesai") {
       if (!(i.status === "finished" || i.status === "abandoned")) return false;
     }
