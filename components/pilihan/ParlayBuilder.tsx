@@ -172,6 +172,16 @@ export default function ParlayBuilder({
           </span>
         </div>
 
+        {/* Status untuk pembaca layar: selalu dirender supaya perubahan
+            isi slip (termasuk kedaluwarsa) diumumkan dari wilayah yang
+            sudah ada, bukan dari elemen yang baru muncul. */}
+        <p className="sr-only" role="status">
+          {aktif.length} pilihan dari {lagaUnik} laga
+          {aktif.length > 0
+            ? ` — perkiraan peluang semua pilihan tepat ${pct(result.combined, result.combined >= 0.1 ? 1 : 2)}`
+            : ""}
+        </p>
+
         {selected.length === 0 ? (
           <p className="py-8 text-sm leading-relaxed text-mid-gray">Belum ada pilihan.</p>
         ) : (
@@ -214,7 +224,7 @@ export default function ParlayBuilder({
               })}
             </ul>
 
-            <div className="mt-6 border-t border-hairline pt-5" aria-live="polite">
+            <div className="mt-6 border-t border-hairline pt-5">
               <p className="text-[13px] text-mid-gray">
                 {aktif.length} pilihan dari {lagaUnik} laga
               </p>

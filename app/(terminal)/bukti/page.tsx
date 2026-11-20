@@ -43,10 +43,8 @@ import {
   bulatkanTampil,
   KEADAAN_LABEL,
   parseFilterRekam,
-  queryRekam,
   type BarisRekam,
   type DetailTiket,
-  type FilterRekam,
   type RekamData,
 } from "../../../lib/web/rekam";
 import type { OfficialSlipView } from "../../../lib/picks/tickets";
