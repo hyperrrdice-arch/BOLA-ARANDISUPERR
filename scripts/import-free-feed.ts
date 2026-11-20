@@ -54,9 +54,18 @@ import {
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { getCanonicalBySourceId } from "../lib/quant/league-identity";
 import {
+  canonicalIdForTeamId,
   canonicalIdForTeamName,
   memberIdsForCanonical,
 } from "../lib/quant/team-identity";
+import {
+  applyResultObservation,
+  ensureIdentitySchema,
+  linkAlias,
+  resolveFixtureIdentity,
+  sourceOfMatchId,
+  type ObservationOutcome,
+} from "../lib/identity/fixture-resolver";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -121,6 +130,9 @@ async function main() {
   const up = new DatabaseSync(dataPath("upcoming_fixtures.db"));
   up.exec("PRAGMA journal_mode = WAL;");
   up.exec("PRAGMA busy_timeout = 60000;");
+  // Store identitas persisten (K1) hidup di dataset; skema aditif +
+  // idempoten, dibuat sebelum jalur hasil/fixture menulis apa pun.
+  if (!DRY_RUN) ensureIdentitySchema(ds);
 
   // --- Peta resolusi tim: nama ternormalisasi → team_id yang ada.
   const teamRows = ds.prepare("SELECT team_id, name FROM teams").all() as unknown as {
@@ -258,6 +270,137 @@ async function main() {
        home_team_id, home_team_name, away_team_id, away_team_name, fetched_utc
      ) VALUES (?, ?, ?, ?, ?, 'scheduled', ?, ?, ?, ?, ?)`,
   );
+  const getMatchRow = ds.prepare(
+    `SELECT competition_id, season, utc_date, home_team_id, away_team_id
+     FROM matches WHERE match_id = ?`,
+  );
+  // Upsert telemetri untuk jalur jembatan/koreksi: baris log fd milik
+  // jangkar ditulis/diperbarui dengan skor observasi terbaru (log_id
+  // deterministik per jangkar+sisi, skema sama seperti jalur insert).
+  const upsertLog = ds.prepare(
+    `INSERT INTO team_match_logs (
+       log_id, match_id, team_id, opponent_id, venue, match_date, season, result,
+       goals_for, goals_against, xg_for, xg_against,
+       shots_for, shots_against, shots_on_target_for, shots_on_target_against,
+       created_at, source, xg_source
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(log_id) DO UPDATE SET
+       goals_for = excluded.goals_for, goals_against = excluded.goals_against,
+       result = excluded.result,
+       xg_for = excluded.xg_for, xg_against = excluded.xg_against,
+       shots_for = excluded.shots_for, shots_against = excluded.shots_against,
+       shots_on_target_for = excluded.shots_on_target_for,
+       shots_on_target_against = excluded.shots_on_target_against,
+       xg_source = excluded.xg_source`,
+  );
+
+  type FdResult = NonNullable<ReturnType<typeof toResultRow>>;
+  const cidOf = (teamId: string): string => canonicalIdForTeamId(teamId) ?? teamId;
+
+  /** Tulis 2 baris telemetri sisi tim untuk jangkar (insert maupun jembatan). */
+  const writeTelemetryLogs = (
+    anchorId: string,
+    row: FdResult,
+    homeTeamId: string,
+    awayTeamId: string,
+  ): void => {
+    const sides = [
+      { team: homeTeamId, opp: awayTeamId, venue: "HOME", gf: row.homeGoals, ga: row.awayGoals, xgF: row.homeXg, xgA: row.awayXg, shF: row.homeShots, shA: row.awayShots, stF: row.homeShotsOnTarget, stA: row.awayShotsOnTarget },
+      { team: awayTeamId, opp: homeTeamId, venue: "AWAY", gf: row.awayGoals, ga: row.homeGoals, xgF: row.awayXg, xgA: row.homeXg, shF: row.awayShots, shA: row.homeShots, stF: row.awayShotsOnTarget, stA: row.homeShotsOnTarget },
+    ];
+    for (const s of sides) {
+      const result = s.gf > s.ga ? "W" : s.gf < s.ga ? "L" : "D";
+      const hasXg = s.xgF !== null && s.xgA !== null;
+      upsertLog.run(
+        `fdlog_${anchorId}_${s.venue === "HOME" ? "h" : "a"}`,
+        anchorId, s.team, s.opp, s.venue, row.kickoffUtc.slice(0, 10), SEASON_LABEL, result,
+        s.gf, s.ga, s.xgF, s.xgA, s.shF, s.shA, s.stF, s.stA,
+        nowIso, "football-data", hasXg ? "football-data" : null,
+      );
+    }
+  };
+
+  /**
+   * Daftarkan hasil ke store identitas (K1): resolusi UID dari baris
+   * jangkar dataset + observasi hasil final. Id fd hasil ditautkan ke UID
+   * yang sama bila jangkarnya baris sumber lain. Mengembalikan outcome
+   * observasi (null saat dry-run / identitas ambigu — data hasil tetap
+   * tertulis, tautan identitasnya masuk antrean peninjauan).
+   */
+  const registerResultIdentity = (
+    anchorId: string,
+    fdId: string,
+    row: FdResult,
+  ): ObservationOutcome | null => {
+    if (DRY_RUN) return null;
+    const anchor = getMatchRow.get(anchorId) as
+      | { competition_id: string; season: string; utc_date: string; home_team_id: string; away_team_id: string }
+      | undefined;
+    if (!anchor) return null;
+    const resolved = resolveFixtureIdentity(
+      ds,
+      {
+        source: sourceOfMatchId(anchorId),
+        sourceMatchId: anchorId,
+        competitionId: anchor.competition_id,
+        season: anchor.season,
+        homeCid: cidOf(anchor.home_team_id),
+        awayCid: cidOf(anchor.away_team_id),
+        homeName: teamNameById.get(anchor.home_team_id) ?? null,
+        awayName: teamNameById.get(anchor.away_team_id) ?? null,
+        kickoffUtc: anchor.utc_date,
+        kickoffPrecision: "exact",
+      },
+      nowIso,
+    );
+    if (resolved.kind === "ambiguous") return null;
+    const uid = resolved.fixtureUid;
+    if (fdId !== anchorId) linkAlias(ds, uid, "football-data", fdId, "result_bridge", nowIso);
+    return applyResultObservation(ds, {
+      fixtureUid: uid,
+      anchorMatchId: anchorId,
+      statusRaw: "finished",
+      homeScore: row.homeGoals,
+      awayScore: row.awayGoals,
+      source: "football-data",
+      observedAt: nowIso,
+    });
+  };
+
+  /**
+   * Daftarkan fixture katalog ke store identitas: id fd fixture dan (bila
+   * terjembatani) id katalog jangkarnya berbagi satu UID.
+   */
+  const registerFixtureIdentity = (
+    fdId: string,
+    anchorCatalogId: string | null,
+    div: string,
+    row: NonNullable<ReturnType<typeof toFixtureRow>>,
+    homeTeamId: string,
+    awayTeamId: string,
+  ): void => {
+    if (DRY_RUN) return;
+    const resolved = resolveFixtureIdentity(
+      ds,
+      {
+        source: "football-data",
+        sourceMatchId: fdId,
+        competitionId: div,
+        season: SEASON_LABEL,
+        homeCid: cidOf(homeTeamId),
+        awayCid: cidOf(awayTeamId),
+        homeName: row.homeTeam,
+        awayName: row.awayTeam,
+        kickoffUtc: row.kickoffUtc,
+        kickoffPrecision: "exact",
+      },
+      nowIso,
+    );
+    if (resolved.kind === "ambiguous") return;
+    if (anchorCatalogId && anchorCatalogId !== fdId) {
+      linkAlias(ds, resolved.fixtureUid, sourceOfMatchId(anchorCatalogId), anchorCatalogId, "catalog_bridge", nowIso);
+    }
+  };
 
   const fdKeyFor = (prefix: string, div: string, kickoffUtc: string, homeNorm: string, awayNorm: string) =>
     `${prefix}_${div}_${yyyymmdd(kickoffUtc)}_${teamSlug(homeNorm)}_${teamSlug(awayNorm)}`;
@@ -321,9 +464,30 @@ async function main() {
           if (DO_RESULTS) {
             if (existingMatchIds.has(fdId)) {
               sum.results_already_present++;
+              // Konvergensi identitas: baris fd lama (pra-K1) yang belum
+              // terdaftar tetap ditautkan + observasinya dicatat sekali.
+              registerResultIdentity(fdId, fdId, row);
             } else if (existingMatchByKey.has(bKey)) {
               anchorId = existingMatchByKey.get(bKey) as string;
-              sum.results_bridged++;
+              // Jembatan K1: hasil TIDAK lagi berhenti sebagai hitungan —
+              // observasi menulis skor+status final ke baris jangkar yang
+              // sudah ada (mis. sm_902 'scheduled'), mencatat revisi, dan
+              // menautkan id fd ke UID yang sama.
+              const outcome = registerResultIdentity(anchorId, fdId, row);
+              if (outcome && outcome.action === "duplicate") {
+                sum.results_already_present++;
+              } else {
+                sum.results_bridged++;
+                if (outcome && (outcome.action === "applied" || outcome.action === "corrected")) {
+                  const anchor = getMatchRow.get(anchorId) as
+                    | { home_team_id: string; away_team_id: string }
+                    | undefined;
+                  if (anchor && !DRY_RUN) {
+                    writeTelemetryLogs(anchorId, row, anchor.home_team_id, anchor.away_team_id);
+                    if (outcome.action === "applied") sum.telemetry_rows += 2;
+                  }
+                }
+              }
             } else {
               // Tim fd_ baru dari hasil: buat baris teams-nya (nama CSV apa adanya).
               for (const side of [
@@ -366,6 +530,7 @@ async function main() {
               existingMatchByKey.set(bKey, fdId);
               sum.results_inserted++;
               insertedHere = true;
+              registerResultIdentity(fdId, fdId, row);
             }
           } else if (existingMatchByKey.has(bKey)) {
             anchorId = existingMatchByKey.get(bKey) as string;
@@ -449,9 +614,12 @@ async function main() {
         if (DO_FIXTURES) {
           if (existingFixtureIds.has(fdId)) {
             fixtureSummary.already++;
+            registerFixtureIdentity(fdId, null, div, row, home.teamId, away.teamId);
           } else if (existingFixtureByKey.has(bKey)) {
             anchorId = existingFixtureByKey.get(bKey) as string;
             fixtureSummary.bridged++;
+            // Kembar katalog: id fd + id katalog (mis. sm_901) satu UID.
+            registerFixtureIdentity(fdId, anchorId, div, row, home.teamId, away.teamId);
           } else {
             if (!DRY_RUN) {
               insFixture.run(
@@ -464,6 +632,7 @@ async function main() {
             existingFixtureIds.add(fdId);
             existingFixtureByKey.set(bKey, fdId);
             fixtureSummary.inserted++;
+            registerFixtureIdentity(fdId, null, div, row, home.teamId, away.teamId);
           }
         } else if (existingFixtureByKey.has(bKey)) {
           anchorId = existingFixtureByKey.get(bKey) as string;

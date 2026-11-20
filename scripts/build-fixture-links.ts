@@ -16,6 +16,12 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
+import {
+  ensureIdentitySchema,
+  linkAlias,
+  resolveFixtureIdentity,
+  sourceOfMatchId,
+} from "../lib/identity/fixture-resolver";
 
 const ROOT = process.cwd();
 
@@ -42,9 +48,9 @@ function main() {
 
   const up = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
   const fx = up.prepare(
-    "SELECT match_id, utc_date, home_team_id, home_team_name, away_team_id, away_team_name FROM upcoming_fixtures",
+    "SELECT match_id, competition_id, utc_date, home_team_id, home_team_name, away_team_id, away_team_name FROM upcoming_fixtures",
   ).all() as unknown as {
-    match_id: string; utc_date: string;
+    match_id: string; competition_id: string | null; utc_date: string;
     home_team_id: string; home_team_name: string;
     away_team_id: string; away_team_name: string;
   }[];
@@ -84,6 +90,54 @@ function main() {
   fs.writeFileSync(path.join(ROOT, "data/fixture-links.json"), JSON.stringify(out, null, 2));
   console.log(`fixtures=${fx.length} grup-kembar=${dupGroups} baris-kembar=${links.length} fixture-tim-tak-teresolusi=${unresolved}`);
   console.log("tertulis: data/fixture-links.json");
+
+  // K1: grup kembar yang sama juga didaftarkan ke store identitas
+  // persisten di dataset (satu UID per laga fisik, alias dua arah), supaya
+  // resolver hasil dan adapter web tidak bergantung pada file JSON saja.
+  // Output JSON di atas tidak berubah. Dataset yang belum ada (checkout
+  // tanpa data) dilewati — builder tetap murni penulis registry katalog.
+  const dsPath = path.join(ROOT, "data/thestats_dataset.db");
+  if (fs.existsSync(dsPath)) {
+    const ds = new DatabaseSync(dsPath);
+    ds.exec("PRAGMA journal_mode = WAL;");
+    ds.exec("PRAGMA busy_timeout = 60000;");
+    try {
+      ensureIdentitySchema(ds);
+      const nowIso = new Date().toISOString();
+      const rowById = new Map(fx.map((f) => [f.match_id, f]));
+      let registered = 0;
+      for (const [key, ids] of groups) {
+        if (ids.length < 2) continue;
+        const [kickoffUtc, homeCid, awayCid] = key.split("|");
+        const canonical = ids.find((i) => i.startsWith("sm_")) ?? ids[0];
+        const primary = rowById.get(canonical);
+        const resolved = resolveFixtureIdentity(
+          ds,
+          {
+            source: sourceOfMatchId(canonical),
+            sourceMatchId: canonical,
+            competitionId: primary?.competition_id ?? null,
+            homeCid,
+            awayCid,
+            homeName: primary?.home_team_name ?? null,
+            awayName: primary?.away_team_name ?? null,
+            kickoffUtc,
+            kickoffPrecision: "exact",
+          },
+          nowIso,
+        );
+        if (resolved.kind === "ambiguous") continue;
+        for (const id of ids) {
+          if (id === canonical) continue;
+          linkAlias(ds, resolved.fixtureUid, sourceOfMatchId(id), id, "catalog_twin", nowIso);
+          registered++;
+        }
+      }
+      console.log(`identitas: ${registered} alias kembar terdaftar ke store dataset`);
+    } finally {
+      ds.close();
+    }
+  }
 }
 
 main();

@@ -17,6 +17,13 @@ import {
   loadCanonicalTeams,
 } from "../quant/team-identity";
 import { MARKET_GRADE_THRESHOLDS } from "../picks/engine";
+import {
+  getSiblingIds,
+  isFinishedStatus,
+  linkSiblingsOf,
+  loadFixtureLinkGroups,
+  type FixtureLinkGroup,
+} from "../identity/fixture-resolver";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -232,28 +239,35 @@ const LATEST_PER_MATCH = `
     ON t.mid = p.id
 `;
 
-/** Kembar katalog (mt_ ↔ sm_) dari data/fixture-links.json — untuk hasil laga. */
-let twinMap: Map<string, string[]> | null = null;
-function twinsOf(matchId: string): string[] {
-  if (!twinMap) {
-    twinMap = new Map();
-    try {
-      const links = JSON.parse(
-        fs.readFileSync(path.join(process.cwd(), "data", "fixture-links.json"), "utf8"),
-      ) as { groups?: { match_ids: string[] }[] };
-      for (const grp of links.groups ?? []) {
-        for (const id of grp.match_ids) twinMap.set(id, grp.match_ids);
-      }
-    } catch {
-      /* tanpa tautan: hanya id sendiri */
-    }
+/**
+ * Seluruh id satu laga fisik dengan `matchId` — untuk hasil laga.
+ *
+ * K1: dua sumber tautan lewat resolver identitas yang sama dengan
+ * produser: (1) registry katalog data/fixture-links.json dibaca dengan
+ * parser tervalidasi bersama (bentuk sebenarnya `links[]`, bukan
+ * `groups` yang dicari versi lama — itulah sebabnya hasil kembar dulu
+ * tidak pernah terbaca web); (2) store identitas persisten di dataset
+ * (fixture_aliases), yang menjangkau kembar yang tidak berbagi baris
+ * katalog. DB pra-migrasi tanpa tabel identitas degrade ke (1) saja.
+ */
+let linkGroupsCache: FixtureLinkGroup[] | null = null;
+function siblingsOf(matchId: string): string[] {
+  if (!linkGroupsCache) {
+    linkGroupsCache = loadFixtureLinkGroups(path.join(process.cwd(), "data"));
   }
-  return twinMap.get(matchId) ?? [matchId];
+  const ids = new Set<string>([matchId]);
+  for (const id of linkSiblingsOf(linkGroupsCache, matchId)) ids.add(id);
+  try {
+    for (const id of getSiblingIds(datasetDb(), matchId)) ids.add(id);
+  } catch {
+    /* dataset belum tersedia / belum bermigrasi: tautan file tetap jalan */
+  }
+  return [...ids];
 }
 
 export function getResult(matchId: string): MatchResult | null {
   const d = datasetDb();
-  for (const id of twinsOf(matchId)) {
+  for (const id of siblingsOf(matchId)) {
     const row = d
       .prepare(
         `SELECT home_score, away_score, status FROM matches WHERE match_id = ?`,
@@ -265,7 +279,10 @@ export function getResult(matchId: string): MatchResult | null {
       return {
         home_goals: row.home_score,
         away_goals: row.away_score,
-        finished: row.status === "FT",
+        // Kosakata status dinormalisasi: dataset memakai 'finished',
+        // sumber lain 'FT' — keduanya final (dulu flag ini selalu false
+        // untuk baris dataset karena perbandingannya literal 'FT').
+        finished: isFinishedStatus(row.status),
       };
     }
   }

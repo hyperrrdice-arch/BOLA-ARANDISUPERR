@@ -127,6 +127,13 @@ export function getPicksDb(): DatabaseSync {
       away_goals INTEGER NOT NULL,
       hit INTEGER NOT NULL CHECK (hit IN (0,1))
     );
+    CREATE TABLE IF NOT EXISTS pick_voids (
+      pick_id INTEGER PRIMARY KEY REFERENCES picks(id),
+      fixture_uid TEXT,
+      voided_utc TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      policy_version TEXT NOT NULL
+    );
     CREATE UNIQUE INDEX IF NOT EXISTS idx_picks_lab_unique
       ON picks(match_id, market, selection, source) WHERE source = 'lab';
     CREATE UNIQUE INDEX IF NOT EXISTS idx_picks_live_unique
@@ -369,6 +376,55 @@ export function recordOutcome(
   `,
   ).run(pickId, resolvedUtc ?? new Date().toISOString(), homeGoals, awayGoals, hit);
   return { hit };
+}
+
+// ============================================================================
+// VOID — pick yang batal demi aturan settlement (PRD D2: laga dibatalkan
+// provider, atau dijadwalkan ulang ke hari kalender WIB berbeda sesudah
+// publikasi). Void BUKAN hit dan BUKAN miss: pick tidak masuk penyebut
+// menang/kalah, jadi ia dicatat di tabel terpisah (pick_voids), bukan
+// sebagai outcome. Idempoten per pick.
+// ============================================================================
+export function markPickVoid(
+  pickId: number,
+  opts: { fixtureUid?: string | null; reason: string; policyVersion: string; voidedUtc?: string },
+): { voided: boolean } {
+  const db = getPicksDb();
+  const result = db
+    .prepare(
+      `INSERT OR IGNORE INTO pick_voids (pick_id, fixture_uid, voided_utc, reason, policy_version)
+       VALUES (?, ?, ?, ?, ?)`,
+    )
+    .run(
+      pickId,
+      opts.fixtureUid ?? null,
+      opts.voidedUtc ?? new Date().toISOString(),
+      opts.reason,
+      opts.policyVersion,
+    );
+  return { voided: Number(result.changes) > 0 };
+}
+
+export function listVoidedPickIds(): Set<number> {
+  const db = getPicksDb();
+  const rows = db.prepare("SELECT pick_id FROM pick_voids").all() as { pick_id: number }[];
+  return new Set(rows.map((r) => r.pick_id));
+}
+
+export interface PickVoidRow {
+  pick_id: number;
+  fixture_uid: string | null;
+  voided_utc: string;
+  reason: string;
+  policy_version: string;
+}
+
+export function getPickVoid(pickId: number): PickVoidRow | null {
+  const db = getPicksDb();
+  const row = db
+    .prepare("SELECT pick_id, fixture_uid, voided_utc, reason, policy_version FROM pick_voids WHERE pick_id = ?")
+    .get(pickId) as PickVoidRow | undefined;
+  return row ?? null;
 }
 
 // ============================================================================
