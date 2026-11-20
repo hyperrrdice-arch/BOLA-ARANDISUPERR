@@ -1,0 +1,377 @@
+{
+  "manifestVersion": 1,
+  "modelVersion": "2.0-dixon-coles-mle+kfit10+hl365+rho:zero+js2",
+  "engine": {
+    "ratingsVersion": "2.0-dixon-coles-mle",
+    "implementation": "dixon-coles-ipf"
+  },
+  "config": {
+    "kappa": 10,
+    "kfit": 10,
+    "halfLifeDays": 365,
+    "rhoMode": "zero",
+    "blend": {
+      "kind": "james-stein",
+      "kappaScale": 2
+    }
+  },
+  "training": {
+    "totalMatches": 73412,
+    "leagueCount": 84,
+    "teamCount": 2088,
+    "window": {
+      "start": "2024-01-01",
+      "end": "2026-11-16",
+      "basis": "match_dates"
+    },
+    "perLeague": [
+      {
+        "div": "B1",
+        "matches": 1619
+      },
+      {
+        "div": "D1",
+        "matches": 1575
+      },
+      {
+        "div": "D2",
+        "matches": 1593
+      },
+      {
+        "div": "E0",
+        "matches": 1960
+      },
+      {
+        "div": "E1",
+        "matches": 2879
+      },
+      {
+        "div": "E2",
+        "matches": 119
+      },
+      {
+        "div": "E3",
+        "matches": 154
+      },
+      {
+        "div": "EC",
+        "matches": 173
+      },
+      {
+        "div": "F1",
+        "matches": 1732
+      },
+      {
+        "div": "F2",
+        "matches": 1822
+      },
+      {
+        "div": "G1",
+        "matches": 1231
+      },
+      {
+        "div": "I1",
+        "matches": 1960
+      },
+      {
+        "div": "I2",
+        "matches": 1960
+      },
+      {
+        "div": "N1",
+        "matches": 1602
+      },
+      {
+        "div": "P1",
+        "matches": 1601
+      },
+      {
+        "div": "SC0",
+        "matches": 1188
+      },
+      {
+        "div": "SC1",
+        "matches": 73
+      },
+      {
+        "div": "SC2",
+        "matches": 74
+      },
+      {
+        "div": "SC3",
+        "matches": 70
+      },
+      {
+        "div": "SM1007",
+        "matches": 279
+      },
+      {
+        "div": "SM1034",
+        "matches": 662
+      },
+      {
+        "div": "SM1073",
+        "matches": 409
+      },
+      {
+        "div": "SM1107",
+        "matches": 378
+      },
+      {
+        "div": "SM12",
+        "matches": 1271
+      },
+      {
+        "div": "SM1356",
+        "matches": 357
+      },
+      {
+        "div": "SM14",
+        "matches": 1277
+      },
+      {
+        "div": "SM17",
+        "matches": 1296
+      },
+      {
+        "div": "SM181",
+        "matches": 457
+      },
+      {
+        "div": "SM208",
+        "matches": 714
+      },
+      {
+        "div": "SM211",
+        "matches": 557
+      },
+      {
+        "div": "SM229",
+        "matches": 675
+      },
+      {
+        "div": "SM244",
+        "matches": 420
+      },
+      {
+        "div": "SM262",
+        "matches": 652
+      },
+      {
+        "div": "SM271",
+        "matches": 464
+      },
+      {
+        "div": "SM274",
+        "matches": 465
+      },
+      {
+        "div": "SM292",
+        "matches": 516
+      },
+      {
+        "div": "SM301",
+        "matches": 693
+      },
+      {
+        "div": "SM304",
+        "matches": 717
+      },
+      {
+        "div": "SM325",
+        "matches": 534
+      },
+      {
+        "div": "SM372",
+        "matches": 541
+      },
+      {
+        "div": "SM384",
+        "matches": 861
+      },
+      {
+        "div": "SM387",
+        "matches": 879
+      },
+      {
+        "div": "SM444",
+        "matches": 680
+      },
+      {
+        "div": "SM45",
+        "matches": 320
+      },
+      {
+        "div": "SM453",
+        "matches": 729
+      },
+      {
+        "div": "SM462",
+        "matches": 703
+      },
+      {
+        "div": "SM465",
+        "matches": 694
+      },
+      {
+        "div": "SM474",
+        "matches": 744
+      },
+      {
+        "div": "SM486",
+        "matches": 585
+      },
+      {
+        "div": "SM501",
+        "matches": 525
+      },
+      {
+        "div": "SM564",
+        "matches": 870
+      },
+      {
+        "div": "SM567",
+        "matches": 1067
+      },
+      {
+        "div": "SM573",
+        "matches": 697
+      },
+      {
+        "div": "SM591",
+        "matches": 528
+      },
+      {
+        "div": "SM600",
+        "matches": 738
+      },
+      {
+        "div": "SM603",
+        "matches": 896
+      },
+      {
+        "div": "SM609",
+        "matches": 562
+      },
+      {
+        "div": "SM636",
+        "matches": 1364
+      },
+      {
+        "div": "SM648",
+        "matches": 1099
+      },
+      {
+        "div": "SM651",
+        "matches": 1122
+      },
+      {
+        "div": "SM663",
+        "matches": 685
+      },
+      {
+        "div": "SM672",
+        "matches": 1254
+      },
+      {
+        "div": "SM72",
+        "matches": 716
+      },
+      {
+        "div": "SM74",
+        "matches": 897
+      },
+      {
+        "div": "SM743",
+        "matches": 811
+      },
+      {
+        "div": "SM770",
+        "matches": 874
+      },
+      {
+        "div": "SM779",
+        "matches": 1540
+      },
+      {
+        "div": "SM8",
+        "matches": 851
+      },
+      {
+        "div": "SM806",
+        "matches": 524
+      },
+      {
+        "div": "SM82",
+        "matches": 684
+      },
+      {
+        "div": "SM830",
+        "matches": 625
+      },
+      {
+        "div": "SM85",
+        "matches": 704
+      },
+      {
+        "div": "SM860",
+        "matches": 529
+      },
+      {
+        "div": "SM9",
+        "matches": 1281
+      },
+      {
+        "div": "SM902",
+        "matches": 516
+      },
+      {
+        "div": "SM938",
+        "matches": 313
+      },
+      {
+        "div": "SM944",
+        "matches": 715
+      },
+      {
+        "div": "SM959",
+        "matches": 406
+      },
+      {
+        "div": "SM968",
+        "matches": 136
+      },
+      {
+        "div": "SM983",
+        "matches": 57
+      },
+      {
+        "div": "SM989",
+        "matches": 712
+      },
+      {
+        "div": "SP1",
+        "matches": 1978
+      },
+      {
+        "div": "SP2",
+        "matches": 2409
+      },
+      {
+        "div": "T1",
+        "matches": 1813
+      }
+    ]
+  },
+  "calibration": {
+    "calibrated": 32,
+    "partial": 35,
+    "uncalibrated": 1,
+    "unknown": 16
+  },
+  "ratingsHash": "sha256:8a790aeaa4e54fdd",
+  "generatedBy": "scripts/build-model-manifest.ts --activate",
+  "codeSha": null,
+  "generatedAt": "2026-11-20T08:23:32.753Z",
+  "contentHash": "sha256:98bdb64ba1df8fb31deb70db530c75da2568312eb73f400a81fdcac2fddd11e1"
+}

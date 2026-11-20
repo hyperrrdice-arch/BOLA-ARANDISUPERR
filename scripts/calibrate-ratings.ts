@@ -47,6 +47,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { fitLeagueRatings, fitRhoOnTrain, selectTrainingRows, type FitMatchRow, type LeagueFitResult } from "../lib/quant/fit";
+import { PRODUCTION_MODEL_CONFIG, writeCandidateManifest } from "../lib/quant/model-manifest";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { FD_DIVISIONS } from "../lib/feeds/football-data";
 
@@ -724,6 +725,30 @@ function main() {
   console.log(`Baris status kanonik (source='canonical') disisipkan: ${nCanonicalRows}.`);
   console.log(`Total alias nama fixture ditambahkan: +${totalAliases}.`);
   console.log(`calibrated_ratings.json: ${ratings.totalLeagues} liga, ${ratings.totalTeams} tim.`);
+
+  // Manifest kandidat (K4): fit menulis manifest KANDIDAT yang
+  // mendeskripsikan artefak rating terbaru. Manifest AKTIF tidak pernah
+  // disentuh jalur fit/refresh — promosi hanya lewat gerbang eksplisit
+  // scripts/promote-model.ts. Kegagalan manifest tidak menggagalkan fit.
+  try {
+    const candidate = writeCandidateManifest(path.join(process.cwd(), "data"), {
+      config: {
+        kappa: SHRINK_KAPPA,
+        kfit: SHRINK_KAPPA,
+        halfLifeDays: HALF_LIFE_DAYS,
+        rhoMode: RHO_MODE,
+        blend: { ...PRODUCTION_MODEL_CONFIG.blend },
+      },
+      generatedBy: "scripts/calibrate-ratings.ts",
+    });
+    console.log(
+      `Manifest kandidat: ${candidate.modelVersion} (latih ${candidate.training.totalMatches} laga, ${candidate.ratingsHash}).`,
+    );
+  } catch (err) {
+    console.warn(
+      `[manifest] gagal menulis manifest kandidat: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 main();

@@ -24,6 +24,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { writeCandidateManifest } from "../lib/quant/model-manifest";
 import {
   CUP_COMPETITIONS,
   anchorStoreIds,
@@ -187,6 +188,23 @@ function main(): void {
   );
   fs.writeFileSync(ratingsPath, JSON.stringify(ratings, null, 2));
   console.log("calibrated_ratings.json: blok canonical.cupOffsets ditulis.");
+
+  // Manifest kandidat (K4): skrip ini menulis ulang artefak rating
+  // sesudah calibrate-ratings di rantai refresh, jadi kandidat disegarkan
+  // lagi agar hash-nya mendeskripsikan file final. Manifest AKTIF tidak
+  // disentuh — promosi hanya lewat scripts/promote-model.ts.
+  try {
+    const candidate = writeCandidateManifest(DATA_DIR, {
+      generatedBy: "scripts/fit-global-offsets.ts",
+    });
+    console.log(
+      `Manifest kandidat diperbarui: ${candidate.modelVersion} (${candidate.ratingsHash}).`,
+    );
+  } catch (err) {
+    console.warn(
+      `[manifest] gagal memperbarui manifest kandidat: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 
   // ── 3. league_calibration: baris 17 kompetisi (source='cup-offset') ──
   const ds = new DatabaseSync(path.join(DATA_DIR, "thestats_dataset.db"));
