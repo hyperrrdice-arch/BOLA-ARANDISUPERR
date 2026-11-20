@@ -1,20 +1,27 @@
 /**
- * PICKS — build a parlay slip from the highest-probability picks.
+ * PILIHAN — susun gabungan dari pilihan RESMI pra-laga.
  *
- * Server Component: reads the live-run ledger (listSafePicks) plus the
- * score matrices of the packages actually on the page (getPackageMatrix),
- * then hands interaction to ParlayBuilder (client). An 11x11 matrix is
- * ~2.7 KB of JSON; only packages behind these picks are sent.
+ * Server Component: membaca pilihan resmi yang diterbitkan jalur
+ * publikasi K2 (daftarPilihanPraLaga — pick_uid terisi, peluang terbit
+ * beku, belum sepak mula) plus matriks skor paket yang benar-benar ada
+ * di halaman, lalu menyerahkan interaksi ke ParlayBuilder (klien).
+ * Angka builder adalah peluang SAAT TERBIT, bukan analisis terbaru.
+ * Slip yang disusun di sini adalah draf pengguna — tidak masuk rekam
+ * hasil resmi (D4); tiket resmi hidup di /bukti.
  */
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import ParlayBuilder, { type BuilderPick } from "../../../components/pilihan/ParlayBuilder";
 import { PageLoading } from "../../../components/ui";
-import { getPackageMatrix, listSafePicks } from "../../../lib/web/data";
+import { getPackageMatrix } from "../../../lib/web/data";
+import { daftarPilihanPraLaga } from "../../../lib/web/rekam";
+
+export const metadata: Metadata = { title: "Pilihan pra-laga | Bola" };
 
 export default function PilihanPage() {
   return (
-    <Suspense fallback={<PageLoading label="Loading picks…" />}>
+    <Suspense fallback={<PageLoading label="Memuat pilihan…" />}>
       <PilihanContent />
     </Suspense>
   );
@@ -22,7 +29,7 @@ export default function PilihanPage() {
 
 async function PilihanContent() {
   await connection();
-  const picks = listSafePicks(300);
+  const picks = daftarPilihanPraLaga(new Date().toISOString());
 
   const packageIds = new Set<number>();
   for (const p of picks) if (p.package_id !== null) packageIds.add(p.package_id);
@@ -33,8 +40,9 @@ async function PilihanContent() {
   }
 
   const builderPicks: BuilderPick[] = picks.map((p) => ({
-    key: `pick-${p.id}`,
+    key: p.pick_uid,
     matchId: p.match_id,
+    fixtureUid: p.fixture_uid,
     kickoffUtc: p.kickoff_utc,
     home: p.home,
     away: p.away,
@@ -43,12 +51,13 @@ async function PilihanContent() {
     grade: p.grade,
     market: p.market,
     selection: p.selection,
-    // Builder memakai probabilitas EFEKTIF (koreksi lab) bila kolomnya ada;
-    // model mentah hanya jadi cadangan, dan basisnya dinyatakan eksplisit
-    // lewat probBasis (audit T3 — sebelumnya baris ini selalu model_prob
-    // mentah walau antarmuka menjanjikan angka efektif).
-    prob: p.effective_prob ?? p.model_prob,
-    probBasis: p.effective_source === "lab-band" ? "lab" : "model",
+    // Peluang builder = peluang SAAT TERBIT (beku K2). Basisnya memetakan
+    // basis terbit: effective → koreksi lab yang dibekukan ("lab"),
+    // model → peluang model saat terbit ("model").
+    prob: p.published_prob,
+    probBasis: p.probability_basis === "effective" ? "lab" : "model",
+    basisTerbit: p.probability_basis,
+    publishedAtUtc: p.published_at_utc,
     modelProb: p.model_prob,
     sourcesAgree: p.sources_agree,
     packageId: p.package_id,
@@ -58,10 +67,10 @@ async function PilihanContent() {
     <div>
       <header className="mb-10">
         <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-[-0.02em] text-ink">
-          Build your parlay.
+          Pilihan pra-laga
         </h1>
         <p className="mt-2 text-[15px] text-mid-gray">
-          Combined probability, from the score matrix.
+          Peluang resmi saat terbit, digabung persis dari matriks skor.
         </p>
       </header>
 

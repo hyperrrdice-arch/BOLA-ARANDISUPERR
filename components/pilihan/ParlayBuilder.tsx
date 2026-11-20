@@ -1,23 +1,43 @@
 "use client";
 
 /**
- * PARLAY BUILDER — the live-run pick list plus the slip panel.
+ * PARLAY BUILDER — daftar pilihan RESMI pra-laga + panel Pilihanmu.
  *
- * Data (picks + package matrices) arrives from the Server Component as
- * serialisable props; this component only holds the user's selection.
- * Combined probability comes from lib/web/parlay.ts (pure): multiple
- * picks in one match are combined exactly from the score matrix,
- * across matches they are multiplied (independence assumption) — the
- * method is labelled in the slip, never hidden.
+ * Data (pilihan resmi K2 + matriks paket) tiba dari Server Component
+ * sebagai props serial; komponen ini hanya memegang pilihan pengguna
+ * (draf browser — tidak pernah masuk rekam hasil resmi, D4).
+ *
+ * Perilaku K7 (bab UI U4 + QA U03/U04):
+ * - Pilihan dikelompokkan per laga FISIK (fixture_uid kanonik K1), bukan
+ *   per ID provider — alias laga yang sama tidak menggandakan grup.
+ * - Angka yang dipakai adalah peluang SAAT TERBIT (beku K2) beserta
+ *   basisnya; analisis yang lebih baru tidak mengubah angka builder.
+ * - Gabungan dihitung lib/web/parlay.ts: satu laga persis dari matriks
+ *   skor, antarlaga dikalikan dengan asumsi independensi yang DITULIS.
+ * - Jam berjalan: begitu sepak mula tiba, penambahan terkunci; pilihan
+ *   terpilih dari laga itu ditandai "Kedaluwarsa", dikeluarkan dari
+ *   estimasi aktif, dan tetap tampil sampai pengguna menghapusnya.
+ *   Hitung ulang berjalan berkala dan saat tab kembali aktif.
+ * - Batas produk: maksimal 12 pilihan unik.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GateStatus, GradeMark, Prob, EmptyState } from "../ui";
-import { MARKET_LABEL, jamWibOnly, labelPilihan, pct, tanggalWib } from "../../lib/web/format";
-import { combineSlip, type SlipPick } from "../../lib/web/parlay";
+import {
+  MARKET_LABEL,
+  jamWibOnly,
+  labelBasisPeluang,
+  labelPilihan,
+  pct,
+  tanggalWib,
+} from "../../lib/web/format";
+import { combineSlip, sudahMulai, type SlipPick } from "../../lib/web/parlay";
 
 export interface BuilderPick {
   key: string;
+  /** ID provider untuk tautan detail. */
   matchId: string;
+  /** UID laga fisik kanonik — kunci kelompok & hitungan laga unik. */
+  fixtureUid: string;
   kickoffUtc: string;
   home: string;
   away: string;
@@ -26,11 +46,15 @@ export interface BuilderPick {
   grade: string;
   market: string;
   selection: string;
-  /** Effective probability (lab-corrected when probBasis is "lab"). */
+  /** Peluang saat terbit (beku K2). */
   prob: number;
-  /** "lab" = prob is the lab-corrected probability; "model" = raw model prob. */
+  /** "lab" = basis effective (koreksi lab beku); "model" = peluang model beku. */
   probBasis: "lab" | "model";
-  /** Raw model probability, kept for reference/display. */
+  /** Basis peluang terbit mentah dari ledger (effective/model/…) untuk label. */
+  basisTerbit: string | null;
+  /** Waktu terbit pilihan (ISO UTC) — ditampilkan di samping basis. */
+  publishedAtUtc: string | null;
+  /** Peluang model mentah, referensi. */
   modelProb: number;
   sourcesAgree: number;
   packageId: number | null;
@@ -39,9 +63,9 @@ export interface BuilderPick {
 const MAX_PICKS = 12;
 type GradeFilter = "AB" | "A" | "ALL";
 const FILTERS: { id: GradeFilter; label: string }[] = [
-  { id: "AB", label: "A + B" },
-  { id: "A", label: "A only" },
-  { id: "ALL", label: "All" },
+  { id: "AB", label: "Kelas A + B" },
+  { id: "A", label: "Kelas A saja" },
+  { id: "ALL", label: "Semua kelas" },
 ];
 
 export default function ParlayBuilder({
@@ -53,8 +77,32 @@ export default function ParlayBuilder({
 }) {
   const [filter, setFilter] = useState<GradeFilter>("AB");
   const [selected, setSelected] = useState<BuilderPick[]>([]);
+  // Jam dinding klien: diperbarui berkala + saat tab kembali aktif (U04).
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const segar = () => setNowMs(Date.now());
+    const t = setInterval(segar, 5_000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") segar();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
 
   const selectedKeys = useMemo(() => new Set(selected.map((p) => p.key)), [selected]);
+
+  const kedaluwarsa = useMemo(
+    () => new Set(selected.filter((p) => sudahMulai(p.kickoffUtc, nowMs)).map((p) => p.key)),
+    [selected, nowMs],
+  );
+  const aktif = useMemo(
+    () => selected.filter((p) => !kedaluwarsa.has(p.key)),
+    [selected, kedaluwarsa],
+  );
+  const lagaUnik = useMemo(() => new Set(aktif.map((p) => p.fixtureUid)).size, [aktif]);
 
   const groups = useMemo(() => {
     const keep = (g: string) =>
@@ -62,17 +110,17 @@ export default function ParlayBuilder({
     const map = new Map<string, BuilderPick[]>();
     for (const p of picks) {
       if (!keep(p.grade)) continue;
-      const arr = map.get(p.matchId);
+      const arr = map.get(p.fixtureUid);
       if (arr) arr.push(p);
-      else map.set(p.matchId, [p]);
+      else map.set(p.fixtureUid, [p]);
     }
     return [...map.values()];
   }, [picks, filter]);
 
   const result = useMemo(() => {
-    const slip: SlipPick[] = selected.map((p) => ({
+    const slip: SlipPick[] = aktif.map((p) => ({
       key: p.key,
-      matchId: p.matchId,
+      matchId: p.fixtureUid,
       market: p.market,
       selection: p.selection,
       prob: p.prob,
@@ -80,20 +128,22 @@ export default function ParlayBuilder({
       matrix: p.packageId !== null ? matrices[p.packageId] ?? null : null,
     }));
     return combineSlip(slip);
-  }, [selected, matrices]);
+  }, [aktif, matrices]);
 
   const pickByMatch = useMemo(() => {
     const m = new Map<string, BuilderPick>();
-    for (const p of selected) if (!m.has(p.matchId)) m.set(p.matchId, p);
+    for (const p of aktif) if (!m.has(p.fixtureUid)) m.set(p.fixtureUid, p);
     return m;
-  }, [selected]);
+  }, [aktif]);
 
   const full = selected.length >= MAX_PICKS;
   const multiGroups = result.groups.filter((g) => g.count > 1);
 
   function toggle(p: BuilderPick) {
     setSelected((cur) => {
+      // Menghapus selalu boleh — yang terkunci hanya MENAMBAH (U04).
       if (cur.some((s) => s.key === p.key)) return cur.filter((s) => s.key !== p.key);
+      if (sudahMulai(p.kickoffUtc, Date.now())) return cur;
       if (cur.length >= MAX_PICKS) return cur;
       return [...cur, p];
     });
@@ -102,8 +152,8 @@ export default function ParlayBuilder({
   if (picks.length === 0) {
     return (
       <EmptyState
-        title="No live picks yet"
-        note="The next slate writes its picks before kick-off — never after."
+        title="Belum ada pilihan resmi"
+        note="Slate berikutnya menulis pilihannya sebelum sepak mula — tidak pernah sesudahnya."
       />
     );
   }
@@ -113,54 +163,64 @@ export default function ParlayBuilder({
       {/* ---------------------------------------------------------- slip */}
       <aside
         className="order-1 lg:order-2 lg:sticky lg:top-10 lg:border-l lg:border-hairline/60 lg:pl-10"
-        aria-label="Your slip"
+        aria-label="Pilihanmu"
       >
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-xl font-semibold text-ink">Your slip</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">Pilihanmu</h2>
           <span className="text-[13px] text-faint">
-            {selected.length} / {MAX_PICKS} max
+            {selected.length} / {MAX_PICKS} maks
           </span>
         </div>
 
         {selected.length === 0 ? (
-          <p className="py-8 text-sm leading-relaxed text-mid-gray">No picks yet.</p>
+          <p className="py-8 text-sm leading-relaxed text-mid-gray">Belum ada pilihan.</p>
         ) : (
           <>
             <ul className="mt-4">
-              {selected.map((p) => (
-                <li
-                  key={p.key}
-                  className="flex items-start gap-2.5 border-t border-hairline/50 py-2.5 first:border-t-0"
-                >
-                  <GradeMark grade={p.grade} className="pt-px" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-ink">
-                      {labelPilihan(p.market, p.selection, p.home, p.away)}
-                    </span>
-                    <span className="flex items-center gap-2 text-[12px] text-faint">
-                      <span className="truncate">
-                        {p.home} vs {p.away}
-                      </span>
-                      <GateStatus status={p.gateStatus} />
-                    </span>
-                  </span>
-                  <Prob value={p.prob} className="text-sm" />
-                  <button
-                    type="button"
-                    onClick={() => toggle(p)}
-                    aria-label={`Remove ${labelPilihan(p.market, p.selection, p.home, p.away)} from the slip`}
-                    className="shrink-0 px-1 text-lg leading-none text-mid-gray transition-colors hover:text-brick"
+              {selected.map((p) => {
+                const hangus = kedaluwarsa.has(p.key);
+                const label = labelPilihan(p.market, p.selection, p.home, p.away);
+                return (
+                  <li
+                    key={p.key}
+                    className="flex items-start gap-2.5 border-t border-hairline/50 py-2.5 first:border-t-0"
                   >
-                    ×
-                  </button>
-                </li>
-              ))}
+                    <GradeMark grade={p.grade} className="pt-px" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm text-ink">{label}</span>
+                      <span className="flex items-center gap-2 text-[12px] text-faint">
+                        <span className="truncate">
+                          {p.home} vs {p.away}
+                        </span>
+                        <GateStatus status={p.gateStatus} />
+                      </span>
+                      {hangus && (
+                        <span className="mt-0.5 block text-[12px] font-medium text-brick">
+                          Kedaluwarsa — laga sudah mulai, dikeluarkan dari perkiraan.
+                        </span>
+                      )}
+                    </span>
+                    <Prob value={p.prob} className="text-sm" />
+                    <button
+                      type="button"
+                      onClick={() => toggle(p)}
+                      aria-label={`Hapus ${label}, ${p.home} vs ${p.away}, dari Pilihanmu`}
+                      className="shrink-0 px-1 text-sm text-mid-gray transition-colors hover:text-brick"
+                    >
+                      Hapus
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="mt-6 border-t border-hairline pt-5">
-              <p className="text-[13px] text-mid-gray">Combined probability</p>
+            <div className="mt-6 border-t border-hairline pt-5" aria-live="polite">
+              <p className="text-[13px] text-mid-gray">
+                {aktif.length} pilihan dari {lagaUnik} laga
+              </p>
+              <p className="mt-3 text-[13px] text-mid-gray">Perkiraan peluang semua pilihan tepat</p>
               <p className="tabular-nums mt-1.5 text-[40px] leading-none font-semibold text-accent">
-                {pct(result.combined, result.combined >= 0.1 ? 1 : 2)}
+                {aktif.length === 0 ? "—" : pct(result.combined, result.combined >= 0.1 ? 1 : 2)}
               </p>
 
               {multiGroups.length > 0 && (
@@ -174,10 +234,10 @@ export default function ParlayBuilder({
                         </span>{" "}
                         <span className="tabular-nums text-ink">{pct(g.prob)}</span>
                         <span className="block text-faint">
-                          {g.count} picks in this match —{" "}
+                          {g.count} pilihan di laga ini —{" "}
                           {g.exact
-                            ? "combined from the score matrix."
-                            : "no matrix, multiplied (an estimate)."}
+                            ? "digabung persis dari matriks skor."
+                            : "tanpa matriks, dikalikan (perkiraan)."}
                         </span>
                       </li>
                     );
@@ -187,11 +247,11 @@ export default function ParlayBuilder({
 
               <p className="mt-5 text-[12px] leading-relaxed text-faint">
                 {result.basis === "lab" &&
-                  "Every number in this slip is a lab-corrected probability. Same-match picks are combined exactly from the score matrix."}
+                  "Semua angka di Pilihanmu adalah peluang saat terbit berbasis efektif (koreksi lab yang dibekukan saat terbit). Pilihan satu laga digabung persis dari matriks skor; antarlaga dikalikan dengan asumsi independensi."}
                 {result.basis === "model" &&
-                  "These numbers are raw model probabilities — no lab correction applies to this slip. Same-match picks are combined exactly from the model score matrix."}
+                  "Angka di Pilihanmu adalah peluang model saat terbit. Pilihan satu laga digabung persis dari matriks skor model; antarlaga dikalikan dengan asumsi independensi."}
                 {result.basis === "mixed" &&
-                  "Mixed bases: singles use lab-corrected probabilities where available; same-match combos are computed exactly from the model score matrix, not lab-corrected."}
+                  "Basis campuran: tiap pilihan memakai peluang saat terbit sesuai basisnya; gabungan satu laga dihitung persis dari matriks skor model, bukan koreksi lab."}
               </p>
 
               <button
@@ -199,20 +259,20 @@ export default function ParlayBuilder({
                 onClick={() => setSelected([])}
                 className="mt-4 text-sm text-mid-gray transition-colors hover:text-brick"
               >
-                Clear slip
+                Kosongkan
               </button>
             </div>
           </>
         )}
         {full && (
           <p className="mt-3 text-[13px] text-accent">
-            {MAX_PICKS} max — remove a pick to add another.
+            Maksimal {MAX_PICKS} pilihan. Hapus satu untuk menambah pilihan lain.
           </p>
         )}
       </aside>
 
       {/* ------------------------------------------------------ pick list */}
-      <section className="order-2 min-w-0 lg:order-1" aria-label="Picks">
+      <section className="order-2 min-w-0 lg:order-1" aria-label="Pilihan sebelum laga">
         <div className="mb-2 flex flex-wrap items-baseline gap-x-6 gap-y-2">
           {FILTERS.map((f) => (
             <button
@@ -230,21 +290,22 @@ export default function ParlayBuilder({
             </button>
           ))}
           <span className="ml-auto text-[13px] text-faint">
-            {picks.length} picks · {new Set(picks.map((p) => p.matchId)).size} matches
+            {picks.length} pilihan · {new Set(picks.map((p) => p.fixtureUid)).size} laga
           </span>
         </div>
 
         {groups.length === 0 ? (
           <EmptyState
-            title="No picks in this filter"
-            note="Switch the grade filter to see the rest of this slate."
+            title="Tidak ada pilihan pada filter ini"
+            note="Ubah filter kelas untuk melihat sisa slate ini."
           />
         ) : (
           <div>
             {groups.map((group) => {
               const head = group[0];
+              const mulai = sudahMulai(head.kickoffUtc, nowMs);
               return (
-                <div key={head.matchId} className="mt-10 first:mt-6">
+                <div key={head.fixtureUid} className="mt-10 first:mt-6">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-1">
                     <span className="tabular-nums text-sm text-mid-gray">
                       {jamWibOnly(head.kickoffUtc)}
@@ -263,6 +324,7 @@ export default function ParlayBuilder({
                   <ul>
                     {group.map((p) => {
                       const active = selectedKeys.has(p.key);
+                      const label = labelPilihan(p.market, p.selection, p.home, p.away);
                       return (
                         <li
                           key={p.key}
@@ -272,27 +334,30 @@ export default function ParlayBuilder({
                         >
                           <GradeMark grade={p.grade} className="w-4 text-center" />
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[15px] text-ink">
-                              {labelPilihan(p.market, p.selection, p.home, p.away)}
-                            </span>
+                            <span className="block truncate text-[15px] text-ink">{label}</span>
                             <span className="block text-[12px] text-faint">
-                              {MARKET_LABEL[p.market] ?? p.market}
+                              {MARKET_LABEL[p.market] ?? p.market} ·{" "}
+                              {labelBasisPeluang(p.basisTerbit)}
+                              {p.publishedAtUtc
+                                ? ` · terbit ${jamWibOnly(p.publishedAtUtc)}`
+                                : ""}
                             </span>
                           </span>
                           <span className="hidden text-[12px] text-mid-gray sm:block">
-                            {p.sourcesAgree} of 3 sources
+                            {p.sourcesAgree} sumber tersedia
                           </span>
                           <Prob value={p.prob} strong className="text-base" />
                           <button
                             type="button"
                             aria-pressed={active}
-                            disabled={!active && full}
+                            aria-label={`Tambah ${label}, ${p.home} vs ${p.away}`}
+                            disabled={mulai || (!active && full)}
                             onClick={() => toggle(p)}
                             className={`shrink-0 px-1 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                               active ? "text-mid-gray hover:text-ink" : "text-accent hover:text-ink"
                             }`}
                           >
-                            {active ? "Added" : "Add"}
+                            {mulai ? "Sudah mulai" : active ? "Terpilih" : "Tambah"}
                           </button>
                         </li>
                       );
@@ -305,9 +370,9 @@ export default function ParlayBuilder({
         )}
 
         <p className="mt-10 max-w-2xl text-[12px] leading-relaxed text-faint">
-          Grades come from the historical lab — hundreds of thousands of picks tested out of
-          sample. The probability shown is the graded (effective) probability, not the raw model
-          output.
+          Kelas berasal dari uji historis lab. Peluang yang ditampilkan adalah peluang saat
+          pilihan diterbitkan — dibekukan dari paket penerbitnya, tidak berubah oleh analisis
+          yang lebih baru.
         </p>
       </section>
     </div>

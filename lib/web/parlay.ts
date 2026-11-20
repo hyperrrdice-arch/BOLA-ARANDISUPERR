@@ -207,3 +207,17 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
 
   return { combined, exactSameMatch, basis, groups };
 }
+
+/**
+ * Gerbang waktu builder (K7, U04): sebuah laga TERKUNCI begitu sepak
+ * mula tiba — pada instant T persis sudah terkunci (konsisten dengan
+ * penolakan backend K2 yang menolak terbit pada T). Pilihan dari laga
+ * terkunci tidak bisa ditambah; yang sudah terpilih ditandai kedaluwarsa
+ * dan dikeluarkan dari estimasi aktif sampai pengguna menghapusnya.
+ * Murni — jam diserahkan pemanggil supaya dapat diuji pada batas T−1/T.
+ */
+export function sudahMulai(kickoffUtc: string, nowMs: number): boolean {
+  const ko = Date.parse(kickoffUtc);
+  if (!Number.isFinite(ko)) return true; // waktu tak terbaca → kunci, jangan tebak
+  return nowMs >= ko;
+}
