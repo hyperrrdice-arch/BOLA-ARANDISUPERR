@@ -1213,6 +1213,45 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       if (!m.competition_name) m.competition_name = pkg.payload.fixture.competition_name;
     }
   }
+  // Sumber ketiga: baris dataset — laga selesai/tanpa paket yang sudah
+  // tidak ada di katalog (katalog dibersihkan sesudah promosi telemetri)
+  // tetap terdaftar di jadwal tanggal lampau.
+  try {
+    const d = datasetDb();
+    const rows = d
+      .prepare(
+        `SELECT match_id, competition_id, utc_date, status, home_team_id, away_team_id
+         FROM matches WHERE utc_date >= ? AND utc_date < ?`,
+      )
+      .all(dariUtc, sampaiUtc) as Record<string, unknown>[];
+    const namaTim = (tid: string) => {
+      const t = d
+        .prepare(`SELECT name FROM teams WHERE team_id = ?`)
+        .get(tid) as { name: string } | undefined;
+      if (t?.name) return t.name;
+      const cid = canonicalIdForTeamId(tid);
+      return cid ? opponentName(cid) : tid;
+    };
+    for (const r of rows) {
+      const mid = r.match_id as string;
+      if (!byId.has(mid)) {
+        byId.set(mid, {
+          match_id: mid,
+          home: namaTim(r.home_team_id as string),
+          away: namaTim(r.away_team_id as string),
+          competition_name:
+            petaLiga().nama.get(r.competition_id as string) ?? (r.competition_id as string),
+          competition_country: null,
+          competition_canonical_id: r.competition_id as string,
+          kickoff_utc: r.utc_date as string,
+          statusRaw: r.status as string,
+          dariKatalog: false,
+        });
+      }
+    }
+  } catch {
+    /* dataset tak tersedia */
+  }
 
   const items: JadwalItem[] = [];
   for (const m of byId.values()) {
@@ -1248,7 +1287,23 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       topLeg: ringkas.topLeg,
     });
   }
-  items.sort(
+  // Dedup per UID kanonik: alias provider untuk laga fisik yang sama
+  // hanya menghasilkan satu baris — yang berpaket menang, lalu yang
+  // berkatalog.
+  const perUid = new Map<string, JadwalItem>();
+  const tanpaUid: JadwalItem[] = [];
+  for (const it of items) {
+    if (!it.fixture_uid) {
+      tanpaUid.push(it);
+      continue;
+    }
+    const cur = perUid.get(it.fixture_uid);
+    if (!cur || (it.package_id !== null && cur.package_id === null)) {
+      perUid.set(it.fixture_uid, it);
+    }
+  }
+  const dedup = [...tanpaUid, ...perUid.values()];
+  dedup.sort(
     (a, b) =>
       a.kickoff_utc.localeCompare(b.kickoff_utc) ||
       prioritasLiga(a.competition_canonical_id, a.competition_name) -
@@ -1256,7 +1311,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       a.competition_name.localeCompare(b.competition_name) ||
       a.match_id.localeCompare(b.match_id),
   );
-  return items;
+  return dedup;
 }
 
 /** Jendela liputan jadwal yang benar-benar diketahui (katalog ∪ paket). */
