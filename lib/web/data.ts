@@ -77,7 +77,7 @@ export interface QuantPayload {
   probabilities: Record<string, number>;
   top_scores: { home_goals: number; away_goals: number; prob: number }[];
   score_matrix: number[][];
-  market?: { probs: Record<string, number>; captured_utc: string; bookmakers: string[] } | null;
+  market?: { probs: Record<string, number>; captured_utc: string | null; bookmakers: string[] } | null;
   sm_panel?: { probs: Record<string, number>; batch_utc: string } | null;
   legs?: Leg[];
   shrunk_metadata?: {
@@ -157,6 +157,41 @@ export interface FormEntry {
 /* ---------------------------------------------------------------- helpers */
 
 /**
+ * Normalisasi field market satu paket (butir review 1). Tiga bentuk
+ * terbukti ada di tabel packages produksi: (1) lengkap — probs terisi,
+ * captured_utc string, bookmakers array; (2) warisan hadir-tapi-kosong —
+ * probs {}, captured_utc null, bookmakers null (3.650 paket; bentuk ini
+ * yang melempar TypeError di halaman detail karena komponen membaca
+ * bookmakers.length dari null); (3) market null / field absen.
+ *
+ * Aturan adapter: harga pasar dianggap TERSEDIA hanya bila ada peluang
+ * yang benar-benar tertangkap (probs tak kosong) — bentuk (2) menjadi
+ * null, sehingga bagian pasar tampil "belum tersedia" dan tidak
+ * menghitung sumber hantu. Bila harga memang ada, field pendamping yang
+ * hilang terdegradasi sendiri-sendiri: bookmakers null/absen → []
+ * (daftar nama hanyalah label), captured_utc non-string → null (waktu
+ * tangkap memang tidak tercatat). Konsumen tidak pernah melihat bentuk
+ * mentah — normalisasi hidup di sini, bukan penjaga tersebar di komponen.
+ */
+function normalizeMarket(raw: unknown): QuantPayload["market"] {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const m = raw as { probs?: unknown; captured_utc?: unknown; bookmakers?: unknown };
+  const probs =
+    m.probs && typeof m.probs === "object" && !Array.isArray(m.probs)
+      ? (m.probs as Record<string, number>)
+      : {};
+  if (Object.keys(probs).length === 0) return null;
+  return {
+    probs,
+    captured_utc:
+      typeof m.captured_utc === "string" && m.captured_utc ? m.captured_utc : null,
+    bookmakers: Array.isArray(m.bookmakers)
+      ? m.bookmakers.filter((b): b is string => typeof b === "string")
+      : [],
+  };
+}
+
+/**
  * Normalisasi payload lintas generasi paket. Tabel packages menyimpan tiga
  * bentuk historis: (1) quant-package terkini dengan fixture bersarang;
  * (2) bentuk datar awal (fixture di level atas, hanya legs — tanpa
@@ -185,13 +220,17 @@ function normalizePayload(
     probabilities: (raw.probabilities as Record<string, number>) ?? {},
     top_scores: (raw.top_scores as QuantPayload["top_scores"]) ?? [],
     score_matrix: (raw.score_matrix as number[][]) ?? [],
-    market: (raw.market as QuantPayload["market"]) ?? null,
+    market: normalizeMarket(raw.market),
     sm_panel: (raw.sm_panel as QuantPayload["sm_panel"]) ?? null,
     legs: (raw.legs as Leg[]) ?? [],
     shrunk_metadata: raw.shrunk_metadata as QuantPayload["shrunk_metadata"],
   };
   if (raw.fixture) {
-    return { ...base, ...(raw as unknown as QuantPayload) };
+    const merged = { ...base, ...(raw as unknown as QuantPayload) };
+    // Spread membawa market mentah apa adanya — normalisasi ulang di
+    // adapter (satu-satunya pintu) sebelum payload dilihat konsumen.
+    merged.market = normalizeMarket(raw.market);
+    return merged;
   }
   if (typeof raw.home === "string" && typeof raw.away === "string") {
     base.fixture = {

@@ -395,9 +395,21 @@ async function AnalisisContent({
           )}
           {p.market ? (
             <p>
-              Harga pasar ditangkap {tanggalJamWib(p.market.captured_utc, tz)}
-              {p.market.bookmakers.length > 0 && <> · {p.market.bookmakers.join(", ")}</>}.
-              Peluang pasar adalah peluang tersirat setelah margin dihapus.
+              {p.market.captured_utc ? (
+                <>
+                  Harga pasar ditangkap {tanggalJamWib(p.market.captured_utc, tz)}
+                  {p.market.bookmakers.length > 0 && (
+                    <> · {p.market.bookmakers.join(", ")}</>
+                  )}
+                  . Peluang pasar adalah peluang tersirat setelah margin dihapus.
+                </>
+              ) : (
+                <>
+                  Harga pasar tersedia, tetapi waktu tangkapnya tidak tercatat pada
+                  paket ini. Peluang pasar adalah peluang tersirat setelah margin
+                  dihapus.
+                </>
+              )}
             </p>
           ) : (
             <p>Harga pasar belum tersedia untuk laga ini.</p>
