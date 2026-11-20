@@ -15,9 +15,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pilihan Aman — Know your odds.",
+  title: "Bola — jadwal, peluang, dan rekam hasil pertandingan",
   description:
-    "Match probabilities from a calibrated model. Every pick is logged before kick-off and graded on the final score.",
+    "Probabilitas pertandingan dari model terkalibrasi. Setiap pilihan tercatat sebelum sepak mula dan dinilai dari skor akhir.",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${archivo.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink selection:bg-accent selection:text-accent-ink">
@@ -35,7 +35,7 @@ export default function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-md focus:bg-accent focus:text-accent-ink focus:text-xs focus:font-semibold"
         >
-          Skip to main content
+          Lewati ke isi
         </a>
         {children}
       </body>

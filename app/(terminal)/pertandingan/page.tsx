@@ -1,28 +1,44 @@
 /**
- * MATCHES — the next 72 hours from the latest analysis packages,
- * grouped by day, then competition. Every number comes from stored
- * pipeline output; this page calculates nothing.
+ * JADWAL PERTANDINGAN — daftar kanonik dari katalog jadwal (termasuk
+ * laga tanpa paket), dikelompokkan menurut TANGGAL LOKAL zona terpilih
+ * dan disaring lewat query URL yang dapat dibagikan (K6, U01/U02).
+ * Halaman ini tidak menghitung model apa pun; angka berasal dari paket
+ * tersimpan dan keadaan hasil di adapter lib/web/data.ts.
  */
 import { Suspense } from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import {
+  cakupanJadwal,
   getPackagePicks,
-  listFinished,
-  listUpcoming,
-  type FixtureListItem,
+  listSchedule,
+  type JadwalItem,
 } from "@/lib/web/data";
-import { GATE_LABEL, jamWibOnly, labelHari, labelPilihan, tanggalWib } from "@/lib/web/format";
-import { EmptyState, GateStatus, GradeMark, PageLoading, Prob, SectionHead } from "@/components/ui";
+import {
+  DAFTAR_ZONA,
+  GATE_LABEL,
+  jamWibOnly,
+  labelPilihan,
+  labelVerdik,
+  labelZona,
+  tanggalJamWib,
+  tanggalPanjang,
+  tanggalWib,
+} from "@/lib/web/format";
+import { STATUS_LABEL_ID } from "@/lib/web/status";
+import {
+  jendelaTanggalUtc,
+  kelompokPerTanggal,
+  parseFilterJadwal,
+  queryJadwal,
+  type FilterJadwal,
+} from "@/lib/web/jadwal";
+import { EmptyState, GateStatus, GradeMark, PageLoading, Prob } from "@/components/ui";
 
-function sourcesOf(item: FixtureListItem): { agree: number; total: number } {
-  const leg = item.topLeg;
-  if (!leg) return { agree: 0, total: 0 };
-  const total = 1 + (leg.market_prob !== null ? 1 : 0) + (leg.sm_prob !== null ? 1 : 0);
-  return { agree: total, total: 3 };
-}
+export const metadata: Metadata = { title: "Jadwal pertandingan | Bola" };
 
-function countsLine(item: FixtureListItem): string | null {
+function hitunganKelas(item: JadwalItem): string | null {
   const c = item.pickCounts;
   const parts: string[] = [];
   if (c.A > 0) parts.push(`${c.A} A`);
@@ -31,194 +47,292 @@ function countsLine(item: FixtureListItem): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-function FixtureRow({ item }: { item: FixtureListItem }) {
-  const f = item.pkg.payload.fixture;
-  const leg = item.topLeg;
-  const src = sourcesOf(item);
-  const counts = countsLine(item);
-  return (
-    <Link
-      href={`/pertandingan/${item.pkg.match_id}`}
-      className="flex items-start gap-4 border-t border-hairline/50 py-4 transition-colors first:border-t-0 hover:bg-surface-alt/40 sm:gap-6"
-    >
-      <span className="tabular-nums w-[3.5rem] flex-none whitespace-nowrap pt-0.5 text-sm text-mid-gray">
-        {jamWibOnly(item.pkg.kickoff_utc)}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[17px] font-medium text-ink">
-          {f.home} <span className="font-normal text-faint">vs</span> {f.away}
-        </span>
-        <span className="mt-1 block text-[13px] text-mid-gray">
-          {leg ? (
-            <>
-              {labelPilihan(leg.market, leg.selection, f.home, f.away)}
-              {counts && <span className="text-faint"> · {counts}</span>}
-            </>
-          ) : (
-            "No graded pick"
-          )}
-        </span>
-      </span>
-      {leg && (
-        <span className="shrink-0 text-right">
-          <span className="flex items-baseline justify-end gap-2.5">
-            <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
-            <GradeMark grade={leg.grade} className="text-xl" />
-          </span>
-          <span className="mt-1.5 block text-[12px] text-faint">
-            {src.agree} of {src.total} sources
-          </span>
-        </span>
-      )}
-    </Link>
-  );
+function hrefDetail(item: JadwalItem, filter: FilterJadwal): string {
+  const q = new URLSearchParams();
+  if (filter.tz !== "Asia/Jakarta") q.set("tz", filter.tz);
+  q.set("kembali", queryJadwal(filter));
+  return `/pertandingan/${item.match_id}?${q.toString()}`;
 }
 
-function FinishedRow({ item }: { item: FixtureListItem }) {
-  const f = item.pkg.payload.fixture;
-  const r = item.result;
-  const picks = getPackagePicks(item.pkg.id).slice(0, 3);
+function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal }) {
+  const tz = filter.tz;
+  const leg = item.topLeg;
+  const counts = hitunganKelas(item);
+  const selesai = item.status === "finished" || item.status === "abandoned";
+  const picks = selesai && item.package_id ? getPackagePicks(item.package_id).slice(0, 3) : [];
   return (
-    <div className="flex items-start gap-4 border-t border-hairline/50 py-5 first:border-t-0 sm:gap-6">
-      <span className="tabular-nums w-16 shrink-0 text-2xl font-semibold text-ink">
-        {r ? `${r.home_goals}–${r.away_goals}` : "—"}
-      </span>
-      <span className="min-w-0 flex-1">
-        <Link
-          href={`/pertandingan/${item.pkg.match_id}`}
-          className="block truncate text-[17px] font-medium text-ink transition-colors hover:text-accent"
-        >
-          {f.home} <span className="font-normal text-faint">vs</span> {f.away}
-        </Link>
-        <span className="mt-1 block text-[13px] text-mid-gray">
-          {f.competition_name} · {jamWibOnly(item.pkg.kickoff_utc)} WIB
+    <div className="border-t border-hairline/50 py-4 first:border-t-0">
+      <Link
+        href={hrefDetail(item, filter)}
+        className="flex items-start gap-4 transition-colors hover:bg-surface-alt/40 sm:gap-6"
+      >
+        <span className="w-[3.5rem] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums">
+          {selesai && item.home_goals !== null ? (
+            <span className="text-base font-semibold text-ink">
+              {item.home_goals}–{item.away_goals}
+            </span>
+          ) : (
+            jamWibOnly(item.kickoff_utc, tz)
+          )}
         </span>
-        {picks.length > 0 ? (
-          <ul className="mt-3 space-y-1.5">
-            {picks.map((p) => (
-              <li key={p.id} className="flex items-baseline gap-2.5 text-sm">
-                <GradeMark grade={p.grade} />
-                <span className="min-w-0 flex-1 truncate text-ink-soft">
-                  {labelPilihan(p.market, p.selection, f.home, f.away)}
-                </span>
-                <Prob value={p.model_prob} className="text-[13px]" />
-                {p.hit === 1 ? (
-                  <span className="text-[13px] font-medium text-sage">Hit</span>
-                ) : p.hit === 0 ? (
-                  <span className="text-[13px] font-medium text-brick">Miss</span>
-                ) : (
-                  <span className="text-[13px] text-faint">Not graded</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[17px] font-medium break-words text-ink">
+            {item.home} <span className="font-normal text-faint">vs</span> {item.away}
+          </span>
+          <span className="mt-1 block text-[13px] text-mid-gray">
+            {item.status === "postponed" ? (
+              <>
+                Ditunda · Jadwal asal {tanggalJamWib(item.jadwal_asal_utc ?? item.kickoff_utc, tz)}
+                {item.jadwal_ulang_utc && (
+                  <> · Jadwal ulang {tanggalJamWib(item.jadwal_ulang_utc, tz)}</>
                 )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-3 text-[13px] text-faint">No picks recorded for this package.</p>
-        )}
-      </span>
-      <span className="shrink-0 pt-1">
-        <GateStatus status={item.pkg.gate_status} />
-      </span>
+              </>
+            ) : item.status === "cancelled" ? (
+              "Dibatalkan"
+            ) : item.status === "abandoned" ? (
+              "Dihentikan · Skor parsial saat laga berhenti"
+            ) : item.status === "live" ? (
+              "Sedang berlangsung"
+            ) : item.status === "unknown" ? (
+              "Status tidak diketahui"
+            ) : leg ? (
+              <>
+                {labelPilihan(leg.market, leg.selection, item.home, item.away)}
+                {counts && <span className="text-faint"> · {counts}</span>}
+              </>
+            ) : item.package_id ? (
+              "Analisis tersedia · Belum ada pilihan berkelas"
+            ) : (
+              "Belum ada analisis"
+            )}
+          </span>
+        </span>
+        {item.status !== "scheduled" && item.status !== "unknown" ? (
+          <span className="shrink-0 pt-0.5 text-[13px] font-medium text-mid-gray">
+            {STATUS_LABEL_ID[item.status]}
+          </span>
+        ) : leg ? (
+          <span className="shrink-0 text-right">
+            <span className="flex items-baseline justify-end gap-2.5">
+              <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
+              <GradeMark grade={leg.grade} className="text-xl" />
+            </span>
+            <span className="mt-1.5 block text-[12px] text-faint">
+              Pilihan terkuat · Kelas {leg.grade}
+            </span>
+          </span>
+        ) : null}
+      </Link>
+      {picks.length > 0 && (
+        <ul className="mt-3 space-y-1.5 pl-[4.5rem] sm:pl-[5.5rem]">
+          {picks.map((p) => (
+            <li key={p.id} className="flex items-baseline gap-2.5 text-sm">
+              <GradeMark grade={p.grade} />
+              <span className="min-w-0 flex-1 break-words text-ink-soft">
+                {labelPilihan(p.market, p.selection, item.home, item.away)}
+              </span>
+              <Prob value={p.model_prob} className="text-[13px]" />
+              <span
+                className={`text-[13px] font-medium ${
+                  p.hit === 1 ? "text-sage" : p.hit === 0 ? "text-brick" : "text-faint"
+                }`}
+              >
+                {labelVerdik(p.hit)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-export default function PertandinganPage() {
+function FormFilter({
+  filter,
+  ligaTersedia,
+  negaraTersedia,
+}: {
+  filter: FilterJadwal;
+  ligaTersedia: string[];
+  negaraTersedia: string[];
+}) {
+  const kelasSelect =
+    "rounded-md border border-hairline bg-surface px-2.5 py-2 text-sm text-ink";
   return (
-    <Suspense fallback={<PageLoading label="Loading matches…" />}>
-      <PertandinganContent />
+    <form method="get" action="/pertandingan" className="mt-8 flex flex-wrap items-end gap-3">
+      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
+        Tanggal
+        <input
+          type="date"
+          name="tanggal"
+          defaultValue={filter.tanggal}
+          className={kelasSelect}
+        />
+      </label>
+      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
+        Status
+        <select name="status" defaultValue={filter.status} className={kelasSelect}>
+          <option value="semua">Semua</option>
+          <option value="akan-datang">Akan datang</option>
+          <option value="selesai">Selesai</option>
+        </select>
+      </label>
+      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
+        Liga
+        <select name="liga" defaultValue={filter.liga ?? ""} className={kelasSelect}>
+          <option value="">Semua liga</option>
+          {ligaTersedia.map((l) => (
+            <option key={l} value={l}>
+              {l}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
+        Negara
+        <select name="negara" defaultValue={filter.negara ?? ""} className={kelasSelect}>
+          <option value="">Semua negara</option>
+          {negaraTersedia.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1.5 text-[13px] text-mid-gray">
+        Zona waktu
+        <select name="tz" defaultValue={filter.tz} className={kelasSelect}>
+          {DAFTAR_ZONA.map((z) => (
+            <option key={z.id} value={z.id}>
+              {z.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button
+        type="submit"
+        className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink"
+      >
+        Terapkan
+      </button>
+    </form>
+  );
+}
+
+export default function PertandinganPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  return (
+    <Suspense fallback={<PageLoading label="Memuat jadwal…" />}>
+      <PertandinganContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function PertandinganContent() {
+async function PertandinganContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await connection();
-  const upcoming = listUpcoming(72);
-  const finished = listFinished(72, 60);
+  const filter = parseFilterJadwal(await searchParams);
+  const { dariUtc, sampaiUtc } = jendelaTanggalUtc(filter.tanggal, filter.tz);
+  const semua = listSchedule(dariUtc, sampaiUtc);
+  const cakupan = cakupanJadwal();
 
-  const updated = upcoming.reduce<string | null>(
-    (max, it) => (max === null || it.pkg.computed_utc > max ? it.pkg.computed_utc : max),
-    null,
-  );
+  const ligaTersedia = [...new Set(semua.map((i) => i.competition_name).filter(Boolean))].sort();
+  const negaraTersedia = [
+    ...new Set(semua.map((i) => i.competition_country).filter((x): x is string => Boolean(x))),
+  ].sort();
 
-  // Group: day -> competition (kickoff order preserved).
-  const byDay = new Map<string, Map<string, FixtureListItem[]>>();
-  for (const it of upcoming) {
-    const day = labelHari(it.pkg.kickoff_utc);
-    if (!byDay.has(day)) byDay.set(day, new Map());
-    const comps = byDay.get(day)!;
-    const comp = it.pkg.payload.fixture.competition_name;
-    if (!comps.has(comp)) comps.set(comp, []);
-    comps.get(comp)!.push(it);
-  }
+  const tersaring = semua.filter((i) => {
+    if (filter.status === "akan-datang") {
+      if (!(i.status === "scheduled" || i.status === "live" || i.status === "postponed")) return false;
+    } else if (filter.status === "selesai") {
+      if (!(i.status === "finished" || i.status === "abandoned")) return false;
+    }
+    if (filter.liga && i.competition_name !== filter.liga) return false;
+    if (filter.negara && i.competition_country !== filter.negara) return false;
+    return true;
+  });
+
+  const diLuarLiputan =
+    cakupan !== null && (dariUtc > cakupan.sampaiUtc || sampaiUtc <= cakupan.dariUtc);
+  const kelompok = kelompokPerTanggal(tersaring, filter.tz);
 
   return (
     <div>
       <header>
         <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-[-0.02em] text-ink">
-          Matches
+          Jadwal pertandingan
         </h1>
         <p className="mt-2 text-[15px] text-mid-gray">
-          Next 72 hours
-          {updated && (
+          {tanggalPanjang(`${filter.tanggal}T12:00:00.000Z`, filter.tz)} · Zona waktu{" "}
+          {labelZona(filter.tz)}
+          {cakupan && (
             <>
-              {" "}· Updated {tanggalWib(updated)} {jamWibOnly(updated)} WIB
+              {" "}· Liputan {tanggalWib(cakupan.dariUtc, filter.tz)} –{" "}
+              {tanggalWib(cakupan.sampaiUtc, filter.tz)}
             </>
           )}
         </p>
       </header>
 
-      {upcoming.length === 0 ? (
+      <FormFilter filter={filter} ligaTersedia={ligaTersedia} negaraTersedia={negaraTersedia} />
+
+      {diLuarLiputan ? (
         <EmptyState
-          title="No matches in this window."
-          note="The slate refreshes every 12 hours."
+          title="Jadwal setelah tanggal ini belum tersedia."
+          note="Sumber data belum mencakup tanggal atau kompetisi pada tanggal yang dipilih. Pilih tanggal lain di dalam jendela liputan."
+        />
+      ) : tersaring.length === 0 ? (
+        <EmptyState
+          title="Belum ada pertandingan pada tanggal ini."
+          note="Coba tanggal atau filter lain — tanggal dan filter tersimpan di alamat halaman ini."
         />
       ) : (
-        [...byDay.entries()].map(([day, comps]) => (
-          <section key={day} className="mt-14">
-            <h2 className="font-display text-xl font-semibold text-ink">
-              {day}
-              {comps.size > 0 && (
-                <span className="ml-3 text-sm font-normal text-faint">
-                  {tanggalWib([...comps.values()][0][0].pkg.kickoff_utc)}
-                </span>
-              )}
-            </h2>
-            {[...comps.entries()].map(([comp, items]) => (
-              <div key={comp} className="mt-8">
-                <div className="flex items-center gap-2.5 pb-1">
-                  <GateStatus status={items[0].pkg.gate_status} withLabel={false} />
-                  <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
-                  <span className="text-[13px] text-mid-gray">
-                    {GATE_LABEL[items[0].pkg.gate_status] ?? items[0].pkg.gate_status}
-                  </span>
+        kelompok.map((k) => {
+          const perKompetisi = new Map<string, JadwalItem[]>();
+          for (const it of k.items) {
+            const arr = perKompetisi.get(it.competition_name);
+            if (arr) arr.push(it);
+            else perKompetisi.set(it.competition_name, [it]);
+          }
+          return (
+            <section key={k.kunci} className="mt-14">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {k.label}
+                <span className="ml-3 text-sm font-normal text-faint">{k.tanggal}</span>
+              </h2>
+              {[...perKompetisi.entries()].map(([comp, items]) => (
+                <div key={comp} className="mt-8">
+                  <div className="flex flex-wrap items-center gap-2.5 pb-1">
+                    {items[0].gate_status && (
+                      <GateStatus status={items[0].gate_status} withLabel={false} />
+                    )}
+                    <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
+                    {items[0].gate_status && (
+                      <span className="text-[13px] text-mid-gray">
+                        {GATE_LABEL[items[0].gate_status] ?? items[0].gate_status}
+                      </span>
+                    )}
+                    {items[0].competition_country && (
+                      <span className="text-[13px] text-faint">{items[0].competition_country}</span>
+                    )}
+                  </div>
+                  <div>
+                    {items.map((it) => (
+                      <BarisJadwal key={it.match_id} item={it} filter={filter} />
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  {items.map((it) => (
-                    <FixtureRow key={it.pkg.id} item={it} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
-        ))
+              ))}
+            </section>
+          );
+        })
       )}
-
-      <section className="mt-20">
-        <SectionHead
-          label="Finished"
-          right={<span className="text-[13px] text-faint">{finished.length} matches</span>}
-        />
-        <div className="mt-6">
-          {finished.length === 0 ? (
-            <p className="text-sm text-faint">
-              No finished matches with a stored package in the last 72 hours.
-            </p>
-          ) : (
-            finished.map((it) => <FinishedRow key={it.pkg.id} item={it} />)
-          )}
-        </div>
-      </section>
     </div>
   );
 }

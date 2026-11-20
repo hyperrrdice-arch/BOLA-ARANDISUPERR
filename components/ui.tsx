@@ -25,7 +25,7 @@ export function GradeMark({ grade, className = "" }: { grade: string; className?
   return (
     <span
       className={`font-display font-semibold ${GRADE_TEXT[grade] ?? "text-faint"} ${className}`}
-      aria-label={`Grade ${grade}`}
+      aria-label={`Kelas ${grade}`}
     >
       {grade}
     </span>
@@ -63,19 +63,23 @@ const FORM_STYLE: Record<string, string> = {
   L: "bg-brick/20 text-brick",
 };
 
+/** Huruf chip form dalam Bahasa Indonesia: M = Menang, S = Seri, K = Kalah. */
+const FORM_HURUF: Record<string, string> = { W: "M", D: "S", L: "K" };
+const FORM_KATA: Record<string, string> = { W: "Menang", D: "Seri", L: "Kalah" };
+
 export function FormChips({ form, showScore = false }: { form: FormEntry[]; showScore?: boolean }) {
-  if (form.length === 0) return <span className="text-[13px] text-faint">No form data yet</span>;
+  if (form.length === 0) return <span className="text-[13px] text-faint">Belum ada data laga terakhir</span>;
   return (
     <span className="inline-flex items-center gap-1.5">
       {form.map((f, i) => (
         <span
           key={i}
-          title={`${f.date.slice(0, 10)} ${f.venue === "home" ? "vs" : "at"} ${f.opponent} ${f.goals_for}-${f.goals_against}`}
+          title={`${f.date.slice(0, 10)} ${f.venue === "home" ? "vs" : "di markas"} ${f.opponent} ${f.goals_for}-${f.goals_against} · ${FORM_KATA[f.result] ?? f.result}`}
           className={`inline-flex h-[22px] items-center justify-center rounded-full text-[10px] font-semibold ${
             showScore ? "px-2" : "w-[22px]"
           } ${FORM_STYLE[f.result]}`}
         >
-          {showScore ? `${f.goals_for}-${f.goals_against}` : f.result}
+          {showScore ? `${f.goals_for}-${f.goals_against}` : (FORM_HURUF[f.result] ?? f.result)}
         </span>
       ))}
     </span>

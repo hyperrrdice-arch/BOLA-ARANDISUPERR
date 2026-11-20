@@ -4,16 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/pertandingan", label: "Matches" },
-  { href: "/pilihan", label: "Picks" },
-  { href: "/bukti", label: "Record" },
+  { href: "/", label: "Beranda" },
+  { href: "/pertandingan", label: "Jadwal" },
+  { href: "/pilihan", label: "Pilihan" },
+  { href: "/bukti", label: "Rekam hasil" },
 ];
 
 /** Static version without hooks — the Suspense fallback, so the page
  *  shell can prerender (Cache Components) while the active state streams in. */
 export function NavStatic() {
   return (
-    <nav aria-label="Main" className="flex items-center gap-7">
+    <nav aria-label="Utama" className="flex items-center gap-7">
       {ITEMS.map((it) => (
         <Link key={it.href} href={it.href} className="text-[15px] whitespace-nowrap text-mid-gray">
           {it.label}
@@ -26,9 +27,10 @@ export function NavStatic() {
 export default function NavClient() {
   const path = usePathname();
   return (
-    <nav aria-label="Main" className="flex items-center gap-7">
+    <nav aria-label="Utama" className="flex items-center gap-7">
       {ITEMS.map((it) => {
-        const active = path === it.href || path.startsWith(it.href + "/");
+        const active =
+          it.href === "/" ? path === "/" : path === it.href || path.startsWith(it.href + "/");
         return (
           <Link
             key={it.href}

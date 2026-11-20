@@ -29,8 +29,8 @@ async function HeroFigure() {
   if (!featured) {
     return (
       <EmptyState
-        title="No score matrix in this window"
-        note="The next data refresh writes new packages every 12 hours."
+        title="Belum ada matriks skor pada jendela ini"
+        note="Penyegaran data berikutnya menulis paket baru tiap 12 jam."
       />
     );
   }
@@ -43,7 +43,7 @@ async function HeroFigure() {
       </div>
       <figcaption className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-[13px] text-mid-gray">
-          Built from a real score matrix — {fx.home} vs {fx.away} · {fx.competition_name}
+          Dibangun dari matriks skor asli — {fx.home} vs {fx.away} · {fx.competition_name}
         </span>
         <GateStatus status={featured.pkg.gate_status} />
       </figcaption>
@@ -51,13 +51,24 @@ async function HeroFigure() {
   );
 }
 
+async function HeroSubline() {
+  await connection();
+  const stats = landingStats();
+  return (
+    <>
+      Probabilitas pertandingan, diperiksa terhadap {int(stats.lab_resolved)} laga masa lalu yang
+      sudah dinilai.
+    </>
+  );
+}
+
 async function StatsRow() {
   await connection();
   const stats = landingStats();
   const cells: { value: string; label: string }[] = [
-    { value: int(stats.leagues_calibrated), label: "leagues calibrated" },
-    { value: int(stats.lab_picks), label: "picks on record" },
-    { value: int(stats.packages), label: "match packages" },
+    { value: int(stats.leagues_calibrated), label: "liga lolos kalibrasi" },
+    { value: int(stats.lab_picks), label: "pilihan tercatat" },
+    { value: int(stats.packages), label: "paket pertandingan" },
   ];
   return (
     <dl className="flex flex-wrap items-start justify-center gap-x-16 gap-y-8">
@@ -76,7 +87,7 @@ async function AmberBand() {
   const stats = landingStats();
   return (
     <p className="font-display text-4xl font-semibold tracking-[-0.01em] text-accent-ink sm:text-5xl">
-      {int(stats.lab_picks)} picks on record.
+      {int(stats.lab_picks)} pilihan tercatat.
     </p>
   );
 }
@@ -86,16 +97,16 @@ async function HowItWorks() {
   const stats = landingStats();
   const steps: { line: string; support: string }[] = [
     {
-      line: "Data refreshes every 12 hours.",
-      support: "Results, fixtures and closing odds come in from football-data.co.uk.",
+      line: "Data disegarkan tiap 12 jam.",
+      support: "Hasil, jadwal, dan harga penutupan masuk dari football-data.co.uk.",
     },
     {
-      line: "The model prices every outcome.",
-      support: "Win, draw, goals and both-teams markets, from a calibrated score model.",
+      line: "Model memberi harga tiap hasil.",
+      support: "Pasar menang, seri, gol, dan kedua tim mencetak gol — dari model skor terkalibrasi.",
     },
     {
-      line: "The strongest picks are graded A.",
-      support: `Grades come from ${int(stats.lab_picks)} graded picks — A is the band that held up best.`,
+      line: "Pilihan terkuat berkelas A.",
+      support: `Kelas berasal dari ${int(stats.lab_resolved)} pilihan yang sudah dinilai — kelas A yang paling terbukti.`,
     },
   ];
   return (
@@ -117,8 +128,8 @@ async function RecordTable() {
   if (ledger.lab_by_grade.length === 0) {
     return (
       <EmptyState
-        title="No picks on record yet"
-        note="The graded record appears here once the ledger has run."
+        title="Belum ada pilihan tercatat"
+        note="Rekam berkelas muncul di sini setelah ledger berjalan."
       />
     );
   }
@@ -128,7 +139,7 @@ async function RecordTable() {
         <table className="w-full min-w-[560px] text-left">
           <thead>
             <tr>
-              {["Grade", "Promised", "Actual", "Picks"].map((h, i) => (
+              {["Kelas", "Peluang model", "Tepat", "Pilihan"].map((h, i) => (
                 <th
                   key={h}
                   className={`pb-3 text-[13px] font-normal text-mid-gray ${i > 0 ? "text-right" : ""}`}
@@ -154,12 +165,15 @@ async function RecordTable() {
           </tbody>
         </table>
       </div>
+      <p className="mt-4 text-[13px] text-faint">
+        Uji historis dari laboratorium — bukan pilihan resmi pra-laga.
+      </p>
       {ledger.live_resolved === 0 && (
-        <p className="mt-4 text-sm text-mid-gray">Live picks are still being graded.</p>
+        <p className="mt-4 text-sm text-mid-gray">Pilihan langsung masih dinilai.</p>
       )}
       <p className="mt-6">
         <Link href="/bukti" className="text-[15px] font-medium text-ink transition-colors hover:text-accent">
-          See the full record <span className="text-accent">→</span>
+          Lihat rekam hasil <span className="text-accent">→</span>
         </Link>
       </p>
     </div>
@@ -179,21 +193,23 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Reveal>
               <h1 className="font-display text-[clamp(2.5rem,5.5vw,4.5rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-ink">
-                Know your odds.
+                Bola hari ini
               </h1>
             </Reveal>
             <Reveal delay={0.08}>
               <p className="mt-5 text-lg leading-relaxed text-mid-gray">
-                Match probabilities, checked against 45,866 past games.
+                <Suspense fallback={<>Probabilitas pertandingan, diperiksa terhadap laga masa lalu.</>}>
+                  <HeroSubline />
+                </Suspense>
               </p>
             </Reveal>
             <Reveal delay={0.16}>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
                 <Link href="/pertandingan" className="text-[15px] font-medium text-ink transition-colors hover:text-accent">
-                  See matches <span className="text-accent">→</span>
+                  Lihat jadwal pertandingan <span className="text-accent">→</span>
                 </Link>
                 <Link href="/pilihan" className="text-[15px] font-medium text-mid-gray transition-colors hover:text-ink">
-                  Build a parlay <span className="text-accent">→</span>
+                  Pilihan pra-laga <span className="text-accent">→</span>
                 </Link>
               </div>
             </Reveal>
@@ -204,7 +220,7 @@ export default function LandingPage() {
               <Suspense
                 fallback={
                   <div className="flex h-[52vh] max-h-[540px] min-h-[340px] items-center justify-center">
-                    <p className="text-sm text-mid-gray">Loading the ball…</p>
+                    <p className="text-sm text-mid-gray">Memuat analisis laga…</p>
                   </div>
                 }
               >
@@ -216,7 +232,7 @@ export default function LandingPage() {
           <Reveal delay={0.1}>
             <div className="mt-14">
               <Suspense
-                fallback={<p className="text-center text-sm text-mid-gray">Loading…</p>}
+                fallback={<p className="text-center text-sm text-mid-gray">Memuat…</p>}
               >
                 <StatsRow />
               </Suspense>
@@ -236,7 +252,7 @@ export default function LandingPage() {
         {/* ------------------------------------------------ HOW IT WORKS */}
         <section className="mx-auto w-full max-w-[76rem] px-6 py-24 sm:py-28">
           <Reveal>
-            <SectionHead label="How it works" />
+            <SectionHead label="Cara kerja" />
           </Reveal>
           <Suspense fallback={null}>
             <HowItWorks />
@@ -246,12 +262,12 @@ export default function LandingPage() {
         {/* ------------------------------------------------- THE RECORD */}
         <section className="mx-auto w-full max-w-[76rem] px-6 py-24 sm:py-28">
           <Reveal>
-            <SectionHead label="The record" />
+            <SectionHead label="Rekam hasil" />
           </Reveal>
           <Reveal delay={0.08}>
             <div className="mt-10">
               <Suspense
-                fallback={<EmptyState title="Loading the record…" note="Reading the pick ledger." />}
+                fallback={<EmptyState title="Memuat rekam hasil…" note="Membaca ledger pilihan." />}
               >
                 <RecordTable />
               </Suspense>
@@ -262,17 +278,17 @@ export default function LandingPage() {
         {/* ------------------------------------------------ GOOD TO KNOW */}
         <section className="mx-auto w-full max-w-[76rem] px-6 py-24 sm:py-28">
           <Reveal>
-            <SectionHead label="Good to know" />
+            <SectionHead label="Perlu diketahui" />
           </Reveal>
           <Reveal delay={0.08}>
             <div className="mt-10 max-w-2xl space-y-6">
               <p className="text-base leading-relaxed text-ink-soft">
-                An 80% pick still misses about 20 times in 100. These numbers weigh the odds — the
-                call is always yours.
+                Pilihan 80% tetap meleset sekitar 20 dari 100 kali. Angka-angka ini menimbang
+                peluang — keputusan tetap di tanganmu.
               </p>
               <p className="text-base leading-relaxed text-ink-soft">
-                Some leagues are only partly calibrated, and cup competitions use a separate offset
-                model. Every match page says which.
+                Sebagian liga baru terkalibrasi sebagian, dan kompetisi piala memakai model offset
+                terpisah. Setiap halaman laga menyebutkannya.
               </p>
             </div>
           </Reveal>
@@ -283,10 +299,10 @@ export default function LandingPage() {
       <footer>
         <div className="mx-auto flex w-full max-w-[76rem] flex-col gap-2 px-6 py-12 sm:flex-row sm:items-baseline sm:justify-between">
           <p className="text-[15px]">
-            <span className="font-display font-semibold text-ink">Pilihan Aman</span>
-            <span className="text-mid-gray"> · Data refreshes every 12 hours.</span>
+            <span className="font-display font-semibold text-ink">Bola</span>
+            <span className="text-mid-gray"> · Data disegarkan tiap 12 jam.</span>
           </p>
-          <p className="text-[13px] text-faint">Probabilities, on record.</p>
+          <p className="text-[13px] text-faint">Probabilitas, tercatat.</p>
         </div>
       </footer>
     </div>

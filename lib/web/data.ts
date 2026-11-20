@@ -972,7 +972,10 @@ export interface TiketResmiRef {
   slip_uid: string;
   state: string;
   combined_prob: number | null;
+  combined_low: number | null;
+  combined_high: number | null;
   combined_basis: string | null;
+  combined_reason: string | null;
   published_utc: string;
   pick_uids: string[];
 }
@@ -999,7 +1002,8 @@ export function getOfficialTickets(pickUids: string[]): TiketResmiRef[] {
   const marks = pickUids.map(() => "?").join(",");
   const rows = d
     .prepare(
-      `SELECT s.slip_uid, s.state, s.combined_prob, s.combined_basis, s.published_utc,
+      `SELECT s.slip_uid, s.state, s.combined_prob, s.combined_low, s.combined_high,
+              s.combined_basis, s.combined_reason, s.published_utc,
               GROUP_CONCAT(l.pick_uid) AS uids
        FROM published_slips s JOIN slip_legs l ON l.slip_uid = s.slip_uid
        WHERE l.pick_uid IN (${marks})
@@ -1010,7 +1014,10 @@ export function getOfficialTickets(pickUids: string[]): TiketResmiRef[] {
     slip_uid: r.slip_uid as string,
     state: r.state as string,
     combined_prob: (r.combined_prob as number | null) ?? null,
+    combined_low: (r.combined_low as number | null) ?? null,
+    combined_high: (r.combined_high as number | null) ?? null,
     combined_basis: (r.combined_basis as string | null) ?? null,
+    combined_reason: (r.combined_reason as string | null) ?? null,
     published_utc: r.published_utc as string,
     pick_uids: String(r.uids ?? "")
       .split(",")

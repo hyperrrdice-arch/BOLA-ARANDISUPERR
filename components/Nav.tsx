@@ -15,7 +15,7 @@ export function TopBar() {
           href="/"
           className="font-display text-[17px] font-semibold tracking-[-0.01em] text-ink"
         >
-          Pilihan Aman
+          Bola
         </Link>
         <Suspense fallback={<NavStatic />}>
           <NavClient />
