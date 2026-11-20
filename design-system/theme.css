@@ -1,30 +1,55 @@
 @theme {
-  /* Colors — "Amber Panas" (disetujui Arandi 2026-11-05).
-     Dasar tinta hangat + teks tulang; SATU aksen amber (probabilitas = panas);
-     warna lain cuma buat status, direduksi. Nol neon, nol gradasi.
-     v2 (2026-11-05): standar halaman produk big-tech — tanpa kotak/panel;
-     struktur dari spasi, alignment, dan tipe; hairline sangat tipis hanya
-     di tempat tabel memang butuh pemisah. */
-  --color-canvas: #0d0c0a;
-  --color-paper: #151310;
-  --color-surface-alt: #1b1813;
-  --color-well: #0a0908;
-  --color-ink: #e9e4d8;
-  --color-ink-soft: #cfc8b8;
-  --color-mid-gray: #9a927f;
-  --color-faint: #6e6759;
-  --color-hairline: #26231e;
-  --color-hairline-strong: #3a352b;
-  --color-accent: #ffa02e;
-  --color-accent-deep: #cc7a1a;
-  --color-accent-ink: #1a1206;
-  --color-sage: #7fa36b;
-  --color-brick: #b4503c;
-  --color-ember: #b4503c;
+  /* Colors — sistem terang brief redesain (2026-11-21, §2), MENGGANTIKAN
+     "Amber Panas" 2026-11-05 sebagai token global seluruh rute.
+     Palet persis brief: kertas #F8F7F2, tinta hijau-hitam #162723, teks
+     sekunder #4E5B56, garis #CCD1C8, sorotan gelap #142C25 (sekunder
+     #C8D6C9), jingga #FF6935 (teks di atasnya = tinta), jingga-teks
+     #A63416, tepat #246241, meleset #9B3736, fokus #2855A4.
+     Nama token lama DIPETAKAN ULANG ke palet baru supaya seluruh rute
+     yang belum disusun ulang ikut terang tanpa ubah markup:
+       canvas→kertas, ink→tinta, mid-gray→sekunder, hairline→garis,
+       accent→jingga, accent-deep→jingga-teks, accent-ink→tinta,
+       sage→tepat, brick/ember→meleset.
+     Nada turunan (dihitung dari palet, kontras terukur thd kertas):
+       ink-soft #33423B (9,9:1), faint #5F6F66 (4,9:1),
+       hairline-strong #7E8C84 (3,3:1 — batas kontrol ≥3:1 per brief),
+       paper #FFFFFF (permukaan terangkat), surface-alt #EFEDE3,
+       well #E9E7DB (sumur redup di atas kertas). */
+  --color-kertas: #f8f7f2;
+  --color-tinta: #162723;
+  --color-sekunder: #4e5b56;
+  --color-garis: #ccd1c8;
+  --color-gelap: #142c25;
+  --color-gelap-sekunder: #c8d6c9;
+  --color-jingga: #ff6935;
+  --color-jingga-teks: #a63416;
+  --color-tepat: #246241;
+  --color-meleset: #9b3736;
+  --color-fokus: #2855a4;
 
-  /* Typography — satu keluarga Archivo (display 600, tracking rapat;
-     teks 400/500) + IBM Plex Mono untuk angka. */
+  --color-canvas: #f8f7f2;
+  --color-paper: #ffffff;
+  --color-surface-alt: #efede3;
+  --color-well: #e9e7db;
+  --color-ink: #162723;
+  --color-ink-soft: #33423b;
+  --color-mid-gray: #4e5b56;
+  --color-faint: #5f6f66;
+  --color-hairline: #ccd1c8;
+  --color-hairline-strong: #7e8c84;
+  --color-accent: #ff6935;
+  --color-accent-deep: #a63416;
+  --color-accent-ink: #162723;
+  --color-sage: #246241;
+  --color-brick: #9b3736;
+  --color-ember: #9b3736;
+
+  /* Typography — Barlow Condensed 700 untuk judul, nama tim sorotan,
+     dan wordmark; Archivo 400/600/700 (+500 yang memang terpakai kelas
+     font-medium lintas halaman) untuk isi, kontrol, daftar, dan angka
+     tabular. Cadangan sans-serif sistem. */
   --font-archivo: 'Archivo', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-barlow: 'Barlow Condensed', 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
@@ -65,7 +90,7 @@
   --radius-2xl: 8px;
   --radius-3xl: 12px;
 
-  /* Shadows — nyaris tidak ada; kedalaman dari garis rambut + lapisan permukaan */
-  --shadow-subtle: rgba(0, 0, 0, 0.35) 0px 1px 3px 0px;
+  /* Shadows — tipis saja, hanya bila panel bertumpuk di atas konten (brief §2) */
+  --shadow-subtle: rgba(22, 39, 35, 0.14) 0px 1px 3px 0px;
   --shadow-subtle-2: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }

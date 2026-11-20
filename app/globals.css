@@ -2,33 +2,36 @@
 @import "../design-system/theme.css";
 
 :root {
-  --background: #0d0c0a;
-  --foreground: #e9e4d8;
-  --canvas: #0d0c0a;
-  --paper: #151310;
-  --surface-alt: #1b1813;
-  --well: #0a0908;
-  --ink: #e9e4d8;
-  --ink-soft: #cfc8b8;
-  --mid-gray: #a39e93;
-  --faint: #6e675c;
-  --hairline: #26231e;
-  --hairline-strong: #3a352b;
-  --accent: #ffa02e;
-  --accent-deep: #cc7a1a;
-  --accent-ink: #1a1206;
-  --sage: #7fa36b;
-  --brick: #b4503c;
+  /* Sistem terang brief redesain §2 (2026-11-21) — cermin token
+     design-system/theme.css; lihat berkas itu untuk pemetaan nama lama
+     dan kontras nada turunan. */
+  --background: #f8f7f2;
+  --foreground: #162723;
+  --canvas: #f8f7f2;
+  --paper: #ffffff;
+  --surface-alt: #efede3;
+  --well: #e9e7db;
+  --ink: #162723;
+  --ink-soft: #33423b;
+  --mid-gray: #4e5b56;
+  --faint: #5f6f66;
+  --hairline: #ccd1c8;
+  --hairline-strong: #7e8c84;
+  --accent: #ff6935;
+  --accent-deep: #a63416;
+  --accent-ink: #162723;
+  --sage: #246241;
+  --brick: #9b3736;
 
-  --surface: #151310;
-  --surface-hover: #1b1813;
-  --surface-active: #221e16;
-  --border-subtle: #26231e;
-  --border-strong: #3a352b;
-  --text-primary: #e9e4d8;
-  --text-body: #cfc8b8;
-  --text-muted: #a39e93;
-  --text-faint: #6e675c;
+  --surface: #ffffff;
+  --surface-hover: #efede3;
+  --surface-active: #e9e7db;
+  --border-subtle: #ccd1c8;
+  --border-strong: #7e8c84;
+  --text-primary: #162723;
+  --text-body: #33423b;
+  --text-muted: #4e5b56;
+  --text-faint: #5f6f66;
 
   /* Motion curves */
   --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
@@ -40,8 +43,10 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Judul, nama tim sorotan, wordmark: Barlow Condensed (brief §2). */
+  --font-display: var(--font-barlow), "Barlow Condensed", var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  /* Angka memakai Archivo tabular (brief §2) — bukan lagi Plex Mono. */
+  --font-mono: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
@@ -52,15 +57,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Numbers always mono tabular — no layout jitter on live data. */
+/* Angka selalu Archivo tabular — tanpa jitter tata letak pada data. */
 .tabular-nums {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
 }
 
+/* Fokus brief §2: outline 3 px #2855A4, offset 2 px di atas kertas;
+   di dalam panel gelap outline memakai warna kertas. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid #2855a4;
   outline-offset: 2px;
+}
+
+.panel-gelap :focus-visible {
+  outline-color: #f8f7f2;
 }
 
 ::selection {
@@ -69,7 +80,7 @@ body {
 }
 
 /* ========================================================================= */
-/* LOADING BAR (thin amber scan line — a line, not a box)                     */
+/* LOADING BAR (garis pindai tipis jingga — sebuah garis, bukan kotak)        */
 /* ========================================================================= */
 
 @keyframes monoScan {
@@ -114,5 +125,5 @@ body {
 /* Thin neutral scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3a352b; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #55492f; }
+::-webkit-scrollbar-thumb { background: #ccd1c8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #7e8c84; }

@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Archivo, IBM_Plex_Mono } from "next/font/google";
+import { Archivo, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 
+/* Tipografi brief redesain §2: Archivo untuk isi/kontrol/angka
+   (400/600/700 per brief; 500 ikut dimuat karena kelas font-medium
+   memang terpakai lintas halaman), Barlow Condensed 700 untuk judul,
+   nama tim sorotan, dan wordmark (miring untuk wordmark). Keduanya
+   self-host oleh next/font dengan font-display: swap. */
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
+const barlow = Barlow_Condensed({
+  variable: "--font-barlow",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["700"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${archivo.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${archivo.variable} ${barlow.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-ink selection:bg-accent selection:text-accent-ink">
         <a
