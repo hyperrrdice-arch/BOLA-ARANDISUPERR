@@ -28,7 +28,7 @@
     "dev": "next dev -p 3101",
     "lint": "eslint",
     "start": "next start -p 3101",
-    "test:quant": "tsx tests/test-quant.ts && tsx tests/test-model.ts",
+    "test:quant": "tsx tests/test-quant.ts && tsx tests/test-model.ts && tsx tests/test-experiment-stats.ts",
     "test:data": "tsx tests/test-data.ts && tsx tests/test-identity.ts && tsx tests/test-publication.ts && tsx tests/test-tickets.ts",
     "test:web": "tsx tests/test-web.ts",
     "test:e2e": "tsx tests/test-e2e.ts",
