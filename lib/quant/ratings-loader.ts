@@ -230,6 +230,24 @@ const SECOND_DIVISION_MAP: Record<string, string> = {
 // In-memory cache singleton
 let cachedRatings: CalibratedRatingsFile | null = null;
 
+/**
+ * Jahitan injeksi artefak pointer (fix-5, review K8 §5): jalur saji
+ * (pick-slate) dan evaluator memuat bobot dari artefak immutable yang
+ * dirujuk manifest aktif lewat loadServingModel, lalu MENANAMKANNYA di
+ * sini sebelum pemakaian pertama — seluruh konsumen dalam proses
+ * (termasuk planner) memakai bobot artefak itu, bukan file lepas
+ * data/calibrated_ratings.json. Proses yang tidak memanggil fungsi ini
+ * membaca file lepas seperti biasa (jalur lab warisan).
+ */
+export function setCalibratedRatingsOverride(ratings: CalibratedRatingsFile): void {
+  cachedRatings = ratings;
+}
+
+/** Lepas cache/override (pemakaian ulang proses, mis. pengujian). */
+export function clearCalibratedRatingsCache(): void {
+  cachedRatings = null;
+}
+
 export function loadCalibratedRatings(): CalibratedRatingsFile | null {
   if (cachedRatings) {
     return cachedRatings;

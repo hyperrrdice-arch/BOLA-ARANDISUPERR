@@ -19,6 +19,20 @@
  * contentHash = sha256 atas serialisasi kanonis manifest TANPA field
  * contentHash dan generatedAt — regenerasi dari artefak + konfigurasi
  * yang sama menghasilkan hash yang sama (Q04).
+ *
+ * ARTEFAK IMMUTABLE + POINTER (fix-5, review K8 §5): bobot rating hidup
+ * sebagai artefak immutable per hash di data/model-artifacts/
+ * (ratings-<sha256 penuh>.json, content-addressed, tidak pernah
+ * ditimpa). Manifest AKTIF adalah satu-satunya POINTER ke artefak yang
+ * melayani: jalur saji (loadServingModel) membaca pointer satu kali,
+ * memvalidasi hash artefak terhadap manifest, dan memakai bobot yang
+ * dirujuk pointer itu — file lepas data/calibrated_ratings.json BUKAN
+ * lagi sumber bobot saji (ia hanya salinan kerja jalur fit/lab).
+ * Refit menulis artefak BARU + manifest kandidat; pointer hanya
+ * berpindah di dalam operasi promosi atomik (gerbang K4,
+ * scripts/promote-model.ts, tulis-temp + rename). Hash tidak cocok →
+ * kegagalan bernama SEBELUM penerbitan apa pun; tidak ada fallback
+ * diam-diam ke file lepas.
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -35,7 +49,10 @@ export type ModelManifestErrorCode =
   | "manifest_corrupt"
   | "manifest_field_missing"
   | "manifest_hash_mismatch"
-  | "manifest_ratings_mismatch";
+  | "manifest_ratings_mismatch"
+  | "artifact_missing"
+  | "artifact_conflict"
+  | "point_in_time_violation";
 
 export class ModelManifestError extends Error {
   readonly code: ModelManifestErrorCode;
@@ -112,6 +129,18 @@ export interface ModelManifest {
 /** Konvensi hash artefak rating yang sudah dipakai pick-slate (ratings_marker). */
 export function ratingsHashOf(ratingsRaw: string): string {
   return `sha256:${createHash("sha256").update(ratingsRaw).digest("hex").slice(0, 16)}`;
+}
+
+/** Hash sha256 PENUH artefak — kunci content-addressed store artefak immutable. */
+export function ratingsFullHashOf(ratingsRaw: string): string {
+  return `sha256:${createHash("sha256").update(ratingsRaw).digest("hex")}`;
+}
+
+/** Tulis file secara atomik: temp di direktori yang sama + rename. */
+export function writeFileAtomicSync(filePath: string, content: string): void {
+  const tmp = `${filePath}.tmp-${process.pid}-${Date.now()}`;
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, filePath);
 }
 
 function canonicalStringify(value: unknown): string {
@@ -354,6 +383,187 @@ export function readRatingsRaw(dataDir: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Store artefak immutable (fix-5) — bobot per hash, tidak pernah ditimpa
+// ---------------------------------------------------------------------------
+
+export const ARTIFACTS_DIRNAME = "model-artifacts";
+const ARTIFACT_FILE_RE = /^ratings-([0-9a-f]{64})\.json$/;
+
+export function artifactsDir(dataDir: string): string {
+  return path.join(dataDir, ARTIFACTS_DIRNAME);
+}
+
+export function artifactFileName(fullHash: string): string {
+  return `ratings-${fullHash.replace(/^sha256:/, "")}.json`;
+}
+
+export function artifactPath(dataDir: string, fullHash: string): string {
+  return path.join(artifactsDir(dataDir), artifactFileName(fullHash));
+}
+
+export interface StoredArtifact {
+  /** Path file artefak di store. */
+  file: string;
+  /** sha256 penuh isi artefak ("sha256:<64 hex>"). */
+  fullHash: string;
+  /** Konvensi hash pendek manifest/ratings_marker ("sha256:<16 hex>"). */
+  ratingsHash: string;
+  /** true bila file baru dibuat; false bila artefak identik sudah ada. */
+  created: boolean;
+}
+
+/**
+ * Simpan bobot sebagai artefak immutable content-addressed. Isi yang
+ * sama → file yang sama (no-op terverifikasi); file bernama hash yang
+ * isinya tidak cocok dengan hash-nya = store rusak → artifact_conflict.
+ * Artefak yang sudah ada TIDAK PERNAH ditimpa.
+ */
+export function storeRatingsArtifact(dataDir: string, ratingsRaw: string): StoredArtifact {
+  try {
+    JSON.parse(ratingsRaw);
+  } catch {
+    throw new ModelManifestError(
+      "manifest_corrupt",
+      `${RATINGS_FILENAME} tidak dapat di-parse — artefak tidak disimpan.`,
+    );
+  }
+  const fullHash = ratingsFullHashOf(ratingsRaw);
+  const file = artifactPath(dataDir, fullHash);
+  if (fs.existsSync(file)) {
+    const existing = fs.readFileSync(file, "utf8");
+    if (ratingsFullHashOf(existing) !== fullHash) {
+      throw new ModelManifestError(
+        "artifact_conflict",
+        `Artefak ${file} sudah ada tetapi isinya tidak cocok dengan hash namanya — store artefak rusak/diubah manual.`,
+      );
+    }
+    return { file, fullHash, ratingsHash: ratingsHashOf(ratingsRaw), created: false };
+  }
+  fs.mkdirSync(artifactsDir(dataDir), { recursive: true });
+  writeFileAtomicSync(file, ratingsRaw);
+  return { file, fullHash, ratingsHash: ratingsHashOf(ratingsRaw), created: true };
+}
+
+export interface ResolvedArtifact {
+  raw: string;
+  file: string;
+  fullHash: string;
+}
+
+/**
+ * Resolusi pointer: temukan artefak yang dirujuk manifest (ratingsHash)
+ * di store dan VALIDASI isinya (hash pendek cocok dengan manifest DAN
+ * hash penuh cocok dengan nama file). Artefak tidak ada →
+ * artifact_missing; berkas ber-prefix cocok tapi isi berubah →
+ * manifest_ratings_mismatch. Tidak ada fallback ke file lepas.
+ */
+export function resolveRatingsArtifact(dataDir: string, manifest: ModelManifest): ResolvedArtifact {
+  const dir = artifactsDir(dataDir);
+  const prefix = manifest.ratingsHash.replace(/^sha256:/, "");
+  let names: string[] = [];
+  if (fs.existsSync(dir)) {
+    names = fs.readdirSync(dir).filter((n) => {
+      const m = ARTIFACT_FILE_RE.exec(n);
+      return m !== null && m[1].startsWith(prefix);
+    });
+  }
+  if (names.length === 0) {
+    throw new ModelManifestError(
+      "artifact_missing",
+      `Artefak rating untuk ${manifest.modelVersion} (${manifest.ratingsHash}) tidak ada di store ${dir}. ` +
+        `Jalur fit/build-model-manifest menyimpan artefak saat membangun manifest — store kosong/rusak tidak pernah digantikan file lepas.`,
+    );
+  }
+  for (const name of names.sort()) {
+    const file = path.join(dir, name);
+    const raw = fs.readFileSync(file, "utf8");
+    const fullHash = ratingsFullHashOf(raw);
+    if (ratingsHashOf(raw) === manifest.ratingsHash && artifactFileName(fullHash) === name) {
+      return { raw, file, fullHash };
+    }
+  }
+  throw new ModelManifestError(
+    "manifest_ratings_mismatch",
+    `Artefak untuk ${manifest.modelVersion} di store tidak lolos validasi hash terhadap manifest (${manifest.ratingsHash}) — isi artefak berubah sejak disimpan.`,
+  );
+}
+
+/** Verifikasi ketat berbasis store (pengganti cek file lepas untuk promosi). */
+export function verifyManifestArtifact(dataDir: string, manifest: ModelManifest): void {
+  resolveRatingsArtifact(dataDir, manifest);
+}
+
+export interface ServingModel {
+  manifest: ModelManifest;
+  ratingsRaw: string;
+  ratings: CalibratedRatingsFile;
+  artifactFile: string;
+  fullHash: string;
+}
+
+/**
+ * PEMBACAAN POINTER SAJI — satu-satunya pintu bobot untuk jalur saji
+ * (pick-slate) dan evaluator. Membaca manifest aktif SATU KALI,
+ * menyelesaikan artefak yang dirujuknya dari store immutable,
+ * memvalidasi hash, dan mengembalikan identitas + bobot sebagai satu
+ * kesatuan: versi dan hash yang dicap ke paket SELALU milik artefak
+ * yang sama dengan bobot yang dipakai menghitung. Kegagalan apa pun
+ * melempar ModelManifestError berkode SEBELUM penerbitan apa pun.
+ */
+export function loadServingModel(dataDir: string): ServingModel {
+  const manifest = loadActiveManifest(dataDir);
+  const resolved = resolveRatingsArtifact(dataDir, manifest);
+  let ratings: CalibratedRatingsFile;
+  try {
+    ratings = JSON.parse(resolved.raw) as CalibratedRatingsFile;
+  } catch {
+    throw new ModelManifestError(
+      "manifest_corrupt",
+      `Artefak rating ${resolved.file} tidak dapat di-parse.`,
+    );
+  }
+  return {
+    manifest,
+    ratingsRaw: resolved.raw,
+    ratings,
+    artifactFile: resolved.file,
+    fullHash: resolved.fullHash,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Penjaga point-in-time (fix-5) — jendela latih artefak vs jam keputusan
+// ---------------------------------------------------------------------------
+
+export interface PointInTimeViolation {
+  decisionAt: string;
+  decisionDate: string;
+  trainingWindowEnd: string;
+}
+
+/**
+ * Keputusan pada tanggal D hanya point-in-time bila SELURUH data latih
+ * artefak berasal dari laga bertanggal < D: jendela latih berakhir pada
+ * tanggal laga terakhir yang masuk fit, dan tanggal saja tidak
+ * membuktikan jam ketersediaan hasil hari yang sama — maka pelanggaran
+ * iff window.end >= tanggal keputusan (konservatif, dinyatakan terbuka).
+ */
+export function pointInTimeViolations(
+  manifest: ModelManifest,
+  decisionAts: readonly string[],
+): PointInTimeViolation[] {
+  const end = manifest.training.window.end;
+  const out: PointInTimeViolation[] = [];
+  for (const decisionAt of decisionAts) {
+    const decisionDate = String(decisionAt).slice(0, 10);
+    if (decisionDate && end >= decisionDate) {
+      out.push({ decisionAt, decisionDate, trainingWindowEnd: end });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Tulis kandidat / aktif
 // ---------------------------------------------------------------------------
 
@@ -364,14 +574,17 @@ export interface WriteCandidateOptions {
 }
 
 /**
- * Jalur fit memanggil ini SETIAP selesai menulis artefak rating: manifest
- * kandidat selalu mendeskripsikan artefak terbaru. Manifest AKTIF tidak
- * disentuh di sini — promosi hanya lewat gerbang (scripts/promote-model.ts).
+ * Jalur fit memanggil ini SETIAP selesai menulis artefak rating: bobot
+ * disimpan sebagai artefak IMMUTABLE di store (fix-5), lalu manifest
+ * kandidat dibangun dari byte yang sama persis sehingga selalu
+ * mendeskripsikan artefak yang tersimpan. Manifest AKTIF tidak disentuh
+ * di sini — promosi hanya lewat gerbang (scripts/promote-model.ts).
  * Konfigurasi diambil dari opsi, atau diwarisi dari kandidat/aktif yang
  * ada, atau default produksi.
  */
 export function writeCandidateManifest(dataDir: string, opts: WriteCandidateOptions = {}): ModelManifest {
   const ratingsRaw = readRatingsRaw(dataDir);
+  storeRatingsArtifact(dataDir, ratingsRaw);
   let inherited: ModelConfig | undefined;
   let inheritedWindow: TrainingWindow | undefined;
   for (const loader of [loadCandidateManifest, loadActiveManifest]) {
@@ -394,11 +607,17 @@ export function writeCandidateManifest(dataDir: string, opts: WriteCandidateOpti
     codeSha: opts.codeSha ?? null,
     window,
   });
-  fs.writeFileSync(path.join(dataDir, CANDIDATE_MANIFEST_FILENAME), serializeManifest(manifest));
+  writeFileAtomicSync(path.join(dataDir, CANDIDATE_MANIFEST_FILENAME), serializeManifest(manifest));
   return manifest;
 }
 
-/** Satu-satunya penulis manifest aktif selain bootstrap builder: gerbang promosi. */
+/**
+ * Satu-satunya penulis manifest aktif selain bootstrap builder: gerbang
+ * promosi. Pointer berpindah ATOMIK (tulis temp + rename di direktori
+ * yang sama) — pembaca pointer tidak pernah melihat manifest setengah
+ * tertulis, dan artefak yang dirujuk pointer baru sudah tersimpan di
+ * store sebelum flip (diverifikasi gerbang).
+ */
 export function writeActiveManifest(dataDir: string, manifest: ModelManifest): void {
-  fs.writeFileSync(path.join(dataDir, ACTIVE_MANIFEST_FILENAME), serializeManifest(manifest));
+  writeFileAtomicSync(path.join(dataDir, ACTIVE_MANIFEST_FILENAME), serializeManifest(manifest));
 }

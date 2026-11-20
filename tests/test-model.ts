@@ -650,8 +650,8 @@ try {
   // 10) Penjaga wiring statis: slate memuat manifest; refresh tak mempromosikan.
   const slateSrc = fs.readFileSync(path.join(REPO_ROOT, "scripts", "pick-slate.ts"), "utf8");
   suite.check(
-    "wiring: pick-slate memuat manifest aktif + mencap modelVersion manifest",
-    slateSrc.includes("loadActiveManifest") && slateSrc.includes("model_version: modelVersion"),
+    "wiring: pick-slate memuat model saji pointer (loadServingModel) + mencap modelVersion manifest",
+    slateSrc.includes("loadServingModel") && slateSrc.includes("model_version: modelVersion"),
   );
   const refreshSrc = fs.readFileSync(path.join(REPO_ROOT, "scripts", "free-refresh.ts"), "utf8");
   const calibrateSrc = fs.readFileSync(path.join(REPO_ROOT, "scripts", "calibrate-ratings.ts"), "utf8");

@@ -2,13 +2,15 @@
  * BANGUN MANIFEST MODEL (K4) — jalur fit / bootstrap.
  *
  * Default: menulis manifest KANDIDAT (data/model-manifest.candidate.json)
- * yang mendeskripsikan artefak rating saat ini di --data-dir. Manifest
+ * yang mendeskripsikan artefak rating saat ini di --data-dir (sekaligus
+ * menyimpannya sebagai artefak immutable di store — fix-5). Manifest
  * kandidat juga ditulis otomatis oleh scripts/calibrate-ratings.ts dan
  * scripts/fit-global-offsets.ts setiap mereka menulis ulang artefak.
  *
- * --activate: menulis manifest AKTIF (data/model-manifest.json). Hanya
- * untuk bootstrap awal; pergantian champion sesudahnya wajib lewat
- * gerbang scripts/promote-model.ts.
+ * --activate: menulis manifest AKTIF (data/model-manifest.json) dan
+ * menyimpan artefak champion ke store. Hanya untuk bootstrap awal;
+ * pergantian champion sesudahnya wajib lewat gerbang
+ * scripts/promote-model.ts.
  *
  * Pakai: npx tsx scripts/build-model-manifest.ts [--data-dir=data] [--activate]
  */
@@ -19,6 +21,7 @@ import {
   ModelManifestError,
   buildManifest,
   readRatingsRaw,
+  storeRatingsArtifact,
   trainingWindowFromDataset,
   writeActiveManifest,
   writeCandidateManifest,
@@ -35,6 +38,7 @@ function main(): void {
   try {
     if (activate) {
       const ratingsRaw = readRatingsRaw(dataDir);
+      const stored = storeRatingsArtifact(dataDir, ratingsRaw);
       const manifest = buildManifest({
         ratingsRaw,
         generatedBy: "scripts/build-model-manifest.ts --activate",
@@ -45,6 +49,7 @@ function main(): void {
         JSON.stringify(
           {
             file: path.join(dataDir, ACTIVE_MANIFEST_FILENAME),
+            artifactFile: stored.file,
             modelVersion: manifest.modelVersion,
             ratingsHash: manifest.ratingsHash,
             trainingMatches: manifest.training.totalMatches,

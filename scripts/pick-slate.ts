@@ -50,7 +50,6 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import { getUpcomingDb } from "../lib/db/upcoming-fixtures";
 import {
@@ -58,8 +57,16 @@ import {
   getCanonicalCupModel,
 } from "../lib/quant/league-identity";
 import { getLeagueGate, competitionIdToDiv } from "../lib/quant/league-gate";
-import { loadCalibratedRatings, resolveDivForMatch } from "../lib/quant/ratings-loader";
-import { ModelManifestError, loadActiveManifest } from "../lib/quant/model-manifest";
+import {
+  loadCalibratedRatings,
+  resolveDivForMatch,
+  setCalibratedRatingsOverride,
+} from "../lib/quant/ratings-loader";
+import {
+  ModelManifestError,
+  loadServingModel,
+  type ServingModel,
+} from "../lib/quant/model-manifest";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { parseFixtureDetail } from "../lib/odds/sportmonks-adapter";
 import { pickSmQuotes } from "../lib/odds/sportmonks-wire";
@@ -226,33 +233,33 @@ async function main() {
   const upDb = getUpcomingDb();
   const dsDb = openRo("data/thestats_dataset.db");
   const prDb = openRo("data/predictions.db");
-  const ratings = loadCalibratedRatings();
-  const mtTwinOf = loadMtTwinMap();
 
-  // Penanda versi artefak ratings untuk provenance paket (hash isi file).
-  let ratingsMarker: string | null = null;
+  // Model saji (K4 + fix-5 review K8 §5): pointer manifest aktif dibaca
+  // SATU KALI lewat loadServingModel — artefak bobot immutable yang
+  // dirujuk pointer divalidasi hash-nya terhadap manifest, lalu bobot
+  // itu ditanam ke ratings-loader sehingga seluruh hitungan proses ini
+  // (termasuk planner) memakai artefak pointer, BUKAN file lepas
+  // data/calibrated_ratings.json. Identitas yang dicap ke paket
+  // (modelVersion + ratingsMarker) berasal dari manifest yang sama —
+  // angka dan label tidak bisa lagi berpisah saat refit menimpa file
+  // lepas. Artefak hilang / hash tidak cocok → berhenti bernama
+  // SEBELUM penerbitan apa pun; tidak ada fallback diam-diam.
+  let serving: ServingModel;
   try {
-    const raw = fs.readFileSync(
-      path.join(process.cwd(), "data", "calibrated_ratings.json"),
-    );
-    ratingsMarker = `sha256:${createHash("sha256").update(raw).digest("hex").slice(0, 16)}`;
-  } catch {
-    ratingsMarker = null;
-  }
-
-  // Manifest model aktif (K4): identitas model yang dicap ke pilihan
-  // resmi. Hilang/rusak → berhenti bernama; TIDAK ada fallback ke
-  // konstanta identitas (praktik lama "quant-package-v1" dihapus).
-  let modelVersion: string;
-  try {
-    modelVersion = loadActiveManifest(path.join(process.cwd(), "data")).modelVersion;
+    serving = loadServingModel(path.join(process.cwd(), "data"));
   } catch (err) {
     if (err instanceof ModelManifestError) {
-      console.error(`[pick-slate] manifest model tidak dapat dipakai [${err.code}]: ${err.message}`);
+      console.error(`[pick-slate] model saji tidak dapat dipakai [${err.code}]: ${err.message}`);
       process.exit(1);
     }
     throw err;
   }
+  setCalibratedRatingsOverride(serving.ratings);
+  const ratingsMarker: string = serving.manifest.ratingsHash;
+  const modelVersion: string = serving.manifest.modelVersion;
+
+  const ratings = loadCalibratedRatings();
+  const mtTwinOf = loadMtTwinMap();
 
   const fixtures = upDb
     .prepare(

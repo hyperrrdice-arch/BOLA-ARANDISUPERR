@@ -1,10 +1,12 @@
 /**
  * GERBANG PROMOSI MODEL (K4) — satu-satunya jalur mengganti manifest
  * AKTIF sesudah bootstrap. Membaca manifest aktif (champion) + kandidat,
- * memverifikasi kandidat mendeskripsikan artefak rating saat ini, lalu
+ * memverifikasi artefak immutable kandidat ADA di store dan hash-nya
+ * cocok dengan manifest kandidat (fix-5: bukan lagi file lepas), lalu
  * menilai dengan lib/quant/promotion-gate.ts. Keputusan "promote" →
- * kandidat ditulis menjadi manifest aktif; "reject" → aktif tidak
- * berubah. Exit code: 0 = promote, 2 = reject, 1 = error bernama.
+ * pointer aktif berpindah ATOMIK ke kandidat (tulis temp + rename);
+ * "reject" → aktif tidak berubah. Exit code: 0 = promote, 2 = reject,
+ * 1 = error bernama.
  *
  * Pakai: npx tsx scripts/promote-model.ts [--data-dir=data] [--parity-file=path.json]
  * --parity-file berisi {"sampleSize": N, "sumAbsDelta": X} dari evaluasi paritas.
@@ -15,8 +17,7 @@ import {
   ModelManifestError,
   loadActiveManifest,
   loadCandidateManifest,
-  readRatingsRaw,
-  verifyManifestRatings,
+  verifyManifestArtifact,
   writeActiveManifest,
 } from "../lib/quant/model-manifest";
 import { evaluatePromotion, type ParitySummary } from "../lib/quant/promotion-gate";
@@ -32,9 +33,10 @@ function main(): void {
     const champion = loadActiveManifest(dataDir);
     const candidate = loadCandidateManifest(dataDir);
 
-    // Kandidat basi (artefak sudah berubah sejak kandidat dibangun) = reject.
+    // Kandidat basi (artefaknya tidak ada di store / hash tidak cocok
+    // dengan manifest kandidat) = reject.
     try {
-      verifyManifestRatings(candidate, readRatingsRaw(dataDir));
+      verifyManifestArtifact(dataDir, candidate);
     } catch (err) {
       if (err instanceof ModelManifestError) {
         console.log(
