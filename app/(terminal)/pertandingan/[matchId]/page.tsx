@@ -1,16 +1,20 @@
 /**
- * DETAIL PERTANDINGAN — satu laga: peta peluang, sumber angka langsung
- * (model + harga pasar), panel arsip yang TERPISAH, pilihan resmi saat
- * terbit dan tiket resmi yang memuatnya (K6, U03).
+ * DETAIL PERTANDINGAN — satu laga (redesain §3C): data inti dari
+ * jadwal kanonik dirender lebih dulu; prediksi EDISI TERBIT dipasangkan
+ * dengan skor 90 menit dan vonisnya; angka mutakhir hidup di bagiannya
+ * sendiri bertimestamp; kemungkinan skor adalah peta §9 (tabel 2D +
+ * mode 3D pilihan pembaca); metode menutup halaman.
  *
  * Aturan keras halaman ini:
  * - Panel Sportmonks adalah data arsip: hanya tampil di bagian
  *   "Panel arsip" dan tidak pernah masuk metrik/selisih langsung.
  * - Pilihan dan tiket hanya ditautkan bila resmi menurut K2/K3
- *   (pick_uid terbit / slip published_slips); angka "saat terbit" beku
- *   dan dipisahkan dari analisis terbaru bila paketnya berbeda.
+ *   (pick_uid terbit / slip published_slips); angka "saat terbit" beku.
  * - Skor mengikuti gerbang status: laga batal tidak pernah berskor,
- *   laga dihentikan menampilkan skor parsial berlabel.
+ *   laga dihentikan menampilkan skor parsial berlabel; skor pasca-
+ *   regulasi (AET/penalti) dilabeli terpisah dan skor 90 menit TIDAK
+ *   PERNAH ditebak darinya — ia datang dari hasil resolver pada
+ *   pilihan resmi, atau dinyatakan belum terkonfirmasi.
  * - Laga terjadwal tanpa paket tetap terbuka ("Analisis belum
  *   tersedia"); hanya ID asing yang 404.
  */
@@ -31,7 +35,6 @@ import {
   labelBasisPeluang,
   labelGate,
   labelPilihan,
-  labelVerdik,
   num,
   pct,
   tanggalJamWib,
@@ -39,6 +42,7 @@ import {
   zonaValid,
 } from "@/lib/web/format";
 import { labelStatus } from "@/lib/web/status";
+import { adaptasiMatriks } from "@/lib/web/peta-skor";
 import { parseFilterJadwal, queryJadwal } from "@/lib/web/jadwal";
 import {
   EmptyState,
@@ -48,8 +52,8 @@ import {
   PageLoading,
   Prob,
   SectionHead,
-  heatStyle,
 } from "@/components/ui";
+import PetaSkor from "@/components/detail/PetaSkor";
 
 /* ------------------------------------------------------------ luck types */
 
@@ -99,7 +103,7 @@ const PROB_ROWS: { market: string; selection: string }[] = [
 
 const GATE_SENTENCE: Record<string, string> = {
   calibrated: "Liga ini lulus uji kalibrasi pada laga-laga uji.",
-  partial: "Liga ini baru lolos sebagian — perlakukan angkanya dengan hati-hati.",
+  partial: "Uji historis liga ini baru memenuhi sebagian kriteria.",
   uncalibrated: "Liga ini belum lulus uji kalibrasi.",
 };
 
@@ -132,6 +136,24 @@ const SLIP_STATE_LABEL: Record<string, string> = {
   void: "Dibatalkan",
   pending: "Menunggu hasil",
 };
+
+/**
+ * Vonis pilihan di detail (brief §5): sesudah laga selesai tetapi
+ * penilaian belum punya skor regulasi, labelnya "Menunggu hasil
+ * resmi" — bukan "Menunggu hasil" yang menyiratkan laga belum main.
+ */
+function verdikDetail(pk: OfficialPick, selesai: boolean): string {
+  if (pk.hit === 1) return "Tepat";
+  if (pk.hit === 0) return "Meleset";
+  return selesai ? "Menunggu hasil resmi" : "Menunggu hasil";
+}
+
+/** Kalimat basis peluang terbit (brief §5) untuk rincian satu pilihan. */
+function kalimatBasis(basis: string | null | undefined): string {
+  if (basis === "effective") return "Disesuaikan menggunakan hasil uji historis.";
+  if (basis === "model") return "Dihitung dari model skor.";
+  return labelBasisPeluang(basis);
+}
 
 /* ------------------------------------------------------------------- page */
 
@@ -191,7 +213,7 @@ async function AnalisisContent({
     return (
       <div>
         <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">
-          ← Jadwal pertandingan
+          ← Kembali ke jadwal
         </Link>
         <header className="mt-8">
           <p className="text-sm text-mid-gray">
@@ -207,7 +229,7 @@ async function AnalisisContent({
         </header>
         <div className="mt-10">
           <EmptyState
-            title="Analisis belum tersedia untuk laga ini"
+            title="Analisis belum tersedia untuk laga ini."
             note="Laga ini ada di jadwal, tetapi belum ada paket analisis tersimpan untuknya."
           />
         </div>
@@ -220,7 +242,8 @@ async function AnalisisContent({
     );
   }
 
-  const { pkg, result, formHome, formAway, keadaan, officialPicks, officialTickets } = detail;
+  const { pkg, result, formHome, formAway, keadaan, officialPicks, officialTickets, paketTerbit } =
+    detail;
   const p = pkg.payload;
   const f = p.fixture;
   const home = f.home;
@@ -229,10 +252,6 @@ async function AnalisisContent({
   const luck = (p.shrunk_metadata?.luckMetrics ?? null) as LuckMetrics | null;
   const feedMode = (p as unknown as { feed_mode?: string }).feed_mode;
   const resolution = resolutionSentence(p.shrunk_metadata?.leagueResolution);
-
-  const matrix = p.score_matrix ?? [];
-  const cut = matrix.slice(0, 6).map((row) => row.slice(0, 6));
-  const maxCell = cut.reduce((m, row) => row.reduce((a, v) => Math.max(a, v), m), 0);
 
   // Selisih langsung HANYA dari model vs harga pasar — panel arsip tidak
   // pernah masuk metrik langsung (U03).
@@ -246,11 +265,18 @@ async function AnalisisContent({
   const disagreeCount = spreadRows.filter((r) => r.spread > 0.1).length;
   const sumberTersedia = (p.probabilities["1x2:1"] !== undefined ? 1 : 0) + (p.market ? 1 : 0);
 
-  const p1 = p.probabilities["1x2:1"] ?? null;
-  const px = p.probabilities["1x2:x"] ?? null;
-  const p2 = p.probabilities["1x2:2"] ?? null;
+  const trioDari = (probs: Record<string, number>) => {
+    const a = probs["1x2:1"] ?? null;
+    const x = probs["1x2:x"] ?? null;
+    const b = probs["1x2:2"] ?? null;
+    return a !== null && x !== null && b !== null ? { a, x, b } : null;
+  };
+  const trioTerbaru = trioDari(p.probabilities);
+  const trioTerbit = paketTerbit ? trioDari(paketTerbit.payload.probabilities) : null;
+
   let kalimatPeta: string | null = null;
-  if (p1 !== null && px !== null && p2 !== null) {
+  if (trioTerbaru) {
+    const { a: p1, x: px, b: p2 } = trioTerbaru;
     const maks = Math.max(p1, px, p2);
     if (maks === p1) {
       kalimatPeta = `${home} paling berpeluang menang. Model tetap memberi peluang ${pct(px + p2)} untuk seri atau kemenangan ${away}.`;
@@ -261,19 +287,45 @@ async function AnalisisContent({
     }
   }
 
+  const selesai = keadaan?.status === "finished";
   const resmiDinilai = officialPicks.filter((x) => x.hit !== null);
   const resmiTepat = resmiDinilai.filter((x) => x.hit === 1).length;
   const paketTerbitBerbeda =
     officialPicks.length > 0 &&
     officialPicks.some((x) => x.package_id !== null && x.package_id !== pkg.id);
-  const terbitUtc = officialPicks.find((x) => x.package_computed_utc)?.package_computed_utc ?? null;
+  const terbitUtc =
+    officialPicks
+      .map((x) => x.published_at_utc)
+      .filter((x): x is string => Boolean(x))
+      .sort()[0] ?? null;
+
+  /* Skor regulasi 90 menit: dari hasil resolver pada pilihan resmi
+     (basis terautentikasi K1/Fix-3). Skor dataset pasca-regulasi tidak
+     pernah dipakai sebagai skor 90 menit. */
+  const skorRegulasi = (() => {
+    const dinilai = officialPicks.find((x) => x.home_goals !== null && x.away_goals !== null);
+    return dinilai ? { h: dinilai.home_goals!, a: dinilai.away_goals! } : null;
+  })();
 
   const statusTampil = keadaan?.status ?? null;
+
+  /* Peta skor membaca matriks EDISI TERBIT bila ada (matriks pra-laga
+     yang dibandingkan dengan hasil, brief §9), selain itu paket
+     terbaru. Validasi sekali di batas data lewat adapter §9. */
+  const paketPeta = paketTerbit ?? pkg;
+  const petaValid = adaptasiMatriks(paketPeta.payload.score_matrix);
+  const skorAkhirPeta =
+    selesai && keadaan.home_goals !== null
+      ? (skorRegulasi ??
+        (keadaan.pascaregulasi
+          ? null
+          : { h: keadaan.home_goals, a: keadaan.away_goals! }))
+      : null;
 
   return (
     <div>
       <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">
-        ← Jadwal pertandingan
+        ← Kembali ke jadwal
       </Link>
 
       {/* ---------------------------------------------------------- header */}
@@ -293,11 +345,34 @@ async function AnalisisContent({
           {statusTampil && <> · {labelStatus(statusTampil, keadaan?.menit)}</>}
           {feedMode === "free" && <> · Mode data gratis</>}
         </p>
-        {keadaan?.status === "finished" && keadaan.home_goals !== null && (
+        {selesai && keadaan.home_goals !== null && (
           <div className="mt-8">
-            <p className="text-xl font-medium text-ink">
-              Selesai · {home} {keadaan.home_goals}–{keadaan.away_goals} {away}.
-            </p>
+            {keadaan.pascaregulasi ? (
+              <>
+                <p className="text-sm text-mid-gray">
+                  Skor {keadaan.pascaregulasi === "aet" ? "setelah perpanjangan waktu" : "adu penalti"}
+                </p>
+                <p className="mt-1 text-xl font-medium text-ink">
+                  {home} {keadaan.home_goals}–{keadaan.away_goals} {away}
+                </p>
+                {skorRegulasi ? (
+                  <p className="mt-3 text-xl font-medium text-ink">
+                    Skor 90 menit · {home} {skorRegulasi.h}–{skorRegulasi.a} {away}
+                  </p>
+                ) : (
+                  <p className="mt-3 text-[15px] text-mid-gray">
+                    Skor 90 menit belum terkonfirmasi — penilaian menunggu hasil resmi.
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-mid-gray">Skor 90 menit</p>
+                <p className="mt-1 text-xl font-medium text-ink">
+                  {home} {keadaan.home_goals}–{keadaan.away_goals} {away}
+                </p>
+              </>
+            )}
             {officialPicks.length > 0 && (
               <p className="mt-1.5 text-sm text-mid-gray">
                 {resmiDinilai.length > 0
@@ -322,20 +397,145 @@ async function AnalisisContent({
         )}
         {result?.finished && !keadaan && (
           <p className="mt-8 text-xl font-medium text-ink">
-            Selesai · {home} {result.home_goals}–{result.away_goals} {away}.
+            Selesai · Skor 90 menit {home} {result.home_goals}–{result.away_goals} {away}.
           </p>
         )}
       </header>
 
-      {/* ----------------------------------------------------- peta peluang */}
-      {p1 !== null && px !== null && p2 !== null && (
+      {/* ------------------------------------------- prediksi edisi terbit */}
+      {officialPicks.length > 0 && (
         <section className="mt-16">
-          <SectionHead label="Peta peluang" />
+          <SectionHead
+            label={selesai ? "Prediksi saat terbit" : "Prediksi sebelum laga"}
+            right={
+              <span className="text-[13px] text-faint">{officialPicks.length} pilihan resmi</span>
+            }
+          />
+          {trioTerbit && (
+            <dl className="mt-6 grid gap-6 sm:grid-cols-3">
+              {[
+                { nama: `${home} menang`, nilai: trioTerbit.a },
+                { nama: "Seri", nilai: trioTerbit.x },
+                { nama: `${away} menang`, nilai: trioTerbit.b },
+              ].map((r) => (
+                <div key={r.nama}>
+                  <dt className="text-sm break-words text-mid-gray">{r.nama}</dt>
+                  <dd className="mt-1">
+                    <Prob value={r.nilai} strong className="text-[32px] leading-none" />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          {terbitUtc && (
+            <p className="mt-4 text-[13px] text-faint">
+              Terbit {tanggalJamWib(terbitUtc, tz)}. Angka terbit tidak berubah oleh analisis
+              yang lebih baru.
+            </p>
+          )}
+          {selesai && skorRegulasi && (
+            <p className="mt-2 text-[13px] text-faint">
+              Dinilai terhadap skor 90 menit {skorRegulasi.h}–{skorRegulasi.a}.
+            </p>
+          )}
+          <ul className="mt-6 space-y-4">
+            {officialPicks.map((pk: OfficialPick) => (
+              <li
+                key={pk.pick_uid}
+                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hairline/50 pt-4"
+              >
+                <GradeMark grade={pk.grade} />
+                <span className="min-w-0 flex-1 break-words text-[15px] text-ink">
+                  {labelPilihan(pk.market, pk.selection, home, away)}
+                </span>
+                <span className="text-right">
+                  {pk.published_prob !== null ? (
+                    <>
+                      <Prob value={pk.published_prob} strong />{" "}
+                      <span className="text-[13px] text-faint">peluang saat terbit</span>
+                    </>
+                  ) : (
+                    <span className="text-[13px] text-faint">{labelBasisPeluang(pk.probability_basis)}</span>
+                  )}
+                </span>
+                <span className="w-full text-[13px] text-faint">
+                  {kalimatBasis(pk.probability_basis)} · {labelGate(pk.gate_status)}
+                  {pk.published_at_utc && (
+                    <> · Terbit {tanggalJamWib(pk.published_at_utc, tz)}</>
+                  )}
+                  {" · "}
+                  <span
+                    className={
+                      pk.hit === 1
+                        ? "font-medium text-sage"
+                        : pk.hit === 0
+                          ? "font-medium text-brick"
+                          : ""
+                    }
+                  >
+                    {verdikDetail(pk, selesai)}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* -------------------------------------------------------- tiket resmi */}
+      {officialTickets.length > 0 && (
+        <section className="mt-16">
+          <SectionHead label="Tiket resmi" />
+          <ul className="mt-6 space-y-3">
+            {officialTickets.map((t) => (
+              <li key={t.slip_uid} className="border-t border-hairline/50 pt-4 text-[15px]">
+                <Link
+                  href={`/bukti?tiket=${encodeURIComponent(t.slip_uid)}`}
+                  className="font-medium text-ink transition-colors hover:text-accent"
+                >
+                  Tiket resmi {t.slip_uid.slice(0, 13)}…
+                </Link>
+                <span className="text-mid-gray">
+                  {" "}· {SLIP_STATE_LABEL[t.state] ?? t.state} · Terbit{" "}
+                  {tanggalJamWib(t.published_utc, tz)}
+                  {t.combined_prob !== null && (
+                    <>
+                      {" "}· Perkiraan peluang semua pilihan tepat {pct(t.combined_prob)}
+                      {t.combined_low !== null &&
+                        t.combined_high !== null &&
+                        t.combined_low !== t.combined_high && (
+                          <> (rentang {pct(t.combined_low)}–{pct(t.combined_high)})</>
+                        )}
+                    </>
+                  )}
+                  {t.combined_prob === null && t.combined_reason && (
+                    <> · Peluang gabungan tidak dapat dihitung: {t.combined_reason}</>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* --------------------------------- angka mutakhir (bagian sendiri) */}
+      {trioTerbaru && (officialPicks.length === 0 || paketTerbitBerbeda) && (
+        <section className="mt-16">
+          <SectionHead
+            label={officialPicks.length === 0 ? "Peta peluang" : "Analisis terbaru"}
+            right={
+              paketTerbitBerbeda ? (
+                <span className="text-[13px] text-faint">
+                  Dihitung {tanggalJamWib(pkg.computed_utc, tz)}
+                </span>
+              ) : undefined
+            }
+          />
           <dl className="mt-6 grid gap-6 sm:grid-cols-3">
             {[
-              { nama: `${home} menang`, nilai: p1 },
-              { nama: "Seri", nilai: px },
-              { nama: `${away} menang`, nilai: p2 },
+              { nama: `${home} menang`, nilai: trioTerbaru.a },
+              { nama: "Seri", nilai: trioTerbaru.x },
+              { nama: `${away} menang`, nilai: trioTerbaru.b },
             ].map((r) => (
               <div key={r.nama}>
                 <dt className="text-sm break-words text-mid-gray">{r.nama}</dt>
@@ -347,6 +547,12 @@ async function AnalisisContent({
           </dl>
           {kalimatPeta && (
             <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">{kalimatPeta}</p>
+          )}
+          {officialPicks.length === 0 && (
+            <p className="mt-3 text-[13px] text-faint">
+              Peluang dari model skor, dihitung {tanggalJamWib(pkg.computed_utc, tz)}. Belum ada
+              edisi terbit resmi untuk laga ini.
+            </p>
           )}
         </section>
       )}
@@ -464,193 +670,51 @@ async function AnalisisContent({
         )}
       </section>
 
-      {/* ------------------------------------------------ pilihan saat terbit */}
+      {/* ------------------------------------------------ kemungkinan skor */}
       <section className="mt-16">
         <SectionHead
-          label="Pilihan sebelum laga"
-          right={
-            <span className="text-[13px] text-faint">{officialPicks.length} pilihan resmi</span>
-          }
+          label="Kemungkinan skor"
+          sub="Peta peluang skor dari matriks model edisi yang dirujuk. Pilih skor untuk membaca peluang persisnya."
         />
-        {paketTerbitBerbeda && terbitUtc && (
-          <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
-            Prediksi saat terbit berasal dari paket {tanggalJamWib(terbitUtc, tz)}. Analisis
-            terbaru di halaman ini dihitung {tanggalJamWib(pkg.computed_utc, tz)} — angka terbit
-            tidak berubah oleh analisis yang lebih baru.
-          </p>
-        )}
-        {officialPicks.length === 0 ? (
-          <p className="mt-6 text-sm text-faint">
-            Belum ada pilihan resmi untuk laga ini. Pilihan resmi adalah pilihan yang diterbitkan
-            sebelum sepak mula dan tercatat beku di ledger.
-          </p>
-        ) : (
-          <ul className="mt-6 space-y-4">
-            {officialPicks.map((pk: OfficialPick) => (
-              <li
-                key={pk.pick_uid}
-                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hairline/50 pt-4"
-              >
-                <GradeMark grade={pk.grade} />
-                <span className="min-w-0 flex-1 break-words text-[15px] text-ink">
-                  {labelPilihan(pk.market, pk.selection, home, away)}
-                </span>
-                <span className="text-right">
-                  {pk.published_prob !== null ? (
-                    <>
-                      <Prob value={pk.published_prob} strong />{" "}
-                      <span className="text-[13px] text-faint">peluang saat terbit</span>
-                    </>
-                  ) : (
-                    <span className="text-[13px] text-faint">{labelBasisPeluang(pk.probability_basis)}</span>
-                  )}
-                </span>
-                <span className="w-full text-[13px] text-faint">
-                  {labelBasisPeluang(pk.probability_basis)} · {labelGate(pk.gate_status)}
-                  {pk.published_at_utc && (
-                    <> · Terbit {tanggalJamWib(pk.published_at_utc, tz)}</>
-                  )}
-                  {" · "}
-                  <span
-                    className={
-                      pk.hit === 1
-                        ? "font-medium text-sage"
-                        : pk.hit === 0
-                          ? "font-medium text-brick"
-                          : ""
-                    }
-                  >
-                    {labelVerdik(pk.hit)}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="mt-6">
+          {petaValid ? (
+            <PetaSkor
+              home={home}
+              away={away}
+              matrix={petaValid.matrix}
+              tailMass={paketPeta.payload.score_matrix_tail_mass ?? null}
+              skorAkhir={skorAkhirPeta}
+            />
+          ) : (
+            <p className="text-sm text-faint">Peta skor belum tersedia untuk laga ini.</p>
+          )}
+        </div>
       </section>
 
-      {/* -------------------------------------------------------- tiket resmi */}
-      {officialTickets.length > 0 && (
-        <section className="mt-16">
-          <SectionHead label="Tiket resmi" />
-          <ul className="mt-6 space-y-3">
-            {officialTickets.map((t) => (
-              <li key={t.slip_uid} className="border-t border-hairline/50 pt-4 text-[15px]">
-                <Link
-                  href={`/bukti?tiket=${encodeURIComponent(t.slip_uid)}`}
-                  className="font-medium text-ink transition-colors hover:text-accent"
-                >
-                  Tiket resmi {t.slip_uid.slice(0, 13)}…
-                </Link>
-                <span className="text-mid-gray">
-                  {" "}· {SLIP_STATE_LABEL[t.state] ?? t.state} · Terbit{" "}
-                  {tanggalJamWib(t.published_utc, tz)}
-                  {t.combined_prob !== null && (
-                    <>
-                      {" "}· Perkiraan peluang semua pilihan tepat {pct(t.combined_prob)}
-                      {t.combined_low !== null &&
-                        t.combined_high !== null &&
-                        t.combined_low !== t.combined_high && (
-                          <> (rentang {pct(t.combined_low)}–{pct(t.combined_high)})</>
-                        )}
-                    </>
-                  )}
-                  {t.combined_prob === null && t.combined_reason && (
-                    <> · Peluang gabungan tidak dapat dihitung: {t.combined_reason}</>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <div className="mt-16 grid gap-16 lg:grid-cols-2">
-        {/* --------------------------------------------------- skor mungkin */}
-        <section>
-          <SectionHead label="Skor paling mungkin" sub="Gol kandang ke bawah, gol tamu ke kanan." />
-          {cut.length === 0 ? (
-            <p className="mt-6 text-sm text-faint">Paket ini tidak menyimpan matriks skor.</p>
-          ) : (
-            <>
-              <div
-                className="mt-6 overflow-x-auto"
-                role="region"
-                aria-label="Matriks skor pertandingan"
-                tabIndex={0}
-              >
-                <table className="border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="h-9 w-8" />
-                      {cut[0].map((_, j) => (
-                        <th key={j} className="h-9 w-10 font-mono text-xs font-normal text-mid-gray sm:w-14">
-                          {j}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cut.map((row, i) => (
-                      <tr key={i}>
-                        <th className="h-10 w-8 font-mono text-xs font-normal text-mid-gray">{i}</th>
-                        {row.map((v, j) => (
-                          <td
-                            key={j}
-                            style={heatStyle(v, maxCell)}
-                            className="h-10 w-10 rounded-[3px] text-center font-mono text-[10px] tabular-nums sm:w-14 sm:text-[11px]"
-                          >
-                            {pct(v)}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <ol className="mt-6 space-y-1.5">
-                {(p.top_scores ?? []).slice(0, 5).map((s, i) => (
-                  <li key={i} className="flex items-baseline gap-3 text-sm">
-                    <span className="w-4 text-faint">{i + 1}.</span>
-                    <span className="font-medium text-ink">
-                      {s.home_goals}–{s.away_goals}
-                    </span>
-                    <span className="tabular-nums text-mid-gray">{pct(s.prob)}</span>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-4 text-[13px] text-faint">
-                Ditampilkan 0–5 gol per sisi dari matriks penuh 11×11. Daftar skor di atas adalah
-                alternatif teks matriks ini.
-              </p>
-            </>
+      {/* --------------------------------------------- tentang angka ini */}
+      <section className="mt-16">
+        <SectionHead label="Tentang angka ini" />
+        <div className="mt-6 max-w-2xl space-y-3.5 text-[15px] leading-relaxed text-ink-soft">
+          <p>Model menghitung peluang tiap hasil pertandingan.</p>
+          <p>
+            Gol yang diharapkan <span className="tabular-nums">{num(p.lambda)}</span> –{" "}
+            <span className="tabular-nums">{num(p.mu)}</span>. Korelasi{" "}
+            <span className="tabular-nums">{num(p.rho)}</span>.
+          </p>
+          <p>
+            Rating dari <span className="font-mono text-[13px]">{pkg.fit_source}</span>.
+          </p>
+          {pkg.cup_delta !== null && (
+            <p>
+              Laga piala: offset liga{" "}
+              <span className="tabular-nums">{signed(pkg.cup_delta, 3)}</span> diterapkan.
+            </p>
           )}
-        </section>
-
-        {/* --------------------------------------------- tentang angka ini */}
-        <section>
-          <SectionHead label="Tentang angka ini" />
-          <div className="mt-6 space-y-3.5 text-[15px] leading-relaxed text-ink-soft">
-            <p>
-              Gol yang diharapkan <span className="tabular-nums">{num(p.lambda)}</span> –{" "}
-              <span className="tabular-nums">{num(p.mu)}</span>. Korelasi{" "}
-              <span className="tabular-nums">{num(p.rho)}</span>.
-            </p>
-            <p>
-              Rating dari <span className="font-mono text-[13px]">{pkg.fit_source}</span>.
-            </p>
-            {pkg.cup_delta !== null && (
-              <p>
-                Laga piala: offset liga{" "}
-                <span className="tabular-nums">{signed(pkg.cup_delta, 3)}</span> diterapkan.
-              </p>
-            )}
-            <p>{GATE_SENTENCE[pkg.gate_status] ?? GATE_SENTENCE.uncalibrated}</p>
-            {resolution && <p>{resolution}</p>}
-            <p className="text-mid-gray">Dihitung {tanggalJamWib(pkg.computed_utc, tz)}.</p>
-          </div>
-        </section>
-      </div>
+          <p>{GATE_SENTENCE[pkg.gate_status] ?? GATE_SENTENCE.uncalibrated}</p>
+          {resolution && <p>{resolution}</p>}
+          <p className="text-mid-gray">Dihitung {tanggalJamWib(pkg.computed_utc, tz)}.</p>
+        </div>
+      </section>
 
       {/* -------------------------------------------------- enam laga akhir */}
       <section className="mt-16">

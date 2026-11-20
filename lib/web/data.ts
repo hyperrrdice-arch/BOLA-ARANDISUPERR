@@ -80,6 +80,9 @@ export interface QuantPayload {
   probabilities: Record<string, number>;
   top_scores: { home_goals: number; away_goals: number; prob: number }[];
   score_matrix: number[][];
+  /** Massa di luar grid model SEBELUM normalisasi (besaran quant sendiri;
+   *  bukan sisa tampilan peta — jangan dijumlahkan, brief §9). */
+  score_matrix_tail_mass?: number | null;
   market?: { probs: Record<string, number>; captured_utc: string | null; bookmakers: string[] } | null;
   sm_panel?: { probs: Record<string, number>; batch_utc: string } | null;
   legs?: Leg[];
@@ -625,6 +628,14 @@ export interface MatchDetail {
   officialPicks: OfficialPick[];
   /** Tiket RESMI (K3) yang memuat pilihan resmi laga ini. */
   officialTickets: TiketResmiRef[];
+  /**
+   * Paket EDISI TERBIT (brief §3C.2): paket yang menjadi sumber pilihan
+   * resmi (package_id terbanyak di antara pilihan resmi; seri → yang
+   * dihitung paling akhir). Angka "saat terbit" dan peta skor penilaian
+   * membaca edisi ini, bukan paket terbaru. Null bila tak ada pilihan
+   * resmi atau paketnya tak terbaca.
+   */
+  paketTerbit: PackageRow | null;
 }
 
 export function getMatchDetail(matchId: string): MatchDetail | null {
@@ -650,6 +661,23 @@ export function getMatchDetail(matchId: string): MatchDetail | null {
   const f = pkg.payload.fixture;
   const fixtureUid = fixtureUidOf(matchId);
   const officialPicks = bagian(() => getOfficialPicks(matchId, fixtureUid), [] as OfficialPick[]);
+  const paketTerbit = bagian(() => {
+    const hitung = new Map<number, number>();
+    for (const p of officialPicks) {
+      if (p.package_id !== null && p.package_id !== undefined) {
+        hitung.set(p.package_id, (hitung.get(p.package_id) ?? 0) + 1);
+      }
+    }
+    let terpilih: number | null = null;
+    let terbanyak = 0;
+    for (const [id, n] of hitung) {
+      if (n > terbanyak || (n === terbanyak && terpilih !== null && id > terpilih)) {
+        terpilih = id;
+        terbanyak = n;
+      }
+    }
+    return terpilih === null ? null : getPackageRowById(terpilih);
+  }, null);
   return {
     pkg,
     picks,
@@ -663,6 +691,7 @@ export function getMatchDetail(matchId: string): MatchDetail | null {
       () => getOfficialTickets(officialPicks.map((p) => p.pick_uid)),
       [] as TiketResmiRef[],
     ),
+    paketTerbit,
   };
 }
 
@@ -1070,6 +1099,23 @@ export interface KeadaanLaga {
   away_goals: number | null;
   /** Menit berjalan bila sumber menyatakannya di string status; selain itu null. */
   menit: number | null;
+  /**
+   * Penanda skor pasca-regulasi (brief §3C.1): ejaan status sumber
+   * menyatakan skor yang tersimpan adalah skor SETELAH perpanjangan
+   * waktu ("aet") atau adu penalti ("penalti") — bukan skor 90 menit.
+   * Skor regulasi tidak pernah ditebak dari skor ini; ia hanya boleh
+   * datang dari revisi terautentikasi (hasil resolver pada pilihan).
+   */
+  pascaregulasi: "aet" | "penalti" | null;
+}
+
+/** Ejaan status mentah → penanda pasca-regulasi; selain itu null. */
+function pascaregulasiDariStatus(raw: string | null | undefined): "aet" | "penalti" | null {
+  if (!raw) return null;
+  const s = raw.trim().toLowerCase();
+  if (/(^|[^a-z])(aet|after_extra_time|after extra time)([^a-z]|$)/.test(s)) return "aet";
+  if (/(^|[^a-z])(pen|pens|penalties|penalty_shootout)([^a-z]|$)/.test(s)) return "penalti";
+  return null;
 }
 
 /**
@@ -1183,6 +1229,7 @@ function keadaanDariBaris(
       dasar === "live"
         ? menitDariStatusMentah(datasetRow?.statusRaw ?? catalogStatus)
         : null,
+    pascaregulasi: pascaregulasiDariStatus(datasetRow?.statusRaw),
   };
 }
 
@@ -1930,6 +1977,14 @@ export function getFixtureInfo(matchId: string): InfoFixture | null {
     /* tak ada sumber yang mengenal id ini */
   }
   return null;
+}
+
+/** Satu baris paket utuh menurut id — pembaca edisi terbit di detail. */
+export function getPackageRowById(packageId: number): PackageRow | null {
+  const row = packagesDb()
+    .prepare(`SELECT * FROM packages WHERE id = ?`)
+    .get(packageId) as Record<string, unknown> | undefined;
+  return row ? parsePackage(row) : null;
 }
 
 /** Matriks skor paket untuk halaman analisis + pembangun parlay (client-safe data). */

@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function LagaTidakDitemukan() {
   return (
     <div className="py-16 text-center">
-      <p className="text-[17px] font-medium text-ink">Laga tidak ditemukan</p>
+      <p className="text-[17px] font-medium text-ink">Pertandingan tidak ditemukan</p>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mid-gray">
         Alamat ini tidak menunjuk pertandingan mana pun di jadwal.
       </p>
