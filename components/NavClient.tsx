@@ -14,9 +14,13 @@ const ITEMS = [
  *  shell can prerender (Cache Components) while the active state streams in. */
 export function NavStatic() {
   return (
-    <nav aria-label="Utama" className="flex items-center gap-7">
+    <nav aria-label="Utama" className="flex items-center gap-4 min-[480px]:gap-7">
       {ITEMS.map((it) => (
-        <Link key={it.href} href={it.href} className="text-[15px] whitespace-nowrap text-mid-gray">
+        <Link
+          key={it.href}
+          href={it.href}
+          className="text-[13px] whitespace-nowrap text-mid-gray min-[480px]:text-[15px]"
+        >
           {it.label}
         </Link>
       ))}
@@ -27,7 +31,7 @@ export function NavStatic() {
 export default function NavClient() {
   const path = usePathname();
   return (
-    <nav aria-label="Utama" className="flex items-center gap-7">
+    <nav aria-label="Utama" className="flex items-center gap-4 min-[480px]:gap-7">
       {ITEMS.map((it) => {
         const active =
           it.href === "/" ? path === "/" : path === it.href || path.startsWith(it.href + "/");
@@ -36,7 +40,7 @@ export default function NavClient() {
             key={it.href}
             href={it.href}
             aria-current={active ? "page" : undefined}
-            className={`text-[15px] whitespace-nowrap transition-colors ${
+            className={`text-[13px] whitespace-nowrap transition-colors min-[480px]:text-[15px] ${
               active
                 ? "text-ink underline decoration-accent decoration-2 underline-offset-8"
                 : "text-mid-gray hover:text-ink"

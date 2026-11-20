@@ -10,7 +10,7 @@ import NavClient, { NavStatic } from "./NavClient";
 export function TopBar() {
   return (
     <header>
-      <div className="mx-auto flex h-16 w-full max-w-[76rem] items-center justify-between px-6">
+      <div className="mx-auto flex h-16 w-full max-w-[76rem] items-center justify-between px-4 min-[480px]:px-6">
         <Link
           href="/"
           className="font-display text-[17px] font-semibold tracking-[-0.01em] text-ink"

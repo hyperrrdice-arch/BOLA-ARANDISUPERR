@@ -362,7 +362,7 @@ async function AnalisisContent({
           role="region"
           aria-label="Tabel perbandingan model dan harga pasar"
         >
-          <table className="w-full min-w-[420px] text-sm">
+          <table className="w-full text-sm">
             <thead>
               <tr>
                 <th className="pb-3 text-left text-[13px] font-normal text-mid-gray">Pilihan</th>
@@ -420,7 +420,7 @@ async function AnalisisContent({
               role="region"
               aria-label="Tabel panel arsip Sportmonks"
             >
-              <table className="w-full min-w-[320px] text-sm">
+              <table className="w-full text-sm">
                 <thead>
                   <tr>
                     <th className="pb-3 text-left text-[13px] font-normal text-mid-gray">Pilihan</th>
