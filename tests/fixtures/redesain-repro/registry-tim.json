@@ -1,0 +1,118 @@
+[
+ {
+  "canonical_id": "sm:44",
+  "name": "Olympique Marseille",
+  "country": "Europe",
+  "members": [
+   {
+    "system": "sportmonks",
+    "team_id": "44",
+    "name_as_stored": "Olympique Marseille"
+   }
+  ],
+  "aliases": [
+   "Olympique Marseille"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:7758",
+  "name": "Le Mans",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_97723",
+    "name_as_stored": "Le Mans"
+   },
+   {
+    "system": "sportmonks",
+    "team_id": "7758",
+    "name_as_stored": "Le Mans"
+   }
+  ],
+  "aliases": [
+   "Le Mans"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:79",
+  "name": "Olympique Lyonnais",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_74434",
+    "name_as_stored": "Olympique Lyonnais"
+   },
+   {
+    "system": "sportmonks",
+    "team_id": "79",
+    "name_as_stored": "Olympique Lyonnais"
+   }
+  ],
+  "aliases": [
+   "Olympique Lyonnais"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "tm_25550",
+  "name": "Olympique de Marseille",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_25550",
+    "name_as_stored": "Olympique de Marseille"
+   }
+  ],
+  "aliases": [
+   "Olympique de Marseille"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:289",
+  "name": "Toulouse FC",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_25581",
+    "name_as_stored": "Toulouse"
+   },
+   {
+    "system": "sportmonks",
+    "team_id": "289",
+    "name_as_stored": "Toulouse"
+   }
+  ],
+  "aliases": [
+   "Toulouse"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:450",
+  "name": "OGC Nice",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_25567",
+    "name_as_stored": "Nice"
+   },
+   {
+    "system": "sportmonks",
+    "team_id": "450",
+    "name_as_stored": "Nice"
+   }
+  ],
+  "aliases": [
+   "Nice"
+  ],
+  "contested_name": false
+ }
+]
