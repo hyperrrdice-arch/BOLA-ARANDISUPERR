@@ -961,6 +961,22 @@ direkomendasikan: telemetri diproses per chunk (bukan dimuat
 sekaligus); alternatifnya memindahkan hitungan ke VPS baru 16 GB.
 **Keputusan owner — belum dieksekusi** (§10).
 
+**Status paritas refresh (per 20 Nov 2026):** perbaikan telemetri
+**sudah berjalan di VPS** — menurut konfirmasi pemilik, salinan
+rantai di VPS diperbarui oleh pemilik sendiri dan rantai refresh di
+VPS US kini menyelesaikan seluruh langkahnya termasuk
+`build-canonical-telemetry` (langkah yang sama selesai dalam
+±30 detik saat migrasi 19 Nov 2026, dan run terjadwal sesudahnya
+menjalankan ke-8 langkah penuh; pick situs live tidak lagi beku).
+**Repo ini BELUM memuat commit perbaikan itu:**
+`scripts/build-canonical-telemetry.ts` di repo masih memuat seluruh
+tabel form dalam satu kueri (`SELECT * FROM team_match_logs` —
+baris 61). Status resmi yang tercatat untuk selisih ini:
+**menunggu patch/SHA tersanitasi dari pemilik**. Sampai patch itu
+tiba, langkah telemetri di repo dan di VPS dinyatakan TIDAK paritas
+— dan tidak ada referensi commit/patch perbaikan yang dapat dikutip
+dari sisi repo.
+
 > Catatan keadaan saat dokumen ini ditulis (4 Nov 2026): satu run
 > rantai-LAMA (dimulai sebelum fase piala mengubah `daily-refresh.ts`)
 > masih berjalan di langkah telemetry-nya. Sesuai desain rantai, run
@@ -1070,10 +1086,14 @@ diselesaikan sepihak):
     9 Nov 2026: winner validasi bergeser ke kfit:20 (margin 0,0026
     LL); produksi masih kfit:10. Menaikkannya mengubah angka
     produksi → keputusan owner (§5.4).
-11. **Perbaikan rantai refresh VPS** — telemetri OOM di VPS (§8):
-    chunking telemetri (obat permanen yang direkomendasikan) vs
-    memindahkan hitungan ke VPS baru 16 GB. Selama belum diputuskan,
-    pick situs live beku sejak 9 Nov 2026; ledger VM adalah acuan.
+11. **Paritas refresh repo ↔ VPS** — perbaikan telemetri
+    (chunking) sudah berjalan di VPS atas konfirmasi pemilik
+    (rantai VPS US menyelesaikan seluruh langkah; pick situs live
+    tidak lagi beku sejak migrasi 19 Nov 2026), tetapi **repo belum
+    memuat commit perbaikan itu**. Status resmi: **menunggu
+    patch/SHA tersanitasi dari pemilik**; sampai tiba, langkah
+    telemetri repo dan VPS tidak paritas dan tidak ada referensi
+    commit/patch yang bisa dikutip (§8).
 12. **Token football-data.org** — importer suplemen fixture sudah
     jadi dan dorman (`scripts/import-fdorg-fixtures.ts`); menunggu
     owner mendaftar token gratis. Nilai tambahnya terkecil di daftar
