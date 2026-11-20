@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    name: Typecheck & Quant Integrity
+    name: Lint, Typecheck, Tests & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -18,20 +18,56 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Node 24: repo memakai node:sqlite (stabil di 24) dan versi ini
+          # yang dipakai lingkungan eksperimen K0.
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      # CATATAN K0 (baseline b9b3871): langkah lint saat ini MERAH oleh utang
+      # lama — 92 error (90x @typescript-eslint/no-explicit-any) menyebar di
+      # app/, lib/, components/, termasuk file read-only lib/agent/*.
+      # Langkahnya tetap dipasang apa adanya supaya utang itu terlihat dan
+      # terukur, bukan disembunyikan; pelunasannya kartu tersendiri.
+      - name: Lint
+        run: npm run lint
+
       - name: TypeScript typecheck
-        run: npx tsc --noEmit
+        run: npx --no-install tsc --noEmit
 
-      - name: Run BFF View-Model tests
-        run: npx tsx scripts/test-view-mapper.ts
+      - name: Quant tests (vig + quant-correctness + pick-engine)
+        run: npm run test:quant
 
-      - name: Run Value Bet tests
-        run: npx tsx scripts/test-value-bets.ts
+      - name: Data tests (rantai impor → alias → resolver, jalur hijau)
+        run: npm run test:data
 
-      - name: Run Quant Scale & Vig-Stripping invariants
-        run: npx tsx scripts/test-quant-scale.ts
+      - name: Web adapter tests
+        run: npm run test:web
+
+      - name: E2E mini-pipe tests
+        run: npm run test:e2e
+
+      # Baseline D01 adalah langkah TERPISAH: ia lulus bila perilaku D01
+      # masih persis sama dengan baseline terekam (yang memang gagal
+      # memenuhi harapan acceptance.json — bug-nya milik K1), dan merah
+      # bila perilaku berubah tanpa baseline diperbarui.
+      - name: D01 baseline (perilaku terekam, bukan regresi hijau)
+        run: npm run test:baseline:d01
+
+      # Build di checkout bersih TIDAK punya .env.local (gitignored), dan
+      # lib/llm/models.ts memvalidasi env saat import — tanpa nilai apa pun
+      # build gugur di "collect page data for /api/agent". Nilai di bawah
+      # adalah placeholder persis contoh .env.example (BUKAN kredensial
+      # asli); build hanya butuh variabelnya terisi. Build juga mengambil
+      # font lewat next/font/google, jadi langkah ini butuh jaringan —
+      # tersedia di runner GitHub.
+      - name: Build
+        run: npm run build
+        env:
+          NINE_ROUTER_BASE_URL: http://localhost:20128/v1
+          NINE_ROUTER_API_KEY: dummy-build-only
+          NINE_ROUTER_MODEL: ag/gemini-3.8-flash
+          STATS_API_KEY: dummy-build-only
+          RAPIDAPI_1XBET_KEY: dummy-build-only
