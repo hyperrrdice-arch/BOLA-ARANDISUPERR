@@ -49,11 +49,13 @@ jobs:
       - name: E2E mini-pipe tests
         run: npm run test:e2e
 
-      # Baseline D01 adalah langkah TERPISAH: ia lulus bila perilaku D01
-      # masih persis sama dengan baseline terekam (yang memang gagal
-      # memenuhi harapan acceptance.json — bug-nya milik K1), dan merah
-      # bila perilaku berubah tanpa baseline diperbarui.
-      - name: D01 baseline (perilaku terekam, bukan regresi hijau)
+      # Baseline D01 adalah langkah TERPISAH. Sejak K1 ia adalah REGRESI
+      # WAJIB HIJAU: suite menilai harapan eksplisit acceptance.json
+      # (2/2 ter-resolve, [hit, miss], 4 log) DAN kesamaan persis dengan
+      # baseline terekam sesudah perbaikan; merah bila perilaku berubah
+      # tanpa baseline diperbarui. Histori kegagalan K0 (0/2) tersimpan
+      # di tests/baseline/d01-baseline.md.
+      - name: D01 baseline (regresi hijau K1)
         run: npm run test:baseline:d01
 
       # Build di checkout bersih TIDAK punya .env.local (gitignored), dan
