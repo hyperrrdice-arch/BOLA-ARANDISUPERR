@@ -31,6 +31,7 @@ import {
   skorTerlihat,
   type FixtureStatus,
 } from "./status";
+import { ZONA_BAKU, kunciTanggal } from "./format";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -421,6 +422,60 @@ export function listUpcoming(hours = 72): FixtureListItem[] {
   return rows.map((r) => enrich(parsePackage(r)));
 }
 
+/* ------------------------------------------------ sorotan hari ini (Fix-6) */
+
+export interface SorotanHariIni {
+  match_id: string;
+  home: string;
+  away: string;
+  competition_name: string;
+  kickoff_utc: string;
+  gate_status: string;
+  /** Tiga peluang utama model (1X2) — null per sisi bila tak tersedia. */
+  prob_home: number | null;
+  prob_draw: number | null;
+  prob_away: number | null;
+  /** Waktu terbit paket analisis (computed_utc paket terbaru laga ini). */
+  published_utc: string;
+}
+
+/**
+ * Sorotan beranda: satu laga HARI INI (tanggal lokal Asia/Jakarta) untuk
+ * fokus layar awal. Pilihan: laga yang belum sepak mula lebih dulu, lalu
+ * yang gerbangnya calibrated, lalu kickoff terawal — deterministik dari
+ * daftar upcoming yang sudah terurut. Laga tanpa peluang 1X2 model tidak
+ * disorot (tidak ada tiga peluang yang bisa ditampilkan dengan jujur).
+ * Null bila hari ini tidak ada laga berpaket yang layak.
+ */
+export function todaySpotlight(now: Date = new Date()): SorotanHariIni | null {
+  const kunciHariIni = kunciTanggal(now.toISOString(), ZONA_BAKU);
+  const kandidat = listUpcoming(36).filter(
+    (i) =>
+      kunciTanggal(i.pkg.kickoff_utc, ZONA_BAKU) === kunciHariIni &&
+      i.pkg.payload.probabilities["1x2:1"] !== undefined &&
+      i.pkg.payload.probabilities["1x2:x"] !== undefined &&
+      i.pkg.payload.probabilities["1x2:2"] !== undefined,
+  );
+  if (kandidat.length === 0) return null;
+  const nowMs = now.getTime();
+  const belumMulai = kandidat.filter((i) => Date.parse(i.pkg.kickoff_utc) >= nowMs);
+  const pool = belumMulai.length > 0 ? belumMulai : kandidat;
+  const pick = pool.find((i) => i.pkg.gate_status === "calibrated") ?? pool[0];
+  const p = pick.pkg.payload.probabilities;
+  return {
+    match_id: pick.pkg.match_id,
+    home: pick.pkg.payload.fixture.home,
+    away: pick.pkg.payload.fixture.away,
+    competition_name: pick.pkg.payload.fixture.competition_name,
+    kickoff_utc: pick.pkg.kickoff_utc,
+    gate_status: pick.pkg.gate_status,
+    prob_home: p["1x2:1"] ?? null,
+    prob_draw: p["1x2:x"] ?? null,
+    prob_away: p["1x2:2"] ?? null,
+    published_utc: pick.pkg.computed_utc,
+  };
+}
+
 /** Pertandingan yang baru selesai (untuk panel paket vs kenyataan). */
 export function listFinished(hoursBack = 72, limit = 60): FixtureListItem[] {
   const now = Date.now();
@@ -760,6 +815,9 @@ export function ledgerStats(): LedgerStats {
 export interface LandingStats {
   lab_picks: number;
   lab_resolved: number;
+  /** Laga UNIK di balik lab_resolved (satu laga punya banyak pilihan) —
+   *  penyebut yang sah untuk kata "laga" di beranda (Fix-6 butir 6). */
+  lab_resolved_matches: number;
   live_picks: number;
   leagues_fitted: number;
   leagues_calibrated: number;
@@ -834,6 +892,9 @@ export function landingStats(): LandingStats {
     lab_picks: one(`SELECT COUNT(*) n FROM picks WHERE source='lab'`),
     lab_resolved: one(
       `SELECT COUNT(*) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='lab'`,
+    ),
+    lab_resolved_matches: one(
+      `SELECT COUNT(DISTINCT p.match_id) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='lab'`,
     ),
     live_picks: one(`SELECT COUNT(*) n FROM picks WHERE source='live-run'`),
     leagues_fitted,

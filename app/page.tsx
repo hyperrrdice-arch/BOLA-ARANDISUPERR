@@ -10,8 +10,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
-import { landingStats, ledgerStats, listUpcoming } from "../lib/web/data";
-import { int, pct } from "../lib/web/format";
+import { landingStats, ledgerStats, listUpcoming, todaySpotlight } from "../lib/web/data";
+import { int, jamWibOnly, pct, tanggalJamWib } from "../lib/web/format";
 import { EmptyState, GateStatus, GradeMark, SectionHead } from "../components/ui";
 import { TopBar } from "../components/Nav";
 import HeroScene from "../components/landing/HeroScene";
@@ -56,9 +56,64 @@ async function HeroSubline() {
   const stats = landingStats();
   return (
     <>
-      Probabilitas pertandingan, diperiksa terhadap {int(stats.lab_resolved)} laga masa lalu yang
-      sudah dinilai.
+      Probabilitas pertandingan, diperiksa terhadap {int(stats.lab_resolved_matches)} laga masa
+      lalu yang sudah dinilai.
     </>
+  );
+}
+
+/**
+ * Sorotan hari ini (Fix-6 butir 6): fokus layar awal di ponsel — satu
+ * laga hari ini dengan tiga peluang utama model, waktu terbit paket,
+ * dan SATU ketukan ke detail. Bola 3D tetap objek tanda tangan di
+ * bawahnya (di desktop sorotan tampil sesudah bola, hierarki lama).
+ */
+async function SpotlightToday() {
+  await connection();
+  const s = todaySpotlight();
+  if (!s) return null;
+  const probs: { label: string; value: number | null }[] = [
+    { label: s.home, value: s.prob_home },
+    { label: "Seri", value: s.prob_draw },
+    { label: s.away, value: s.prob_away },
+  ];
+  return (
+    <section
+      aria-label="Sorotan hari ini"
+      className="mx-auto w-full max-w-3xl border-y border-hairline py-6 text-left"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[13px] font-semibold tracking-[0.08em] text-accent uppercase">
+          Sorotan hari ini
+        </p>
+        <GateStatus status={s.gate_status} />
+      </div>
+      <h2 className="font-display mt-3 text-2xl leading-snug font-semibold text-ink">
+        {s.home} vs {s.away}
+      </h2>
+      <p className="mt-1 text-sm text-mid-gray">
+        {s.competition_name} · {tanggalJamWib(s.kickoff_utc)}
+      </p>
+      <dl className="mt-5 grid grid-cols-3 gap-4">
+        {probs.map((p) => (
+          <div key={p.label} className="min-w-0">
+            <dt className="truncate text-[13px] text-mid-gray">{p.label}</dt>
+            <dd className="font-display mt-1 text-[26px] leading-none font-semibold text-ink tabular-nums">
+              {pct(p.value)}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-[13px] text-faint">Terbit {jamWibOnly(s.published_utc)} WIB</p>
+        <Link
+          href={`/pertandingan/${s.match_id}`}
+          className="inline-flex min-h-[44px] items-center rounded-full border border-ink px-5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-canvas"
+        >
+          Baca analisis&nbsp;<span className="text-accent">→</span>
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -215,19 +270,28 @@ export default function LandingPage() {
             </Reveal>
           </div>
 
-          <Reveal delay={0.2}>
-            <div className="mt-6">
-              <Suspense
-                fallback={
-                  <div className="flex h-[52vh] max-h-[540px] min-h-[340px] items-center justify-center">
-                    <p className="text-sm text-mid-gray">Memuat analisis laga…</p>
-                  </div>
-                }
-              >
-                <HeroFigure />
+          <div className="flex flex-col">
+            <div className="order-1 mt-8 lg:order-2 lg:mt-14">
+              <Suspense fallback={null}>
+                <SpotlightToday />
               </Suspense>
             </div>
-          </Reveal>
+            <div className="order-2 lg:order-1">
+              <Reveal delay={0.2}>
+                <div className="mt-6">
+                  <Suspense
+                    fallback={
+                      <div className="flex h-[52vh] max-h-[540px] min-h-[340px] items-center justify-center">
+                        <p className="text-sm text-mid-gray">Memuat analisis laga…</p>
+                      </div>
+                    }
+                  >
+                    <HeroFigure />
+                  </Suspense>
+                </div>
+              </Reveal>
+            </div>
+          </div>
 
           <Reveal delay={0.1}>
             <div className="mt-14">
