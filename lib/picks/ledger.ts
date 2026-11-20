@@ -140,6 +140,11 @@ export function getPicksDb(): DatabaseSync {
       ON picks(match_id, market, selection, source) WHERE source = 'live-run';
     CREATE INDEX IF NOT EXISTS idx_picks_match ON picks(match_id);
     CREATE INDEX IF NOT EXISTS idx_picks_market_band ON picks(market, model_prob);
+    -- Indeks covering untuk agregat cohort (Fix-6 butir 6): SUM atas
+    -- hit/gol oleh cohortStats + tanda tangan keadaan dibaca dari indeks
+    -- sempit ini, bukan memindai tabel yang memuat resolved_utc TEXT.
+    CREATE INDEX IF NOT EXISTS idx_pick_outcomes_agg
+      ON pick_outcomes(hit, home_goals, away_goals);
   `);
 
   // Migrasi aditif: kolom package_id pada DB yang sudah ada (CREATE TABLE

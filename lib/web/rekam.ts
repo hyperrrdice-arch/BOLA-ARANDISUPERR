@@ -77,6 +77,39 @@ interface NamaLaga {
 
 const namaCache = new Map<number, NamaLaga | null>();
 
+/** Parse nama laga dari payload_json paket — tiga bentuk warisan yang dikenal. */
+function parseNamaPayload(payloadJson: string): NamaLaga | null {
+  try {
+    const raw = JSON.parse(payloadJson) as Record<string, unknown>;
+    const fx = raw.fixture as
+      | { home?: string; away?: string; competition_name?: string }
+      | undefined;
+    if (fx && typeof fx.home === "string" && typeof fx.away === "string") {
+      return { home: fx.home, away: fx.away, competition_name: fx.competition_name ?? "" };
+    }
+    if (typeof raw.home === "string" && typeof raw.away === "string") {
+      return {
+        home: raw.home,
+        away: raw.away,
+        competition_name: (raw.competition_name as string) ?? "",
+      };
+    }
+    const sel = raw.selection as
+      | { fixture?: { home_team_name?: string; away_team_name?: string; competition_name?: string } }
+      | undefined;
+    if (sel?.fixture?.home_team_name && sel?.fixture?.away_team_name) {
+      return {
+        home: sel.fixture.home_team_name,
+        away: sel.fixture.away_team_name,
+        competition_name: sel.fixture.competition_name ?? "",
+      };
+    }
+  } catch {
+    /* payload tak terbaca → null */
+  }
+  return null;
+}
+
 /** Nama laga dari payload paket penerbit (cache per id — payload immutable). */
 export function namaDariPaket(packageId: number | null): NamaLaga | null {
   if (packageId === null || packageId === undefined) return null;
@@ -89,38 +122,54 @@ export function namaDariPaket(packageId: number | null): NamaLaga | null {
       const row = d
         .prepare("SELECT payload_json FROM packages WHERE id = ?")
         .get(packageId) as { payload_json: string } | undefined;
-      if (row) {
-        const raw = JSON.parse(row.payload_json) as Record<string, unknown>;
-        const fx = raw.fixture as
-          | { home?: string; away?: string; competition_name?: string }
-          | undefined;
-        if (fx && typeof fx.home === "string" && typeof fx.away === "string") {
-          val = { home: fx.home, away: fx.away, competition_name: fx.competition_name ?? "" };
-        } else if (typeof raw.home === "string" && typeof raw.away === "string") {
-          val = {
-            home: raw.home,
-            away: raw.away,
-            competition_name: (raw.competition_name as string) ?? "",
-          };
-        } else {
-          const sel = raw.selection as
-            | { fixture?: { home_team_name?: string; away_team_name?: string; competition_name?: string } }
-            | undefined;
-          if (sel?.fixture?.home_team_name && sel?.fixture?.away_team_name) {
-            val = {
-              home: sel.fixture.home_team_name,
-              away: sel.fixture.away_team_name,
-              competition_name: sel.fixture.competition_name ?? "",
-            };
-          }
-        }
-      }
+      if (row) val = parseNamaPayload(row.payload_json);
     } catch {
       val = null;
     }
   }
   namaCache.set(packageId, val);
   return val;
+}
+
+/**
+ * Muat massal nama laga (Fix-6 butir 6): satu statement IN(...) per 900
+ * id mengisi cache yang sama dengan `namaDariPaket`, menggantikan satu
+ * kueri per paket pada daftar panjang (terukur 77 SQL untuk 75 laga →
+ * 1 statement batch). Id yang tidak ditemukan di-cache sebagai null —
+ * semantik yang sama dengan jalur tunggal.
+ */
+export function muatNamaPaketBatch(packageIds: (number | null | undefined)[]): void {
+  const perlu = [
+    ...new Set(
+      packageIds.filter(
+        (x): x is number => x !== null && x !== undefined && !namaCache.has(x),
+      ),
+    ),
+  ];
+  if (perlu.length === 0) return;
+  const d = dbRo("analysis_snapshots.db");
+  if (!d) {
+    for (const id of perlu) namaCache.set(id, null);
+    return;
+  }
+  try {
+    for (let i = 0; i < perlu.length; i += 900) {
+      const c = perlu.slice(i, i + 900);
+      const rows = d
+        .prepare(
+          `SELECT id, payload_json FROM packages WHERE id IN (${c.map(() => "?").join(",")})`,
+        )
+        .all(...(c as never[])) as unknown as { id: number; payload_json: string }[];
+      const terlihat = new Set<number>();
+      for (const row of rows) {
+        terlihat.add(row.id);
+        namaCache.set(row.id, parseNamaPayload(row.payload_json));
+      }
+      for (const id of c) if (!terlihat.has(id)) namaCache.set(id, null);
+    }
+  } catch {
+    /* gagal batch → jalur tunggal per id tetap bekerja */
+  }
 }
 
 /* ---------------------------------------------------------------- filter */
@@ -459,6 +508,7 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
     stats = cohortStats({ now_utc: nowUtc, filter: cohort });
   }
 
+  muatNamaPaketBatch(rows.map((r) => r.package_id));
   const baris: BarisRekam[] = rows.map((r) => {
     const nama = namaDariPaket(r.package_id);
     const keadaan = keadaanPilihan(
@@ -612,6 +662,7 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
        ORDER BY kickoff_utc ASC, grade ASC, published_prob DESC`,
     )
     .all(SERI_PRODUKSI, nowUtc) as unknown as (RekamRowDb & { pick_uid: string })[];
+  muatNamaPaketBatch(rows.map((r) => r.package_id));
   const seen = new Set<string>();
   const out: PilihanPraLaga[] = [];
   for (const r of rows) {

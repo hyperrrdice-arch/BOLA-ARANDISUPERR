@@ -926,12 +926,32 @@ export function getMatchState(matchId: string): KeadaanLaga | null {
       /* tabel katalog tak ada */
     }
   }
+  return keadaanDariBaris(datasetRow, catalogStatus, catalogAda);
+}
+
+/** Baris dataset mentah untuk penggabungan keadaan (bentuk getMatchState). */
+interface BarisDatasetMentah {
+  statusRaw: string | null;
+  home: number | null;
+  away: number | null;
+}
+
+/**
+ * Penggabungan keadaan dari baris yang SUDAH diambil — logika ekor
+ * getMatchState, dipakai bersama jalur batch listSchedule (Fix-6 butir 6):
+ * baris dataset "terjadwal" polos kalah oleh status katalog yang lebih
+ * informatif (ditunda/dibatalkan/berlangsung); final dataset selalu
+ * menang; skor digerbang `skorTerlihat` (batal → tidak pernah tampil).
+ */
+function keadaanDariBaris(
+  datasetRow: BarisDatasetMentah | null,
+  catalogStatus: string | null,
+  catalogAda: boolean,
+): KeadaanLaga | null {
   if (!datasetRow && !catalogAda) return null;
   let status = displayStatus(datasetRow?.statusRaw ?? catalogStatus);
   if (datasetRow && catalogAda) {
     const cs = displayStatus(catalogStatus);
-    // Baris dataset "terjadwal" polos kalah oleh status katalog yang lebih
-    // informatif (ditunda/dibatalkan/berlangsung); final dataset selalu menang.
     if (
       status === "scheduled" &&
       (cs === "postponed" || cs === "cancelled" || cs === "live" || cs === "abandoned")
@@ -945,6 +965,196 @@ export function getMatchState(matchId: string): KeadaanLaga | null {
     home_goals: vis === "tidak" ? null : (datasetRow?.home ?? null),
     away_goals: vis === "tidak" ? null : (datasetRow?.away ?? null),
   };
+}
+
+/**
+ * Pilih baris dataset pemenang dari daftar id sibling BERURUT — semantik
+ * loop getMatchState persis: baris pertama yang ditemukan menjadi
+ * kandidat; baris berstatus final/dihentikan menggantikannya dan
+ * menghentikan pencarian.
+ */
+function pilihBarisDataset(
+  ids: string[],
+  byId: Map<string, BarisDatasetMentah>,
+): BarisDatasetMentah | null {
+  let datasetRow: BarisDatasetMentah | null = null;
+  for (const id of ids) {
+    const r = byId.get(id);
+    if (!r) continue;
+    if (!datasetRow) datasetRow = r;
+    const st = displayStatus(r.statusRaw);
+    if (st === "finished" || st === "abandoned") {
+      datasetRow = r;
+      break;
+    }
+  }
+  return datasetRow;
+}
+
+/* ------------------------------------------------- batch jadwal (Fix-6) */
+
+/**
+ * Konteks batch untuk listSchedule: semua pencarian per-laga yang dulu
+ * N+1 (siblingsOf ≈3 SQL + getMatchState ≈2–4 SQL + fixtureUidOf 2 SQL
+ * per item; terukur 51 SQL/7 item dan 293 SQL/45 item) diganti muatan
+ * massal — satu statement per sumber per potongan 900 id:
+ *   1. alias self-join (UID + sibling store identitas per id),
+ *   2. baris dataset untuk seluruh id sibling (UNION jendela dipisah
+ *      pemanggil — lihat listSchedule),
+ *   3. baris katalog untuk seluruh id sibling.
+ * Semantik per item direplikasi persis dari jalur tunggal: urutan
+ * sibling = [id, sibling file tautan, alias store terurut
+ * source_match_id] (urutan sisip Set pada siblingsOf), baris dataset
+ * dipilih `pilihBarisDataset`, katalog = baris sibling pertama yang ada.
+ */
+interface KonteksBatch {
+  uidById: Map<string, string>;
+  siblingsById: Map<string, string[]>;
+  datasetById: Map<string, BarisDatasetMentah>;
+  catalogById: Map<string, { status: string | null; utc_date: string }>;
+}
+
+const POTONG_ID = 900;
+
+function potong<T>(arr: T[], n: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  return out;
+}
+
+function tandaTanya(n: number): string {
+  return Array.from({ length: n }, () => "?").join(",");
+}
+
+/**
+ * Muat peta alias (UID + sibling) untuk sekumpulan id dalam SATU
+ * statement self-join per potongan. Store identitas absen/rusak →
+ * peta kosong (degradasi yang sama dengan siblingsOf/fixtureUidOf:
+ * sibling file tautan tetap berlaku, UID null).
+ */
+function muatAliasBatch(
+  ids: string[],
+  uidById: Map<string, string>,
+  siblingsById: Map<string, string[]>,
+): void {
+  if (ids.length === 0) return;
+  if (!linkGroupsCache) {
+    linkGroupsCache = loadFixtureLinkGroups(path.join(process.cwd(), "data"));
+  }
+  const dariStore = new Map<string, string[]>();
+  try {
+    const d = datasetDb();
+    for (const c of potong(ids, POTONG_ID)) {
+      const rows = d
+        .prepare(
+          `SELECT a1.source_match_id AS id, a2.fixture_uid AS uid,
+                  a2.source_match_id AS sibling
+           FROM fixture_aliases a1
+           JOIN fixture_aliases a2 ON a2.fixture_uid = a1.fixture_uid
+           WHERE a1.source_match_id IN (${tandaTanya(c.length)})
+           ORDER BY a2.source_match_id`,
+        )
+        .all(...c) as { id: string; uid: string; sibling: string }[];
+      for (const r of rows) {
+        uidById.set(r.id, r.uid);
+        const arr = dariStore.get(r.id);
+        if (arr) arr.push(r.sibling);
+        else dariStore.set(r.id, [r.sibling]);
+      }
+    }
+  } catch {
+    /* store identitas belum ada → degrade seperti jalur tunggal */
+  }
+  for (const id of ids) {
+    const set = new Set<string>([id]);
+    for (const s of linkSiblingsOf(linkGroupsCache, id)) set.add(s);
+    for (const s of dariStore.get(id) ?? []) set.add(s);
+    siblingsById.set(id, [...set]);
+  }
+}
+
+/** Muat baris dataset (status + skor) untuk sekumpulan id — 1 statement/potongan. */
+function muatDatasetBatch(ids: string[], into: Map<string, BarisDatasetMentah>): void {
+  if (ids.length === 0) return;
+  try {
+    const d = datasetDb();
+    for (const c of potong(ids, POTONG_ID)) {
+      const rows = d
+        .prepare(
+          `SELECT match_id, status, home_score, away_score FROM matches
+           WHERE match_id IN (${tandaTanya(c.length)})`,
+        )
+        .all(...c) as {
+        match_id: string;
+        status: string | null;
+        home_score: number | null;
+        away_score: number | null;
+      }[];
+      for (const r of rows) {
+        into.set(r.match_id, { statusRaw: r.status, home: r.home_score, away: r.away_score });
+      }
+    }
+  } catch {
+    /* dataset tak tersedia → peta tetap kosong */
+  }
+}
+
+/** Muat baris katalog (status + utc_date) untuk sekumpulan id — 1 statement/potongan. */
+function muatKatalogBatch(
+  ids: string[],
+  into: Map<string, { status: string | null; utc_date: string }>,
+): void {
+  if (ids.length === 0) return;
+  const up = upcomingDb();
+  if (!up) return;
+  try {
+    for (const c of potong(ids, POTONG_ID)) {
+      const rows = up
+        .prepare(
+          `SELECT match_id, status, utc_date FROM upcoming_fixtures
+           WHERE match_id IN (${tandaTanya(c.length)})`,
+        )
+        .all(...c) as { match_id: string; status: string | null; utc_date: string }[];
+      for (const r of rows) {
+        into.set(r.match_id, { status: r.status, utc_date: r.utc_date });
+      }
+    }
+  } catch {
+    /* tabel katalog tak ada → peta tetap kosong */
+  }
+}
+
+/** Keadaan satu laga dari konteks batch — semantik getMatchState persis. */
+function keadaanBatch(ctx: KonteksBatch, matchId: string): KeadaanLaga | null {
+  const ids = ctx.siblingsById.get(matchId) ?? [matchId];
+  const datasetRow = pilihBarisDataset(ids, ctx.datasetById);
+  let catalogStatus: string | null = null;
+  let catalogAda = false;
+  for (const id of ids) {
+    const r = ctx.catalogById.get(id);
+    if (r) {
+      catalogAda = true;
+      catalogStatus = r.status;
+      break;
+    }
+  }
+  return keadaanDariBaris(datasetRow, catalogStatus, catalogAda);
+}
+
+/** Jadwal ulang untuk laga ditunda dari konteks batch — semantik jadwalUlangOf. */
+function jadwalUlangBatch(
+  ctx: KonteksBatch,
+  matchId: string,
+  kickoffUtc: string,
+): string | null {
+  const ids = ctx.siblingsById.get(matchId) ?? [matchId];
+  for (const id of ids) {
+    const r = ctx.catalogById.get(id);
+    if (r && r.utc_date !== kickoffUtc && displayStatus(r.status) === "scheduled") {
+      return r.utc_date;
+    }
+  }
+  return null;
 }
 
 function kolomAda(d: Db, table: string, kolom: string): boolean {
@@ -1162,23 +1372,7 @@ function ringkasPaket(pkg: PackageRow): { pickCounts: { A: number; B: number; C:
   return { pickCounts: counts, topLeg: legs[0] ?? null };
 }
 
-function jadwalUlangOf(matchId: string, kickoffUtc: string): string | null {
-  const up = upcomingDb();
-  if (!up) return null;
-  try {
-    for (const id of siblingsOf(matchId)) {
-      const r = up
-        .prepare(`SELECT utc_date, status FROM upcoming_fixtures WHERE match_id = ?`)
-        .get(id) as { utc_date: string; status: string | null } | undefined;
-      if (r && r.utc_date !== kickoffUtc && displayStatus(r.status) === "scheduled") {
-        return r.utc_date;
-      }
-    }
-  } catch {
-    /* katalog tak terbaca */
-  }
-  return null;
-}
+
 
 /**
  * Daftar jadwal kanonik untuk jendela UTC [dariUtc, sampaiUtc): sumbernya
@@ -1257,17 +1451,22 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
   // tetap terdaftar di jadwal tanggal lampau.
   try {
     const d = datasetDb();
+    // Nama tim diambil lewat JOIN dalam statement yang sama (Fix-6:
+    // dulu satu kueri per tim per baris baru). Rantai fallback nama
+    // tidak berubah: nama tabel teams → nama kanonik → id apa adanya.
     const rows = d
       .prepare(
-        `SELECT match_id, competition_id, utc_date, status, home_team_id, away_team_id
-         FROM matches WHERE utc_date >= ? AND utc_date < ?`,
+        `SELECT m.match_id, m.competition_id, m.utc_date, m.status,
+                m.home_team_id, m.away_team_id,
+                ht.name AS home_name, at.name AS away_name
+         FROM matches m
+         LEFT JOIN teams ht ON ht.team_id = m.home_team_id
+         LEFT JOIN teams at ON at.team_id = m.away_team_id
+         WHERE m.utc_date >= ? AND m.utc_date < ?`,
       )
       .all(dariUtc, sampaiUtc) as Record<string, unknown>[];
-    const namaTim = (tid: string) => {
-      const t = d
-        .prepare(`SELECT name FROM teams WHERE team_id = ?`)
-        .get(tid) as { name: string } | undefined;
-      if (t?.name) return t.name;
+    const namaTim = (tid: string, namaJoin: unknown) => {
+      if (typeof namaJoin === "string" && namaJoin) return namaJoin;
       const cid = canonicalIdForTeamId(tid);
       return cid ? opponentName(cid) : tid;
     };
@@ -1276,8 +1475,8 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       if (!byId.has(mid)) {
         byId.set(mid, {
           match_id: mid,
-          home: namaTim(r.home_team_id as string),
-          away: namaTim(r.away_team_id as string),
+          home: namaTim(r.home_team_id as string, r.home_name),
+          away: namaTim(r.away_team_id as string, r.away_name),
           competition_name:
             petaLiga().nama.get(r.competition_id as string) ?? (r.competition_id as string),
           competition_country: null,
@@ -1292,10 +1491,28 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
     /* dataset tak tersedia */
   }
 
+  // Konteks batch (Fix-6 butir 6): UID, sibling, baris dataset dan
+  // katalog untuk SELURUH id di jendela dimuat massal — menggantikan
+  // getMatchState + fixtureUidOf + jadwalUlangOf per item (N+1).
+  const ctx: KonteksBatch = {
+    uidById: new Map(),
+    siblingsById: new Map(),
+    datasetById: new Map(),
+    catalogById: new Map(),
+  };
+  const semuaId = [...byId.keys()];
+  muatAliasBatch(semuaId, ctx.uidById, ctx.siblingsById);
+  const semuaSibling = new Set<string>();
+  for (const id of semuaId) {
+    for (const s of ctx.siblingsById.get(id) ?? [id]) semuaSibling.add(s);
+  }
+  muatDatasetBatch([...semuaSibling], ctx.datasetById);
+  muatKatalogBatch([...semuaSibling], ctx.catalogById);
+
   const items: JadwalItem[] = [];
   for (const m of byId.values()) {
     const pkg = pkgById.get(m.match_id) ?? null;
-    const keadaan = getMatchState(m.match_id);
+    const keadaan = keadaanBatch(ctx, m.match_id);
     let status: FixtureStatus;
     if (keadaan) {
       status = keadaan.status;
@@ -1308,7 +1525,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
     const ringkas = pkg ? ringkasPaket(pkg) : { pickCounts: { A: 0, B: 0, C: 0 }, topLeg: null };
     items.push({
       match_id: m.match_id,
-      fixture_uid: fixtureUidOf(m.match_id),
+      fixture_uid: ctx.uidById.get(m.match_id) ?? null,
       home: m.home,
       away: m.away,
       competition_name: m.competition_name,
@@ -1319,7 +1536,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       home_goals: keadaan?.home_goals ?? null,
       away_goals: keadaan?.away_goals ?? null,
       jadwal_asal_utc: status === "postponed" ? m.kickoff_utc : null,
-      jadwal_ulang_utc: status === "postponed" ? jadwalUlangOf(m.match_id, m.kickoff_utc) : null,
+      jadwal_ulang_utc: status === "postponed" ? jadwalUlangBatch(ctx, m.match_id, m.kickoff_utc) : null,
       package_id: pkg?.id ?? null,
       gate_status: pkg?.gate_status ?? null,
       pickCounts: ringkas.pickCounts,
