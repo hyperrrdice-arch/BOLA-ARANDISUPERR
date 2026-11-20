@@ -1,0 +1,89 @@
+{
+  "test_id": "D01",
+  "source_fixture": "docs/plans/peningkatan-aplikasi-bola/fixtures/acceptance.json (blok import_replay)",
+  "recorded_at": "2026-11-20T04:24:52.820Z",
+  "recorded_from_commit": "b9b38713b214f4e34c5e56c4cb5c222e4ab50c64",
+  "node": "v24.22.1",
+  "expected": {
+    "resolved_picks": 2,
+    "verdicts": [
+      "hit",
+      "miss"
+    ],
+    "finished_matches": 2,
+    "team_logs_if_telemetry_supplied": 4,
+    "unique_fixtures": 2
+  },
+  "actual": {
+    "run1": {
+      "tally": {
+        "results_inserted": 1,
+        "results_bridged": 1,
+        "results_already_present": 0,
+        "telemetry_rows": 2,
+        "closing_odds_written": 2,
+        "fixtures_inserted": 1,
+        "fixtures_bridged": 1,
+        "fixtures_already_present": 0
+      },
+      "links_count": 0,
+      "resolver": {
+        "examined": 2,
+        "resolved": 0
+      },
+      "state": {
+        "dataset_matches_total": 2,
+        "finished_fixture_matches": 1,
+        "team_logs_fixture": 2,
+        "odds_rows": 4,
+        "picks_resolved": 0,
+        "verdicts": []
+      },
+      "adapter": {
+        "sm901_result": null,
+        "fd_alpha_result": {
+          "home_goals": 2,
+          "away_goals": 1,
+          "finished": false
+        },
+        "sm902_result": null,
+        "unknown_detail": "null"
+      }
+    },
+    "run2": {
+      "tally": {
+        "results_inserted": 0,
+        "results_bridged": 1,
+        "results_already_present": 1,
+        "telemetry_rows": 0,
+        "closing_odds_written": 0,
+        "fixtures_inserted": 0,
+        "fixtures_bridged": 1,
+        "fixtures_already_present": 1
+      },
+      "links_count": 0,
+      "resolver": {
+        "examined": 2,
+        "resolved": 0
+      },
+      "state": {
+        "dataset_matches_total": 2,
+        "finished_fixture_matches": 1,
+        "team_logs_fixture": 2,
+        "odds_rows": 4,
+        "picks_resolved": 0,
+        "verdicts": []
+      },
+      "adapter": {
+        "sm901_result": null,
+        "fd_alpha_result": {
+          "home_goals": 2,
+          "away_goals": 1,
+          "finished": false
+        },
+        "sm902_result": null,
+        "unknown_detail": "null"
+      }
+    }
+  }
+}
