@@ -26,13 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # CATATAN K0 (baseline b9b3871): langkah lint saat ini MERAH oleh utang
-      # lama — 92 error (90x @typescript-eslint/no-explicit-any) menyebar di
-      # app/, lib/, components/, termasuk file read-only lib/agent/*.
-      # Langkahnya tetap dipasang apa adanya supaya utang itu terlihat dan
-      # terukur, bukan disembunyikan; pelunasannya kartu tersendiri.
-      - name: Lint
-        run: npm run lint
+      # GERBANG LINT BASELINE (Fix-6 butir 6): utang lint warisan direkam
+      # per (berkas, aturan) di lint-baseline.json (92 error, ter-commit,
+      # dapat diaudit — termasuk berkas read-only lib/agent/* yang tidak
+      # boleh diubah). Langkah ini MERAH hanya bila ada error BARU di
+      # luar baseline; baseline menyusut selalu lolos. Tahap CI berurutan
+      # ketat: lint-gate → typecheck → seluruh suite → build (satu job,
+      # langkah gagal menghentikan tahap berikutnya).
+      - name: Lint gate (baseline eksplisit)
+        run: npm run lint:gate
 
       - name: TypeScript typecheck
         run: npx --no-install tsc --noEmit
@@ -45,6 +47,12 @@ jobs:
 
       - name: Web adapter tests
         run: npm run test:web
+
+      # Kontrak HTTP /api/matches, /api/odds, /api/agent, /api/betting
+      # dengan upstream fixture (parameter invalid, hasil kosong,
+      # provider gagal) — Fix-6 butir 6.
+      - name: API contract tests
+        run: npm run test:api
 
       - name: E2E mini-pipe tests
         run: npm run test:e2e

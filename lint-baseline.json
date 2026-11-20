@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "generated_from": "fix/review-k8 (kandidat hasil Fix-1..Fix-5)",
+  "tool": "eslint (npm run lint)",
+  "total_errors": 92,
+  "total_warnings": 6,
+  "files": {
+    "app/api/matches/route.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 2
+      },
+      "warnings": {}
+    },
+    "app/api/odds/route.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 4
+      },
+      "warnings": {}
+    },
+    "components/landing/DataBall3D.tsx": {
+      "errors": {
+        "react-hooks/set-state-in-effect": 1
+      },
+      "warnings": {}
+    },
+    "lib/1xbet.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 2
+      },
+      "warnings": {}
+    },
+    "lib/agent/llm.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 1
+      },
+      "warnings": {}
+    },
+    "lib/agent/planner.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 13
+      },
+      "warnings": {}
+    },
+    "lib/db/thestats-dataset.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 9
+      },
+      "warnings": {}
+    },
+    "lib/db/upcoming-fixtures.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 1
+      },
+      "warnings": {}
+    },
+    "lib/quant/luck-regression.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 1
+      },
+      "warnings": {}
+    },
+    "lib/stats-cache.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 5
+      },
+      "warnings": {}
+    },
+    "lib/stats-fetcher-agent.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 14
+      },
+      "warnings": {}
+    },
+    "lib/stats-validator.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 24
+      },
+      "warnings": {}
+    },
+    "lib/syndicate-orchestrator.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 8,
+        "prefer-const": 1
+      },
+      "warnings": {
+        "@typescript-eslint/no-unused-vars": 2
+      }
+    },
+    "lib/view/analysis-view.ts": {
+      "errors": {
+        "@typescript-eslint/no-explicit-any": 6
+      },
+      "warnings": {}
+    },
+    "scripts/backtest-cup-form-blend.ts": {
+      "errors": {},
+      "warnings": {
+        "@typescript-eslint/no-unused-vars": 1
+      }
+    },
+    "scripts/validate-telemetry-combined.ts": {
+      "errors": {},
+      "warnings": {
+        "@typescript-eslint/no-unused-vars": 2
+      }
+    },
+    "tests/test-publication.ts": {
+      "errors": {},
+      "warnings": {
+        "@typescript-eslint/no-unused-vars": 1
+      }
+    }
+  }
+}
