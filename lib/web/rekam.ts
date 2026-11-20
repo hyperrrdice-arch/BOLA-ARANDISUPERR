@@ -337,6 +337,52 @@ export function idKonflikIdentitas(): Set<string> {
   return out;
 }
 
+/* ------------------------------------------- resolusi UID fisik (L2) */
+
+/**
+ * Resolusi UID laga FISIK untuk baris ledger yang fixture_uid-nya NULL
+ * (warisan pra-K1 / migrasi yang tak menjangkaunya): lewat store
+ * identitas K1 (`fixture_aliases`) — mekanisme persisten yang sama
+ * dengan pembaca detail (`fixtureUidOf`). Store absen/rusak → peta
+ * kosong dan kunci jatuh ke match_id (perilaku lama). Tidak pernah
+ * mengarang UID: hanya alias yang terdaftar yang dipakai.
+ */
+export function petaUidFisik(matchIds: string[]): Map<string, string> {
+  const out = new Map<string, string>();
+  const unik = [...new Set(matchIds)];
+  if (unik.length === 0) return out;
+  const d = dbRo("thestats_dataset.db");
+  if (!d) return out;
+  try {
+    for (let i = 0; i < unik.length; i += 500) {
+      const potong = unik.slice(i, i + 500);
+      const rows = d
+        .prepare(
+          `SELECT source_match_id, fixture_uid FROM fixture_aliases
+           WHERE source_match_id IN (${potong.map(() => "?").join(",")})`,
+        )
+        .all(...(potong as never[])) as unknown as {
+        source_match_id: string;
+        fixture_uid: string;
+      }[];
+      for (const r of rows) {
+        if (!out.has(r.source_match_id)) out.set(r.source_match_id, r.fixture_uid);
+      }
+    }
+  } catch {
+    /* store identitas belum ada → tanpa resolusi */
+  }
+  return out;
+}
+
+/** Kunci laga fisik satu baris: UID ledger → UID store identitas → match_id. */
+function kunciFisik(
+  row: { fixture_uid: string | null; match_id: string },
+  uidMap: Map<string, string>,
+): string {
+  return row.fixture_uid ?? uidMap.get(row.match_id) ?? row.match_id;
+}
+
 /* ------------------------------------------------------------ baris rekam */
 
 export interface BarisRekam {
@@ -509,6 +555,12 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
   }
 
   muatNamaPaketBatch(rows.map((r) => r.package_id));
+  // Baris ber-UID NULL diselesaikan ke laga fisiknya lewat store
+  // identitas — kunci yang sama dengan umpan builder (L2): satu laga
+  // fisik tidak terbelah hanya karena barisnya belum termigrasi.
+  const uidMap = petaUidFisik(
+    rows.filter((r) => !r.fixture_uid).map((r) => r.match_id),
+  );
   const baris: BarisRekam[] = rows.map((r) => {
     const nama = namaDariPaket(r.package_id);
     const keadaan = keadaanPilihan(
@@ -519,7 +571,7 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
       pick_id: r.id,
       pick_uid: r.pick_uid,
       match_id: r.match_id,
-      fixture_uid: r.fixture_uid,
+      fixture_uid: r.fixture_uid ?? uidMap.get(r.match_id) ?? null,
       home: nama?.home ?? "?",
       away: nama?.away ?? "?",
       competition_name: nama?.competition_name ?? "",
@@ -553,7 +605,7 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
   let diperbarui: string | null = null;
   for (const r of rows) {
     if ((r.hit === 0 || r.hit === 1) && !(r.voided !== null && r.voided !== undefined)) {
-      lagaDinilai.add(r.fixture_uid ?? r.match_id);
+      lagaDinilai.add(kunciFisik(r, uidMap));
     }
     if (r.published_at_utc && (!diperbarui || r.published_at_utc > diperbarui)) {
       diperbarui = r.published_at_utc;
@@ -623,6 +675,23 @@ export function ambilDetailTiket(slipUid: string): DetailTiket | null {
 
 /* ------------------------------------------------------ umpan builder */
 
+/**
+ * Jejak konflik edisi resmi (brief §4): dua edisi atau lebih mengaku
+ * resmi untuk kejadian semantik yang sama dengan angka terbit yang
+ * BERBEDA. Kejadiannya ditahan dari kombinasi sampai konflik selesai —
+ * tidak ada angka yang dipilih diam-diam; semua nilai + asalnya
+ * terbaca di sini.
+ */
+export interface KonflikPilihan {
+  nilai: {
+    published_prob: number;
+    match_id: string;
+    pick_uid: string;
+    package_id: number | null;
+    published_at_utc: string | null;
+  }[];
+}
+
 export interface PilihanPraLaga {
   pick_uid: string;
   match_id: string;
@@ -643,13 +712,27 @@ export interface PilihanPraLaga {
   model_prob: number;
   sources_agree: number;
   package_id: number | null;
+  /**
+   * Non-null bila kejadian ini diklaim >1 edisi resmi dengan angka
+   * terbit berbeda (brief §4): pilihan DITAHAN dari kombinasi;
+   * `published_prob` di baris ini hanya milik edisi perwakilan
+   * (terbit pertama) dan tidak boleh dipakai menghitung gabungan.
+   */
+  konflik: KonflikPilihan | null;
 }
 
 /**
  * Pilihan resmi pra-laga untuk builder: diterbitkan jalur K2 (pick_uid
  * terisi), peluang terbit tercatat, sepak mula masih di masa depan.
- * Ter-dedup per (laga fisik, pasar, garis, pilihan) — alias provider dari
- * laga yang sama tidak menggandakan pilihan (U03).
+ *
+ * Pengelompokan per KUNCI SEMANTIK (brief §4): identitas laga FISIK
+ * (fixture_uid ledger, atau resolusi store identitas untuk baris
+ * ber-UID NULL, atau match_id) + pasar + garis + pilihan. Alias
+ * provider dari laga yang sama melebur jadi satu kejadian (U03):
+ * - semua edisi sepakat pada angka terbit yang sama → satu pilihan;
+ * - edisi-edisi berbeda angka → KONFLIK: satu baris perwakilan
+ *   (edisi terbit pertama, sejalan prinsip keputusan-pertama K2)
+ *   dengan jejak lengkap di `konflik`, ditahan dari kombinasi.
  */
 export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
   const d = dbRo("picks.db");
@@ -663,13 +746,42 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
     )
     .all(SERI_PRODUKSI, nowUtc) as unknown as (RekamRowDb & { pick_uid: string })[];
   muatNamaPaketBatch(rows.map((r) => r.package_id));
-  const seen = new Set<string>();
-  const out: PilihanPraLaga[] = [];
+  const uidMap = petaUidFisik(
+    rows.filter((r) => !r.fixture_uid).map((r) => r.match_id),
+  );
+
+  type Baris = RekamRowDb & { pick_uid: string };
+  const grup = new Map<string, Baris[]>();
   for (const r of rows) {
-    const kunciLaga = r.fixture_uid ?? r.match_id;
-    const kunci = `${kunciLaga}|${r.market}|${r.line ?? ""}|${r.selection}`;
-    if (seen.has(kunci)) continue;
-    seen.add(kunci);
+    const kunci = `${kunciFisik(r, uidMap)}|${r.market}|${r.line ?? ""}|${r.selection}`;
+    const arr = grup.get(kunci);
+    if (arr) arr.push(r);
+    else grup.set(kunci, [r]);
+  }
+
+  const out: PilihanPraLaga[] = [];
+  for (const baris of grup.values()) {
+    // Perwakilan = edisi terbit pertama (prinsip keputusan-pertama K2);
+    // seri berikutnya hanya menjadi jejak, tidak mengganti angka.
+    const urut = [...baris].sort(
+      (a, b) =>
+        (a.published_at_utc ?? "").localeCompare(b.published_at_utc ?? "") ||
+        a.id - b.id,
+    );
+    const r = urut[0];
+    const angkaBerbeda = new Set(baris.map((b) => b.published_prob));
+    const konflik: KonflikPilihan | null =
+      angkaBerbeda.size > 1
+        ? {
+            nilai: urut.map((b) => ({
+              published_prob: b.published_prob as number,
+              match_id: b.match_id,
+              pick_uid: b.pick_uid,
+              package_id: b.package_id,
+              published_at_utc: b.published_at_utc,
+            })),
+          }
+        : null;
     const nama = namaDariPaket(r.package_id);
     const sources = [r.model_prob, r.market_prob, r.sm_prob].filter(
       (v) => v !== null && v !== undefined,
@@ -677,7 +789,7 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
     out.push({
       pick_uid: r.pick_uid,
       match_id: r.match_id,
-      fixture_uid: kunciLaga,
+      fixture_uid: kunciFisik(r, uidMap),
       kickoff_utc: r.kickoff_utc,
       home: nama?.home ?? "?",
       away: nama?.away ?? "?",
@@ -693,6 +805,7 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
       model_prob: r.model_prob,
       sources_agree: sources,
       package_id: r.package_id,
+      konflik,
     });
   }
   return out;

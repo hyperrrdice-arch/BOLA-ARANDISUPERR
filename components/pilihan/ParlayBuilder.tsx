@@ -58,6 +58,12 @@ export interface BuilderPick {
   modelProb: number;
   sourcesAgree: number;
   packageId: number | null;
+  /**
+   * Konflik edisi resmi (brief §4): >1 edisi mengaku resmi dengan angka
+   * terbit berbeda. Pilihan ditahan dari gabungan sampai konflik
+   * selesai; jejak nilainya ditampilkan, tidak dipilih diam-diam.
+   */
+  konflik?: { nilai: { prob: number; matchId: string }[] } | null;
 }
 
 const MAX_PICKS = 12;
@@ -143,6 +149,8 @@ export default function ParlayBuilder({
     setSelected((cur) => {
       // Menghapus selalu boleh — yang terkunci hanya MENAMBAH (U04).
       if (cur.some((s) => s.key === p.key)) return cur.filter((s) => s.key !== p.key);
+      // Pilihan berkonflik edisi tidak pernah masuk gabungan (brief §4).
+      if (p.konflik) return cur;
       if (sudahMulai(p.kickoffUtc, Date.now())) return cur;
       if (cur.length >= MAX_PICKS) return cur;
       return [...cur, p];
@@ -361,14 +369,30 @@ export default function ParlayBuilder({
                             type="button"
                             aria-pressed={active}
                             aria-label={`Tambah ${label}, ${p.home} vs ${p.away}`}
-                            disabled={mulai || (!active && full)}
+                            disabled={mulai || !!p.konflik || (!active && full)}
                             onClick={() => toggle(p)}
                             className={`shrink-0 px-1 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                               active ? "text-mid-gray hover:text-ink" : "text-accent hover:text-ink"
                             }`}
                           >
-                            {mulai ? "Sudah mulai" : active ? "Terpilih" : "Tambah"}
+                            {p.konflik
+                              ? "Konflik"
+                              : mulai
+                                ? "Sudah mulai"
+                                : active
+                                  ? "Terpilih"
+                                  : "Tambah"}
                           </button>
+                          {p.konflik && (
+                            <span className="block w-full text-[12px] leading-relaxed text-faint">
+                              Dua edisi resmi berbeda angka untuk kejadian ini:{" "}
+                              {p.konflik.nilai
+                                .map((n) => `${pct(n.prob, 1)} (${n.matchId})`)
+                                .join(" vs ")}
+                              . Ditahan dari gabungan sampai konfliknya selesai —
+                              tidak ada angka yang dipilih diam-diam.
+                            </span>
+                          )}
                         </li>
                       );
                     })}

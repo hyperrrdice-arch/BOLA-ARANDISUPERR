@@ -154,12 +154,29 @@ export interface SlipResult {
  * matriks → persis dari matriks; banyak pilihan tanpa matriks →
  * perkalian antar pilihan dalam grup (perkiraan, exact=false).
  * Antar laga: perkalian (asumsi independen — lihat header file).
+ *
+ * IDEMPOTENSI KEJADIAN (brief §4, redesain L2): kejadian semantik yang
+ * sama dalam satu laga — (laga fisik, pasar, pilihan) — adalah SATU
+ * kejadian, berapa kali pun ia sampai ke slip (mis. ditambah lewat dua
+ * alias provider dari laga fisik yang sama). Duplikatnya dibuang
+ * sebelum pengelompokan; kejadian tidak pernah dikuadratkan. Umpan
+ * resmi menjamin duplikat yang sampai ke sini sepakat pada angka
+ * terbit yang sama — yang berbeda angka ditahan sebagai konflik di
+ * lapisan umpan (`daftarPilihanPraLaga`), tidak sampai ke fungsi ini.
  */
 export function combineSlip(picks: SlipPick[]): SlipResult {
   if (picks.length === 0) return { combined: 0, exactSameMatch: false, basis: "model", groups: [] };
 
+  const sudahAda = new Set<string>();
+  const unik = picks.filter((p) => {
+    const k = `${p.matchId}|${p.market}|${p.selection.toLowerCase()}`;
+    if (sudahAda.has(k)) return false;
+    sudahAda.add(k);
+    return true;
+  });
+
   const byMatch = new Map<string, SlipPick[]>();
-  for (const p of picks) {
+  for (const p of unik) {
     const arr = byMatch.get(p.matchId);
     if (arr) arr.push(p);
     else byMatch.set(p.matchId, [p]);

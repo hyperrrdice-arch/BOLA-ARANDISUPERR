@@ -61,6 +61,11 @@ async function PilihanContent() {
     modelProb: p.model_prob,
     sourcesAgree: p.sources_agree,
     packageId: p.package_id,
+    // Konflik edisi resmi (brief §4): builder menahan pilihan ini dari
+    // gabungan dan menampilkan jejak kedua angkanya.
+    konflik: p.konflik
+      ? { nilai: p.konflik.nilai.map((n) => ({ prob: n.published_prob, matchId: n.match_id })) }
+      : null,
   }));
 
   return (

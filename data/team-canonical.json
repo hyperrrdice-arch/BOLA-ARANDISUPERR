@@ -1,25 +1,9 @@
 {
   "version": 1,
-  "generated_at": "2026-11-17T21:28:59.002Z",
+  "generated_at": "2026-11-20T20:10:53.419Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
-    {
-      "canonical_id": "fd_accrington",
-      "name": "Accrington",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_accrington",
-          "name_as_stored": "Accrington"
-        }
-      ],
-      "aliases": [
-        "Accrington"
-      ],
-      "contested_name": false
-    },
     {
       "canonical_id": "fd_airdrie-utd",
       "name": "Airdrie Utd",
@@ -69,22 +53,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_amedspor",
-      "name": "Amedspor",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_amedspor",
-          "name_as_stored": "Amedspor"
-        }
-      ],
-      "aliases": [
-        "Amedspor"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_ayr",
       "name": "Ayr",
       "country": "Scotland",
@@ -97,70 +65,6 @@
       ],
       "aliases": [
         "Ayr"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_bielefeld",
-      "name": "Bielefeld",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_bielefeld",
-          "name_as_stored": "Bielefeld"
-        }
-      ],
-      "aliases": [
-        "Bielefeld"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_birmingham",
-      "name": "Birmingham",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_birmingham",
-          "name_as_stored": "Birmingham"
-        }
-      ],
-      "aliases": [
-        "Birmingham"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_bolton",
-      "name": "Bolton",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_bolton",
-          "name_as_stored": "Bolton"
-        }
-      ],
-      "aliases": [
-        "Bolton"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_borussia-monchengladbach",
-      "name": "Borussia Monchengladbach",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_borussia-monchengladbach",
-          "name_as_stored": "M'gladbach"
-        }
-      ],
-      "aliases": [
-        "M'gladbach"
       ],
       "contested_name": false
     },
@@ -197,54 +101,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_bristol-rvs",
-      "name": "Bristol Rvs",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_bristol-rvs",
-          "name_as_stored": "Bristol Rvs"
-        }
-      ],
-      "aliases": [
-        "Bristol Rvs"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_burton",
-      "name": "Burton",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_burton",
-          "name_as_stored": "Burton"
-        }
-      ],
-      "aliases": [
-        "Burton"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_buyuksehyr",
-      "name": "Buyuksehyr",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_buyuksehyr",
-          "name_as_stored": "Buyuksehyr"
-        }
-      ],
-      "aliases": [
-        "Buyuksehyr"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_cambridge",
       "name": "Cambridge",
       "country": "England",
@@ -277,22 +133,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_charlton",
-      "name": "Charlton",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_charlton",
-          "name_as_stored": "Charlton"
-        }
-      ],
-      "aliases": [
-        "Charlton"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_cheltenham",
       "name": "Cheltenham",
       "country": "England",
@@ -309,86 +149,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_colchester",
-      "name": "Colchester",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_colchester",
-          "name_as_stored": "Colchester"
-        }
-      ],
-      "aliases": [
-        "Colchester"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_corum",
-      "name": "Corum",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_corum",
-          "name_as_stored": "Corum"
-        }
-      ],
-      "aliases": [
-        "Corum"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_cottbus",
-      "name": "Cottbus",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_cottbus",
-          "name_as_stored": "Cottbus"
-        }
-      ],
-      "aliases": [
-        "Cottbus"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_crewe",
-      "name": "Crewe",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_crewe",
-          "name_as_stored": "Crewe"
-        }
-      ],
-      "aliases": [
-        "Crewe"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_den-haag",
-      "name": "Den Haag",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_den-haag",
-          "name_as_stored": "Den Haag"
-        }
-      ],
-      "aliases": [
-        "Den Haag"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_doncaster",
       "name": "Doncaster",
       "country": "England",
@@ -401,22 +161,6 @@
       ],
       "aliases": [
         "Doncaster"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_dresden",
-      "name": "Dresden",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_dresden",
-          "name_as_stored": "Dresden"
-        }
-      ],
-      "aliases": [
-        "Dresden"
       ],
       "contested_name": false
     },
@@ -453,38 +197,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_erzurumspor",
-      "name": "Erzurumspor",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_erzurumspor",
-          "name_as_stored": "Erzurumspor"
-        }
-      ],
-      "aliases": [
-        "Erzurumspor"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_estrela",
-      "name": "Estrela",
-      "country": "Portugal",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_estrela",
-          "name_as_stored": "Estrela"
-        }
-      ],
-      "aliases": [
-        "Estrela"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_exeter",
       "name": "Exeter",
       "country": "England",
@@ -497,22 +209,6 @@
       ],
       "aliases": [
         "Exeter"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_for-sittard",
-      "name": "For Sittard",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_for-sittard",
-          "name_as_stored": "For Sittard"
-        }
-      ],
-      "aliases": [
-        "For Sittard"
       ],
       "contested_name": false
     },
@@ -581,22 +277,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_guimaraes",
-      "name": "Guimaraes",
-      "country": "Portugal",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_guimaraes",
-          "name_as_stored": "Guimaraes"
-        }
-      ],
-      "aliases": [
-        "Guimaraes"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_halifax",
       "name": "Halifax",
       "country": "England",
@@ -629,54 +309,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_harrogate",
-      "name": "Harrogate",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_harrogate",
-          "name_as_stored": "Harrogate"
-        }
-      ],
-      "aliases": [
-        "Harrogate"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_hartlepool",
-      "name": "Hartlepool",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_hartlepool",
-          "name_as_stored": "Hartlepool"
-        }
-      ],
-      "aliases": [
-        "Hartlepool"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_hornchurch",
-      "name": "Hornchurch",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_hornchurch",
-          "name_as_stored": "Hornchurch"
-        }
-      ],
-      "aliases": [
-        "Hornchurch"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_inverness-c",
       "name": "Inverness C",
       "country": "Scotland",
@@ -689,22 +321,6 @@
       ],
       "aliases": [
         "Inverness C"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_iraklis",
-      "name": "Iraklis",
-      "country": "Greece",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_iraklis",
-          "name_as_stored": "Iraklis"
-        }
-      ],
-      "aliases": [
-        "Iraklis"
       ],
       "contested_name": false
     },
@@ -725,54 +341,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_kortrijk",
-      "name": "Kortrijk",
-      "country": "Belgium",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_kortrijk",
-          "name_as_stored": "Kortrijk"
-        }
-      ],
-      "aliases": [
-        "Kortrijk"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_lincoln",
-      "name": "Lincoln",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_lincoln",
-          "name_as_stored": "Lincoln"
-        }
-      ],
-      "aliases": [
-        "Lincoln"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_mansfield",
-      "name": "Mansfield",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_mansfield",
-          "name_as_stored": "Mansfield"
-        }
-      ],
-      "aliases": [
-        "Mansfield"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_morton",
       "name": "Morton",
       "country": "Scotland",
@@ -785,22 +353,6 @@
       ],
       "aliases": [
         "Morton"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_nijmegen",
-      "name": "Nijmegen",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_nijmegen",
-          "name_as_stored": "Nijmegen"
-        }
-      ],
-      "aliases": [
-        "Nijmegen"
       ],
       "contested_name": false
     },
@@ -833,38 +385,6 @@
       ],
       "aliases": [
         "Oldham"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_padova",
-      "name": "Padova",
-      "country": "Italy",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_padova",
-          "name_as_stored": "Padova"
-        }
-      ],
-      "aliases": [
-        "Padova"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_panetolikos",
-      "name": "Panetolikos",
-      "country": "Greece",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_panetolikos",
-          "name_as_stored": "Panetolikos"
-        }
-      ],
-      "aliases": [
-        "Panetolikos"
       ],
       "contested_name": false
     },
@@ -949,22 +469,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_scunthorpe",
-      "name": "Scunthorpe",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_scunthorpe",
-          "name_as_stored": "Scunthorpe"
-        }
-      ],
-      "aliases": [
-        "Scunthorpe"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_shrewsbury",
       "name": "Shrewsbury",
       "country": "England",
@@ -1009,22 +513,6 @@
       ],
       "aliases": [
         "Southend"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_sp-braga",
-      "name": "Sp Braga",
-      "country": "Portugal",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_sp-braga",
-          "name_as_stored": "Sp Braga"
-        }
-      ],
-      "aliases": [
-        "Sp Braga"
       ],
       "contested_name": false
     },
@@ -1077,22 +565,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_stockport",
-      "name": "Stockport",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_stockport",
-          "name_as_stored": "Stockport"
-        }
-      ],
-      "aliases": [
-        "Stockport"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_sutton",
       "name": "Sutton",
       "country": "England",
@@ -1125,38 +597,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "fd_tranmere",
-      "name": "Tranmere",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_tranmere",
-          "name_as_stored": "Tranmere"
-        }
-      ],
-      "aliases": [
-        "Tranmere"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_vfl-bochum",
-      "name": "VfL Bochum",
-      "country": "Germany",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_vfl-bochum",
-          "name_as_stored": "Bochum"
-        }
-      ],
-      "aliases": [
-        "Bochum"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "fd_waregem",
       "name": "Waregem",
       "country": "Belgium",
@@ -1185,54 +625,6 @@
       ],
       "aliases": [
         "Wycombe"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_yeovil",
-      "name": "Yeovil",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_yeovil",
-          "name_as_stored": "Yeovil"
-        }
-      ],
-      "aliases": [
-        "Yeovil"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_york",
-      "name": "York",
-      "country": "England",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_york",
-          "name_as_stored": "York"
-        }
-      ],
-      "aliases": [
-        "York"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_zwolle",
-      "name": "Zwolle",
-      "country": "Netherlands",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_zwolle",
-          "name_as_stored": "Zwolle"
-        }
-      ],
-      "aliases": [
-        "Zwolle"
       ],
       "contested_name": false
     },
@@ -1695,15 +1087,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_scunthorpe",
+          "name_as_stored": "Scunthorpe"
+        },
+        {
           "system": "sportmonks",
           "team_id": "101",
           "name_as_stored": "Scunthorpe United"
         }
       ],
       "aliases": [
+        "Scunthorpe",
         "Scunthorpe United"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Scunthorpe United; fd nama pendek CSV. Fixture kembar National League vs Worthing 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:1010",
@@ -1932,8 +1334,13 @@
     {
       "canonical_id": "sm:1016",
       "name": "PEC Zwolle",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_zwolle",
+          "name_as_stored": "Zwolle"
+        },
         {
           "system": "thestats",
           "team_id": "tm_26389",
@@ -1946,9 +1353,14 @@
         }
       ],
       "aliases": [
-        "PEC Zwolle"
+        "PEC Zwolle",
+        "Zwolle"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: PEC Zwolle; fd nama pendek CSV. Fixture kembar Eredivisie vs Willem II 2026-11-06T19:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:10160",
@@ -3765,15 +3177,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_dresden",
+          "name_as_stored": "Dresden"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1077",
           "name_as_stored": "Dynamo Dresden"
         }
       ],
       "aliases": [
+        "Dresden",
         "Dynamo Dresden"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Dynamo Dresden; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Greuther Fürth 2026-11-06T17:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:10771",
@@ -4128,15 +3550,25 @@
       "country": "Belgium",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_charleroi",
+          "name_as_stored": "Charleroi"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1087",
           "name_as_stored": "Sporting Charleroi"
         }
       ],
       "aliases": [
+        "Charleroi",
         "Sporting Charleroi"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Sporting Charleroi; TheStats master nama pendek 'Charleroi'. Fixture kembar Pro League vs Westerlo 2026-11-07T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:10870",
@@ -5380,8 +4812,13 @@
     {
       "canonical_id": "sm:1128",
       "name": "ADO Den Haag",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_den-haag",
+          "name_as_stored": "Den Haag"
+        },
         {
           "system": "thestats",
           "team_id": "tm_63899",
@@ -5394,9 +4831,14 @@
         }
       ],
       "aliases": [
-        "ADO Den Haag"
+        "ADO Den Haag",
+        "Den Haag"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: ADO Den Haag; fd nama pendek CSV. Fixture kembar Eredivisie vs Sparta Rotterdam 2026-11-07T17:45Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:113",
@@ -5426,15 +4868,25 @@
       "country": "Belgium",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_kortrijk",
+          "name_as_stored": "Kortrijk"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1130",
           "name_as_stored": "KV Kortrijk"
         }
       ],
       "aliases": [
-        "KV Kortrijk"
+        "KV Kortrijk",
+        "Kortrijk"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: KV Kortrijk; fd nama pendek CSV. Fixture kembar Pro League vs KV Mechelen 2026-11-04 + vs Gent 2026-11-08."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:11334",
@@ -5975,15 +5427,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_hornchurch",
+          "name_as_stored": "Hornchurch"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1151",
           "name_as_stored": "AFC Hornchurch"
         }
       ],
       "aliases": [
-        "AFC Hornchurch"
+        "AFC Hornchurch",
+        "Hornchurch"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: AFC Hornchurch; fd nama pendek CSV. Fixture kembar National League vs Tamworth 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:11510",
@@ -6544,15 +6006,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_ofi_crete",
+          "name_as_stored": "OFI Crete"
+        },
+        {
           "system": "sportmonks",
           "team_id": "118",
           "name_as_stored": "OFI"
         }
       ],
       "aliases": [
-        "OFI"
+        "OFI",
+        "OFI Crete"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: OFI Crete; SM menyimpan 'OFI' saja. Fixture kembar Super League Yunani vs Atromitos 2026-11-08T16:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:1180",
@@ -7344,15 +6816,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_birmingham",
+          "name_as_stored": "Birmingham"
+        },
+        {
           "system": "sportmonks",
           "team_id": "12",
           "name_as_stored": "Birmingham City"
         }
       ],
       "aliases": [
+        "Birmingham",
         "Birmingham City"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Birmingham City; fd nama pendek CSV. Fixture kembar Championship vs Swansea 2026-11-07 + vs Millwall 2026-11-03."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:1200",
@@ -7888,15 +7370,25 @@
       "country": "Portugal",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_estrela",
+          "name_as_stored": "Estrela"
+        },
+        {
           "system": "sportmonks",
           "team_id": "12152",
           "name_as_stored": "Estrela Amadora"
         }
       ],
       "aliases": [
+        "Estrela",
         "Estrela Amadora"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Estrela Amadora; fd nama pendek CSV. Fixture kembar Liga Portugal vs SL Benfica 2026-11-08T20:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:12153",
@@ -10708,6 +10200,36 @@
         "Manacor"
       ],
       "contested_name": false
+    },
+    {
+      "canonical_id": "sm:13",
+      "name": "Everton",
+      "country": "England",
+      "members": [
+        {
+          "system": "thestats",
+          "team_id": "tm_8091",
+          "name_as_stored": "Everton"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "13",
+          "name_as_stored": "Everton"
+        }
+      ],
+      "aliases": [
+        "Everton"
+      ],
+      "contested_name": false,
+      "resolution_notes": [
+        "Everton de Viña del Mar (Chile) dipisah dari Everton FC (Inggris): kompetisi katalog disjoint total — id 15064 hanya Primera División Chile, id 13 hanya Premier League + Carabao Cup Inggris (audit redesain langkah 2, 2026-11-21)."
+      ],
+      "distinct_from": [
+        {
+          "canonical_id": "sm:15064",
+          "reason": "Everton FC (Inggris, Premier League) vs Everton de Viña del Mar (Chile, Primera División) — dua klub berbeda yang dulu TERGABUNG KELIRU dalam satu entri kanonik karena nama tersimpan sama persis ('Everton') dan keduanya tanpa baris teams/negara. Dipisah lewat SPLIT_DECISIONS (gelombang 5); bukti: kompetisi katalog disjoint total (Premier League/Carabao Cup vs Primera División Chile)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:13006",
@@ -15058,15 +14580,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_erzurumspor",
+          "name_as_stored": "Erzurumspor"
+        },
+        {
           "system": "sportmonks",
           "team_id": "13818",
           "name_as_stored": "Erzurumspor FK"
         }
       ],
       "aliases": [
+        "Erzurumspor",
         "Erzurumspor FK"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Erzurumspor FK; fd tanpa imbuhan FK. Fixture kembar Super Lig vs Rizespor 2026-11-08T10:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:1383",
@@ -15250,15 +14782,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_8557956",
+          "name_as_stored": "Sabah FK"
+        },
+        {
           "system": "sportmonks",
           "team_id": "138649",
           "name_as_stored": "Sabah"
         }
       ],
       "aliases": [
-        "Sabah"
+        "Sabah",
+        "Sabah FK"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Sabah FK (Azerbaijan); SM menyimpan 'Sabah'. Fixture kembar UEFA Champions League 2026-11-25T17:45Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:138652",
@@ -15314,15 +14856,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_corum",
+          "name_as_stored": "Corum"
+        },
+        {
           "system": "sportmonks",
           "team_id": "13871",
           "name_as_stored": "Çorum FK"
         }
       ],
       "aliases": [
+        "Corum",
         "Çorum FK"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Çorum FK; fd nama tanpa diakritik. Fixture kembar Super Lig vs Fenerbahçe 2026-11-08T13:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:138756",
@@ -16282,8 +15834,13 @@
     {
       "canonical_id": "sm:1459",
       "name": "Fortuna Sittard",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_for-sittard",
+          "name_as_stored": "For Sittard"
+        },
         {
           "system": "thestats",
           "team_id": "tm_38581",
@@ -16296,9 +15853,14 @@
         }
       ],
       "aliases": [
+        "For Sittard",
         "Fortuna Sittard"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Fortuna Sittard; fd nama CSV terpotong 'For Sittard'. Fixture kembar Eredivisie vs Telstar 2026-11-07T15:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:14592",
@@ -17639,15 +17201,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_burton",
+          "name_as_stored": "Burton"
+        },
+        {
           "system": "sportmonks",
           "team_id": "150",
           "name_as_stored": "Burton Albion"
         }
       ],
       "aliases": [
+        "Burton",
         "Burton Albion"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Burton Albion; fd nama pendek CSV. Fixture kembar League One vs MK Dons 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:15004",
@@ -17844,28 +17416,27 @@
     {
       "canonical_id": "sm:15064",
       "name": "Everton",
-      "country": null,
+      "country": "Chile",
       "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_8091",
-          "name_as_stored": "Everton"
-        },
         {
           "system": "sportmonks",
           "team_id": "15064",
-          "name_as_stored": "Everton"
-        },
-        {
-          "system": "sportmonks",
-          "team_id": "13",
           "name_as_stored": "Everton"
         }
       ],
       "aliases": [
         "Everton"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Everton de Viña del Mar (Chile) dipisah dari Everton FC (Inggris): kompetisi katalog disjoint total — id 15064 hanya Primera División Chile, id 13 hanya Premier League + Carabao Cup Inggris (audit redesain langkah 2, 2026-11-21)."
+      ],
+      "distinct_from": [
+        {
+          "canonical_id": "sm:13",
+          "reason": "Everton FC (Inggris, Premier League) vs Everton de Viña del Mar (Chile, Primera División) — dua klub berbeda yang dulu TERGABUNG KELIRU dalam satu entri kanonik karena nama tersimpan sama persis ('Everton') dan keduanya tanpa baris teams/negara. Dipisah lewat SPLIT_DECISIONS (gelombang 5); bukti: kompetisi katalog disjoint total (Premier League/Carabao Cup vs Primera División Chile)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:15077",
@@ -18821,15 +18392,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_bolton",
+          "name_as_stored": "Bolton"
+        },
+        {
           "system": "sportmonks",
           "team_id": "16",
           "name_as_stored": "Bolton Wanderers"
         }
       ],
       "aliases": [
+        "Bolton",
         "Bolton Wanderers"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Bolton Wanderers; fd nama pendek CSV. Fixture kembar vs Derby County 2026-11-06T20:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:1600",
@@ -27118,15 +26699,25 @@
       "country": "Belgium",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_oud_heverlee_leuven",
+          "name_as_stored": "Oud-Heverlee Leuven"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1947",
           "name_as_stored": "OH Leuven"
         }
       ],
       "aliases": [
-        "OH Leuven"
+        "OH Leuven",
+        "Oud-Heverlee Leuven"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: OH Leuven = Oud-Heverlee Leuven. Fixture kembar Pro League vs Mechelen 2026-11-07T17:15Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:19470",
@@ -29667,15 +29258,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_tranmere",
+          "name_as_stored": "Tranmere"
+        },
+        {
           "system": "sportmonks",
           "team_id": "201",
           "name_as_stored": "Tranmere Rovers"
         }
       ],
       "aliases": [
+        "Tranmere",
         "Tranmere Rovers"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Tranmere Rovers; fd nama pendek CSV. Fixture kembar League Two vs Fleetwood Town 2026-11-14T17:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:2010",
@@ -30411,7 +30012,13 @@
       "aliases": [
         "AFC Mansfield"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:225",
+          "reason": "Football-data 'Mansfield' (League One/Two Inggris) adalah Mansfield Town (sm:225), BUKAN AFC Mansfield (sm:20249, klub non-liga dari kota yang sama, berdiri 2012)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:20268",
@@ -32253,15 +31860,25 @@
       "country": "Greece",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_panetolikos",
+          "name_as_stored": "Panetolikos"
+        },
+        {
           "system": "sportmonks",
           "team_id": "213",
           "name_as_stored": "Panaitolikos"
         }
       ],
       "aliases": [
-        "Panaitolikos"
+        "Panaitolikos",
+        "Panetolikos"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Panaitolikos; fd ejaan 'Panetolikos'. Fixture kembar Super League Yunani vs Aris 2026-11-07T17:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:2131",
@@ -32610,15 +32227,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_64842",
+          "name_as_stored": "SK Slavia Praha"
+        },
+        {
           "system": "sportmonks",
           "team_id": "216",
           "name_as_stored": "Slavia Praha"
         }
       ],
       "aliases": [
+        "SK Slavia Praha",
         "Slavia Praha"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SK Slavia Praha; SM tanpa imbuhan SK. Fixture kembar UCL 2026-11-04 + 2026-11-25."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:2162",
@@ -34023,15 +33650,30 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_mansfield",
+          "name_as_stored": "Mansfield"
+        },
+        {
           "system": "sportmonks",
           "team_id": "225",
           "name_as_stored": "Mansfield Town"
         }
       ],
       "aliases": [
+        "Mansfield",
         "Mansfield Town"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Mansfield Town; fd nama pendek CSV 'Mansfield' di divisi E2 (League One, 13 match dataset). BUKAN AFC Mansfield (sm:20249, klub non-liga berbeda) — pasangan itu TIDAK digabung."
+      ],
+      "distinct_from": [
+        {
+          "canonical_id": "sm:20249",
+          "reason": "Football-data 'Mansfield' (League One/Two Inggris) adalah Mansfield Town (sm:225), BUKAN AFC Mansfield (sm:20249, klub non-liga dari kota yang sama, berdiri 2012)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:22506",
@@ -36919,15 +36561,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_bristol-rvs",
+          "name_as_stored": "Bristol Rvs"
+        },
+        {
           "system": "sportmonks",
           "team_id": "230",
           "name_as_stored": "Bristol Rovers"
         }
       ],
       "aliases": [
-        "Bristol Rovers"
+        "Bristol Rovers",
+        "Bristol Rvs"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Bristol Rovers; fd singkatan CSV 'Rvs'. Fixture kembar League Two vs Chesterfield 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:230090",
@@ -43273,15 +42925,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_02198",
+          "name_as_stored": "ŠK Slovan Bratislava"
+        },
+        {
           "system": "sportmonks",
           "team_id": "2417",
           "name_as_stored": "Slovan Bratislava"
         }
       ],
       "aliases": [
-        "Slovan Bratislava"
+        "Slovan Bratislava",
+        "ŠK Slovan Bratislava"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: ŠK Slovan Bratislava; SM tanpa imbuhan SK. Fixture kembar UCL 2026-11-03 + 2026-11-24."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:24172",
@@ -45477,7 +45139,13 @@
       "aliases": [
         "Bohemians 1905"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:374",
+          "reason": "Bohemians Dublin (Irlandia) vs Bohemians 1905 Praha (Ceko) — nama mirip, klub berbeda negara. Bukti dataset: 20 match id 374 semuanya melawan klub Irlandia (St Patrick's, Cork City, Shelbourne, Waterford, Drogheda, Longford, Athlone); id 2488 membawa Chance Liga Ceko (78 match)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:24882",
@@ -45597,15 +45265,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_stockport",
+          "name_as_stored": "Stockport"
+        },
+        {
           "system": "sportmonks",
           "team_id": "249",
           "name_as_stored": "Stockport County"
         }
       ],
       "aliases": [
+        "Stockport",
         "Stockport County"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Stockport County; fd nama pendek CSV. Fixture kembar League One vs Reading 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:249008",
@@ -45741,15 +45419,25 @@
       "country": "Italy",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_padova",
+          "name_as_stored": "Padova"
+        },
+        {
           "system": "sportmonks",
           "team_id": "249160",
           "name_as_stored": "Calcio Padova"
         }
       ],
       "aliases": [
-        "Calcio Padova"
+        "Calcio Padova",
+        "Padova"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Calcio Padova; fd nama pendek CSV. Fixture kembar Serie B vs Empoli 2026-11-07T14:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:249166",
@@ -53337,15 +53025,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_yeovil",
+          "name_as_stored": "Yeovil"
+        },
+        {
           "system": "sportmonks",
           "team_id": "261",
           "name_as_stored": "Yeovil Town"
         }
       ],
       "aliases": [
+        "Yeovil",
         "Yeovil Town"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Yeovil Town; fd nama pendek CSV. Fixture kembar National League vs Boreham Wood 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:261036",
@@ -59643,15 +59341,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_76152",
+          "name_as_stored": "FK Crvena zvezda"
+        },
+        {
           "system": "sportmonks",
           "team_id": "2673",
           "name_as_stored": "Crvena Zvezda"
         }
       ],
       "aliases": [
-        "Crvena Zvezda"
+        "Crvena Zvezda",
+        "FK Crvena zvezda"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FK Crvena zvezda (Red Star Belgrade). Fixture CERMIN dataset: baris TheStats comp_3498 vs tm_05877 (21+29 Jul 2026) dan tm_93670 (4+11 Agu 2026) identik tanggal+lawan dengan baris SM sm:2 milik id 2673."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:267309",
@@ -72366,15 +72074,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_bielefeld",
+          "name_as_stored": "Bielefeld"
+        },
+        {
           "system": "sportmonks",
           "team_id": "2927",
           "name_as_stored": "DSC Arminia Bielefeld"
         }
       ],
       "aliases": [
+        "Bielefeld",
         "DSC Arminia Bielefeld"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: DSC Arminia Bielefeld; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Holstein Kiel 2026-11-07T12:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:2929",
@@ -73869,15 +73587,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_lincoln",
+          "name_as_stored": "Lincoln"
+        },
+        {
           "system": "sportmonks",
           "team_id": "305",
           "name_as_stored": "Lincoln City"
         }
       ],
       "aliases": [
+        "Lincoln",
         "Lincoln City"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Lincoln City; fd nama pendek CSV. Fixture kembar Championship vs QPR 2026-11-07 + vs Watford 2026-11-03."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:30532",
@@ -74114,15 +73842,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_hartlepool",
+          "name_as_stored": "Hartlepool"
+        },
+        {
           "system": "sportmonks",
           "team_id": "310",
           "name_as_stored": "Hartlepool United"
         }
       ],
       "aliases": [
+        "Hartlepool",
         "Hartlepool United"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Hartlepool United; fd nama pendek CSV. Fixture kembar National League vs Wealdstone 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3101",
@@ -74856,15 +74594,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_08322",
+          "name_as_stored": "Viking FK"
+        },
+        {
           "system": "sportmonks",
           "team_id": "321",
           "name_as_stored": "Viking"
         }
       ],
       "aliases": [
-        "Viking"
+        "Viking",
+        "Viking FK"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Viking FK (Stavanger); SM menyimpan 'Viking'. Fixture CERMIN dataset: vs tm_97303 18+26 Agu, tm_37258 9 Sep, tm_98299 13 Okt 2026 — identik dengan baris sm:2 milik id 321 (lawan 674 = tm_97303 yang sama)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3214",
@@ -75742,15 +75490,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_cottbus",
+          "name_as_stored": "Cottbus"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3322",
           "name_as_stored": "Energie Cottbus"
         }
       ],
       "aliases": [
+        "Cottbus",
         "Energie Cottbus"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Energie Cottbus; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Eintracht Braunschweig 2026-11-06T17:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3328",
@@ -75966,15 +75724,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_25152",
+          "name_as_stored": "SK Sturm Graz"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3357",
           "name_as_stored": "Sturm Graz"
         }
       ],
       "aliases": [
+        "SK Sturm Graz",
         "Sturm Graz"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SK Sturm Graz; SM tanpa imbuhan SK. Fixture CERMIN dataset: vs tm_91646 5 Agu 2026 identik di comp_3498 dan sm:2 (id 3357)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3358",
@@ -77754,15 +77522,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_amedspor",
+          "name_as_stored": "Amedspor"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3570",
           "name_as_stored": "Amed SK"
         }
       ],
       "aliases": [
-        "Amed SK"
+        "Amed SK",
+        "Amedspor"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Amed SK (Amedspor); fd nama CSV. Fixture kembar Super Lig vs Galatasaray 2026-11-07T16:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:35700",
@@ -77946,15 +77724,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_89026",
+          "name_as_stored": "SV 07 Elversberg"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3588",
           "name_as_stored": "Elversberg"
         }
       ],
       "aliases": [
-        "Elversberg"
+        "Elversberg",
+        "SV 07 Elversberg"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: SV Elversberg; TheStats 'SV 07 Elversberg'. Fixture kembar Bundesliga 2026-11-07 + 21 + 28."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3593",
@@ -79096,15 +78884,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_buyuksehyr",
+          "name_as_stored": "Buyuksehyr"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3702",
           "name_as_stored": "İstanbul Başakşehir"
         }
       ],
       "aliases": [
+        "Buyuksehyr",
         "İstanbul Başakşehir"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: İstanbul Başakşehir; fd nama CSV 'Buyuksehyr' (Büyükşehir). Fixture kembar Super Lig vs Göztepe 2026-11-07T16:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3704",
@@ -79408,7 +79206,13 @@
       "aliases": [
         "Bohemians"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "distinct_from": [
+        {
+          "canonical_id": "sm:2488",
+          "reason": "Bohemians Dublin (Irlandia) vs Bohemians 1905 Praha (Ceko) — nama mirip, klub berbeda negara. Bukti dataset: 20 match id 374 semuanya melawan klub Irlandia (St Patrick's, Cork City, Shelbourne, Waterford, Drogheda, Longford, Athlone); id 2488 membawa Chance Liga Ceko (78 match)."
+        }
+      ]
     },
     {
       "canonical_id": "sm:3744",
@@ -79826,15 +79630,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_harrogate",
+          "name_as_stored": "Harrogate"
+        },
+        {
           "system": "sportmonks",
           "team_id": "382",
           "name_as_stored": "Harrogate Town"
         }
       ],
       "aliases": [
+        "Harrogate",
         "Harrogate Town"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Harrogate Town; fd nama pendek CSV. Fixture kembar National League vs Altrincham 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3827",
@@ -80152,15 +79966,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_42581",
+          "name_as_stored": "FK Borac Banja Luka"
+        },
+        {
           "system": "sportmonks",
           "team_id": "3877",
           "name_as_stored": "Borac Banja Luka"
         }
       ],
       "aliases": [
-        "Borac Banja Luka"
+        "Borac Banja Luka",
+        "FK Borac Banja Luka"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FK Borac Banja Luka; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_52213 7+14 Jul 2026 identik di comp_3498 dan sm:2 (id 3877)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3881",
@@ -80710,15 +80534,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_accrington",
+          "name_as_stored": "Accrington"
+        },
+        {
           "system": "sportmonks",
           "team_id": "395",
           "name_as_stored": "Accrington Stanley"
         }
       ],
       "aliases": [
+        "Accrington",
         "Accrington Stanley"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Accrington Stanley; fd nama pendek CSV. Fixture kembar League Two vs Port Vale 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:3951",
@@ -81093,15 +80927,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_charlton",
+          "name_as_stored": "Charlton"
+        },
+        {
           "system": "sportmonks",
           "team_id": "4",
           "name_as_stored": "Charlton Athletic"
         }
       ],
       "aliases": [
+        "Charlton",
         "Charlton Athletic"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Charlton Athletic; fd nama pendek CSV. Fixture kembar Championship vs Sheffield United 2026-11-07T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:400",
@@ -82490,15 +82334,27 @@
       "country": "Spain",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_98394",
+          "name_as_stored": "Deportivo La Coruña"
+        },
+        {
           "system": "sportmonks",
           "team_id": "429",
           "name_as_stored": "Deportivo A Coruña"
         }
       ],
       "aliases": [
-        "Deportivo A Coruña"
+        "Deportivo A Coruña",
+        "Deportivo La Coruña",
+        "La Coruna"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Deportivo La Coruña = Deportivo A Coruña (SM). Fixture kembar LaLiga 2026-11-02 + 2026-11-07. Alias CSV 'La Coruna' yang sudah dijangkar ke tm_98394 ikut pindah.",
+        "Alias eksternal diputuskan: \"La Coruna\" — Bentuk CSV untuk Deportivo La Coruna (bukan tim II)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:4296",
@@ -83031,12 +82887,22 @@
           "system": "sportmonks",
           "team_id": "44",
           "name_as_stored": "Olympique Marseille"
+        },
+        {
+          "system": "thestats",
+          "team_id": "tm_25550",
+          "name_as_stored": "Olympique de Marseille"
         }
       ],
       "aliases": [
-        "Olympique Marseille"
+        "Olympique Marseille",
+        "Olympique de Marseille"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Olympique de Marseille. SM 'Olympique Marseille' vs TheStats 'Olympique de Marseille' — kata 'de' membuat nama ternormalisasi beda. Bukti fixture kembar Ligue 1: vs Le Mans 2026-11-22T19:45Z, vs Toulouse 2026-11-01T19:45Z, vs Nice 2026-11-08T19:45Z (kickoff + lawan identik di kedua sumber)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:4400",
@@ -85216,8 +85082,13 @@
     {
       "canonical_id": "sm:494",
       "name": "NEC Nijmegen",
-      "country": null,
+      "country": "Netherlands",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_nijmegen",
+          "name_as_stored": "Nijmegen"
+        },
         {
           "system": "thestats",
           "team_id": "tm_91026",
@@ -85230,9 +85101,14 @@
         }
       ],
       "aliases": [
-        "NEC Nijmegen"
+        "NEC Nijmegen",
+        "Nijmegen"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: NEC Nijmegen; fd nama pendek CSV. Fixture kembar Eredivisie vs FC Utrecht 2026-11-08T19:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:4941",
@@ -87921,28 +87797,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "sm:562",
-      "name": "Olympiacos",
-      "country": "World",
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_47798",
-          "name_as_stored": "Olympiacos FC"
-        },
-        {
-          "system": "sportmonks",
-          "team_id": "562",
-          "name_as_stored": "Olympiakos"
-        }
-      ],
-      "aliases": [
-        "Olympiacos FC",
-        "Olympiakos"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "sm:5627",
       "name": "Smorgon",
       "country": "World",
@@ -90125,8 +89979,18 @@
     {
       "canonical_id": "sm:602",
       "name": "Olympiacos F.C.",
-      "country": "Europe",
+      "country": "World",
       "members": [
+        {
+          "system": "thestats",
+          "team_id": "tm_47798",
+          "name_as_stored": "Olympiacos FC"
+        },
+        {
+          "system": "sportmonks",
+          "team_id": "562",
+          "name_as_stored": "Olympiakos"
+        },
         {
           "system": "sportmonks",
           "team_id": "602",
@@ -90134,9 +89998,15 @@
         }
       ],
       "aliases": [
-        "Olympiacos F.C."
+        "Olympiacos F.C.",
+        "Olympiacos FC",
+        "Olympiakos"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Olympiacos Piraeus. SM sendiri terbelah: id 562 'Olympiakos' (label World) hanya membawa 3 laga persahabatan (vs Banga, Omonia 29M, APOEL — profil laga uji Olympiacos), id 602 'Olympiacos F.C.' membawa domestik Yunani (73) + Eropa; anggota tm_47798 'Olympiacos FC' sudah di 562. Pola pecahan SM yang sama dengan SL Benfica (254165/605). Kanonik dipaksa ke 602 (pembawa utama) lewat CANONICAL_ID_OVERRIDES."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:6023",
@@ -93146,15 +93016,25 @@
       "country": "Netherlands",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_26373",
+          "name_as_stored": "Willem II Tilburg"
+        },
+        {
           "system": "sportmonks",
           "team_id": "669",
           "name_as_stored": "Willem II"
         }
       ],
       "aliases": [
-        "Willem II"
+        "Willem II",
+        "Willem II Tilburg"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Willem II (Tilburg); TheStats menambahkan kota. 'II' di sini nama raja (Willem II), BUKAN tim cadangan. Fixture kembar Eredivisie 2026-11-06 + 22 + 27."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:67",
@@ -93216,15 +93096,25 @@
       "country": "Belgium",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_raal_la_louviere",
+          "name_as_stored": "RAAL La Louviere"
+        },
+        {
           "system": "sportmonks",
           "team_id": "6722",
           "name_as_stored": "La Louvière"
         }
       ],
       "aliases": [
-        "La Louvière"
+        "La Louvière",
+        "RAAL La Louviere"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: RAAL La Louvière; SM menyimpan 'La Louviere'. Fixture kembar Pro League vs Cercle Brugge 2026-11-07T19:45Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:6723",
@@ -93798,6 +93688,11 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_borussia-monchengladbach",
+          "name_as_stored": "M'gladbach"
+        },
+        {
           "system": "thestats",
           "team_id": "tm_37804",
           "name_as_stored": "Borussia M'gladbach"
@@ -93810,9 +93705,14 @@
       ],
       "aliases": [
         "Borussia M'gladbach",
-        "Borussia Mönchengladbach"
+        "Borussia Mönchengladbach",
+        "M'gladbach"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Borussia Mönchengladbach; fd ejaan tanpa diakritik. Fixture kembar Bundesliga vs Hamburger SV 2026-11-06T19:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:6840",
@@ -95388,15 +95288,25 @@
       "country": "Greece",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_iraklis",
+          "name_as_stored": "Iraklis"
+        },
+        {
           "system": "sportmonks",
           "team_id": "7171",
           "name_as_stored": "Iraklis 1908 FC"
         }
       ],
       "aliases": [
+        "Iraklis",
         "Iraklis 1908 FC"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Iraklis 1908 FC; fd nama pendek CSV. Fixture kembar Super League Yunani vs Panathinaikos 2026-11-08T15:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:7176",
@@ -96299,15 +96209,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_colchester",
+          "name_as_stored": "Colchester"
+        },
+        {
           "system": "sportmonks",
           "team_id": "74",
           "name_as_stored": "Colchester United"
         }
       ],
       "aliases": [
+        "Colchester",
         "Colchester United"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Colchester United; fd nama pendek CSV. Fixture kembar League Two vs Gillingham 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:740",
@@ -98142,15 +98062,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_64398",
+          "name_as_stored": "1. FSV Mainz 05"
+        },
+        {
           "system": "sportmonks",
           "team_id": "794",
           "name_as_stored": "FSV Mainz 05"
         }
       ],
       "aliases": [
+        "1. FSV Mainz 05",
         "FSV Mainz 05"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: 1. FSV Mainz 05; SM tanpa awalan '1.'. Fixture kembar Bundesliga 2026-11-07 + 22 + 28."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:7943",
@@ -98270,15 +98200,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_64681",
+          "name_as_stored": "Atlético Madrid"
+        },
+        {
           "system": "sportmonks",
           "team_id": "7980",
           "name_as_stored": "Atlético de Madrid"
         }
       ],
       "aliases": [
+        "Atlético Madrid",
         "Atlético de Madrid"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Atlético Madrid = Atlético de Madrid (SM). Fixture kembar LaLiga/UCL 2026-10-31 + 11-03 + 11-08."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:7999",
@@ -99607,15 +99547,25 @@
       "country": "Portugal",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_guimaraes",
+          "name_as_stored": "Guimaraes"
+        },
+        {
           "system": "sportmonks",
           "team_id": "830",
           "name_as_stored": "Vitória Guimarães"
         }
       ],
       "aliases": [
+        "Guimaraes",
         "Vitória Guimarães"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Vitória Guimarães; fd nama pendek CSV. Fixture kembar Liga Portugal vs FC Porto 2026-11-08T18:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:8301",
@@ -101385,15 +101335,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_crewe",
+          "name_as_stored": "Crewe"
+        },
+        {
           "system": "sportmonks",
           "team_id": "87",
           "name_as_stored": "Crewe Alexandra"
         }
       ],
       "aliases": [
+        "Crewe",
         "Crewe Alexandra"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Crewe Alexandra; fd nama pendek CSV. Fixture kembar League Two vs Newport County 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:8702",
@@ -101835,8 +101795,13 @@
     {
       "canonical_id": "sm:884",
       "name": "Sporting Braga",
-      "country": "Europe",
+      "country": "Portugal",
       "members": [
+        {
+          "system": "football-data",
+          "team_id": "fd_sp-braga",
+          "name_as_stored": "Sp Braga"
+        },
         {
           "system": "sportmonks",
           "team_id": "884",
@@ -101844,9 +101809,14 @@
         }
       ],
       "aliases": [
+        "Sp Braga",
         "Sporting Braga"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Sporting Braga; fd singkatan CSV 'Sp Braga'. Fixture kembar Liga Portugal vs Rio Ave 2026-11-08T20:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:8842",
@@ -102925,15 +102895,25 @@
       "country": "England",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_york",
+          "name_as_stored": "York"
+        },
+        {
           "system": "sportmonks",
           "team_id": "92",
           "name_as_stored": "York City"
         }
       ],
       "aliases": [
+        "York",
         "York City"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: York City; fd nama pendek CSV. Fixture kembar League Two vs Rochdale 2026-11-14T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:9207",
@@ -103186,15 +103166,25 @@
       "country": "Europe",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_2905815",
+          "name_as_stored": "FK Kauno Žalgiris"
+        },
+        {
           "system": "sportmonks",
           "team_id": "928",
           "name_as_stored": "Kauno Žalgiris"
         }
       ],
       "aliases": [
+        "FK Kauno Žalgiris",
         "Kauno Žalgiris"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: FK Kauno Žalgiris; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_4649576 (7+14 Jul), tm_05888 (21+29 Jul), tm_97303 (4+11 Agu) 2026 — tanggal+lawan identik dengan baris sm:2 milik id 928."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:9289",
@@ -106067,15 +106057,25 @@
       "country": "Greece",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_levadeiakos",
+          "name_as_stored": "Levadeiakos"
+        },
+        {
           "system": "sportmonks",
           "team_id": "990",
           "name_as_stored": "Levadiakos"
         }
       ],
       "aliases": [
+        "Levadeiakos",
         "Levadiakos"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Levadiakos; TheStats ejaan 'Levadeiakos'. Fixture kembar Super League Yunani vs AEK Athens 2026-11-08T15:00Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:9904",
@@ -106424,15 +106424,25 @@
       "country": "Germany",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_vfl-bochum",
+          "name_as_stored": "Bochum"
+        },
+        {
           "system": "sportmonks",
           "team_id": "999",
           "name_as_stored": "VfL Bochum 1848"
         }
       ],
       "aliases": [
+        "Bochum",
         "VfL Bochum 1848"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: VfL Bochum 1848; fd tanpa tahun. Fixture kembar 2. Bundesliga vs Karlsruher SC 2026-11-08T12:30Z."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:9996",
@@ -106479,22 +106489,6 @@
       ],
       "aliases": [
         "FK Sutjeska Nikšić"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_02198",
-      "name": "SK Slovan Bratislava",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_02198",
-          "name_as_stored": "ŠK Slovan Bratislava"
-        }
-      ],
-      "aliases": [
-        "ŠK Slovan Bratislava"
       ],
       "contested_name": false
     },
@@ -106547,70 +106541,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "tm_08322",
-      "name": "Viking FK",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_08322",
-          "name_as_stored": "Viking FK"
-        }
-      ],
-      "aliases": [
-        "Viking FK"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_25152",
-      "name": "SK Sturm Graz",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_25152",
-          "name_as_stored": "SK Sturm Graz"
-        }
-      ],
-      "aliases": [
-        "SK Sturm Graz"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_25550",
-      "name": "Olympique de Marseille",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_25550",
-          "name_as_stored": "Olympique de Marseille"
-        }
-      ],
-      "aliases": [
-        "Olympique de Marseille"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_26373",
-      "name": "Willem II Tilburg",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_26373",
-          "name_as_stored": "Willem II Tilburg"
-        }
-      ],
-      "aliases": [
-        "Willem II Tilburg"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "tm_28881",
       "name": "The New Saints",
       "country": null,
@@ -106627,22 +106557,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "tm_2905815",
-      "name": "FK Kauno Zalgiris",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_2905815",
-          "name_as_stored": "FK Kauno Žalgiris"
-        }
-      ],
-      "aliases": [
-        "FK Kauno Žalgiris"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "tm_38765",
       "name": "Shamrock Rovers",
       "country": null,
@@ -106655,22 +106569,6 @@
       ],
       "aliases": [
         "Shamrock Rovers"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_42581",
-      "name": "FK Borac Banja Luka",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_42581",
-          "name_as_stored": "FK Borac Banja Luka"
-        }
-      ],
-      "aliases": [
-        "FK Borac Banja Luka"
       ],
       "contested_name": false
     },
@@ -106787,54 +106685,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "tm_64398",
-      "name": "1. FSV Mainz 05",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_64398",
-          "name_as_stored": "1. FSV Mainz 05"
-        }
-      ],
-      "aliases": [
-        "1. FSV Mainz 05"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_64681",
-      "name": "Atletico Madrid",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_64681",
-          "name_as_stored": "Atlético Madrid"
-        }
-      ],
-      "aliases": [
-        "Atlético Madrid"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_64842",
-      "name": "SK Slavia Praha",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_64842",
-          "name_as_stored": "SK Slavia Praha"
-        }
-      ],
-      "aliases": [
-        "SK Slavia Praha"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "tm_757932",
       "name": "Atert Bissen",
       "country": null,
@@ -106847,22 +106697,6 @@
       ],
       "aliases": [
         "Atert Bissen"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_76152",
-      "name": "FK Crvena zvezda",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_76152",
-          "name_as_stored": "FK Crvena zvezda"
-        }
-      ],
-      "aliases": [
-        "FK Crvena zvezda"
       ],
       "contested_name": false
     },
@@ -106895,38 +106729,6 @@
       ],
       "aliases": [
         "Víkingur Reykjavík"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_8557956",
-      "name": "Sabah FK",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_8557956",
-          "name_as_stored": "Sabah FK"
-        }
-      ],
-      "aliases": [
-        "Sabah FK"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_89026",
-      "name": "SV 07 Elversberg",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_89026",
-          "name_as_stored": "SV 07 Elversberg"
-        }
-      ],
-      "aliases": [
-        "SV 07 Elversberg"
       ],
       "contested_name": false
     },
@@ -106995,42 +106797,6 @@
       "contested_name": false
     },
     {
-      "canonical_id": "tm_98394",
-      "name": "Deportivo La Coruna",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_98394",
-          "name_as_stored": "Deportivo La Coruña"
-        }
-      ],
-      "aliases": [
-        "Deportivo La Coruña",
-        "La Coruna"
-      ],
-      "contested_name": false,
-      "resolution_notes": [
-        "Alias eksternal diputuskan: \"La Coruna\" — Bentuk CSV untuk Deportivo La Coruna (bukan tim II)."
-      ]
-    },
-    {
-      "canonical_id": "tm_master_charleroi",
-      "name": "Charleroi",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_charleroi",
-          "name_as_stored": "Charleroi"
-        }
-      ],
-      "aliases": [
-        "Charleroi"
-      ],
-      "contested_name": false
-    },
-    {
       "canonical_id": "tm_master_kasimpasa",
       "name": "Kasimpasa",
       "country": null,
@@ -107043,70 +106809,6 @@
       ],
       "aliases": [
         "Kasimpasa"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_levadeiakos",
-      "name": "Levadeiakos",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_levadeiakos",
-          "name_as_stored": "Levadeiakos"
-        }
-      ],
-      "aliases": [
-        "Levadeiakos"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_ofi_crete",
-      "name": "OFI Crete",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_ofi_crete",
-          "name_as_stored": "OFI Crete"
-        }
-      ],
-      "aliases": [
-        "OFI Crete"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_oud_heverlee_leuven",
-      "name": "Oud-Heverlee Leuven",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_oud_heverlee_leuven",
-          "name_as_stored": "Oud-Heverlee Leuven"
-        }
-      ],
-      "aliases": [
-        "Oud-Heverlee Leuven"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_raal_la_louviere",
-      "name": "RAAL La Louviere",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_raal_la_louviere",
-          "name_as_stored": "RAAL La Louviere"
-        }
-      ],
-      "aliases": [
-        "RAAL La Louviere"
       ],
       "contested_name": false
     }

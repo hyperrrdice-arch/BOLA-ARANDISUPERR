@@ -1,15 +1,45 @@
 {
   "version": 1,
-  "generated_at": "2026-11-17T21:29:00.093Z",
+  "generated_at": "2026-11-20T20:11:06.334Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
     "fixtures": 3924,
-    "duplicate_groups": 177,
-    "twin_rows": 188,
+    "duplicate_groups": 244,
+    "twin_rows": 260,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
+    {
+      "twin_id": "fd_B1_20261104_kortrijk_kv-mechelen",
+      "canonical_id": "sm_19726038",
+      "kickoff_utc": "2026-11-04T19:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261107_oud-heverlee-leuven_mechelen",
+      "canonical_id": "sm_19726020",
+      "kickoff_utc": "2026-11-07T17:15:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261107_raal-la-louviere_cercle-brugge",
+      "canonical_id": "sm_19726019",
+      "kickoff_utc": "2026-11-07T19:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261107_westerlo_charleroi",
+      "canonical_id": "sm_19726018",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261108_gent_kortrijk",
+      "canonical_id": "sm_19726016",
+      "kickoff_utc": "2026-11-08T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_D1_20261106_hamburger-sv_borussia-monchengladbach",
+      "canonical_id": "sm_19735119",
+      "kickoff_utc": "2026-11-06T19:30:00.000Z"
+    },
     {
       "twin_id": "fd_D1_20261108_1-fc-koln_bayer-leverkusen",
       "canonical_id": "sm_19735118",
@@ -21,8 +51,23 @@
       "kickoff_utc": "2026-11-08T18:30:00.000Z"
     },
     {
+      "twin_id": "fd_D2_20261106_dresden_spvgg-greuther-furth",
+      "canonical_id": "sm_19735409",
+      "kickoff_utc": "2026-11-06T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261106_eintracht-braunschweig_cottbus",
+      "canonical_id": "sm_19735406",
+      "kickoff_utc": "2026-11-06T17:30:00.000Z"
+    },
+    {
       "twin_id": "fd_D2_20261107_1-fc-nurnberg_sv-darmstadt-98",
       "canonical_id": "sm_19735411",
+      "kickoff_utc": "2026-11-07T12:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261107_holstein-kiel_bielefeld",
+      "canonical_id": "sm_19735408",
       "kickoff_utc": "2026-11-07T12:00:00.000Z"
     },
     {
@@ -31,14 +76,164 @@
       "kickoff_utc": "2026-11-08T12:30:00.000Z"
     },
     {
+      "twin_id": "fd_D2_20261108_vfl-bochum_karlsruher-sc",
+      "canonical_id": "sm_19735410",
+      "kickoff_utc": "2026-11-08T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261103_birmingham_millwall",
+      "canonical_id": "sm_19729010",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261103_charlton_bolton",
+      "canonical_id": "sm_19729000",
+      "kickoff_utc": "2026-11-03T19:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261103_watford_lincoln",
+      "canonical_id": "sm_19729004",
+      "kickoff_utc": "2026-11-03T19:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261106_derby-county_bolton",
+      "canonical_id": "sm_19728993",
+      "kickoff_utc": "2026-11-06T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261107_birmingham_swansea-city",
+      "canonical_id": "sm_19728998",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261107_charlton_sheffield-united",
+      "canonical_id": "sm_19728994",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261107_queens-park-rangers_lincoln",
+      "canonical_id": "sm_19728990",
+      "kickoff_utc": "2026-11-07T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261114_milton-keynes-dons_burton",
+      "canonical_id": "sm_19728164",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
       "twin_id": "fd_E2_20261114_sheffield-weds_plymouth-argyle",
       "canonical_id": "sm_19728162",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261114_stockport_reading",
+      "canonical_id": "sm_19728160",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
     },
     {
       "twin_id": "fd_E2_20261114_wigan_barnsley",
       "canonical_id": "sm_19728159",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_bristol-rvs_chesterfield",
+      "canonical_id": "sm_19727617",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_colchester_gillingham",
+      "canonical_id": "sm_19727616",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_crewe_newport-county",
+      "canonical_id": "sm_19727615",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_fleetwood-town_tranmere",
+      "canonical_id": "sm_19727613",
+      "kickoff_utc": "2026-11-14T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_port-vale_accrington",
+      "canonical_id": "sm_19727612",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261114_rochdale_york",
+      "canonical_id": "sm_19727611",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261114_harrogate_altrincham",
+      "canonical_id": "sm_19748145",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261114_hartlepool_wealdstone",
+      "canonical_id": "sm_19748144",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261114_hornchurch_tamworth",
+      "canonical_id": "sm_19748143",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261114_scunthorpe_worthing",
+      "canonical_id": "sm_19748141",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261114_yeovil_boreham-wood",
+      "canonical_id": "sm_19748137",
+      "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261107_aris_panetolikos",
+      "canonical_id": "sm_19763834",
+      "kickoff_utc": "2026-11-07T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261108_aek-athens_levadeiakos",
+      "canonical_id": "sm_19763836",
+      "kickoff_utc": "2026-11-08T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261108_iraklis_panathinaikos",
+      "canonical_id": "sm_19763830",
+      "kickoff_utc": "2026-11-08T15:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261108_ofi-crete_atromitos",
+      "canonical_id": "sm_19763831",
+      "kickoff_utc": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261108_olympiacos_paok",
+      "canonical_id": "sm_19763832",
+      "kickoff_utc": "2026-11-08T19:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_I2_20261107_padova_empoli-fc",
+      "canonical_id": "sm_19768811",
+      "kickoff_utc": "2026-11-07T14:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261106_willem-ii_zwolle",
+      "canonical_id": "sm_19714601",
+      "kickoff_utc": "2026-11-06T19:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261107_den-haag_sparta-rotterdam",
+      "canonical_id": "sm_19714597",
+      "kickoff_utc": "2026-11-07T17:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261107_for-sittard_telstar",
+      "canonical_id": "sm_19714600",
+      "kickoff_utc": "2026-11-07T15:30:00.000Z"
     },
     {
       "twin_id": "fd_N1_20261108_az-alkmaar_groningen",
@@ -51,9 +246,29 @@
       "kickoff_utc": "2026-11-08T15:45:00.000Z"
     },
     {
+      "twin_id": "fd_N1_20261108_fc-utrecht_nijmegen",
+      "canonical_id": "sm_19714594",
+      "kickoff_utc": "2026-11-08T19:00:00.000Z"
+    },
+    {
       "twin_id": "fd_N1_20261108_heerenveen_feyenoord",
       "canonical_id": "sm_19714596",
       "kickoff_utc": "2026-11-08T11:15:00.000Z"
+    },
+    {
+      "twin_id": "fd_P1_20261108_estrela_sl-benfica",
+      "canonical_id": "sm_19736766",
+      "kickoff_utc": "2026-11-08T20:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_P1_20261108_guimaraes_fc-porto",
+      "canonical_id": "sm_19736759",
+      "kickoff_utc": "2026-11-08T18:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_P1_20261108_rio-ave_sp-braga",
+      "canonical_id": "sm_19736762",
+      "kickoff_utc": "2026-11-08T20:30:00.000Z"
     },
     {
       "twin_id": "fd_SC0_20261107_st-johnstone_dundee",
@@ -91,6 +306,26 @@
       "kickoff_utc": "2026-11-16T19:30:00.000Z"
     },
     {
+      "twin_id": "fd_T1_20261107_galatasaray_amedspor",
+      "canonical_id": "sm_19746558",
+      "kickoff_utc": "2026-11-07T16:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261107_goztep_buyuksehyr",
+      "canonical_id": "sm_19746560",
+      "kickoff_utc": "2026-11-07T16:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261108_corum_fenerbahce",
+      "canonical_id": "sm_19746559",
+      "kickoff_utc": "2026-11-08T13:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261108_rizespor_erzurumspor",
+      "canonical_id": "sm_19746561",
+      "kickoff_utc": "2026-11-08T10:30:00.000Z"
+    },
+    {
       "twin_id": "mt_022015219",
       "canonical_id": "sm_19735099",
       "kickoff_utc": "2026-11-28T14:30:00.000Z"
@@ -99,6 +334,11 @@
       "twin_id": "mt_022015274",
       "canonical_id": "sm_19735122",
       "kickoff_utc": "2026-11-08T18:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_022015283",
+      "canonical_id": "sm_19735113",
+      "kickoff_utc": "2026-11-22T14:30:00.000Z"
     },
     {
       "twin_id": "mt_022075498",
@@ -151,9 +391,24 @@
       "kickoff_utc": "2026-11-08T16:15:00.000Z"
     },
     {
+      "twin_id": "mt_022917440",
+      "canonical_id": "sm_19715544",
+      "kickoff_utc": "2026-11-22T19:45:00.000Z"
+    },
+    {
       "twin_id": "mt_022917497",
       "canonical_id": "sm_19715534",
       "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_024559039",
+      "canonical_id": "sm_19872606",
+      "kickoff_utc": "2026-11-25T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_024559095",
+      "canonical_id": "sm_19873707",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
     },
     {
       "twin_id": "mt_024559301",
@@ -271,9 +526,24 @@
       "kickoff_utc": "2026-10-31T20:00:00.000Z"
     },
     {
+      "twin_id": "mt_200231671",
+      "canonical_id": "sm_19732632",
+      "kickoff_utc": "2026-11-08T20:00:00.000Z"
+    },
+    {
       "twin_id": "mt_200251012",
       "canonical_id": "sm_19735106",
       "kickoff_utc": "2026-11-28T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200251039",
+      "canonical_id": "sm_19735120",
+      "kickoff_utc": "2026-11-07T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_200251050",
+      "canonical_id": "sm_19735101",
+      "kickoff_utc": "2026-11-28T14:30:00.000Z"
     },
     {
       "twin_id": "mt_200713206",
@@ -296,9 +566,19 @@
       "kickoff_utc": "2026-11-21T19:45:00.000Z"
     },
     {
+      "twin_id": "mt_200853678",
+      "canonical_id": "sm_19715537",
+      "kickoff_utc": "2026-11-29T14:00:00.000Z"
+    },
+    {
       "twin_id": "mt_200855303",
       "canonical_id": "sm_19714575",
       "kickoff_utc": "2026-11-28T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_200855331",
+      "canonical_id": "sm_19714581",
+      "kickoff_utc": "2026-11-27T19:00:00.000Z"
     },
     {
       "twin_id": "mt_200855392",
@@ -314,6 +594,16 @@
       "twin_id": "mt_206118232",
       "canonical_id": "sm_19873229",
       "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_206118270",
+      "canonical_id": "sm_19873722",
+      "kickoff_utc": "2026-11-25T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_206118712",
+      "canonical_id": "sm_19873228",
+      "kickoff_utc": "2026-11-25T20:00:00.000Z"
     },
     {
       "twin_id": "mt_377145316",
@@ -349,6 +639,16 @@
       "twin_id": "mt_377265827",
       "canonical_id": "sm_19715531",
       "kickoff_utc": "2026-11-28T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377265875",
+      "canonical_id": "sm_19715561",
+      "kickoff_utc": "2026-11-01T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_377265880",
+      "canonical_id": "sm_19715548",
+      "kickoff_utc": "2026-11-08T19:45:00.000Z"
     },
     {
       "twin_id": "mt_377266508",
@@ -471,6 +771,11 @@
       "kickoff_utc": "2026-11-07T20:00:00.000Z"
     },
     {
+      "twin_id": "mt_466492785",
+      "canonical_id": "sm_19732640",
+      "kickoff_utc": "2026-11-02T20:00:00.000Z"
+    },
+    {
       "twin_id": "mt_466829415",
       "canonical_id": "sm_19713489",
       "kickoff_utc": "2026-11-29T11:30:00.000Z"
@@ -551,6 +856,11 @@
       "kickoff_utc": "2026-11-21T14:30:00.000Z"
     },
     {
+      "twin_id": "mt_511589184",
+      "canonical_id": "sm_19735103",
+      "kickoff_utc": "2026-11-28T14:30:00.000Z"
+    },
+    {
       "twin_id": "mt_511976329",
       "canonical_id": "sm_19722094",
       "kickoff_utc": "2026-11-21T15:00:00.000Z"
@@ -574,6 +884,11 @@
       "twin_id": "mt_512993943",
       "canonical_id": "sm_19873713",
       "kickoff_utc": "2026-11-24T17:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_643000882",
+      "canonical_id": "sm_19873700",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
     },
     {
       "twin_id": "mt_643005040",
@@ -601,6 +916,16 @@
       "kickoff_utc": "2026-11-29T14:05:00.000Z"
     },
     {
+      "twin_id": "mt_644522882",
+      "canonical_id": "sm_19714590",
+      "kickoff_utc": "2026-11-22T11:15:00.000Z"
+    },
+    {
+      "twin_id": "mt_644526301",
+      "canonical_id": "sm_19714601",
+      "kickoff_utc": "2026-11-06T19:00:00.000Z"
+    },
+    {
       "twin_id": "mt_644528338",
       "canonical_id": "sm_19715552",
       "kickoff_utc": "2026-11-08T16:15:00.000Z"
@@ -616,6 +941,16 @@
       "kickoff_utc": "2026-11-21T16:15:00.000Z"
     },
     {
+      "twin_id": "mt_644620269",
+      "canonical_id": "sm_19735125",
+      "kickoff_utc": "2026-11-07T14:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_644620410",
+      "canonical_id": "sm_19735108",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
       "twin_id": "mt_644620485",
       "canonical_id": "sm_19735117",
       "kickoff_utc": "2026-11-07T14:30:00.000Z"
@@ -624,6 +959,11 @@
       "twin_id": "mt_644680354",
       "canonical_id": "sm_19732627",
       "kickoff_utc": "2026-11-07T17:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_644680392",
+      "canonical_id": "sm_19732636",
+      "kickoff_utc": "2026-10-31T13:00:00.000Z"
     },
     {
       "twin_id": "mt_644908626",
@@ -716,6 +1056,21 @@
       "kickoff_utc": "2026-11-24T20:00:00.000Z"
     },
     {
+      "twin_id": "mt_739660752",
+      "canonical_id": "sm_19872637",
+      "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_739660779",
+      "canonical_id": "sm_19873718",
+      "kickoff_utc": "2026-11-24T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_895776070",
+      "canonical_id": "sm_19872612",
+      "kickoff_utc": "2026-11-03T20:00:00.000Z"
+    },
+    {
       "twin_id": "mt_895776680",
       "canonical_id": "sm_19872620",
       "kickoff_utc": "2026-11-03T20:00:00.000Z"
@@ -784,6 +1139,11 @@
       "twin_id": "mt_899744264",
       "canonical_id": "sm_19722106",
       "kickoff_utc": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "twin_id": "mt_899827560",
+      "canonical_id": "sm_19732629",
+      "kickoff_utc": "2026-11-07T15:15:00.000Z"
     },
     {
       "twin_id": "mt_899837928",

@@ -88,6 +88,71 @@ const MERGE_PAIRS: [string, string, string][] = [
   // Bukti penentu = fixture kembar: kompetisi + kickoff + lawan identik.
   ["fd_celta-b", "384", "Satu tim cadangan: 'Celta B' berganti nama resmi jadi 'Celta Fortuna' sejak 2023-24 (terverifikasi web: Wikipedia/rccelta.es). fd memakai nama CSV lama, SM nama kini. Bukti data: fixture kembar La Liga 2 — Albacete vs keduanya 2026-11-16T19:30Z dan Burgos vs keduanya 2026-11-07T13:00Z. Tim utama Celta Vigo (sm:36) entitas BERBEDA, tidak digabung."],
   ["fd_sociedad-b", "9656", "Satu tim cadangan: Real Sociedad B (Sanse). fd memakai nama CSV pendek 'Sociedad B', SM memakai 'Real Sociedad II'. Bukti data: fixture kembar La Liga 2 — Sabadell vs keduanya 2026-11-09T19:30Z dan vs Sporting Gijón 2026-11-14T15:15Z, kickoff identik. Tim utama Real Sociedad (sm:594) dan Real Sociedad III (sm:28124) entitas BERBEDA, tidak digabung."],
+  // Gelombang 5 (2026-11-21, audit redesain langkah 2): klub terbelah
+  // lintas namespace yang LOLOS dari gelombang sebelumnya karena nama
+  // ternormalisasi beda ejaan/bahasa. Bukti penentu per pasangan =
+  // fixture kembar: dua baris katalog/dataset beda sumber untuk laga
+  // fisik yang sama (kickoff identik + lawan kanonik sama + kompetisi
+  // sama), atau fixture cermin dataset (baris sm:2 vs comp_3498 dengan
+  // tanggal + lawan identik). Bukan kemiripan nama semata.
+  ["44", "tm_25550", "Satu klub: Olympique de Marseille. SM 'Olympique Marseille' vs TheStats 'Olympique de Marseille' — kata 'de' membuat nama ternormalisasi beda. Bukti fixture kembar Ligue 1: vs Le Mans 2026-11-22T19:45Z, vs Toulouse 2026-11-01T19:45Z, vs Nice 2026-11-08T19:45Z (kickoff + lawan identik di kedua sumber)."],
+  ["562", "602", "Satu klub: Olympiacos Piraeus. SM sendiri terbelah: id 562 'Olympiakos' (label World) hanya membawa 3 laga persahabatan (vs Banga, Omonia 29M, APOEL — profil laga uji Olympiacos), id 602 'Olympiacos F.C.' membawa domestik Yunani (73) + Eropa; anggota tm_47798 'Olympiacos FC' sudah di 562. Pola pecahan SM yang sama dengan SL Benfica (254165/605). Kanonik dipaksa ke 602 (pembawa utama) lewat CANONICAL_ID_OVERRIDES."],
+  ["fd_accrington", "395", "Satu klub: Accrington Stanley; fd nama pendek CSV. Fixture kembar League Two vs Port Vale 2026-11-14T15:00Z."],
+  ["fd_amedspor", "3570", "Satu klub: Amed SK (Amedspor); fd nama CSV. Fixture kembar Super Lig vs Galatasaray 2026-11-07T16:00Z."],
+  ["fd_bielefeld", "2927", "Satu klub: DSC Arminia Bielefeld; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Holstein Kiel 2026-11-07T12:00Z."],
+  ["fd_birmingham", "12", "Satu klub: Birmingham City; fd nama pendek CSV. Fixture kembar Championship vs Swansea 2026-11-07 + vs Millwall 2026-11-03."],
+  ["fd_bolton", "16", "Satu klub: Bolton Wanderers; fd nama pendek CSV. Fixture kembar vs Derby County 2026-11-06T20:00Z."],
+  ["fd_borussia-monchengladbach", "683", "Satu klub: Borussia Mönchengladbach; fd ejaan tanpa diakritik. Fixture kembar Bundesliga vs Hamburger SV 2026-11-06T19:30Z."],
+  ["fd_bristol-rvs", "230", "Satu klub: Bristol Rovers; fd singkatan CSV 'Rvs'. Fixture kembar League Two vs Chesterfield 2026-11-14T15:00Z."],
+  ["fd_burton", "150", "Satu klub: Burton Albion; fd nama pendek CSV. Fixture kembar League One vs MK Dons 2026-11-14T15:00Z."],
+  ["fd_buyuksehyr", "3702", "Satu klub: İstanbul Başakşehir; fd nama CSV 'Buyuksehyr' (Büyükşehir). Fixture kembar Super Lig vs Göztepe 2026-11-07T16:00Z."],
+  ["fd_charlton", "4", "Satu klub: Charlton Athletic; fd nama pendek CSV. Fixture kembar Championship vs Sheffield United 2026-11-07T15:00Z."],
+  ["fd_colchester", "74", "Satu klub: Colchester United; fd nama pendek CSV. Fixture kembar League Two vs Gillingham 2026-11-14T15:00Z."],
+  ["fd_corum", "13871", "Satu klub: Çorum FK; fd nama tanpa diakritik. Fixture kembar Super Lig vs Fenerbahçe 2026-11-08T13:00Z."],
+  ["fd_cottbus", "3322", "Satu klub: Energie Cottbus; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Eintracht Braunschweig 2026-11-06T17:30Z."],
+  ["fd_crewe", "87", "Satu klub: Crewe Alexandra; fd nama pendek CSV. Fixture kembar League Two vs Newport County 2026-11-14T15:00Z."],
+  ["fd_den-haag", "1128", "Satu klub: ADO Den Haag; fd nama pendek CSV. Fixture kembar Eredivisie vs Sparta Rotterdam 2026-11-07T17:45Z."],
+  ["fd_dresden", "1077", "Satu klub: Dynamo Dresden; fd nama pendek CSV. Fixture kembar 2. Bundesliga vs Greuther Fürth 2026-11-06T17:30Z."],
+  ["fd_erzurumspor", "13818", "Satu klub: Erzurumspor FK; fd tanpa imbuhan FK. Fixture kembar Super Lig vs Rizespor 2026-11-08T10:30Z."],
+  ["fd_estrela", "12152", "Satu klub: Estrela Amadora; fd nama pendek CSV. Fixture kembar Liga Portugal vs SL Benfica 2026-11-08T20:30Z."],
+  ["fd_for-sittard", "1459", "Satu klub: Fortuna Sittard; fd nama CSV terpotong 'For Sittard'. Fixture kembar Eredivisie vs Telstar 2026-11-07T15:30Z."],
+  ["fd_guimaraes", "830", "Satu klub: Vitória Guimarães; fd nama pendek CSV. Fixture kembar Liga Portugal vs FC Porto 2026-11-08T18:00Z."],
+  ["fd_harrogate", "382", "Satu klub: Harrogate Town; fd nama pendek CSV. Fixture kembar National League vs Altrincham 2026-11-14T15:00Z."],
+  ["fd_hartlepool", "310", "Satu klub: Hartlepool United; fd nama pendek CSV. Fixture kembar National League vs Wealdstone 2026-11-14T15:00Z."],
+  ["fd_hornchurch", "1151", "Satu klub: AFC Hornchurch; fd nama pendek CSV. Fixture kembar National League vs Tamworth 2026-11-14T15:00Z."],
+  ["fd_iraklis", "7171", "Satu klub: Iraklis 1908 FC; fd nama pendek CSV. Fixture kembar Super League Yunani vs Panathinaikos 2026-11-08T15:30Z."],
+  ["fd_kortrijk", "1130", "Satu klub: KV Kortrijk; fd nama pendek CSV. Fixture kembar Pro League vs KV Mechelen 2026-11-04 + vs Gent 2026-11-08."],
+  ["fd_lincoln", "305", "Satu klub: Lincoln City; fd nama pendek CSV. Fixture kembar Championship vs QPR 2026-11-07 + vs Watford 2026-11-03."],
+  ["fd_mansfield", "225", "Satu klub: Mansfield Town; fd nama pendek CSV 'Mansfield' di divisi E2 (League One, 13 match dataset). BUKAN AFC Mansfield (sm:20249, klub non-liga berbeda) — pasangan itu TIDAK digabung."],
+  ["fd_nijmegen", "494", "Satu klub: NEC Nijmegen; fd nama pendek CSV. Fixture kembar Eredivisie vs FC Utrecht 2026-11-08T19:00Z."],
+  ["fd_padova", "249160", "Satu klub: Calcio Padova; fd nama pendek CSV. Fixture kembar Serie B vs Empoli 2026-11-07T14:00Z."],
+  ["fd_panetolikos", "213", "Satu klub: Panaitolikos; fd ejaan 'Panetolikos'. Fixture kembar Super League Yunani vs Aris 2026-11-07T17:30Z."],
+  ["fd_scunthorpe", "101", "Satu klub: Scunthorpe United; fd nama pendek CSV. Fixture kembar National League vs Worthing 2026-11-14T15:00Z."],
+  ["fd_sp-braga", "884", "Satu klub: Sporting Braga; fd singkatan CSV 'Sp Braga'. Fixture kembar Liga Portugal vs Rio Ave 2026-11-08T20:30Z."],
+  ["fd_stockport", "249", "Satu klub: Stockport County; fd nama pendek CSV. Fixture kembar League One vs Reading 2026-11-14T15:00Z."],
+  ["fd_tranmere", "201", "Satu klub: Tranmere Rovers; fd nama pendek CSV. Fixture kembar League Two vs Fleetwood Town 2026-11-14T17:30Z."],
+  ["fd_vfl-bochum", "999", "Satu klub: VfL Bochum 1848; fd tanpa tahun. Fixture kembar 2. Bundesliga vs Karlsruher SC 2026-11-08T12:30Z."],
+  ["fd_yeovil", "261", "Satu klub: Yeovil Town; fd nama pendek CSV. Fixture kembar National League vs Boreham Wood 2026-11-14T15:00Z."],
+  ["fd_york", "92", "Satu klub: York City; fd nama pendek CSV. Fixture kembar League Two vs Rochdale 2026-11-14T15:00Z."],
+  ["fd_zwolle", "1016", "Satu klub: PEC Zwolle; fd nama pendek CSV. Fixture kembar Eredivisie vs Willem II 2026-11-06T19:00Z."],
+  ["tm_master_charleroi", "1087", "Satu klub: Sporting Charleroi; TheStats master nama pendek 'Charleroi'. Fixture kembar Pro League vs Westerlo 2026-11-07T15:00Z."],
+  ["tm_master_ofi_crete", "118", "Satu klub: OFI Crete; SM menyimpan 'OFI' saja. Fixture kembar Super League Yunani vs Atromitos 2026-11-08T16:30Z."],
+  ["tm_8557956", "138649", "Satu klub: Sabah FK (Azerbaijan); SM menyimpan 'Sabah'. Fixture kembar UEFA Champions League 2026-11-25T17:45Z."],
+  ["tm_master_oud_heverlee_leuven", "1947", "Satu klub: OH Leuven = Oud-Heverlee Leuven. Fixture kembar Pro League vs Mechelen 2026-11-07T17:15Z."],
+  ["tm_64842", "216", "Satu klub: SK Slavia Praha; SM tanpa imbuhan SK. Fixture kembar UCL 2026-11-04 + 2026-11-25."],
+  ["tm_02198", "2417", "Satu klub: ŠK Slovan Bratislava; SM tanpa imbuhan SK. Fixture kembar UCL 2026-11-03 + 2026-11-24."],
+  ["tm_89026", "3588", "Satu klub: SV Elversberg; TheStats 'SV 07 Elversberg'. Fixture kembar Bundesliga 2026-11-07 + 21 + 28."],
+  ["tm_98394", "429", "Satu klub: Deportivo La Coruña = Deportivo A Coruña (SM). Fixture kembar LaLiga 2026-11-02 + 2026-11-07. Alias CSV 'La Coruna' yang sudah dijangkar ke tm_98394 ikut pindah."],
+  ["tm_64398", "794", "Satu klub: 1. FSV Mainz 05; SM tanpa awalan '1.'. Fixture kembar Bundesliga 2026-11-07 + 22 + 28."],
+  ["tm_64681", "7980", "Satu klub: Atlético Madrid = Atlético de Madrid (SM). Fixture kembar LaLiga/UCL 2026-10-31 + 11-03 + 11-08."],
+  ["tm_master_levadeiakos", "990", "Satu klub: Levadiakos; TheStats ejaan 'Levadeiakos'. Fixture kembar Super League Yunani vs AEK Athens 2026-11-08T15:00Z."],
+  ["tm_master_raal_la_louviere", "6722", "Satu klub: RAAL La Louvière; SM menyimpan 'La Louviere'. Fixture kembar Pro League vs Cercle Brugge 2026-11-07T19:45Z."],
+  ["tm_26373", "669", "Satu klub: Willem II (Tilburg); TheStats menambahkan kota. 'II' di sini nama raja (Willem II), BUKAN tim cadangan. Fixture kembar Eredivisie 2026-11-06 + 22 + 27."],
+  ["tm_76152", "2673", "Satu klub: FK Crvena zvezda (Red Star Belgrade). Fixture CERMIN dataset: baris TheStats comp_3498 vs tm_05877 (21+29 Jul 2026) dan tm_93670 (4+11 Agu 2026) identik tanggal+lawan dengan baris SM sm:2 milik id 2673."],
+  ["tm_08322", "321", "Satu klub: Viking FK (Stavanger); SM menyimpan 'Viking'. Fixture CERMIN dataset: vs tm_97303 18+26 Agu, tm_37258 9 Sep, tm_98299 13 Okt 2026 — identik dengan baris sm:2 milik id 321 (lawan 674 = tm_97303 yang sama)."],
+  ["tm_25152", "3357", "Satu klub: SK Sturm Graz; SM tanpa imbuhan SK. Fixture CERMIN dataset: vs tm_91646 5 Agu 2026 identik di comp_3498 dan sm:2 (id 3357)."],
+  ["tm_42581", "3877", "Satu klub: FK Borac Banja Luka; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_52213 7+14 Jul 2026 identik di comp_3498 dan sm:2 (id 3877)."],
+  ["tm_2905815", "928", "Satu klub: FK Kauno Žalgiris; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_4649576 (7+14 Jul), tm_05888 (21+29 Jul), tm_97303 (4+11 Agu) 2026 — tanggal+lawan identik dengan baris sm:2 milik id 928."],
 ];
 
 /** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */
@@ -100,6 +165,35 @@ const DISTINCT_PAIRS: [string, string, string][] = [
   ["10016", "238136", "Melilla vs Melilla CD — bukti belum cukup dan keduanya cangkang nyaris kosong (3+1 match, 0 log); dibiarkan terpisah sampai ada bukti."],
   ["4701", "82", "'VfL Bremen' (id 4701, 1 match) BUKAN Werder Bremen (id 82, pembawa 106 match) — kandidat ini artefak kunci longgar, bukan kemiripan klub."],
   ["18544", "84", "Qatar (tim NASIONAL, id 18544) vs Qatar SC (klub) — entitas berbeda kategori."],
+  ["13", "15064", "Everton FC (Inggris, Premier League) vs Everton de Viña del Mar (Chile, Primera División) — dua klub berbeda yang dulu TERGABUNG KELIRU dalam satu entri kanonik karena nama tersimpan sama persis ('Everton') dan keduanya tanpa baris teams/negara. Dipisah lewat SPLIT_DECISIONS (gelombang 5); bukti: kompetisi katalog disjoint total (Premier League/Carabao Cup vs Primera División Chile)."],
+  ["374", "2488", "Bohemians Dublin (Irlandia) vs Bohemians 1905 Praha (Ceko) — nama mirip, klub berbeda negara. Bukti dataset: 20 match id 374 semuanya melawan klub Irlandia (St Patrick's, Cork City, Shelbourne, Waterford, Drogheda, Longford, Athlone); id 2488 membawa Chance Liga Ceko (78 match)."],
+  ["fd_mansfield", "20249", "Football-data 'Mansfield' (League One/Two Inggris) adalah Mansfield Town (sm:225), BUKAN AFC Mansfield (sm:20249, klub non-liga dari kota yang sama, berdiri 2012)."],
+];
+
+/**
+ * KEPUTUSAN PISAH (gelombang 5, 2026-11-21) — entri kanonik yang
+ * TERBUKTI menampung DUA klub berbeda karena pengelompokan nama
+ * menyatukannya (nama tersimpan sama persis + negara tak diketahui di
+ * kedua sisi, jadi uji sengketa tidak pernah menyala). Anggota yang
+ * disebut dipisahkan jadi entri sendiri; sisa grup menjadi entri tuan
+ * rumah dengan id kanonik yang dihitung ulang dari anggotanya.
+ * Negara kedua sisi diisi dari bukti kompetisi katalog (baris teams
+ * kedua klub ini tidak ada, jadi builder tidak bisa menurunkannya).
+ */
+const SPLIT_DECISIONS: {
+  member_id: string;
+  canonical_id: string;
+  country: string | null;
+  host_country: string | null;
+  reason: string;
+}[] = [
+  {
+    member_id: "15064",
+    canonical_id: "sm:15064",
+    country: "Chile",
+    host_country: "England",
+    reason: "Everton de Viña del Mar (Chile) dipisah dari Everton FC (Inggris): kompetisi katalog disjoint total — id 15064 hanya Primera División Chile, id 13 hanya Premier League + Carabao Cup Inggris (audit redesain langkah 2, 2026-11-21).",
+  },
 ];
 
 /** Nama eksternal tanpa baris teams yang sudah diputuskan pemiliknya. */
@@ -173,6 +267,7 @@ const CANONICAL_ID_OVERRIDES: Record<string, string> = {
   "9908": "sm:9908", // Al-Ahli Saudi: 9908 pembawa 94 match, 17837 pecahan 28
   "7780": "sm:7780", // Al Ain: 7780 pembawa 77 match, 230422 cangkang 1 match
   "8364": "sm:8364", // Racing Club: 8364 pembawa 237 match, 3608 baris standings saja
+  "602": "sm:602", // Olympiacos: 602 pembawa utama (110 match), 562 pecahan persahabatan (3)
 };
 
 /**
@@ -306,6 +401,34 @@ function main() {
       contested_name: g.contested,
     });
   }
+  // --- Keputusan pisah: keluarkan anggota yang terbukti klub berbeda
+  // dari grup nama yang menyatukannya. Berjalan SEBELUM gabung fase 3
+  // supaya pasangan gabung/distinct sesudahnya melihat entri yang sudah
+  // bersih.
+  let splitsApplied = 0;
+  for (const sd of SPLIT_DECISIONS) {
+    const host = teams.find((t) => t.members.some((m) => m.team_id === sd.member_id));
+    if (!host || host.members.length < 2) continue;
+    const idx = host.members.findIndex((m) => m.team_id === sd.member_id);
+    const [peeled] = host.members.splice(idx, 1);
+    host.aliases = [...new Set(host.members.map((m) => m.name_as_stored))].sort();
+    const hsm = host.members.find((m) => m.system === "sportmonks");
+    const htm = host.members.find((m) => m.system === "thestats");
+    host.canonical_id = hsm ? `sm:${hsm.team_id}` : htm ? htm.team_id : host.members[0].team_id;
+    if (sd.host_country) host.country = sd.host_country;
+    (host.resolution_notes ??= []).push(sd.reason);
+    teams.push({
+      canonical_id: sd.canonical_id,
+      name: normalizeTeamName(peeled.name_as_stored),
+      country: sd.country,
+      members: [peeled],
+      aliases: [peeled.name_as_stored],
+      contested_name: false,
+      resolution_notes: [sd.reason],
+    });
+    splitsApplied += 1;
+  }
+
   // --- Fase 3: terapkan keputusan resolusi (gabung terbukti + beda terbukti).
   const byMember = () => {
     const m = new Map<string, CanonTeam>();
@@ -454,7 +577,7 @@ function main() {
   lines.push(`- Grup lintas sistem (>1 sumber): **${multiSystem.length}**`);
   lines.push(`- Tim bernama sengketa (≥2 negara): **${contested.length}** entri`);
   lines.push(`- Pasangan kandidat mirip BELUM digabung: **${candidates.length}**`);
-  lines.push(`- Keputusan resolusi fase 3 diterapkan: **${mergesApplied} penggabungan terbukti**, **${DISTINCT_PAIRS.length} pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **${EXTRA_ALIASES.length} alias eksternal**.`);
+  lines.push(`- Keputusan resolusi fase 3 diterapkan: **${mergesApplied} penggabungan terbukti**, **${splitsApplied} pemisahan terbukti**, **${DISTINCT_PAIRS.length} pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **${EXTRA_ALIASES.length} alias eksternal**.`);
   lines.push(`- Permukaan standings: **${standingsSurfaced} id** tanpa baris teams didaftarkan dari nama fixture; **${nameUnknownIds.length} id** terdaftar id-only (name_unknown: ${nameUnknownIds.join(", ") || "-"}). Cakupan standings sekarang penuh.`);
   lines.push(`- Permukaan fixture: **${fixtureSurfaced} id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).`);
   lines.push("");
@@ -462,6 +585,7 @@ function main() {
   lines.push("");
   for (const [a, b, r] of MERGE_PAIRS) lines.push(`- GABUNG \`${a}\` + \`${b}\` — ${r}`);
   for (const [a, b, r] of DISTINCT_PAIRS) lines.push(`- BEDA \`${a}\` + \`${b}\` — ${r}`);
+  for (const sd of SPLIT_DECISIONS) lines.push(`- PISAH \`${sd.member_id}\` → \`${sd.canonical_id}\` — ${sd.reason}`);
   lines.push("");
   lines.push("## Contoh grup lintas sistem");
   lines.push("");
