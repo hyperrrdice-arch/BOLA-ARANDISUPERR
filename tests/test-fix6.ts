@@ -10,8 +10,14 @@
  *     listSchedule + cakupanJadwal (halaman jadwal) dan
  *     daftarPilihanPraLaga (halaman pilihan) — kontrak PRD ≤ 8.
  *  C. Beranda jujur + sorotan (sub-bagian 1): lab_resolved_matches
- *     menghitung laga UNIK (bukan baris pilihan); todaySpotlight
- *     memilih laga hari ini (WIB) dan null di hari tanpa laga.
+ *     menghitung laga UNIK (bukan baris pilihan).
+ *     DIPERBARUI Langkah 3 redesain (brief §3A.2 + §6 "ganti pemilihan
+ *     sorotan"): todaySpotlight (laga hari ini + tiga peluang payload)
+ *     digantikan sorotanBeranda — laga mendatang TERDEKAT yang punya
+ *     pilihan RESMI terbit sebelum kickoff; asersi di bawah menilai
+ *     kontrak baru itu pada seed yang sama (10 paket jadwal + pilihan
+ *     resmi terbit 0,8), bukan melonggarkan gerbang Fix-6: kejujuran
+ *     penyebut lab_resolved_matches tetap dinilai persis seperti dulu.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -198,19 +204,44 @@ async function main(): Promise<void> {
   suite.eq("beranda: lab_resolved = 3 baris pilihan", stats.lab_resolved, 3);
   suite.eq("beranda: lab_resolved_matches = 2 laga UNIK", stats.lab_resolved_matches, 2);
 
-  const sorotan = web.todaySpotlight(new Date("2026-11-21T02:00:00.000Z"));
-  suite.check("sorotan: ada laga hari ini", sorotan !== null);
-  suite.eq("sorotan: laga terawal yang belum mulai (j1, 03:00Z)", sorotan?.match_id, "sm_fix6_j1");
-  suite.check(
-    "sorotan: tiga peluang dari payload paket",
-    [sorotan?.prob_home ?? -1, sorotan?.prob_draw ?? -1, sorotan?.prob_away ?? -1].every(
-      (v, i) => Math.abs(v - [0.41, 0.28, 0.31][i]) < 1e-9,
-    ),
-    `aktual=${JSON.stringify([sorotan?.prob_home, sorotan?.prob_draw, sorotan?.prob_away])}`,
+  // Sorotan kontrak baru (brief §3A.2): seed di atas memuat 10 laga
+  // 21 Nov (kickoff ganjil 01.00–19.00Z) dan untuk SETIAP laga satu
+  // pilihan resmi (pick_uid, published_prob 0,8, terbit 20 Nov).
+  const sorotan = web.sorotanBeranda(new Date("2026-11-21T02:00:00.000Z"));
+  suite.check("sorotan: ada laga berprediksi resmi", sorotan !== null);
+  suite.eq("sorotan: jenis prediksi", sorotan?.jenis, "prediksi");
+  suite.eq(
+    "sorotan: laga mendatang terdekat berprediksi (j1, 03:00Z; j0 sudah mulai 01:00Z)",
+    sorotan?.match_id,
+    "sm_fix6_j1",
   );
-  suite.eq("sorotan: waktu terbit = computed_utc paket", sorotan?.published_utc, "2026-11-20T00:00:00.000Z");
-  const kosong = web.todaySpotlight(new Date("2026-12-25T02:00:00.000Z"));
-  suite.check("sorotan: hari tanpa laga → null", kosong === null);
+  suite.eq("sorotan: peluang utama = peluang RESMI terbit", sorotan?.prob, 0.8);
+  suite.eq(
+    "sorotan: label kejadian utama terbaca",
+    sorotan?.label_prediksi,
+    "Kandang 1 menang",
+  );
+  suite.eq(
+    "sorotan: waktu terbit = published_at_utc pilihan",
+    sorotan?.published_at_utc,
+    "2026-11-20T00:00:00.000Z",
+  );
+  const awal = web.sorotanBeranda(new Date("2026-11-20T00:00:00.000Z"));
+  suite.eq(
+    "sorotan: sebelum semua kickoff, yang terdekat menang (j0)",
+    awal?.match_id,
+    "sm_fix6_j0",
+  );
+  const berikut = web.jadwalBerikutnya(sorotan, new Date("2026-11-21T02:00:00.000Z"), 5);
+  suite.check(
+    "jadwal berikutnya: sorotan dikeluarkan, urutan kickoff",
+    berikut.length === 5 &&
+      berikut[0].pkg.match_id === "sm_fix6_j2" &&
+      berikut.every((b) => b.pkg.match_id !== "sm_fix6_j1"),
+    `aktual=${JSON.stringify(berikut.map((b) => b.pkg.match_id))}`,
+  );
+  const kosong = web.sorotanBeranda(new Date("2026-12-25T02:00:00.000Z"));
+  suite.check("sorotan: tanpa laga mendatang/hasil → null", kosong === null);
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();

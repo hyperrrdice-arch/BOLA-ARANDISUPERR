@@ -35,12 +35,14 @@ import {
 import { displayStatus, STATUS_LABEL_ID, skorTerlihat } from "../lib/web/status";
 import {
   int,
+  judulBeranda,
   kunciTanggal,
   labelHari,
   labelPilihan,
   num,
   pct,
   tanggalJamWib,
+  tanggalZona,
 } from "../lib/web/format";
 import {
   jendelaTanggalUtc,
@@ -306,6 +308,48 @@ async function main(): Promise<void> {
   suite.eq("format: labelHari zona Jakarta", labelHari(KICK.dinihari, "Asia/Jakarta", nowSabtu), "Hari ini");
   suite.eq("format: labelHari mengikuti zona (laga pagi = Hari ini di WIB)", labelHari(KICK.pagi, "Asia/Jakarta", nowSabtu), "Hari ini");
   suite.eq("format: labelHari mengikuti zona (laga pagi = Besok di UTC)", labelHari(KICK.pagi, "UTC", nowSabtu), "Besok");
+
+  /* ---- fungsi murni: judul beranda (brief §3A.1, jam dibekukan) ---- */
+  suite.eq(
+    "beranda: baris tanggal+zona",
+    tanggalZona(new Date("2026-11-20T13:00:00.000Z")),
+    "Jumat, 20 November 2026 · WIB",
+  );
+  suite.eq(
+    "beranda: jam beku 20.00 WIB → Malam ini",
+    judulBeranda(new Date("2026-11-20T13:00:00.000Z")),
+    "Malam ini",
+  );
+  suite.eq(
+    "beranda: jam beku 10.00 WIB → Pertandingan hari ini",
+    judulBeranda(new Date("2026-11-20T03:00:00.000Z")),
+    "Pertandingan hari ini",
+  );
+  suite.eq(
+    "beranda: batas 18.00 WIB → Malam ini",
+    judulBeranda(new Date("2026-11-20T11:00:00.000Z")),
+    "Malam ini",
+  );
+  suite.eq(
+    "beranda: batas 17.59 WIB → Pertandingan hari ini",
+    judulBeranda(new Date("2026-11-20T10:59:00.000Z")),
+    "Pertandingan hari ini",
+  );
+  suite.eq(
+    "beranda: batas 05.59 WIB → Malam ini",
+    judulBeranda(new Date("2026-11-20T22:59:00.000Z")),
+    "Malam ini",
+  );
+  suite.eq(
+    "beranda: batas 06.00 WIB → Pertandingan hari ini",
+    judulBeranda(new Date("2026-11-20T23:00:00.000Z")),
+    "Pertandingan hari ini",
+  );
+  suite.eq(
+    "beranda: tengah malam 00.01 WIB → Malam ini",
+    judulBeranda(new Date("2026-11-20T17:01:00.000Z")),
+    "Malam ini",
+  );
 
   /* ---- fungsi murni: kamus pilihan ---- */
   suite.eq("kamus: 1x2 kandang", labelPilihan("1x2", "1", "Persada FC", "Rawa United"), "Persada FC menang");

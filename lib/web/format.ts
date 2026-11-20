@@ -94,6 +94,31 @@ export function tanggalPanjang(iso: string, tz: string = ZONA_BAKU): string {
   );
 }
 
+/** "Jumat, 21 November 2026 · WIB" — baris tanggal+zona di kepala beranda. */
+export function tanggalZona(now: Date, tz: string = ZONA_BAKU): string {
+  const d = fmt("tglZona", tz, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
+  return `${d} · ${labelZona(tz)}`;
+}
+
+/**
+ * Judul beranda (brief §3A.1): "Malam ini" pada jam lokal 18.00–05.59
+ * di zona tampilan, "Pertandingan hari ini" pada jam lainnya. Murni
+ * fungsi dari `now` supaya bisa diuji dengan jam beku.
+ */
+export function judulBeranda(now: Date, tz: string = ZONA_BAKU): string {
+  const jam = Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hourCycle: "h23" }).format(
+      now,
+    ),
+  );
+  return jam >= 18 || jam < 6 ? "Malam ini" : "Pertandingan hari ini";
+}
+
 /**
  * Label kelompok hari relatif terhadap `now` pada zona terpilih:
  * "Hari ini", "Besok", atau nama hari — mengikuti tengah malam zona itu,

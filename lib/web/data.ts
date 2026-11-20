@@ -33,7 +33,7 @@ import {
   terapkanWaktu,
   type StatusTampil,
 } from "./status";
-import { ZONA_BAKU, kunciTanggal } from "./format";
+import { labelPilihan } from "./format";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -438,68 +438,164 @@ function enrich(pkg: PackageRow): FixtureListItem {
 
 /** Pertandingan mendatang (jendela jam) dari paket versi terbaru per laga. */
 export function listUpcoming(hours = 72): FixtureListItem[] {
-  const now = Date.now();
+  return listUpcomingPada(Date.now(), hours);
+}
+
+/** Sama seperti listUpcoming, dengan acuan waktu eksplisit (untuk uji jam beku). */
+function listUpcomingPada(nowMs: number, hours = 72): FixtureListItem[] {
   const rows = packagesDb()
     .prepare(`${LATEST_PER_MATCH} WHERE p.kickoff_utc >= ? AND p.kickoff_utc <= ? ORDER BY p.kickoff_utc ASC`)
     .all(
-      new Date(now - 3 * 3_600_000).toISOString(),
-      new Date(now + hours * 3_600_000).toISOString(),
+      new Date(nowMs - 3 * 3_600_000).toISOString(),
+      new Date(nowMs + hours * 3_600_000).toISOString(),
     ) as Record<string, unknown>[];
   return rows.map((r) => enrich(parsePackage(r)));
 }
 
-/* ------------------------------------------------ sorotan hari ini (Fix-6) */
+/* ------------------------------------------- sorotan beranda (brief §3A) */
 
-export interface SorotanHariIni {
+export interface SorotanBeranda {
+  /**
+   * prediksi      — laga punya pilihan RESMI terbit sebelum kickoff;
+   * tanpa-prediksi— laga terdekat di jendela, belum ada prediksi resmi;
+   * berikutnya    — jendela kosong, laga pertama sesudah jendela;
+   * hasil-terakhir— tak ada laga mendatang sama sekali, hasil nyata terakhir.
+   */
+  jenis: "prediksi" | "tanpa-prediksi" | "berikutnya" | "hasil-terakhir";
   match_id: string;
   home: string;
   away: string;
   competition_name: string;
   kickoff_utc: string;
   gate_status: string;
-  /** Tiga peluang utama model (1X2) — null per sisi bila tak tersedia. */
-  prob_home: number | null;
-  prob_draw: number | null;
-  prob_away: number | null;
-  /** Waktu terbit paket analisis (computed_utc paket terbaru laga ini). */
-  published_utc: string;
+  /** Hanya jenis "prediksi": kejadian utama dalam kata ("Bengaluru mencetak gol"). */
+  label_prediksi: string | null;
+  /** Hanya jenis "prediksi": peluang RESMI saat terbit (beku K2). */
+  prob: number | null;
+  /** Hanya jenis "prediksi": waktu terbit pilihan utama (published_at_utc). */
+  published_at_utc: string | null;
+  /** Hanya jenis "hasil-terakhir": skor regulasi terkonfirmasi. */
+  home_goals: number | null;
+  away_goals: number | null;
+}
+
+const JENDELA_SOROTAN_JAM = 72;
+
+function dasarSorotan(item: FixtureListItem): Omit<SorotanBeranda, "jenis"> {
+  const f = item.pkg.payload.fixture;
+  return {
+    match_id: item.pkg.match_id,
+    home: f.home,
+    away: f.away,
+    competition_name: f.competition_name,
+    kickoff_utc: item.pkg.kickoff_utc,
+    gate_status: item.pkg.gate_status,
+    label_prediksi: null,
+    prob: null,
+    published_at_utc: null,
+    home_goals: null,
+    away_goals: null,
+  };
 }
 
 /**
- * Sorotan beranda: satu laga HARI INI (tanggal lokal Asia/Jakarta) untuk
- * fokus layar awal. Pilihan: laga yang belum sepak mula lebih dulu, lalu
- * yang gerbangnya calibrated, lalu kickoff terawal — deterministik dari
- * daftar upcoming yang sudah terurut. Laga tanpa peluang 1X2 model tidak
- * disorot (tidak ada tiga peluang yang bisa ditampilkan dengan jujur).
- * Null bila hari ini tidak ada laga berpaket yang layak.
+ * Sorotan beranda (brief §3A.2): laga mendatang TERDEKAT dalam jendela
+ * tampilan (72 jam) yang mempunyai prediksi pra-laga RESMI — pilihan
+ * terbit jalur K2 (pick_uid) dengan published_at_utc sebelum kickoff.
+ * Urutan kickoff menaik; seri dipecahkan identitas kanonik (fixture_uid,
+ * lalu match_id). Prediksi utama = peluang terbit tertinggi laga itu
+ * (seri: kelas lebih tinggi, lalu pick_uid) — satu kejadian yang bisa
+ * dipahami, bukan tiga angka 1X2 (itu tempatnya di detail).
+ *
+ * Tangga fallback persis brief: tanpa prediksi resmi → laga terdekat
+ * (aksi "Lihat jadwal laga"); jendela kosong → laga pertama sesudah
+ * jendela (tanggal eksplisit di UI) atau hasil terakhir yang benar-
+ * benar tersedia; keduanya kosong → null.
  */
-export function todaySpotlight(now: Date = new Date()): SorotanHariIni | null {
-  const kunciHariIni = kunciTanggal(now.toISOString(), ZONA_BAKU);
-  const kandidat = listUpcoming(36).filter(
-    (i) =>
-      kunciTanggal(i.pkg.kickoff_utc, ZONA_BAKU) === kunciHariIni &&
-      i.pkg.payload.probabilities["1x2:1"] !== undefined &&
-      i.pkg.payload.probabilities["1x2:x"] !== undefined &&
-      i.pkg.payload.probabilities["1x2:2"] !== undefined,
-  );
-  if (kandidat.length === 0) return null;
+export function sorotanBeranda(now: Date = new Date()): SorotanBeranda | null {
   const nowMs = now.getTime();
-  const belumMulai = kandidat.filter((i) => Date.parse(i.pkg.kickoff_utc) >= nowMs);
-  const pool = belumMulai.length > 0 ? belumMulai : kandidat;
-  const pick = pool.find((i) => i.pkg.gate_status === "calibrated") ?? pool[0];
-  const p = pick.pkg.payload.probabilities;
-  return {
-    match_id: pick.pkg.match_id,
-    home: pick.pkg.payload.fixture.home,
-    away: pick.pkg.payload.fixture.away,
-    competition_name: pick.pkg.payload.fixture.competition_name,
-    kickoff_utc: pick.pkg.kickoff_utc,
-    gate_status: pick.pkg.gate_status,
-    prob_home: p["1x2:1"] ?? null,
-    prob_draw: p["1x2:x"] ?? null,
-    prob_away: p["1x2:2"] ?? null,
-    published_utc: pick.pkg.computed_utc,
-  };
+  const mendatang = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
+    (i) => Date.parse(i.pkg.kickoff_utc) >= nowMs,
+  );
+  for (const item of mendatang) {
+    const resmi = bagian(
+      () => getOfficialPicks(item.pkg.match_id, fixtureUidOf(item.pkg.match_id)),
+      [] as OfficialPick[],
+    ).filter(
+      (p) =>
+        p.published_prob !== null &&
+        p.published_at_utc !== null &&
+        p.published_at_utc < item.pkg.kickoff_utc,
+    );
+    if (resmi.length === 0) continue;
+    const peringkatKelas = (g: string) => (g === "A" ? 0 : g === "B" ? 1 : 2);
+    const utama = [...resmi].sort(
+      (a, b) =>
+        (b.published_prob ?? 0) - (a.published_prob ?? 0) ||
+        peringkatKelas(a.grade) - peringkatKelas(b.grade) ||
+        a.pick_uid.localeCompare(b.pick_uid),
+    )[0];
+    const f = item.pkg.payload.fixture;
+    return {
+      ...dasarSorotan(item),
+      jenis: "prediksi",
+      label_prediksi: labelPilihan(utama.market, utama.selection, f.home, f.away),
+      prob: utama.published_prob,
+      published_at_utc: utama.published_at_utc,
+    };
+  }
+  if (mendatang.length > 0) {
+    return { ...dasarSorotan(mendatang[0]), jenis: "tanpa-prediksi" };
+  }
+  const sesudah = bagian(() => {
+    const row = packagesDb()
+      .prepare(
+        `${LATEST_PER_MATCH} WHERE p.kickoff_utc > ? ORDER BY p.kickoff_utc ASC LIMIT 1`,
+      )
+      .get(new Date(nowMs + JENDELA_SOROTAN_JAM * 3_600_000).toISOString()) as
+      | Record<string, unknown>
+      | undefined;
+    return row ? enrich(parsePackage(row)) : null;
+  }, null);
+  if (sesudah) return { ...dasarSorotan(sesudah), jenis: "berikutnya" };
+  const selesai = bagian(() => listFinished(24 * 30, 1), [] as FixtureListItem[]);
+  if (selesai.length > 0 && selesai[0].result) {
+    return {
+      ...dasarSorotan(selesai[0]),
+      jenis: "hasil-terakhir",
+      home_goals: selesai[0].result.home_goals,
+      away_goals: selesai[0].result.away_goals,
+    };
+  }
+  return null;
+}
+
+/**
+ * Daftar "Jadwal berikutnya" di samping sorotan: laga mendatang pada
+ * jendela yang sama, DENGAN laga sorotan dikeluarkan — pengeluaran
+ * memakai identitas fisik (fixture_uid identitas K1, atau kelompok
+ * sibling) supaya kembar lintas provider sorotan tidak muncul lagi
+ * sebagai baris terpisah.
+ */
+export function jadwalBerikutnya(
+  sorotan: SorotanBeranda | null,
+  now: Date = new Date(),
+  limit = 5,
+): FixtureListItem[] {
+  const nowMs = now.getTime();
+  let items = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
+    (i) => Date.parse(i.pkg.kickoff_utc) >= nowMs,
+  );
+  if (sorotan && sorotan.jenis !== "hasil-terakhir") {
+    const uidSorotan = fixtureUidOf(sorotan.match_id);
+    const sibling = new Set(siblingsOf(sorotan.match_id));
+    items = items.filter((i) => {
+      if (sibling.has(i.pkg.match_id)) return false;
+      const uid = fixtureUidOf(i.pkg.match_id);
+      return !(uidSorotan && uid && uid === uidSorotan);
+    });
+  }
+  return items.slice(0, limit);
 }
 
 /** Pertandingan yang baru selesai (untuk panel paket vs kenyataan). */
