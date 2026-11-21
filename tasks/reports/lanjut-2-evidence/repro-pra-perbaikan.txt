@@ -1,0 +1,66 @@
+  OK  builder fixture-links berjalan
+[build] dilewati (LANJUT2_SKIP_BUILD=1) — memakai .next yang ada
+  OK  server panggung menjawab 200 untuk /pilihan
+  OK  API umpan: status 200
+  OK  API umpan: Marseille = 1 laga fisik
+  OK  prasyarat: team_over05_home SATU paket dengan ou15 (edisi mt_, kasus 7815)
+  OK  A: tepat 1 permintaan terkirim sebelum digagalkan
+  OK  A: sesudah gagal, panel belum tersedia (tanpa angka gabungan)
+  OK  A: menghapus pilihan tidak memicu permintaan baru
+  FAIL A: tambah ulang memicu permintaan KEDUA (penanda gagal dilepas) — aktual=1 harapan=2
+  FAIL A: gabungan ±89,2% tampil sesudah permintaan kedua — tanpa muat ulang — Pilihanmu
+
+2 pilihan dari 1 laga · 2 dari 12 pilihan
+
+Tutup
+
+2 pilihan dari 1 laga
+
+A
+Olympique de Marseille mencetak gol
+Olympique de Marseille vs Le Mans
+Kalibrasi liga lolos uji
+Disesuaikan menggunakan hasil uji historis.
+87,2%
+Hapus
+A
+Minimal dua gol
+Olympique de Marseille vs Le Mans
+Kalibrasi l
+  OK  B: permintaan fase ini juga tepat 1 sebelum gagal
+  FAIL B: tombol “Coba lagi” tampil di panel gabungan saat keadaan gagal
+  FAIL B: klik Coba lagi mengirim tepat 1 permintaan baru — aktual=1 harapan=2
+  FAIL B: gabungan ±89,2% tampil sesudah Coba lagi — tanpa muat ulang — Pilihanmu
+
+2 pilihan dari 1 laga · 2 dari 12 pilihan
+
+Tutup
+
+2 pilihan dari 1 laga
+
+A
+Olympique de Marseille mencetak gol
+Olympique de Marseille vs Le Mans
+Kalibrasi liga lolos uji
+Disesuaikan menggunakan hasil uji historis.
+87,2%
+Hapus
+A
+Minimal dua gol
+Olympique de Marseille vs Le Mans
+Kalibrasi l
+  OK  C: hapus + tambah ulang selama in-flight = tetap tepat 1 permintaan
+  OK  C: gabungan ±89,2% tampil sesudah respons yang ditahan tiba
+  OK  D: tepat 1 permintaan untuk jawaban null
+  OK  D: panel belum tersedia dengan alasan matriks combineSlip
+  OK  D: TANPA tombol “Coba lagi” untuk keadaan kosong (bukan kegagalan)
+  OK  D: hapus + tambah ulang TIDAK memicu permintaan baru (kosong = akhir)
+  OK  D: panel tetap belum tersedia sesudah interaksi ulang
+  OK  tanpa pageerror di seluruh probe
+  OK  bukti tersimpan: gagal-awal.png
+  OK  bukti tersimpan: pulih-tambah-ulang.png
+  OK  bukti tersimpan: coba-lagi.png
+  OK  bukti tersimpan: null-kosong.png
+[fixture] sandbox dipertahankan untuk inspeksi: /tmp/bola-k0-lanjut2-NYTUXE
+
+[pilihan-matriks-ulang] 21/26 assertion lolos — GAGAL: A: tambah ulang memicu permintaan KEDUA (penanda gagal dilepas); A: gabungan ±89,2% tampil sesudah permintaan kedua — tanpa muat ulang; B: tombol “Coba lagi” tampil di panel gabungan saat keadaan gagal; B: klik Coba lagi mengirim tepat 1 permintaan baru; B: gabungan ±89,2% tampil sesudah Coba lagi — tanpa muat ulang
