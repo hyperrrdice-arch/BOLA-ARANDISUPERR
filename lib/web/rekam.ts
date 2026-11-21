@@ -721,18 +721,96 @@ export interface PilihanPraLaga {
   konflik: KonflikPilihan | null;
 }
 
+/** Baris edisi resmi minimum untuk pengelompokan kejadian semantik. */
+export interface BarisEdisiResmi {
+  id: number;
+  pick_uid: string;
+  match_id: string;
+  fixture_uid: string | null;
+  market: string;
+  selection: string;
+  line: string | null;
+  published_prob: number | null;
+  published_at_utc: string | null;
+  package_id: number | null;
+}
+
+/** Satu kejadian semantik hasil pengelompokan edisi-edisi resmi. */
+export interface KelompokKejadianResmi<T extends BarisEdisiResmi> {
+  /** Edisi perwakilan: terbit pertama (prinsip keputusan-pertama K2). */
+  perwakilan: T;
+  /** Semua edisi sumber, urut waktu terbit lalu id — jejak audit. */
+  edisi: T[];
+  /** Jejak konflik bila edisi berbeda angka terbit; null bila sepakat. */
+  konflik: KonflikPilihan | null;
+}
+
+/**
+ * ATURAN PENGELOMPOKAN KEJADIAN RESMI — satu-satunya, dipakai bersama
+ * oleh umpan Pilihan (`daftarPilihanPraLaga`) dan bagian prediksi
+ * detail laga (`kelompokkanPilihanResmi` di lib/web/data.ts), supaya
+ * dua permukaan tidak pernah berbeda hitungan atas ledger yang sama.
+ *
+ * Kunci semantik (brief §4): identitas laga FISIK (fixture_uid ledger,
+ * atau resolusi store identitas untuk baris ber-UID NULL, atau
+ * match_id) + pasar + garis + pilihan. Alias provider dari laga yang
+ * sama melebur jadi satu kejadian (U03):
+ * - semua edisi sepakat pada angka terbit yang sama → satu kejadian,
+ *   perwakilan = edisi terbit pertama (keputusan-pertama K2), edisi
+ *   lain tetap tertelusur di `edisi`;
+ * - edisi-edisi berbeda angka terbit → KONFLIK: perwakilan tetap
+ *   edisi terbit pertama, dengan jejak lengkap di `konflik` (semua
+ *   nilai + asal + waktu terbit); tidak ada angka yang dipilih
+ *   diam-diam. Edisi tanpa angka terbit (null) tidak ikut menentukan
+ *   konflik angka, tetapi tetap tercatat di `edisi`.
+ */
+export function kelompokkanKejadianResmi<T extends BarisEdisiResmi>(
+  baris: T[],
+  uidMap: Map<string, string>,
+): KelompokKejadianResmi<T>[] {
+  const grup = new Map<string, T[]>();
+  for (const r of baris) {
+    const kunci = `${kunciFisik(r, uidMap)}|${r.market}|${r.line ?? ""}|${r.selection}`;
+    const arr = grup.get(kunci);
+    if (arr) arr.push(r);
+    else grup.set(kunci, [r]);
+  }
+  const out: KelompokKejadianResmi<T>[] = [];
+  for (const anggota of grup.values()) {
+    const urut = [...anggota].sort(
+      (a, b) =>
+        (a.published_at_utc ?? "").localeCompare(b.published_at_utc ?? "") ||
+        a.id - b.id,
+    );
+    const angkaBerbeda = new Set(
+      urut
+        .map((b) => b.published_prob)
+        .filter((v): v is number => v !== null),
+    );
+    const konflik: KonflikPilihan | null =
+      angkaBerbeda.size > 1
+        ? {
+            nilai: urut
+              .filter((b) => b.published_prob !== null)
+              .map((b) => ({
+                published_prob: b.published_prob as number,
+                match_id: b.match_id,
+                pick_uid: b.pick_uid,
+                package_id: b.package_id,
+                published_at_utc: b.published_at_utc,
+              })),
+          }
+        : null;
+    out.push({ perwakilan: urut[0], edisi: urut, konflik });
+  }
+  return out;
+}
+
 /**
  * Pilihan resmi pra-laga untuk builder: diterbitkan jalur K2 (pick_uid
  * terisi), peluang terbit tercatat, sepak mula masih di masa depan.
- *
- * Pengelompokan per KUNCI SEMANTIK (brief §4): identitas laga FISIK
- * (fixture_uid ledger, atau resolusi store identitas untuk baris
- * ber-UID NULL, atau match_id) + pasar + garis + pilihan. Alias
- * provider dari laga yang sama melebur jadi satu kejadian (U03):
- * - semua edisi sepakat pada angka terbit yang sama → satu pilihan;
- * - edisi-edisi berbeda angka → KONFLIK: satu baris perwakilan
- *   (edisi terbit pertama, sejalan prinsip keputusan-pertama K2)
- *   dengan jejak lengkap di `konflik`, ditahan dari kombinasi.
+ * Pengelompokan memakai aturan bersama `kelompokkanKejadianResmi`:
+ * kejadian berkonflik ditahan dari kombinasi.
  */
 export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
   const d = dbRo("picks.db");
@@ -750,38 +828,10 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
     rows.filter((r) => !r.fixture_uid).map((r) => r.match_id),
   );
 
-  type Baris = RekamRowDb & { pick_uid: string };
-  const grup = new Map<string, Baris[]>();
-  for (const r of rows) {
-    const kunci = `${kunciFisik(r, uidMap)}|${r.market}|${r.line ?? ""}|${r.selection}`;
-    const arr = grup.get(kunci);
-    if (arr) arr.push(r);
-    else grup.set(kunci, [r]);
-  }
-
   const out: PilihanPraLaga[] = [];
-  for (const baris of grup.values()) {
-    // Perwakilan = edisi terbit pertama (prinsip keputusan-pertama K2);
-    // seri berikutnya hanya menjadi jejak, tidak mengganti angka.
-    const urut = [...baris].sort(
-      (a, b) =>
-        (a.published_at_utc ?? "").localeCompare(b.published_at_utc ?? "") ||
-        a.id - b.id,
-    );
-    const r = urut[0];
-    const angkaBerbeda = new Set(baris.map((b) => b.published_prob));
-    const konflik: KonflikPilihan | null =
-      angkaBerbeda.size > 1
-        ? {
-            nilai: urut.map((b) => ({
-              published_prob: b.published_prob as number,
-              match_id: b.match_id,
-              pick_uid: b.pick_uid,
-              package_id: b.package_id,
-              published_at_utc: b.published_at_utc,
-            })),
-          }
-        : null;
+  for (const g of kelompokkanKejadianResmi(rows, uidMap)) {
+    const r = g.perwakilan;
+    const konflik = g.konflik;
     const nama = namaDariPaket(r.package_id);
     const sources = [r.model_prob, r.market_prob, r.sm_prob].filter(
       (v) => v !== null && v !== undefined,
