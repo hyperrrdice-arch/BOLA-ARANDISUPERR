@@ -29,6 +29,10 @@
  *   dengan asumsi independensi yang DITULIS. Matriks yang gagal
  *   diambil diperlakukan persis seperti matriks yang tidak ada:
  *   jalur pesan "Peluang gabungan belum tersedia", bukan crash.
+ *   Edisi bersama dibuktikan dari packageId (lanjut-1): grup yang
+ *   pilihannya berasal dari paket berbeda TIDAK tersedia dengan
+ *   alasan edisi berbeda — matriksnya bahkan tidak diambil — dan
+ *   total draf tertahan selama ada grup seperti itu.
  * - DRAF PERSISTEN (§3D.3): versi format + ID pilihan resmi + kunci
  *   semantik disimpan di perangkat (lib/web/draf.ts). Sesudah muat
  *   ulang, entri divalidasi ulang terhadap umpan terbaru di server
@@ -131,7 +135,11 @@ async function ambilMatriksBatch(
 /**
  * Paket yang matriksnya BENAR-BENAR diperlukan pilihan aktif: hanya
  * laga dengan ≥2 pilihan aktif yang irisannya dihitung dari matriks
- * (combineSlip memakai peluang tersimpan untuk laga satu pilihan).
+ * (combineSlip memakai peluang tersimpan untuk laga satu pilihan) —
+ * dan hanya bila SEMUA pilihan grup berasal dari paket yang SAMA
+ * (lanjut-1: irisan lintas edisi tidak pernah dihitung, jadi grup
+ * beda paket tidak perlu mengambil matriks sama sekali; keputusan
+ * ini diketahui dari packageId tiap pilihan, tanpa matriks).
  */
 function paketPerluMatriks(picks: BuilderPick[], nowMs: number): number[] {
   const perLaga = new Map<string, BuilderPick[]>();
@@ -144,7 +152,10 @@ function paketPerluMatriks(picks: BuilderPick[], nowMs: number): number[] {
   const perlu: number[] = [];
   for (const grup of perLaga.values()) {
     if (grup.length < 2) continue;
-    for (const p of grup) if (p.packageId !== null) perlu.push(p.packageId);
+    const idEdisi = new Set(grup.map((p) => p.packageId));
+    if (idEdisi.size !== 1) continue;
+    const [satu] = idEdisi;
+    if (satu !== null) perlu.push(satu);
   }
   return [...new Set(perlu)];
 }
@@ -448,6 +459,10 @@ export default function ParlayBuilder({
       selection: p.selection,
       prob: p.prob,
       probBasis: p.probBasis,
+      // Identitas edisi dipertahankan sampai penghitung (lanjut-1):
+      // combineSlip hanya mengiris grup yang semua pilihannya
+      // berbagi packageId ini.
+      packageId: p.packageId,
       // Matriks dari cache lazy; belum diambil / tidak ada / gagal →
       // null, dan combineSlip jatuh ke jalur tidak-tersedia (§3D.4).
       matrix: p.packageId !== null ? matriks[p.packageId] ?? null : null,
