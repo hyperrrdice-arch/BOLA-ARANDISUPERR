@@ -242,8 +242,17 @@ async function AnalisisContent({
     );
   }
 
-  const { pkg, result, formHome, formAway, keadaan, officialPicks, officialTickets, paketTerbit } =
-    detail;
+  const {
+    pkg,
+    result,
+    formHome,
+    formAway,
+    keadaan,
+    officialPicks,
+    kejadianResmi,
+    officialTickets,
+    paketTerbit,
+  } = detail;
   const p = pkg.payload;
   const f = p.fixture;
   const home = f.home;
@@ -288,8 +297,10 @@ async function AnalisisContent({
   }
 
   const selesai = keadaan?.status === "finished";
-  const resmiDinilai = officialPicks.filter((x) => x.hit !== null);
-  const resmiTepat = resmiDinilai.filter((x) => x.hit === 1).length;
+  // Hitungan penilaian per KEJADIAN UNIK (bukan baris edisi mentah):
+  // dua edisi satu kejadian tidak pernah terhitung dua kali.
+  const resmiDinilai = kejadianResmi.filter((k) => k.pick.hit !== null);
+  const resmiTepat = resmiDinilai.filter((k) => k.pick.hit === 1).length;
   const paketTerbitBerbeda =
     officialPicks.length > 0 &&
     officialPicks.some((x) => x.package_id !== null && x.package_id !== pkg.id);
@@ -377,7 +388,7 @@ async function AnalisisContent({
               <p className="mt-1.5 text-sm text-mid-gray">
                 {resmiDinilai.length > 0
                   ? `${resmiTepat} dari ${resmiDinilai.length} pilihan resmi tepat.`
-                  : `${officialPicks.length} pilihan resmi tercatat, belum ada yang dinilai.`}
+                  : `${kejadianResmi.length} pilihan resmi tercatat, belum ada yang dinilai.`}
               </p>
             )}
           </div>
@@ -408,7 +419,7 @@ async function AnalisisContent({
           <SectionHead
             label={selesai ? "Prediksi saat terbit" : "Prediksi sebelum laga"}
             right={
-              <span className="text-[13px] text-faint">{officialPicks.length} pilihan resmi</span>
+              <span className="text-[13px] text-faint">{kejadianResmi.length} pilihan resmi</span>
             }
           />
           {trioTerbit && (
@@ -438,46 +449,96 @@ async function AnalisisContent({
               Dinilai terhadap skor 90 menit {skorRegulasi.h}–{skorRegulasi.a}.
             </p>
           )}
+          {/* Kejadian UNIK (aturan pengelompokan yang sama dengan
+              Pilihan): satu baris per kejadian semantik. Edisi sumber
+              hidup di lapis audit yang bisa dibuka di bawah barisnya —
+              tidak hilang, tidak tercampur ke bacaan utama. Kejadian
+              berkonflik tidak menampilkan satu angka pun sebagai
+              angka resmi; labelnya "Dua sumber berbeda angka" dan
+              kedua nilainya ada di rincian edisi. */}
           <ul className="mt-6 space-y-4">
-            {officialPicks.map((pk: OfficialPick) => (
-              <li
-                key={pk.pick_uid}
-                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hairline/50 pt-4"
-              >
-                <GradeMark grade={pk.grade} />
-                <span className="min-w-0 flex-1 break-words text-[15px] text-ink">
-                  {labelPilihan(pk.market, pk.selection, home, away)}
-                </span>
-                <span className="text-right">
-                  {pk.published_prob !== null ? (
-                    <>
-                      <Prob value={pk.published_prob} strong />{" "}
-                      <span className="text-[13px] text-faint">peluang saat terbit</span>
-                    </>
-                  ) : (
-                    <span className="text-[13px] text-faint">{labelBasisPeluang(pk.probability_basis)}</span>
+            {kejadianResmi.map((k) => {
+              const pk = k.pick;
+              return (
+                <li key={pk.pick_uid} className="border-t border-hairline/50 pt-4">
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                    <GradeMark grade={pk.grade} />
+                    <span className="min-w-0 flex-1 break-words text-[15px] text-ink">
+                      {labelPilihan(pk.market, pk.selection, home, away)}
+                    </span>
+                    <span className="text-right">
+                      {k.konflik ? (
+                        <span className="text-[13px] font-medium text-brick">
+                          Dua sumber berbeda angka
+                        </span>
+                      ) : pk.published_prob !== null ? (
+                        <>
+                          <Prob value={pk.published_prob} strong />{" "}
+                          <span className="text-[13px] text-faint">peluang saat terbit</span>
+                        </>
+                      ) : (
+                        <span className="text-[13px] text-faint">
+                          {labelBasisPeluang(pk.probability_basis)}
+                        </span>
+                      )}
+                    </span>
+                    <span className="w-full text-[13px] text-faint">
+                      {k.konflik ? (
+                        <>
+                          Dua edisi resmi menerbitkan angka berbeda untuk kejadian ini —
+                          tidak ada angka yang dipilih diam-diam.{" "}
+                        </>
+                      ) : (
+                        <>
+                          {kalimatBasis(pk.probability_basis)} · {labelGate(pk.gate_status)}
+                          {pk.published_at_utc && (
+                            <> · Terbit {tanggalJamWib(pk.published_at_utc, tz)}</>
+                          )}
+                          {" · "}
+                        </>
+                      )}
+                      <span
+                        className={
+                          pk.hit === 1
+                            ? "font-medium text-sage"
+                            : pk.hit === 0
+                              ? "font-medium text-brick"
+                              : ""
+                        }
+                      >
+                        {verdikDetail(pk, selesai)}
+                      </span>
+                    </span>
+                  </div>
+                  {k.edisi.length > 1 && (
+                    <details className="mt-2">
+                      <summary className="min-h-[28px] cursor-pointer text-[13px] font-medium text-mid-gray transition-colors hover:text-ink">
+                        Edisi sumber · {k.edisi.length}
+                        {k.konflik ? " — kedua angka berbeda" : " — angka sama"}
+                      </summary>
+                      <ul className="mt-1.5 space-y-1.5">
+                        {k.edisi.map((e) => (
+                          <li
+                            key={e.pick_uid}
+                            className="flex flex-wrap items-baseline gap-x-3 text-[13px] text-faint"
+                          >
+                            <span className="font-medium text-mid-gray">
+                              {e.published_prob !== null
+                                ? pct(e.published_prob, 1)
+                                : labelBasisPeluang(e.probability_basis)}
+                            </span>
+                            <span>{e.match_id}</span>
+                            {e.published_at_utc && (
+                              <span>Terbit {tanggalJamWib(e.published_at_utc, tz)}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
                   )}
-                </span>
-                <span className="w-full text-[13px] text-faint">
-                  {kalimatBasis(pk.probability_basis)} · {labelGate(pk.gate_status)}
-                  {pk.published_at_utc && (
-                    <> · Terbit {tanggalJamWib(pk.published_at_utc, tz)}</>
-                  )}
-                  {" · "}
-                  <span
-                    className={
-                      pk.hit === 1
-                        ? "font-medium text-sage"
-                        : pk.hit === 0
-                          ? "font-medium text-brick"
-                          : ""
-                    }
-                  >
-                    {verdikDetail(pk, selesai)}
-                  </span>
-                </span>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
