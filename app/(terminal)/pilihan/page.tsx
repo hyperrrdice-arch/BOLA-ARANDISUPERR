@@ -3,19 +3,25 @@
  *
  * Server Component: membaca pilihan resmi yang diterbitkan jalur
  * publikasi K2 (daftarPilihanPraLaga — pick_uid terisi, peluang terbit
- * beku, belum sepak mula) plus matriks skor paket yang benar-benar ada
- * di halaman, lalu menyerahkan interaksi ke ParlayBuilder (klien).
- * Angka builder adalah peluang SAAT TERBIT, bukan analisis terbaru.
- * Slip yang disusun di sini adalah draf pengguna — tidak masuk rekam
- * hasil resmi (D4); tiket resmi hidup di /bukti.
+ * beku, belum sepak mula), lalu menyerahkan interaksi ke ParlayBuilder
+ * (klien). Angka builder adalah peluang SAAT TERBIT, bukan analisis
+ * terbaru. Slip yang disusun di sini adalah draf pengguna — tidak
+ * masuk rekam hasil resmi (D4); tiket resmi hidup di /bukti.
+ *
+ * MUATAN AWAL (temuan #3 verifikasi produksi): yang dikirim hanya
+ * ringkasan 20 kelompok laga pertama filter bawaan + total terfilter
+ * — NOL matriks. Halaman berikutnya, pencarian, dan perubahan
+ * saringan dilayani /api/pilihan; matriks diambil lazy per paket
+ * lewat /api/pilihan/matriks; pemulihan draf divalidasi server lewat
+ * /api/pilihan/pulih (semua memakai lib/web/pilihan-umpan.ts).
  */
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import ParlayBuilder, { type BuilderPick } from "../../../components/pilihan/ParlayBuilder";
+import ParlayBuilder from "../../../components/pilihan/ParlayBuilder";
 import { PageLoading } from "../../../components/ui";
-import { getPackageMatrix } from "../../../lib/web/data";
 import { daftarPilihanPraLaga } from "../../../lib/web/rekam";
+import { FILTER_UMPAN_BAWAAN, halamanUmpan } from "../../../lib/web/pilihan-umpan";
 
 export const metadata: Metadata = { title: "Pilihan pra-laga | Bola" };
 
@@ -29,45 +35,8 @@ export default function PilihanPage() {
 
 async function PilihanContent() {
   await connection();
-  const picks = daftarPilihanPraLaga(new Date().toISOString());
-
-  const packageIds = new Set<number>();
-  for (const p of picks) if (p.package_id !== null) packageIds.add(p.package_id);
-  const matrices: Record<number, number[][]> = {};
-  for (const pid of packageIds) {
-    const m = getPackageMatrix(pid);
-    if (m) matrices[pid] = m;
-  }
-
-  const builderPicks: BuilderPick[] = picks.map((p) => ({
-    key: p.pick_uid,
-    matchId: p.match_id,
-    fixtureUid: p.fixture_uid,
-    kickoffUtc: p.kickoff_utc,
-    home: p.home,
-    away: p.away,
-    competitionName: p.competition_name,
-    gateStatus: p.gate_status,
-    grade: p.grade,
-    market: p.market,
-    selection: p.selection,
-    line: p.line,
-    // Peluang builder = peluang SAAT TERBIT (beku K2). Basisnya memetakan
-    // basis terbit: effective → koreksi lab yang dibekukan ("lab"),
-    // model → peluang model saat terbit ("model").
-    prob: p.published_prob,
-    probBasis: p.probability_basis === "effective" ? "lab" : "model",
-    basisTerbit: p.probability_basis,
-    publishedAtUtc: p.published_at_utc,
-    modelProb: p.model_prob,
-    sourcesAgree: p.sources_agree,
-    packageId: p.package_id,
-    // Konflik edisi resmi (brief §4): builder menahan pilihan ini dari
-    // gabungan dan menampilkan jejak kedua angkanya.
-    konflik: p.konflik
-      ? { nilai: p.konflik.nilai.map((n) => ({ prob: n.published_prob, matchId: n.match_id })) }
-      : null,
-  }));
+  const umpan = daftarPilihanPraLaga(new Date().toISOString());
+  const awal = halamanUmpan(umpan, FILTER_UMPAN_BAWAAN, 0);
 
   return (
     <div>
@@ -80,7 +49,7 @@ async function PilihanContent() {
         </p>
       </header>
 
-      <ParlayBuilder picks={builderPicks} matrices={matrices} />
+      <ParlayBuilder awal={awal} totalUmpan={umpan.length} />
     </div>
   );
 }

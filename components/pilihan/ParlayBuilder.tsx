@@ -3,9 +3,17 @@
 /**
  * PARLAY BUILDER — daftar pilihan RESMI pra-laga + panel Pilihanmu.
  *
- * Data (pilihan resmi K2 + matriks paket) tiba dari Server Component
- * sebagai props serial; komponen ini hanya memegang pilihan pengguna
- * (draf browser — tidak pernah masuk rekam hasil resmi, D4).
+ * ALIRAN DATA (temuan #3 verifikasi produksi — beban awal): Server
+ * Component hanya mengirim ringkasan 20 kelompok laga pertama filter
+ * bawaan + total terfilter. Halaman berikutnya, pencarian, dan
+ * perubahan saringan diambil dari /api/pilihan (saringan berjalan di
+ * server atas SELURUH umpan). Matriks skor TIDAK dikirim di muka:
+ * diambil lazy berkelompok dari /api/pilihan/matriks hanya untuk
+ * paket laga yang benar-benar digabungkan (atau dipulihkan dari
+ * draf), lalu dipakai ulang dari cache komponen. Pemulihan draf
+ * divalidasi di server lewat /api/pilihan/pulih. Komponen ini hanya
+ * memegang pilihan pengguna (draf browser — tidak pernah masuk rekam
+ * hasil resmi, D4).
  *
  * Perilaku (K7 U03/U04 + brief redesain §3D + gerak §9):
  * - Pilihan dikelompokkan per laga FISIK (fixture_uid kanonik K1),
@@ -18,79 +26,58 @@
  * - Gabungan dihitung lib/web/parlay.ts: satu laga persis dari matriks
  *   skor edisi bersama — tanpa matriks, gabungan TIDAK tersedia
  *   (§3D.4), bukan dikalikan di dalam grup; antarlaga dikalikan
- *   dengan asumsi independensi yang DITULIS.
+ *   dengan asumsi independensi yang DITULIS. Matriks yang gagal
+ *   diambil diperlakukan persis seperti matriks yang tidak ada:
+ *   jalur pesan "Peluang gabungan belum tersedia", bukan crash.
  * - DRAF PERSISTEN (§3D.3): versi format + ID pilihan resmi + kunci
  *   semantik disimpan di perangkat (lib/web/draf.ts). Sesudah muat
- *   ulang, entri divalidasi ulang terhadap umpan terbaru (ID, alias
- *   lewat kunci semantik, status, waktu mulai) lalu snapshot ASLI
- *   umpan yang dipakai. Penyimpanan tak tersedia → draf tetap hidup
- *   selama tab terbuka + keterangan tampil.
+ *   ulang, entri divalidasi ulang terhadap umpan terbaru di server
+ *   (ID, alias lewat kunci semantik, status, waktu mulai) lalu
+ *   snapshot ASLI umpan yang dipakai. Penyimpanan tak tersedia →
+ *   draf tetap hidup selama tab terbuka + keterangan tampil.
  * - Jam berjalan: begitu sepak mula tiba, penambahan terkunci; pilihan
  *   terpilih dari laga itu ditandai "Kedaluwarsa", dikeluarkan dari
  *   estimasi aktif, dan tetap tampil sampai pengguna menghapusnya.
  * - Batas produk: maksimal 12 pilihan unik.
  */
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { GateStatus, GradeMark, Prob, EmptyState } from "../ui";
 import {
   MARKET_LABEL,
   int,
   jamWibOnly,
-  kunciTanggal,
   labelBasisPeluang,
   labelPilihan,
   pct,
   tanggalWib,
 } from "../../lib/web/format";
-import { lipatTeks } from "../../lib/web/jadwal";
 import { combineSlip, sudahMulai, type SlipPick } from "../../lib/web/parlay";
 import {
   KUNCI_DRAF,
   kunciSemantikPilihan,
   parseDraf,
-  pulihkanDraf,
   serialDraf,
 } from "../../lib/web/draf";
+import {
+  FILTER_UMPAN_BAWAAN,
+  LAGA_PER_HALAMAN,
+  kelompokkanPilihan,
+  type BuilderPick,
+  type FilterUmpan,
+  type HalamanUmpan,
+} from "../../lib/web/pilihan-umpan";
 
-export interface BuilderPick {
-  key: string;
-  /** ID provider untuk tautan detail. */
-  matchId: string;
-  /** UID laga fisik kanonik — kunci kelompok & hitungan laga unik. */
-  fixtureUid: string;
-  kickoffUtc: string;
-  home: string;
-  away: string;
-  competitionName: string;
-  gateStatus: string;
-  grade: string;
-  market: string;
-  selection: string;
-  /** Garis pasar ternormalisasi — bagian kunci semantik kejadian. */
-  line: string;
-  /** Peluang saat terbit (beku K2). */
-  prob: number;
-  /** "lab" = basis effective (koreksi lab beku); "model" = peluang model beku. */
-  probBasis: "lab" | "model";
-  /** Basis peluang terbit mentah dari ledger (effective/model/…) untuk label. */
-  basisTerbit: string | null;
-  /** Waktu terbit pilihan (ISO UTC) — ditampilkan di samping basis. */
-  publishedAtUtc: string | null;
-  /** Peluang model mentah, referensi. */
-  modelProb: number;
-  sourcesAgree: number;
-  packageId: number | null;
-  /**
-   * Konflik edisi resmi (brief §4): >1 edisi mengaku resmi dengan angka
-   * terbit berbeda. Pilihan ditahan dari gabungan sampai konflik
-   * selesai; jejak nilainya ditampilkan, tidak dipilih diam-diam.
-   */
-  konflik?: { nilai: { prob: number; matchId: string }[] } | null;
-}
+export type { BuilderPick } from "../../lib/web/pilihan-umpan";
 
 const MAX_PICKS = 12;
-const PER_HALAMAN = 20;
-type GradeFilter = "AB" | "A" | "ALL";
+type GradeFilter = FilterUmpan["kelas"];
 const FILTERS: { id: GradeFilter; label: string }[] = [
   { id: "AB", label: "Kelas A + B" },
   { id: "A", label: "Kelas A saja" },
@@ -114,17 +101,80 @@ function rincianBasis(p: BuilderPick): string | null {
   return null;
 }
 
+/** Ambil satu halaman daftar dari server (saringan atas seluruh umpan). */
+async function ambilHalaman(
+  filter: FilterUmpan,
+  offsetLaga: number,
+): Promise<HalamanUmpan> {
+  const qs = new URLSearchParams({
+    kelas: filter.kelas,
+    q: filter.q,
+    tanggal: filter.tanggal,
+    offset: String(offsetLaga),
+    batas: String(LAGA_PER_HALAMAN),
+  });
+  const res = await fetch(`/api/pilihan?${qs}`);
+  if (!res.ok) throw new Error(`daftar pilihan: HTTP ${res.status}`);
+  return (await res.json()) as HalamanUmpan;
+}
+
+/** Ambil matriks beberapa paket dalam SATU permintaan berkelompok. */
+async function ambilMatriksBatch(
+  ids: number[],
+): Promise<Record<number, number[][] | null>> {
+  const res = await fetch(`/api/pilihan/matriks?paket=${ids.join(",")}`);
+  if (!res.ok) throw new Error(`matriks: HTTP ${res.status}`);
+  const data = (await res.json()) as { matriks: Record<number, number[][] | null> };
+  return data.matriks;
+}
+
+/**
+ * Paket yang matriksnya BENAR-BENAR diperlukan pilihan aktif: hanya
+ * laga dengan ≥2 pilihan aktif yang irisannya dihitung dari matriks
+ * (combineSlip memakai peluang tersimpan untuk laga satu pilihan).
+ */
+function paketPerluMatriks(picks: BuilderPick[], nowMs: number): number[] {
+  const perLaga = new Map<string, BuilderPick[]>();
+  for (const p of picks) {
+    if (sudahMulai(p.kickoffUtc, nowMs)) continue;
+    const arr = perLaga.get(p.fixtureUid);
+    if (arr) arr.push(p);
+    else perLaga.set(p.fixtureUid, [p]);
+  }
+  const perlu: number[] = [];
+  for (const grup of perLaga.values()) {
+    if (grup.length < 2) continue;
+    for (const p of grup) if (p.packageId !== null) perlu.push(p.packageId);
+  }
+  return [...new Set(perlu)];
+}
+
 export default function ParlayBuilder({
-  picks,
-  matrices,
+  awal,
+  totalUmpan,
 }: {
-  picks: BuilderPick[];
-  matrices: Record<number, number[][]>;
+  /** Halaman pertama filter bawaan dari server (ringkasan, tanpa matriks). */
+  awal: HalamanUmpan;
+  /** Ukuran seluruh umpan resmi saat render server (0 = slate kosong). */
+  totalUmpan: number;
 }) {
   const [filter, setFilter] = useState<GradeFilter>("AB");
   const [q, setQ] = useState("");
   const [tanggal, setTanggal] = useState("");
-  const [tampak, setTampak] = useState(PER_HALAMAN);
+  // Daftar terakumulasi untuk saringan aktif (halaman-halaman server).
+  const [daftar, setDaftar] = useState<BuilderPick[]>(awal.pilihan);
+  const [totalPilihan, setTotalPilihan] = useState(awal.totalPilihan);
+  const [totalLaga, setTotalLaga] = useState(awal.totalLaga);
+  const [memuat, setMemuat] = useState(false);
+  const [gagalMuat, setGagalMuat] = useState(false);
+  // Parameter saringan yang sedang berlaku + nomor urut permintaan:
+  // respons yang datang terlambat untuk saringan lama dibuang.
+  const paramsRef = useRef<FilterUmpan>(FILTER_UMPAN_BAWAAN);
+  const seqRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Cache matriks lazy: id paket → matriks (null = tidak ada / gagal).
+  const [matriks, setMatriks] = useState<Record<number, number[][] | null>>({});
+  const matriksDimintaRef = useRef<Set<number>>(new Set());
   const [terbuka, setTerbuka] = useState<ReadonlySet<string>>(new Set());
   const [selected, setSelected] = useState<BuilderPick[]>([]);
   const [panelTerbuka, setPanelTerbuka] = useState(false);
@@ -170,68 +220,190 @@ export default function ParlayBuilder({
   // kegagalan penyimpanan hanya mengubah keterangan keadaan.
   // Umpan kosong (slate belum terbit) tidak menimpa draf: entri
   // belum bisa divalidasi.
-  function tulisDraf(next: BuilderPick[]) {
-    if (picks.length === 0) return;
-    try {
-      window.localStorage.setItem(
-        KUNCI_DRAF,
-        serialDraf(next.map((p) => ({ pickUid: p.key, kunciSemantik: semKey(p) }))),
-      );
-      setPersisten(true);
-    } catch {
-      // Penyimpanan tak tersedia: draf tetap berfungsi selama tab
-      // terbuka (state komponen), keadaannya diterangkan di ringkasan.
-      setPersisten(false);
-    }
-  }
+  const tulisDraf = useCallback(
+    (next: BuilderPick[]) => {
+      if (totalUmpan === 0) return;
+      try {
+        window.localStorage.setItem(
+          KUNCI_DRAF,
+          serialDraf(next.map((p) => ({ pickUid: p.key, kunciSemantik: semKey(p) }))),
+        );
+        setPersisten(true);
+      } catch {
+        // Penyimpanan tak tersedia: draf tetap berfungsi selama tab
+        // terbuka (state komponen), keadaannya diterangkan di ringkasan.
+        setPersisten(false);
+      }
+    },
+    [totalUmpan],
+  );
 
   // Cermin ref seleksi: dua klik dalam satu tick (klik ganda, atau
   // tambah lewat baris alias) harus membaca seleksi TERKINI, bukan
   // closure render yang basi — semantik updater fungsional, dijaga
   // manual supaya penulisan draf tetap di titik mutasi.
   const selectedRef = useRef<BuilderPick[]>([]);
-  // Restore menerapkan seleksi lewat penyesuaian render (ref tak
-  // boleh ditulis saat render) — cermin disamakan lagi di effect ini;
-  // mutasi pemakai menulis cermin serentak lewat terapkanSeleksi.
+  // Restore menerapkan seleksi dari respons server (async) — cermin
+  // disamakan lagi di effect ini; mutasi pemakai menulis cermin
+  // serentak lewat terapkanSeleksi.
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
 
+  /**
+   * Pastikan matriks paket laga multi-pilihan yang dirujuk seleksi
+   * sudah diambil (lazy, berkelompok, dipakai ulang dari cache).
+   * Paket yang gagal diambil dicatat null → irisan laga itu jatuh ke
+   * jalur pesan "Peluang gabungan belum tersedia" (combineSlip),
+   * bukan crash.
+   */
+  const pastikanMatriks = useCallback((pilihanAktif: BuilderPick[]) => {
+    const perlu = paketPerluMatriks(pilihanAktif, Date.now()).filter(
+      (id) => !matriksDimintaRef.current.has(id),
+    );
+    if (perlu.length === 0) return;
+    for (const id of perlu) matriksDimintaRef.current.add(id);
+    ambilMatriksBatch(perlu)
+      .then((m) => setMatriks((cur) => ({ ...cur, ...m })))
+      .catch(() => {
+        setMatriks((cur) => {
+          const n = { ...cur };
+          for (const id of perlu) if (!(id in n)) n[id] = null;
+          return n;
+        });
+      });
+  }, []);
+
+  // Penanda interaksi pemakai: seleksi yang dibangun tangan di tab ini
+  // selalu lebih baru daripada draf tersimpan — restore yang datang
+  // terlambat tidak boleh menimpanya.
+  const interaksiRef = useRef(false);
+
   function terapkanSeleksi(next: BuilderPick[]) {
+    interaksiRef.current = true;
     selectedRef.current = next;
     setSelected(next);
     tulisDraf(next);
+    pastikanMatriks(next);
   }
+
+  /* ------------------------------------------------- muat daftar server */
+
+  // Muat satu halaman untuk parameter yang diberikan; respons basi
+  // (saringan sudah berganti) dibuang lewat nomor urut.
+  const muatHalaman = useCallback(
+    (filterBaru: FilterUmpan, offsetLaga: number, mode: "ganti" | "tambah") => {
+      const seq = ++seqRef.current;
+      setMemuat(true);
+      ambilHalaman(filterBaru, offsetLaga)
+        .then((hal) => {
+          if (seq !== seqRef.current) return;
+          setDaftar((cur) => (mode === "ganti" ? hal.pilihan : [...cur, ...hal.pilihan]));
+          setTotalPilihan(hal.totalPilihan);
+          setTotalLaga(hal.totalLaga);
+          setGagalMuat(false);
+        })
+        .catch(() => {
+          if (seq !== seqRef.current) return;
+          setGagalMuat(true);
+        })
+        .finally(() => {
+          if (seq === seqRef.current) setMemuat(false);
+        });
+    },
+    [],
+  );
+
+  function perbaruiParams(patch: Partial<FilterUmpan>): FilterUmpan {
+    paramsRef.current = { ...paramsRef.current, ...patch };
+    return paramsRef.current;
+  }
+
+  function gantiKelas(kelas: GradeFilter) {
+    setFilter(kelas);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    muatHalaman(perbaruiParams({ kelas }), 0, "ganti");
+  }
+
+  function gantiTanggal(v: string) {
+    setTanggal(v);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    muatHalaman(perbaruiParams({ tanggal: v }), 0, "ganti");
+  }
+
+  function gantiQ(v: string, segera = false) {
+    setQ(v);
+    const p = perbaruiParams({ q: v });
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (segera) {
+      muatHalaman(p, 0, "ganti");
+      return;
+    }
+    // Pencarian berjalan di server atas seluruh umpan — beri jeda
+    // ketik singkat supaya tidak setiap ketukan menjadi permintaan.
+    debounceRef.current = setTimeout(
+      () => muatHalaman(paramsRef.current, 0, "ganti"),
+      300,
+    );
+  }
+
+  // Berhenti total saat komponen lepas: respons yang terlambat dibuang.
+  useEffect(
+    () => () => {
+      seqRef.current++;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    },
+    [],
+  );
 
   // Draf tersimpan dibaca sebagai store eksternal: snapshot server
   // null (menyamakan hidrasi); sesudah hidrasi snapshot klien membaca
-  // localStorage dan restore diterapkan sebagai penyesuaian saat
-  // render — pola React untuk state turunan dari store eksternal.
+  // localStorage. Pemulihan divalidasi di SERVER (/api/pilihan/pulih)
+  // terhadap umpan terbaru — halaman ini tidak lagi memegang seluruh
+  // umpan, jadi pencocokan pick_uid → kunci semantik tidak bisa
+  // berjalan lokal. Yang pulih adalah baris umpan terbaru itu sendiri
+  // (snapshot resmi saat terbit); draf ditulis ulang tanpa entri yang
+  // sudah hilang. Matriks laga terpulih diambil lazy lewat
+  // pastikanMatriks, hanya yang diperlukan gabungan.
   const drafMentah = useSyncExternalStore(
     () => () => {},
     () => window.localStorage.getItem(KUNCI_DRAF),
     () => null,
   );
-  const [drafDiterapkan, setDrafDiterapkan] = useState(false);
-  if (!drafDiterapkan && drafMentah !== null) {
-    // Pulihkan SEKALI: validasi entri tersimpan terhadap umpan
-    // terbaru (pick_uid → kunci semantik), lalu pakai baris umpan
-    // itu sendiri sebagai snapshot asli; draf ditulis ulang tanpa
-    // entri yang sudah hilang.
-    setDrafDiterapkan(true);
+  const pulihRef = useRef(false);
+  useEffect(() => {
+    if (pulihRef.current || drafMentah === null) return;
+    pulihRef.current = true;
     const entri = parseDraf(drafMentah);
-    if (entri && entri.length > 0 && picks.length > 0) {
-      const denganKunci = picks.map((p) => ({ ...p, kunciSemantik: semKey(p) }));
-      const { pulih, hilang: nHilang } = pulihkanDraf(entri, denganKunci);
-      if (pulih.length > 0) {
-        const perKey = new Map(picks.map((p) => [p.key, p]));
-        const snapshot = pulih.map((p) => perKey.get(p.key) ?? p);
-        setSelected(snapshot);
-        tulisDraf(snapshot);
-      }
-      setHilang(nHilang);
-    }
-  }
+    if (!entri || entri.length === 0 || totalUmpan === 0) return;
+    let batal = false;
+    fetch("/api/pilihan/pulih", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entri }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`pulih draf: HTTP ${r.status}`);
+        return r.json() as Promise<{ pilihan: BuilderPick[]; hilang: number }>;
+      })
+      .then((d) => {
+        if (batal || interaksiRef.current) return;
+        if (d.pilihan.length > 0) {
+          selectedRef.current = d.pilihan;
+          setSelected(d.pilihan);
+          tulisDraf(d.pilihan);
+          pastikanMatriks(d.pilihan);
+        }
+        setHilang(d.hilang);
+      })
+      .catch(() => {
+        // Validasi gagal (jaringan): draf perangkat TIDAK diubah —
+        // pemulihan dicoba lagi pada kunjungan berikutnya.
+      });
+    return () => {
+      batal = true;
+    };
+  }, [drafMentah, totalUmpan, tulisDraf, pastikanMatriks]);
 
   // Panel ponsel: fokus masuk ke Tutup saat dibuka; Escape menutup;
   // fokus kembali ke pemicu saat ditutup (pola panel §9).
@@ -263,48 +435,10 @@ export default function ParlayBuilder({
   const lagaUnik = useMemo(() => new Set(aktif.map((p) => p.fixtureUid)).size, [aktif]);
   const lagaTerpilih = useMemo(() => new Set(selected.map((p) => p.fixtureUid)).size, [selected]);
 
-  // Saring: kelas → tanggal → pencarian (lipat aksen, seluruh hasil).
-  const tersaring = useMemo(() => {
-    const keep = (g: string) =>
-      filter === "ALL" ? true : filter === "A" ? g === "A" : g === "A" || g === "B";
-    const kueri = lipatTeks(q).trim();
-    return picks.filter((p) => {
-      if (!keep(p.grade)) return false;
-      if (tanggal && kunciTanggal(p.kickoffUtc) !== tanggal) return false;
-      if (
-        kueri &&
-        ![p.home, p.away, p.competitionName].some((n) => lipatTeks(n).includes(kueri))
-      )
-        return false;
-      return true;
-    });
-  }, [picks, filter, q, tanggal]);
-
-  // Kelompok per laga fisik, urut sepak mula (umpan sudah menaik);
-  // di dalam kelompok, peluang terbit tertinggi lebih dulu — dua
-  // teratas adalah "pilihan utama" (§3D.1).
-  const groups = useMemo(() => {
-    const map = new Map<string, BuilderPick[]>();
-    for (const p of tersaring) {
-      const arr = map.get(p.fixtureUid);
-      if (arr) arr.push(p);
-      else map.set(p.fixtureUid, [p]);
-    }
-    return [...map.values()].map((g) => [...g].sort((a, b) => b.prob - a.prob));
-  }, [tersaring]);
-
-  // Paginasi kembali ke awal setiap filter berubah — penyesuaian
-  // saat render terhadap nilai filter sebelumnya (pola React untuk
-  // state yang bergantung pada state lain), bukan effect.
-  const [filterTerapan, setFilterTerapan] = useState({ filter, q, tanggal });
-  if (
-    filterTerapan.filter !== filter ||
-    filterTerapan.q !== q ||
-    filterTerapan.tanggal !== tanggal
-  ) {
-    setFilterTerapan({ filter, q, tanggal });
-    setTampak(PER_HALAMAN);
-  }
+  // Kelompok per laga fisik atas halaman yang terakumulasi (server
+  // mengirim kelompok utuh per halaman; pengelompokan di sini hanya
+  // menyusun ulang ringkasan yang sudah terfilter di server).
+  const groups = useMemo(() => kelompokkanPilihan(daftar), [daftar]);
 
   const result = useMemo(() => {
     const slip: SlipPick[] = aktif.map((p) => ({
@@ -314,10 +448,12 @@ export default function ParlayBuilder({
       selection: p.selection,
       prob: p.prob,
       probBasis: p.probBasis,
-      matrix: p.packageId !== null ? matrices[p.packageId] ?? null : null,
+      // Matriks dari cache lazy; belum diambil / tidak ada / gagal →
+      // null, dan combineSlip jatuh ke jalur tidak-tersedia (§3D.4).
+      matrix: p.packageId !== null ? matriks[p.packageId] ?? null : null,
     }));
     return combineSlip(slip);
-  }, [aktif, matrices]);
+  }, [aktif, matriks]);
 
   const pickByMatch = useMemo(() => {
     const m = new Map<string, BuilderPick>();
@@ -354,7 +490,7 @@ export default function ParlayBuilder({
     });
   }
 
-  if (picks.length === 0) {
+  if (totalUmpan === 0) {
     return (
       <EmptyState
         title="Belum ada pilihan resmi"
@@ -543,14 +679,14 @@ export default function ParlayBuilder({
               <input
                 type="search"
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => gantiQ(e.target.value)}
                 placeholder="Cari tim atau liga"
                 className="min-h-[44px] w-full rounded-md border border-hairline bg-surface px-3 text-[15px] text-ink"
               />
               {q && (
                 <button
                   type="button"
-                  onClick={() => setQ("")}
+                  onClick={() => gantiQ("", true)}
                   className="flex min-h-[44px] shrink-0 items-center px-1 text-sm text-mid-gray transition-colors hover:text-ink"
                 >
                   Hapus pencarian
@@ -563,7 +699,7 @@ export default function ParlayBuilder({
             <input
               type="date"
               value={tanggal}
-              onChange={(e) => setTanggal(e.target.value)}
+              onChange={(e) => gantiTanggal(e.target.value)}
               className="min-h-[44px] rounded-md border border-hairline bg-surface px-2.5 text-sm text-ink"
             />
           </label>
@@ -574,7 +710,7 @@ export default function ParlayBuilder({
               key={f.id}
               type="button"
               aria-pressed={filter === f.id}
-              onClick={() => setFilter(f.id)}
+              onClick={() => gantiKelas(f.id)}
               className={`flex min-h-[44px] items-center text-[15px] transition-colors ${
                 filter === f.id
                   ? "font-medium text-ink underline decoration-accent decoration-2 underline-offset-8"
@@ -585,9 +721,16 @@ export default function ParlayBuilder({
             </button>
           ))}
           <span className="ml-auto text-[13px] text-faint" role="status">
-            {int(tersaring.length)} pilihan · {int(groups.length)} laga
+            {int(totalPilihan)} pilihan · {int(totalLaga)} laga
           </span>
         </div>
+
+        {gagalMuat && (
+          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-brick" role="alert">
+            Daftar gagal dimuat dari server — daftar terakhir tetap ditampilkan.
+            Ubah saringan atau pencarian untuk mencoba lagi.
+          </p>
+        )}
 
         {hilang > 0 && (
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
@@ -596,14 +739,14 @@ export default function ParlayBuilder({
           </p>
         )}
 
-        {groups.length === 0 ? (
+        {groups.length === 0 && !memuat ? (
           <EmptyState
             title="Tidak ada laga yang cocok"
             note="Ubah pencarian, tanggal, atau filter kelas untuk melihat pilihan lain pada slate ini."
           />
         ) : (
           <div>
-            {groups.slice(0, tampak).map((group) => {
+            {groups.map((group) => {
               const head = group[0];
               const mulai = sudahMulai(head.kickoffUtc, nowMs);
               const uid = head.fixtureUid;
@@ -700,13 +843,14 @@ export default function ParlayBuilder({
                 </div>
               );
             })}
-            {tampak < groups.length && (
+            {groups.length < totalLaga && (
               <button
                 type="button"
-                onClick={() => setTampak((t) => t + PER_HALAMAN)}
-                className="mt-10 flex min-h-[44px] items-center rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
+                disabled={memuat}
+                onClick={() => muatHalaman(paramsRef.current, groups.length, "tambah")}
+                className="mt-10 flex min-h-[44px] items-center rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-ink transition-colors hover:text-accent-deep disabled:cursor-wait disabled:opacity-50"
               >
-                Muat 20 laga lagi
+                {memuat ? "Memuat…" : "Muat 20 laga lagi"}
               </button>
             )}
           </div>
