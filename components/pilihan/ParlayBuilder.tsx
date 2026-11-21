@@ -26,9 +26,15 @@
  * - Gabungan dihitung lib/web/parlay.ts: satu laga persis dari matriks
  *   skor edisi bersama — tanpa matriks, gabungan TIDAK tersedia
  *   (§3D.4), bukan dikalikan di dalam grup; antarlaga dikalikan
- *   dengan asumsi independensi yang DITULIS. Matriks yang gagal
- *   diambil diperlakukan persis seperti matriks yang tidak ada:
- *   jalur pesan "Peluang gabungan belum tersedia", bukan crash.
+ *   dengan asumsi independensi yang DITULIS. Permintaan matriks per
+ *   paket punya EMPAT keadaan (lanjut-2): "memuat" (deduplikasi
+ *   berlaku), "berhasil", "kosong" (server menjawab null — paket
+ *   memang tanpa matriks; keadaan akhir), dan "gagal" (jaringan /
+ *   server — penanda berjalan dilepas, jadi interaksi berikutnya
+ *   atau tombol "Coba lagi" di panel memuat ulang). Selama matriks
+ *   belum ada — alasan apa pun — gabungannya jatuh ke jalur pesan
+ *   "Peluang gabungan belum tersedia", bukan crash dan bukan angka
+ *   dari edisi lain.
  *   Edisi bersama dibuktikan dari packageId (lanjut-1): grup yang
  *   pilihannya berasal dari paket berbeda TIDAK tersedia dengan
  *   alasan edisi berbeda — matriksnya bahkan tidak diambil — dan
@@ -81,6 +87,20 @@ import {
 export type { BuilderPick } from "../../lib/web/pilihan-umpan";
 
 const MAX_PICKS = 12;
+
+/**
+ * Keadaan permintaan matriks per paket (lanjut-2) — empat keadaan
+ * yang dulu tercampur dalam satu penanda "pernah diminta", sehingga
+ * kegagalan sementara mengunci paket selamanya sampai muat ulang:
+ * - "memuat": permintaan sedang berjalan (deduplikasi berlaku);
+ * - "berhasil": matriks ada di cache — keadaan akhir;
+ * - "kosong": server menjawab null (paket memang tanpa matriks) —
+ *   keadaan akhir, TIDAK diulang otomatis, tanpa tombol coba-lagi;
+ * - "gagal": jaringan/server gagal — dapat diulang lewat interaksi
+ *   berikutnya atau tombol "Coba lagi".
+ */
+type KeadaanMatriks = "memuat" | "berhasil" | "kosong" | "gagal";
+
 type GradeFilter = FilterUmpan["kelas"];
 const FILTERS: { id: GradeFilter; label: string }[] = [
   { id: "AB", label: "Kelas A + B" },
@@ -183,9 +203,26 @@ export default function ParlayBuilder({
   const paramsRef = useRef<FilterUmpan>(FILTER_UMPAN_BAWAAN);
   const seqRef = useRef(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Cache matriks lazy: id paket → matriks (null = tidak ada / gagal).
+  // Cache matriks lazy: id paket → matriks. Hanya ditulis untuk dua
+  // keadaan akhir dari server: matriksnya ("berhasil") atau null
+  // ("kosong" — paket memang tanpa matriks). Kegagalan TIDAK menulis
+  // cache: id tetap absen, jadi combineSlip jatuh ke tidak-tersedia
+  // tanpa angka basi.
   const [matriks, setMatriks] = useState<Record<number, number[][] | null>>({});
-  const matriksDimintaRef = useRef<Set<number>>(new Set());
+  // Keadaan permintaan matriks per paket (lanjut-2) + cermin ref-nya
+  // untuk pembacaan sinkron di titik pemicu, dan penanda in-flight
+  // untuk deduplikasi permintaan yang masih berjalan.
+  const [keadaanMatriks, setKeadaanMatriks] = useState<Record<number, KeadaanMatriks>>({});
+  const keadaanMatriksRef = useRef<Record<number, KeadaanMatriks>>({});
+  const matriksBerjalanRef = useRef<Set<number>>(new Set());
+
+  const tetapkanKeadaan = useCallback((ids: number[], keadaan: KeadaanMatriks) => {
+    if (ids.length === 0) return;
+    const next = { ...keadaanMatriksRef.current };
+    for (const id of ids) next[id] = keadaan;
+    keadaanMatriksRef.current = next;
+    setKeadaanMatriks(next);
+  }, []);
   const [terbuka, setTerbuka] = useState<ReadonlySet<string>>(new Set());
   const [selected, setSelected] = useState<BuilderPick[]>([]);
   const [panelTerbuka, setPanelTerbuka] = useState(false);
@@ -264,26 +301,56 @@ export default function ParlayBuilder({
   /**
    * Pastikan matriks paket laga multi-pilihan yang dirujuk seleksi
    * sudah diambil (lazy, berkelompok, dipakai ulang dari cache).
-   * Paket yang gagal diambil dicatat null → irisan laga itu jatuh ke
-   * jalur pesan "Peluang gabungan belum tersedia" (combineSlip),
-   * bukan crash.
+   * State machine per paket (lanjut-2): paket yang sedang "memuat"
+   * tidak diminta dua kali (deduplikasi); "berhasil" dan "kosong"
+   * adalah keadaan akhir yang tidak pernah diminta ulang otomatis;
+   * "gagal" (atau belum pernah diminta) diminta — jadi kegagalan
+   * sementara pulih pada interaksi berikutnya, bukan mengunci paket
+   * sampai halaman dimuat ulang seperti sebelumnya.
    */
-  const pastikanMatriks = useCallback((pilihanAktif: BuilderPick[]) => {
-    const perlu = paketPerluMatriks(pilihanAktif, Date.now()).filter(
-      (id) => !matriksDimintaRef.current.has(id),
-    );
-    if (perlu.length === 0) return;
-    for (const id of perlu) matriksDimintaRef.current.add(id);
-    ambilMatriksBatch(perlu)
-      .then((m) => setMatriks((cur) => ({ ...cur, ...m })))
-      .catch(() => {
-        setMatriks((cur) => {
-          const n = { ...cur };
-          for (const id of perlu) if (!(id in n)) n[id] = null;
-          return n;
-        });
+  const pastikanMatriks = useCallback(
+    (pilihanAktif: BuilderPick[]) => {
+      const perlu = paketPerluMatriks(pilihanAktif, Date.now()).filter((id) => {
+        if (matriksBerjalanRef.current.has(id)) return false;
+        const k = keadaanMatriksRef.current[id];
+        return k !== "berhasil" && k !== "kosong";
       });
-  }, []);
+      if (perlu.length === 0) return;
+      for (const id of perlu) matriksBerjalanRef.current.add(id);
+      tetapkanKeadaan(perlu, "memuat");
+      ambilMatriksBatch(perlu)
+        .then((m) => {
+          const berhasil: number[] = [];
+          const kosong: number[] = [];
+          const tulis: Record<number, number[][] | null> = {};
+          for (const id of perlu) {
+            const mat = m[id] ?? null;
+            tulis[id] = mat;
+            if (mat) berhasil.push(id);
+            else kosong.push(id);
+          }
+          setMatriks((cur) => ({ ...cur, ...tulis }));
+          tetapkanKeadaan(berhasil, "berhasil");
+          tetapkanKeadaan(kosong, "kosong");
+        })
+        .catch(() => {
+          // Kegagalan sementara: cache TIDAK ditulis (matriks tetap
+          // absen → combineSlip tidak tersedia, tanpa angka basi) dan
+          // penanda berjalan dilepas di finally — keadaan "gagal"
+          // dapat diulang.
+          tetapkanKeadaan(perlu, "gagal");
+        })
+        .finally(() => {
+          for (const id of perlu) matriksBerjalanRef.current.delete(id);
+        });
+    },
+    [tetapkanKeadaan],
+  );
+
+  /** Tombol "Coba lagi": muat ulang matriks yang keadaannya "gagal". */
+  const cobaLagiMatriks = useCallback(() => {
+    pastikanMatriks(selectedRef.current);
+  }, [pastikanMatriks]);
 
   // Penanda interaksi pemakai: seleksi yang dibangun tangan di tab ini
   // selalu lebih baru daripada draf tersimpan — restore yang datang
@@ -479,6 +546,17 @@ export default function ParlayBuilder({
   const full = selected.length >= MAX_PICKS;
   const multiGroups = result.groups.filter((g) => g.count > 1);
 
+  // Paket yang matriksnya sedang dibutuhkan pilihan aktif tetapi
+  // permintaannya GAGAL (lanjut-2): panel gabungan membedakan
+  // kegagalan ini dari keadaan kosong dan menawari muat ulang
+  // eksplisit. "Kosong" (null dari server) TIDAK termasuk — itu
+  // keadaan akhir, bukan kegagalan, jadi tidak ada tombol coba-lagi.
+  const adaMatriksGagal = useMemo(
+    () =>
+      paketPerluMatriks(aktif, nowMs).some((id) => keadaanMatriks[id] === "gagal"),
+    [aktif, nowMs, keadaanMatriks],
+  );
+
   function toggle(p: BuilderPick) {
     const cur = selectedRef.current;
     // Menghapus selalu boleh — yang terkunci hanya MENAMBAH (U04).
@@ -595,6 +673,20 @@ export default function ParlayBuilder({
               <p className="tabular-nums mt-1.5 text-[40px] leading-none font-semibold text-accent">
                 {aktif.length === 0 ? "—" : pct(result.combined, result.combined >= 0.1 ? 1 : 2)}
               </p>
+            )}
+            {result.combined === null && adaMatriksGagal && (
+              <div className="mt-3">
+                <p className="text-[13px] leading-relaxed text-brick">
+                  Matriks skor gagal dimuat dari server.
+                </p>
+                <button
+                  type="button"
+                  onClick={cobaLagiMatriks}
+                  className="mt-1 flex min-h-[44px] items-center text-sm font-medium text-accent-deep transition-colors hover:text-ink"
+                >
+                  Coba lagi
+                </button>
+              </div>
             )}
             <p className="mt-2 text-[12px] text-faint">
               Basis gabungan:{" "}
