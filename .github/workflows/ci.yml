@@ -66,6 +66,38 @@ jobs:
       - name: D01 baseline (regresi hijau K1)
         run: npm run test:baseline:d01
 
+      # Suite verifikasi produksi (LANJUT-3, berkas pemilik §3): empat
+      # suite temuan #1–#4 kini terhubung ke skrip proyek dan CI —
+      # sebelumnya hanya lulus lokal terpisah dan tidak pernah jalan
+      # di CI. Suite #4 menjalankan probe browser; dependensi browser
+      # adalah devDependencies BERVERSI TERKUNCI (puppeteer-core
+      # 25.16.0 + @sparticuz/chromium 153.0.0) yang dipasang npm ci,
+      # dirujuk lewat tests/helpers/browser-resolve.mjs — gagal keras
+      # bila tidak tersedia, tidak pernah skip diam-diam. Suite-suit
+      # ini menjalankan `npm run build` internal di checkout, jadi
+      # env placeholder yang sama dengan langkah Build berlaku.
+      - name: Verification suites (verifikasi produksi #1–#4)
+        run: npm run test:verifikasi
+        env:
+          NINE_ROUTER_BASE_URL: http://localhost:20128/v1
+          NINE_ROUTER_API_KEY: <redacted>
+          NINE_ROUTER_MODEL: ag/gemini-3.8-flash
+          STATS_API_KEY: <redacted>
+          RAPIDAPI_1XBET_KEY: dummy-build-only
+
+      # Suite lanjut di branch yang sama (perluasan §3 yang disengaja,
+      # dilaporkan sebagai itu): gabungan sadar edisi + probe
+      # browsernya, dan retry matriks — branch tidak boleh merge lagi
+      # dengan uji tak terhubung.
+      - name: Lanjut suites (edisi paket + retry matriks)
+        run: npm run test:lanjut
+        env:
+          NINE_ROUTER_BASE_URL: http://localhost:20128/v1
+          NINE_ROUTER_API_KEY: <redacted>
+          NINE_ROUTER_MODEL: ag/gemini-3.8-flash
+          STATS_API_KEY: <redacted>
+          RAPIDAPI_1XBET_KEY: dummy-build-only
+
       # Build di checkout bersih TIDAK punya .env.local (gitignored), dan
       # lib/llm/models.ts memvalidasi env saat import — tanpa nilai apa pun
       # build gugur di "collect page data for /api/agent". Nilai di bawah

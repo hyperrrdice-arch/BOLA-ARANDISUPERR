@@ -11,6 +11,17 @@
  *   menangkap tumpang-tindih antar pasar (mis. "kandang menang" dan
  *   "peluang ganda 1X" berbagi sel yang sama) — mengalikan keduanya
  *   akan menghitung tumpang-tindih itu dua kali.
+ * - EDISI PAKET (lanjut-1, temuan pemilik 22 Nov 2026): irisan satu
+ *   laga hanya sah dari matriks SATU edisi terbit. Semua pilihan grup
+ *   harus berasal dari paket yang SAMA; matriks yang dipakai adalah
+ *   matriks paket itu. Bila grup memuat >1 edisi (atau edisi bersama
+ *   tidak terbukti), grup TIDAK TERSEDIA dengan alasan "Dua pilihan
+ *   ini berasal dari edisi prediksi yang berbeda" — matriks edisi
+ *   mana pun tidak boleh dipakai sendirian, berapa pun urutan klik
+ *   atau urutan kedatangan matriksnya. (Dulu fungsi ini memakai
+ *   matriks pertama yang ketemu di grup, sehingga urutan klik
+ *   menentukan edisi dasar: kasus Marseille 7815/7816 memberi
+ *   0,509662234 vs 0,576516711 untuk pasangan pilihan yang sama.)
  * - Bila irisan satu laga TIDAK bisa dihitung persis (matriks skor
  *   edisi bersama tidak tersedia, atau pasar tak dikenal matriks),
  *   gabungannya TIDAK TERSEDIA — bukan dikalikan di dalam grup
@@ -50,6 +61,14 @@ export interface SlipPick {
    */
   prob: number;
   probBasis: ProbBasis;
+  /**
+   * ID paket/edisi terbit asal pilihan ini. Dipertahankan sampai
+   * penghitung (lanjut-1): grup multi-pilihan hanya boleh diiris dari
+   * matriks bila SEMUA pilihannya berbagi packageId yang sama.
+   * null/tidak ada = edisi tak terlacak (pemanggil lama yang
+   * menempelkan matriks langsung tanpa identitas paket).
+   */
+  packageId?: number | null;
   /** Matriks skor paket laga ini (indeks [gol kandang][gol tamu]), bila ada. */
   matrix?: number[][] | null;
 }
@@ -172,7 +191,10 @@ export interface SlipResult {
  * Per laga: satu pilihan → probabilitas tersimpan; banyak pilihan +
  * matriks edisi bersama → persis dari matriks; banyak pilihan tanpa
  * matriks/predikat yang bisa dihitung → TIDAK TERSEDIA (brief §3D.4),
- * bukan perkalian dalam grup.
+ * bukan perkalian dalam grup. "Edisi bersama" dibuktikan dari
+ * packageId: semua pilihan grup harus berbagi packageId yang sama
+ * (lanjut-1); lintas paket → TIDAK TERSEDIA dengan alasan edisi
+ * berbeda, dan total slip tertahan selama ada grup seperti itu.
  * Antar laga: perkalian (asumsi independen — lihat header file).
  *
  * IDEMPOTENSI KEJADIAN (brief §4, redesain L2): kejadian semantik yang
@@ -218,9 +240,34 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
       prob = group[0].prob;
       basis = group[0].probBasis;
     } else {
-      const matrix = group.find((g) => g.matrix)?.matrix ?? null;
       const preds = group.map((g) => selectionPredicate(g.market, g.selection));
-      if (matrix && preds.every((p): p is ScorePredicate => p !== null)) {
+      // EDISI PAKET (lanjut-1): matriks dasar irisan ditentukan oleh
+      // packageId grup, BUKAN oleh baris pertama yang kebetulan sudah
+      // memuat matriks. Tiga keadaan:
+      // - semua pilihan berbagi SATU packageId → matriks edisi itu
+      //   (dibawa baris mana pun dari edisi tersebut);
+      // - >1 packageId dikenal, atau sebagian pilihan tanpa packageId
+      //   di tengah yang lain ber-packageId → edisi bersama TIDAK
+      //   terbukti → tidak tersedia, alasan edisi berbeda;
+      // - tak satu pun pilihan membawa packageId → pemanggil tidak
+      //   melacak edisi (uji/probe lama): perilaku warisan, matriks
+      //   pertama yang tersedia.
+      const idEdisi = new Set(
+        group
+          .map((g) => g.packageId)
+          .filter((id): id is number => typeof id === "number"),
+      );
+      let matrix: number[][] | null = null;
+      let edisiBerbeda = false;
+      if (idEdisi.size === 0) {
+        matrix = group.find((g) => g.matrix)?.matrix ?? null;
+      } else if (idEdisi.size === 1 && group.every((g) => g.packageId === [...idEdisi][0])) {
+        const [satu] = idEdisi;
+        matrix = group.find((g) => g.packageId === satu && g.matrix)?.matrix ?? null;
+      } else {
+        edisiBerbeda = true;
+      }
+      if (!edisiBerbeda && matrix && preds.every((p): p is ScorePredicate => p !== null)) {
         prob = sumWhere(matrix, preds);
         exact = true;
         exactSameMatch = true;
@@ -234,9 +281,11 @@ export function combineSlip(picks: SlipPick[]): SlipResult {
         // tumpang-tindih dua kali dan mengarang angka gabungan.
         prob = null;
         unavailable = true;
-        alasan = !matrix
-          ? "matriks skor tidak tersedia untuk irisan satu laga"
-          : "ada pasar yang tidak bisa dihitung dari matriks skor";
+        alasan = edisiBerbeda
+          ? "Dua pilihan ini berasal dari edisi prediksi yang berbeda"
+          : !matrix
+            ? "matriks skor tidak tersedia untuk irisan satu laga"
+            : "ada pasar yang tidak bisa dihitung dari matriks skor";
         basis = group.every((g) => g.probBasis === group[0].probBasis)
           ? group[0].probBasis
           : "mixed";

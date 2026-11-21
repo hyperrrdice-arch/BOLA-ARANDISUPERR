@@ -1,0 +1,27 @@
+  OK  fixture: matriks 7815 berjumlah 1
+  OK  fixture: matriks 7816 berjumlah 1
+  OK  fixture: irisan(menang ∧ total≥2) pada 7816 = 0,576516711 pemilik
+  OK  fixture: irisan(menang ∧ total≥2) pada 7815 = 0,509662234 pemilik
+  OK  fixture: kontrol positif 7815 (cetak gol ∧ total≥2) ≈ 89,2%
+  FAIL lintas edisi A→B: gabungan tertahan (null)
+  FAIL lintas edisi A→B: alasan gabungan persis pemilik — null
+  FAIL lintas edisi A→B: grup unavailable + alasan persis + kedua pilihan dipertahankan (count 2)
+  FAIL lintas edisi B→A: hasil IDENTIK dengan A→B — {"combined":0.509662233526834,"alasanGabungan":null,"groups":[{"prob":0.509662233526834,"unavailable":false,"alasan":null,"count":2}]}
+  FAIL pulih sesudah muat ulang: hasil IDENTIK
+  FAIL baru matriks 7816 termuat: tetap belum tersedia + alasan edisi
+  FAIL baru matriks 7815 termuat: tetap belum tersedia + alasan edisi
+  OK  belum ada matriks termuat: tidak ada angka gabungan terbit
+  OK  satu edisi 7815: irisan persis ≈ 89,2% dari matriks mentah
+  OK  satu edisi 7815: grup exact + basis matrix (keterangan basis model dipertahankan)
+  OK  satu edisi 7815 urutan terbalik: IDENTIK
+  OK  satu edisi, matriks belum termuat: gabungan tertahan (bukan perkalian individual)
+  OK  satu edisi, matriks hanya di satu baris grup: tetap persis 89,2%
+  OK  pilihan identik via alias tetap SATU kejadian (bukan dikuadratkan)
+  OK  lintas laga: irisan satu edisi × pilihan laga lain (independen)
+  FAIL total tertahan saat satu grup lintas edisi
+  FAIL alasan gabungan = alasan edisi (grup pertama yang tertahan) — null
+  FAIL grup Marseille unavailable; grup regresi TETAP terhitung 52,9% — [{"matchId":"fx_9c3aeaeb-e566-4d17-a654-e65bc846a8c2","prob":0.5765167112532946,"exact":true,"unavailable":false,"alasan":null,"count":2,"basis":"matrix"},{"matchId":"fx_regresi","prob":0.5290000000000001,"exact":true,"unavailable":false,"alasan":null,"count":2,"basis":"matrix"}]
+  OK  satu pilihan: peluang tersimpan dipakai, matriks tak diperlukan
+  OK  tanpa identitas edisi (pemanggil lama): irisan matriks bersama tetap persis
+
+[pilihan-edisi] 15/25 assertion lolos — GAGAL: lintas edisi A→B: gabungan tertahan (null); lintas edisi A→B: alasan gabungan persis pemilik; lintas edisi A→B: grup unavailable + alasan persis + kedua pilihan dipertahankan (count 2); lintas edisi B→A: hasil IDENTIK dengan A→B; pulih sesudah muat ulang: hasil IDENTIK; baru matriks 7816 termuat: tetap belum tersedia + alasan edisi; baru matriks 7815 termuat: tetap belum tersedia + alasan edisi; total tertahan saat satu grup lintas edisi; alasan gabungan = alasan edisi (grup pertama yang tertahan); grup Marseille unavailable; grup regresi TETAP terhitung 52,9%
