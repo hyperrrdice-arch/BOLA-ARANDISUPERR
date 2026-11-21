@@ -34,6 +34,11 @@ import {
   type StatusTampil,
 } from "./status";
 import { labelPilihan } from "./format";
+import {
+  kelompokkanKejadianResmi,
+  petaUidFisik,
+  type KonflikPilihan,
+} from "./rekam";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -626,6 +631,13 @@ export interface MatchDetail {
   keadaan: KeadaanLaga | null;
   /** Pilihan RESMI terbit untuk laga ini (K2) — satu-satunya yang boleh ditautkan sebagai pilihan. */
   officialPicks: OfficialPick[];
+  /**
+   * Kejadian UNIK hasil pengelompokan officialPicks dengan aturan
+   * Pilihan (satu baris per kejadian semantik + jejak konflik/edisi).
+   * Inilah yang dirender bagian prediksi detail dan yang dihitung
+   * label jumlah pilihan — bukan hitungan baris mentah.
+   */
+  kejadianResmi: KejadianResmi[];
   /** Tiket RESMI (K3) yang memuat pilihan resmi laga ini. */
   officialTickets: TiketResmiRef[];
   /**
@@ -687,6 +699,10 @@ export function getMatchDetail(matchId: string): MatchDetail | null {
     fixtureUid,
     keadaan: bagian(() => getMatchState(matchId), null),
     officialPicks,
+    kejadianResmi: bagian(
+      () => kelompokkanPilihanResmi(officialPicks),
+      [] as KejadianResmi[],
+    ),
     officialTickets: bagian(
       () => getOfficialTickets(officialPicks.map((p) => p.pick_uid)),
       [] as TiketResmiRef[],
@@ -1441,6 +1457,10 @@ export interface OfficialPick extends PickRow {
   pick_uid: string;
   /** Waktu hitung paket penerbit — pembanding "analisis terbaru" di detail. */
   package_computed_utc: string | null;
+  /** Garis pasar (kolom ledger; "" untuk pasar tanpa garis). */
+  line: string | null;
+  /** UID laga fisik tersimpan di ledger; NULL pada baris pra-K1. */
+  fixture_uid: string | null;
 }
 
 /**
@@ -1464,6 +1484,8 @@ export function getOfficialPicks(matchId: string, fixtureUid: string | null): Of
     )
     .all(...(fixtureUid ? [...ids, fixtureUid] : ids)) as unknown as (PickRow & {
     pick_uid: string;
+    line: string | null;
+    fixture_uid: string | null;
   })[];
   const computedCache = new Map<number, string | null>();
   return rows.map((r) => {
@@ -1485,6 +1507,52 @@ export function getOfficialPicks(matchId: string, fixtureUid: string | null): Of
       }
     }
     return { ...r, package_computed_utc: computed };
+  });
+}
+
+/**
+ * Satu KEJADIAN pilihan resmi untuk bagian prediksi detail — hasil
+ * pengelompokan `officialPicks` mentah dengan aturan yang PERSIS sama
+ * dengan umpan Pilihan (`kelompokkanKejadianResmi` di lib/web/rekam.ts):
+ * kejadian unik tampil satu kali lewat edisi perwakilannya; edisi
+ * sumber lain tetap tertelusur di `edisi` (audit); kejadian yang
+ * edisi-edisinya berbeda angka terbit membawa jejak `konflik` dan
+ * angkanya tidak dipilih diam-diam.
+ */
+export interface KejadianResmi {
+  /** Edisi perwakilan (terbit pertama) — baris yang dibaca pengguna. */
+  pick: OfficialPick;
+  /** Semua edisi sumber kejadian ini, urut terbit (lapis audit). */
+  edisi: OfficialPick[];
+  /** Jejak konflik bila edisi berbeda angka terbit; null bila sepakat. */
+  konflik: KonflikPilihan | null;
+}
+
+/**
+ * Kelompokkan pilihan resmi mentah satu laga menjadi kejadian unik.
+ * Resolusi UID fisik untuk baris ber-UID NULL memakai peta store
+ * identitas yang sama dengan Pilihan. Vonis kejadian diambil dari
+ * edisi mana pun yang sudah dinilai bila perwakilan belum (edisi satu
+ * kejadian berbagi pasar+pilihan, jadi berbagi hasil).
+ */
+export function kelompokkanPilihanResmi(picks: OfficialPick[]): KejadianResmi[] {
+  const uidMap = petaUidFisik(
+    picks.filter((p) => !p.fixture_uid).map((p) => p.match_id),
+  );
+  return kelompokkanKejadianResmi(picks, uidMap).map((g) => {
+    let pick = g.perwakilan;
+    if (pick.hit === null) {
+      const dinilai = g.edisi.find((e) => e.hit !== null);
+      if (dinilai) {
+        pick = {
+          ...pick,
+          hit: dinilai.hit,
+          home_goals: dinilai.home_goals,
+          away_goals: dinilai.away_goals,
+        };
+      }
+    }
+    return { pick, edisi: g.edisi, konflik: g.konflik };
   });
 }
 
