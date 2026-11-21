@@ -1,0 +1,29 @@
+  OK  builder fixture-links berjalan
+  OK  npm run build berhasil di dalam suite
+  OK  server panggung menjawab 200 untuk /pilihan
+  OK  API umpan: status 200
+  OK  API umpan: Marseille = 1 laga fisik
+  OK  prasyarat: team_over05_home SATU paket dengan ou15 (edisi mt_, kasus 7815)
+  OK  A: tepat 1 permintaan terkirim sebelum digagalkan
+  OK  A: sesudah gagal, panel belum tersedia (tanpa angka gabungan)
+  OK  A: menghapus pilihan tidak memicu permintaan baru
+  OK  A: tambah ulang memicu permintaan KEDUA (penanda gagal dilepas)
+  OK  A: gabungan ±89,2% tampil sesudah permintaan kedua — tanpa muat ulang
+  OK  B: permintaan fase ini juga tepat 1 sebelum gagal
+  OK  B: tombol “Coba lagi” tampil di panel gabungan saat keadaan gagal
+  OK  B: klik Coba lagi mengirim tepat 1 permintaan baru
+  OK  B: gabungan ±89,2% tampil sesudah Coba lagi — tanpa muat ulang
+  OK  C: hapus + tambah ulang selama in-flight = tetap tepat 1 permintaan
+  OK  C: gabungan ±89,2% tampil sesudah respons yang ditahan tiba
+  OK  D: tepat 1 permintaan untuk jawaban null
+  OK  D: panel belum tersedia dengan alasan matriks combineSlip
+  OK  D: TANPA tombol “Coba lagi” untuk keadaan kosong (bukan kegagalan)
+  OK  D: hapus + tambah ulang TIDAK memicu permintaan baru (kosong = akhir)
+  OK  D: panel tetap belum tersedia sesudah interaksi ulang
+  OK  tanpa pageerror di seluruh probe
+  OK  bukti tersimpan: gagal-awal.png
+  OK  bukti tersimpan: pulih-tambah-ulang.png
+  OK  bukti tersimpan: coba-lagi.png
+  OK  bukti tersimpan: null-kosong.png
+
+[pilihan-matriks-ulang] 27/27 assertion lolos
