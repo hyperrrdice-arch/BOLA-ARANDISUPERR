@@ -1,28 +1,30 @@
-import { gzipSync } from "node:zlib";
-
 /**
- * Response JSON dengan gzip manual.
+ * Response JSON untuk route handler.
  *
- * Kenapa manual: di setup ini route handler TIDAK dikompresi server. Terukur
- * `/api/matches` terkirim 36 KB utuh tanpa `Content-Encoding` (rasio transfer/resource
- * 1.01) sementara chunk JS di app yang sama `Content-Encoding: gzip`. Lighthouse
- * memperkirakan 30 KB terbuang per load katalog; Chrome DevTools mengonfirmasi
- * header-nya dari sisi browser.
+ * Kompresi diserahkan ke server. Riwayat: helper ini dulu meng-gzip
+ * manual karena terukur route handler tidak dikompresi server. Pada
+ * tumpukan saat ini (Next 16.4.6, `next start` — perintah yang sama
+ * dengan produksi) premis itu tidak lagi berlaku dan gzip manual
+ * justru merusak: terukur di panggung skala verifikasi-3 pada
+ * 2026-11-21 (lihat tasks/reports/verifikasi-3-pilihan-payload-report.md)
+ * respons ≥ 1 KB tiba sebagai gzip(gzip(JSON)) dengan SATU header
+ * `Content-Encoding: gzip`, sehingga `fetch().json()` di browser dan
+ * undici melempar SyntaxError. Respons kecil (< 1 KB, tanpa gzip
+ * manual) tiba dengan tepat satu lapis gzip dari server — bukti
+ * server memang mengompresi route handler.
  *
  * Aturan yang dijaga di sini:
- * - `Accept-Encoding` dihormati: client tanpa gzip dapat JSON polos (curl tanpa
- *   `--compressed` juga).
- * - Payload kecil (< 1 KB) tidak dikompresi — bukan penghematan, hanya overhead.
- * - `Vary: Accept-Encoding` supaya cache/proxy tidak menyajikan gzip ke client
- *   yang tidak memintanya.
+ * - Body selalu JSON polos; server menerapkan paling banyak satu
+ *   lapis kompresi dan menghormati `Accept-Encoding` klien.
+ * - `Vary: Accept-Encoding` dipertahankan supaya cache/proxy tidak
+ *   menyajikan varian terkompresi ke client yang tidak memintanya.
  */
-const MIN_COMPRESS_BYTES = 1024;
-
 export function jsonResponse(
   req: Request,
   body: unknown,
-  init?: { status?: number; headers?: Record<string, string> }
+  init?: { status?: number; headers?: Record<string, string> },
 ): Response {
+  void req; // tanda tangan dipertahankan untuk pemanggil yang ada
   const payload = JSON.stringify(body ?? null);
   const headers = new Headers(init?.headers);
   headers.set("Content-Type", "application/json; charset=utf-8");
@@ -33,15 +35,8 @@ export function jsonResponse(
     "Vary",
     existingVary && !varyHasAcceptEncoding
       ? `${existingVary}, Accept-Encoding`
-      : "Accept-Encoding"
+      : "Accept-Encoding",
   );
 
-  const acceptsGzip = (req.headers.get("accept-encoding") ?? "").includes("gzip");
-  // Panjang dalam BYTE (bukan UTF-16 length) — threshold 1KB salah hitung untuk JSON non-ASCII.
-  if (!acceptsGzip || Buffer.byteLength(payload, "utf8") < MIN_COMPRESS_BYTES) {
-    return new Response(payload, { status: init?.status ?? 200, headers });
-  }
-
-  headers.set("Content-Encoding", "gzip");
-  return new Response(gzipSync(payload), { status: init?.status ?? 200, headers });
+  return new Response(payload, { status: init?.status ?? 200, headers });
 }
