@@ -17,8 +17,16 @@
  *   pilihan resmi, atau dinyatakan belum terkonfirmasi.
  * - Laga terjadwal tanpa paket tetap terbuka ("Analisis belum
  *   tersedia"); hanya ID asing yang 404.
+ * - SELURUH isi halaman dirender SEBARIS dalam respons HTML —
+ *   TANPA batas <Suspense>/fallback (temuan #4 verifikasi produksi):
+ *   di bawah cacheComponents, isi yang menangguhkan di balik batas
+ *   dikirim sebagai segmen tersembunyi yang hanya bisa ditukar
+ *   masuk oleh skrip, jadi dengan JavaScript mati pembaca hanya
+ *   melihat fallback selamanya. Bacaan data halaman ini sinkron
+ *   dan lokal (SQLite), jadi menunggu render penuh adalah harga
+ *   yang benar; yang tetap lazy hanyalah mode 3D peta skor (pulau
+ *   klien, dimuat saat dipilih — kontrak §9 tidak berubah).
  */
-import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -49,7 +57,6 @@ import {
   FormChips,
   GateStatus,
   GradeMark,
-  PageLoading,
   Prob,
   SectionHead,
 } from "@/components/ui";
@@ -157,6 +164,16 @@ function kalimatBasis(basis: string | null | undefined): string {
 
 /* ------------------------------------------------------------------- page */
 
+/**
+ * Kontrak temuan #4: rute ini BLOCKING — dirender penuh di server
+ * pada setiap permintaan, tanpa shell prerender + fallback. Tanpa
+ * penanda ini, cacheComponents menolak build karena data runtime
+ * (params/searchParams/connection()) diakses di luar <Suspense>;
+ * dengan penanda ini, tidak ada segmen tersembunyi yang menunggu
+ * skrip penukar, jadi isi terbaca dari HTML dengan skrip mati.
+ */
+export const instant = false;
+
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({
@@ -172,18 +189,18 @@ export async function generateMetadata({
   return { title: home && away ? `${home} vs ${away} | Bola` : "Laga | Bola" };
 }
 
-export default function AnalisisPage({
+export default async function AnalisisPage({
   params,
   searchParams,
 }: {
   params: Promise<{ matchId: string }>;
   searchParams: SearchParams;
 }) {
-  return (
-    <Suspense fallback={<PageLoading label="Memuat analisis laga…" />}>
-      <AnalisisContent params={params} searchParams={searchParams} />
-    </Suspense>
-  );
+  // Tanpa batas <Suspense> di antara akar rute dan isi: render
+  // menunggu data (lewat connection() di AnalisisContent) lalu
+  // menulis isi sebagai HTML sebaris — terbaca penuh dengan
+  // JavaScript mati, bukan fallback yang menunggu skrip penukar.
+  return <AnalisisContent params={params} searchParams={searchParams} />;
 }
 
 function hrefKembali(sp: Record<string, string | string[] | undefined>): string {
