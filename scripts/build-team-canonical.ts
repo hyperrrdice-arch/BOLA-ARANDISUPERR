@@ -153,6 +153,15 @@ const MERGE_PAIRS: [string, string, string][] = [
   ["tm_25152", "3357", "Satu klub: SK Sturm Graz; SM tanpa imbuhan SK. Fixture CERMIN dataset: vs tm_91646 5 Agu 2026 identik di comp_3498 dan sm:2 (id 3357)."],
   ["tm_42581", "3877", "Satu klub: FK Borac Banja Luka; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_52213 7+14 Jul 2026 identik di comp_3498 dan sm:2 (id 3877)."],
   ["tm_2905815", "928", "Satu klub: FK Kauno Žalgiris; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_4649576 (7+14 Jul), tm_05888 (21+29 Jul), tm_97303 (4+11 Agu) 2026 — tanggal+lawan identik dengan baris sm:2 milik id 928."],
+  // Gelombang 6 (2026-11-21, verifikasi produksi temuan #1): klub
+  // terbelah fd_ <-> SM yang lolos dari gelombang 5 karena gelombang
+  // itu membuktikan pasangan dari katalog saat itu; pasangan ini
+  // terbukti oleh fixture kembar Süper Lig yang sama persis (kickoff
+  // identik + kompetisi sama + sisi lain kanonik sama) dan oleh
+  // kejadian terbit yang identik di kedua baris (tim kandang mencetak
+  // gol 0,7612 di fd_ maupun sm_). Bukan kemiripan nama semata.
+  ["fd_gaziantep", "4192", "Satu klub: Gaziantep FK (Turki). fd memakai nama CSV pendek 'Gaziantep', SM menyimpan 'Gaziantep F.K.'. Bukti fixture kembar Süper Lig: vs Gençlerbirliği (sm:286 di kedua baris) 2026-11-21T10:30Z dan vs Kasımpaşa 2026-11-06T17:00Z — kickoff + lawan identik di kedua sumber; peluang terbit kejadian yang sama identik (0,7612)."],
+  ["tm_master_kasimpasa", "1071", "Satu klub: Kasımpaşa (Turki). TheStats master memakai ejaan tanpa diakritik 'Kasimpasa', SM menyimpan 'Kasımpaşa'. Bukti fixture kembar Süper Lig 2026-11-06T17:00Z: baris fd_ membawa tm_master_kasimpasa sebagai tim tamu, baris sm_ membawa 1071 — kickoff identik, tim kandangnya klub yang sama (Gaziantep, lihat pasangan di atas)."],
 ];
 
 /** Pasangan yang TERBUKTI klub berbeda — jangan pernah digabung otomatis. */

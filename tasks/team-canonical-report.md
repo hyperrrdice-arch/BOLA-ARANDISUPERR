@@ -1,16 +1,16 @@
 # Registry Kanonik Tim — Laporan Build
 
-Dibangun: 2026-11-20T20:10:53.419Z
+Dibangun: 2026-11-21T14:11:37.925Z
 
 ## Angka
 
 - Baris tim sumber (tabel teams): **6815**
-- Tim kanonik hasil: **6543**
-- Grup tergabung (>1 baris sumber): **259** (menyerap 277 baris ekstra)
-- Grup lintas sistem (>1 sumber): **243**
+- Tim kanonik hasil: **6541**
+- Grup tergabung (>1 baris sumber): **261** (menyerap 279 baris ekstra)
+- Grup lintas sistem (>1 sumber): **245**
 - Tim bernama sengketa (≥2 negara): **2** entri
 - Pasangan kandidat mirip BELUM digabung: **9**
-- Keputusan resolusi fase 3 diterapkan: **83 penggabungan terbukti**, **1 pemisahan terbukti**, **11 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
+- Keputusan resolusi fase 3 diterapkan: **85 penggabungan terbukti**, **1 pemisahan terbukti**, **11 pasangan terbukti klub BERBEDA** (dicatat distinct_from, tidak akan digabung), **34 alias eksternal**.
 - Permukaan standings: **167 id** tanpa baris teams didaftarkan dari nama fixture; **0 id** terdaftar id-only (name_unknown: -). Cakupan standings sekarang penuh.
 - Permukaan fixture: **107 id** tim katalog tanpa baris teams didaftarkan dari bukti fixture (nama + id-nya sendiri).
 
@@ -103,6 +103,8 @@ Dibangun: 2026-11-20T20:10:53.419Z
 - GABUNG `tm_25152` + `3357` — Satu klub: SK Sturm Graz; SM tanpa imbuhan SK. Fixture CERMIN dataset: vs tm_91646 5 Agu 2026 identik di comp_3498 dan sm:2 (id 3357).
 - GABUNG `tm_42581` + `3877` — Satu klub: FK Borac Banja Luka; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_52213 7+14 Jul 2026 identik di comp_3498 dan sm:2 (id 3877).
 - GABUNG `tm_2905815` + `928` — Satu klub: FK Kauno Žalgiris; SM tanpa imbuhan FK. Fixture CERMIN dataset: vs tm_4649576 (7+14 Jul), tm_05888 (21+29 Jul), tm_97303 (4+11 Agu) 2026 — tanggal+lawan identik dengan baris sm:2 milik id 928.
+- GABUNG `fd_gaziantep` + `4192` — Satu klub: Gaziantep FK (Turki). fd memakai nama CSV pendek 'Gaziantep', SM menyimpan 'Gaziantep F.K.'. Bukti fixture kembar Süper Lig: vs Gençlerbirliği (sm:286 di kedua baris) 2026-11-21T10:30Z dan vs Kasımpaşa 2026-11-06T17:00Z — kickoff + lawan identik di kedua sumber; peluang terbit kejadian yang sama identik (0,7612).
+- GABUNG `tm_master_kasimpasa` + `1071` — Satu klub: Kasımpaşa (Turki). TheStats master memakai ejaan tanpa diakritik 'Kasimpasa', SM menyimpan 'Kasımpaşa'. Bukti fixture kembar Süper Lig 2026-11-06T17:00Z: baris fd_ membawa tm_master_kasimpasa sebagai tim tamu, baris sm_ membawa 1071 — kickoff identik, tim kandangnya klub yang sama (Gaziantep, lihat pasangan di atas).
 - BEDA `10002` + `2837` — River Plate Argentina vs River Plate Uruguay — dua klub berbeda (negara + volume data masing-masing besar).
 - BEDA `132434` + `94617` — Ourense CF vs UD Ourense — dua klub berbeda dari kota yang sama (UD bubar 2014, Ourense CF klub terpisah).
 - BEDA `2079` + `28207` — San Fernando CD (Cádiz, Andalusia) vs UD San Fernando (Maspalomas, Canarias) — klub berbeda.
@@ -128,11 +130,11 @@ Dibangun: 2026-11-20T20:10:53.419Z
 - `sm:1055` Le Havre AC (?): thestats:tm_97714="Le Havre" · sportmonks:1055="Le Havre"
 - `sm:106` Getafe CF (?): thestats:tm_73740="Getafe" · sportmonks:106="Getafe"
 - `sm:10655` Thun (?): sportmonks:10655="Thun" · thestats:tm_02219="FC Thun"
+- `sm:1071` Kasımpasa (Turkey): thestats:tm_master_kasimpasa="Kasimpasa" · sportmonks:1071="Kasımpaşa"
 - `sm:1072` Pisa SC (?): thestats:tm_37240="Pisa" · sportmonks:1072="Pisa"
 - `sm:10722` US Cremonese (?): thestats:tm_20131="Cremonese" · sportmonks:10722="Cremonese"
 - `sm:1073` De Graafschap (?): thestats:tm_79130="De Graafschap" · sportmonks:1073="De Graafschap"
 - `sm:1077` Dynamo Dresden (Germany): football-data:fd_dresden="Dresden" · sportmonks:1077="Dynamo Dresden"
-- `sm:1079` 1. FC Union Berlin (Germany): thestats:tm_37885="1. FC Union Berlin" · sportmonks:1079="FC Union Berlin"
 
 ## Kandidat mirip (keputusan fase resolusi)
 

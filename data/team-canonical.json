@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-20T20:10:53.419Z",
+  "generated_at": "2026-11-21T14:11:37.925Z",
   "generator": "scripts/build-team-canonical.ts",
   "note": "Acuan pakem identitas tim: satu canonical_id per tim nyata. members = id per sistem sumber; aliases = semua bentuk nama tersimpan. Penggabungan konservatif (nama ternormalisasi sama + negara tidak bertentangan); pasangan kandidat yang belum digabung ada di tasks/team-canonical-report.md.",
   "teams": [
@@ -241,22 +241,6 @@
       ],
       "aliases": [
         "Forfar"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "fd_gaziantep",
-      "name": "Gaziantep",
-      "country": "Turkey",
-      "members": [
-        {
-          "system": "football-data",
-          "team_id": "fd_gaziantep",
-          "name_as_stored": "Gaziantep"
-        }
-      ],
-      "aliases": [
-        "Gaziantep"
       ],
       "contested_name": false
     },
@@ -2938,15 +2922,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "thestats",
+          "team_id": "tm_master_kasimpasa",
+          "name_as_stored": "Kasimpasa"
+        },
+        {
           "system": "sportmonks",
           "team_id": "1071",
           "name_as_stored": "Kasımpaşa"
         }
       ],
       "aliases": [
+        "Kasimpasa",
         "Kasımpaşa"
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Kasımpaşa (Turki). TheStats master memakai ejaan tanpa diakritik 'Kasimpasa', SM menyimpan 'Kasımpaşa'. Bukti fixture kembar Süper Lig 2026-11-06T17:00Z: baris fd_ membawa tm_master_kasimpasa sebagai tim tamu, baris sm_ membawa 1071 — kickoff identik, tim kandangnya klub yang sama (Gaziantep, lihat pasangan di atas)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:10710",
@@ -81934,15 +81928,25 @@
       "country": "Turkey",
       "members": [
         {
+          "system": "football-data",
+          "team_id": "fd_gaziantep",
+          "name_as_stored": "Gaziantep"
+        },
+        {
           "system": "sportmonks",
           "team_id": "4192",
           "name_as_stored": "Gaziantep F.K."
         }
       ],
       "aliases": [
+        "Gaziantep",
         "Gaziantep F.K."
       ],
-      "contested_name": false
+      "contested_name": false,
+      "resolution_notes": [
+        "Satu klub: Gaziantep FK (Turki). fd memakai nama CSV pendek 'Gaziantep', SM menyimpan 'Gaziantep F.K.'. Bukti fixture kembar Süper Lig: vs Gençlerbirliği (sm:286 di kedua baris) 2026-11-21T10:30Z dan vs Kasımpaşa 2026-11-06T17:00Z — kickoff + lawan identik di kedua sumber; peluang terbit kejadian yang sama identik (0,7612)."
+      ],
+      "distinct_from": []
     },
     {
       "canonical_id": "sm:4196",
@@ -106793,22 +106797,6 @@
       ],
       "aliases": [
         "FC Petrocub Hîncesti"
-      ],
-      "contested_name": false
-    },
-    {
-      "canonical_id": "tm_master_kasimpasa",
-      "name": "Kasimpasa",
-      "country": null,
-      "members": [
-        {
-          "system": "thestats",
-          "team_id": "tm_master_kasimpasa",
-          "name_as_stored": "Kasimpasa"
-        }
-      ],
-      "aliases": [
-        "Kasimpasa"
       ],
       "contested_name": false
     }
