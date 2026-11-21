@@ -68,16 +68,25 @@ async function teksTerlihat(page) {
     const doc = snap.documents[0];
     const strings = snap.strings;
     const terlayout = new Set(doc.layout?.nodeIndex ?? []);
-    const teks = [];
     const nodeType = doc.nodes.nodeType;
     const nodeValue = doc.nodes.nodeValue;
+    const parentIndex = doc.nodes.parentIndex;
+    // Teks dibaca per elemen induk: simpul teks bersaudara di dalam
+    // satu elemen (JSX memecah "{angka} label" menjadi dua simpul)
+    // menyatu persis seperti tampilannya; antar-elemen dipisah baris.
+    const perInduk = new Map();
     for (let i = 0; i < nodeValue.length; i++) {
       if (nodeType[i] === 3 && nodeValue[i] >= 0 && terlayout.has(i)) {
         const s = strings[nodeValue[i]];
-        if (s && s.trim()) teks.push(s.trim());
+        if (!s) continue;
+        const induk = parentIndex[i];
+        perInduk.set(induk, (perInduk.get(induk) ?? "") + s);
       }
     }
-    return teks.join("\n");
+    return [...perInduk.values()]
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .join("\n");
   } finally {
     await session.detach().catch(() => {});
   }

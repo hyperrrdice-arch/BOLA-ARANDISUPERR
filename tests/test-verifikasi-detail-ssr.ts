@@ -181,13 +181,24 @@ async function main(): Promise<void> {
     const pkgIds = seedPaket(env, ["paket-sm_19715544.json", "paket-mt_022917440.json"]);
     seedPicks(env, picksMarseille(pkgIds));
 
-    /* Ekspektasi diturunkan dari fixture beku + formatter repo. */
-    const berkasPaket = bacaFixture<{ payload?: unknown }>("paket-mt_022917440.json");
-    const payload = (berkasPaket.payload ?? berkasPaket) as {
-      fixture: { home: string; away: string; kickoff_utc: string };
-      score_matrix: number[][];
+    /* Ekspektasi diturunkan dari fixture beku + formatter repo.
+       Kedua paket membawa ejaan nama dari sumbernya masing-masing
+       (mt_: "Olympique de Marseille", sm_: "Olympique Marseille") —
+       tiap URL dinilai terhadap nama paketnya sendiri. */
+    const bacaPayload = (nama: string) => {
+      const berkas = bacaFixture<{ payload?: unknown }>(nama);
+      return (berkas.payload ?? berkas) as {
+        fixture: { home: string; away: string; kickoff_utc: string };
+        score_matrix: number[][];
+      };
     };
-    const { home, away, kickoff_utc: kickoff } = payload.fixture;
+    const payload = bacaPayload("paket-mt_022917440.json");
+    const payloadSm = bacaPayload("paket-sm_19715544.json");
+    const namaPerUrl: Record<string, { home: string; away: string }> = {
+      [MT]: { home: payload.fixture.home, away: payload.fixture.away },
+      [SM]: { home: payloadSm.fixture.home, away: payloadSm.fixture.away },
+    };
+    const { kickoff_utc: kickoff } = payload.fixture;
     const { tanggalJamWib } = await import("../lib/web/format");
     const { adaptasiMatriks, ringkasMatriks, formatPeluangSel } = await import(
       "../lib/web/peta-skor"
@@ -221,6 +232,7 @@ async function main(): Promise<void> {
     /* ---------------------------------------------------- JS MATI */
     for (const id of [MT, SM]) {
       const h = hasil.jsMati[id];
+      const { home, away } = namaPerUrl[id];
       const awalan = `JS mati ${id}:`;
       suite.eq(`${awalan} HTTP 200`, h?.status, 200);
       suite.check(`${awalan} fallback TIDAK terlihat sesudah respons selesai`,
