@@ -305,7 +305,7 @@ async function kasusC(): Promise<void> {
 /* ================================================ KASUS R — REGISTRY NYATA */
 
 function kasusR(): void {
-  console.log("\n== Kasus R — registry + tautan nyata di repo (gelombang 5) ==");
+  console.log("\n== Kasus R — registry + tautan nyata di repo (gelombang 5 + 6) ==");
   const reg = JSON.parse(
     fs.readFileSync(path.join(REPO_ROOT, "data", "team-canonical.json"), "utf8"),
   ) as {
@@ -319,7 +319,12 @@ function kasusR(): void {
   for (const t of reg.teams) for (const m of t.members) byMember.set(m.team_id, t.canonical_id);
   const entri = (cid: string) => reg.teams.find((t) => t.canonical_id === cid);
 
-  suite.eq("R jumlah tim kanonik 6.600 − 58 gabung + 1 pisah", reg.teams.length, 6543);
+  // 6.543 sesudah gelombang 5; gelombang 6 (verifikasi produksi temuan
+  // #1, 2026-11-21) menggabung dua klub Turki lagi yang terbelah antar
+  // sumber — lihat suite test-verifikasi-genclerbirligi.ts.
+  suite.eq("R jumlah tim kanonik 6.600 − 58 gabung + 1 pisah − 2 gabung gelombang 6", reg.teams.length, 6541);
+  suite.eq("R Gaziantep: fd_gaziantep kini anggota sm:4192", byMember.get("fd_gaziantep"), "sm:4192");
+  suite.eq("R Kasımpaşa: tm_master_kasimpasa kini anggota sm:1071", byMember.get("tm_master_kasimpasa"), "sm:1071");
   suite.eq("R Marseille: tm_25550 kini anggota sm:44", byMember.get("tm_25550"), "sm:44");
   suite.eq("R Olympiacos: 562 + tm_47798 kini anggota sm:602", [byMember.get("562"), byMember.get("tm_47798")], ["sm:602", "sm:602"]);
   suite.eq("R Everton Inggris: id 13 berk kanonik sm:13", byMember.get("13"), "sm:13");
@@ -346,6 +351,9 @@ function kasusR(): void {
   const twin = (id: string) => links.links.find((l) => l.twin_id === id)?.canonical_id;
   suite.eq("R tautan nyata: mt_022917440 → sm_19715544", twin("mt_022917440"), "sm_19715544");
   suite.eq("R tautan nyata: mt_377265875 → sm_19715561", twin("mt_377265875"), "sm_19715561");
+  suite.eq("R tautan nyata: fd_ Gençlerbirliği–Gaziantep → sm_19746551", twin("fd_T1_20261121_genclerbirligi_gaziantep"), "sm_19746551");
+  suite.eq("R tautan nyata: fd_ Gaziantep–Kasımpaşa → sm_19746564", twin("fd_T1_20261106_gaziantep_kasimpasa"), "sm_19746564");
+  suite.eq("R tautan nyata: fd_ Kasımpaşa–Alanyaspor → sm_19746554", twin("fd_T1_20261122_kasimpasa_alanyaspor"), "sm_19746554");
   suite.check(
     "R tautan nyata bertambah dari 188 menjadi ≥250",
     links.stats.twin_rows >= 250 && links.links.length === links.stats.twin_rows,
