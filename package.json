@@ -10,6 +10,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@sparticuz/chromium": "153.0.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24.19.2",
     "@types/react": "^19",
@@ -17,6 +18,7 @@
     "@types/three": "^0.187.0",
     "eslint": "^9",
     "eslint-config-next": "^16.4.6",
+    "puppeteer-core": "25.16.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.0",
     "typescript": "^5"
@@ -34,7 +36,9 @@
     "test:web": "tsx tests/test-web.ts && tsx tests/test-ui.ts && tsx tests/test-rekam.ts && tsx tests/test-detail-render.ts && tsx tests/test-fix6.ts && tsx tests/test-redesain-jadwal.ts && tsx tests/test-redesain-peta.ts && tsx tests/test-redesain-pilihan-rekam.ts",
     "test:api": "tsx tests/test-api-contract.ts",
     "test:e2e": "tsx tests/test-e2e.ts",
-    "test:baseline:d01": "tsx tests/test-baseline-d01.ts"
+    "test:baseline:d01": "tsx tests/test-baseline-d01.ts",
+    "test:verifikasi": "tsx tests/test-verifikasi-genclerbirligi.ts && tsx tests/test-verifikasi-marseille-detail.ts && tsx tests/test-verifikasi-pilihan-payload.ts && tsx tests/test-verifikasi-detail-ssr.ts",
+    "test:lanjut": "tsx tests/test-pilihan-edisi.ts && tsx tests/test-pilihan-edisi-browser.ts && tsx tests/test-pilihan-matriks-ulang.ts"
   },
   "version": "2.0.0"
 }

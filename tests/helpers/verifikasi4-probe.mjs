@@ -17,33 +17,22 @@
  *   sesudah memilih 3D dan kembali ke 2D, serta daftar permintaan
  *   jaringan — kontrak §9: nol permintaan chunk 3D sebelum dipilih.
  *
- * Puppeteer dimuat dari tumpukan pwshot yang sama dengan semua probe
- * render sebelumnya (~/workspace/tools/pwshot), dijangkar createRequire
- * supaya probe bisa hidup di repo. Override: env PWSHOT_DIR.
+ * Puppeteer dari resolver bersama tests/helpers/browser-resolve.mjs
+ * (LANJUT-3): devDependencies terkunci di checkout (versi yang sama
+ * dengan tumpukan pwshot lokal); env PWSHOT_DIR hanya override
+ * eksplisit ke perkakas lokal.
  *
  * Pakai: node verifikasi4-probe.mjs <baseUrl> <dirKeluar>
  * Mencetak satu baris "PROBE_JSON <json>".
  */
-import { createRequire } from "node:module";
+import { resolveBrowserStack } from "./browser-resolve.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const PWSHOT =
-  process.env.PWSHOT_DIR ??
-  path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-    "..",
-    "..",
-    "..",
-    "tools",
-    "pwshot",
-  );
-const req = createRequire(path.join(PWSHOT, "package.json"));
-const puppeteer = req("puppeteer-core");
-const chromiumMod = req("@sparticuz/chromium");
-const chromium = chromiumMod.default ?? chromiumMod;
+// Tumpukan browser dari resolver bersama (LANJUT-3): devDependencies
+// terkunci di checkout; PWSHOT_DIR hanya override eksplisit. Gagal
+// keras bila tidak tersedia — tidak ada skip diam-diam.
+const { puppeteer, chromium } = resolveBrowserStack();
 
 const BASE = process.argv[2];
 const OUT = process.argv[3];
