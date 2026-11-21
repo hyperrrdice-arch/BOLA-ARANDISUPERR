@@ -83,8 +83,17 @@ interface UiProbe {
   cakupan: { dariUtc: string; sampaiUtc: string } | null;
 }
 
-function runUiProbe(env: FixtureEnv): UiProbe {
-  const res: RunResult = runScript(env, "tests/helpers/ui-probe.ts");
+/**
+ * Probe dijalankan dengan JAM BEKU (LANJUT-3): adapter jadwal membaca
+ * jam dinding, jadi suite meneruskan instant beku ke proses probe —
+ * proses yang benar-benar membaca jadwal — lewat UI_PROBE_NOW_MS.
+ * Tanpa ini U02 bergantung jam dinding: laga asing berkickoff
+ * 21 Nov 2026 19.00 WIB berubah status tepat pada kickoff-nya.
+ */
+function runUiProbe(env: FixtureEnv, nowIso: string): UiProbe {
+  const res: RunResult = runScript(env, "tests/helpers/ui-probe.ts", [], {
+    UI_PROBE_NOW_MS: String(Date.parse(nowIso)),
+  });
   const line = res.stdout.split("\n").find((l) => l.startsWith("PROBE_JSON "));
   if (!line) {
     throw new Error(
@@ -428,7 +437,10 @@ async function main(): Promise<void> {
 
   /* ---- adapter lewat probe (U01–U03) ---- */
   const env = await buildSandbox();
-  const probe = runUiProbe(env);
+  // Jam beku utama: 18.59.59 WIB 21 Nov 2026 — satu detik SEBELUM
+  // kickoff laga asing (19.00.00 WIB). Seluruh assertion U01–U03 di
+  // bawah dinilai pada instant ini, berapa pun jam dinding suite.
+  const probe = runUiProbe(env, "2026-11-21T11:59:59.000Z");
   const byId = new Map(probe.schedule.map((i) => [i.match_id, i]));
 
   // U01: urutan stabil — seri kickoff sama: prioritas liga mengalahkan id,
@@ -465,6 +477,14 @@ async function main(): Promise<void> {
   suite.eq("U02: ditunda mempertahankan jadwal asal", tunda?.jadwal_asal_utc, KICK.postponed);
   suite.eq("U02: ditunda membawa jadwal ulang sibling", tunda?.jadwal_ulang_utc, KICK.ulang);
   suite.eq("U02: status asing tetap unknown", byId.get("sm_k6_unknown")?.status, "unknown");
+  // Sisi lain kickoff (LANJUT-3): probe kedua dibekukan TEPAT pada
+  // kickoff laga asing (19.00.00 WIB). Perilaku produk yang sama —
+  // status terjadwal yang kickoff-nya sudah tiba tanpa keadaan resmi
+  // menjadi menunggu-pembaruan — kini dinyatakan sebagai kasus uji
+  // eksplisit, bukan kegagalan bergantung jam dinding.
+  const probeKickoff = runUiProbe(env, KICK.unknown);
+  const unknownSaatKickoff = new Map(probeKickoff.schedule.map((i) => [i.match_id, i])).get("sm_k6_unknown");
+  suite.eq("U02: status asing tepat pada kickoff → menunggu-pembaruan", unknownSaatKickoff?.status, "menunggu-pembaruan");
   suite.eq("U02: dedup UID — jadwal ulang tidak menggandakan laga tunda", probe.schedule.filter((i) => i.fixture_uid === "fx_k6_post").length, 1);
 
   // U03: detail laga berpaket.

@@ -11,16 +11,28 @@
  *    tanpa paket dan ID asing,
  *  - cakupan: cakupanJadwal().
  * Probe tidak menilai apa pun; suite yang menilai.
+ *
+ * JAM BEKU (LANJUT-3): adapter jadwal membaca jam dinding lewat
+ * Date.now() (lib/web/data.ts). Bila env UI_PROBE_NOW_MS diset, jam
+ * proses probe dibekukan ke instant itu SEBELUM lib/web/data dimuat —
+ * inilah proses yang benar-benar membaca jadwal, jadi di sinilah
+ * bekunya. Tanpa env, perilaku lama (jam nyata) dipertahankan.
+ * Perilaku produk tidak berubah; yang dibekukan hanya jam uji.
  */
-import {
-  cakupanJadwal,
-  getFixtureInfo,
-  getMatchDetail,
-  getMatchState,
-  listSchedule,
-} from "../../lib/web/data";
+const frozenNowMs = Number(process.env.UI_PROBE_NOW_MS);
+if (process.env.UI_PROBE_NOW_MS && Number.isFinite(frozenNowMs)) {
+  Date.now = () => frozenNowMs;
+}
 
-function main(): void {
+async function main(): Promise<void> {
+  const {
+    cakupanJadwal,
+    getFixtureInfo,
+    getMatchDetail,
+    getMatchState,
+    listSchedule,
+  } = await import("../../lib/web/data");
+
   const schedule = listSchedule("2026-11-20T00:00:00.000Z", "2026-11-23T00:00:00.000Z").map(
     (i) => ({
       match_id: i.match_id,
@@ -103,4 +115,4 @@ function main(): void {
   );
 }
 
-main();
+void main();
