@@ -1,0 +1,82 @@
+[
+ {
+  "canonical_id": "fd_gaziantep",
+  "name": "Gaziantep",
+  "country": "Turkey",
+  "members": [
+   {
+    "system": "football-data",
+    "team_id": "fd_gaziantep",
+    "name_as_stored": "Gaziantep"
+   }
+  ],
+  "aliases": [
+   "Gaziantep"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:1071",
+  "name": "Kasımpasa",
+  "country": "Turkey",
+  "members": [
+   {
+    "system": "sportmonks",
+    "team_id": "1071",
+    "name_as_stored": "Kasımpaşa"
+   }
+  ],
+  "aliases": [
+   "Kasımpaşa"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:286",
+  "name": "Genclerbirligi",
+  "country": "Turkey",
+  "members": [
+   {
+    "system": "sportmonks",
+    "team_id": "286",
+    "name_as_stored": "Gençlerbirliği"
+   }
+  ],
+  "aliases": [
+   "Gençlerbirliği"
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "sm:4192",
+  "name": "Gaziantep F.K.",
+  "country": "Turkey",
+  "members": [
+   {
+    "system": "sportmonks",
+    "team_id": "4192",
+    "name_as_stored": "Gaziantep F.K."
+   }
+  ],
+  "aliases": [
+   "Gaziantep F.K."
+  ],
+  "contested_name": false
+ },
+ {
+  "canonical_id": "tm_master_kasimpasa",
+  "name": "Kasimpasa",
+  "country": null,
+  "members": [
+   {
+    "system": "thestats",
+    "team_id": "tm_master_kasimpasa",
+    "name_as_stored": "Kasimpasa"
+   }
+  ],
+  "aliases": [
+   "Kasimpasa"
+  ],
+  "contested_name": false
+ }
+]

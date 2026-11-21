@@ -1,0 +1,433 @@
+{
+ "kind": "quant-package",
+ "version": 1,
+ "source": "pick-slate",
+ "fixture": {
+  "match_id": "fd_T1_20261121_genclerbirligi_gaziantep",
+  "competition_id": "T1",
+  "competition_name": "Super Lig",
+  "home": "Genclerbirligi",
+  "away": "Gaziantep",
+  "kickoff_utc": "2026-11-21T10:30:00.000Z"
+ },
+ "canonical_id": "sm:600",
+ "gate_status": "calibrated",
+ "population": "domestic",
+ "lambda": 1.517,
+ "mu": 1.275,
+ "rho": -0.09,
+ "probabilities": {
+  "1x2:1": 0.41858552793069626,
+  "1x2:x": 0.2724633438397744,
+  "1x2:2": 0.3089511282295289,
+  "dc:1x": 0.6910488717704707,
+  "dc:12": 0.7275366561602257,
+  "dc:x2": 0.5814144720693039,
+  "ou15:over": 0.7782266889426589,
+  "ou15:under": 0.22177331105734113,
+  "ou25:over": 0.5286371323411525,
+  "ou25:under": 0.4713628676588473,
+  "ou35:over": 0.3062832061496216,
+  "ou35:under": 0.6937167938503778,
+  "btts:yes": 0.5731690980330352,
+  "btts:no": 0.4268309019669647,
+  "team_over05_home:yes": 0.7806309902474043,
+  "team_over05_away:yes": 0.7205690314541875
+ },
+ "top_scores": [
+  {
+   "home_goals": 1,
+   "away_goals": 1,
+   "prob": 0.1292325977711177
+  },
+  {
+   "home_goals": 2,
+   "away_goals": 1,
+   "prob": 0.08992928936641538
+  },
+  {
+   "home_goals": 1,
+   "away_goals": 0,
+   "prob": 0.08231923524150528
+  },
+  {
+   "home_goals": 1,
+   "away_goals": 2,
+   "prob": 0.07558328539365829
+  },
+  {
+   "home_goals": 0,
+   "away_goals": 0,
+   "prob": 0.07196907633144368
+  },
+  {
+   "home_goals": 2,
+   "away_goals": 0,
+   "prob": 0.07053277597365913
+  },
+  {
+   "home_goals": 0,
+   "away_goals": 1,
+   "prob": 0.06748499948439218
+  },
+  {
+   "home_goals": 2,
+   "away_goals": 2,
+   "prob": 0.05732992197108981
+  }
+ ],
+ "score_matrix": [
+  [
+   0.07196907633144368,
+   0.06748499948439218,
+   0.049824182856729266,
+   0.021175277714109937,
+   0.006749619771372542,
+   0.0017211530416999983,
+   0.0003657450213612495,
+   6.661784317651331e-05,
+   1.0617218756256807e-05,
+   1.5041059904697143e-06,
+   1.9177351378488856e-07,
+   2.2228293643248447e-08,
+   2.361756199595147e-09
+  ],
+  [
+   0.08231923524150528,
+   0.1292325977711177,
+   0.07558328539365829,
+   0.032122896292304776,
+   0.010239173193172146,
+   0.002610989164258897,
+   0.0005548351974050155,
+   0.00010105926809877068,
+   1.6106320853241577e-05,
+   2.2817287875425564e-06,
+   2.909204204116759e-07,
+   3.372032145680789e-08,
+   3.582784154785838e-09
+  ],
+  [
+   0.07053277597365913,
+   0.08992928936641538,
+   0.05732992197108981,
+   0.024365216837713168,
+   0.007766412867021072,
+   0.001980435281090373,
+   0.00042084249723170415,
+   7.665345485291756e-05,
+   1.2216644367183734e-05,
+   1.730691285351029e-06,
+   2.2066313888225617e-07,
+   2.557686382498878e-08,
+   2.717541781405058e-09
+  ],
+  [
+   0.03566607371734697,
+   0.045474243989617386,
+   0.028989830543381084,
+   0.01232067798093696,
+   0.003927216106423655,
+   0.001001440107138032,
+   0.00021280602276683178,
+   3.876109700395865e-05,
+   6.177549835005908e-06,
+   8.751528932925038e-07,
+   1.1158199389479421e-07,
+   1.2933367474169329e-08,
+   1.374170294130491e-09
+  ],
+  [
+   0.013526358457303838,
+   0.01724610703306239,
+   0.010994393233577274,
+   0.004672617124270341,
+   0.001489396708361171,
+   0.0003797961606320986,
+   8.070668413432093e-05,
+   1.4700146038751313e-05,
+   2.34283577492599e-06,
+   3.3190173478118195e-07,
+   4.231747118460069e-08,
+   4.904979614578717e-09,
+   5.211540840489886e-10
+  ],
+  [
+   0.004103897155945984,
+   0.005232468873831128,
+   0.003335698907067344,
+   0.0014176720355036213,
+   0.00045188296131677924,
+   0.0001152301551357787,
+   2.4486407966352966e-05,
+   4.460024308157148e-06,
+   7.108163741125453e-07,
+   1.0069898633261059e-07,
+   1.2839120757407847e-08,
+   1.4881708150631824e-09,
+   1.581181491004631e-10
+  ],
+  [
+   0.0010376019975950096,
+   0.001322942546933637,
+   0.0008433758736701936,
+   0.0003584347463098323,
+   0.00011425107538625903,
+   2.913402422349605e-05,
+   6.190980147492909e-06,
+   1.1276428125790655e-06,
+   1.7971807325478856e-07,
+   2.5460060377761713e-08,
+   3.246157698164618e-09,
+   3.76259187741808e-10,
+   3.99775386975671e-11
+  ],
+  [
+   0.00022486317576451848,
+   0.000286700549099761,
+   0.00018277160005109765,
+   7.767793002171651e-05,
+   2.475984019442213e-05,
+   6.313759249577643e-06,
+   1.341673840535249e-06,
+   2.443763066689203e-07,
+   3.894747387535917e-08,
+   5.5175587990092165e-09,
+   7.034887468736749e-10,
+   8.154074111490324e-11,
+   8.663703743458468e-12
+  ],
+  [
+   4.263967970434682e-05,
+   5.436559162304219e-05,
+   3.465806465968939e-05,
+   1.4729677480367993e-05,
+   4.695084696867297e-06,
+   1.1972465977011606e-06,
+   2.544149020114966e-07,
+   4.633985715209402e-08,
+   7.385414733614983e-09,
+   1.0462670872621228e-09,
+   1.3339905362592063e-10,
+   1.5462163033913525e-11,
+   1.642854822353312e-12
+  ],
+  [
+   7.187154901277125e-06,
+   9.163622499128332e-06,
+   5.841809343194312e-06,
+   2.482768970857583e-06,
+   7.913826094608543e-07,
+   2.0180256541251784e-07,
+   4.288304515016003e-08,
+   7.810840366636292e-09,
+   1.2448526834326588e-09,
+   1.7635413015296003e-10,
+   2.2485151594502397e-11,
+   2.6062334802718687e-12,
+   2.76912307278886e-13
+  ],
+  [
+   1.0902913985237396e-06,
+   1.3901215331177676e-06,
+   8.862024773625769e-07,
+   3.766360528790952e-07,
+   1.2005274185521156e-07,
+   3.061344917307895e-08,
+   6.505357949279275e-09,
+   1.1849044836187251e-09,
+   1.888441520767343e-10,
+   2.6752921544204026e-11,
+   3.410997496886013e-12,
+   3.953656189572424e-13,
+   4.2007597014207e-14
+  ],
+  [
+   1.5036109559641028e-07,
+   1.917103968854231e-07,
+   1.2221537801445722e-07,
+   5.1941535656144315e-08,
+   1.6556364490395998e-08,
+   4.22187294505098e-09,
+   8.971480008233328e-10,
+   1.634091001499642e-10,
+   2.6043325336400543e-11,
+   3.689471089323411e-12,
+   4.704075638887347e-13,
+   5.4524513087103345e-14,
+   5.7932295155047295e-15
+  ],
+  [
+   1.9008148501646195e-08,
+   2.4235389339598898e-08,
+   1.54500607039943e-08,
+   6.566275799197577e-09,
+   2.0930004109942277e-09,
+   5.33715104803528e-10,
+   1.1341445977074967e-10,
+   2.0657633743957974e-11,
+   3.2923103779433016e-12,
+   4.664106368753011e-13,
+   5.946735620160088e-14,
+   6.892807196094648e-15,
+   7.323607645850563e-16
+  ]
+ ],
+ "shrunk_metadata": {
+  "div": "T1",
+  "leagueName": "Turkish Super Lig",
+  "homeSource": "primary_league",
+  "awaySource": "primary_league",
+  "macroPriorDate": "2026-10-12",
+  "telemetrySource": {
+   "home": "thestats_observed_xg",
+   "away": "thestats_observed_xg"
+  },
+  "observedXgSamples": {
+   "home": 6,
+   "away": 6
+  },
+  "isEstimatedTelemetry": false,
+  "preMatchCutoff": "2026-11-21",
+  "luckMetrics": {
+   "home": {
+    "team_id": "Genclerbirligi",
+    "sample_size": 6,
+    "total_goals_for": 7,
+    "total_xg_for": 6.08,
+    "finishing_luck_per_match": 0.154,
+    "total_goals_against": 12,
+    "total_xg_against": 11.96,
+    "defensive_luck_per_match": -0.007,
+    "net_luck_rating": 0.147,
+    "status": "NEUTRAL",
+    "description": "Performa gol selaras dengan ekspektasi peluang (Net luck: 0.147)."
+   },
+   "away": {
+    "team_id": "fd_gaziantep",
+    "sample_size": 6,
+    "total_goals_for": 2,
+    "total_xg_for": 6.55,
+    "finishing_luck_per_match": -0.758,
+    "total_goals_against": 14,
+    "total_xg_against": 10.81,
+    "defensive_luck_per_match": -0.532,
+    "net_luck_rating": -1.29,
+    "status": "UNDERPERFORMING",
+    "description": "Tim underperforming xG (-1.29/laga). Peluang tercipta tinggi namun konversi sial. Kandidat kuat pembalikan positif."
+   },
+   "luck_disparity": 1.437,
+   "market_bias_warning": null,
+   "agentic_tactical_thesis": {
+    "bull_angle": "Genclerbirligi memegang net luck rating 0.147.",
+    "bear_angle": "Gaziantep berpeluang mengeksploitasi celah dengan net luck rating -1.29."
+   }
+  },
+  "calibrationStatus": "calibrated",
+  "calibrationGate": "Lolos gerbang kalibrasi (uji skala + cakupan telemetri, dan gerbang OOS bila tersedia). rasio skala=0.9998 cakupan telemetri=1 Lolos uji skala + cakupan telemetri ≥80%. Gerbang OOS lolos: log-loss held-out 1.0030 < naive 1.0394 (n=111).",
+  "leagueResolution": {
+   "canonicalId": "sm:600",
+   "fitSystem": "legacy-div",
+   "via": "fixture-row",
+   "note": "Fit legacy-div (T1, status calibrated) melayani karena sumber fixture = legacy-div."
+  }
+ },
+ "market": {
+  "probs": {
+   "1x2:1": 0.4085,
+   "1x2:x": 0.2619,
+   "1x2:2": 0.3296,
+   "ou25:over": 0.5395,
+   "ou25:under": 0.4605
+  },
+  "captured_utc": "2026-11-21T09:21:52.079Z",
+  "bookmakers": [
+   "Pinnacle",
+   "Bet365"
+  ]
+ },
+ "sm_panel": {
+  "probs": {},
+  "batch_utc": null
+ },
+ "legs": [
+  {
+   "market": "team_over05_home",
+   "selection": "yes",
+   "model_prob": 0.7806309902474043,
+   "effective_prob": 0.7612,
+   "effective_source": "lab-band",
+   "band": "75–80",
+   "band_n": 1784,
+   "grade": "A",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  },
+  {
+   "market": "ou15",
+   "selection": "over",
+   "model_prob": 0.7782266889426589,
+   "effective_prob": 0.7505,
+   "effective_source": "lab-band",
+   "band": "75–80",
+   "band_n": 2168,
+   "grade": "B",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  },
+  {
+   "market": "dc",
+   "selection": "12",
+   "model_prob": 0.7275366561602257,
+   "effective_prob": 0.7271,
+   "effective_source": "lab-band",
+   "band": "70–75",
+   "band_n": 4621,
+   "grade": "B",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  },
+  {
+   "market": "ou35",
+   "selection": "under",
+   "model_prob": 0.6937167938503778,
+   "effective_prob": 0.7038,
+   "effective_source": "lab-band",
+   "band": "65–70",
+   "band_n": 1644,
+   "grade": "B",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  },
+  {
+   "market": "team_over05_away",
+   "selection": "yes",
+   "model_prob": 0.7205690314541875,
+   "effective_prob": 0.7014,
+   "effective_source": "lab-band",
+   "band": "70–75",
+   "band_n": 1845,
+   "grade": "B",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  },
+  {
+   "market": "dc",
+   "selection": "1x",
+   "model_prob": 0.6910488717704707,
+   "effective_prob": 0.6855,
+   "effective_source": "lab-band",
+   "band": "65–70",
+   "band_n": 2658,
+   "grade": "B",
+   "market_prob": null,
+   "sm_prob": null,
+   "agreement_spread": null
+  }
+ ]
+}
