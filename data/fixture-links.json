@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-11-20T20:11:06.334Z",
+  "generated_at": "2026-11-21T14:13:18.303Z",
   "generator": "scripts/build-fixture-links.ts",
   "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
   "stats": {
-    "fixtures": 3924,
-    "duplicate_groups": 244,
-    "twin_rows": 260,
+    "fixtures": 4009,
+    "duplicate_groups": 283,
+    "twin_rows": 308,
     "fixtures_with_unresolved_team": 0
   },
   "links": [
@@ -36,6 +36,21 @@
       "kickoff_utc": "2026-11-08T15:00:00.000Z"
     },
     {
+      "twin_id": "fd_B1_20261121_genk_raal-la-louviere",
+      "canonical_id": "sm_19726010",
+      "kickoff_utc": "2026-11-21T17:15:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261122_anderlecht_oud-heverlee-leuven",
+      "canonical_id": "sm_19726012",
+      "kickoff_utc": "2026-11-22T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261122_kortrijk_st-gilloise",
+      "canonical_id": "sm_19726007",
+      "kickoff_utc": "2026-11-22T15:00:00.000Z"
+    },
+    {
       "twin_id": "fd_D1_20261106_hamburger-sv_borussia-monchengladbach",
       "canonical_id": "sm_19735119",
       "kickoff_utc": "2026-11-06T19:30:00.000Z"
@@ -49,6 +64,21 @@
       "twin_id": "fd_D1_20261108_tsg-1899-hoffenheim_fc-schalke-04",
       "canonical_id": "sm_19735122",
       "kickoff_utc": "2026-11-08T18:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D1_20261121_bayer-leverkusen_sc-paderborn-07",
+      "canonical_id": "sm_19735115",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D1_20261121_borussia-monchengladbach_borussia-dortmund",
+      "canonical_id": "sm_19735111",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D1_20261121_eintracht-frankfurt_tsg-1899-hoffenheim",
+      "canonical_id": "sm_19735114",
+      "kickoff_utc": "2026-11-21T14:30:00.000Z"
     },
     {
       "twin_id": "fd_D2_20261106_dresden_spvgg-greuther-furth",
@@ -79,6 +109,31 @@
       "twin_id": "fd_D2_20261108_vfl-bochum_karlsruher-sc",
       "canonical_id": "sm_19735410",
       "kickoff_utc": "2026-11-08T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261120_bielefeld_1-fc-magdeburg",
+      "canonical_id": "sm_19735397",
+      "kickoff_utc": "2026-11-20T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261120_sv-darmstadt-98_1-fc-heidenheim",
+      "canonical_id": "sm_19735401",
+      "kickoff_utc": "2026-11-20T17:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261121_fc-st-pauli_vfl-bochum",
+      "canonical_id": "sm_19735403",
+      "kickoff_utc": "2026-11-21T19:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261122_1-fc-kaiserslautern_dresden",
+      "canonical_id": "sm_19735400",
+      "kickoff_utc": "2026-11-22T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_D2_20261122_cottbus_hertha-bsc",
+      "canonical_id": "sm_19735396",
+      "kickoff_utc": "2026-11-22T12:30:00.000Z"
     },
     {
       "twin_id": "fd_E1_20261103_birmingham_millwall",
@@ -116,6 +171,26 @@
       "kickoff_utc": "2026-11-07T15:00:00.000Z"
     },
     {
+      "twin_id": "fd_E1_20261121_bolton_portsmouth",
+      "canonical_id": "sm_19728986",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261121_lincoln_wrexham",
+      "canonical_id": "sm_19728984",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261121_stoke-city_birmingham",
+      "canonical_id": "sm_19728978",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E1_20261121_wolverhampton-wanderers_charlton",
+      "canonical_id": "sm_19728975",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
       "twin_id": "fd_E2_20261114_milton-keynes-dons_burton",
       "canonical_id": "sm_19728164",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
@@ -134,6 +209,36 @@
       "twin_id": "fd_E2_20261114_wigan_barnsley",
       "canonical_id": "sm_19728159",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261120_barnsley_sheffield-weds",
+      "canonical_id": "sm_19728157",
+      "kickoff_utc": "2026-11-20T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261121_blackpool_wigan",
+      "canonical_id": "sm_19728156",
+      "kickoff_utc": "2026-11-21T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261121_burton_luton-town",
+      "canonical_id": "sm_19728154",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261121_huddersfield_leicester-city",
+      "canonical_id": "sm_19728152",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261121_mansfield_milton-keynes-dons",
+      "canonical_id": "sm_19728150",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E2_20261121_plymouth-argyle_peterboro",
+      "canonical_id": "sm_19728147",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
     },
     {
       "twin_id": "fd_E3_20261114_bristol-rvs_chesterfield",
@@ -166,6 +271,21 @@
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
     },
     {
+      "twin_id": "fd_E3_20261121_gillingham_crewe",
+      "canonical_id": "sm_19727600",
+      "kickoff_utc": "2026-11-21T12:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261121_tranmere_colchester",
+      "canonical_id": "sm_19727595",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_E3_20261121_york_walsall",
+      "canonical_id": "sm_19727594",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
       "twin_id": "fd_EC_20261114_harrogate_altrincham",
       "canonical_id": "sm_19748145",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
@@ -189,6 +309,21 @@
       "twin_id": "fd_EC_20261114_yeovil_boreham-wood",
       "canonical_id": "sm_19748137",
       "kickoff_utc": "2026-11-14T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261121_gateshead_hartlepool",
+      "canonical_id": "sm_19748130",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261121_wealdstone_hornchurch",
+      "canonical_id": "sm_19748127",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_EC_20261121_worthing_harrogate",
+      "canonical_id": "sm_19748126",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
     },
     {
       "twin_id": "fd_G1_20261107_aris_panetolikos",
@@ -216,9 +351,34 @@
       "kickoff_utc": "2026-11-08T19:00:00.000Z"
     },
     {
+      "twin_id": "fd_G1_20261122_levadeiakos_atromitos",
+      "canonical_id": "sm_19763827",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261122_olympiacos_iraklis",
+      "canonical_id": "sm_19763826",
+      "kickoff_utc": "2026-11-22T17:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261122_panathinaikos_ofi-crete",
+      "canonical_id": "sm_19763825",
+      "kickoff_utc": "2026-11-22T15:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_G1_20261122_panetolikos_volos-nfc",
+      "canonical_id": "sm_19763824",
+      "kickoff_utc": "2026-11-22T15:00:00.000Z"
+    },
+    {
       "twin_id": "fd_I2_20261107_padova_empoli-fc",
       "canonical_id": "sm_19768811",
       "kickoff_utc": "2026-11-07T14:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_I2_20261122_arezzo_padova",
+      "canonical_id": "sm_19768808",
+      "kickoff_utc": "2026-11-22T16:15:00.000Z"
     },
     {
       "twin_id": "fd_N1_20261106_willem-ii_zwolle",
@@ -256,6 +416,36 @@
       "kickoff_utc": "2026-11-08T11:15:00.000Z"
     },
     {
+      "twin_id": "fd_N1_20261121_fc-utrecht_cambuur",
+      "canonical_id": "sm_19714589",
+      "kickoff_utc": "2026-11-21T17:45:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261121_groningen_heerenveen",
+      "canonical_id": "sm_19714591",
+      "kickoff_utc": "2026-11-21T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261121_nijmegen_psv-eindhoven",
+      "canonical_id": "sm_19714586",
+      "kickoff_utc": "2026-11-21T15:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261121_telstar_zwolle",
+      "canonical_id": "sm_19714584",
+      "kickoff_utc": "2026-11-21T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261122_afc-ajax_den-haag",
+      "canonical_id": "sm_19714592",
+      "kickoff_utc": "2026-11-22T13:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_N1_20261122_go-ahead-eagles_for-sittard",
+      "canonical_id": "sm_19714587",
+      "kickoff_utc": "2026-11-22T15:45:00.000Z"
+    },
+    {
       "twin_id": "fd_P1_20261108_estrela_sl-benfica",
       "canonical_id": "sm_19736766",
       "kickoff_utc": "2026-11-08T20:30:00.000Z"
@@ -279,6 +469,21 @@
       "twin_id": "fd_SC0_20261107_st-mirren_rangers",
       "canonical_id": "sm_19722747",
       "kickoff_utc": "2026-11-07T20:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SC0_20261121_celtic_st-mirren",
+      "canonical_id": "sm_19722745",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SC0_20261121_falkirk_st-johnstone",
+      "canonical_id": "sm_19722743",
+      "kickoff_utc": "2026-11-21T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_SP1_20261121_deportivo-alaves_deportivo-la-coruna",
+      "canonical_id": "sm_19732622",
+      "kickoff_utc": "2026-11-21T13:00:00.000Z"
     },
     {
       "twin_id": "fd_SP2_20261107_burgos-cf_celta-b",
@@ -306,6 +511,16 @@
       "kickoff_utc": "2026-11-16T19:30:00.000Z"
     },
     {
+      "twin_id": "fd_SP2_20261120_andorra_cd-leganes",
+      "canonical_id": "sm_19744978",
+      "kickoff_utc": "2026-11-20T19:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261106_gaziantep_kasimpasa",
+      "canonical_id": "sm_19746564",
+      "kickoff_utc": "2026-11-06T17:00:00.000Z"
+    },
+    {
       "twin_id": "fd_T1_20261107_galatasaray_amedspor",
       "canonical_id": "sm_19746558",
       "kickoff_utc": "2026-11-07T16:00:00.000Z"
@@ -324,6 +539,31 @@
       "twin_id": "fd_T1_20261108_rizespor_erzurumspor",
       "canonical_id": "sm_19746561",
       "kickoff_utc": "2026-11-08T10:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261121_amedspor_rizespor",
+      "canonical_id": "sm_19746552",
+      "kickoff_utc": "2026-11-21T13:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261121_genclerbirligi_gaziantep",
+      "canonical_id": "sm_19746551",
+      "kickoff_utc": "2026-11-21T10:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261122_erzurumspor_goztep",
+      "canonical_id": "sm_19746547",
+      "kickoff_utc": "2026-11-22T10:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261122_kasimpasa_alanyaspor",
+      "canonical_id": "sm_19746554",
+      "kickoff_utc": "2026-11-22T13:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_T1_20261123_buyuksehyr_corum",
+      "canonical_id": "sm_19746553",
+      "kickoff_utc": "2026-11-23T17:00:00.000Z"
     },
     {
       "twin_id": "mt_022015219",

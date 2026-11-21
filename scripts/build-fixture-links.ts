@@ -18,6 +18,8 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   ensureIdentitySchema,
+  getFixtureByUid,
+  getUidForMatchId,
   linkAlias,
   resolveFixtureIdentity,
   sourceOfMatchId,
@@ -105,11 +107,64 @@ function main() {
       ensureIdentitySchema(ds);
       const nowIso = new Date().toISOString();
       const rowById = new Map(fx.map((f) => [f.match_id, f]));
+      // Pemulihan cid fixture yang tersimpan: cid lama yang menurut
+      // registry SAAT INI adalah member dari cid grup (klub yang sama,
+      // mis. 'fd_gaziantep' -> 'sm:4192' sesudah gabung registry)
+      // ditulis ulang ke cid grup. Tanpa ini resolver menandai fixture
+      // lama sebagai konflik tim (ambiguous) dan hasil tak pernah
+      // menempel. cid yang menunjuk klub LAIN tidak disentuh.
+      const pulihkanCid = (uid: string, homeCid: string, awayCid: string): void => {
+        const fxRow = getFixtureByUid(ds, uid);
+        if (!fxRow) return;
+        const map = (tersimpan: string | null, grup: string): string | null =>
+          tersimpan && tersimpan !== grup && byId.get(tersimpan) === grup
+            ? grup
+            : tersimpan;
+        const homeBaru = map(fxRow.home_cid, homeCid);
+        const awayBaru = map(fxRow.away_cid, awayCid);
+        if (homeBaru !== fxRow.home_cid || awayBaru !== fxRow.away_cid) {
+          ds.prepare(
+            "UPDATE canonical_fixtures SET home_cid = ?, away_cid = ?, updated_at = ? WHERE fixture_uid = ?",
+          ).run(homeBaru, awayBaru, nowIso, uid);
+        }
+      };
       let registered = 0;
       for (const [key, ids] of groups) {
         if (ids.length < 2) continue;
         const [kickoffUtc, homeCid, awayCid] = key.split("|");
         const canonical = ids.find((i) => i.startsWith("sm_")) ?? ids[0];
+        // Konvergensi (verifikasi produksi temuan #1): bila grup sudah
+        // punya TEPAT SATU fixture fisik — dari member mana pun, mis.
+        // fixture fd_ yang dibuat importer — dan baris kanonik belum
+        // menunjuk ke sana, JANGAN buat fixture kedua lewat resolver:
+        // tautkan semua alias grup ke fixture yang sudah ada itu. Pick
+        // terbit membawa fixture_uid tersimpan, jadi kunci fisik
+        // penyajian harus UID yang sudah ada, bukan UID baru.
+        const uidPerId = new Map<string, string>();
+        for (const id of ids) {
+          const u = getUidForMatchId(ds, id);
+          if (u) uidPerId.set(id, u);
+        }
+        const uidUnik = [...new Set(uidPerId.values())];
+        if (uidUnik.length === 1) {
+          const survivor = uidUnik[0];
+          pulihkanCid(survivor, homeCid, awayCid);
+          if (uidPerId.get(canonical) !== survivor) {
+            linkAlias(ds, survivor, sourceOfMatchId(canonical), canonical, "catalog_twin", nowIso);
+            registered++;
+            for (const id of ids) {
+              if (id === canonical) continue;
+              if (uidPerId.get(id) !== survivor) {
+                linkAlias(ds, survivor, sourceOfMatchId(id), id, "catalog_twin", nowIso);
+                registered++;
+              }
+            }
+            continue;
+          }
+          // Fixture tunggal itu milik baris kanonik sendiri dan cid-nya
+          // sudah dipulihkan di atas — lanjut ke jalur resolver biasa,
+          // yang kini memvalidasinya sebagai 'known'.
+        }
         const primary = rowById.get(canonical);
         const resolved = resolveFixtureIdentity(
           ds,
