@@ -904,7 +904,10 @@ export default function ParlayBuilder({
                               semula. */}
                           <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                             <span className="flex min-w-0 basis-full items-start gap-3 sm:basis-auto sm:flex-1">
-                              <GradeMark grade={p.grade} className="w-4 shrink-0 pt-px text-center" />
+                              {/* w-[16px] eksplisit: w-4 pada peta --spacing-*
+                                  warisan hanya 4 px — huruf kelas selebar
+                                  8 px meluap dari kotaknya (audit P2). */}
+                              <GradeMark grade={p.grade} className="w-[16px] shrink-0 pt-px text-center" />
                               <span className="min-w-0 flex-1">
                                 <span className="block text-[15px] break-words text-ink">{label}</span>
                                 <span className="block text-[12px] text-faint">

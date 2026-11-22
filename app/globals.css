@@ -44,6 +44,15 @@
   --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-micro: 160ms;
   --duration-layout: 280ms;
+  /* Token gerak UI seragam (P2 brief upgrade): satu easing untuk
+     semua transisi interaksi (hover/fokus/indikator/chevron) dan
+     animasi masuk panel. --ease-terminal tetap khusus bilah muat
+     mono (gerak berulang, bukan transisi interaksi). Durasi:
+     fast 120 ms (grup masuk), micro 160 ms (transisi + ringkasan),
+     panel 210 ms (panel masuk + gerak rotasi 3D), layout 280 ms. */
+  --ease-ui: cubic-bezier(0.22, 0.72, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-panel: 210ms;
 }
 
 @media (min-width: 360px) {
@@ -138,7 +147,7 @@ body {
 }
 
 .grup-masuk {
-  animation: grupMasuk 120ms ease-out;
+  animation: grupMasuk var(--duration-fast) var(--ease-ui);
 }
 
 /* Bilah ringkasan Pilihan di HP (brief §9): masuk 6 px selama 160 ms
@@ -149,7 +158,7 @@ body {
 }
 
 .ringkasan-masuk {
-  animation: ringkasanMasuk 160ms cubic-bezier(.22,.72,.2,1);
+  animation: ringkasanMasuk var(--duration-micro) var(--ease-ui);
 }
 
 /* Panel bawah Pilihanmu (brief §9): muncul dari bawah sejauh 12 px
@@ -160,7 +169,7 @@ body {
 }
 
 .panel-masuk {
-  animation: panelMasuk 210ms cubic-bezier(.22,.72,.2,1);
+  animation: panelMasuk var(--duration-panel) var(--ease-ui);
 }
 
 /* Reduced Motion Override */

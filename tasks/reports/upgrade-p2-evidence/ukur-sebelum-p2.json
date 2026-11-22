@@ -1,0 +1,150 @@
+{
+  "label": "sebelum-p2",
+  "base": "http://localhost:3101",
+  "detail": {
+    "panelPadding": {
+      "top": "4px",
+      "left": "4px"
+    },
+    "panelBg": "rgb(13, 13, 15)",
+    "nomorTeratas": {
+      "clientWidth": 4,
+      "scrollWidth": 11,
+      "rect": 4
+    }
+  },
+  "jumlahTombolFilter": 4,
+  "sel_redup": {
+    "opacity": "0.4",
+    "bg": "rgba(255, 173, 91, 0.784)",
+    "color": "rgb(0, 0, 0)",
+    "teks": "8,5%",
+    "ariaLabel": "Bohemians 1905 0 gol, Viktoria Plzeň 0 gol, peluang 8,5%",
+    "bgEfektif": [
+      89,
+      63,
+      39
+    ],
+    "teksEfektif": [
+      8,
+      8,
+      9
+    ],
+    "kontrasEfektif": 2.06
+  },
+  "sel_normal": {
+    "opacity": "1",
+    "bg": "rgba(255, 173, 91, 0.918)",
+    "color": "rgb(0, 0, 0)",
+    "teks": "11,8%",
+    "ariaLabel": "Bohemians 1905 0 gol, Viktoria Plzeň 1 gol, peluang 11,8%",
+    "bgEfektif": [
+      235,
+      160,
+      85
+    ],
+    "teksEfektif": [
+      0,
+      0,
+      0
+    ],
+    "kontrasEfektif": 9.69
+  },
+  "bukti": {
+    "panelFilterPadding": {
+      "top": "4px",
+      "left": "4px"
+    },
+    "transisiIndikatorTab": {
+      "durasi": "0.16s",
+      "easing": "cubic-bezier(0.22, 0.72, 0.2, 1)",
+      "properti": "all"
+    }
+  },
+  "pilihan": {
+    "gradeMark": {
+      "clientWidth": 4,
+      "scrollWidth": 8,
+      "rect": 4,
+      "teks": "A"
+    },
+    "jumlahTombolTambah": 40,
+    "tambahTerklik": true,
+    "sesudahTambah": {
+      "spacer": [
+        {
+          "tinggi": 24,
+          "kelas": "h-24 lg:hidden"
+        }
+      ],
+      "fixed": [
+        {
+          "tag": "NAV",
+          "tinggi": 53,
+          "bottom": 844,
+          "kelas": "fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-kertas md:hidden",
+          "teks": "BerandaJadwalPilihanRekam hasil"
+        },
+        {
+          "tag": "DIV",
+          "tinggi": 61,
+          "bottom": 792,
+          "kelas": "fixed inset-x-0 bottom-[calc(52px+env(safe-area-inset-bottom))] z-40 border-t bo",
+          "teks": "Peluang semua tepat 88,1%Lihat 1 pilihan"
+        }
+      ]
+    }
+  },
+  "detail1440": {
+    "grids": [
+      {
+        "kelas": "grid grid-cols-4 pb-[env(safe-area-inset-bottom)]",
+        "columnGap": "normal",
+        "rowGap": "normal",
+        "kolom": "repeat(4, minmax(0px, 1fr))"
+      },
+      {
+        "kelas": "mt-6 grid gap-6 sm:grid-cols-3",
+        "columnGap": "24px",
+        "rowGap": "24px",
+        "kolom": "376px 376px 376px"
+      },
+      {
+        "kelas": "mt-8 grid gap-12 md:grid-cols-2",
+        "columnGap": "12px",
+        "rowGap": "12px",
+        "kolom": "582px 582px"
+      },
+      {
+        "kelas": "mt-8 grid gap-12 md:grid-cols-2",
+        "columnGap": "12px",
+        "rowGap": "12px",
+        "kolom": "582px 582px"
+      }
+    ],
+    "main": {
+      "lebar": 1240,
+      "paddingLeft": "32px",
+      "maxWidth": "1240px"
+    },
+    "nav": [
+      {
+        "tampil": true,
+        "posisi": "static",
+        "label": "Utama"
+      },
+      {
+        "tampil": false,
+        "posisi": "fixed",
+        "label": "Utama"
+      }
+    ]
+  },
+  "beranda": {
+    "transisiCTA": {
+      "durasi": "0.15s",
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "properti": "opacity"
+    }
+  }
+}

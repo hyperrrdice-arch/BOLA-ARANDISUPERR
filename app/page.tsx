@@ -64,7 +64,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
      tetapi dipadatkan: nama tim satu baris mengalir, angka peluang
      26 px, metadata 12 px sekunder, CTA tetap target 44 px. */
   const kelasCta =
-    "inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-jingga px-4 text-sm font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90";
+    "inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-jingga px-4 text-sm font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-[var(--duration-micro)] hover:opacity-90";
   return (
     <section
       aria-label="Sorotan"
@@ -81,8 +81,11 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
       {/* Nama tim + CTA sebaris: CTA di samping nama (bukan di baris
           angka) supaya baris peluang tidak membungkus dan panel
           tetap ringkas — terukur, membungkusnya CTA ke baris sendiri
-          menambah ±44 px. */}
-      <div className="mt-1 flex items-center gap-3">
+          menambah ±44 px. flex-wrap hanya aktif pada lebar ekstrem
+          (mis. teks 200% ≈ 195 px efektif): CTA turun ke baris
+          sendiri di sana ketimbang memaksa scroll horizontal —
+          pada semua lebar brief (≥320 px) tata letak tak berubah. */}
+      <div className="mt-1 flex flex-wrap items-center gap-3">
         <h2 className="font-display min-w-0 flex-1 text-[23px] leading-[1.08] font-bold break-words sm:text-[26px]">
           {s.home} <span className="font-normal text-gelap-sekunder">vs</span> {s.away}
         </h2>
@@ -297,7 +300,7 @@ export default function LandingPage() {
       <TopBar />
 
       <main id="main-content" className="flex-1">
-        <section className="shell-x mx-auto w-full max-w-[1240px] pt-6 pb-16 sm:pt-10 lg:pt-14">
+        <section className="shell-x mx-auto w-full max-w-[1200px] pt-6 pb-16 sm:pt-10 lg:pt-14">
           <Suspense
             fallback={
               <div>
@@ -327,7 +330,7 @@ export default function LandingPage() {
 
       {/* ---------------------------------------------------------- FOOTER */}
       <footer className="border-t border-garis">
-        <div className="shell-x mx-auto flex w-full max-w-[1240px] flex-col gap-2 py-10 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] sm:flex-row sm:items-baseline sm:justify-between md:pb-10">
+        <div className="shell-x mx-auto flex w-full max-w-[1200px] flex-col gap-2 py-10 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] sm:flex-row sm:items-baseline sm:justify-between md:pb-10">
           <p className="text-[15px]">
             <span className="font-display text-[19px] font-bold text-tinta italic">
               Bola<span className="text-jingga not-italic">.</span>

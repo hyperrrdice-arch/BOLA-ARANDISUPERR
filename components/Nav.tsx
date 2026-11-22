@@ -25,7 +25,7 @@ function CariTim() {
   return (
     <Link
       href="/pertandingan"
-      className="ml-auto inline-flex min-h-[44px] items-center gap-2 text-[15px] whitespace-nowrap text-sekunder transition-colors duration-150 hover:text-tinta"
+      className="ml-auto inline-flex min-h-[44px] items-center gap-2 text-[15px] whitespace-nowrap text-sekunder transition-colors duration-[var(--duration-micro)] hover:text-tinta"
     >
       <svg
         aria-hidden="true"
@@ -48,7 +48,7 @@ export function TopBar() {
   return (
     <>
       <header className="border-b border-garis">
-        <div className="shell-x mx-auto flex w-full max-w-[1240px] items-center gap-5 md:gap-9">
+        <div className="shell-x mx-auto flex w-full max-w-[1200px] items-center gap-5 md:gap-9">
           <Wordmark />
           <Suspense fallback={<NavStatic />}>
             <NavClient />

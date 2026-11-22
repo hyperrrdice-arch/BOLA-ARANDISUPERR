@@ -105,7 +105,7 @@ export default function TabRekam({
         {penanda && (
           <span
             aria-hidden="true"
-            className="absolute h-[3px] bg-jingga transition-all duration-[160ms] [transition-timing-function:cubic-bezier(.22,.72,.2,1)]"
+            className="absolute h-[3px] bg-jingga transition-all duration-[var(--duration-micro)] [transition-timing-function:var(--ease-ui)]"
             style={{ left: penanda.kiri, width: penanda.lebar, top: penanda.atas - 2 }}
           />
         )}

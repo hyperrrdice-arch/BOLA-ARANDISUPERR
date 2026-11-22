@@ -116,6 +116,28 @@ export function heatStyle(prob: number, max: number): { backgroundColor: string;
   };
 }
 
+/**
+ * Varian REDUP heatStyle untuk sel yang tersaring keluar pada peta
+ * skor (di luar kelompok filter aktif) — pengganti `opacity-40`
+ * (brief upgrade P2). Opacity elemen memudarkan teks dan latar
+ * bersama ke panel: kontras efektif terukur hanya 2,06:1 pada sel
+ * panas dan 2,36–3,58:1 pada sel dingin — di bawah kontrak 4,5:1.
+ * Di sini latar mempertahankan rampa panas yang sama dengan alfa
+ * diskala ×0,38 dan teks memakai tinta lunak #DCDCE1 di semua sel
+ * redup: kontras minimum terhitung di seluruh rentang terhadap
+ * warna komposit di atas panel #0D0D0F = 6,21:1 (di sel terpanas),
+ * dan peredupan tetap terbaca sebagai keadaan tersaring.
+ */
+export function heatStyleRedup(prob: number, max: number): { backgroundColor: string; color: string } {
+  const dasar = heatStyle(prob, max);
+  const m = /rgba\(255, 173, 91, ([\d.]+)\)/.exec(dasar.backgroundColor);
+  const a = m ? parseFloat(m[1]) : 0;
+  return {
+    backgroundColor: `rgba(255, 173, 91, ${(a * 0.38).toFixed(3)})`,
+    color: "#dcdce1",
+  };
+}
+
 /** Streaming fallback for data islands (Cache Components: Suspense). */
 export function PageLoading({ label }: { label: string }) {
   return (

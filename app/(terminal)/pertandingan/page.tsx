@@ -162,8 +162,11 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
       </Link>
       {picks.length > 0 && (
         <ul className="mt-3 space-y-1.5 pl-[4.5rem] sm:pl-[5.5rem]">
+          {/* flex-wrap pada li: pada lebar ekstrem (teks 200%) persen +
+              verdik turun ke baris berikut ketimbang meluapkan baris
+              laga; tak berubah pada lebar brief. */}
           {picks.map((p) => (
-            <li key={p.id} className="flex items-baseline gap-2.5 text-sm">
+            <li key={p.id} className="flex flex-wrap items-baseline gap-2.5 text-sm">
               <GradeMark grade={p.grade} />
               <span className="min-w-0 flex-1 break-words text-ink-soft">
                 {labelPilihan(p.market, p.selection, item.home, item.away)}

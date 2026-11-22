@@ -1,0 +1,291 @@
+{
+  "reflow": {
+    "/": {
+      "320": {
+        "sw": 320,
+        "cw": 320,
+        "lolos": true
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "lolos": true
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "lolos": true
+      },
+      "430": {
+        "sw": 430,
+        "cw": 430,
+        "lolos": true
+      },
+      "768": {
+        "sw": 768,
+        "cw": 768,
+        "lolos": true
+      },
+      "1024": {
+        "sw": 1024,
+        "cw": 1024,
+        "lolos": true
+      },
+      "1440": {
+        "sw": 1440,
+        "cw": 1440,
+        "lolos": true
+      }
+    },
+    "/pertandingan": {
+      "320": {
+        "sw": 320,
+        "cw": 320,
+        "lolos": true
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "lolos": true
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "lolos": true
+      },
+      "430": {
+        "sw": 430,
+        "cw": 430,
+        "lolos": true
+      },
+      "768": {
+        "sw": 768,
+        "cw": 768,
+        "lolos": true
+      },
+      "1024": {
+        "sw": 1024,
+        "cw": 1024,
+        "lolos": true
+      },
+      "1440": {
+        "sw": 1440,
+        "cw": 1440,
+        "lolos": true
+      }
+    },
+    "/pertandingan/sm_19724997": {
+      "320": {
+        "sw": 320,
+        "cw": 320,
+        "lolos": true
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "lolos": true
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "lolos": true
+      },
+      "430": {
+        "sw": 430,
+        "cw": 430,
+        "lolos": true
+      },
+      "768": {
+        "sw": 768,
+        "cw": 768,
+        "lolos": true
+      },
+      "1024": {
+        "sw": 1024,
+        "cw": 1024,
+        "lolos": true
+      },
+      "1440": {
+        "sw": 1440,
+        "cw": 1440,
+        "lolos": true
+      }
+    },
+    "/pilihan": {
+      "320": {
+        "sw": 320,
+        "cw": 320,
+        "lolos": true
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "lolos": true
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "lolos": true
+      },
+      "430": {
+        "sw": 430,
+        "cw": 430,
+        "lolos": true
+      },
+      "768": {
+        "sw": 768,
+        "cw": 768,
+        "lolos": true
+      },
+      "1024": {
+        "sw": 1024,
+        "cw": 1024,
+        "lolos": true
+      },
+      "1440": {
+        "sw": 1440,
+        "cw": 1440,
+        "lolos": true
+      }
+    },
+    "/bukti": {
+      "320": {
+        "sw": 320,
+        "cw": 320,
+        "lolos": true
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "lolos": true
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "lolos": true
+      },
+      "430": {
+        "sw": 430,
+        "cw": 430,
+        "lolos": true
+      },
+      "768": {
+        "sw": 768,
+        "cw": 768,
+        "lolos": true
+      },
+      "1024": {
+        "sw": 1024,
+        "cw": 1024,
+        "lolos": true
+      },
+      "1440": {
+        "sw": 1440,
+        "cw": 1440,
+        "lolos": true
+      }
+    }
+  },
+  "landscape": {
+    "rute": "/pertandingan",
+    "sw": 844,
+    "cw": 844,
+    "beranda": {
+      "sw": 844,
+      "cw": 844
+    }
+  },
+  "teks200": {
+    "sw": 1088,
+    "cw": 780,
+    "zoom": "2"
+  },
+  "namaBohemians": {
+    "teks": "00.00Bohemians 1905 vs Viktoria Plzeň74,6%AMenunggu pembaruan pertandinganPilihan terkuat · Kelas AViktoria Plzeň mencetak gol · 1 A · 5 B",
+    "adaBohemians": true,
+    "adaPlzen": true,
+    "adaStatus": true
+  },
+  "namaVietnam": {
+    "teks": "18.00Hồng Lĩnh Hà Tĩnh vs Công An Hồ Chí Minh86,8%AMenunggu pembaruan pertandinganPilihan terkuat · Kelas AMaksimal tiga gol · 1 A · 4 B · 4 C",
+    "keduaNama": true,
+    "adaPersen": true,
+    "lebarBaris": 296
+  },
+  "tabBatal": {
+    "kanan": 86,
+    "lebarViewport": 320,
+    "terlihat": true
+  },
+  "keadaanKosongJadwal": false,
+  "keadaanError": "(globalThis[\"TURBOPACK\"] || (globalThis[\"TURBOPACK\"] = [])).push({\"otherChunks\":[\"static/chunks/310vm2bl3xxpt.js\",\"static/chunks/3mwm0pfu8c8me.js\",\"static/chunks/01t2i9pe5vz2-.js\",\"static/chunks/2fuxlcqleg9x-.js\"],\"runtimeModuleIds\":[94553]});(self.__next_f=self.__next_f||[]).push([0])self.__next_f.",
+  "keadaanTertunda": true,
+  "keadaanSelesai": {
+    "adaSelesai": true,
+    "cuplikan": "Lewati ke isiBola.BerandaJadwalPilihanRekam hasilCari timBerandaJadwalPilihanRekam hasil← Kembali ke jadwalV-LeagueHồng Lĩnh Hà Tĩnh vs Hải PhòngSabtu, 24 Oktober · 18.00 WIB · SelesaiAnalisis belum t"
+  },
+  "keadaanTanpaAnalisis": {
+    "adaBelumAdaAnalisis": false,
+    "cuplikan": "Lewati ke isiBola.BerandaJadwalPilihanRekam hasilCari timBerandaJadwalPilihanRekam hasil← Kembali ke jadwalV-LeagueHồng Lĩnh Hà Tĩnh vs Hải PhòngSabtu, 24 Oktober · 18.00 WIB · SelesaiAnalisis belum t"
+  },
+  "keyboard": {
+    "fokusAwal": "1-1",
+    "sesudahPanahKanan": "1-2",
+    "sesudahPanahBawah": "2-2"
+  },
+  "nav768": {
+    "navs": [
+      {
+        "label": "Utama",
+        "tampil": true,
+        "posisi": "static"
+      },
+      {
+        "label": "Utama",
+        "tampil": false,
+        "posisi": "fixed"
+      }
+    ]
+  },
+  "nav1024": {
+    "navs": [
+      {
+        "label": "Utama",
+        "tampil": true,
+        "posisi": "static"
+      },
+      {
+        "label": "Utama",
+        "tampil": false,
+        "posisi": "fixed"
+      }
+    ]
+  },
+  "nav1440": {
+    "navs": [
+      {
+        "label": "Utama",
+        "tampil": true,
+        "posisi": "static"
+      },
+      {
+        "label": "Utama",
+        "tampil": false,
+        "posisi": "fixed"
+      }
+    ]
+  },
+  "bukti768": {
+    "kolomForm": 2,
+    "paddingMain": "24px"
+  },
+  "pardubice": {
+    "href": "/pertandingan/sm_19725021?kembali=tanggal%3D2026-11-22%26q%3DPardubice",
+    "urlDetail": "http://localhost:3101/pertandingan/sm_19725021?kembali=tanggal%3D2026-11-22%26q%3DPardubice",
+    "urlKembali": "http://localhost:3101/pertandingan?q=Pardubice",
+    "nilaiCari": "Pardubice"
+  },
+  "pilihanJarak": {
+    "paddingBawahMain": "92px"
+  }
+}

@@ -1,4 +1,13 @@
 @theme {
+  /* Motion — bawaan transisi Tailwind diarahkan ke token gerak UI
+     (didefinisikan di app/globals.css :root): semua utilitas
+     transition-* tanpa durasi/easing eksplisit kini memakai
+     --duration-micro (160 ms) + --ease-ui, bukan bawaan Tailwind
+     (150 ms + cubic-bezier(0.4, 0, 0.2, 1)). Satu kurva untuk
+     seluruh permukaan (P2 brief upgrade). */
+  --default-transition-duration: var(--duration-micro);
+  --default-transition-timing-function: var(--ease-ui);
+
   /* Colors — sistem GELAP AMOLED brief upgrade frontend (2026-11-22),
      MENGGANTIKAN sistem terang brief redesain 2026-11-21 sebagai token
      global seluruh rute. TIDAK ada toggle: kanvas hitam sejak frame

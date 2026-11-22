@@ -536,7 +536,7 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
             )}
             <span
               aria-hidden="true"
-              className="text-faint transition-transform duration-150 group-open:rotate-180"
+              className="text-faint transition-transform duration-[var(--duration-micro)] group-open:rotate-180"
             >
               ▾
             </span>

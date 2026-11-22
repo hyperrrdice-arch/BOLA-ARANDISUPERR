@@ -44,12 +44,21 @@ const LANGKAH_PUTAR = Math.PI / 11.25; // 16°
 const BATAS_PUTAR = Math.PI / 5.625; // 32°
 const EASE = (t: number) => 1 - Math.pow(1 - t, 3); // pendekatan cubic-bezier(.22,.72,.2,1)
 
+/* Palet 3D diselaraskan ke token gelap AMOLED yang sama dengan 2D
+   (P2 brief upgrade; sebelumnya hijau/jingga palet redesain terang):
+   lantai = surface-alt #17171B, batang = jingga aksen #FFAD5B
+   (penggelapan 0,45+0,55t per batang dipertahankan), batangRedup =
+   jingga diredupkan #4A3A28 (±½ luminansi batang dalam-filter
+   terdingin agar keadaan tersaring tetap terbedakan), terpilih =
+   aksen penuh #FFAD5B + tepi tinta #F5F5F7, latar renderer = panel
+   #0D0D0F, kisi = pemisah #28282C, teks sprite = sekunder #A3A3AB
+   (7,3:1 di atas lantai). Perilaku 3D tidak berubah. */
 const WARNA = {
-  lantai: new THREE.Color("#1a332a"),
-  batang: new THREE.Color("#8fb996"),
-  batangRedup: new THREE.Color("#33503f"),
-  terpilih: new THREE.Color("#ff6935"),
-  tepi: new THREE.Color("#f8f7f2"),
+  lantai: new THREE.Color("#17171b"),
+  batang: new THREE.Color("#ffad5b"),
+  batangRedup: new THREE.Color("#4a3a28"),
+  terpilih: new THREE.Color("#ffad5b"),
+  tepi: new THREE.Color("#f5f5f7"),
 };
 
 function spriteTeks(teks: string, lebar = 256, tinggi = 128, ukuranFont = 64): THREE.Sprite {
@@ -60,7 +69,7 @@ function spriteTeks(teks: string, lebar = 256, tinggi = 128, ukuranFont = 64): T
   ctx.font = `600 ${ukuranFont}px Archivo, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "#c8d6c9";
+  ctx.fillStyle = "#a3a3ab";
   ctx.fillText(teks, lebar / 2, tinggi / 2);
   const tex = new THREE.CanvasTexture(canvas);
   tex.anisotropy = 4;
@@ -94,7 +103,7 @@ export default function PetaSkor3D(props: PropsPeta3D) {
     let terlihat = true;
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    renderer.setClearColor(new THREE.Color("#142c25"));
+    renderer.setClearColor(new THREE.Color("#0d0d0f"));
     const canvas = renderer.domElement;
     canvas.style.display = "block";
     canvas.style.width = "100%";
@@ -118,7 +127,7 @@ export default function PetaSkor3D(props: PropsPeta3D) {
     lantai.rotation.x = -Math.PI / 2;
     lantai.position.y = -0.02;
     grup.add(lantai);
-    const kisi = new THREE.GridHelper(UKURAN, UKURAN, 0x3e5c4e, 0x3e5c4e);
+    const kisi = new THREE.GridHelper(UKURAN, UKURAN, 0x28282c, 0x28282c);
     kisi.position.y = 0.001;
     grup.add(kisi);
 

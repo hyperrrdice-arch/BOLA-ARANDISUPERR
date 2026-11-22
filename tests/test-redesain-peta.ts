@@ -24,7 +24,7 @@ import {
   selSesuaiFilter,
   selTetangga,
 } from "../lib/web/peta-skor";
-import { heatStyle } from "../components/ui";
+import { heatStyle, heatStyleRedup } from "../components/ui";
 import { Suite } from "./helpers/fixture-env";
 
 const suite = new Suite("redesain-peta");
@@ -175,6 +175,44 @@ suite.eq("palet: teks sel dingin = #F5F5F7", dingin.color, "#f5f5f7");
     if (k < min) min = k;
   }
   suite.check(`palet: kontras teks sel minimum ≥4,5:1 (terukur ${min.toFixed(2)}:1)`, min >= 4.5);
+}
+
+/* Sel tersaring (P2): heatStyleRedup menggantikan opacity-40 yang
+   kontras efektifnya hanya 2,06–3,58:1. Teks tinta lunak #DCDCE1 di
+   atas latar alfa ×0,38 yang dikomposit ke panel wajib ≥4,5:1 di
+   seluruh rentang (minimum terhitung 6,21:1 di sel terpanas). */
+{
+  const redup = heatStyleRedup(0.151, 0.151);
+  suite.eq("palet redup: teks sel tersaring = tinta lunak #DCDCE1", redup.color, "#dcdce1");
+  suite.check(
+    "palet redup: alfa sel terpanas diskala ×0,38 (0,361)",
+    Math.abs(parseFloat(/, ([\d.]+)\)/.exec(redup.backgroundColor)?.[1] ?? "0") - 0.361) < 0.002,
+  );
+  const panel = { r: 13, g: 13, b: 15 };
+  const lum = (r: number, g: number, b: number) => {
+    const f = (c: number) => {
+      c /= 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  let min = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const p = (i / 200) * 0.151;
+    const gaya = heatStyleRedup(p, 0.151);
+    const mb = gaya.backgroundColor.match(/rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/);
+    if (!mb) continue;
+    const a = parseFloat(mb[4]);
+    const lBg = lum(
+      parseInt(mb[1]) * a + panel.r * (1 - a),
+      parseInt(mb[2]) * a + panel.g * (1 - a),
+      parseInt(mb[3]) * a + panel.b * (1 - a),
+    );
+    const lFg = lum(0xdc, 0xdc, 0xe1);
+    const k = (Math.max(lBg, lFg) + 0.05) / (Math.min(lBg, lFg) + 0.05);
+    if (k < min) min = k;
+  }
+  suite.check(`palet redup: kontras teks sel tersaring ≥4,5:1 (terukur ${min.toFixed(2)}:1)`, min >= 4.5);
 }
 
 suite.finish();

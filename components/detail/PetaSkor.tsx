@@ -38,7 +38,7 @@ import {
   type FilterPeta,
   type SelSkor,
 } from "@/lib/web/peta-skor";
-import { heatStyle } from "@/components/ui";
+import { heatStyle, heatStyleRedup } from "@/components/ui";
 import type { PropsPeta3D } from "./PetaSkor3D";
 
 export interface PropsPetaSkor {
@@ -358,7 +358,15 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
                     const p = matrix[h][a];
                     const dipilih = terpilih?.h === h && terpilih?.a === a;
                     const dalam = selDalamFilter(h, a, filter);
-                    const gaya = heatStyle(p, ringkasan.maksBidang);
+                    /* Sel tersaring memakai heatStyleRedup (alfa
+                       diskala ×0,38 + teks tinta lunak), BUKAN opacity
+                       elemen: opacity-40 menurunkan kontras efektif
+                       teks sel ke 2,06–3,58:1 — di bawah kontrak
+                       4,5:1 (audit P2). Sel terpilih tak diredupkan. */
+                    const gaya =
+                      !dalam && !dipilih
+                        ? heatStyleRedup(p, ringkasan.maksBidang)
+                        : heatStyle(p, ringkasan.maksBidang);
                     return (
                       <td key={a} className="p-0.5">
                         <button
@@ -382,7 +390,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
                           }
                           className={`h-[44px] w-[44px] rounded-[4px] text-center text-[12px] tabular-nums ${
                             dipilih ? "font-bold" : ""
-                          } ${dalam ? "" : "opacity-40"}`}
+                          }`}
                         >
                           {formatPeluangSel(p)}
                         </button>
@@ -418,7 +426,11 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
       <ol className="mt-4 space-y-1.5">
         {ringkasan.top.map((s, i) => (
           <li key={`${s.h}-${s.a}`} className="flex items-baseline gap-3 text-sm">
-            <span className="w-4 text-gelap-sekunder">{i + 1}.</span>
+            {/* w-[16px] eksplisit: w-4 terpetakan ke --spacing-4:4px
+                pada peta warisan — glif "1." selebar 11 px meluap dari
+                kotak 4 px (terukur scrollWidth 11 > clientWidth 4,
+                audit P2). */}
+            <span className="w-[16px] text-gelap-sekunder">{i + 1}.</span>
             <span className="font-medium text-tinta tabular-nums">
               {s.h}–{s.a}
             </span>

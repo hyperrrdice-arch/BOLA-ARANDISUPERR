@@ -6,7 +6,7 @@ export default function TerminalLayout({ children }: { children: React.ReactNode
       <TopBar />
       <main
         id="main-content"
-        className="shell-x mx-auto w-full max-w-[1240px] flex-1 pt-14 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] md:pb-14"
+        className="shell-x mx-auto w-full max-w-[1200px] flex-1 pt-14 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] md:pb-14"
       >
         {children}
       </main>

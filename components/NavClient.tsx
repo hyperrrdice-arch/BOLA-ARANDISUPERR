@@ -24,7 +24,7 @@ function aktif(path: string | null, href: string): boolean {
 /* ---------------------------------------------------------- desktop */
 
 const KELAS_DESKTOP =
-  "inline-flex min-h-[44px] items-center text-[15px] whitespace-nowrap transition-colors duration-150";
+  "inline-flex min-h-[44px] items-center text-[15px] whitespace-nowrap transition-colors duration-[var(--duration-micro)]";
 
 export function NavStatic() {
   return (
@@ -83,7 +83,7 @@ function SelBawah({
     <Link
       href={href}
       aria-current={on ? "page" : undefined}
-      className={`relative flex min-h-[52px] items-center justify-center px-1 text-[13px] transition-colors duration-150 ${
+      className={`relative flex min-h-[52px] items-center justify-center px-1 text-[13px] transition-colors duration-[var(--duration-micro)] ${
         on ? "font-semibold text-tinta" : "text-sekunder hover:text-tinta"
       }`}
     >

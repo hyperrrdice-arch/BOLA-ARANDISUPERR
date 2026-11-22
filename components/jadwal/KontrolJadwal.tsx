@@ -118,7 +118,9 @@ export default function KontrolJadwal({
 
       {/* --------------------------------------- pintasan + tombol filter */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <div className="flex" role="group" aria-label="Pintasan waktu">
+        {/* flex-wrap: pintasan boleh membungkus pada lebar ekstrem
+            (teks 200%) ketimbang meluap; tak berubah di ≥320 px. */}
+        <div className="flex flex-wrap" role="group" aria-label="Pintasan waktu">
           {PINTASAN.map((p) => {
             const aktif = filter.mode === p.mode;
             return (
