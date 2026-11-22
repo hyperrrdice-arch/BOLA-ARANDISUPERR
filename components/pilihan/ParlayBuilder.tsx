@@ -778,9 +778,12 @@ export default function ParlayBuilder({
 
       {/* ------------------------------------------------------ daftar */}
       <section className="order-2 min-w-0 lg:order-1" aria-label="Pilihan sebelum laga">
-        {/* Kontrol: pencarian, tanggal, filter kelas (§3D.1). */}
-        <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
-          <label className="min-w-[200px] flex-1">
+        {/* Kontrol: pencarian, tanggal, filter kelas (§3D.1).
+            Brief upgrade P1: pada layar sempit pencarian dan tanggal
+            SATU KOLOM eksplisit (bertumpuk), bukan hasil bungkusan
+            flex yang tak menentu; sm+ kembali sebaris. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-5 sm:gap-y-3">
+          <label className="w-full min-w-0 sm:w-auto sm:min-w-[200px] sm:flex-1">
             <span className="mb-1 block text-[12px] text-faint">Cari tim atau liga</span>
             <span className="flex items-center gap-2">
               <input
@@ -801,13 +804,13 @@ export default function ParlayBuilder({
               )}
             </span>
           </label>
-          <label>
+          <label className="w-full sm:w-auto">
             <span className="mb-1 block text-[12px] text-faint">Tanggal</span>
             <input
               type="date"
               value={tanggal}
               onChange={(e) => gantiTanggal(e.target.value)}
-              className="min-h-[44px] rounded-md border border-hairline bg-surface px-2.5 text-sm text-ink"
+              className="min-h-[44px] w-full rounded-md border border-hairline bg-surface px-2.5 text-sm text-ink sm:w-auto"
             />
           </label>
         </div>
@@ -887,44 +890,56 @@ export default function ParlayBuilder({
                       return (
                         <li
                           key={p.key}
-                          className={`flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-hairline/50 py-3 ${
+                          className={`border-t border-hairline/50 py-3 ${
                             active ? "bg-surface-alt/50" : ""
                           }`}
                         >
-                          <GradeMark grade={p.grade} className="w-4 text-center" />
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[15px] text-ink">{label}</span>
-                            <span className="block text-[12px] text-faint">
-                              {MARKET_LABEL[p.market] ?? p.market} · {labelBasisBaris(p)}
-                              {p.publishedAtUtc
-                                ? ` · terbit ${jamWibOnly(p.publishedAtUtc)}`
-                                : ""}
+                          {/* Susunan baris brief upgrade P1: pada layar
+                              sempit nama pilihan membungkus PENUH di
+                              baris pertama (dulu truncate karena berbagi
+                              baris dengan persen + tombol — terukur
+                              24/40 baris terpotong di 320 px), peluang
+                              dan aksi Tambah turun ke baris kedua. Pada
+                              sm+ susunan kembali satu baris seperti
+                              semula. */}
+                          <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                            <span className="flex min-w-0 basis-full items-start gap-3 sm:basis-auto sm:flex-1">
+                              <GradeMark grade={p.grade} className="w-4 shrink-0 pt-px text-center" />
+                              <span className="min-w-0 flex-1">
+                                <span className="block text-[15px] break-words text-ink">{label}</span>
+                                <span className="block text-[12px] text-faint">
+                                  {MARKET_LABEL[p.market] ?? p.market} · {labelBasisBaris(p)}
+                                  {p.publishedAtUtc
+                                    ? ` · terbit ${jamWibOnly(p.publishedAtUtc)}`
+                                    : ""}
+                                </span>
+                              </span>
                             </span>
+                            <span className="hidden text-[12px] text-mid-gray sm:block">
+                              {p.sourcesAgree} sumber tersedia
+                            </span>
+                            <Prob value={p.prob} strong className="text-base" />
+                            <button
+                              type="button"
+                              aria-pressed={active}
+                              aria-label={`Tambah ${label}, ${p.home} vs ${p.away}`}
+                              disabled={mulai || !!p.konflik || (!active && full)}
+                              onClick={() => toggle(p)}
+                              className={`ml-auto flex min-h-[44px] shrink-0 items-center px-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:ml-0 ${
+                                active ? "text-mid-gray hover:text-ink" : "text-accent-deep hover:text-ink"
+                              }`}
+                            >
+                              {p.konflik
+                                ? "Konflik"
+                                : mulai
+                                  ? "Sudah mulai"
+                                  : active
+                                    ? "Terpilih"
+                                    : "Tambah"}
+                            </button>
                           </span>
-                          <span className="hidden text-[12px] text-mid-gray sm:block">
-                            {p.sourcesAgree} sumber tersedia
-                          </span>
-                          <Prob value={p.prob} strong className="text-base" />
-                          <button
-                            type="button"
-                            aria-pressed={active}
-                            aria-label={`Tambah ${label}, ${p.home} vs ${p.away}`}
-                            disabled={mulai || !!p.konflik || (!active && full)}
-                            onClick={() => toggle(p)}
-                            className={`flex min-h-[44px] shrink-0 items-center px-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                              active ? "text-mid-gray hover:text-ink" : "text-accent-deep hover:text-ink"
-                            }`}
-                          >
-                            {p.konflik
-                              ? "Konflik"
-                              : mulai
-                                ? "Sudah mulai"
-                                : active
-                                  ? "Terpilih"
-                                  : "Tambah"}
-                          </button>
                           {p.konflik && (
-                            <span className="block w-full text-[12px] leading-relaxed text-faint">
+                            <span className="mt-1.5 block text-[12px] leading-relaxed text-faint">
                               Dua edisi resmi berbeda angka untuk kejadian ini:{" "}
                               {p.konflik.nilai
                                 .map((n) => `${pct(n.prob, 1)} (${n.matchId})`)

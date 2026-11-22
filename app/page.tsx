@@ -56,87 +56,83 @@ async function KepalaBeranda() {
 
 function PanelSorotan({ s }: { s: SorotanBeranda }) {
   const jam = `${jamWibOnly(s.kickoff_utc)} ${labelZona(ZONA_BAKU)}`;
+  /* Sorotan RINGKAS (brief upgrade P1): panel lama setinggi 335 px
+     terukur di 390×844 — laga pertama baru mulai di y=618 dan hanya
+     satu baris jadwal yang terlihat utuh sebelum navigasi bawah.
+     Susunan isi dipertahankan persis (liga + jam → dua nama tim →
+     label prediksi → peluang → waktu terbit → "Baca analisis"),
+     tetapi dipadatkan: nama tim satu baris mengalir, angka peluang
+     26 px, metadata 12 px sekunder, CTA tetap target 44 px. */
+  const kelasCta =
+    "inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-jingga px-4 text-sm font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90";
   return (
     <section
       aria-label="Sorotan"
-      className="panel-gelap bg-gelap px-5 py-6 text-tinta sm:px-7 sm:py-8"
+      className="panel-gelap bg-gelap px-4 py-3 text-tinta sm:px-5 sm:py-4"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="tabular-nums text-[17px] font-semibold text-jingga">
+        <p className="tabular-nums text-[15px] font-semibold whitespace-nowrap text-jingga">
           {s.jenis === "hasil-terakhir" ? tanggalJamWib(s.kickoff_utc) : jam}
         </p>
-        <p className="text-right text-sm text-gelap-sekunder">{s.competition_name}</p>
+        <p className="truncate text-right text-[12px] text-gelap-sekunder">
+          {s.competition_name}
+        </p>
       </div>
-      <h2 className="font-display mt-4 text-[44px] leading-[1.0] font-bold lg:text-[64px]">
-        {s.home}
-        <br />
-        {s.away}
-      </h2>
-      <div className="mt-6 border-t border-tinta/25 pt-5">
+      {/* Nama tim + CTA sebaris: CTA di samping nama (bukan di baris
+          angka) supaya baris peluang tidak membungkus dan panel
+          tetap ringkas — terukur, membungkusnya CTA ke baris sendiri
+          menambah ±44 px. */}
+      <div className="mt-1 flex items-center gap-3">
+        <h2 className="font-display min-w-0 flex-1 text-[23px] leading-[1.08] font-bold break-words sm:text-[26px]">
+          {s.home} <span className="font-normal text-gelap-sekunder">vs</span> {s.away}
+        </h2>
         {s.jenis === "prediksi" && (
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-            <div className="min-w-0">
-              <p className="text-base">{s.label_prediksi}</p>
-              <p className="mt-1 flex flex-wrap items-baseline gap-x-3">
-                <span className="font-display tabular-nums text-[44px] leading-none font-bold">
-                  {pct(s.prob)}
-                </span>
-                {s.published_at_utc && (
-                  <span className="text-sm text-gelap-sekunder">
-                    Terbit {jamWibOnly(s.published_at_utc)} {labelZona(ZONA_BAKU)}
-                  </span>
-                )}
-              </p>
-            </div>
-            <Link
-              href={`/pertandingan/${s.match_id}`}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
-            >
-              Baca analisis <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+          <Link href={`/pertandingan/${s.match_id}`} className={kelasCta}>
+            Baca analisis <span aria-hidden="true">→</span>
+          </Link>
         )}
-        {s.jenis === "tanpa-prediksi" && (
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-            <p className="max-w-md text-[15px] leading-relaxed text-gelap-sekunder">
-              Prediksi resmi untuk laga ini belum terbit.
-            </p>
-            <Link
-              href="/pertandingan"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
-            >
-              Lihat jadwal laga <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        )}
-        {s.jenis === "berikutnya" && (
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-            <p className="max-w-md text-[15px] leading-relaxed text-gelap-sekunder">
-              Belum ada laga pada jendela dekat. Laga berikutnya: {tanggalJamWib(s.kickoff_utc)}.
-            </p>
-            <Link
-              href="/pertandingan"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
-            >
-              Lihat jadwal laga <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+        {(s.jenis === "tanpa-prediksi" || s.jenis === "berikutnya") && (
+          <Link href="/pertandingan" className={kelasCta}>
+            Lihat jadwal laga <span aria-hidden="true">→</span>
+          </Link>
         )}
         {s.jenis === "hasil-terakhir" && (
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-            <p className="flex items-baseline gap-3">
-              <span className="text-sm text-gelap-sekunder">Skor 90 menit</span>
-              <span className="font-display tabular-nums text-[44px] leading-none font-bold">
-                {s.home_goals}–{s.away_goals}
+          <Link href="/bukti" className={kelasCta}>
+            Lihat rekam hasil <span aria-hidden="true">→</span>
+          </Link>
+        )}
+      </div>
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        {s.jenis === "prediksi" && (
+          <>
+            <span className="font-display tabular-nums text-[26px] leading-none font-bold">
+              {pct(s.prob)}
+            </span>
+            <span className="min-w-0 text-sm">{s.label_prediksi}</span>
+            {s.published_at_utc && (
+              <span className="text-[12px] whitespace-nowrap text-gelap-sekunder">
+                Terbit {jamWibOnly(s.published_at_utc)} {labelZona(ZONA_BAKU)}
               </span>
-            </p>
-            <Link
-              href="/bukti"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
-            >
-              Lihat rekam hasil <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+            )}
+          </>
+        )}
+        {s.jenis === "tanpa-prediksi" && (
+          <p className="min-w-0 flex-1 text-[13px] leading-snug text-gelap-sekunder">
+            Prediksi resmi untuk laga ini belum terbit.
+          </p>
+        )}
+        {s.jenis === "berikutnya" && (
+          <p className="min-w-0 flex-1 text-[13px] leading-snug text-gelap-sekunder">
+            Belum ada laga pada jendela dekat. Laga berikutnya: {tanggalJamWib(s.kickoff_utc)}.
+          </p>
+        )}
+        {s.jenis === "hasil-terakhir" && (
+          <>
+            <span className="font-display tabular-nums text-[26px] leading-none font-bold">
+              {s.home_goals}–{s.away_goals}
+            </span>
+            <span className="text-[12px] text-gelap-sekunder">Skor 90 menit</span>
+          </>
         )}
       </div>
     </section>
@@ -227,7 +223,7 @@ async function SorotanDanJadwal() {
     );
   }
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-[7fr_5fr] lg:gap-8">
+    <div className="grid items-start gap-6 lg:grid-cols-[7fr_5fr] lg:gap-8">
       {sorotan && <PanelSorotan s={sorotan} />}
       <JadwalBerikutnya items={berikut} />
     </div>
@@ -301,7 +297,7 @@ export default function LandingPage() {
       <TopBar />
 
       <main id="main-content" className="flex-1">
-        <section className="shell-x mx-auto w-full max-w-[1240px] pt-10 pb-16 lg:pt-14">
+        <section className="shell-x mx-auto w-full max-w-[1240px] pt-6 pb-16 sm:pt-10 lg:pt-14">
           <Suspense
             fallback={
               <div>
@@ -315,7 +311,7 @@ export default function LandingPage() {
             <KepalaBeranda />
           </Suspense>
 
-          <div className="mt-8">
+          <div className="mt-5 sm:mt-8">
             <Suspense
               fallback={<p className="py-10 text-sm text-sekunder">Memuat sorotan…</p>}
             >

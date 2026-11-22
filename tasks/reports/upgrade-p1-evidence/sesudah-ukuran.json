@@ -1,0 +1,119 @@
+{
+  "label": "sesudah",
+  "base": "http://localhost:3101",
+  "ukur": {
+    "beranda": {
+      "sorotan": {
+        "atas": 158,
+        "tinggi": 129,
+        "bawah": 287
+      },
+      "navTop": 791,
+      "barisPertamaY": 197,
+      "jumlahBaris": 6,
+      "barisLengkapTerlihatSebelumNav": 5,
+      "baris": [
+        {
+          "atas": 197,
+          "bawah": 241,
+          "teks": "Baca analisis →"
+        },
+        {
+          "atas": 392,
+          "bawah": 482,
+          "teks": "18.00Botev PlovdivCSKA SofiaFirst League"
+        },
+        {
+          "atas": 483,
+          "bawah": 572,
+          "teks": "18.00Dinamo MoskvaKrasnodarPremier Leagu"
+        },
+        {
+          "atas": 573,
+          "bawah": 663,
+          "teks": "18.00Hồng Lĩnh Hà TĩnhCông An Hồ Chí Min"
+        },
+        {
+          "atas": 664,
+          "bawah": 753,
+          "teks": "18.00Đà NẵngNinh BìnhV-League›"
+        }
+      ]
+    },
+    "pilihan-320": {
+      "root": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "jumlahBaris": 40,
+      "barisTerpotong": 0,
+      "terpanjang": {
+        "teks": "",
+        "scrollWidth": 0,
+        "clientWidth": 0
+      },
+      "kontrol": {
+        "cariY": 266,
+        "tglY": 344,
+        "tglX": 12,
+        "cariX": 12
+      }
+    },
+    "pilihan-390": {
+      "root": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "jumlahBaris": 40,
+      "barisTerpotong": 0,
+      "terpanjang": {
+        "teks": "",
+        "scrollWidth": 0,
+        "clientWidth": 0
+      },
+      "kontrol": {
+        "cariY": 266,
+        "tglY": 344,
+        "tglX": 16,
+        "cariX": 16
+      }
+    },
+    "jadwalFilter": {
+      "ringkasanFilterTampil": true,
+      "chipKetemu": [
+        "Sekarang",
+        "Malam ini",
+        "Besok",
+        "Filter"
+      ],
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    "pardubice": [
+      {
+        "tahap": "jadwal-cari",
+        "url": "http://localhost:3101/pertandingan?q=Pardubice"
+      },
+      {
+        "tahap": "href-detail",
+        "href": "/pertandingan/sm_19725021?kembali=tanggal%3D2026-11-22%26q%3DPardubice"
+      },
+      {
+        "tahap": "detail",
+        "url": "http://localhost:3101/pertandingan/sm_19725021?kembali=tanggal%3D2026-11-22%26q%3DPardubice"
+      },
+      {
+        "tahap": "href-kembali",
+        "href": "/pertandingan?tanggal=2026-11-22&q=Pardubice"
+      },
+      {
+        "tahap": "kembali",
+        "url": "http://localhost:3101/pertandingan?tanggal=2026-11-22&q=Pardubice"
+      },
+      {
+        "tahap": "nilai-pencarian-sesudah-kembali",
+        "q": "Pardubice"
+      }
+    ]
+  }
+}

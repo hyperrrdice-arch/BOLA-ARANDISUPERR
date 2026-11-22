@@ -40,6 +40,7 @@ import {
   tanggalJamWib,
   tanggalPanjang,
   tanggalWib,
+  ZONA_BAKU,
 } from "../../../lib/web/format";
 import {
   ambilDetailTiket,
@@ -606,13 +607,23 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
                 </select>
               </label>
               <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-3">
+                {/* Aksi panel (brief upgrade P1): Terapkan adalah aksi
+                    utama (jingga, teks hitam — satu-satunya CTA jingga
+                    di panel); Atur ulang tampil bila ADA keadaan yang
+                    menyimpang dari bawaan, termasuk zona waktu saja,
+                    dan mengembalikan seluruh query ke bawaan. */}
                 <button
                   type="submit"
-                  className="min-h-[44px] rounded-md border border-hairline-strong bg-surface px-4 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
+                  className="min-h-[44px] rounded-md bg-accent px-4 text-sm font-semibold text-accent-ink transition-opacity hover:opacity-90"
                 >
                   Terapkan
                 </button>
-                {(filter.pasar || filter.kelas || filter.liga || filter.dari || filter.sampai) && (
+                {(filter.pasar ||
+                  filter.kelas ||
+                  filter.liga ||
+                  filter.dari ||
+                  filter.sampai ||
+                  filter.tz !== ZONA_BAKU) && (
                   <Link href="/bukti" className="px-1 py-2 text-sm text-mid-gray hover:text-ink">
                     Atur ulang
                   </Link>
