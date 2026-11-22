@@ -1,19 +1,27 @@
 {
   "version": 1,
-  "generated_at": "2026-11-21T14:13:18.303Z",
+  "generated_at": "2026-11-22T14:29:00.289Z",
   "generator": "scripts/build-fixture-links.ts",
-  "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan: kickoff persis + tim kanonik kandang/tamu persis (registry data/team-canonical.json).",
+  "note": "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan (Lanjut-5, lib/identity/link-matching.ts): konteks liga sama + tim kandang/tamu sama pada level tautan (alias data/link-team-aliases.json menyatukan entri registry satu klub TANPA menggabung registry) + kickoff dalam rantai ±120 menit (drift mt_ terbukti ≤90 menit). Sebelumnya: kickoff persis + tim kanonik persis.",
   "stats": {
     "fixtures": 4009,
-    "duplicate_groups": 283,
-    "twin_rows": 308,
-    "fixtures_with_unresolved_team": 0
+    "duplicate_groups": 290,
+    "twin_rows": 315,
+    "fixtures_with_unresolved_team": 0,
+    "tolerant_groups": 6,
+    "kickoff_tolerance_min": 120,
+    "link_alias_groups": 2
   },
   "links": [
     {
       "twin_id": "fd_B1_20261104_kortrijk_kv-mechelen",
       "canonical_id": "sm_19726038",
       "kickoff_utc": "2026-11-04T19:30:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261106_standard_beveren",
+      "canonical_id": "sm_19726022",
+      "kickoff_utc": "2026-11-06T19:45:00.000Z"
     },
     {
       "twin_id": "fd_B1_20261107_oud-heverlee-leuven_mechelen",
@@ -46,9 +54,19 @@
       "kickoff_utc": "2026-11-22T17:30:00.000Z"
     },
     {
+      "twin_id": "fd_B1_20261122_beveren_gent",
+      "canonical_id": "sm_19726013",
+      "kickoff_utc": "2026-11-22T12:30:00.000Z"
+    },
+    {
       "twin_id": "fd_B1_20261122_kortrijk_st-gilloise",
       "canonical_id": "sm_19726007",
       "kickoff_utc": "2026-11-22T15:00:00.000Z"
+    },
+    {
+      "twin_id": "fd_B1_20261122_lommel-sk_standard",
+      "canonical_id": "sm_19726005",
+      "kickoff_utc": "2026-11-22T18:15:00.000Z"
     },
     {
       "twin_id": "fd_D1_20261106_hamburger-sv_borussia-monchengladbach",
@@ -761,6 +779,11 @@
       "kickoff_utc": "2026-11-07T15:00:00.000Z"
     },
     {
+      "twin_id": "mt_200231623",
+      "canonical_id": "sm_19732611",
+      "kickoff_utc": "2026-11-29T17:30:00.000Z"
+    },
+    {
       "twin_id": "mt_200231668",
       "canonical_id": "sm_19732638",
       "kickoff_utc": "2026-10-31T20:00:00.000Z"
@@ -906,6 +929,11 @@
       "kickoff_utc": "2026-11-08T15:15:00.000Z"
     },
     {
+      "twin_id": "mt_377354841",
+      "canonical_id": "sm_19732617",
+      "kickoff_utc": "2026-11-22T17:30:00.000Z"
+    },
+    {
       "twin_id": "mt_377364703",
       "canonical_id": "sm_19735110",
       "kickoff_utc": "2026-11-22T16:30:00.000Z"
@@ -1011,6 +1039,11 @@
       "kickoff_utc": "2026-11-07T20:00:00.000Z"
     },
     {
+      "twin_id": "mt_466492726",
+      "canonical_id": "sm_19732619",
+      "kickoff_utc": "2026-11-22T20:00:00.000Z"
+    },
+    {
       "twin_id": "mt_466492785",
       "canonical_id": "sm_19732640",
       "kickoff_utc": "2026-11-02T20:00:00.000Z"
@@ -1044,6 +1077,11 @@
       "twin_id": "mt_467221471",
       "canonical_id": "sm_19873711",
       "kickoff_utc": "2026-11-04T20:00:00.000Z"
+    },
+    {
+      "twin_id": "mt_511386213",
+      "canonical_id": "sm_19715555",
+      "kickoff_utc": "2026-11-07T18:00:00.000Z"
     },
     {
       "twin_id": "mt_511386229",
@@ -1286,6 +1324,11 @@
       "kickoff_utc": "2026-11-07T14:30:00.000Z"
     },
     {
+      "twin_id": "mt_733762493",
+      "canonical_id": "sm_19732604",
+      "kickoff_utc": "2026-11-29T20:00:00.000Z"
+    },
+    {
       "twin_id": "mt_739660505",
       "canonical_id": "sm_19873231",
       "kickoff_utc": "2026-11-25T20:00:00.000Z"
@@ -1339,6 +1382,11 @@
       "twin_id": "mt_899632509",
       "canonical_id": "sm_19715540",
       "kickoff_utc": "2026-11-21T19:45:00.000Z"
+    },
+    {
+      "twin_id": "mt_899632553",
+      "canonical_id": "sm_19715551",
+      "kickoff_utc": "2026-11-07T20:05:00.000Z"
     },
     {
       "twin_id": "mt_899632565",
@@ -1539,16 +1587,6 @@
       "twin_id": "sm_19902524",
       "canonical_id": "sm_19902517",
       "kickoff_utc": "2026-12-16T15:00:00.000Z"
-    },
-    {
-      "twin_id": "sm_19902643",
-      "canonical_id": "sm_19674574",
-      "kickoff_utc": "2026-11-28T00:00:00.000Z"
-    },
-    {
-      "twin_id": "sm_19902644",
-      "canonical_id": "sm_19674575",
-      "kickoff_utc": "2026-11-28T00:00:00.000Z"
     }
   ]
 }
