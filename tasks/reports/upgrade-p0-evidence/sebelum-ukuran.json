@@ -1,0 +1,833 @@
+{
+  "label": "sebelum",
+  "base": "http://localhost:3101",
+  "ukur": {
+    "jadwal-320": {
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "barisBohemians": {
+        "ketemu": true,
+        "tinggiLink": 74.5,
+        "tinggiWadah": 82.5,
+        "nama": {
+          "lebar": 205,
+          "tinggi": 75,
+          "top": 454
+        },
+        "status": null,
+        "fontSizeNama": "16px",
+        "overflowWrapNama": "normal"
+      }
+    },
+    "jadwal-360": {
+      "overflow": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "bodyScrollWidth": 360
+      },
+      "barisBohemians": {
+        "ketemu": true,
+        "tinggiLink": 74.5,
+        "tinggiWadah": 82.5,
+        "nama": {
+          "lebar": 245,
+          "tinggi": 75,
+          "top": 454
+        },
+        "status": null,
+        "fontSizeNama": "16px",
+        "overflowWrapNama": "normal"
+      }
+    },
+    "jadwal-390": {
+      "overflow": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "barisBohemians": {
+        "ketemu": true,
+        "tinggiLink": 49,
+        "tinggiWadah": 57,
+        "nama": {
+          "lebar": 275,
+          "tinggi": 49,
+          "top": 454
+        },
+        "status": null,
+        "fontSizeNama": "16px",
+        "overflowWrapNama": "normal"
+      }
+    },
+    "bukti-320": {
+      "overflow": {
+        "scrollWidth": 333,
+        "clientWidth": 320,
+        "bodyScrollWidth": 333
+      },
+      "tab": {
+        "ketemu": true,
+        "batal": {
+          "left": 259,
+          "right": 333,
+          "lebar": 74,
+          "top": 1079
+        },
+        "terlihatPenuh": false,
+        "tablistTinggi": 46,
+        "jumlahTab": 3
+      },
+      "posisi": {
+        "formAda": true,
+        "formTinggi": 336,
+        "formTerlihatDiAwal": true,
+        "ringkasanTop": 680
+      }
+    },
+    "bukti-360": {
+      "overflow": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "bodyScrollWidth": 360
+      },
+      "tab": {
+        "ketemu": true,
+        "batal": {
+          "left": 282,
+          "right": 356,
+          "lebar": 74,
+          "top": 986
+        },
+        "terlihatPenuh": true,
+        "tablistTinggi": 46,
+        "jumlahTab": 3
+      },
+      "posisi": {
+        "formAda": true,
+        "formTinggi": 267,
+        "formTerlihatDiAwal": true,
+        "ringkasanTop": 586
+      }
+    },
+    "bukti-390": {
+      "overflow": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "tab": {
+        "ketemu": true,
+        "batal": {
+          "left": 302,
+          "right": 376,
+          "lebar": 74,
+          "top": 874
+        },
+        "terlihatPenuh": true,
+        "tablistTinggi": 45,
+        "jumlahTab": 3
+      },
+      "posisi": {
+        "formAda": true,
+        "formTinggi": 201,
+        "formTerlihatDiAwal": true,
+        "ringkasanTop": 520
+      }
+    },
+    "detail-390": {
+      "overflow": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "matriks": {
+        "ketemu": true,
+        "panelBg": "rgb(20, 44, 37)",
+        "jumlahSel": 25,
+        "sel": [
+          {
+            "sel": "0-0",
+            "teks": "11,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.737)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 3.52,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-1",
+            "teks": "14,3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.88)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 37,
+            "clientLebarTeks": 12,
+            "kontras": 4.48,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-2",
+            "teks": "11,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.76)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 3.66,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-3",
+            "teks": "5,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.467)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 6.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-4",
+            "teks": "2,3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.23)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.15,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-0",
+            "teks": "6,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.51)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 2.34,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-1",
+            "teks": "12,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.82)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 4.05,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-2",
+            "teks": "9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.63)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 18,
+            "clientLebarTeks": 12,
+            "kontras": 2.91,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-3",
+            "teks": "4,6%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.39)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 7.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-4",
+            "teks": "1,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.192)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.78,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-0",
+            "teks": "3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.286)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 18,
+            "clientLebarTeks": 12,
+            "kontras": 9.25,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-1",
+            "teks": "4,6%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.39)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 7.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-2",
+            "teks": "3,5%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.318)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 8.75,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-3",
+            "teks": "1,8%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.196)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.71,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-4",
+            "teks": "0,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.098)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.33,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-0",
+            "teks": "0,8%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.11)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.14,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-1",
+            "teks": "1,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.145)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 11.56,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-2",
+            "teks": "0,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.12)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 11.97,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-3",
+            "teks": "0,5%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.075)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-4",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.035)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.32,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-0",
+            "teks": "0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.03)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.39,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-1",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.043)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.2,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-2",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.035)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.32,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-3",
+            "teks": "<0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.024)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 36,
+            "clientLebarTeks": 12,
+            "kontras": 13.48,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-4",
+            "teks": "<0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.01)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 36,
+            "clientLebarTeks": 12,
+            "kontras": 13.68,
+            "teksMeluap": true
+          }
+        ],
+        "wadahScroll": {
+          "scrollWidth": 374,
+          "clientWidth": 374
+        },
+        "kontrasMin": 2.34,
+        "kontrasMaks": 13.68,
+        "selDiBawah45": 6
+      }
+    },
+    "detail-320": {
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "matriks": {
+        "ketemu": true,
+        "panelBg": "rgb(20, 44, 37)",
+        "jumlahSel": 25,
+        "sel": [
+          {
+            "sel": "0-0",
+            "teks": "11,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.737)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 3.52,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-1",
+            "teks": "14,3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.88)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 37,
+            "clientLebarTeks": 12,
+            "kontras": 4.48,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-2",
+            "teks": "11,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.76)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 3.66,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-3",
+            "teks": "5,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.467)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 6.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "0-4",
+            "teks": "2,3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.23)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.15,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-0",
+            "teks": "6,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.51)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 2.34,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-1",
+            "teks": "12,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.82)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 35,
+            "clientLebarTeks": 12,
+            "kontras": 4.05,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-2",
+            "teks": "9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.63)",
+            "warna": "rgb(22, 39, 35)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 18,
+            "clientLebarTeks": 12,
+            "kontras": 2.91,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-3",
+            "teks": "4,6%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.39)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 7.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "1-4",
+            "teks": "1,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.192)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.78,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-0",
+            "teks": "3%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.286)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 18,
+            "clientLebarTeks": 12,
+            "kontras": 9.25,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-1",
+            "teks": "4,6%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.39)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 7.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-2",
+            "teks": "3,5%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.318)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 8.75,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-3",
+            "teks": "1,8%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.196)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 10.71,
+            "teksMeluap": true
+          },
+          {
+            "sel": "2-4",
+            "teks": "0,7%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.098)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.33,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-0",
+            "teks": "0,8%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.11)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.14,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-1",
+            "teks": "1,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.145)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 11.56,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-2",
+            "teks": "0,9%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.12)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 11.97,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-3",
+            "teks": "0,5%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.075)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 12.7,
+            "teksMeluap": true
+          },
+          {
+            "sel": "3-4",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.035)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.32,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-0",
+            "teks": "0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.03)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.39,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-1",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.043)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.2,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-2",
+            "teks": "0,2%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.035)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 28,
+            "clientLebarTeks": 12,
+            "kontras": 13.32,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-3",
+            "teks": "<0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.024)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 36,
+            "clientLebarTeks": 12,
+            "kontras": 13.48,
+            "teksMeluap": true
+          },
+          {
+            "sel": "4-4",
+            "teks": "<0,1%",
+            "lebar": 12,
+            "tinggi": 44,
+            "bg": "rgba(255, 105, 53, 0.01)",
+            "warna": "rgb(248, 247, 242)",
+            "fontSize": "12px",
+            "scrollLebarTeks": 36,
+            "clientLebarTeks": 12,
+            "kontras": 13.68,
+            "teksMeluap": true
+          }
+        ],
+        "wadahScroll": {
+          "scrollWidth": 304,
+          "clientWidth": 304
+        },
+        "kontrasMin": 2.34,
+        "kontrasMaks": 13.68,
+        "selDiBawah45": 6
+      }
+    }
+  }
+}

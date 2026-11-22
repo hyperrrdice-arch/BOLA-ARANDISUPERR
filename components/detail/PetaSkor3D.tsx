@@ -371,14 +371,14 @@ export default function PetaSkor3D(props: PropsPeta3D) {
         <button
           type="button"
           onClick={() => putar(-1)}
-          className="min-h-11 rounded-md border border-gelap-sekunder/50 px-4 text-sm font-medium text-kertas"
+          className="min-h-11 rounded-md border border-gelap-sekunder/50 px-4 text-sm font-medium text-tinta"
         >
           Putar ke kiri
         </button>
         <button
           type="button"
           onClick={() => putar(1)}
-          className="min-h-11 rounded-md border border-gelap-sekunder/50 px-4 text-sm font-medium text-kertas"
+          className="min-h-11 rounded-md border border-gelap-sekunder/50 px-4 text-sm font-medium text-tinta"
         >
           Putar ke kanan
         </button>

@@ -353,8 +353,10 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
 
   const konflikJatuhTempo = s.overdue_by_reason["konflik"] ?? 0;
   const kelasSelect =
-    "rounded-md border border-hairline bg-surface px-2.5 py-2 text-sm text-ink";
+    "w-full rounded-md border border-hairline-strong bg-surface px-2.5 py-2 text-sm text-ink";
   const labelKelas = "block text-[12px] text-faint mb-1";
+  const jumlahFilterAktif = [filter.pasar, filter.kelas, filter.liga, filter.dari, filter.sampai]
+    .filter(Boolean).length;
 
   /* Panel tab — dirender server; tab klien hanya memilih tampilannya. */
   const grupTampil: KelompokLagaRekam[] = [];
@@ -513,78 +515,112 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
             : ""}
         </p>
 
-        <form method="get" action="/bukti" className="mt-6 flex flex-wrap items-end gap-3">
-          <label>
-            <span className={labelKelas}>Pasar</span>
-            <select name="pasar" defaultValue={filter.pasar ?? ""} className={kelasSelect}>
-              <option value="">Semua pasar</option>
-              {data.opsi_pasar.map((m) => (
-                <option key={m} value={m}>
-                  {MARKET_LABEL[m] ?? m}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className={labelKelas}>Kelas</span>
-            <select name="kelas" defaultValue={filter.kelas ?? ""} className={kelasSelect}>
-              <option value="">Semua kelas</option>
-              <option value="A">Kelas A</option>
-              <option value="B">Kelas B</option>
-              <option value="C">Kelas C</option>
-            </select>
-          </label>
-          <label>
-            <span className={labelKelas}>Liga</span>
-            <select name="liga" defaultValue={filter.liga ?? ""} className={kelasSelect}>
-              <option value="">Semua liga</option>
-              {data.opsi_liga.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.nama}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className={labelKelas}>Dari tanggal</span>
-            <input
-              type="date"
-              name="dari"
-              defaultValue={filter.dari ?? ""}
-              className={kelasSelect}
-            />
-          </label>
-          <label>
-            <span className={labelKelas}>Sampai tanggal</span>
-            <input
-              type="date"
-              name="sampai"
-              defaultValue={filter.sampai ?? ""}
-              className={kelasSelect}
-            />
-          </label>
-          <label>
-            <span className={labelKelas}>Zona waktu</span>
-            <select name="tz" defaultValue={filter.tz} className={kelasSelect}>
-              {DAFTAR_ZONA.map((z) => (
-                <option key={z.id} value={z.id}>
-                  {z.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="rounded-md border border-hairline bg-surface px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
+        {/* Kontrol lengkap hidup di dalam panel Filter (brief upgrade
+            P0): pada 320 px enam kontrol yang tampil permanen memenuhi
+            layar sebelum ringkasan (form 336 px terukur) dan lebar
+            dokumen membengkak ke 333 px dengan tab "Batal" berakhir
+            tepat di x=333. Urutan halaman menjadi periode → tombol
+            Filter → ringkasan → tab. Form GET dan nama parameter
+            tidak berubah. */}
+        <details className="group mt-6">
+          <summary
+            className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-md border border-hairline-strong bg-surface px-4 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden"
+            aria-label="Buka panel filter rekam hasil"
           >
-            Terapkan
-          </button>
-          {(filter.pasar || filter.kelas || filter.liga || filter.dari || filter.sampai) && (
-            <Link href="/bukti" className="px-1 py-2 text-sm text-mid-gray hover:text-ink">
-              Atur ulang
-            </Link>
-          )}
-        </form>
+            Filter
+            {jumlahFilterAktif > 0 && (
+              <span className="text-[13px] font-normal text-mid-gray">
+                · {jumlahFilterAktif} aktif
+              </span>
+            )}
+            <span
+              aria-hidden="true"
+              className="text-faint transition-transform duration-150 group-open:rotate-180"
+            >
+              ▾
+            </span>
+          </summary>
+          <div className="mt-3 rounded-md border border-hairline bg-surface p-4">
+            <form
+              method="get"
+              action="/bukti"
+              className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              <label className="block min-w-0">
+                <span className={labelKelas}>Pasar</span>
+                <select name="pasar" defaultValue={filter.pasar ?? ""} className={kelasSelect}>
+                  <option value="">Semua pasar</option>
+                  {data.opsi_pasar.map((m) => (
+                    <option key={m} value={m}>
+                      {MARKET_LABEL[m] ?? m}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block min-w-0">
+                <span className={labelKelas}>Kelas</span>
+                <select name="kelas" defaultValue={filter.kelas ?? ""} className={kelasSelect}>
+                  <option value="">Semua kelas</option>
+                  <option value="A">Kelas A</option>
+                  <option value="B">Kelas B</option>
+                  <option value="C">Kelas C</option>
+                </select>
+              </label>
+              <label className="block min-w-0">
+                <span className={labelKelas}>Liga</span>
+                <select name="liga" defaultValue={filter.liga ?? ""} className={kelasSelect}>
+                  <option value="">Semua liga</option>
+                  {data.opsi_liga.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nama}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block min-w-0">
+                <span className={labelKelas}>Dari tanggal</span>
+                <input
+                  type="date"
+                  name="dari"
+                  defaultValue={filter.dari ?? ""}
+                  className={kelasSelect}
+                />
+              </label>
+              <label className="block min-w-0">
+                <span className={labelKelas}>Sampai tanggal</span>
+                <input
+                  type="date"
+                  name="sampai"
+                  defaultValue={filter.sampai ?? ""}
+                  className={kelasSelect}
+                />
+              </label>
+              <label className="block min-w-0">
+                <span className={labelKelas}>Zona waktu</span>
+                <select name="tz" defaultValue={filter.tz} className={kelasSelect}>
+                  {DAFTAR_ZONA.map((z) => (
+                    <option key={z.id} value={z.id}>
+                      {z.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-3">
+                <button
+                  type="submit"
+                  className="min-h-[44px] rounded-md border border-hairline-strong bg-surface px-4 text-sm font-medium text-ink transition-colors hover:text-accent-deep"
+                >
+                  Terapkan
+                </button>
+                {(filter.pasar || filter.kelas || filter.liga || filter.dari || filter.sampai) && (
+                  <Link href="/bukti" className="px-1 py-2 text-sm text-mid-gray hover:text-ink">
+                    Atur ulang
+                  </Link>
+                )}
+              </div>
+            </form>
+          </div>
+        </details>
       </section>
 
       {/* ------------------------------------------- ringkasan periode */}

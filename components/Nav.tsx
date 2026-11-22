@@ -48,7 +48,7 @@ export function TopBar() {
   return (
     <>
       <header className="border-b border-garis">
-        <div className="mx-auto flex w-full max-w-[1240px] items-center gap-5 px-4 min-[600px]:px-6 md:gap-9 lg:px-8">
+        <div className="shell-x mx-auto flex w-full max-w-[1240px] items-center gap-5 md:gap-9">
           <Wordmark />
           <Suspense fallback={<NavStatic />}>
             <NavClient />

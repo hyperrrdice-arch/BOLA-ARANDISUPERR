@@ -59,7 +59,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
   return (
     <section
       aria-label="Sorotan"
-      className="panel-gelap bg-gelap px-5 py-6 text-kertas sm:px-7 sm:py-8"
+      className="panel-gelap bg-gelap px-5 py-6 text-tinta sm:px-7 sm:py-8"
     >
       <div className="flex items-baseline justify-between gap-3">
         <p className="tabular-nums text-[17px] font-semibold text-jingga">
@@ -72,7 +72,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
         <br />
         {s.away}
       </h2>
-      <div className="mt-6 border-t border-kertas/25 pt-5">
+      <div className="mt-6 border-t border-tinta/25 pt-5">
         {s.jenis === "prediksi" && (
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
             <div className="min-w-0">
@@ -90,7 +90,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
             </div>
             <Link
               href={`/pertandingan/${s.match_id}`}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-tinta transition-opacity duration-150 hover:opacity-90"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
             >
               Baca analisis <span aria-hidden="true">→</span>
             </Link>
@@ -103,7 +103,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
             </p>
             <Link
               href="/pertandingan"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-tinta transition-opacity duration-150 hover:opacity-90"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
             >
               Lihat jadwal laga <span aria-hidden="true">→</span>
             </Link>
@@ -116,7 +116,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
             </p>
             <Link
               href="/pertandingan"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-tinta transition-opacity duration-150 hover:opacity-90"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
             >
               Lihat jadwal laga <span aria-hidden="true">→</span>
             </Link>
@@ -132,7 +132,7 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
             </p>
             <Link
               href="/bukti"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-tinta transition-opacity duration-150 hover:opacity-90"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-md bg-jingga px-5 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-150 hover:opacity-90"
             >
               Lihat rekam hasil <span aria-hidden="true">→</span>
             </Link>
@@ -301,7 +301,7 @@ export default function LandingPage() {
       <TopBar />
 
       <main id="main-content" className="flex-1">
-        <section className="mx-auto w-full max-w-[1240px] px-4 pt-10 pb-16 min-[600px]:px-6 lg:px-8 lg:pt-14">
+        <section className="shell-x mx-auto w-full max-w-[1240px] pt-10 pb-16 lg:pt-14">
           <Suspense
             fallback={
               <div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
 
       {/* ---------------------------------------------------------- FOOTER */}
       <footer className="border-t border-garis">
-        <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-2 px-4 py-10 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] min-[600px]:px-6 sm:flex-row sm:items-baseline sm:justify-between md:pb-10 lg:px-8">
+        <div className="shell-x mx-auto flex w-full max-w-[1240px] flex-col gap-2 py-10 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] sm:flex-row sm:items-baseline sm:justify-between md:pb-10">
           <p className="text-[15px]">
             <span className="font-display text-[19px] font-bold text-tinta italic">
               Bola<span className="text-jingga not-italic">.</span>

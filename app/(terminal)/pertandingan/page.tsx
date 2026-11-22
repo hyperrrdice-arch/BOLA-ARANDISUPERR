@@ -70,69 +70,95 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
   const counts = hitunganKelas(item);
   const selesai = item.status === "finished" || item.status === "abandoned";
   const picks = selesai && item.package_id ? getPackagePicks(item.package_id).slice(0, 3) : [];
+  /* Susunan baris brief upgrade P0: jam + nama tim di baris pertama;
+     peluang/kelas tetap di kanan baris pertama; STATUS dan ringkasan
+     model turun ke baris kedua yang berdiri sendiri. Susunan lama
+     menaruh label status sebagai kolom shrink-0 di samping nama —
+     pada 320 px label "Menunggu pembaruan pertandingan" (213 px)
+     mendesak kolom nama sampai 35 px, nama pecah bertingkat dan
+     baris membengkak ke 350 px (terukur lokal, cocok dengan audit). */
+  const tampilProb =
+    leg !== null &&
+    (item.status === "scheduled" ||
+      item.status === "unknown" ||
+      item.status === "menunggu-pembaruan");
+  const labelBarisStatus =
+    item.status === "live" || item.status === "finished" || item.status === "menunggu-pembaruan"
+      ? labelStatus(item.status)
+      : null;
+  const meta =
+    item.status === "postponed" ? (
+      <>
+        Ditunda · Jadwal asal {tanggalJamWib(item.jadwal_asal_utc ?? item.kickoff_utc, tz)}
+        {item.jadwal_ulang_utc && (
+          <> · Jadwal ulang {tanggalJamWib(item.jadwal_ulang_utc, tz)}</>
+        )}
+      </>
+    ) : item.status === "cancelled" ? (
+      "Dibatalkan"
+    ) : item.status === "abandoned" ? (
+      "Dihentikan · Skor parsial saat laga berhenti"
+    ) : item.status === "unknown" ? (
+      "Status tidak diketahui"
+    ) : leg ? (
+      <>
+        {labelPilihan(leg.market, leg.selection, item.home, item.away)}
+        {counts && <span className="text-faint"> · {counts}</span>}
+      </>
+    ) : item.package_id ? (
+      "Analisis tersedia · Belum ada pilihan berkelas"
+    ) : item.status === "live" ? null : (
+      "Belum ada analisis"
+    );
   return (
     <div className="border-t border-hairline/50 py-4 first:border-t-0">
       <Link
         href={hrefDetail(item, filter)}
         aria-label={`${item.home} melawan ${item.away}, ${item.competition_name}, ${tanggalJamWib(item.kickoff_utc, tz)}`}
-        className="flex items-start gap-4 transition-colors hover:bg-surface-alt/40 sm:gap-6"
+        className="block transition-colors hover:bg-surface-alt/40"
       >
-        <span className="w-[3.5rem] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums">
-          {selesai && item.home_goals !== null ? (
-            <span className="text-base font-semibold text-ink">
-              {item.home_goals}–{item.away_goals}
-            </span>
-          ) : (
-            jamWibOnly(item.kickoff_utc, tz)
-          )}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[17px] font-medium break-words text-ink">
-            {item.home} <span className="font-normal text-faint">vs</span> {item.away}
-          </span>
-          <span className="mt-1 block text-[13px] text-mid-gray">
-            {item.status === "postponed" ? (
-              <>
-                Ditunda · Jadwal asal {tanggalJamWib(item.jadwal_asal_utc ?? item.kickoff_utc, tz)}
-                {item.jadwal_ulang_utc && (
-                  <> · Jadwal ulang {tanggalJamWib(item.jadwal_ulang_utc, tz)}</>
-                )}
-              </>
-            ) : item.status === "cancelled" ? (
-              "Dibatalkan"
-            ) : item.status === "abandoned" ? (
-              "Dihentikan · Skor parsial saat laga berhenti"
-            ) : item.status === "live" ? (
-              "Sedang berlangsung"
-            ) : item.status === "unknown" ? (
-              "Status tidak diketahui"
-            ) : leg ? (
-              <>
-                {labelPilihan(leg.market, leg.selection, item.home, item.away)}
-                {counts && <span className="text-faint"> · {counts}</span>}
-              </>
-            ) : item.package_id ? (
-              "Analisis tersedia · Belum ada pilihan berkelas"
+        <span className="flex items-start gap-[16px] sm:gap-6">
+          <span className="w-[3.5rem] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums">
+            {selesai && item.home_goals !== null ? (
+              <span className="text-base font-semibold text-ink">
+                {item.home_goals}–{item.away_goals}
+              </span>
             ) : (
-              "Belum ada analisis"
+              jamWibOnly(item.kickoff_utc, tz)
             )}
           </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[17px] font-medium break-words text-ink">
+              {item.home} <span className="font-normal text-faint">vs</span> {item.away}
+            </span>
+          </span>
+          {tampilProb && leg ? (
+            <span className="shrink-0 text-right">
+              <span className="flex items-baseline justify-end gap-2.5">
+                <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
+                <GradeMark grade={leg.grade} className="text-xl" />
+              </span>
+            </span>
+          ) : null}
         </span>
-        {item.status !== "scheduled" && item.status !== "unknown" ? (
-          <span className="shrink-0 pt-0.5 text-[13px] font-medium text-mid-gray">
-            {labelStatus(item.status)}
+        {(labelBarisStatus || meta || (tampilProb && leg)) && (
+          <span className="mt-1.5 block pl-[72px] text-[13px] text-mid-gray sm:pl-[80px]">
+            {labelBarisStatus && (
+              <span className="block font-medium">{labelBarisStatus}</span>
+            )}
+            {/* Keterangan "Pilihan terkuat · Kelas" pindah ke baris
+                kedua: sebagai keterangan di bawah persen ia melebar
+                kolom kanan sampai ±130 px dan memangkas kolom nama
+                di 320 px hingga kata terpanjang (87,7 px) tidak muat
+                satu baris utuh. */}
+            {tampilProb && leg && (
+              <span className="block text-[12px] text-faint">
+                Pilihan terkuat · Kelas {leg.grade}
+              </span>
+            )}
+            {meta && <span className="block">{meta}</span>}
           </span>
-        ) : leg ? (
-          <span className="shrink-0 text-right">
-            <span className="flex items-baseline justify-end gap-2.5">
-              <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
-              <GradeMark grade={leg.grade} className="text-xl" />
-            </span>
-            <span className="mt-1.5 block text-[12px] text-faint">
-              Pilihan terkuat · Kelas {leg.grade}
-            </span>
-          </span>
-        ) : null}
+        )}
       </Link>
       {picks.length > 0 && (
         <ul className="mt-3 space-y-1.5 pl-[4.5rem] sm:pl-[5.5rem]">

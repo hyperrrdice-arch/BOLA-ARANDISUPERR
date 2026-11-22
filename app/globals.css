@@ -2,41 +2,66 @@
 @import "../design-system/theme.css";
 
 :root {
-  /* Sistem terang brief redesain §2 (2026-11-21) — cermin token
-     design-system/theme.css; lihat berkas itu untuk pemetaan nama lama
-     dan kontras nada turunan. */
-  --background: #f8f7f2;
-  --foreground: #162723;
-  --canvas: #f8f7f2;
-  --paper: #ffffff;
-  --surface-alt: #efede3;
-  --well: #e9e7db;
-  --ink: #162723;
-  --ink-soft: #33423b;
-  --mid-gray: #4e5b56;
-  --faint: #5f6f66;
-  --hairline: #ccd1c8;
-  --hairline-strong: #7e8c84;
-  --accent: #ff6935;
-  --accent-deep: #a63416;
-  --accent-ink: #162723;
-  --sage: #246241;
-  --brick: #9b3736;
+  /* Sistem GELAP AMOLED brief upgrade frontend (2026-11-22) — cermin
+     token design-system/theme.css; lihat berkas itu untuk pemetaan
+     nama lama dan kontras nada turunan yang terukur. */
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #f5f5f7;
+  --canvas: #000000;
+  --paper: #0d0d0f;
+  --surface-alt: #17171b;
+  --well: #1d1d22;
+  --ink: #f5f5f7;
+  --ink-soft: #dcdce1;
+  --mid-gray: #a3a3ab;
+  --faint: #9a9aa3;
+  --hairline: #28282c;
+  --hairline-strong: #74747b;
+  --accent: #ffad5b;
+  --accent-deep: #ffad5b;
+  --accent-ink: #000000;
+  --sage: #79dfa7;
+  --brick: #ff8a75;
 
-  --surface: #ffffff;
-  --surface-hover: #efede3;
-  --surface-active: #e9e7db;
-  --border-subtle: #ccd1c8;
-  --border-strong: #7e8c84;
-  --text-primary: #162723;
-  --text-body: #33423b;
-  --text-muted: #4e5b56;
-  --text-faint: #5f6f66;
+  --surface: #0d0d0f;
+  --surface-hover: #17171b;
+  --surface-active: #1d1d22;
+  --border-subtle: #28282c;
+  --border-strong: #74747b;
+  --text-primary: #f5f5f7;
+  --text-body: #dcdce1;
+  --text-muted: #a3a3ab;
+  --text-faint: #9a9aa3;
+
+  /* Token gutter shell khusus (brief upgrade, menggantikan px-4 yang
+     terpetakan ke --spacing-4:4px): 12 px pada 320–359, 16 px pada
+     360–767, 24 px pada 768–1023, 32 px pada ≥1024. Terapkan lewat
+     kelas .shell-x pada wadah shell (kepala, main, kaki). */
+  --gutter: 12px;
 
   /* Motion curves */
   --ease-terminal: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-micro: 160ms;
   --duration-layout: 280ms;
+}
+
+@media (min-width: 360px) {
+  :root { --gutter: 16px; }
+}
+@media (min-width: 768px) {
+  :root { --gutter: 24px; }
+}
+@media (min-width: 1024px) {
+  :root { --gutter: 32px; }
+}
+
+.shell-x {
+  padding-inline: var(--gutter);
+}
+
+html {
+  background-color: #000000;
 }
 
 @theme inline {
@@ -63,15 +88,13 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Fokus brief §2: outline 3 px #2855A4, offset 2 px di atas kertas;
-   di dalam panel gelap outline memakai warna kertas. */
+/* Fokus brief upgrade: garis 2 px warna aksi #FFAD5B, offset 2 px —
+   satu warna di semua permukaan (di atas panel nyaris hitam maupun
+   di atas sel matriks terang, jingga tetap ≥3:1 terhadap keduanya
+   pada peran garis fokus). */
 :focus-visible {
-  outline: 3px solid #2855a4;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
-}
-
-.panel-gelap :focus-visible {
-  outline-color: #f8f7f2;
 }
 
 ::selection {
@@ -155,8 +178,8 @@ body {
   }
 }
 
-/* Thin neutral scrollbar */
+/* Thin neutral scrollbar — nada gelap sistem AMOLED */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #ccd1c8; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #7e8c84; }
+::-webkit-scrollbar-thumb { background: #28282c; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #74747b; }

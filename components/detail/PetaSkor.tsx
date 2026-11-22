@@ -199,7 +199,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
   const aMax = Math.min(BATAS_TAMPIL, (matrix[0]?.length ?? 1) - 1);
 
   return (
-    <div ref={akarRef} className="panel-gelap rounded-md bg-gelap p-4 text-kertas sm:p-5">
+    <div ref={akarRef} className="panel-gelap rounded-md bg-gelap p-4 text-tinta sm:p-5">
       {/* ------------------------------------------- kepala grafik */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -219,7 +219,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
             aria-pressed={mode === "2d"}
             aria-label="Tampilan tabel dua dimensi"
             className={`min-h-11 rounded-md px-4 text-sm font-semibold ${
-              mode === "2d" ? "bg-jingga text-tinta" : "border border-gelap-sekunder/50 text-kertas"
+              mode === "2d" ? "bg-jingga text-accent-ink" : "border border-gelap-sekunder/50 text-tinta"
             }`}
           >
             2D
@@ -230,7 +230,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
             aria-pressed={mode === "3d"}
             aria-label="Tampilan tiga dimensi"
             className={`min-h-11 rounded-md px-4 text-sm font-semibold ${
-              mode === "3d" ? "bg-jingga text-tinta" : "border border-gelap-sekunder/50 text-kertas"
+              mode === "3d" ? "bg-jingga text-accent-ink" : "border border-gelap-sekunder/50 text-tinta"
             }`}
           >
             3D
@@ -241,8 +241,8 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
             aria-pressed={kurangiGerak}
             className={`min-h-11 rounded-md px-4 text-sm font-medium ${
               kurangiGerak
-                ? "bg-kertas text-tinta"
-                : "border border-gelap-sekunder/50 text-kertas"
+                ? "bg-tinta text-accent-ink"
+                : "border border-gelap-sekunder/50 text-tinta"
             }`}
           >
             Kurangi gerak
@@ -253,7 +253,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
       {skorAkhir && akhir && (
         <p className="mt-3 flex flex-wrap items-center gap-3 text-sm">
           <span className="text-gelap-sekunder">
-            Skor akhir: <span className="font-semibold text-kertas tabular-nums">{akhir.teks}</span>
+            Skor akhir: <span className="font-semibold text-tinta tabular-nums">{akhir.teks}</span>
           </span>
           <button
             type="button"
@@ -278,8 +278,8 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
             aria-pressed={filter === f}
             className={`min-h-11 rounded-md px-4 text-sm font-medium ${
               filter === f
-                ? "bg-kertas font-semibold text-tinta"
-                : "border border-gelap-sekunder/50 text-kertas"
+                ? "bg-tinta font-semibold text-accent-ink"
+                : "border border-gelap-sekunder/50 text-tinta"
             }`}
           >
             {LABEL_FILTER_PETA[f]}
@@ -322,7 +322,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
                 const [h, a] = e.target.value.split("-").map(Number);
                 if (Number.isFinite(h) && Number.isFinite(a)) pilihSel(h, a);
               }}
-              className="mt-1.5 block min-h-11 w-full rounded-md border border-gelap-sekunder/50 bg-gelap px-3 text-[15px] text-kertas"
+              className="mt-1.5 block min-h-11 w-full rounded-md border border-gelap-sekunder/50 bg-gelap px-3 text-[15px] text-tinta"
             >
               {selHimpunan.map((s) => (
                 <option key={`${s.h}-${s.a}`} value={`${s.h}-${s.a}`}>
@@ -342,7 +342,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
               <tr>
                 <th className="h-9 w-9" aria-hidden="true" />
                 {Array.from({ length: aMax + 1 }, (_, a) => (
-                  <th key={a} className="h-9 w-12 text-center text-sm font-normal text-gelap-sekunder tabular-nums sm:w-14">
+                  <th key={a} className="h-9 w-[44px] text-center text-sm font-normal text-gelap-sekunder tabular-nums">
                     {a}
                   </th>
                 ))}
@@ -358,6 +358,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
                     const p = matrix[h][a];
                     const dipilih = terpilih?.h === h && terpilih?.a === a;
                     const dalam = selDalamFilter(h, a, filter);
+                    const gaya = heatStyle(p, ringkasan.maksBidang);
                     return (
                       <td key={a} className="p-0.5">
                         <button
@@ -368,9 +369,19 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
                           onKeyDown={(e) => onKetikSel(e, h, a)}
                           aria-label={`${home} ${h} gol, ${away} ${a} gol, peluang ${formatPeluangSel(p)}`}
                           aria-pressed={dipilih}
-                          style={heatStyle(p, ringkasan.maksBidang)}
-                          className={`h-11 w-12 rounded-[4px] text-center text-[12px] tabular-nums sm:w-14 sm:text-[13px] ${
-                            dipilih ? "font-bold shadow-[inset_0_0_0_2px_#f8f7f2]" : ""
+                          /* Sel eksplisit 44×44 (target sentuh proyek):
+                             kelas w-12 TIDAK dipakai — terpetakan ke
+                             --spacing-12:12px di theme.css, itulah akar
+                             sel 12×44 px pada audit. Cincin sel terpilih
+                             memakai warna teks sel dari heatStyle
+                             (kontras sama dengan teksnya, ≥4,5:1). */
+                          style={
+                            dipilih
+                              ? { ...gaya, boxShadow: `inset 0 0 0 2px ${gaya.color}` }
+                              : gaya
+                          }
+                          className={`h-[44px] w-[44px] rounded-[4px] text-center text-[12px] tabular-nums ${
+                            dipilih ? "font-bold" : ""
                           } ${dalam ? "" : "opacity-40"}`}
                         >
                           {formatPeluangSel(p)}
@@ -408,7 +419,7 @@ export default function PetaSkor({ home, away, matrix, tailMass, skorAkhir }: Pr
         {ringkasan.top.map((s, i) => (
           <li key={`${s.h}-${s.a}`} className="flex items-baseline gap-3 text-sm">
             <span className="w-4 text-gelap-sekunder">{i + 1}.</span>
-            <span className="font-medium text-kertas tabular-nums">
+            <span className="font-medium text-tinta tabular-nums">
               {s.h}–{s.a}
             </span>
             <span className="tabular-nums text-gelap-sekunder">{formatPeluangSel(s.p)}</span>

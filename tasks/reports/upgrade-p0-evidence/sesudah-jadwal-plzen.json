@@ -1,0 +1,88 @@
+{
+  "jadwal-plzen-320": {
+    "ketemu": true,
+    "tinggiBaris": 165,
+    "lebarBaris": 296,
+    "nama": {
+      "lebar": 296,
+      "tinggi": 102,
+      "potonganBaris": [
+        22,
+        15,
+        102,
+        19,
+        19,
+        19,
+        19,
+        19,
+        19,
+        29,
+        31,
+        24
+      ]
+    },
+    "status": {
+      "lebar": 224,
+      "tinggi": 20,
+      "topRelatif": 108,
+      "sejajarNama": false
+    },
+    "teksBaris": "00.00Bohemians 1905 vs Viktoria Plzeň74,6%AMenunggu pembaruan pertandinganPilihan terkuat · Kelas AViktoria Plzeň mencetak gol · 1 A · 5 B"
+  },
+  "jadwal-plzen-360": {
+    "ketemu": true,
+    "tinggiBaris": 114,
+    "lebarBaris": 328,
+    "nama": {
+      "lebar": 328,
+      "tinggi": 51,
+      "potonganBaris": [
+        22,
+        15,
+        51,
+        19,
+        19,
+        19,
+        19,
+        29,
+        31,
+        24
+      ]
+    },
+    "status": {
+      "lebar": 256,
+      "tinggi": 20,
+      "topRelatif": 57,
+      "sejajarNama": false
+    },
+    "teksBaris": "00.00Bohemians 1905 vs Viktoria Plzeň74,6%AMenunggu pembaruan pertandinganPilihan terkuat · Kelas AViktoria Plzeň mencetak gol · 1 A · 5 B"
+  },
+  "jadwal-plzen-390": {
+    "ketemu": true,
+    "tinggiBaris": 114,
+    "lebarBaris": 358,
+    "nama": {
+      "lebar": 358,
+      "tinggi": 51,
+      "potonganBaris": [
+        22,
+        15,
+        51,
+        19,
+        19,
+        19,
+        19,
+        29,
+        31,
+        24
+      ]
+    },
+    "status": {
+      "lebar": 286,
+      "tinggi": 20,
+      "topRelatif": 57,
+      "sejajarNama": false
+    },
+    "teksBaris": "00.00Bohemians 1905 vs Viktoria Plzeň74,6%AMenunggu pembaruan pertandinganPilihan terkuat · Kelas AViktoria Plzeň mencetak gol · 1 A · 5 B"
+  }
+}

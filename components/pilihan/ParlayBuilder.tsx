@@ -988,7 +988,7 @@ export default function ParlayBuilder({
               ref={tombolPanelRef}
               onClick={() => setPanelTerbuka(true)}
               aria-haspopup="dialog"
-              className="flex min-h-[44px] shrink-0 items-center rounded-md bg-gelap px-4 text-sm font-medium text-kertas transition-colors"
+              className="flex min-h-[44px] shrink-0 items-center rounded-md bg-gelap px-4 text-sm font-medium text-tinta transition-colors"
             >
               Lihat {selected.length} pilihan
             </button>

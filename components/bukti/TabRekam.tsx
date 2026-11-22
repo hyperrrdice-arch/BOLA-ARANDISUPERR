@@ -39,15 +39,22 @@ export default function TabRekam({
 }) {
   const [aktif, setAktif] = useState<IdTabRekam>("dinilai");
   const tombolRef = useRef<Array<HTMLButtonElement | null>>([]);
-  const [penanda, setPenanda] = useState<{ kiri: number; lebar: number } | null>(null);
+  const [penanda, setPenanda] = useState<{ kiri: number; lebar: number; atas: number } | null>(null);
 
   // Ukur penanda dari tombol aktif; ukur ulang saat tab berganti atau
-  // jendela berubah ukuran.
+  // jendela berubah ukuran. `atas` = tepi bawah tombol aktif itu
+  // sendiri — sejak tab bisa membungkus (brief upgrade P0), penanda
+  // harus mengikuti BARIS tombol aktif, bukan selalu dasar wadah.
   useEffect(() => {
     const ukur = () => {
       const i = TAB.findIndex((t) => t.id === aktif);
       const el = tombolRef.current[i];
-      if (el) setPenanda({ kiri: el.offsetLeft, lebar: el.offsetWidth });
+      if (el)
+        setPenanda({
+          kiri: el.offsetLeft,
+          lebar: el.offsetWidth,
+          atas: el.offsetTop + el.offsetHeight,
+        });
     };
     ukur();
     window.addEventListener("resize", ukur);
@@ -65,7 +72,7 @@ export default function TabRekam({
         if (tujuan && TAB.some((x) => x.id === tujuan)) setAktif(tujuan);
       }}
     >
-      <div role="tablist" aria-label="Status pilihan" className="relative flex gap-2 border-b border-hairline">
+      <div role="tablist" aria-label="Status pilihan" className="relative flex flex-wrap gap-2 border-b border-hairline">
         {TAB.map((t, i) => (
           <button
             key={t.id}
@@ -98,8 +105,8 @@ export default function TabRekam({
         {penanda && (
           <span
             aria-hidden="true"
-            className="absolute bottom-[-1px] h-[3px] bg-jingga transition-all duration-[160ms] [transition-timing-function:cubic-bezier(.22,.72,.2,1)]"
-            style={{ left: penanda.kiri, width: penanda.lebar }}
+            className="absolute h-[3px] bg-jingga transition-all duration-[160ms] [transition-timing-function:cubic-bezier(.22,.72,.2,1)]"
+            style={{ left: penanda.kiri, width: penanda.lebar, top: penanda.atas - 2 }}
           />
         )}
       </div>

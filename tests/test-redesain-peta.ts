@@ -140,10 +140,41 @@ suite.eq(
 );
 
 /* ------------------------------------------------------------- palet */
+/* Palet AMOLED brief upgrade 2026-11-22 menggantikan palet redesain:
+   panas = jingga #FFAD5B, teks sel terpanas = hitam, teks sel dingin
+   = #F5F5F7. Kontras teks terhadap warna komposit sel di atas panel
+   #0D0D0F wajib ≥4,5:1 di seluruh rentang (kontrak brief upgrade). */
 const panas = heatStyle(0.151, 0.151);
-suite.check("palet: panas memakai jingga baru, bukan amber", panas.backgroundColor.includes("255, 105, 53"));
-suite.eq("palet: teks di atas sel terpanas = tinta", panas.color, "#162723");
+suite.check("palet: panas memakai jingga AMOLED #FFAD5B", panas.backgroundColor.includes("255, 173, 91"));
+suite.eq("palet: teks di atas sel terpanas = hitam", panas.color, "#000000");
 const dingin = heatStyle(0, 0.151);
-suite.eq("palet: teks sel dingin = kertas", dingin.color, "#f8f7f2");
+suite.eq("palet: teks sel dingin = #F5F5F7", dingin.color, "#f5f5f7");
+{
+  const panel = { r: 13, g: 13, b: 15 };
+  const lum = (r: number, g: number, b: number) => {
+    const f = (c: number) => {
+      c /= 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  let min = Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const p = (i / 200) * 0.151;
+    const gaya = heatStyle(p, 0.151);
+    const mb = gaya.backgroundColor.match(/rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/);
+    const mf = gaya.color.match(/#(..)(..)(..)/);
+    if (!mb || !mf) continue;
+    const a = parseFloat(mb[4]);
+    const cr = parseInt(mb[1]) * a + panel.r * (1 - a);
+    const cg = parseInt(mb[2]) * a + panel.g * (1 - a);
+    const cb = parseInt(mb[3]) * a + panel.b * (1 - a);
+    const lBg = lum(cr, cg, cb);
+    const lFg = lum(parseInt(mf[1], 16), parseInt(mf[2], 16), parseInt(mf[3], 16));
+    const k = (Math.max(lBg, lFg) + 0.05) / (Math.min(lBg, lFg) + 0.05);
+    if (k < min) min = k;
+  }
+  suite.check(`palet: kontras teks sel minimum ≥4,5:1 (terukur ${min.toFixed(2)}:1)`, min >= 4.5);
+}
 
 suite.finish();

@@ -87,16 +87,32 @@ export function FormChips({ form, showScore = false }: { form: FormEntry[]; show
 }
 
 /**
- * Warna panas matriks skor pada BIDANG GELAP brief §2 (#142C25):
- * jingga #FF6935 sebagai panas, diskala ke sel terpanas; teks beralih
- * ke tinta di atas sel yang cukup terang. (Amber warisan diganti
- * palet redesain.)
+ * Warna panas matriks skor pada PANEL AMOLED brief upgrade (#0D0D0F):
+ * jingga #FFAD5B sebagai panas, diskala ke sel terpanas.
+ *
+ * Kontras teks sel adalah kontrak terukur, bukan perkiraan: rampa
+ * alfa kontinu punya zona mati di tengah (pada alfa ≈0,58 teks terang
+ * maupun gelap hanya ≈4,4:1), jadi alfa dibuat DUA SEGMEN —
+ *   u ≤ 0,5 → alfa 0 → 0,53, teks #F5F5F7;
+ *   u > 0,5 → alfa 0,62 → 0,95, teks #000000;
+ * dengan u = (p/maks)^0,72 seperti kurva lama. Kontras minimum di
+ * seluruh rentang terhadap warna komposit di atas panel #0D0D0F =
+ * 4,92:1 (dihitung 2026-11-22; audit lama mengukur sel 7,6% pada
+ * ≈2,5:1 dan pengukuran lokal mengonfirmasi minimum 2,34:1).
+ * Warna teks yang dikembalikan juga dipakai cincin sel terpilih,
+ * jadi penanda pilihan mewarisi kontras yang sama.
  */
 export function heatStyle(prob: number, max: number): { backgroundColor: string; color: string } {
-  const t = max > 0 ? Math.pow(prob / max, 0.72) : 0;
+  const u = max > 0 ? Math.pow(prob / max, 0.72) : 0;
+  if (u <= 0.5) {
+    return {
+      backgroundColor: `rgba(255, 173, 91, ${(u * 1.06).toFixed(3)})`,
+      color: "#f5f5f7",
+    };
+  }
   return {
-    backgroundColor: `rgba(255, 105, 53, ${(t * 0.88).toFixed(3)})`,
-    color: t > 0.55 ? "#162723" : "#f8f7f2",
+    backgroundColor: `rgba(255, 173, 91, ${(0.62 + (u - 0.5) * 0.66).toFixed(3)})`,
+    color: "#000000",
   };
 }
 

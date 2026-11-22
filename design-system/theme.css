@@ -1,48 +1,55 @@
 @theme {
-  /* Colors — sistem terang brief redesain (2026-11-21, §2), MENGGANTIKAN
-     "Amber Panas" 2026-11-05 sebagai token global seluruh rute.
-     Palet persis brief: kertas #F8F7F2, tinta hijau-hitam #162723, teks
-     sekunder #4E5B56, garis #CCD1C8, sorotan gelap #142C25 (sekunder
-     #C8D6C9), jingga #FF6935 (teks di atasnya = tinta), jingga-teks
-     #A63416, tepat #246241, meleset #9B3736, fokus #2855A4.
-     Nama token lama DIPETAKAN ULANG ke palet baru supaya seluruh rute
-     yang belum disusun ulang ikut terang tanpa ubah markup:
-       canvas→kertas, ink→tinta, mid-gray→sekunder, hairline→garis,
-       accent→jingga, accent-deep→jingga-teks, accent-ink→tinta,
-       sage→tepat, brick/ember→meleset.
-     Nada turunan (dihitung dari palet, kontras terukur thd kertas):
-       ink-soft #33423B (9,9:1), faint #5F6F66 (4,9:1),
-       hairline-strong #7E8C84 (3,3:1 — batas kontrol ≥3:1 per brief),
-       paper #FFFFFF (permukaan terangkat), surface-alt #EFEDE3,
-       well #E9E7DB (sumur redup di atas kertas). */
-  --color-kertas: #f8f7f2;
-  --color-tinta: #162723;
-  --color-sekunder: #4e5b56;
-  --color-garis: #ccd1c8;
-  --color-gelap: #142c25;
-  --color-gelap-sekunder: #c8d6c9;
-  --color-jingga: #ff6935;
-  --color-jingga-teks: #a63416;
-  --color-tepat: #246241;
-  --color-meleset: #9b3736;
-  --color-fokus: #2855a4;
+  /* Colors — sistem GELAP AMOLED brief upgrade frontend (2026-11-22),
+     MENGGANTIKAN sistem terang brief redesain 2026-11-21 sebagai token
+     global seluruh rute. TIDAK ada toggle: kanvas hitam sejak frame
+     pertama di semua rute.
+     Palet persis brief upgrade: kanvas #000000, panel #0D0D0F, teks
+     utama #F5F5F7, teks sekunder #A3A3AB, aksi/fokus #FFAD5B (teks di
+     atasnya HITAM), pemisah #28282C, batas kontrol #74747B, status
+     Tepat #79DFA7.
+     Nama token lama DIPETAKAN ULANG ke palet baru (strategi yang sama
+     dengan redesain): canvas→kanvas, ink→teks utama, mid-gray→sekunder,
+     hairline→pemisah, accent→jingga baru, accent-ink→hitam,
+     sage→tepat, brick/ember→meleset.
+     Nada turunan (kontras TERUKUR terhadap kanvas #000000, dihitung
+     2026-11-22): ink-soft #DCDCE1 (13,4:1), faint #9A9AA3 (7,5:1 —
+     metadata 12–13 px tetap ≥4,5:1), meleset #FF8A75 (9,1:1),
+     hairline-strong #74747B (4,5:1 — batas kontrol ≥3:1),
+     surface-alt #17171B dan well #1D1D22 (anak tangga panel di atas
+     #0D0D0F, bukan permukaan teks).
+     PERAN GANDA token warisan yang diselesaikan di markup (bukan di
+     sini): `kertas` dulu berarti "latar terang" sekaligus "teks terang
+     di atas panel gelap" — sekarang kertas = kanvas hitam untuk LATAR
+     (bg-kertas: badan, navigasi bawah, lembar bawah), sedangkan teks
+     terang di atas panel memakai token tinta (text-tinta). */
+  --color-kertas: #000000;
+  --color-tinta: #f5f5f7;
+  --color-sekunder: #a3a3ab;
+  --color-garis: #28282c;
+  --color-gelap: #0d0d0f;
+  --color-gelap-sekunder: #a3a3ab;
+  --color-jingga: #ffad5b;
+  --color-jingga-teks: #ffad5b;
+  --color-tepat: #79dfa7;
+  --color-meleset: #ff8a75;
+  --color-fokus: #ffad5b;
 
-  --color-canvas: #f8f7f2;
-  --color-paper: #ffffff;
-  --color-surface-alt: #efede3;
-  --color-well: #e9e7db;
-  --color-ink: #162723;
-  --color-ink-soft: #33423b;
-  --color-mid-gray: #4e5b56;
-  --color-faint: #5f6f66;
-  --color-hairline: #ccd1c8;
-  --color-hairline-strong: #7e8c84;
-  --color-accent: #ff6935;
-  --color-accent-deep: #a63416;
-  --color-accent-ink: #162723;
-  --color-sage: #246241;
-  --color-brick: #9b3736;
-  --color-ember: #9b3736;
+  --color-canvas: #000000;
+  --color-paper: #0d0d0f;
+  --color-surface-alt: #17171b;
+  --color-well: #1d1d22;
+  --color-ink: #f5f5f7;
+  --color-ink-soft: #dcdce1;
+  --color-mid-gray: #a3a3ab;
+  --color-faint: #9a9aa3;
+  --color-hairline: #28282c;
+  --color-hairline-strong: #74747b;
+  --color-accent: #ffad5b;
+  --color-accent-deep: #ffad5b;
+  --color-accent-ink: #000000;
+  --color-sage: #79dfa7;
+  --color-brick: #ff8a75;
+  --color-ember: #ff8a75;
 
   /* Typography — Barlow Condensed 700 untuk judul, nama tim sorotan,
      dan wordmark; Archivo 400/600/700 (+500 yang memang terpakai kelas
@@ -74,7 +81,16 @@
   --leading-display: 1.1;
   --tracking-display: -0.96px;
 
-  /* Spacing */
+  /* Spacing — PERINGATAN WARISAN (terverifikasi terukur 2026-11-22):
+     peta --spacing-N di bawah membuat utilitas bernomor SAMA (px-4,
+     w-12, mt-12, gap-4, …) bernilai N px, BUKAN kelipatan 4 px standar
+     Tailwind; utilitas bernomor lain (h-11, gap-3, …) jatuh ke
+     calc(var(--spacing) * N). Campuran ini sudah terlanjur menjadi
+     asumsi visual banyak komponen, jadi TIDAK diubah di fase upgrade
+     P0 — brief upgrade sendiri memerintahkan token gutter khusus
+     (--gutter di app/globals.css) dan audit utilitas bernomor sebagai
+     langkah tersendiri. Komponen baru jangan mengandalkan nomor yang
+     ada di peta ini tanpa memeriksa nilainya di sini. */
   --spacing-4: 4px;
   --spacing-8: 8px;
   --spacing-12: 12px;
@@ -83,14 +99,15 @@
   --spacing-24: 24px;
   --spacing-48: 48px;
 
-  /* Border Radius — terminal cetak: tajam, bukan kapsul */
-  --radius-md: 2px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
-  --radius-2xl: 8px;
-  --radius-3xl: 12px;
+  /* Border Radius — brief upgrade: panel 10–12 px, border 1 px */
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 16px;
 
-  /* Shadows — tipis saja, hanya bila panel bertumpuk di atas konten (brief §2) */
-  --shadow-subtle: rgba(22, 39, 35, 0.14) 0px 1px 3px 0px;
+  /* Shadows — di atas kanvas hitam bayangan nyaris tak terlihat; hanya
+     untuk panel yang benar-benar melayang (lembar bawah, panel modal) */
+  --shadow-subtle: rgba(0, 0, 0, 0.6) 0px 1px 3px 0px;
   --shadow-subtle-2: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
