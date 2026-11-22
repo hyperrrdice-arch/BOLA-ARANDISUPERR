@@ -49,6 +49,18 @@
  * fisik, dan titik tulis ledger didedupe per laga fisik — pencatatan
  * lewat id kembar memblokir penulisan lewat id kanoniknya.
  *
+ * Kembar TAK tertaut (Lanjut-5): builder tautan kini toleran (konteks
+ * liga + kunci tim level tautan + rantai kickoff ±120 menit —
+ * lib/identity/link-matching.ts), tapi slate tidak bergantung padanya
+ * saja: titik tulis ledger punya PENJAGA CADANGAN laga fisik. Baris
+ * tak tertaut yang laga fisiknya sudah terwakili (wakil klaster
+ * cadangan di antara baris terpindai, catatan ledger lewat id lain,
+ * atau terbitan run ini) tetap di-rate dan tetap menulis paket
+ * analisis, tapi pick-nya TIDAK diterbitkan dua kali; kejadiannya
+ * dihitung di statistik unlinked_twin_fixtures_skipped. Produksi
+ * 22 Nov 2026: 4 pasang lolos dari builder lama (belahan registry
+ * Beveren/Standard + drift kickoff mt_ 60–90 menit) → 26 pick dobel.
+ *
  * OFFLINE PENUH — tidak ada panggilan Sportmonks/TheStats. Env dijalankan
  * dengan resep driver E2E: .env.local dimuat hanya agar impor planner 🔒
  * tidak throw (base URL NineRouter), lalu STATS_API_KEY dan
@@ -95,10 +107,22 @@ import { writePackage, type PackageInput } from "../lib/picks/packages";
 import {
   SlateIdentity,
   decideSlateFixture,
+  fallbackBlockReason,
+  fallbackGroupKey,
   parseSlateLinks,
   slateGroupKey,
   takeDistinctByGroup,
 } from "../lib/picks/slate-identity";
+import {
+  buildTeamResolver,
+  clusterTwinRows,
+  linkTeamKeyFn,
+  loadLinkTeamAliases,
+  resolveLinkRow,
+  type LinkableFixtureRow,
+  type ResolvedLinkRow,
+  type TeamRegistryFile,
+} from "../lib/identity/link-matching";
 import {
   publishPicks,
   type OddsSnapshot,
@@ -132,7 +156,9 @@ interface FixtureRow {
   competition_name: string;
   competition_country: string | null;
   utc_date: string;
+  home_team_id: string;
   home_team_name: string;
+  away_team_id: string;
   away_team_name: string;
 }
 
@@ -149,7 +175,9 @@ interface RatedFixture {
   package_id: number | null;
   legs: PickLeg[];
   /** Kunci grup contoh parlay: identitas fisik `fx:<canonical_id>` untuk
-   *  baris tertaut fixture-links; formula nama warisan selain itu. */
+   *  baris tertaut fixture-links; `fb:<...>` wakil klaster untuk anggota
+   *  klaster cadangan tak tertaut (Lanjut-5); formula nama warisan
+   *  selain itu. */
   group_key: string;
 }
 
@@ -273,7 +301,7 @@ async function main() {
 
   const fixtures = upDb
     .prepare(
-      `SELECT match_id, competition_id, competition_name, competition_country, utc_date, home_team_name, away_team_name
+      `SELECT match_id, competition_id, competition_name, competition_country, utc_date, home_team_id, home_team_name, away_team_id, away_team_name
        FROM upcoming_fixtures
        WHERE utc_date >= ? AND utc_date < ? AND status = 'scheduled'
        ORDER BY utc_date ASC`,
@@ -464,6 +492,60 @@ async function main() {
   const recordedPhysicalKeys = slateIdentity.physicalKeySet(alreadyRecorded);
   const writtenPhysicalKeys = new Set<string>();
 
+  // --- Penjaga cadangan laga fisik (Lanjut-5): untuk baris yang tetap
+  // TAK tertaut di fixture-links, laga fisik dinilai dari kunci tim
+  // LEVEL TAUTAN + konteks liga + kickoff (modul yang sama dengan
+  // builder: lib/identity/link-matching.ts). Klaster di antara baris
+  // terpindai menentukan wakilnya; baris ledger yang sudah tercatat
+  // dicocokkan lewat baris katalognya. Registry/alias tak terbaca →
+  // penjaga nonaktif dan perilaku kembali persis seperti sebelumnya
+  // (gagal-lembut, pola loadSlateIdentity).
+  const dataDir = path.join(process.cwd(), "data");
+  let resolveCatalogRow: ((row: LinkableFixtureRow) => ResolvedLinkRow | null) | null =
+    null;
+  try {
+    const reg = JSON.parse(
+      fs.readFileSync(path.join(dataDir, "team-canonical.json"), "utf8"),
+    ) as TeamRegistryFile;
+    const teamResolver = buildTeamResolver(reg);
+    const keyOf = linkTeamKeyFn(loadLinkTeamAliases(dataDir));
+    resolveCatalogRow = (row) => resolveLinkRow(row, teamResolver, keyOf);
+  } catch {
+    resolveCatalogRow = null;
+  }
+  const fallbackRefOf = new Map<string, ResolvedLinkRow>();
+  const representativeOf = new Map<string, string>();
+  const canonicalRefOf = new Map<string, ResolvedLinkRow>();
+  const recordedFallbackRefs: ResolvedLinkRow[] = [];
+  const writtenFallbackRefs: ResolvedLinkRow[] = [];
+  if (resolveCatalogRow) {
+    const scannedResolved: ResolvedLinkRow[] = [];
+    for (const f of fixtures) {
+      const r = resolveCatalogRow(f);
+      if (r) {
+        fallbackRefOf.set(r.match_id, r);
+        scannedResolved.push(r);
+      }
+    }
+    for (const cluster of clusterTwinRows(scannedResolved)) {
+      for (const r of cluster.rows) {
+        representativeOf.set(r.match_id, cluster.canonical.match_id);
+        canonicalRefOf.set(r.match_id, cluster.canonical);
+      }
+    }
+    if (writeLedger && alreadyRecorded.size > 0) {
+      const stmt = upDb.prepare(
+        "SELECT match_id, competition_id, competition_name, utc_date, home_team_id, home_team_name, away_team_id, away_team_name FROM upcoming_fixtures WHERE match_id = ?",
+      );
+      for (const id of alreadyRecorded) {
+        const row = stmt.get(id) as unknown as LinkableFixtureRow | undefined;
+        if (!row) continue;
+        const r = resolveCatalogRow(row);
+        if (r) recordedFallbackRefs.push(r);
+      }
+    }
+  }
+
   /** Snapshot odds prematch per leg untuk bukti terbit K2 (harga mentah buku). */
   const oddsSnapshotsFor = (leg: PickLeg, mInfo: MarketInfo): OddsSnapshot[] => {
     const d = mInfo.decimals[`${leg.market}:${leg.selection}`];
@@ -495,6 +577,7 @@ async function main() {
   let packagesWritten = 0;
   let mtTwinsSkipped = 0;
   let linkedTwinsSkipped = 0;
+  let unlinkedTwinsSkipped = 0;
 
   for (const fx of fixtures) {
     if (processed >= limit) break;
@@ -676,11 +759,27 @@ async function main() {
           // Titik tulis ledger (Lanjut-4): dedupe per LAGA FISIK, bukan
           // hanya per match_id — laga yang sudah tercatat/ditulis lewat
           // id kembar ATAU kanoniknya tidak diterbitkan dua kali.
+          // Penjaga cadangan (Lanjut-5): bila kunci fisik tertaut tidak
+          // memblokir, laga fisik yang sama tetap ditahan lewat kunci
+          // cadangan (tim level tautan + liga + kickoff toleran) —
+          // fixture terblokir jatuh ke cabang paket-saja di bawah,
+          // persis pola titik tulis Lanjut-4.
           const physKey = slateIdentity.physicalKey(fx.match_id);
+          const linkedBlocked =
+            recordedPhysicalKeys.has(physKey) || writtenPhysicalKeys.has(physKey);
+          const fbRef = fallbackRefOf.get(fx.match_id) ?? null;
+          const fbReason =
+            writeLedger && !linkedBlocked && fbRef
+              ? fallbackBlockReason(fbRef, {
+                  representativeOf,
+                  recordedRefs: recordedFallbackRefs,
+                  writtenRefs: writtenFallbackRefs,
+                })
+              : null;
           if (
             writeLedger &&
-            !recordedPhysicalKeys.has(physKey) &&
-            !writtenPhysicalKeys.has(physKey)
+            !linkedBlocked &&
+            !fbReason
           ) {
             // --- Jalur resmi K2: intent → paket → commit beku. Validasi
             // cutoff terjadi SAAT COMMIT; run yang commit-nya lewat kickoff
@@ -763,7 +862,14 @@ async function main() {
               throw new Error(`publikasi gagal: ${res.reason ?? res.status}`);
             }
             writtenPhysicalKeys.add(physKey);
+            if (fbRef) writtenFallbackRefs.push(fbRef);
           } else {
+            if (fbReason) {
+              unlinkedTwinsSkipped++;
+              console.log(
+                `${tag} → penerbitan ditahan penjaga cadangan (${fbReason}) — paket tetap analisis internal (Lanjut-5)`,
+              );
+            }
             const pkg = writePackage(pkgInput);
             packageId = pkg.id;
             packagesWritten++;
@@ -801,9 +907,13 @@ async function main() {
       feed_mode: fx.match_id.startsWith("fd_") ? "free" : "full",
       legs,
       // Group_key berbasis identitas fisik untuk baris tertaut
-      // (Lanjut-4, lib/picks/slate-identity); baris tak tertaut memakai
-      // formula nama warisan di dalam fungsi yang sama.
-      group_key: slateGroupKey(fx, slateIdentity),
+      // (Lanjut-4, lib/picks/slate-identity); anggota klaster cadangan
+      // tak tertaut berbagi kunci wakil klaster (Lanjut-5); baris lain
+      // memakai formula nama warisan di dalam fungsi yang sama.
+      group_key:
+        !slateIdentity.isLinked(fx.match_id) && canonicalRefOf.has(fx.match_id)
+          ? fallbackGroupKey(canonicalRefOf.get(fx.match_id)!)
+          : slateGroupKey(fx, slateIdentity),
     };
     rated.push(entry);
     console.log(
@@ -880,6 +990,7 @@ async function main() {
       packages_written: packagesWritten,
       mt_twin_fixtures_skipped: mtTwinsSkipped,
       linked_twin_fixtures_skipped: linkedTwinsSkipped,
+      unlinked_twin_fixtures_skipped: unlinkedTwinsSkipped,
       fixtures_rated_free_mode: rated.filter((r) => r.feed_mode === "free").length,
       ledger_live_run_rows_written: ledgerWritten,
       ledger_cutoff_rejected_fixtures: ledgerCutoffRejected,
@@ -933,6 +1044,7 @@ async function main() {
       `paket kuant tersimpan **${packagesWritten}** · ` +
       `kembar mt_ dilewati **${mtTwinsSkipped}** · ` +
       `kembar tertaut dilewati **${linkedTwinsSkipped}** · ` +
+      `kembar tak tertaut ditahan penjaga cadangan **${unlinkedTwinsSkipped}** · ` +
       `baris ledger live-run tertulis **${ledgerWritten}**.`,
   );
   md.push("");
@@ -992,7 +1104,7 @@ async function main() {
   );
 
   console.log(
-    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, paket tersimpan ${packagesWritten}, kembar tertaut dilewati ${linkedTwinsSkipped}, ledger live-run +${ledgerWritten}.`,
+    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, paket tersimpan ${packagesWritten}, kembar tertaut dilewati ${linkedTwinsSkipped}, kembar tak tertaut ditahan ${unlinkedTwinsSkipped}, ledger live-run +${ledgerWritten}.`,
   );
   console.log("Tertulis: tasks/pick-slate-latest.json + tasks/pick-slate-latest.md");
 }

@@ -38,7 +38,7 @@
     "test:e2e": "tsx tests/test-e2e.ts",
     "test:baseline:d01": "tsx tests/test-baseline-d01.ts",
     "test:verifikasi": "tsx tests/test-verifikasi-genclerbirligi.ts && tsx tests/test-verifikasi-marseille-detail.ts && tsx tests/test-verifikasi-pilihan-payload.ts && tsx tests/test-verifikasi-detail-ssr.ts",
-    "test:lanjut": "tsx tests/test-pilihan-edisi.ts && tsx tests/test-pilihan-edisi-browser.ts && tsx tests/test-pilihan-matriks-ulang.ts && tsx tests/test-slate-kembar.ts"
+    "test:lanjut": "tsx tests/test-pilihan-edisi.ts && tsx tests/test-pilihan-edisi-browser.ts && tsx tests/test-pilihan-matriks-ulang.ts && tsx tests/test-slate-kembar.ts && tsx tests/test-slate-kembar-tak-tertaut.ts"
   },
   "version": "2.0.0"
 }

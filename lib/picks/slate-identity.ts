@@ -32,9 +32,25 @@
  *     (diangkat verbatim dari pick-slate agar teruji di sini).
  *
  * Pasangan tak tertaut berperilaku persis seperti sebelum modul ini ada.
+ *
+ * Perluasan Lanjut-5 (branch fix/lanjut-5-kembar-tak-tertaut): penjaga
+ * CADANGAN laga fisik untuk baris yang tetap tak tertaut — kunci fisik
+ * cadangan berbasis pasangan tim (kunci LEVEL TAUTAN dari
+ * lib/identity/link-matching.ts: alias ejaan satu klub disatukan tanpa
+ * menggabung registry) + konteks liga + tanggal, dengan toleransi
+ * kickoff yang sama dengan builder (±120 menit; drift mt_ terbukti
+ * ≤90). Penjaga ini hanya bekerja di TITIK TULIS ledger: fixture yang
+ * terblokir tetap di-rate dan tetap menulis paket analisis (pola titik
+ * tulis Lanjut-4), hanya penerbitan pick-nya yang ditahan. Fungsi
+ * Lanjut-4 di atas tidak berubah sama sekali.
  */
 
 import { normalizeTeamName } from "../quant/team-normalizer";
+import {
+  leagueContextsCompatible,
+  TWIN_KICKOFF_TOLERANCE_MIN,
+  type LeagueContext,
+} from "../identity/link-matching";
 
 export interface SlateFixtureLink {
   twin_id: string;
@@ -162,6 +178,96 @@ export function slateGroupKey(
     return `fx:${identity.physicalKey(fx.match_id)}`;
   }
   return `${normalizeTeamName(fx.home_team_name)}|${normalizeTeamName(fx.away_team_name)}|${fx.utc_date}`;
+}
+
+/* ------------------------------------------- Lanjut-5: penjaga cadangan */
+
+/**
+ * Referensi fisik cadangan satu baris katalog: kunci tim LEVEL TAUTAN
+ * (alias diterapkan — lihat lib/identity/link-matching.ts), konteks
+ * liga, dan kickoff. ResolvedLinkRow dari link-matching memenuhi
+ * bentuk ini secara struktural.
+ */
+export interface FallbackFixtureRef {
+  match_id: string;
+  home_key: string;
+  away_key: string;
+  league: LeagueContext;
+  kickoff_ms: number;
+  utc_date: string;
+}
+
+/**
+ * True bila dua referensi menunjuk LAGA FISIK yang sama lewat kunci
+ * cadangan: pasangan kunci tim sama persis, konteks liga cocok, dan
+ * kickoff berjarak ≤ toleransi (bawaan sama dengan builder, ±120
+ * menit). Baris yang sama dengan dirinya sendiri BUKAN kembar.
+ */
+export function samePhysicalFallback(
+  a: FallbackFixtureRef,
+  b: FallbackFixtureRef,
+  toleranceMin: number = TWIN_KICKOFF_TOLERANCE_MIN,
+): boolean {
+  if (a.match_id === b.match_id) return false;
+  return (
+    a.home_key === b.home_key &&
+    a.away_key === b.away_key &&
+    leagueContextsCompatible(a.league, b.league) &&
+    Math.abs(a.kickoff_ms - b.kickoff_ms) <= toleranceMin * 60_000
+  );
+}
+
+/**
+ * Kunci grup contoh parlay untuk anggota klaster cadangan: dihitung
+ * dari referensi WAKIL klaster agar semua anggota berbagi kunci yang
+ * sama (pertahanan lapis kedua, pola fx:<canonical_id> Lanjut-4).
+ */
+export function fallbackGroupKey(rep: FallbackFixtureRef): string {
+  const league = rep.league.canonical ?? `nama:${rep.league.name_key}`;
+  return `fb:${league}|${rep.home_key}|${rep.away_key}|${rep.utc_date.slice(0, 10)}`;
+}
+
+export type FallbackBlockReason =
+  | "bukan-wakil-klaster"
+  | "sudah-tercatat"
+  | "sudah-terbit-run-ini";
+
+export interface FallbackGuardContext {
+  /** match_id → match_id wakil klaster cadangan (dari klaster baris terpindai). */
+  representativeOf: ReadonlyMap<string, string>;
+  /** Referensi baris yang sudah tercatat di ledger (id apa pun). */
+  recordedRefs: readonly FallbackFixtureRef[];
+  /** Referensi baris yang sudah terbit pada run ini. */
+  writtenRefs: readonly FallbackFixtureRef[];
+}
+
+/**
+ * Alasan penjaga cadangan memblokir penerbitan satu fixture; null =
+ * boleh terbit. Urutan penilaian:
+ *   1. fixture anggota klaster cadangan tapi BUKAN wakilnya → blokir
+ *      (wakil yang mewakili laga fisik, tanpa syarat urutan proses —
+ *      baris sm_ menang walau kickoff kembarnya lebih awal);
+ *   2. laga fisik yang sama sudah tercatat di ledger lewat id lain
+ *      → blokir (ledger beku tidak ditulis ulang);
+ *   3. laga fisik yang sama sudah terbit pada run ini lewat id lain
+ *      → blokir.
+ * Fixture tunggal tanpa klaster dan tanpa catatan kembar tidak pernah
+ * terblokir di sini (anti kehilangan cakupan).
+ */
+export function fallbackBlockReason(
+  ref: FallbackFixtureRef,
+  ctx: FallbackGuardContext,
+  toleranceMin: number = TWIN_KICKOFF_TOLERANCE_MIN,
+): FallbackBlockReason | null {
+  const rep = ctx.representativeOf.get(ref.match_id);
+  if (rep !== undefined && rep !== ref.match_id) return "bukan-wakil-klaster";
+  if (ctx.recordedRefs.some((q) => samePhysicalFallback(ref, q, toleranceMin))) {
+    return "sudah-tercatat";
+  }
+  if (ctx.writtenRefs.some((q) => samePhysicalFallback(ref, q, toleranceMin))) {
+    return "sudah-terbit-run-ini";
+  }
+  return null;
 }
 
 /**
