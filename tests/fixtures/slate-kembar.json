@@ -1,0 +1,1693 @@
+{
+  "source": "tasks/pick-slate-latest.json VM run 2026-11-21T21:50:53.630Z (identik dengan slate produksi VPS run 2026-11-21T21:22:44Z untuk 14 pasangan ini)",
+  "generated_at": "2026-11-21T21:50:53.630Z",
+  "pairs": [
+    {
+      "twin_id": "fd_B1_20261122_anderlecht_oud-heverlee-leuven",
+      "canonical_id": "sm_19726012",
+      "kickoff_utc": "2026-11-22T17:30:00.000Z",
+      "twin": {
+        "match_id": "fd_B1_20261122_anderlecht_oud-heverlee-leuven",
+        "utc_date": "2026-11-22T17:30:00.000Z",
+        "competition_name": "Pro League",
+        "home": "Anderlecht",
+        "away": "Oud-Heverlee Leuven",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8660113247773746,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.8257857615415884,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7838325518396984,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.802324812441509,
+            "effective_prob": 0.7852
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6494722970759341,
+            "effective_prob": 0.6882
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.6096183133812857,
+            "effective_prob": 0.6288
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6246889011485167,
+            "effective_prob": 0.618
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19726012",
+        "utc_date": "2026-11-22T17:30:00.000Z",
+        "competition_name": "Pro League",
+        "home": "Anderlecht",
+        "away": "OH Leuven",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8689268867728364,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.8163844819731937,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7905955215029703,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.8089173663651666,
+            "effective_prob": 0.7852
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6349116441363263,
+            "effective_prob": 0.6882
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.6069800034761641,
+            "effective_prob": 0.6288
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6404852235915223,
+            "effective_prob": 0.618
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_B1_20261122_kortrijk_st-gilloise",
+      "canonical_id": "sm_19726007",
+      "kickoff_utc": "2026-11-22T15:00:00.000Z",
+      "twin": {
+        "match_id": "fd_B1_20261122_kortrijk_st-gilloise",
+        "utc_date": "2026-11-22T15:00:00.000Z",
+        "competition_name": "Pro League",
+        "home": "Kortrijk",
+        "away": "St. Gilloise",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "A",
+            "model_prob": 0.9388040708023625,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9049165160964842,
+            "effective_prob": 0.8814
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8467606483415688,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "1x2",
+            "selection": "2",
+            "grade": "B",
+            "model_prob": 0.7855647191439313,
+            "effective_prob": 0.7855647191439313
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7814890222034446,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6778928947189833,
+            "effective_prob": 0.7038
+          },
+          {
+            "market": "btts",
+            "selection": "no",
+            "grade": "C",
+            "model_prob": 0.6364263000048862,
+            "effective_prob": 0.5849
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19726007",
+        "utc_date": "2026-11-22T15:00:00.000Z",
+        "competition_name": "Pro League",
+        "home": "KV Kortrijk",
+        "away": "Union Saint-Gilloise",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "A",
+            "model_prob": 0.8980265521207873,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.873940340233882,
+            "effective_prob": 0.8814
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8119382025478173,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7522454486332245,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7129895371811525,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "1x2",
+            "selection": "2",
+            "grade": "B",
+            "model_prob": 0.7099647546686048,
+            "effective_prob": 0.7099647546686048
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_D2_20261122_1-fc-kaiserslautern_dresden",
+      "canonical_id": "sm_19735400",
+      "kickoff_utc": "2026-11-22T12:30:00.000Z",
+      "twin": {
+        "match_id": "fd_D2_20261122_1-fc-kaiserslautern_dresden",
+        "utc_date": "2026-11-22T12:30:00.000Z",
+        "competition_name": "2. Bundesliga",
+        "home": "Kaiserslautern",
+        "away": "Dresden",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8115645925448702,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7589110676977531,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7868413191152958,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7154973645009423,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6676101750344308,
+            "effective_prob": 0.7038
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.710615782039682,
+            "effective_prob": 0.7014
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19735400",
+        "utc_date": "2026-11-22T12:30:00.000Z",
+        "competition_name": "2. Bundesliga",
+        "home": "Kaiserslautern",
+        "away": "Dynamo Dresden",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8239522466346986,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7650147477132949,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.8083407513757709,
+            "effective_prob": 0.7852
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7091819717340521,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.7312570681140936,
+            "effective_prob": 0.7014
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6358073969645562,
+            "effective_prob": 0.6882
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6025209041401104,
+            "effective_prob": 0.5849
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_D2_20261122_cottbus_hertha-bsc",
+      "canonical_id": "sm_19735396",
+      "kickoff_utc": "2026-11-22T12:30:00.000Z",
+      "twin": {
+        "match_id": "fd_D2_20261122_cottbus_hertha-bsc",
+        "utc_date": "2026-11-22T12:30:00.000Z",
+        "competition_name": "2. Bundesliga",
+        "home": "Cottbus",
+        "away": "Hertha",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9033829445377016,
+            "effective_prob": 0.8814
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.9185511678102108,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8028650621136527,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8361821271872777,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7825183545240416,
+            "effective_prob": 0.7825183545240416
+          },
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "B",
+            "model_prob": 0.6978602600624666,
+            "effective_prob": 0.6855
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.7553926722282419,
+            "effective_prob": 0.7553926722282419
+          },
+          {
+            "market": "ou35",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.5945210065625555,
+            "effective_prob": 0.6417
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19735396",
+        "utc_date": "2026-11-22T12:30:00.000Z",
+        "competition_name": "2. Bundesliga",
+        "home": "Energie Cottbus",
+        "away": "Hertha BSC",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8457221371913204,
+            "effective_prob": 0.8136
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7744939399879877,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.741536294715381,
+            "effective_prob": 0.7323
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.831646787109893,
+            "effective_prob": 0.7852
+          },
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "B",
+            "model_prob": 0.7215606079880907,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "C",
+            "model_prob": 0.5976256544797973,
+            "effective_prob": 0.6417
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6246687535565226,
+            "effective_prob": 0.5877
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.627133659971625,
+            "effective_prob": 0.5849
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_G1_20261122_levadeiakos_atromitos",
+      "canonical_id": "sm_19763827",
+      "kickoff_utc": "2026-11-22T14:00:00.000Z",
+      "twin": {
+        "match_id": "fd_G1_20261122_levadeiakos_atromitos",
+        "utc_date": "2026-11-22T14:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Levadeiakos",
+        "away": "Atromitos",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7637819583103562,
+            "effective_prob": 0.7612
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7596456969359069,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7217929134418469,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.712260318206399,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.7053597031361024,
+            "effective_prob": 0.7014
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.6949849360497565,
+            "effective_prob": 0.6855
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19763827",
+        "utc_date": "2026-11-22T14:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Levadiakos",
+        "away": "Atromitos",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7628351939146621,
+            "effective_prob": 0.7612
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7453250861652049,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.724200879347168,
+            "effective_prob": 0.7344
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7066095623462381,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7376192721269552,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.673066992713378,
+            "effective_prob": 0.6506
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_G1_20261122_olympiacos_iraklis",
+      "canonical_id": "sm_19763826",
+      "kickoff_utc": "2026-11-22T17:00:00.000Z",
+      "twin": {
+        "match_id": "fd_G1_20261122_olympiacos_iraklis",
+        "utc_date": "2026-11-22T17:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Olympiakos",
+        "away": "Iraklis",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.9170802796325288,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8343701818657656,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7661227085760084,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.8021872647249425,
+            "effective_prob": 0.7817
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.6832029882085366,
+            "effective_prob": 0.7332
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.6766098617904912,
+            "effective_prob": 0.6747
+          },
+          {
+            "market": "btts",
+            "selection": "no",
+            "grade": "C",
+            "model_prob": 0.6671051813326722,
+            "effective_prob": 0.6276
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19763826",
+        "utc_date": "2026-11-22T17:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Olympiacos F.C.",
+        "away": "Iraklis 1908 FC",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.9221279040487199,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.899339317427557,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8392730850794893,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.7614009891282097,
+            "effective_prob": 0.7614009891282097
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7821971194819561,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6740949753441984,
+            "effective_prob": 0.7038
+          },
+          {
+            "market": "btts",
+            "selection": "no",
+            "grade": "C",
+            "model_prob": 0.6021891658721193,
+            "effective_prob": 0.5849
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_G1_20261122_panathinaikos_ofi-crete",
+      "canonical_id": "sm_19763825",
+      "kickoff_utc": "2026-11-22T15:30:00.000Z",
+      "twin": {
+        "match_id": "fd_G1_20261122_panathinaikos_ofi-crete",
+        "utc_date": "2026-11-22T15:30:00.000Z",
+        "competition_name": "Super League",
+        "home": "Panathinaikos",
+        "away": "OFI Crete",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.9300800818410737,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8542519219203978,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9394932283259777,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.8805148801493262,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.7843320037614707,
+            "effective_prob": 0.7843320037614707
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6953007552623046,
+            "effective_prob": 0.639
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19763825",
+        "utc_date": "2026-11-22T15:30:00.000Z",
+        "competition_name": "Super League",
+        "home": "Panathinaikos",
+        "away": "OFI",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.9087560928890724,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8537278264406548,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9282810303506618,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.8582932051542721,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.762483919329727,
+            "effective_prob": 0.762483919329727
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6690493583906358,
+            "effective_prob": 0.639
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.5555865694883729,
+            "effective_prob": 0.5874
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_G1_20261122_panetolikos_volos-nfc",
+      "canonical_id": "sm_19763824",
+      "kickoff_utc": "2026-11-22T15:00:00.000Z",
+      "twin": {
+        "match_id": "fd_G1_20261122_panetolikos_volos-nfc",
+        "utc_date": "2026-11-22T15:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Panetolikos",
+        "away": "Volos NFC",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7744018574650526,
+            "effective_prob": 0.7612
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7580727277905209,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7235484731906459,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7171511962659685,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7140432673526159,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6890117035765561,
+            "effective_prob": 0.6506
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19763824",
+        "utc_date": "2026-11-22T15:00:00.000Z",
+        "competition_name": "Super League",
+        "home": "Panaitolikos",
+        "away": "Volos NFC",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7320620883603397,
+            "effective_prob": 0.7323
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7787229124910685,
+            "effective_prob": 0.7525
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7257492391195811,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.6937441659332271,
+            "effective_prob": 0.6855
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.691558958239791,
+            "effective_prob": 0.6747
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6614217342229337,
+            "effective_prob": 0.6506
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_I2_20261122_arezzo_padova",
+      "canonical_id": "sm_19768808",
+      "kickoff_utc": "2026-11-22T16:15:00.000Z",
+      "twin": {
+        "match_id": "fd_I2_20261122_arezzo_padova",
+        "utc_date": "2026-11-22T16:15:00.000Z",
+        "competition_name": "Serie B",
+        "home": "Arezzo",
+        "away": "Padova",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7071222519707946,
+            "effective_prob": 0.7323
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.755436382494745,
+            "effective_prob": 0.7525
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7262631034785164,
+            "effective_prob": 0.7344
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7076765926715789,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.7225182180999619,
+            "effective_prob": 0.7014
+          },
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "B",
+            "model_prob": 0.6590068590225683,
+            "effective_prob": 0.6855
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.633316548305854,
+            "effective_prob": 0.6536
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19768808",
+        "utc_date": "2026-11-22T16:15:00.000Z",
+        "competition_name": "Serie B",
+        "home": "Arezzo",
+        "away": "Calcio Padova",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7725898339935542,
+            "effective_prob": 0.7612
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.722890348416579,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7439895065746454,
+            "effective_prob": 0.7344
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7430441877643423,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.6982607568983964,
+            "effective_prob": 0.6855
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6924138288286465,
+            "effective_prob": 0.6506
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_N1_20261122_afc-ajax_den-haag",
+      "canonical_id": "sm_19714592",
+      "kickoff_utc": "2026-11-22T13:30:00.000Z",
+      "twin": {
+        "match_id": "fd_N1_20261122_afc-ajax_den-haag",
+        "utc_date": "2026-11-22T13:30:00.000Z",
+        "competition_name": "Eredivisie",
+        "home": "Ajax",
+        "away": "Den Haag",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.9089432334397741,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8587319620910998,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9548606087808866,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.9263978893425794,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7860314688898921,
+            "effective_prob": 0.7860314688898921
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.7676751955308739,
+            "effective_prob": 0.7676751955308739
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6583607762379303,
+            "effective_prob": 0.6506
+          },
+          {
+            "market": "ou35",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.5993913197147008,
+            "effective_prob": 0.6417
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6348000723158145,
+            "effective_prob": 0.5849
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19714592",
+        "utc_date": "2026-11-22T13:30:00.000Z",
+        "competition_name": "Eredivisie",
+        "home": "Ajax",
+        "away": "ADO Den Haag",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.8540616033543464,
+            "effective_prob": 0.891
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.9228497143591285,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.8821419834645132,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.8309286206085996,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "1x2",
+            "selection": "1",
+            "grade": "B",
+            "model_prob": 0.6849902239629463,
+            "effective_prob": 0.7332
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7115080936134195,
+            "effective_prob": 0.6789
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.673720205376958,
+            "effective_prob": 0.6506
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6217424990900993,
+            "effective_prob": 0.5849
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_N1_20261122_go-ahead-eagles_for-sittard",
+      "canonical_id": "sm_19714587",
+      "kickoff_utc": "2026-11-22T15:45:00.000Z",
+      "twin": {
+        "match_id": "fd_N1_20261122_go-ahead-eagles_for-sittard",
+        "utc_date": "2026-11-22T15:45:00.000Z",
+        "competition_name": "Eredivisie",
+        "home": "Go Ahead Eagles",
+        "away": "For Sittard",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.865877269089086,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.8591833094973301,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.7559515740157237,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7614236663971071,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.7394602921351925,
+            "effective_prob": 0.7014
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "C",
+            "model_prob": 0.5684397775180956,
+            "effective_prob": 0.6417
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6513028098937456,
+            "effective_prob": 0.639
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6516126375532711,
+            "effective_prob": 0.6276
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19714587",
+        "utc_date": "2026-11-22T15:45:00.000Z",
+        "competition_name": "Eredivisie",
+        "home": "Go Ahead Eagles",
+        "away": "Fortuna Sittard",
+        "gate_status": "partial",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8416583119990114,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7726727837901244,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.8273584771755035,
+            "effective_prob": 0.7852
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7190218574025232,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.7397207016165669,
+            "effective_prob": 0.7014
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6049693284880607,
+            "effective_prob": 0.6882
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6177957987152197,
+            "effective_prob": 0.5877
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6225920770733243,
+            "effective_prob": 0.5849
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_T1_20261122_erzurumspor_goztep",
+      "canonical_id": "sm_19746547",
+      "kickoff_utc": "2026-11-22T10:30:00.000Z",
+      "twin": {
+        "match_id": "fd_T1_20261122_erzurumspor_goztep",
+        "utc_date": "2026-11-22T10:30:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "Erzurumspor",
+        "away": "Goztep",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "A",
+            "model_prob": 0.8126087179883963,
+            "effective_prob": 0.8288
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7675313715246956,
+            "effective_prob": 0.746
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.8132227458636804,
+            "effective_prob": 0.7817
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7111587014561125,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.663812295083434,
+            "effective_prob": 0.6747
+          },
+          {
+            "market": "ou25",
+            "selection": "under",
+            "grade": "C",
+            "model_prob": 0.6144135476643936,
+            "effective_prob": 0.5877
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19746547",
+        "utc_date": "2026-11-22T10:30:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "Erzurumspor FK",
+        "away": "Göztepe",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.7797517569731452,
+            "effective_prob": 0.746
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7520645066406872,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7132101163659602,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7459064078171708,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "dc",
+            "selection": "x2",
+            "grade": "B",
+            "model_prob": 0.7008812343966896,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "B",
+            "model_prob": 0.6960828049802217,
+            "effective_prob": 0.6986
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_T1_20261122_kasimpasa_alanyaspor",
+      "canonical_id": "sm_19746554",
+      "kickoff_utc": "2026-11-22T13:00:00.000Z",
+      "twin": {
+        "match_id": "fd_T1_20261122_kasimpasa_alanyaspor",
+        "utc_date": "2026-11-22T13:00:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "Kasimpasa",
+        "away": "Alanyaspor",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8071803527820596,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.7700254921006867,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7600176742603133,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.7162956148689335,
+            "effective_prob": 0.7485
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "B",
+            "model_prob": 0.7336912417638825,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.647956312895224,
+            "effective_prob": 0.618
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19746554",
+        "utc_date": "2026-11-22T13:00:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "Kasımpaşa",
+        "away": "Alanyaspor",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8495312711502976,
+            "effective_prob": 0.815
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "A",
+            "model_prob": 0.7970350512050886,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7777870906436075,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7896798157502432,
+            "effective_prob": 0.7505
+          },
+          {
+            "market": "ou35",
+            "selection": "under",
+            "grade": "B",
+            "model_prob": 0.6635820415301946,
+            "effective_prob": 0.7038
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6440624553863957,
+            "effective_prob": 0.618
+          }
+        ]
+      }
+    },
+    {
+      "twin_id": "fd_T1_20261123_buyuksehyr_corum",
+      "canonical_id": "sm_19746553",
+      "kickoff_utc": "2026-11-23T17:00:00.000Z",
+      "twin": {
+        "match_id": "fd_T1_20261123_buyuksehyr_corum",
+        "utc_date": "2026-11-23T17:00:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "Buyuksehyr",
+        "away": "Corum",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.884790146275427,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.9062053355884806,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8209338520785097,
+            "effective_prob": 0.8136
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7802392509138881,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.6955894088366978,
+            "effective_prob": 0.6855
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "B",
+            "model_prob": 0.7439364866613062,
+            "effective_prob": 0.6789
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.7332554502163852,
+            "effective_prob": 0.6387
+          }
+        ]
+      },
+      "canonical": {
+        "match_id": "sm_19746553",
+        "utc_date": "2026-11-23T17:00:00.000Z",
+        "competition_name": "Super Lig",
+        "home": "İstanbul Başakşehir",
+        "away": "Çorum FK",
+        "gate_status": "calibrated",
+        "legs": [
+          {
+            "market": "team_over05_home",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.8680061562106732,
+            "effective_prob": 0.8715
+          },
+          {
+            "market": "ou15",
+            "selection": "over",
+            "grade": "A",
+            "model_prob": 0.8578532451120929,
+            "effective_prob": 0.8553
+          },
+          {
+            "market": "dc",
+            "selection": "12",
+            "grade": "A",
+            "model_prob": 0.7850697413471414,
+            "effective_prob": 0.7519
+          },
+          {
+            "market": "team_over05_away",
+            "selection": "yes",
+            "grade": "A",
+            "model_prob": 0.757559752241477,
+            "effective_prob": 0.746
+          },
+          {
+            "market": "dc",
+            "selection": "1x",
+            "grade": "B",
+            "model_prob": 0.7314827898177854,
+            "effective_prob": 0.7271
+          },
+          {
+            "market": "ou25",
+            "selection": "over",
+            "grade": "C",
+            "model_prob": 0.6682917472985174,
+            "effective_prob": 0.639
+          },
+          {
+            "market": "btts",
+            "selection": "yes",
+            "grade": "C",
+            "model_prob": 0.6575665286430351,
+            "effective_prob": 0.6276
+          }
+        ]
+      }
+    }
+  ]
+}
