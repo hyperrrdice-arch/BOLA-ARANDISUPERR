@@ -38,6 +38,17 @@
  * dilewati tercatat di daftar unrated dengan alasan eksplisit, bukan
  * dibuang diam-diam.
  *
+ * Kembar tertaut kelas lain (Lanjut-4): saringan yang sama diperluas ke
+ * SEMUA kelas kembar fixture-links (fd_/sm_) — group_key lama berbasis
+ * ejaan nama tidak menyatukan alias ("ADO Den Haag" vs "Den Haag"), jadi
+ * slate 22 Nov 2026 memuat 14 pasangan tertaut dua kali dan contoh
+ * parlay "Alternatif" berisi dua unit dari laga fisik yang sama.
+ * Logikanya hidup di lib/picks/slate-identity.ts (sumber yang sama
+ * dengan UI): kembar dilewati bila kanoniknya ikut terpindai (kelas mt_
+ * tetap tanpa syarat ala R-03), group_key baris tertaut berbasis kunci
+ * fisik, dan titik tulis ledger didedupe per laga fisik — pencatatan
+ * lewat id kembar memblokir penulisan lewat id kanoniknya.
+ *
  * OFFLINE PENUH — tidak ada panggilan Sportmonks/TheStats. Env dijalankan
  * dengan resep driver E2E: .env.local dimuat hanya agar impor planner 🔒
  * tidak throw (base URL NineRouter), lalu STATS_API_KEY dan
@@ -67,7 +78,6 @@ import {
   loadServingModel,
   type ServingModel,
 } from "../lib/quant/model-manifest";
-import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { parseFixtureDetail } from "../lib/odds/sportmonks-adapter";
 import { pickSmQuotes } from "../lib/odds/sportmonks-wire";
 import { stripVigShin, stripVigTwoWay } from "../lib/quant/vig-stripping";
@@ -82,6 +92,13 @@ import {
   type Population,
 } from "../lib/picks/engine";
 import { writePackage, type PackageInput } from "../lib/picks/packages";
+import {
+  SlateIdentity,
+  decideSlateFixture,
+  parseSlateLinks,
+  slateGroupKey,
+  takeDistinctByGroup,
+} from "../lib/picks/slate-identity";
 import {
   publishPicks,
   type OddsSnapshot,
@@ -131,6 +148,8 @@ interface RatedFixture {
   /** Baris store paket (packages.id) tempat paket penuh fixture ini tinggal. */
   package_id: number | null;
   legs: PickLeg[];
+  /** Kunci grup contoh parlay: identitas fisik `fx:<canonical_id>` untuk
+   *  baris tertaut fixture-links; formula nama warisan selain itu. */
   group_key: string;
 }
 
@@ -180,27 +199,18 @@ const SM_MARKET_MAP: Record<string, Record<string, string>> = {
 };
 
 /**
- * Peta kembar mt_ → baris kanonik dari data/fixture-links.json (boleh tidak
- * ada). Hanya entri twin_id berawalan mt_ yang dimuat: saringan R-03 khusus
- * kelas kembar TheStats; kembar fd_/sm_ di luar cakupannya. File dibangun
+ * Identitas fisik slate dari data/fixture-links.json (boleh tidak ada):
+ * SEMUA kelas kembar dimuat (mt_ untuk R-03; fd_/sm_ untuk Lanjut-4) —
+ * logika keputusan/kuncinya di lib/picks/slate-identity.ts. File dibangun
  * ulang oleh build-fixture-links di rantai free-refresh SEBELUM pick-slate,
- * jadi peta yang dibaca di sini selalu versi segar run yang sama.
+ * jadi peta yang dibaca di sini selalu versi segar run yang sama. File
+ * absen/rusak → identitas kosong → perilaku warisan (saringan dilewati,
+ * group_key nama), bukan ditebak.
  */
-function loadMtTwinMap(): Map<string, string> {
-  const map = new Map<string, string>();
+function loadSlateIdentity(): SlateIdentity {
   const p = path.join(process.cwd(), "data", "fixture-links.json");
-  if (!fs.existsSync(p)) return map;
-  try {
-    const parsed = JSON.parse(fs.readFileSync(p, "utf8")) as {
-      links?: { twin_id: string; canonical_id: string }[];
-    };
-    for (const link of parsed.links ?? []) {
-      if (link.twin_id.startsWith("mt_")) map.set(link.twin_id, link.canonical_id);
-    }
-  } catch {
-    // File rusak → saringan kembar dilewati (perilaku lama), bukan ditebak.
-  }
-  return map;
+  if (!fs.existsSync(p)) return new SlateIdentity([]);
+  return new SlateIdentity(parseSlateLinks(fs.readFileSync(p, "utf8")));
 }
 
 async function main() {
@@ -259,7 +269,7 @@ async function main() {
   const modelVersion: string = serving.manifest.modelVersion;
 
   const ratings = loadCalibratedRatings();
-  const mtTwinOf = loadMtTwinMap();
+  const slateIdentity = loadSlateIdentity();
 
   const fixtures = upDb
     .prepare(
@@ -273,6 +283,10 @@ async function main() {
   console.log(
     `Jendela ${iso(now)} → ${iso(windowEnd)} (${hours} jam): ${fixtures.length} fixture terjadwal.`,
   );
+
+  // Himpunan id terpindai run ini — keputusan kembar Lanjut-4 untuk
+  // kelas non-mt_ mensyaratkan kanoniknya ikut terpindai.
+  const scannedIds = new Set(fixtures.map((f) => f.match_id));
 
   const registryStatus = (leagueId: string): string | null => {
     const row = dsDb
@@ -443,6 +457,12 @@ async function main() {
       /* picks.db belum ada → tidak ada yang pernah dicatat */
     }
   }
+  // Dedupe titik tulis per LAGA FISIK (Lanjut-4): kunci fisik dari
+  // match_id yang sudah tercatat — pencatatan lama lewat id kembar
+  // memblokir penulisan ulang lewat id kanoniknya, dan sebaliknya.
+  // writtenPhysicalKeys menampung kunci yang ditulis run ini.
+  const recordedPhysicalKeys = slateIdentity.physicalKeySet(alreadyRecorded);
+  const writtenPhysicalKeys = new Set<string>();
 
   /** Snapshot odds prematch per leg untuk bukti terbit K2 (harga mentah buku). */
   const oddsSnapshotsFor = (leg: PickLeg, mInfo: MarketInfo): OddsSnapshot[] => {
@@ -474,6 +494,7 @@ async function main() {
   let processed = 0;
   let packagesWritten = 0;
   let mtTwinsSkipped = 0;
+  let linkedTwinsSkipped = 0;
 
   for (const fx of fixtures) {
     if (processed >= limit) break;
@@ -481,13 +502,19 @@ async function main() {
     const tag = `[${processed}/${Math.min(fixtures.length, limit)}] ${fx.home_team_name} vs ${fx.away_team_name}`;
     const t0 = Date.now();
 
-    // --- Saringan kembar mt_ (Fase 0 R-03): baris mt_ yang merupakan
-    // kembar katalog dari baris kanonik tidak menulis paket/pick kedua
-    // untuk laga fisik yang sama; baris kanoniknya yang mewakili.
-    const twinCanonical = mtTwinOf.get(fx.match_id);
-    if (twinCanonical) {
-      mtTwinsSkipped++;
-      const reason = `kembar mt_ dari ${twinCanonical} — paket/pick hanya dari baris kanonik (Fase 0 R-03)`;
+    // --- Saringan kembar tertaut (Fase 0 R-03 + Lanjut-4): baris yang
+    // merupakan kembar katalog dari baris kanonik tidak menulis
+    // paket/pick kedua untuk laga fisik yang sama; baris kanoniknya
+    // yang mewakili. Keputusan + kelasnya dari lib/picks/slate-identity
+    // (mt_ tanpa syarat ala R-03; kelas lain bila kanonik ikut terpindai).
+    const twinDecision = decideSlateFixture(fx.match_id, slateIdentity, scannedIds);
+    if (twinDecision.action === "skip") {
+      if (twinDecision.kind === "mt-r03") mtTwinsSkipped++;
+      else linkedTwinsSkipped++;
+      const reason =
+        twinDecision.kind === "mt-r03"
+          ? `kembar mt_ dari ${twinDecision.canonical_id} — paket/pick hanya dari baris kanonik (Fase 0 R-03)`
+          : `kembar tertaut dari ${twinDecision.canonical_id} — paket/pick hanya dari baris kanonik (Lanjut-4)`;
       unrated.push({ fixture: fx, reason });
       console.log(`${tag} → dilewati: ${reason}`);
       continue;
@@ -646,7 +673,15 @@ async function main() {
               cup_offset: md?.cupOffset ?? null,
             },
           };
-          if (writeLedger && !alreadyRecorded.has(fx.match_id)) {
+          // Titik tulis ledger (Lanjut-4): dedupe per LAGA FISIK, bukan
+          // hanya per match_id — laga yang sudah tercatat/ditulis lewat
+          // id kembar ATAU kanoniknya tidak diterbitkan dua kali.
+          const physKey = slateIdentity.physicalKey(fx.match_id);
+          if (
+            writeLedger &&
+            !recordedPhysicalKeys.has(physKey) &&
+            !writtenPhysicalKeys.has(physKey)
+          ) {
             // --- Jalur resmi K2: intent → paket → commit beku. Validasi
             // cutoff terjadi SAAT COMMIT; run yang commit-nya lewat kickoff
             // hanya menyisakan paket sebagai analisis internal.
@@ -727,6 +762,7 @@ async function main() {
             } else {
               throw new Error(`publikasi gagal: ${res.reason ?? res.status}`);
             }
+            writtenPhysicalKeys.add(physKey);
           } else {
             const pkg = writePackage(pkgInput);
             packageId = pkg.id;
@@ -764,7 +800,10 @@ async function main() {
       ...ratedMeta,
       feed_mode: fx.match_id.startsWith("fd_") ? "free" : "full",
       legs,
-      group_key: `${normalizeTeamName(fx.home_team_name)}|${normalizeTeamName(fx.away_team_name)}|${fx.utc_date}`,
+      // Group_key berbasis identitas fisik untuk baris tertaut
+      // (Lanjut-4, lib/picks/slate-identity); baris tak tertaut memakai
+      // formula nama warisan di dalam fungsi yang sama.
+      group_key: slateGroupKey(fx, slateIdentity),
     };
     rated.push(entry);
     console.log(
@@ -789,21 +828,9 @@ async function main() {
   const byEff = [...flatLegs].sort(
     (x, y) => y.leg.effective_prob - x.leg.effective_prob,
   );
-  const takeDistinct = (
-    pool: typeof flatLegs,
-    n: number,
-    excludeGroups = new Set<string>(),
-  ) => {
-    const used = new Set(excludeGroups);
-    const picked: typeof flatLegs = [];
-    for (const item of pool) {
-      if (used.has(item.r.group_key)) continue;
-      used.add(item.r.group_key);
-      picked.push(item);
-      if (picked.length === n) break;
-    }
-    return picked;
-  };
+  // Seleksi "satu unit per grup" dari lib/picks/slate-identity — dengan
+  // group_key fisik, dua baris satu laga fisik tidak pernah lolos
+  // bersama walau keduanya ter-rate (pertahanan lapis kedua, Lanjut-4).
   const toUnits = (items: typeof flatLegs) =>
     items.map(({ r, leg }) => ({
       label: `${r.fixture.home_team_name} vs ${r.fixture.away_team_name} — ${leg.market}/${leg.selection} [${leg.grade} · ${GATE_LABEL[r.gate_status] ?? r.gate_status}]`,
@@ -811,14 +838,16 @@ async function main() {
       effective_prob: leg.effective_prob,
     }));
 
-  const utama = takeDistinct(byGradeEff, 4);
-  const aman = takeDistinct(
+  const utama = takeDistinctByGroup(byGradeEff, 4, (it) => it.r.group_key);
+  const aman = takeDistinctByGroup(
     byEff.filter(({ leg }) => leg.grade !== "C"),
     3,
+    (it) => it.r.group_key,
   );
-  const alternatif = takeDistinct(
+  const alternatif = takeDistinctByGroup(
     byGradeEff,
     3,
+    (it) => it.r.group_key,
     new Set(utama.map(({ r }) => r.group_key)),
   );
   const parlays = [
@@ -850,11 +879,16 @@ async function main() {
       unrated_reason_counts: reasonCounts,
       packages_written: packagesWritten,
       mt_twin_fixtures_skipped: mtTwinsSkipped,
+      linked_twin_fixtures_skipped: linkedTwinsSkipped,
       fixtures_rated_free_mode: rated.filter((r) => r.feed_mode === "free").length,
       ledger_live_run_rows_written: ledgerWritten,
       ledger_cutoff_rejected_fixtures: ledgerCutoffRejected,
       ledger_skipped_already_recorded: writeLedger
-        ? rated.filter((r) => alreadyRecorded.has(r.fixture.match_id)).length
+        ? rated.filter((r) =>
+            recordedPhysicalKeys.has(
+              slateIdentity.physicalKey(r.fixture.match_id),
+            ),
+          ).length
         : 0,
     },
     rated: rated.map((r) => ({
@@ -898,6 +932,7 @@ async function main() {
       `(A ${legsByGrade.A} / B ${legsByGrade.B} / C ${legsByGrade.C}) · ` +
       `paket kuant tersimpan **${packagesWritten}** · ` +
       `kembar mt_ dilewati **${mtTwinsSkipped}** · ` +
+      `kembar tertaut dilewati **${linkedTwinsSkipped}** · ` +
       `baris ledger live-run tertulis **${ledgerWritten}**.`,
   );
   md.push("");
@@ -957,7 +992,7 @@ async function main() {
   );
 
   console.log(
-    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, paket tersimpan ${packagesWritten}, ledger live-run +${ledgerWritten}.`,
+    `\nSelesai: rated ${rated.length}, unrated ${unrated.length}, kaki A/B/C = ${legsByGrade.A}/${legsByGrade.B}/${legsByGrade.C}, paket tersimpan ${packagesWritten}, kembar tertaut dilewati ${linkedTwinsSkipped}, ledger live-run +${ledgerWritten}.`,
   );
   console.log("Tertulis: tasks/pick-slate-latest.json + tasks/pick-slate-latest.md");
 }
