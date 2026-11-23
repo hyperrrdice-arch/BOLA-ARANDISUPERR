@@ -50,6 +50,7 @@ import {
   zonaValid,
 } from "@/lib/web/format";
 import { labelStatus } from "@/lib/web/status";
+import { mulaiTimerRute, selesaikanTimerRute } from "@/lib/web/timing";
 import { adaptasiMatriks } from "@/lib/web/peta-skor";
 import { parseFilterJadwal, queryJadwal } from "@/lib/web/jadwal";
 import {
@@ -223,10 +224,12 @@ async function AnalisisContent({
   const tz = zonaValid(Array.isArray(sp.tz) ? sp.tz[0] : sp.tz);
   const kembali = hrefKembali(sp);
   await connection();
+  const t0Timer = mulaiTimerRute();
   const detail = getMatchDetail(matchId);
   if (!detail) {
     const info = getFixtureInfo(matchId);
     if (!info) notFound();
+    selesaikanTimerRute("/pertandingan/[matchId]", t0Timer);
     return (
       <div>
         <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">
@@ -350,6 +353,7 @@ async function AnalisisContent({
           : { h: keadaan.home_goals, a: keadaan.away_goals! }))
       : null;
 
+  selesaikanTimerRute("/pertandingan/[matchId]", t0Timer);
   return (
     <div>
       <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">

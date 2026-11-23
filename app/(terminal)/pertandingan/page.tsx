@@ -45,6 +45,7 @@ import {
   type FilterJadwal,
 } from "@/lib/web/jadwal";
 import { urlLogoKompetisi, urlLogoTim } from "@/lib/web/logo";
+import { mulaiTimerRute, selesaikanTimerRute } from "@/lib/web/timing";
 import { EmptyState, GateStatus, GradeMark, PageLoading, Prob } from "@/components/ui";
 import KontrolJadwal from "@/components/jadwal/KontrolJadwal";
 import GrupLiga from "@/components/jadwal/GrupLiga";
@@ -206,6 +207,7 @@ async function PertandinganContent({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await connection();
+  const t0Timer = mulaiTimerRute();
   const now = new Date();
   const filter = parseFilterJadwal(await searchParams, now);
   const cakupan = cakupanJadwal();
@@ -282,6 +284,7 @@ async function PertandinganContent({
           ? `${tanggalPanjang(jendela.dariUtc, filter.tz)} · Zona waktu ${labelZona(filter.tz)}`
           : `${tanggalPanjang(`${filter.tanggal}T12:00:00.000Z`, filter.tz)} · Zona waktu ${labelZona(filter.tz)}`;
 
+  selesaikanTimerRute("/pertandingan", t0Timer);
   return (
     <div>
       <header>

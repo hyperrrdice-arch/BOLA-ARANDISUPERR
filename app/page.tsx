@@ -23,6 +23,7 @@ import {
   type SorotanBeranda,
 } from "../lib/web/data";
 import { ambilRekam, parseFilterRekam } from "../lib/web/rekam";
+import { mulaiTimerRute, selesaikanTimerRute } from "../lib/web/timing";
 import {
   int,
   jamWibOnly,
@@ -216,10 +217,12 @@ function JadwalBerikutnya({ items }: { items: FixtureListItem[] }) {
 
 async function SorotanDanJadwal() {
   await connection();
+  const t0Timer = mulaiTimerRute();
   const now = new Date();
   const sorotan = sorotanBeranda(now);
   const berikut = jadwalBerikutnya(sorotan, now);
   if (!sorotan && berikut.length === 0) {
+    selesaikanTimerRute("/", t0Timer);
     return (
       <EmptyState
         title="Belum ada pertandingan pada jendela ini"
@@ -227,6 +230,7 @@ async function SorotanDanJadwal() {
       />
     );
   }
+  selesaikanTimerRute("/", t0Timer);
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[7fr_5fr] lg:gap-8">
       {sorotan && <PanelSorotan s={sorotan} />}

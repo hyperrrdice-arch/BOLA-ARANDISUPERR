@@ -1,0 +1,14 @@
+== healthy instance (port 3107, TIMING_SAMPLE_N=1) [timing] lines ==
+[timing] ts=2026-11-23T18:47:53.146Z route=/ status=200 dur_ms=12676
+[timing] ts=2026-11-23T18:47:53.719Z route=/pertandingan status=200 dur_ms=532
+[timing] ts=2026-11-23T18:47:57.257Z route=/pertandingan status=200 dur_ms=3509
+[timing] ts=2026-11-23T18:48:01.139Z eventloop mean_ms=46.6 p95_ms=21.2 max_ms=12759.1 window_s=30
+[timing] ts=2026-11-23T18:48:01.247Z route=/pertandingan status=200 dur_ms=65
+[timing] ts=2026-11-23T18:48:01.780Z route=/pertandingan/[matchId] status=200 dur_ms=122
+
+== broken instance (port 3108, dataset DB dangling) ==
+⨯ Error: unable to open database file
+  errstr: 'unable to open database file',
+[timing] ts=2026-11-23T18:49:04.109Z route=/ status=500 dur_ms=- digest=184988745
+
+broken / -> HTTP 200 (degraded, per-section error isolation) in 1.63s; /healthz stayed 200 in 0.005-0.007s; liveness probe x3: exit 0, no failure recorded, no restart
