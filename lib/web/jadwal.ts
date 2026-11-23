@@ -282,6 +282,60 @@ export function urutSekarang<T extends { status: StatusTampil; kickoff_utc: stri
     .slice(0, 30);
 }
 
+/* ------------------------------------------------- kelompok kompetisi */
+
+export interface GrupKompetisi<T> {
+  /** Kunci identitas kompetisi (berbasis ID — lihat identitasKompetisiTampil). */
+  kunci: string;
+  nama: string;
+  negara: string | null;
+  /** Label sumber bila identitas tidak terpetakan kanonik; null bila pasti. */
+  sumber: string | null;
+  /** Status gerbang kalibrasi pertama yang ada di grup (untuk header). */
+  gate_status: string | null;
+  /** canonical_id kompetisi grup; null bila tak terpetakan. */
+  canonical_id: string | null;
+  items: T[];
+}
+
+type PunyaGrup = {
+  grup_kunci: string;
+  grup_nama: string;
+  grup_negara: string | null;
+  grup_sumber: string | null;
+  gate_status: string | null;
+  competition_canonical_id: string | null;
+};
+
+/**
+ * Kelompokkan item satu tanggal menurut IDENTITAS kompetisi (Addendum
+ * Jadwal per Liga): kunci grup berasal dari ID kanonik/mentah, bukan
+ * string nama — liga bernama sama dengan ID berbeda tidak pernah
+ * menyatu. Urutan grup = urutan kemunculan pertama (urutan laga dari
+ * pemanggil dipertahankan persis).
+ */
+export function kelompokPerKompetisi<T extends PunyaGrup>(items: T[]): GrupKompetisi<T>[] {
+  const map = new Map<string, GrupKompetisi<T>>();
+  for (const it of items) {
+    let g = map.get(it.grup_kunci);
+    if (!g) {
+      g = {
+        kunci: it.grup_kunci,
+        nama: it.grup_nama,
+        negara: it.grup_negara,
+        sumber: it.grup_sumber,
+        gate_status: it.gate_status,
+        canonical_id: it.competition_canonical_id,
+        items: [],
+      };
+      map.set(it.grup_kunci, g);
+    }
+    if (g.gate_status === null && it.gate_status !== null) g.gate_status = it.gate_status;
+    g.items.push(it);
+  }
+  return [...map.values()];
+}
+
 export interface KelompokJadwal<T> {
   /** Kunci tanggal lokal "YYYY-MM-DD". */
   kunci: string;

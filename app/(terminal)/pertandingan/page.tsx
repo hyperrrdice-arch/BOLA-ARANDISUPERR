@@ -36,6 +36,7 @@ import {
   cocokPencarian,
   jendelaPintasan,
   jendelaTanggalUtc,
+  kelompokPerKompetisi,
   kelompokPerTanggal,
   parseFilterJadwal,
   queryJadwal,
@@ -43,8 +44,11 @@ import {
   urutTampilJadwal,
   type FilterJadwal,
 } from "@/lib/web/jadwal";
+import { urlLogoKompetisi, urlLogoTim } from "@/lib/web/logo";
 import { EmptyState, GateStatus, GradeMark, PageLoading, Prob } from "@/components/ui";
 import KontrolJadwal from "@/components/jadwal/KontrolJadwal";
+import GrupLiga from "@/components/jadwal/GrupLiga";
+import BarisLaga from "@/components/laga/BarisLaga";
 
 export const metadata: Metadata = { title: "Jadwal pertandingan | Bola" };
 
@@ -70,21 +74,29 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
   const counts = hitunganKelas(item);
   const selesai = item.status === "finished" || item.status === "abandoned";
   const picks = selesai && item.package_id ? getPackagePicks(item.package_id).slice(0, 3) : [];
-  /* Susunan baris brief upgrade P0: jam + nama tim di baris pertama;
-     peluang/kelas tetap di kanan baris pertama; STATUS dan ringkasan
-     model turun ke baris kedua yang berdiri sendiri. Susunan lama
-     menaruh label status sebagai kolom shrink-0 di samping nama —
-     pada 320 px label "Menunggu pembaruan pertandingan" (213 px)
-     mendesak kolom nama sampai 35 px, nama pecah bertingkat dan
-     baris membengkak ke 350 px (terukur lokal, cocok dengan audit). */
+  /* Baris laga bersama (Addendum Jadwal per Liga): jam selalu di kiri;
+     skor pindah ke kanan baris masing-masing tim, HANYA saat datanya
+     ada (0–0 sah ikut tampil); status/peluang/kelas di baris metadata
+     supaya nama panjang membungkus utuh — melanjutkan alasan P0 yang
+     menaruh status di baris kedua (label "Menunggu pembaruan
+     pertandingan" 213 px mendesak nama sampai 35 px pada 320 px). */
   const tampilProb =
     leg !== null &&
     (item.status === "scheduled" ||
       item.status === "unknown" ||
       item.status === "menunggu-pembaruan");
   const labelBarisStatus =
-    item.status === "live" || item.status === "finished" || item.status === "menunggu-pembaruan"
+    item.status === "live" ||
+    item.status === "finished" ||
+    item.status === "menunggu-pembaruan" ||
+    item.status === "scheduled"
       ? labelStatus(item.status)
+      : null;
+  const skor =
+    (item.status === "finished" || item.status === "abandoned" || item.status === "live") &&
+    item.home_goals !== null &&
+    item.away_goals !== null
+      ? { home: item.home_goals, away: item.away_goals }
       : null;
   const meta =
     item.status === "postponed" ? (
@@ -110,56 +122,45 @@ function BarisJadwal({ item, filter }: { item: JadwalItem; filter: FilterJadwal 
     ) : item.status === "live" ? null : (
       "Belum ada analisis"
     );
+  const adaMeta = Boolean(meta) || Boolean(tampilProb && leg);
   return (
     <div className="border-t border-hairline/50 py-4 first:border-t-0">
-      <Link
+      <BarisLaga
         href={hrefDetail(item, filter)}
-        aria-label={`${item.home} melawan ${item.away}, ${item.competition_name}, ${tanggalJamWib(item.kickoff_utc, tz)}`}
-        className="block transition-colors hover:bg-surface-alt/40"
-      >
-        <span className="flex items-start gap-[16px] sm:gap-6">
-          <span className="w-[3.5rem] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums">
-            {selesai && item.home_goals !== null ? (
-              <span className="text-base font-semibold text-ink">
-                {item.home_goals}–{item.away_goals}
-              </span>
-            ) : (
-              jamWibOnly(item.kickoff_utc, tz)
-            )}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[17px] font-medium break-words text-ink">
-              {item.home} <span className="font-normal text-faint">vs</span> {item.away}
-            </span>
-          </span>
-          {tampilProb && leg ? (
+        ariaLabel={`${item.home} melawan ${item.away}, ${item.competition_name}, ${tanggalJamWib(item.kickoff_utc, tz)}`}
+        jam={jamWibOnly(item.kickoff_utc, tz)}
+        home={item.home}
+        away={item.away}
+        logoHome={urlLogoTim(item.home_canonical_id)}
+        logoAway={urlLogoTim(item.away_canonical_id)}
+        skor={skor}
+        statusLabel={labelBarisStatus}
+        kanan={
+          tampilProb && leg ? (
             <span className="shrink-0 text-right">
               <span className="flex items-baseline justify-end gap-2.5">
                 <Prob value={leg.effective_prob} strong className="text-[28px] leading-none" />
                 <GradeMark grade={leg.grade} className="text-xl" />
               </span>
             </span>
-          ) : null}
-        </span>
-        {(labelBarisStatus || meta || (tampilProb && leg)) && (
-          <span className="mt-1.5 block pl-[72px] text-[13px] text-mid-gray sm:pl-[80px]">
-            {labelBarisStatus && (
-              <span className="block font-medium">{labelBarisStatus}</span>
-            )}
-            {/* Keterangan "Pilihan terkuat · Kelas" pindah ke baris
-                kedua: sebagai keterangan di bawah persen ia melebar
-                kolom kanan sampai ±130 px dan memangkas kolom nama
-                di 320 px hingga kata terpanjang (87,7 px) tidak muat
-                satu baris utuh. */}
-            {tampilProb && leg && (
-              <span className="block text-[12px] text-faint">
-                Pilihan terkuat · Kelas {leg.grade}
-              </span>
-            )}
-            {meta && <span className="block">{meta}</span>}
-          </span>
-        )}
-      </Link>
+          ) : undefined
+        }
+        meta={
+          adaMeta ? (
+            <>
+              {/* "Pilihan terkuat · Kelas" tetap di baris metadata:
+                  sebagai keterangan di bawah persen ia melebar kolom
+                  kanan ±130 px dan memangkas kolom nama di 320 px. */}
+              {tampilProb && leg && (
+                <span className="block text-[12px] text-faint">
+                  Pilihan terkuat · Kelas {leg.grade}
+                </span>
+              )}
+              {meta && <span className="block">{meta}</span>}
+            </>
+          ) : undefined
+        }
+      />
       {picks.length > 0 && (
         <ul className="mt-3 space-y-1.5 pl-[4.5rem] sm:pl-[5.5rem]">
           {/* flex-wrap pada li: pada lebar ekstrem (teks 200%) persen +
@@ -355,45 +356,44 @@ async function PertandinganContent({
         </div>
       ) : (
         <div key={queryJadwal(filter)} className="grup-masuk">
-          {kelompok.map((k) => {
-            const perKompetisi = new Map<string, JadwalItem[]>();
-            for (const it of k.items) {
-              const arr = perKompetisi.get(it.competition_name);
-              if (arr) arr.push(it);
-              else perKompetisi.set(it.competition_name, [it]);
-            }
-            return (
-              <section key={k.kunci} className="mt-14">
-                <h2 className="font-display text-xl font-semibold text-ink">
-                  {k.label}
-                  <span className="ml-3 text-sm font-normal text-faint">{k.tanggal}</span>
-                </h2>
-                {[...perKompetisi.entries()].map(([comp, items]) => (
-                  <div key={comp} className="mt-8">
-                    <div className="flex flex-wrap items-center gap-2.5 pb-1">
-                      {items[0].gate_status && (
-                        <GateStatus status={items[0].gate_status} withLabel={false} />
-                      )}
-                      <span className="font-display text-[17px] font-semibold text-ink">{comp}</span>
-                      {items[0].gate_status && (
+          {kelompok.map((k) => (
+            <section key={k.kunci} className="mt-14">
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {k.label}
+                <span className="ml-3 text-sm font-normal text-faint">{k.tanggal}</span>
+              </h2>
+              {/* Grup per IDENTITAS kompetisi (Addendum): kunci grup dari
+                  ID kanonik/mentah, bukan string nama — "Serie A" Italia
+                  (sm:384, alias comp_5840) dan "Serie A" Brasil (sm:648)
+                  tidak lagi menyatu; hitungan = laga hasil filter. */}
+              {kelompokPerKompetisi(k.items).map((g) => (
+                <GrupLiga
+                  key={g.kunci}
+                  logoUrl={urlLogoKompetisi(g.canonical_id)}
+                  nama={g.nama}
+                  negara={g.negara}
+                  sumber={g.sumber}
+                  jumlah={g.items.length}
+                  kalibrasi={
+                    g.gate_status ? (
+                      <span className="flex items-center gap-2.5">
+                        <GateStatus status={g.gate_status} withLabel={false} />
                         <span className="text-[13px] text-mid-gray">
-                          {GATE_LABEL[items[0].gate_status] ?? items[0].gate_status}
+                          {GATE_LABEL[g.gate_status] ?? g.gate_status}
                         </span>
-                      )}
-                      {items[0].competition_country && (
-                        <span className="text-[13px] text-faint">{items[0].competition_country}</span>
-                      )}
-                    </div>
-                    <div>
-                      {items.map((it) => (
-                        <BarisJadwal key={it.match_id} item={it} filter={filter} />
-                      ))}
-                    </div>
+                      </span>
+                    ) : undefined
+                  }
+                >
+                  <div>
+                    {g.items.map((it) => (
+                      <BarisJadwal key={it.match_id} item={it} filter={filter} />
+                    ))}
                   </div>
-                ))}
-              </section>
-            );
-          })}
+                </GrupLiga>
+              ))}
+            </section>
+          ))}
         </div>
       )}
     </div>

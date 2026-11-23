@@ -18,6 +18,7 @@ import { connection } from "next/server";
 import {
   jadwalBerikutnya,
   sorotanBeranda,
+  urlCrestTimNama,
   type FixtureListItem,
   type SorotanBeranda,
 } from "../lib/web/data";
@@ -36,6 +37,7 @@ import {
 } from "../lib/web/format";
 import { EmptyState } from "../components/ui";
 import { TopBar } from "../components/Nav";
+import BarisLaga from "../components/laga/BarisLaga";
 
 /* ------------------------------------------------------------- kepala */
 
@@ -146,28 +148,28 @@ function PanelSorotan({ s }: { s: SorotanBeranda }) {
 
 function BarisBerikutnya({ item }: { item: FixtureListItem }) {
   const f = item.pkg.payload.fixture;
+  /* Pola baris yang sama dengan Jadwal (Addendum Jadwal per Liga):
+     jam kiri, crest + dua baris tim, label liga di baris metadata,
+     chevron kanan. Sorotan di atasnya tidak berubah. */
   return (
-    <li>
-      <Link
+    <li className="py-3">
+      <BarisLaga
         href={`/pertandingan/${item.pkg.match_id}`}
-        aria-label={`${f.home} melawan ${f.away}, ${tanggalJamWib(item.pkg.kickoff_utc)}`}
-        className="group flex min-h-[56px] items-center gap-4 py-3"
-      >
-        <span className="tabular-nums w-[56px] shrink-0 text-[15px] font-semibold text-tinta">
-          {jamWibOnly(item.pkg.kickoff_utc)}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-base leading-snug font-medium text-tinta">
-            {f.home}
-            <br />
-            {f.away}
+        ariaLabel={`${f.home} melawan ${f.away}, ${tanggalJamWib(item.pkg.kickoff_utc)}`}
+        jam={jamWibOnly(item.pkg.kickoff_utc)}
+        home={f.home}
+        away={f.away}
+        logoHome={urlCrestTimNama(f.home)}
+        logoAway={urlCrestTimNama(f.away)}
+        skor={null}
+        statusLabel={null}
+        meta={<span className="block text-[13px] text-sekunder">{f.competition_name}</span>}
+        kanan={
+          <span aria-hidden="true" className="shrink-0 text-xl text-sekunder">
+            ›
           </span>
-          <span className="mt-0.5 block text-[13px] text-sekunder">{f.competition_name}</span>
-        </span>
-        <span aria-hidden="true" className="shrink-0 text-xl text-sekunder transition-colors group-hover:text-tinta">
-          ›
-        </span>
-      </Link>
+        }
+      />
     </li>
   );
 }

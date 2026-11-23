@@ -34,6 +34,7 @@ import {
   type StatusTampil,
 } from "./status";
 import { labelPilihan } from "./format";
+import { urlLogoTim } from "./logo";
 import {
   kelompokkanKejadianResmi,
   petaUidFisik,
@@ -1619,16 +1620,28 @@ interface LigaKanonikFile {
   leagues: {
     canonical_id: string;
     name: string;
+    country?: string | null;
     fits?: unknown[];
     aliases?: { id?: string; name_as_stored?: string }[];
   }[];
 }
 
-let petaLigaCache: { prioritas: Map<string, number>; nama: Map<string, string> } | null = null;
-function petaLiga(): { prioritas: Map<string, number>; nama: Map<string, string> } {
+interface PetaLiga {
+  prioritas: Map<string, number>;
+  nama: Map<string, string>;
+  /** ID alias namespace mana pun (sm:, comp_, kode divisi) → canonical_id. */
+  kanonik: Map<string, string>;
+  /** canonical_id → nama + negara kanonik dari registry. */
+  perKanonik: Map<string, { nama: string; negara: string | null }>;
+}
+
+let petaLigaCache: PetaLiga | null = null;
+function petaLiga(): PetaLiga {
   if (petaLigaCache) return petaLigaCache;
   const prioritas = new Map<string, number>();
   const nama = new Map<string, string>();
+  const kanonik = new Map<string, string>();
+  const perKanonik = new Map<string, { nama: string; negara: string | null }>();
   try {
     const raw = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), "data", "league-canonical.json"), "utf8"),
@@ -1637,11 +1650,14 @@ function petaLiga(): { prioritas: Map<string, number>; nama: Map<string, string>
       const p = (lg.fits?.length ?? 0) > 0 ? 0 : 1;
       prioritas.set(lg.canonical_id, p);
       nama.set(lg.canonical_id, lg.name);
+      kanonik.set(lg.canonical_id, lg.canonical_id);
+      perKanonik.set(lg.canonical_id, { nama: lg.name, negara: lg.country ?? null });
       if (lg.name) prioritas.set(`nama:${lg.name.toLowerCase()}`, p);
       for (const a of lg.aliases ?? []) {
         if (a.id) {
           prioritas.set(a.id, p);
           nama.set(a.id, lg.name);
+          kanonik.set(a.id, lg.canonical_id);
         }
         if (a.name_as_stored) prioritas.set(`nama:${a.name_as_stored.toLowerCase()}`, p);
       }
@@ -1649,8 +1665,98 @@ function petaLiga(): { prioritas: Map<string, number>; nama: Map<string, string>
   } catch {
     /* tanpa registry: prioritas seragam, nama apa adanya */
   }
-  petaLigaCache = { prioritas, nama };
+  petaLigaCache = { prioritas, nama, kanonik, perKanonik };
   return petaLigaCache;
+}
+
+/** ID kompetisi namespace mana pun → canonical_id registry; null bila tak terpetakan. */
+export function kanonikKompetisi(idMentah: string | null | undefined): string | null {
+  if (!idMentah) return null;
+  return petaLiga().kanonik.get(idMentah) ?? null;
+}
+
+/**
+ * URL crest tim dari NAMA tampil (untuk permukaan yang hanya membawa
+ * nama, mis. daftar Beranda dari payload paket): nama → ID kanonik via
+ * registry tim → resolver logo. Null = monogram.
+ */
+export function urlCrestTimNama(nama: string): string | null {
+  return urlLogoTim(canonicalIdForTeamName(nama));
+}
+
+/**
+ * Label sumber dari ID kompetisi mentah (namespace feed): dipakai hanya
+ * bila identitas TIDAK terpetakan ke registry kanonik — brief addendum
+ * mewajibkan label sumber + fallback untuk identitas ambigu, bukan
+ * penggabungan diam-diam.
+ */
+export function labelSumberKompetisi(idMentah: string | null | undefined): string | null {
+  if (!idMentah) return null;
+  if (idMentah.startsWith("sm:")) return "Sportmonks";
+  if (idMentah.startsWith("comp_")) return "TheStats";
+  if (idMentah.startsWith("fd_") || /^[A-Z]{1,3}\d{1,2}$/.test(idMentah)) return "Football-Data";
+  if (idMentah.startsWith("mt_")) return "MatchTracker";
+  return null;
+}
+
+export interface IdentitasKompetisiTampil {
+  /** Kunci grup stabil: kanonik bila terpetakan, selain itu ID mentah, terakhir nama+negara. */
+  kunci: string;
+  /** Nama tampil grup (nama kanonik bila terpetakan). */
+  nama: string;
+  /** Label negara pembeda (kanonik dulu, lalu tersimpan). */
+  negara: string | null;
+  /** Label sumber — hanya bila identitas tidak terpetakan kanonik (ambigu). */
+  sumber: string | null;
+  /** canonical_id hasil resolusi; null bila tak terpetakan. */
+  canonical_id: string | null;
+}
+
+/**
+ * Identitas kompetisi untuk pengelompokan Jadwal (Addendum Jadwal per
+ * Liga): berbasis ID, BUKAN string nama. Dua namespace untuk liga yang
+ * sama (mis. Serie A Italia = sm:384 + comp_5840) menyatu lewat alias
+ * registry; nama yang sama dengan ID berbeda (Serie A Italia sm:384 vs
+ * Serie A Brasil sm:648) tetap terpisah. Yang tak terpetakan memakai
+ * label sumbernya sendiri dan TIDAK digabung dengan nama yang sama.
+ */
+export function identitasKompetisiTampil(
+  canonicalId: string | null,
+  idMentah: string | null,
+  namaTersimpan: string,
+  negaraTersimpan: string | null,
+): IdentitasKompetisiTampil {
+  const { kanonik, perKanonik } = petaLiga();
+  const resolved =
+    (canonicalId && (perKanonik.has(canonicalId) ? canonicalId : kanonik.get(canonicalId))) ||
+    (idMentah ? kanonik.get(idMentah) : undefined) ||
+    null;
+  if (resolved) {
+    const info = perKanonik.get(resolved);
+    return {
+      kunci: `k:${resolved}`,
+      nama: info?.nama || namaTersimpan,
+      negara: info?.negara ?? negaraTersimpan,
+      sumber: null,
+      canonical_id: resolved,
+    };
+  }
+  if (idMentah) {
+    return {
+      kunci: `m:${idMentah}`,
+      nama: namaTersimpan,
+      negara: negaraTersimpan,
+      sumber: labelSumberKompetisi(idMentah),
+      canonical_id: null,
+    };
+  }
+  return {
+    kunci: `n:${namaTersimpan.toLowerCase()}|${negaraTersimpan ?? ""}`,
+    nama: namaTersimpan,
+    negara: negaraTersimpan,
+    sumber: null,
+    canonical_id: null,
+  };
 }
 
 /**
@@ -1683,6 +1789,16 @@ export interface JadwalItem {
   competition_name: string;
   competition_country: string | null;
   competition_canonical_id: string | null;
+  /** ID kompetisi mentah namespace sumber (katalog/paket/dataset); null bila sumber tak memberinya. */
+  competition_id_mentah: string | null;
+  /** Identitas grup Jadwal per liga (Addendum): kunci stabil berbasis ID + label tampil. */
+  grup_kunci: string;
+  grup_nama: string;
+  grup_negara: string | null;
+  grup_sumber: string | null;
+  /** ID kanonik tim untuk resolver crest; null bila ID sumber tak terpetakan. */
+  home_canonical_id: string | null;
+  away_canonical_id: string | null;
   kickoff_utc: string;
   status: StatusTampil;
   home_goals: number | null;
@@ -1727,6 +1843,9 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
     competition_name: string;
     competition_country: string | null;
     competition_canonical_id: string | null;
+    competition_id_mentah: string | null;
+    home_team_id: string | null;
+    away_team_id: string | null;
     kickoff_utc: string;
     statusRaw: string | null;
     dariKatalog: boolean;
@@ -1748,6 +1867,9 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
           competition_name: (r.competition_name as string | null) ?? "",
           competition_country: (r.competition_country as string | null) ?? null,
           competition_canonical_id: null,
+          competition_id_mentah: (r.competition_id as string | null) ?? null,
+          home_team_id: (r.home_team_id as string | null) ?? null,
+          away_team_id: (r.away_team_id as string | null) ?? null,
           kickoff_utc: r.utc_date as string,
           statusRaw: (r.status as string | null) ?? null,
           dariKatalog: true,
@@ -1773,6 +1895,9 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
         competition_name: f.competition_name,
         competition_country: null,
         competition_canonical_id: pkg.competition_canonical_id,
+        competition_id_mentah: null,
+        home_team_id: null,
+        away_team_id: null,
         kickoff_utc: pkg.kickoff_utc,
         statusRaw: null,
         dariKatalog: false,
@@ -1820,6 +1945,9 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
             petaLiga().nama.get(r.competition_id as string) ?? (r.competition_id as string),
           competition_country: null,
           competition_canonical_id: r.competition_id as string,
+          competition_id_mentah: r.competition_id as string,
+          home_team_id: r.home_team_id as string,
+          away_team_id: r.away_team_id as string,
           kickoff_utc: r.utc_date as string,
           statusRaw: r.status as string,
           dariKatalog: false,
@@ -1863,6 +1991,12 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       status = terapkanWaktu("scheduled", m.kickoff_utc, nowMs);
     }
     const ringkas = pkg ? ringkasPaket(pkg) : { pickCounts: { A: 0, B: 0, C: 0 }, topLeg: null };
+    const identitas = identitasKompetisiTampil(
+      m.competition_canonical_id,
+      m.competition_id_mentah,
+      m.competition_name,
+      m.competition_country,
+    );
     items.push({
       match_id: m.match_id,
       fixture_uid: ctx.uidById.get(m.match_id) ?? null,
@@ -1870,7 +2004,18 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       away: m.away,
       competition_name: m.competition_name,
       competition_country: m.competition_country,
-      competition_canonical_id: m.competition_canonical_id,
+      competition_canonical_id: identitas.canonical_id ?? m.competition_canonical_id,
+      competition_id_mentah: m.competition_id_mentah,
+      grup_kunci: identitas.kunci,
+      grup_nama: identitas.nama,
+      grup_negara: identitas.negara,
+      grup_sumber: identitas.sumber,
+      home_canonical_id:
+        (m.home_team_id ? canonicalIdForTeamId(m.home_team_id) : null) ??
+        canonicalIdForTeamName(m.home),
+      away_canonical_id:
+        (m.away_team_id ? canonicalIdForTeamId(m.away_team_id) : null) ??
+        canonicalIdForTeamName(m.away),
       kickoff_utc: m.kickoff_utc,
       status,
       home_goals: keadaan?.home_goals ?? null,
