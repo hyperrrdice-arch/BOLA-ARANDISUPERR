@@ -1,0 +1,64 @@
+BUKTI UJI MUAT URL LOGO — ronde logo-crest, 23 Nov 2026
+
+== Sportmonks CDN (pola: cdn.sportmonks.com/images/soccer/{teams|leagues}/<id mod 32>/<id>.png) ==
+Kandidat diuji: 733 (680 tim + 53 liga dari set aktif)
+HTTP 200 image/png: 717
+HTTP 404:
+404 text/html; charset=iso-8859-1 196 tim-sm:265948.png
+404 text/html; charset=iso-8859-1 196 tim-sm:253056.png
+404 text/html; charset=iso-8859-1 196 tim-sm:279622.png
+404 text/html; charset=iso-8859-1 196 tim-sm:274102.png
+404 text/html; charset=iso-8859-1 196 tim-sm:279289.png
+404 text/html; charset=iso-8859-1 196 tim-sm:279161.png
+404 text/html; charset=iso-8859-1 196 tim-sm:263140.png
+404 text/html; charset=iso-8859-1 196 tim-sm:279144.png
+404 text/html; charset=iso-8859-1 196 tim-sm:279143.png
+404 text/html; charset=iso-8859-1 196 tim-sm:266864.png
+404 text/html; charset=iso-8859-1 196 tim-sm:266889.png
+404 text/html; charset=iso-8859-1 196 tim-sm:263141.png
+404 text/html; charset=iso-8859-1 196 tim-sm:268116.png
+404 text/html; charset=iso-8859-1 196 liga-sm:501.png
+404 text/html; charset=iso-8859-1 196 liga-sm:72.png
+404 text/html; charset=iso-8859-1 196 liga-sm:271.png
+
+== TheSportsDB (r2.thesportsdb.com) ==
+39 URL badge (33 tim + 6 liga) — semua 200 image/png (uji ulang penuh lolos)
+https://r2.thesportsdb.com/images/media/team/badge/0ai9i31694237091.png
+https://r2.thesportsdb.com/images/media/team/badge/s11p8q1689067978.png
+https://r2.thesportsdb.com/images/media/team/badge/w3lw031675965943.png
+https://r2.thesportsdb.com/images/media/team/badge/ebl8zx1781737432.png
+https://r2.thesportsdb.com/images/media/team/badge/avi3bu1688678934.png
+https://r2.thesportsdb.com/images/media/team/badge/lpi7qa1779778149.png
+https://r2.thesportsdb.com/images/media/team/badge/otewhc1761452845.png
+https://r2.thesportsdb.com/images/media/team/badge/9zqhpw1546434997.png
+https://r2.thesportsdb.com/images/media/team/badge/fbinsr1781739580.png
+https://r2.thesportsdb.com/images/media/team/badge/aa42641684131255.png
+https://r2.thesportsdb.com/images/media/team/badge/98wt4h1521144923.png
+https://r2.thesportsdb.com/images/media/team/badge/qww8ap1534620441.png
+https://r2.thesportsdb.com/images/media/team/badge/uuvrvr1473539630.png
+https://r2.thesportsdb.com/images/media/team/badge/uvrsxw1447599507.png
+https://r2.thesportsdb.com/images/media/team/badge/j801au1705640268.png
+https://r2.thesportsdb.com/images/media/team/badge/rodijk1499284899.png
+https://r2.thesportsdb.com/images/media/team/badge/i0nj0h1627845101.png
+https://r2.thesportsdb.com/images/media/team/badge/fcljle1579464120.png
+https://r2.thesportsdb.com/images/media/team/badge/jbgjqk1505824045.png
+https://r2.thesportsdb.com/images/media/team/badge/ysppwr1429977136.png
+https://r2.thesportsdb.com/images/media/team/badge/wqqpuy1423804947.png
+https://r2.thesportsdb.com/images/media/team/badge/3xxw321514563737.png
+https://r2.thesportsdb.com/images/media/team/badge/ssvpvx1424033260.png
+https://r2.thesportsdb.com/images/media/team/badge/ggihm61750279411.png
+https://r2.thesportsdb.com/images/media/team/badge/36hve81625514026.png
+https://r2.thesportsdb.com/images/media/team/badge/xqrvrx1447597873.png
+https://r2.thesportsdb.com/images/media/team/badge/6mdsut1695740517.png
+https://r2.thesportsdb.com/images/media/team/badge/gqjn141578137225.png
+https://r2.thesportsdb.com/images/media/team/badge/bk6m0t1627844294.png
+https://r2.thesportsdb.com/images/media/team/badge/cyx2rk1589996271.png
+https://r2.thesportsdb.com/images/media/team/badge/sjv7bd1750699486.png
+https://r2.thesportsdb.com/images/media/team/badge/y6gzkf1754524958.png
+https://r2.thesportsdb.com/images/media/team/badge/vabwq61702481415.png
+https://r2.thesportsdb.com/images/media/league/badge/5cdsu21725984946.png
+https://r2.thesportsdb.com/images/media/league/badge/72d3zc1688333496.png
+https://r2.thesportsdb.com/images/media/league/badge/28uq381687624585.png
+https://r2.thesportsdb.com/images/media/league/badge/i57nok1721301867.png
+https://r2.thesportsdb.com/images/media/league/badge/gb4m951721302014.png
+https://r2.thesportsdb.com/images/media/league/badge/x52tu31721302085.png

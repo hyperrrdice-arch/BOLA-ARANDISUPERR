@@ -38,8 +38,18 @@ suite.eq("monogram: satu kata → satu huruf", monogram("Remo"), "R");
 suite.eq("monogram: aksen dipertahankan sebagai huruf", monogram("Køge"), "K");
 suite.eq("monogram: tanda hubung memisah kata", monogram("Paris Saint-Germain"), "PS");
 suite.eq("monogram: nama kosong → ?", monogram("  "), "?");
-suite.eq("logo: pemetaan kosong → kompetisi null", urlLogoKompetisi("sm:384"), null);
-suite.eq("logo: pemetaan kosong → tim null", urlLogoTim("sm:123"), null);
+suite.eq("logo: id tak terpetakan → kompetisi null", urlLogoKompetisi("sm:999999999"), null);
+suite.eq("logo: id tak terpetakan → tim null", urlLogoTim("sm:123"), null);
+suite.eq(
+  "logo: terpetakan → kompetisi Serie A Italia (CDN Sportmonks)",
+  urlLogoKompetisi("sm:384"),
+  "https://cdn.sportmonks.com/images/soccer/leagues/0/384.png",
+);
+suite.eq(
+  "logo: terpetakan → tim AC Milan (CDN Sportmonks)",
+  urlLogoTim("sm:113"),
+  "https://cdn.sportmonks.com/images/soccer/teams/17/113.png",
+);
 suite.eq("logo: id null → null", urlLogoKompetisi(null), null);
 
 type ItemGrup = {
