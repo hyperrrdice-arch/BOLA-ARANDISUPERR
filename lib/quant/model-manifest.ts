@@ -112,6 +112,12 @@ export interface ModelManifest {
     teamCount: number;
     window: TrainingWindow;
     perLeague: { div: string; matches: number }[];
+    /**
+     * Catatan populasi (Item 10 sprint A+B, dari rekonsiliasi PR 1A A6):
+     * label definisi totalMatches — metadata dokumentasi saja, TIDAK
+     * dibaca mesin inferensi dan tidak mengubah angka/parameter apa pun.
+     */
+    populationNote?: string;
   };
   calibration: { calibrated: number; partial: number; uncalibrated: number; unknown: number };
   /** Hash artefak rating yang dideskripsikan — konvensi sama dengan ratings_marker slate. */
@@ -214,6 +220,8 @@ export function buildManifest(args: BuildManifestArgs): ModelManifest {
       teamCount: leagues.reduce((s, lg) => s + Object.keys(lg.teams ?? {}).length, 0),
       window: args.window ?? trainingWindowFromArtifact(ratings),
       perLeague,
+      populationNote:
+        "totalMatches adalah Σ hitungan per fit — jumlah totalMatches yang tersimpan di tiap fit liga (fit warisan dapat membawa korpus multi-musim), BUKAN cacah baris unik dataset dalam jendela latih.",
     },
     calibration,
     ratingsHash: ratingsHashOf(args.ratingsRaw),

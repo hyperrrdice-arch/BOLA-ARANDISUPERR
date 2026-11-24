@@ -10,6 +10,8 @@ import {
 } from "../identity/fixture-resolver";
 import { getTheStatsDb } from "../db/thestats-dataset";
 import { selectionPredicate } from "../web/parlay";
+import { statusFeedKompetisi } from "./feed-coverage";
+import { SETTLEMENT_WINDOW_MS } from "./cohort";
 
 // ============================================================================
 // TIKET RESMI — slip yang diterbitkan server (PRD bab Data D4, kartu K3)
@@ -830,6 +832,14 @@ export interface SlipRecordStats {
   miss: number;
   void: number;
   pending: number;
+  /**
+   * Tiket menunggu yang TIDAK akan pernah selesai (Item 9 sprint A+B):
+   * ≥1 pilihan anggotanya sudah jatuh tempo di kompetisi yang terbukti
+   * tanpa feed hasil — klasifikasi terminal PR 2, aturan yang sama
+   * dengan `unresolvable` di cohort. Dihitung terpisah dan TIDAK
+   * termasuk `pending`.
+   */
+  unresolvable: number;
   /** hit / (hit + miss); NULL bila belum ada tiket selesai bernilai. */
   hit_ratio: number | null;
   unique_fixtures: number;
@@ -857,6 +867,47 @@ export function slipRecordStats(filter?: {
     else if (v.state === "void") voids++;
     else pending++;
   }
+  // Klasifikasi terminal PR 2 di level tiket (Item 9 sprint A+B): tiket
+  // berstatus pending yang punya ≥1 pilihan anggota yang belum dinilai,
+  // sudah jatuh tempo (kickoff + jendela settlement lewat; kickoff tak
+  // terbaca dihitung jatuh tempo — persis aturan cohort), dan kompetisinya
+  // terbukti "tanpa-feed" tidak akan pernah selesai. Keluarkan dari
+  // `pending`, tampilkan sebagai hitungan terpisah `unresolvable` —
+  // konsisten dengan penyebut /bukti (cohortStats).
+  let unresolvable = 0;
+  if (pending > 0) {
+    const db = getPicksDb();
+    const pendingUids = views
+      .filter((v) => v.state === "pending")
+      .map((v) => v.slip_uid);
+    const rows = db
+      .prepare(
+        `SELECT l.slip_uid AS slip_uid, p.kickoff_utc AS kickoff_utc,
+                p.competition_canonical_id AS competition_canonical_id
+         FROM slip_legs l
+         JOIN picks p ON p.id = l.pick_id
+         LEFT JOIN pick_outcomes o ON o.pick_id = l.pick_id
+         LEFT JOIN pick_voids v ON v.pick_id = l.pick_id
+         WHERE l.slip_uid IN (${pendingUids.map(() => "?").join(",")})
+           AND o.hit IS NULL AND v.pick_id IS NULL`,
+      )
+      .all(...pendingUids) as unknown as {
+      slip_uid: string;
+      kickoff_utc: string | null;
+      competition_canonical_id: string | null;
+    }[];
+    const nowMs = Date.now();
+    const stuck = new Set<string>();
+    for (const r of rows) {
+      const ko = r.kickoff_utc ? Date.parse(r.kickoff_utc) : NaN;
+      const due = !Number.isFinite(ko) || nowMs >= ko + SETTLEMENT_WINDOW_MS;
+      if (due && statusFeedKompetisi(r.competition_canonical_id) === "tanpa-feed") {
+        stuck.add(r.slip_uid);
+      }
+    }
+    unresolvable = stuck.size;
+    pending -= unresolvable;
+  }
   const denom = hit + miss;
   return {
     slips: views.length,
@@ -865,6 +916,7 @@ export function slipRecordStats(filter?: {
     miss,
     void: voids,
     pending,
+    unresolvable,
     hit_ratio: denom > 0 ? hit / denom : null,
     unique_fixtures: fixtures.size,
     total_legs: totalLegs,

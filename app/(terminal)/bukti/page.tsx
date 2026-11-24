@@ -752,7 +752,11 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
             </p>
             <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
               {int(data.tiket_stats.slips)} tiket · {int(data.tiket_stats.void)} batal ·{" "}
-              {int(data.tiket_stats.pending)} menunggu · {int(data.tiket_stats.unique_fixtures)}{" "}
+              {int(data.tiket_stats.pending)} menunggu
+              {data.tiket_stats.unresolvable > 0
+                ? ` · ${int(data.tiket_stats.unresolvable)} tidak dapat dinilai`
+                : ""}{" "}
+              · {int(data.tiket_stats.unique_fixtures)}{" "}
               laga unik · {int(data.tiket_stats.total_legs)} pilihan anggota. Slip yang disusun
               sendiri di halaman Pilihan tidak masuk hitungan ini.
             </p>

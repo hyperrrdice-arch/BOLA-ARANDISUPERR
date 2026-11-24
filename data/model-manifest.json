@@ -361,7 +361,8 @@
         "div": "T1",
         "matches": 1813
       }
-    ]
+    ],
+    "populationNote": "totalMatches adalah Σ hitungan per fit — jumlah totalMatches yang tersimpan di tiap fit liga (fit warisan dapat membawa korpus multi-musim), BUKAN cacah baris unik dataset dalam jendela latih. Manifest ini: 73.412 (Σ per fit) vs 71.503 baris hasil final dataset dalam jendela [2024-01-01, 2026-11-17) — rekonsiliasi persis PR 1A A6."
   },
   "calibration": {
     "calibrated": 32,
@@ -373,5 +374,5 @@
   "generatedBy": "scripts/build-model-manifest.ts --activate",
   "codeSha": null,
   "generatedAt": "2026-11-20T08:23:32.753Z",
-  "contentHash": "sha256:98bdb64ba1df8fb31deb70db530c75da2568312eb73f400a81fdcac2fddd11e1"
+  "contentHash": "sha256:e4e385a26099dac6a5d4440f9d6c81668d660335f797987d496a7d9822e48a08"
 }
