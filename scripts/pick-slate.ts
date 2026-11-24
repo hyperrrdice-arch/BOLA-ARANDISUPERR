@@ -133,6 +133,7 @@ import {
   getUidForMatchId,
   identityTablesExist,
 } from "../lib/identity/fixture-resolver";
+import { selectMarketQuote } from "../lib/market/market-snapshot";
 import { GATE_LABEL } from "../lib/web/format";
 import { execSync } from "node:child_process";
 
@@ -590,6 +591,68 @@ async function main() {
   let linkedTwinsSkipped = 0;
   let unlinkedTwinsSkipped = 0;
 
+  // --- MarketSnapshot (Item 3, Sprint C): pembacaan pasar TERKUNCI pada
+  // decision_ts tiap fixture (computedUtc = decision_at_utc publikasi).
+  // Murni pencatatan ke laporan slate — TIDAK mengubah probabilitas,
+  // paket, atau pick. Store absen (aktivasi menunggu token pemilik)
+  // → semua cek tercatat abstain "store_absent", bukan error.
+  const marketQuoteChecks: {
+    match_id: string;
+    status: "found" | "abstain";
+    reason: string | null;
+    source: string | null;
+    first_observed: string | null;
+    age_ms: number | null;
+  }[] = [];
+  let msDb: DatabaseSync | null | undefined;
+  const marketQuoteCheck = (
+    matchId: string,
+    decisionTs: string,
+    kickoffTs: string,
+  ): void => {
+    try {
+      if (msDb === undefined) {
+        const p = path.join(process.cwd(), "data", "market_snapshots.db");
+        msDb = fs.existsSync(p) ? openRo(p) : null;
+      }
+      if (!msDb) {
+        marketQuoteChecks.push({
+          match_id: matchId,
+          status: "abstain",
+          reason: "store_absent",
+          source: null,
+          first_observed: null,
+          age_ms: null,
+        });
+        return;
+      }
+      const sel = selectMarketQuote(msDb, {
+        fixture_id: matchId,
+        market: "1x2",
+        line: null,
+        decision_ts: decisionTs,
+        kickoff_ts: kickoffTs,
+      });
+      marketQuoteChecks.push({
+        match_id: matchId,
+        status: sel.quote ? "found" : "abstain",
+        reason: sel.reason,
+        source: sel.quote?.source ?? null,
+        first_observed: sel.quote?.first_observed ?? null,
+        age_ms: sel.age_ms,
+      });
+    } catch {
+      marketQuoteChecks.push({
+        match_id: matchId,
+        status: "abstain",
+        reason: "store_error",
+        source: null,
+        first_observed: null,
+        age_ms: null,
+      });
+    }
+  };
+
   for (const fx of fixtures) {
     if (processed >= limit) break;
     processed++;
@@ -807,6 +870,9 @@ async function main() {
               gate_status: gateFinal,
               odds_snapshots: oddsSnapshotsFor(leg, mInfo),
             }));
+            // Pembacaan pasar terkunci decision_ts (Item 3) — dicatat ke
+            // laporan slate; tidak memengaruhi publikasi di bawah ini.
+            marketQuoteCheck(fx.match_id, computedUtc, fx.utc_date);
             const res = publishPicks(
               {
                 series: "live-run",
@@ -1012,6 +1078,12 @@ async function main() {
             ),
           ).length
         : 0,
+    },
+    market_snapshot: {
+      checked: marketQuoteChecks.length,
+      found: marketQuoteChecks.filter((c) => c.status === "found").length,
+      abstained: marketQuoteChecks.filter((c) => c.status === "abstain").length,
+      checks: marketQuoteChecks,
     },
     rated: rated.map((r) => ({
       match_id: r.fixture.match_id,
