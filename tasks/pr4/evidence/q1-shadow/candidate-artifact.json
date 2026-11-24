@@ -1,0 +1,61 @@
+{
+  "candidate_id": "q1-poisson-offset-v1",
+  "hypothesis": "Q1 — Poisson terpenalti di atas champion (brief P2 Model Quant)",
+  "champion": "2.0-dixon-coles-mle+kfit10+hl365+rho:zero+js2 (Level B, evaluator PR 3, as-of)",
+  "alpha_star": 0.3,
+  "alpha_grid": [
+    0.3,
+    1,
+    3,
+    10,
+    30,
+    100
+  ],
+  "beta_home": {
+    "rest_adv": -0.0013140481633000132,
+    "venue_neutral": 0,
+    "promoted": -0.018099338065138144,
+    "form_resid": -0.0026878600205021918,
+    "miss_rest": -0.0009705657592672084,
+    "miss_form": -0.0019016943373652497
+  },
+  "beta_away": {
+    "rest_adv": -0.0001400787296258633,
+    "venue_neutral": 0,
+    "promoted": -0.021978523495984233,
+    "form_resid": -0.014869856777952037,
+    "miss_rest": -0.00091507227634309,
+    "miss_form": -0.0012062851889407256
+  },
+  "beta_home_v1_only": {
+    "rest_adv": 0.00285384265607337,
+    "venue_neutral": 0,
+    "promoted": -0.02844209002862901,
+    "form_resid": 0.003769386797785194,
+    "miss_rest": -0.00030025463044656514,
+    "miss_form": 0.0003729181197322521
+  },
+  "beta_away_v1_only": {
+    "rest_adv": -0.005930576425822706,
+    "venue_neutral": 0,
+    "promoted": -0.022653921236723547,
+    "form_resid": -0.013859969560401995,
+    "miss_rest": 0.0005916311429515475,
+    "miss_form": 0.0007723709544003545
+  },
+  "trained_on": {
+    "v1_rows": 6676,
+    "v2_rows": 6683,
+    "refit_rows": 13359
+  },
+  "fit_converged": {
+    "home": true,
+    "away": true
+  },
+  "intensity_bounds": [
+    0.05,
+    6
+  ],
+  "abstain_policy": "identik dengan fallback champion",
+  "artifact_sha256": "4c06188312e59bc7f33fc04f7f423bdd05a2dfc1e65c063090cde8ab563bb55e"
+}

@@ -1,0 +1,53 @@
+{
+  "decision": "retain",
+  "meaning": "Gate brief GAGAL pada holdout H — champion dipertahankan; kandidat tidak layak promosi.",
+  "gate_checks": [
+    {
+      "id": "sample_floor",
+      "observed": 1.65,
+      "threshold": 1,
+      "pass": true
+    },
+    {
+      "id": "mean_delta",
+      "observed": 0.0000340750701584137,
+      "threshold": -0.005,
+      "pass": false
+    },
+    {
+      "id": "bootstrap_upper",
+      "observed": 0.00027080803658075886,
+      "threshold": 0,
+      "pass": false
+    },
+    {
+      "id": "coverage_drop",
+      "observed": 0,
+      "threshold": 0.02,
+      "pass": true
+    },
+    {
+      "id": "brier_increase",
+      "observed": 0.000025549828715165646,
+      "threshold": 0.002,
+      "pass": true
+    }
+  ],
+  "headline": {
+    "n": 6708,
+    "blocks": 33,
+    "champion_logloss": 1.013402262327106,
+    "candidate_logloss": 1.013436337397265,
+    "mean_delta": 0.0000340750701584137,
+    "bootstrap_upper_one_sided_95": 0.00027080803658075886,
+    "ci95": [
+      -0.00023444091408142187,
+      0.00032213682131848495
+    ],
+    "coverage_champion": 1,
+    "coverage_candidate": 1,
+    "brier_champion": 0.6065786004794809,
+    "brier_candidate": 0.606604150308196
+  },
+  "promotion_performed": false
+}
