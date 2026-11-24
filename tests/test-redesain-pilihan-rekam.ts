@@ -175,7 +175,7 @@ function statsFabrikasi(over: Partial<CohortStats>): CohortStats {
     filter: {},
     issued: 0, settled: 0, hits: 0, misses: 0, hit_ratio: null, empty: true,
     due: 0, coverage: null, coverage_ratio: null, voids: 0,
-    not_started: 0, awaiting_window: 0, overdue_pending: 0, overdue_by_reason: {},
+    not_started: 0, awaiting_window: 0, overdue_pending: 0, unresolvable: 0, overdue_by_reason: {},
     prob_slice: { n: 0, avg_published_prob: null, avg_hit: null, legacy_hitmiss_only: 0 },
     ...over,
   };

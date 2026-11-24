@@ -15,14 +15,20 @@
  * Alasan pending jatuh tempo: ledger tidak menyimpan alasan per baris
  * (catatan K2). Yang dipakai di sini hanya yang benar-benar ada datanya:
  * antrean konflik identitas K1 (`fixture_identity_queue`, alasan
- * `identity_ambiguous` yang belum selesai) → "konflik". Sisanya jujur
- * "unspecified" — ditampilkan sebagai menunggu hasil dari sumber data,
- * tidak dikarang menjadi "sumber tidak mencakup".
+ * `identity_ambiguous` yang belum selesai) → "konflik". Sejak PR 2 ada
+ * satu alasan struktural lagi yang sama-sama terbukti dari data:
+ * kompetisi yang terdaftar di registri liga tetapi tidak terpetakan ke
+ * divisi feed hasil aktif mana pun (`lib/picks/feed-coverage.ts`) →
+ * "tanpa-feed": barisnya terminal "tidak-dapat-dinilai", bukan menunggu.
+ * Sisanya tetap jujur "unspecified" — ditampilkan sebagai menunggu
+ * hasil dari sumber data, tidak dikarang menjadi "sumber tidak
+ * mencakup" tanpa bukti registri.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { cohortStats, SETTLEMENT_WINDOW_MS, type CohortFilter, type CohortStats } from "../picks/cohort";
+import { statusFeedKompetisi } from "../picks/feed-coverage";
 import { UNRECORDED_PROB_LABEL } from "../picks/publication";
 import {
   getOfficialSlip,
@@ -281,15 +287,25 @@ export type KeadaanPilihan =
   | "batal"
   | "belum-mulai"
   | "menunggu-jendela"
-  | "jatuh-tempo";
+  | "jatuh-tempo"
+  | "tidak-dapat-dinilai";
 
 /**
  * Keadaan satu baris rekam — klasifikasi yang sama dengan cohortStats:
  * vonis hanya dari outcome/void backend; sisanya jam (belum mulai /
  * menunggu jendela 6 jam / jatuh tempo). Tidak pernah menebak hasil.
+ * Baris jatuh tempo yang kompetisinya terbukti tanpa feed hasil
+ * (`tanpa_feed`, PR 2) berkeadaan terminal "tidak-dapat-dinilai" —
+ * pemanggil yang tahu (konflik identitas terbukti) menahan bendera itu,
+ * sejalan dengan preseden alasan di cohortStats.
  */
 export function keadaanPilihan(
-  row: { hit: number | null; voided: boolean; kickoff_utc: string | null },
+  row: {
+    hit: number | null;
+    voided: boolean;
+    kickoff_utc: string | null;
+    tanpa_feed?: boolean;
+  },
   nowMs: number,
 ): KeadaanPilihan {
   if (row.voided) return "batal";
@@ -298,6 +314,7 @@ export function keadaanPilihan(
   const ko = row.kickoff_utc ? Date.parse(row.kickoff_utc) : NaN;
   if (Number.isFinite(ko) && ko > nowMs) return "belum-mulai";
   if (Number.isFinite(ko) && nowMs < ko + SETTLEMENT_WINDOW_MS) return "menunggu-jendela";
+  if (row.tanpa_feed) return "tidak-dapat-dinilai";
   return "jatuh-tempo";
 }
 
@@ -309,6 +326,7 @@ export const KEADAAN_LABEL: Record<KeadaanPilihan, string> = {
   "belum-mulai": "Belum mulai",
   "menunggu-jendela": "Menunggu hasil",
   "jatuh-tempo": "Sudah jatuh tempo",
+  "tidak-dapat-dinilai": "Tidak dapat dinilai",
 };
 
 /* ------------------------------------------- alasan jatuh tempo (K1) */
@@ -410,8 +428,12 @@ export interface BarisRekam {
   home_goals: number | null;
   away_goals: number | null;
   keadaan: KeadaanPilihan;
-  /** Hanya untuk keadaan jatuh-tempo: 'konflik' bila antrean K1 memuatnya. */
-  alasan_jatuh_tempo: "konflik" | null;
+  /**
+   * Alasan baris belum dinilai padahal sudah lewat: 'konflik' bila
+   * antrean K1 memuatnya (keadaan jatuh-tempo), 'tanpa-feed' bila
+   * kompetisinya terbukti tanpa feed hasil (keadaan tidak-dapat-dinilai).
+   */
+  alasan_jatuh_tempo: "konflik" | "tanpa-feed" | null;
 }
 
 interface RekamRowDb {
@@ -563,8 +585,19 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
   );
   const baris: BarisRekam[] = rows.map((r) => {
     const nama = namaDariPaket(r.package_id);
+    const konflikBaris = konflik.has(r.match_id);
+    // Terminal tanpa-feed hanya bila tak ada alasan terbukti lain:
+    // konflik identitas menang, persis preseden cohortStats (PR 2).
+    const tanpaFeed =
+      !konflikBaris &&
+      statusFeedKompetisi(r.competition_canonical_id) === "tanpa-feed";
     const keadaan = keadaanPilihan(
-      { hit: r.hit, voided: r.voided !== null && r.voided !== undefined, kickoff_utc: r.kickoff_utc },
+      {
+        hit: r.hit,
+        voided: r.voided !== null && r.voided !== undefined,
+        kickoff_utc: r.kickoff_utc,
+        tanpa_feed: tanpaFeed,
+      },
       nowMs,
     );
     return {
@@ -597,7 +630,11 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
       away_goals: r.away_goals,
       keadaan,
       alasan_jatuh_tempo:
-        keadaan === "jatuh-tempo" && konflik.has(r.match_id) ? "konflik" : null,
+        keadaan === "tidak-dapat-dinilai"
+          ? "tanpa-feed"
+          : keadaan === "jatuh-tempo" && konflikBaris
+            ? "konflik"
+            : null,
     };
   });
 
@@ -989,8 +1026,14 @@ export interface TabRekamData {
   menungguMendatang: BarisRekam[];
   /** Pilihan batal. */
   batal: BarisRekam[];
+  /**
+   * Terminal tanpa feed hasil (PR 2): ditampilkan sebagai bagian
+   * tersendiri di panel Menunggu, TIDAK dihitung sebagai menunggu —
+   * hasilnya tidak akan pernah masuk.
+   */
+  takDinilai: BarisRekam[];
   /** Hitungan baris per tab (untuk label tab + keadaan kosong). */
-  hitungan: { dinilai: number; menunggu: number; batal: number };
+  hitungan: { dinilai: number; menunggu: number; batal: number; tak_dinilai: number };
 }
 
 /**
@@ -1007,6 +1050,7 @@ export function kelompokkanTabRekam(baris: BarisRekam[]): TabRekamData {
   const menungguLewat: BarisRekam[] = [];
   const menungguMendatang: BarisRekam[] = [];
   const batal: BarisRekam[] = [];
+  const takDinilai: BarisRekam[] = [];
   let nDinilai = 0;
   for (const b of baris) {
     if (b.keadaan === "tepat" || b.keadaan === "meleset") {
@@ -1037,6 +1081,8 @@ export function kelompokkanTabRekam(baris: BarisRekam[]): TabRekamData {
       batal.push(b);
     } else if (b.keadaan === "belum-mulai") {
       menungguMendatang.push(b);
+    } else if (b.keadaan === "tidak-dapat-dinilai") {
+      takDinilai.push(b);
     } else {
       menungguLewat.push(b);
     }
@@ -1046,10 +1092,12 @@ export function kelompokkanTabRekam(baris: BarisRekam[]): TabRekamData {
     menungguLewat,
     menungguMendatang,
     batal,
+    takDinilai,
     hitungan: {
       dinilai: nDinilai,
       menunggu: menungguLewat.length + menungguMendatang.length,
       batal: batal.length,
+      tak_dinilai: takDinilai.length,
     },
   };
 }

@@ -711,9 +711,12 @@ async function AnalisisContent({
         {p.sm_panel ? (
           <>
             <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
-              Panel arsip Sportmonks · {tanggalJamWib(p.sm_panel.batch_utc, tz)}. Ini arsip
-              probabilitas lama — bukan angka langsung dan tidak masuk perbandingan sumber di
-              atas.
+              Panel arsip Sportmonks ·{" "}
+              {p.sm_panel.batch_utc
+                ? tanggalJamWib(p.sm_panel.batch_utc, tz)
+                : "Waktu arsip tidak tersedia"}
+              . Ini arsip probabilitas lama — bukan angka langsung dan tidak masuk
+              perbandingan sumber di atas.
             </p>
             <div
               className="mt-4 overflow-x-auto"

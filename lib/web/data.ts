@@ -90,7 +90,7 @@ export interface QuantPayload {
    *  bukan sisa tampilan peta — jangan dijumlahkan, brief §9). */
   score_matrix_tail_mass?: number | null;
   market?: { probs: Record<string, number>; captured_utc: string | null; bookmakers: string[] } | null;
-  sm_panel?: { probs: Record<string, number>; batch_utc: string } | null;
+  sm_panel?: { probs: Record<string, number>; batch_utc: string | null } | null;
   legs?: Leg[];
   shrunk_metadata?: {
     calibrationGate?: string;
@@ -836,7 +836,19 @@ export interface GradeStat {
   resolved: number;
   hits: number;
   hit_rate: number | null;
+  /**
+   * Rerata peluang KLAIM atas irisan yang peluangnya tercatat pada basis
+   * resmi permukaan ini (PR 2): baris live memakai `published_prob`
+   * (beku saat terbit — basis yang sama dengan `cohortStats`), baris lab
+   * memakai `model_prob` karena populasi lab tidak pernah diterbitkan
+   * sehingga peluang terbit memang tidak ada (UI melabelinya "peluang
+   * model"). `gap_pp` membandingkan claimed dengan hit-rate IRISAN YANG
+   * SAMA (`prob_n` baris), bukan dengan hit-rate seluruh settled —
+   * perbandingan satu irisan, sesuai temuan basis ganda PR 1A F3.
+   */
   claimed: number | null;
+  /** Jumlah baris settled yang masuk irisan claimed di atas. */
+  prob_n: number;
   gap_pp: number | null;
 }
 /** GradeStat live yang dipotong menurut gate_status pick (segmentasi R-01). */
@@ -905,6 +917,9 @@ export function ledgerStats(): LedgerStats {
     const hits = r.hits as number;
     const claimed = (r.claimed as number | null) ?? null;
     const hit_rate = resolved > 0 ? hits / resolved : null;
+    const prob_n = (r.prob_n as number | null) ?? 0;
+    const slice_hits = (r.slice_hits as number | null) ?? 0;
+    const slice_hit_rate = prob_n > 0 ? slice_hits / prob_n : null;
     return {
       grade: r.grade as string,
       n: r.n as number,
@@ -912,18 +927,26 @@ export function ledgerStats(): LedgerStats {
       hits,
       hit_rate,
       claimed,
+      prob_n,
       gap_pp:
-        hit_rate !== null && claimed !== null
-          ? Math.round((hit_rate - claimed) * 1000) / 10
+        slice_hit_rate !== null && claimed !== null
+          ? Math.round((slice_hit_rate - claimed) * 1000) / 10
           : null,
     };
   };
+  // Basis claimed live = published_prob atas irisan settled yang
+  // peluang terbitnya tercatat — persis irisan prob_slice cohortStats
+  // (PR 2, menutup basis ganda PR 1A F3). AVG mengabaikan NULL, jadi
+  // irisan terbentuk dari predikat yang sama; prob_n/slice_hits
+  // menyatakan populasinya secara eksplisit.
   const by_grade = (d
     .prepare(
       `SELECT p.grade AS grade, COUNT(*) AS n,
               SUM(CASE WHEN o.pick_id IS NOT NULL THEN 1 ELSE 0 END) AS resolved,
               SUM(COALESCE(o.hit,0)) AS hits,
-              AVG(CASE WHEN o.pick_id IS NOT NULL THEN p.model_prob END) AS claimed
+              AVG(CASE WHEN o.pick_id IS NOT NULL THEN p.published_prob END) AS claimed,
+              SUM(CASE WHEN o.pick_id IS NOT NULL AND p.published_prob IS NOT NULL THEN 1 ELSE 0 END) AS prob_n,
+              SUM(CASE WHEN o.pick_id IS NOT NULL AND p.published_prob IS NOT NULL THEN COALESCE(o.hit,0) ELSE 0 END) AS slice_hits
        FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
        WHERE p.source='live-run' GROUP BY p.grade ORDER BY p.grade`,
     )
@@ -937,7 +960,9 @@ export function ledgerStats(): LedgerStats {
       `SELECT p.grade AS grade, p.gate_status AS gate_status, COUNT(*) AS n,
               SUM(CASE WHEN o.pick_id IS NOT NULL THEN 1 ELSE 0 END) AS resolved,
               SUM(COALESCE(o.hit,0)) AS hits,
-              AVG(CASE WHEN o.pick_id IS NOT NULL THEN p.model_prob END) AS claimed
+              AVG(CASE WHEN o.pick_id IS NOT NULL THEN p.published_prob END) AS claimed,
+              SUM(CASE WHEN o.pick_id IS NOT NULL AND p.published_prob IS NOT NULL THEN 1 ELSE 0 END) AS prob_n,
+              SUM(CASE WHEN o.pick_id IS NOT NULL AND p.published_prob IS NOT NULL THEN COALESCE(o.hit,0) ELSE 0 END) AS slice_hits
        FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
        WHERE p.source='live-run' GROUP BY p.grade, p.gate_status
        ORDER BY p.grade,
@@ -1000,6 +1025,10 @@ export function ledgerStats(): LedgerStats {
         hits,
         hit_rate,
         claimed,
+        // Populasi lab: claimed adalah rerata model_prob atas SEMUA
+        // baris irisan ini (lab tak punya published_prob), jadi irisan
+        // claimed = seluruh n dan gap tetap terhadap hit_rate yang sama.
+        prob_n: n,
         gap_pp:
           hit_rate !== null && claimed !== null
             ? Math.round((hit_rate - claimed) * 1000) / 10

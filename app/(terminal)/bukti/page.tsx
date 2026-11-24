@@ -221,6 +221,8 @@ function DetailTiketBlok({ detail, tz }: { detail: DetailTiket; tz: string }) {
 
 function alasanPending(b: BarisRekam): string | null {
   if (b.keadaan === "menunggu-jendela") return "Menunggu hasil resmi dari sumber data.";
+  if (b.keadaan === "tidak-dapat-dinilai")
+    return "Tidak dapat dinilai — kompetisinya tidak punya feed hasil.";
   if (b.keadaan === "jatuh-tempo") {
     return b.alasan_jatuh_tempo === "konflik"
       ? "Menunggu peninjauan konflik identitas."
@@ -410,7 +412,7 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
     );
 
   const panelMenunggu =
-    tab.hitungan.menunggu === 0 ? (
+    tab.hitungan.menunggu === 0 && tab.takDinilai.length === 0 ? (
       <p className="max-w-2xl py-8 text-[15px] leading-relaxed text-mid-gray">
         Tidak ada pilihan yang menunggu pada periode ini.
       </p>
@@ -446,6 +448,29 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
               <p className="mt-4 text-[13px] text-faint">
                 Menampilkan {MAKS_BARIS} dari {int(tab.menungguMendatang.length)} pilihan yang
                 belum mulai.
+              </p>
+            )}
+          </section>
+        )}
+        {tab.takDinilai.length > 0 && (
+          <section aria-label="Tidak dapat dinilai">
+            <h3 className="pt-6 font-display text-[17px] font-medium text-ink">
+              Tidak dapat dinilai
+            </h3>
+            <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-faint">
+              Kompetisi pilihan-pilihan ini tidak punya feed hasil — hasilnya tidak akan
+              pernah masuk, jadi pilihan ini tidak dihitung sebagai menunggu dan tidak
+              masuk cakupan penilaian.
+            </p>
+            <ul>
+              {tab.takDinilai.slice(0, MAKS_BARIS).map((b) => (
+                <BarisMandiri key={b.pick_id} b={b} tz={tz} />
+              ))}
+            </ul>
+            {tab.takDinilai.length > MAKS_BARIS && (
+              <p className="mt-4 text-[13px] text-faint">
+                Menampilkan {MAKS_BARIS} dari {int(tab.takDinilai.length)} pilihan yang
+                tidak dapat dinilai.
               </p>
             )}
           </section>
@@ -671,9 +696,19 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
               .
             </p>
           )}
+          {s.unresolvable > 0 && (
+            <p className="text-mid-gray">
+              {int(s.unresolvable)} pilihan tidak dapat dinilai — kompetisinya tidak punya
+              feed hasil, jadi hasilnya tidak akan pernah masuk. Pilihan ini tidak dihitung
+              dalam cakupan penilaian di atas.
+            </p>
+          )}
           <p className="text-[13px] text-faint">
             {int(s.issued)} pilihan terbit pada periode ini · {int(s.voids)} batal ·{" "}
             {int(tab.hitungan.menunggu)} menunggu
+            {tab.hitungan.tak_dinilai > 0
+              ? ` · ${int(tab.hitungan.tak_dinilai)} tidak dapat dinilai`
+              : ""}
           </p>
         </div>
       </section>

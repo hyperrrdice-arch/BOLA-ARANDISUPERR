@@ -1,5 +1,6 @@
 import { getPicksDb } from "./ledger";
 import { ensurePublicationSchema } from "./publication";
+import { sidikFeedHasil, statusFeedKompetisi } from "./feed-coverage";
 
 // ============================================================================
 // STATISTIK COHORT LEDGER (PRD bab Data D4, kartu K2)
@@ -12,6 +13,15 @@ import { ensurePublicationSchema } from "./publication";
 //     langsung layak karena barisnya sudah punya outcome);
 //   - pending dibedakan: belum mulai / menunggu jendela hasil / jatuh
 //     tempo; void dilaporkan terpisah dan TIDAK masuk penyebut;
+//   - jatuh tempo yang kompetisinya TIDAK punya feed hasil (PR 2:
+//     `lib/picks/feed-coverage.ts`) adalah keadaan TERMINAL
+//     ("tidak dapat dinilai", `unresolvable`): hasilnya tidak akan
+//     pernah masuk, jadi ia TIDAK masuk penyebut cakupan dan dilaporkan
+//     sebagai hitungan sendiri. Alasan eksplisit dari pemanggil
+//     (mis. konflik identitas) MENANG atas klasifikasi feed — alasan
+//     yang terbukti per baris tidak ditimpa klasifikasi struktural.
+//     Rekonsiliasi: issued = settled + voids + not_started +
+//     awaiting_window + overdue_pending + unresolvable;
 //   - peluang terbit vs kenyataan = AVG(published_prob) vs AVG(hit) atas
 //     irisan terselesaikan yang punya published_prob, plus jumlah irisan
 //     dan jumlah baris warisan (hit/miss-saja, tanpa published_prob);
@@ -25,6 +35,8 @@ import { ensurePublicationSchema } from "./publication";
 
 export const SETTLEMENT_WINDOW_MS = 6 * 3_600_000;
 export const EMPTY_COHORT_LABEL = "Belum ada hasil";
+/** Kunci alasan untuk jatuh tempo terminal tanpa feed hasil (PR 2). */
+export const PENDING_REASON_TANPA_FEED = "tanpa_feed";
 
 export interface CohortFilter {
   source?: string;
@@ -54,7 +66,13 @@ export interface CohortStats {
   voids: number;
   not_started: number;
   awaiting_window: number;
+  /** Jatuh tempo yang MASIH bisa dinilai (feed hasil kompetisinya ada). */
   overdue_pending: number;
+  /**
+   * Jatuh tempo TERMINAL: kompetisi tanpa feed hasil — tidak akan
+   * pernah dinilai. Dilaporkan sendiri; TIDAK masuk `due`/cakupan.
+   */
+  unresolvable: number;
   overdue_by_reason: Record<string, number>;
   prob_slice: {
     /** Baris terselesaikan dengan published_prob tercatat. */
@@ -158,6 +176,9 @@ function kunciCacheCohort(f: CohortFilter, alasan: Map<number, string> | undefin
     f.from_utc ?? "",
     f.to_utc ?? "",
     sidikAlasan(alasan),
+    // Klasifikasi terminal bergantung pada registri liga + daftar divisi
+    // aktif; perubahan keduanya harus menggugurkan cache (PR 2).
+    sidikFeedHasil(),
   ].join("|");
 }
 
@@ -272,13 +293,16 @@ function hitungCohort(
 
   const pending = db
     .prepare(
-      `SELECT p.id, p.kickoff_utc
+      `SELECT p.id, p.kickoff_utc, p.competition_canonical_id
        FROM picks p
        LEFT JOIN pick_outcomes o ON o.pick_id = p.id
        LEFT JOIN pick_voids v ON v.pick_id = p.id
        ${where.length ? `WHERE ${where.join(" AND ")} AND` : "WHERE"} v.pick_id IS NULL AND o.hit IS NULL`,
     )
-    .all(...(params as never[])) as unknown as Pick<CohortRow, "id" | "kickoff_utc">[];
+    .all(...(params as never[])) as unknown as (Pick<
+    CohortRow,
+    "id" | "kickoff_utc"
+  > & { competition_canonical_id: string | null })[];
 
   const nowMs = Date.parse(opts.now_utc);
   const settled = agg.settled;
@@ -287,6 +311,7 @@ function hitungCohort(
   let notStarted = 0;
   let awaitingWindow = 0;
   let overdue = 0;
+  let unresolvable = 0;
   const overdueByReason: Record<string, number> = {};
   const sliceN = agg.slice_n;
   const sliceProbSum = agg.slice_prob_sum;
@@ -307,9 +332,22 @@ function hitungCohort(
     } else {
       // Kickoff tak terbaca juga dihitung jatuh tempo: tidak bisa dibuktikan
       // masih masa depan, dan menahannya dari penyebut menyembunyikan utang.
-      overdue++;
-      const reason = opts.pending_reasons?.get(r.id) ?? "unspecified";
-      overdueByReason[reason] = (overdueByReason[reason] ?? 0) + 1;
+      const reason = opts.pending_reasons?.get(r.id);
+      if (reason !== undefined) {
+        // Alasan eksplisit pemanggil (terbukti per baris) menang atas
+        // klasifikasi struktural feed (PR 2).
+        overdue++;
+        overdueByReason[reason] = (overdueByReason[reason] ?? 0) + 1;
+      } else if (statusFeedKompetisi(r.competition_canonical_id) === "tanpa-feed") {
+        // Terminal: kompetisinya tidak punya feed hasil — baris ini
+        // tidak akan pernah dinilai. Bukan utang penyebut cakupan.
+        unresolvable++;
+        overdueByReason[PENDING_REASON_TANPA_FEED] =
+          (overdueByReason[PENDING_REASON_TANPA_FEED] ?? 0) + 1;
+      } else {
+        overdue++;
+        overdueByReason["unspecified"] = (overdueByReason["unspecified"] ?? 0) + 1;
+      }
     }
   }
 
@@ -329,6 +367,7 @@ function hitungCohort(
     not_started: notStarted,
     awaiting_window: awaitingWindow,
     overdue_pending: overdue,
+    unresolvable,
     overdue_by_reason: overdueByReason,
     prob_slice: {
       n: sliceN,
