@@ -1,0 +1,129 @@
+{
+  "universe": {
+    "leagues": 63,
+    "rows_v1": 6676,
+    "rows_v2": 6683,
+    "rows_h": 6708
+  },
+  "penalty_selection": [
+    {
+      "penalty": 0,
+      "rho_from_v1": -0.02619999999999997,
+      "v2_mean_ll_gain": 0.00037224365518056374
+    },
+    {
+      "penalty": 25,
+      "rho_from_v1": -0.025999999999999968,
+      "v2_mean_ll_gain": 0.0003711782582568221
+    },
+    {
+      "penalty": 100,
+      "rho_from_v1": -0.02519999999999997,
+      "v2_mean_ll_gain": 0.0003666440023496738
+    },
+    {
+      "penalty": 400,
+      "rho_from_v1": -0.022399999999999965,
+      "v2_mean_ll_gain": 0.00034733784345441593
+    }
+  ],
+  "penalty_star": 0,
+  "rho": {
+    "for_v2": -0.02619999999999997,
+    "final": -0.03009999999999997
+  },
+  "holdout_h": {
+    "window": [
+      "2026-03-21",
+      "2026-11-07"
+    ],
+    "champion": {
+      "n": 6708,
+      "logloss": 1.013402262327106,
+      "loglossRaw": 1.013402262327106,
+      "brier": 0.6065786004794809,
+      "ece": 0.014917089622209138,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "candidate": {
+      "n": 6708,
+      "logloss": 1.0128875780035518,
+      "loglossRaw": 1.0128875780035518,
+      "brier": 0.6063386147423456,
+      "ece": 0.010900086073013994,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "delta_candidate_minus_champion": -0.0005146843235541709,
+    "bootstrap": {
+      "meanDelta": -0.0005146843235480418,
+      "bootstrapMean": -0.0005106562781820315,
+      "upperOneSided95": -0.0002055483719844325,
+      "ci95Low": -0.0008724123506364729,
+      "ci95High": -0.00013898226162804592,
+      "nMatches": 6708,
+      "nBlocks": 33,
+      "resamples": 5000,
+      "seed": 20261124
+    },
+    "anchor_champion_ll_locked": 1.0134022623271062,
+    "anchor_ok": true
+  },
+  "secondary_h": {
+    "ou25_binary_logloss": {
+      "n": 6708,
+      "champion": 0.6791317250337371,
+      "candidate": 0.6791317250337371,
+      "delta": 0
+    },
+    "btts_binary_logloss": {
+      "n": 6708,
+      "champion": 0.6870212214060198,
+      "candidate": 0.6869462312374802,
+      "delta": -0.0000749901685396237
+    },
+    "draw_share": {
+      "champion_predicted": 0.23597379477075367,
+      "candidate_predicted": 0.24238226888035252,
+      "actual": 0.25193798449612403
+    }
+  },
+  "gate": {
+    "machine_decision": "retain",
+    "brief_decision": "retain",
+    "status": "RETAIN_CHAMPION",
+    "checks": [
+      {
+        "id": "sample_floor",
+        "observed": 1.65,
+        "threshold": 1,
+        "pass": true
+      },
+      {
+        "id": "mean_delta",
+        "observed": -0.0005146843235480418,
+        "threshold": -0.005,
+        "pass": false
+      },
+      {
+        "id": "bootstrap_upper",
+        "observed": -0.0002055483719844325,
+        "threshold": 0,
+        "pass": true
+      },
+      {
+        "id": "coverage_drop",
+        "observed": 0,
+        "threshold": 0.02,
+        "pass": true
+      },
+      {
+        "id": "brier_increase",
+        "observed": -0.00023998573713523985,
+        "threshold": 0.002,
+        "pass": true
+      }
+    ]
+  }
+}

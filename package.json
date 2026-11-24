@@ -31,7 +31,7 @@
     "lint": "eslint",
     "lint:gate": "node scripts/lint-gate.mjs",
     "start": "next start -p 3101",
-    "test:quant": "tsx tests/test-quant.ts && tsx tests/test-model.ts && tsx tests/test-model-artifacts.ts && tsx tests/test-experiment-stats.ts && tsx tests/test-evaluator-kronologis.ts && tsx tests/test-kandidat-q1.ts && tsx tests/test-promote-gate.ts && tsx tests/test-q0-baselines.ts",
+    "test:quant": "tsx tests/test-quant.ts && tsx tests/test-model.ts && tsx tests/test-model-artifacts.ts && tsx tests/test-experiment-stats.ts && tsx tests/test-evaluator-kronologis.ts && tsx tests/test-kandidat-q1.ts && tsx tests/test-promote-gate.ts && tsx tests/test-q0-baselines.ts && tsx tests/test-q2-rho.ts",
     "test:evaluator": "tsx tests/test-evaluator-kronologis.ts",
     "test:kandidat": "tsx tests/test-kandidat-q1.ts",
     "test:data": "tsx tests/test-data.ts && tsx tests/test-identity.ts && tsx tests/test-publication.ts && tsx tests/test-tickets.ts && tsx tests/test-resolver-score.ts && tsx tests/test-slip-stats-pr2.ts",

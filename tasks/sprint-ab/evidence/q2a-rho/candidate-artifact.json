@@ -1,0 +1,43 @@
+{
+  "candidate_id": "q2a-dc-rho-pooled-v1",
+  "hypothesis": "Q2a — satu ρ Dixon–Coles terpool di atas λ/μ champion (brief P2 Model Quant)",
+  "champion": "2.0-dixon-coles-mle+kfit10+hl365+rho:zero+js2 (Level B, evaluator PR 3, as-of)",
+  "penalty_grid": [
+    0,
+    25,
+    100,
+    400
+  ],
+  "penalty_star": 0,
+  "penalty_table": [
+    {
+      "penalty": 0,
+      "rho_from_v1": -0.02619999999999997,
+      "v2_mean_ll_gain": 0.00037224365518056374
+    },
+    {
+      "penalty": 25,
+      "rho_from_v1": -0.025999999999999968,
+      "v2_mean_ll_gain": 0.0003711782582568221
+    },
+    {
+      "penalty": 100,
+      "rho_from_v1": -0.02519999999999997,
+      "v2_mean_ll_gain": 0.0003666440023496738
+    },
+    {
+      "penalty": 400,
+      "rho_from_v1": -0.022399999999999965,
+      "v2_mean_ll_gain": 0.00034733784345441593
+    }
+  ],
+  "rho_for_v2": -0.02619999999999997,
+  "rho_final": -0.03009999999999997,
+  "trained_on": {
+    "v1_rows": 6676,
+    "v2_rows": 6683,
+    "refit_rows": 13359
+  },
+  "abstain_policy": "identik dengan fallback champion",
+  "artifact_sha256": "921d5f02b74e5787d64fb2b6400d9079335de8858a009eda88bb7ac4584d2056"
+}

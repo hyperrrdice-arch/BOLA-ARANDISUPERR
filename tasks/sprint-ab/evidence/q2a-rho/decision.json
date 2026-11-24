@@ -1,0 +1,55 @@
+{
+  "decision": "retain",
+  "status": "RETAIN_CHAMPION",
+  "meaning": "Gerbang PR 4 GAGAL pada holdout H — champion dipertahankan; ρ terpool tidak layak lanjut.",
+  "gate_checks": [
+    {
+      "id": "sample_floor",
+      "observed": 1.65,
+      "threshold": 1,
+      "pass": true
+    },
+    {
+      "id": "mean_delta",
+      "observed": -0.0005146843235480418,
+      "threshold": -0.005,
+      "pass": false
+    },
+    {
+      "id": "bootstrap_upper",
+      "observed": -0.0002055483719844325,
+      "threshold": 0,
+      "pass": true
+    },
+    {
+      "id": "coverage_drop",
+      "observed": 0,
+      "threshold": 0.02,
+      "pass": true
+    },
+    {
+      "id": "brier_increase",
+      "observed": -0.00023998573713523985,
+      "threshold": 0.002,
+      "pass": true
+    }
+  ],
+  "headline": {
+    "n": 6708,
+    "blocks": 33,
+    "champion_logloss": 1.013402262327106,
+    "candidate_logloss": 1.0128875780035518,
+    "mean_delta": -0.0005146843235480418,
+    "bootstrap_upper_one_sided_95": -0.0002055483719844325,
+    "ci95": [
+      -0.0008724123506364729,
+      -0.00013898226162804592
+    ],
+    "coverage_champion": 1,
+    "coverage_candidate": 1,
+    "brier_champion": 0.6065786004794809,
+    "brier_candidate": 0.6063386147423456,
+    "rho_final": -0.03009999999999997
+  },
+  "promotion_performed": false
+}
