@@ -66,6 +66,12 @@ import {
   sourceOfMatchId,
   type ObservationOutcome,
 } from "../lib/identity/fixture-resolver";
+import {
+  INGEST_SOURCE_FOOTBALL_DATA,
+  ensureIngestSchema,
+  recordIngestAttempt,
+  recordSuccessfulIngest,
+} from "../lib/feeds/ingest-freshness";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -133,6 +139,12 @@ async function main() {
   // Store identitas persisten (K1) hidup di dataset; skema aditif +
   // idempoten, dibuat sebelum jalur hasil/fixture menulis apa pun.
   if (!DRY_RUN) ensureIdentitySchema(ds);
+  // Instrumentasi kesegaran (Item 6): skema aditif available_at +
+  // ingest_status; upaya ingest dicatat di awal, keberhasilan di akhir.
+  if (!DRY_RUN) {
+    ensureIngestSchema(ds);
+    recordIngestAttempt(ds, INGEST_SOURCE_FOOTBALL_DATA, nowIso);
+  }
 
   // --- Peta resolusi tim: nama ternormalisasi → team_id yang ada.
   const teamRows = ds.prepare("SELECT team_id, name FROM teams").all() as unknown as {
@@ -239,8 +251,8 @@ async function main() {
     "INSERT OR IGNORE INTO teams (team_id, name, short_name, country, stadium, updated_at) VALUES (?, ?, NULL, ?, NULL, ?)",
   );
   const insMatch = ds.prepare(
-    `INSERT OR IGNORE INTO matches (match_id, competition_id, season, utc_date, status, home_team_id, away_team_id, home_score, away_score, referee_name, updated_at)
-     VALUES (?, ?, ?, ?, 'finished', ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR IGNORE INTO matches (match_id, competition_id, season, utc_date, status, home_team_id, away_team_id, home_score, away_score, referee_name, updated_at, available_at)
+     VALUES (?, ?, ?, ?, 'finished', ?, ?, ?, ?, ?, ?, ?)`,
   );
   const insLog = ds.prepare(
     `INSERT OR IGNORE INTO team_match_logs (
@@ -506,6 +518,10 @@ async function main() {
                 insMatch.run(
                   fdId, div, SEASON_LABEL, row.kickoffUtc,
                   home.teamId, away.teamId, row.homeGoals, row.awayGoals, row.referee, nowIso,
+                  // available_at (Item 6): cap saat hasil ini PERTAMA masuk
+                  // store lokal. INSERT OR IGNORE → baris lama tak berubah;
+                  // baris historis tetap NULL (tidak direka).
+                  nowIso,
                 );
                 // Telemetri: 2 baris, hanya untuk match yang barusan di-insert.
                 const sides = [
@@ -698,6 +714,15 @@ async function main() {
   }
 
   console.log("TALLY " + JSON.stringify({ ...totals, unmatched_teams: unmatched.length, per_division: summaries, fixtures: fixtureSummary }));
+  // Item 6: run mencapai titik ini = ingest berhasil.
+  if (!DRY_RUN) {
+    recordSuccessfulIngest(
+      ds,
+      INGEST_SOURCE_FOOTBALL_DATA,
+      nowIso,
+      `results_inserted=${totals.results_inserted} fixtures_inserted=${fixtureSummary.inserted}`,
+    );
+  }
   ds.close();
   up.close();
 }
