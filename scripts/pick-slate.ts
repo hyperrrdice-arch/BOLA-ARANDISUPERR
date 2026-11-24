@@ -16,7 +16,8 @@
  *     kegagalan menulis paket = fixture gugur dengan alasan eksplisit
  *     (fail-closed: kaki tanpa rumah provenance tidak diterbitkan).
  *   - ledger data/picks.db: kaki fixture live ditulis dengan source
- *     'live-run' (flag --no-ledger untuk menonaktifkan), package_id
+ *     'live-run' (flag --no-ledger DITOLAK sejak Item 24 — ia tetap
+ *     menulis paket resmi tanpa provenance ledger), package_id
  *     menunjuk baris paket asalnya. Fixture yang sudah
  *     pernah dicatat sebagai live-run dilewati (idempoten per match_id di
  *     level driver — skema ledger memang tanpa constraint unik untuk
@@ -68,7 +69,7 @@
  * secara dinamis → klien API throw sebelum fetch.
  *
  * Pakai:
- *   NODE_OPTIONS="--env-file=.env.local" npx tsx scripts/pick-slate.ts [--hours 48] [--no-ledger] [--limit N]
+ *   NODE_OPTIONS="--env-file=.env.local" npx tsx scripts/pick-slate.ts [--hours 48] [--limit N]
  */
 
 import fs from "node:fs";
@@ -247,7 +248,17 @@ async function main() {
   const limit = args.includes("--limit")
     ? Number(args[args.indexOf("--limit") + 1]) || Infinity
     : Infinity;
-  const writeLedger = !args.includes("--no-ledger");
+  // Item 24 (Sprint A+B): --no-ledger DITOLAK KERAS. Tanpa ledger, run
+  // ini tetap menulis paket resmi ke store paket (cabang paket-saja) —
+  // paket resmi tanpa rumah provenance di ledger adalah celah yang
+  // ditutup brief hal. 14. Tidak ada mode tulis-paket-tanpa-ledger.
+  if (args.includes("--no-ledger")) {
+    console.error(
+      "[pick-slate] ERROR: flag --no-ledger ditolak — mode tanpa ledger tetap menulis paket resmi tanpa provenance ledger (celah Item 24). Jalankan tanpa flag itu; tidak ada file yang ditulis.",
+    );
+    process.exit(1);
+  }
+  const writeLedger = true;
 
   // --- Env: muat .env.local lalu kosongkan kunci API SEBELUM impor pipeline.
   try {

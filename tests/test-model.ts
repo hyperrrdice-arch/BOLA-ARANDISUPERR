@@ -535,12 +535,74 @@ try {
     fs.readFileSync(activePath, "utf8") === activeBefore,
   );
 
-  // 6) Promosi CLI: kandidat sah (latih sama) + paritas → promote.
-  const promoteOk = runScript(env, "scripts/promote-model.ts", [
+  // 6) Promosi CLI (Item 24 fail-closed): tanpa bukti lengkap → reject;
+  // kandidat sah (latih sama) + paritas + bukti lengkap → promote.
+  const candManifest = JSON.parse(fs.readFileSync(candidatePath, "utf8")) as {
+    contentHash: string;
+    ratingsHash: string;
+    modelVersion: string;
+  };
+  const promoteNoEvidence = runScript(env, "scripts/promote-model.ts", [
     `--data-dir=${env.dataDir}`, `--parity-file=${parityPath}`,
   ]);
   suite.check(
-    "gerbang CLI: kandidat sah terpromosi (exit 0)",
+    "gerbang CLI: tanpa bukti promosi ditolak fail-closed (exit 2)",
+    promoteNoEvidence.code === 2 &&
+      promoteNoEvidence.stdout.includes("decision_missing") &&
+      fs.readFileSync(activePath, "utf8") === activeBefore,
+    `code=${promoteNoEvidence.code} out=${promoteNoEvidence.stdout.slice(0, 200)}`,
+  );
+  const evDir = path.join(env.root, "promosi-bukti");
+  fs.mkdirSync(evDir, { recursive: true });
+  const decisionPath = path.join(evDir, "decision.json");
+  fs.writeFileSync(
+    decisionPath,
+    JSON.stringify({
+      decision: "eligible_for_shadow",
+      gate_checks: [
+        { id: "sample_floor", observed: 1.65, threshold: 1, pass: true },
+        { id: "mean_delta", observed: -0.006, threshold: -0.005, pass: true },
+        { id: "bootstrap_upper", observed: -0.001, threshold: 0, pass: true },
+        { id: "coverage_drop", observed: 0, threshold: 0.02, pass: true },
+        { id: "brier_increase", observed: 0.0001, threshold: 0.002, pass: true },
+      ],
+      headline: { n: 6708, coverage_champion: 1, coverage_candidate: 1 },
+      promotion_performed: false,
+    }),
+  );
+  const runManifestPath = path.join(evDir, "run-manifest.json");
+  fs.writeFileSync(
+    runManifestPath,
+    JSON.stringify({
+      tool: "tests/test-model.ts (sandbox Item 24)",
+      promotion: {
+        candidate_content_hash: candManifest.contentHash,
+        candidate_ratings_hash: candManifest.ratingsHash,
+        candidate_model_version: candManifest.modelVersion,
+        input_hashes: { matches: "sha256:a9ce4587" },
+        coverage: { candidate: 1, champion: 1 },
+      },
+    }),
+  );
+  const approvalPath = path.join(evDir, "approval.json");
+  fs.writeFileSync(
+    approvalPath,
+    JSON.stringify({
+      approved: true,
+      approved_by: "Arandi (pemilik)",
+      approved_at_utc: "2026-11-24T15:00:00.000Z",
+      candidate_content_hash: candManifest.contentHash,
+    }),
+  );
+  const rollbackPath = path.join(evDir, "rollback.md");
+  fs.writeFileSync(rollbackPath, "# Rollback: pulihkan manifest aktif dari backup predeploy.\n");
+  const promoteOk = runScript(env, "scripts/promote-model.ts", [
+    `--data-dir=${env.dataDir}`, `--parity-file=${parityPath}`,
+    `--decision-file=${decisionPath}`, `--run-manifest=${runManifestPath}`,
+    `--owner-approval=${approvalPath}`, `--rollback-plan=${rollbackPath}`,
+  ]);
+  suite.check(
+    "gerbang CLI: kandidat sah + bukti lengkap terpromosi (exit 0)",
     promoteOk.code === 0 && promoteOk.stdout.includes('"decision": "promote"'),
     `code=${promoteOk.code} out=${promoteOk.stdout.slice(0, 200)} err=${promoteOk.stderr.slice(0, 200)}`,
   );

@@ -286,8 +286,52 @@ function main(): void {
     const hashB = ratingsHashOf(rawB);
     fs.writeFileSync(loosePath, rawB);
     runScript(env, "scripts/build-model-manifest.ts", [`--data-dir=${env.dataDir}`]);
+    // Item 24: promosi kini fail-closed — sertakan bukti lengkap yang
+    // mengikat kandidat B (decision lolos gate + run-manifest + approval
+    // pemilik + rollback). Tanpa bukti, gerbang menolak (diuji di
+    // test-promote-gate.ts).
+    const candB = JSON.parse(
+      fs.readFileSync(path.join(env.dataDir, "model-manifest.candidate.json"), "utf8"),
+    ) as { contentHash: string; ratingsHash: string; modelVersion: string };
+    const evBDir = path.join(env.root, "bukti-b");
+    fs.mkdirSync(evBDir, { recursive: true });
+    const decB = path.join(evBDir, "decision.json");
+    fs.writeFileSync(decB, JSON.stringify({
+      decision: "eligible_for_shadow",
+      gate_checks: [
+        { id: "sample_floor", observed: 1.65, threshold: 1, pass: true },
+        { id: "mean_delta", observed: -0.006, threshold: -0.005, pass: true },
+        { id: "bootstrap_upper", observed: -0.001, threshold: 0, pass: true },
+        { id: "coverage_drop", observed: 0, threshold: 0.02, pass: true },
+        { id: "brier_increase", observed: 0.0001, threshold: 0.002, pass: true },
+      ],
+      headline: { n: 6708, coverage_champion: 1, coverage_candidate: 1 },
+      promotion_performed: false,
+    }));
+    const rmB = path.join(evBDir, "run-manifest.json");
+    fs.writeFileSync(rmB, JSON.stringify({
+      tool: "tests/test-model-artifacts.ts (sandbox Item 24)",
+      promotion: {
+        candidate_content_hash: candB.contentHash,
+        candidate_ratings_hash: candB.ratingsHash,
+        candidate_model_version: candB.modelVersion,
+        input_hashes: { matches: "sha256:a9ce4587" },
+        coverage: { candidate: 1, champion: 1 },
+      },
+    }));
+    const apB = path.join(evBDir, "approval.json");
+    fs.writeFileSync(apB, JSON.stringify({
+      approved: true,
+      approved_by: "Arandi (pemilik)",
+      approved_at_utc: "2026-11-24T15:00:00.000Z",
+      candidate_content_hash: candB.contentHash,
+    }));
+    const rbB = path.join(evBDir, "rollback.md");
+    fs.writeFileSync(rbB, "# Rollback: pulihkan manifest A dari backup predeploy.\n");
     const promoteOk = runScript(env, "scripts/promote-model.ts", [
       `--data-dir=${env.dataDir}`, `--parity-file=${parityPath}`,
+      `--decision-file=${decB}`, `--run-manifest=${rmB}`,
+      `--owner-approval=${apB}`, `--rollback-plan=${rbB}`,
     ]);
     suite.check(
       "B-promosi: gerbang resmi mempromosikan B (exit 0)",
