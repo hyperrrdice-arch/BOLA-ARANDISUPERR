@@ -1,7 +1,9 @@
 /**
  * PR 2 — probe ukur sebelum/sesudah pada SALINAN produksi.
- * Dijalankan sebagai subprocess dengan cwd = tasks/pr2/staging (root data
- * salinan), jam beku NOW. Mencetak satu baris "PROBE_JSON " berisi:
+ * Dijalankan sebagai subprocess dengan cwd = root data salinan
+ * (~/workspace/coding/pr2-staging-data — salinan DB produksi di luar
+ * pohon repo, pola bukti migrasi K1/K2), jam beku NOW. Mencetak satu
+ * baris "PROBE_JSON " berisi:
  *  - cohort: cohortStats seri live-run (filter baku halaman /bukti),
  *  - per_kelas: cohortStats per grade (irisan prob_slice basis terbit),
  *  - ledger: ledgerStats().by_grade + live_by_grade_gate (permukaan data.ts),

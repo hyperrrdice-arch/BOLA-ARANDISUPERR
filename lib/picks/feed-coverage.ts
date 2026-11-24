@@ -16,14 +16,18 @@ import { FD_DIVISION_CODES } from "../feeds/football-data";
 // Kompetisi kanonik dinyatakan BERFEED bila registri liga
 // (data/league-canonical.json) memetakannya ke salah satu divisi aktif
 // itu lewat alias `legacy-div` — atau ID kanoniknya sendiri adalah kode
-// divisi (mis. SC1). Kompetisi yang TERDAFTAR tetapi tanpa pemetaan itu
-// tidak punya jalur hasil: pick-nya yang jatuh tempo tidak akan pernah
-// settle lewat jalur mana pun yang hidup hari ini.
+// divisi (mis. SC1). Kompetisi yang registri kenal SUMBER-sumbernya
+// (punya alias sistem apa pun) tetapi tidak satu pun terpetakan ke
+// divisi aktif tidak punya jalur hasil: pick-nya yang jatuh tempo tidak
+// akan pernah settle lewat jalur mana pun yang hidup hari ini. (Di
+// registri produksi 250 liga: 22 berfeed, 228 bersumber-tanpa-feed,
+// 0 tanpa alias sama sekali.)
 //
 // Klasifikasi ini KONSERVATIF dan reversibel:
 //  - registri hilang/tidak terbaca → semua "tidak-diketahui" (klasifikasi
 //    terminal nonaktif; perilaku lama persis — penting untuk sandbox tes);
-//  - ID kompetisi tidak dikenal registri → "tidak-diketahui", BUKAN
+//  - ID kompetisi tidak dikenal registri, ATAU dikenal tetapi registri
+//    tidak mencatat satu pun alias sumbernya → "tidak-diketahui", BUKAN
 //    "tanpa-feed": yang tidak bisa dibuktikan tidak ditebak;
 //  - klasifikasi dihitung saat baca dari registri + daftar divisi aktif,
 //    jadi bila feed bertambah, baris yang sama otomatis kembali pending.
@@ -40,7 +44,8 @@ interface RegistriLiga {
 
 interface KeadaanFeed {
   sig: string;
-  terdaftar: Set<string>;
+  /** Kompetisi yang registri kenal sumbernya (≥1 alias sistem tercatat). */
+  bersumber: Set<string>;
   berfeed: Set<string>;
 }
 
@@ -56,7 +61,7 @@ function muatKeadaanFeed(): KeadaanFeed {
     /* registri absen → sig tetap "absen" */
   }
   if (cache && cache.sig === sig) return cache;
-  const terdaftar = new Set<string>();
+  const bersumber = new Set<string>();
   const berfeed = new Set<string>();
   if (sig !== "absen") {
     try {
@@ -64,8 +69,9 @@ function muatKeadaanFeed(): KeadaanFeed {
       const divisiAktif = new Set(FD_DIVISION_CODES);
       for (const lg of reg.leagues ?? []) {
         if (!lg || typeof lg.canonical_id !== "string") continue;
-        terdaftar.add(lg.canonical_id);
-        const divAlias = (lg.aliases ?? []).some(
+        const aliases = lg.aliases ?? [];
+        if (aliases.length > 0) bersumber.add(lg.canonical_id);
+        const divAlias = aliases.some(
           (a) => a.system === "legacy-div" && divisiAktif.has(a.id),
         );
         if (divAlias || divisiAktif.has(lg.canonical_id)) {
@@ -74,20 +80,22 @@ function muatKeadaanFeed(): KeadaanFeed {
       }
     } catch {
       /* registri rusak → kedua himpunan kosong: semua tidak-diketahui */
-      terdaftar.clear();
+      bersumber.clear();
       berfeed.clear();
     }
   }
-  cache = { sig, terdaftar, berfeed };
+  cache = { sig, bersumber, berfeed };
   return cache;
 }
 
 /**
  * Status feed hasil satu kompetisi kanonik:
- *  - "berfeed"       — terdaftar DAN terpetakan ke divisi hasil aktif;
- *  - "tanpa-feed"    — terdaftar TETAPI tidak terpetakan: tidak ada jalur
+ *  - "berfeed"       — terpetakan ke divisi hasil aktif;
+ *  - "tanpa-feed"    — registri kenal sumber-sumbernya TETAPI tidak satu
+ *                      pun terpetakan ke divisi aktif: tidak ada jalur
  *                      hasil yang hidup untuk kompetisi ini;
- *  - "tidak-diketahui" — ID null/tidak terdaftar/registri tak terbaca.
+ *  - "tidak-diketahui" — ID null/tidak terdaftar/tanpa alias sumber/
+ *                      registri tak terbaca.
  */
 export function statusFeedKompetisi(
   competitionCanonicalId: string | null | undefined,
@@ -95,12 +103,12 @@ export function statusFeedKompetisi(
   if (!competitionCanonicalId) return "tidak-diketahui";
   const k = muatKeadaanFeed();
   if (k.berfeed.has(competitionCanonicalId)) return "berfeed";
-  if (k.terdaftar.has(competitionCanonicalId)) return "tanpa-feed";
+  if (k.bersumber.has(competitionCanonicalId)) return "tanpa-feed";
   return "tidak-diketahui";
 }
 
 /** Sidik keadaan feed (untuk kunci cache statistik cohort). */
 export function sidikFeedHasil(): string {
   const k = muatKeadaanFeed();
-  return `${k.sig}#${k.berfeed.size}/${k.terdaftar.size}`;
+  return `${k.sig}#${k.berfeed.size}/${k.bersumber.size}`;
 }
