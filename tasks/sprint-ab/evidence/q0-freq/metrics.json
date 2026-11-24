@@ -1,0 +1,137 @@
+{
+  "baseline": "q0-freq",
+  "universe": {
+    "leagues": 63
+  },
+  "folds": {
+    "V1": {
+      "baseline": {
+        "n": 6676,
+        "logloss": 1.0699004737052011,
+        "loglossRaw": 1.0699004737052011,
+        "brier": 0.6478044377554385,
+        "ece": 0.006228698087976693,
+        "fallbacks": 0,
+        "coverage": 1
+      },
+      "champion": {
+        "n": 6676,
+        "logloss": 1.0148612786348687,
+        "loglossRaw": 1.0148612786348687,
+        "brier": 0.60712997082557,
+        "ece": 0.015262679575454317,
+        "fallbacks": 0,
+        "coverage": 1
+      }
+    },
+    "V2": {
+      "baseline": {
+        "n": 6683,
+        "logloss": 1.0715464329348086,
+        "loglossRaw": 1.0715464329348086,
+        "brier": 0.6485062426550798,
+        "ece": 0.008961082148995303,
+        "fallbacks": 0,
+        "coverage": 1
+      },
+      "champion": {
+        "n": 6683,
+        "logloss": 1.0236573072663995,
+        "loglossRaw": 1.0236573072663995,
+        "brier": 0.6139003809645489,
+        "ece": 0.01651608099164931,
+        "fallbacks": 0,
+        "coverage": 1
+      }
+    },
+    "H": {
+      "baseline": {
+        "n": 6708,
+        "logloss": 1.070220434436695,
+        "loglossRaw": 1.070220434436695,
+        "brier": 0.6478949982071901,
+        "ece": 0.009514869183049621,
+        "fallbacks": 0,
+        "coverage": 1
+      },
+      "champion": {
+        "n": 6708,
+        "logloss": 1.0134022623271062,
+        "loglossRaw": 1.0134022623271062,
+        "brier": 0.6065786004794814,
+        "ece": 0.0149170896222091,
+        "fallbacks": 0,
+        "coverage": 1
+      }
+    }
+  },
+  "holdout_h": {
+    "baseline": {
+      "n": 6708,
+      "logloss": 1.070220434436695,
+      "loglossRaw": 1.070220434436695,
+      "brier": 0.6478949982071901,
+      "ece": 0.009514869183049621,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "champion": {
+      "n": 6708,
+      "logloss": 1.0134022623271062,
+      "loglossRaw": 1.0134022623271062,
+      "brier": 0.6065786004794814,
+      "ece": 0.0149170896222091,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "delta_baseline_minus_champion": 0.05681817210958884,
+    "bootstrap": {
+      "meanDelta": 0.05681817210956531,
+      "bootstrapMean": 0.05662801587260813,
+      "upperOneSided95": 0.06189750705463311,
+      "ci95Low": 0.04980207171053467,
+      "ci95High": 0.06287379323756373,
+      "nMatches": 6708,
+      "nBlocks": 33,
+      "resamples": 5000,
+      "seed": 20261124
+    },
+    "gate_readout_not_a_candidate": {
+      "decision": "retain",
+      "checks": [
+        {
+          "id": "sample_floor",
+          "observed": 1.65,
+          "threshold": 1,
+          "pass": true
+        },
+        {
+          "id": "mean_delta",
+          "observed": 0.05681817210956531,
+          "threshold": -0.005,
+          "pass": false
+        },
+        {
+          "id": "bootstrap_upper",
+          "observed": 0.06189750705463311,
+          "threshold": 0,
+          "pass": false
+        },
+        {
+          "id": "coverage_drop",
+          "observed": 0,
+          "threshold": 0.02,
+          "pass": true
+        },
+        {
+          "id": "brier_increase",
+          "observed": 0.041316397727708676,
+          "threshold": 0.002,
+          "pass": false
+        }
+      ]
+    },
+    "anchor_champion_ll_locked": 1.0134022623271062,
+    "anchor_ok": true
+  }
+}

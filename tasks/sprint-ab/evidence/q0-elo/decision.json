@@ -1,0 +1,21 @@
+{
+  "decision": "baseline_only",
+  "meaning": "Q0 adalah lantai pembanding (brief hal. 10) — bukan kandidat promosi; tidak ada gerbang yang dilalui atau gagal. Angka Δ vs champion menunjukkan jarak lantai ke champion pada holdout H yang sama.",
+  "headline": {
+    "n": 6708,
+    "blocks": 33,
+    "champion_logloss": 1.0134022623271062,
+    "baseline_logloss": 1.036013062578069,
+    "mean_delta": 0.022610800250966682,
+    "bootstrap_upper_one_sided_95": 0.028179624352421797,
+    "ci95": [
+      0.014858199573336275,
+      0.029076511108260095
+    ],
+    "coverage_champion": 1,
+    "coverage_baseline": 1,
+    "brier_champion": 0.6065786004794814,
+    "brier_baseline": 0.6217339960799416
+  },
+  "promotion_performed": false
+}

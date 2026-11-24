@@ -1,0 +1,163 @@
+{
+  "tool": "scripts/evaluate-q0-baselines.ts",
+  "candidate": "q0-freq",
+  "git_head": "d3b0da97d384e72e6b17f7b5d2fdca6fb7d3d2ca",
+  "generated_at": "2026-11-24T15:32:13.188Z",
+  "data_dir": "/home/hatch/workspace/coding/app-football/data",
+  "dataset": {
+    "file": "thestats_dataset.db",
+    "size_bytes": 3041206272,
+    "mtime": "2026-11-24T09:31:59.896Z"
+  },
+  "inputs": {
+    "universe_matches": 69065,
+    "compavg_matches": 71691,
+    "team_logs": 83426,
+    "matches_hash": "sha256:a9ce4587e3a7247e1c9910cce9a1ce3685f3a4594d26c295daebfac7ddf97a7b",
+    "logs_hash": "sha256:7c3b3068c60ce0a4737c3d8903a8df2405e76472ca3e45cb4887b47d20b30eed",
+    "design_sha256": "fb6748352c33992e5209a48486ce577e2e2476cd074071c06345a4ea147818b4"
+  },
+  "config": {
+    "champion": {
+      "kfit": 10,
+      "halfLifeDays": 365,
+      "rho": 0,
+      "kappaScale": 2,
+      "compAvgMode": "as-of"
+    },
+    "bootstrap": {
+      "resamples": 5000,
+      "seed": 20261124
+    }
+  },
+  "anchors": {
+    "holdout_champion_ok": true
+  },
+  "guard": {
+    "before": {
+      "model-manifest.json": {
+        "sha256": "47c6a62cb521a8b27a81177d67a542b9365383ada82f4a8f58e7fd85b9ce0bce"
+      },
+      "model-artifacts/ratings-1ceb25309f6d16169ecb172282894a84b42a433a2e5ae41d62753912b7d756a9.json": {
+        "sha256": "1ceb25309f6d16169ecb172282894a84b42a433a2e5ae41d62753912b7d756a9"
+      },
+      "model-artifacts/ratings-21a2da0bb120f51f8b3d77439b95c065c7fcb2302991f01eaae48f09e1247a30.json": {
+        "sha256": "21a2da0bb120f51f8b3d77439b95c065c7fcb2302991f01eaae48f09e1247a30"
+      },
+      "model-artifacts/ratings-5855c19edc531ac1f34e3d7e4a0ea5863b53d4377203d333f1f74a1cc4b64b6a.json": {
+        "sha256": "5855c19edc531ac1f34e3d7e4a0ea5863b53d4377203d333f1f74a1cc4b64b6a"
+      },
+      "model-artifacts/ratings-5902888042b0a5292a677550eee10894facd71dc8d921fdfd4d1d10e8142a2ce.json": {
+        "sha256": "5902888042b0a5292a677550eee10894facd71dc8d921fdfd4d1d10e8142a2ce"
+      },
+      "model-artifacts/ratings-7b3037365dccbd9c3598e8d98cf397b27988c4bb612fa2eef10fe83148589362.json": {
+        "sha256": "7b3037365dccbd9c3598e8d98cf397b27988c4bb612fa2eef10fe83148589362"
+      },
+      "model-artifacts/ratings-7e71e88765eb9b414938e6adac8c78ce513e9e1cae65e670f9f5b848afa49a36.json": {
+        "sha256": "7e71e88765eb9b414938e6adac8c78ce513e9e1cae65e670f9f5b848afa49a36"
+      },
+      "model-artifacts/ratings-8630e4b2a3d97144ab905e149ec62e9ddf7ddc60f3412120b8fdddf95935bf8b.json": {
+        "sha256": "8630e4b2a3d97144ab905e149ec62e9ddf7ddc60f3412120b8fdddf95935bf8b"
+      },
+      "model-artifacts/ratings-8758f23eeb26ca994c3de40dbd9cf21ff6f25a945e3c89bb084637c4e13d8781.json": {
+        "sha256": "8758f23eeb26ca994c3de40dbd9cf21ff6f25a945e3c89bb084637c4e13d8781"
+      },
+      "model-artifacts/ratings-88de9346f980d0eed25334ddff34d0166930bb91115e367c93009ce8878cb113.json": {
+        "sha256": "88de9346f980d0eed25334ddff34d0166930bb91115e367c93009ce8878cb113"
+      },
+      "model-artifacts/ratings-8a790aeaa4e54fdd43dc290dd229f1f8aca24e5ecbe25bc29666eeab93e648e8.json": {
+        "sha256": "8a790aeaa4e54fdd43dc290dd229f1f8aca24e5ecbe25bc29666eeab93e648e8"
+      },
+      "model-artifacts/ratings-8e22d7ff2eeb269b59d44372c7979e2ac108c502124bbf587c5d52eceb69065b.json": {
+        "sha256": "8e22d7ff2eeb269b59d44372c7979e2ac108c502124bbf587c5d52eceb69065b"
+      },
+      "model-artifacts/ratings-b9cebee4e3d21060effacb55ddfaba62526bda799678f5850b5dae05a02d9655.json": {
+        "sha256": "b9cebee4e3d21060effacb55ddfaba62526bda799678f5850b5dae05a02d9655"
+      },
+      "model-artifacts/ratings-d6ed8eb393ecf9b2ae2d08c699d993dc590f39b5e4ce9a2b7565d0269c90578c.json": {
+        "sha256": "d6ed8eb393ecf9b2ae2d08c699d993dc590f39b5e4ce9a2b7565d0269c90578c"
+      },
+      "model-artifacts/ratings-f5f883206d253ebad7d28d39112acdd21765fe04d87e7d246b598ce14dd17eaa.json": {
+        "sha256": "f5f883206d253ebad7d28d39112acdd21765fe04d87e7d246b598ce14dd17eaa"
+      },
+      "model-artifacts/ratings-fc8bfd0f22d73faafbf064820ccd3af5e7dc26b470933a7a27c359aa5043d2e9.json": {
+        "sha256": "fc8bfd0f22d73faafbf064820ccd3af5e7dc26b470933a7a27c359aa5043d2e9"
+      },
+      "picks.db": {
+        "size_bytes": 58826752,
+        "mtime": "2026-11-23T21:56:30.381Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 89915392,
+        "mtime": "2026-11-24T09:34:14.734Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041206272,
+        "mtime": "2026-11-24T09:31:59.896Z"
+      }
+    },
+    "after": {
+      "model-manifest.json": {
+        "sha256": "47c6a62cb521a8b27a81177d67a542b9365383ada82f4a8f58e7fd85b9ce0bce"
+      },
+      "model-artifacts/ratings-1ceb25309f6d16169ecb172282894a84b42a433a2e5ae41d62753912b7d756a9.json": {
+        "sha256": "1ceb25309f6d16169ecb172282894a84b42a433a2e5ae41d62753912b7d756a9"
+      },
+      "model-artifacts/ratings-21a2da0bb120f51f8b3d77439b95c065c7fcb2302991f01eaae48f09e1247a30.json": {
+        "sha256": "21a2da0bb120f51f8b3d77439b95c065c7fcb2302991f01eaae48f09e1247a30"
+      },
+      "model-artifacts/ratings-5855c19edc531ac1f34e3d7e4a0ea5863b53d4377203d333f1f74a1cc4b64b6a.json": {
+        "sha256": "5855c19edc531ac1f34e3d7e4a0ea5863b53d4377203d333f1f74a1cc4b64b6a"
+      },
+      "model-artifacts/ratings-5902888042b0a5292a677550eee10894facd71dc8d921fdfd4d1d10e8142a2ce.json": {
+        "sha256": "5902888042b0a5292a677550eee10894facd71dc8d921fdfd4d1d10e8142a2ce"
+      },
+      "model-artifacts/ratings-7b3037365dccbd9c3598e8d98cf397b27988c4bb612fa2eef10fe83148589362.json": {
+        "sha256": "7b3037365dccbd9c3598e8d98cf397b27988c4bb612fa2eef10fe83148589362"
+      },
+      "model-artifacts/ratings-7e71e88765eb9b414938e6adac8c78ce513e9e1cae65e670f9f5b848afa49a36.json": {
+        "sha256": "7e71e88765eb9b414938e6adac8c78ce513e9e1cae65e670f9f5b848afa49a36"
+      },
+      "model-artifacts/ratings-8630e4b2a3d97144ab905e149ec62e9ddf7ddc60f3412120b8fdddf95935bf8b.json": {
+        "sha256": "8630e4b2a3d97144ab905e149ec62e9ddf7ddc60f3412120b8fdddf95935bf8b"
+      },
+      "model-artifacts/ratings-8758f23eeb26ca994c3de40dbd9cf21ff6f25a945e3c89bb084637c4e13d8781.json": {
+        "sha256": "8758f23eeb26ca994c3de40dbd9cf21ff6f25a945e3c89bb084637c4e13d8781"
+      },
+      "model-artifacts/ratings-88de9346f980d0eed25334ddff34d0166930bb91115e367c93009ce8878cb113.json": {
+        "sha256": "88de9346f980d0eed25334ddff34d0166930bb91115e367c93009ce8878cb113"
+      },
+      "model-artifacts/ratings-8a790aeaa4e54fdd43dc290dd229f1f8aca24e5ecbe25bc29666eeab93e648e8.json": {
+        "sha256": "8a790aeaa4e54fdd43dc290dd229f1f8aca24e5ecbe25bc29666eeab93e648e8"
+      },
+      "model-artifacts/ratings-8e22d7ff2eeb269b59d44372c7979e2ac108c502124bbf587c5d52eceb69065b.json": {
+        "sha256": "8e22d7ff2eeb269b59d44372c7979e2ac108c502124bbf587c5d52eceb69065b"
+      },
+      "model-artifacts/ratings-b9cebee4e3d21060effacb55ddfaba62526bda799678f5850b5dae05a02d9655.json": {
+        "sha256": "b9cebee4e3d21060effacb55ddfaba62526bda799678f5850b5dae05a02d9655"
+      },
+      "model-artifacts/ratings-d6ed8eb393ecf9b2ae2d08c699d993dc590f39b5e4ce9a2b7565d0269c90578c.json": {
+        "sha256": "d6ed8eb393ecf9b2ae2d08c699d993dc590f39b5e4ce9a2b7565d0269c90578c"
+      },
+      "model-artifacts/ratings-f5f883206d253ebad7d28d39112acdd21765fe04d87e7d246b598ce14dd17eaa.json": {
+        "sha256": "f5f883206d253ebad7d28d39112acdd21765fe04d87e7d246b598ce14dd17eaa"
+      },
+      "model-artifacts/ratings-fc8bfd0f22d73faafbf064820ccd3af5e7dc26b470933a7a27c359aa5043d2e9.json": {
+        "sha256": "fc8bfd0f22d73faafbf064820ccd3af5e7dc26b470933a7a27c359aa5043d2e9"
+      },
+      "picks.db": {
+        "size_bytes": 58826752,
+        "mtime": "2026-11-23T21:56:30.381Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 89915392,
+        "mtime": "2026-11-24T09:34:14.734Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041206272,
+        "mtime": "2026-11-24T09:31:59.896Z"
+      }
+    },
+    "identical": true
+  }
+}
