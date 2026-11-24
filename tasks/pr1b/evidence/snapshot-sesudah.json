@@ -1,0 +1,222 @@
+{
+  "now": "2026-11-24T02:00:00.000Z",
+  "sorotan": {
+    "match_id": "sm_19867091",
+    "home": "Newcastle Jets",
+    "away": "Kashiwa Reysol",
+    "competition_name": "AFC Champions League Elite",
+    "kickoff_utc": "2026-11-24T07:45:00.000Z",
+    "gate_status": "uncalibrated",
+    "label_prediksi": "Kashiwa Reysol mencetak gol",
+    "prob": 0.9271242976722711,
+    "published_at_utc": "2026-11-21T09:34:36.444Z",
+    "home_goals": null,
+    "away_goals": null,
+    "jenis": "prediksi"
+  },
+  "berikut": [
+    {
+      "match_id": "sm_19867075",
+      "package_id": 8940,
+      "kickoff_utc": "2026-11-24T10:00:00.000Z",
+      "computed_utc": "2026-11-23T21:54:15.507Z",
+      "gate_status": "uncalibrated",
+      "fixture": {
+        "match_id": "sm_19867075",
+        "competition_id": "sm:1085",
+        "competition_name": "AFC Champions League Elite",
+        "home": "Kyoto Sanga",
+        "away": "Pohang Steelers",
+        "kickoff_utc": "2026-11-24T10:00:00.000Z"
+      },
+      "pickCounts": {
+        "A": 3,
+        "B": 3,
+        "C": 0
+      },
+      "topLeg": {
+        "market": "dc",
+        "selection": "1x",
+        "model_prob": 0.8492299416999005,
+        "effective_prob": 0.8408,
+        "effective_source": "lab-band",
+        "band": "80–85",
+        "band_n": 471,
+        "grade": "A",
+        "market_prob": null,
+        "sm_prob": null,
+        "agreement_spread": null
+      },
+      "result": null
+    },
+    {
+      "match_id": "sm_19867084",
+      "package_id": 8941,
+      "kickoff_utc": "2026-11-24T10:00:00.000Z",
+      "computed_utc": "2026-11-23T21:54:15.600Z",
+      "gate_status": "uncalibrated",
+      "fixture": {
+        "match_id": "sm_19867084",
+        "competition_id": "sm:1085",
+        "competition_name": "AFC Champions League Elite",
+        "home": "Daejeon Citizen",
+        "away": "Beijing Guoan",
+        "kickoff_utc": "2026-11-24T10:00:00.000Z"
+      },
+      "pickCounts": {
+        "A": 2,
+        "B": 4,
+        "C": 2
+      },
+      "topLeg": {
+        "market": "team_over05_home",
+        "selection": "yes",
+        "model_prob": 0.8452586086629037,
+        "effective_prob": 0.8293,
+        "effective_source": "lab-band",
+        "band": "80–85",
+        "band_n": 287,
+        "grade": "A",
+        "market_prob": null,
+        "sm_prob": null,
+        "agreement_spread": null
+      },
+      "result": null
+    },
+    {
+      "match_id": "sm_19867050",
+      "package_id": 8942,
+      "kickoff_utc": "2026-11-24T12:15:00.000Z",
+      "computed_utc": "2026-11-23T21:54:15.739Z",
+      "gate_status": "uncalibrated",
+      "fixture": {
+        "match_id": "sm_19867050",
+        "competition_id": "sm:1085",
+        "competition_name": "AFC Champions League Elite",
+        "home": "Công an Hà Nội",
+        "away": "Vissel Kobe",
+        "kickoff_utc": "2026-11-24T12:15:00.000Z"
+      },
+      "pickCounts": {
+        "A": 3,
+        "B": 3,
+        "C": 0
+      },
+      "topLeg": {
+        "market": "team_over05_away",
+        "selection": "yes",
+        "model_prob": 0.8806864039777319,
+        "effective_prob": 0.8806864039777319,
+        "effective_source": "stated-fallback",
+        "band": "85+",
+        "band_n": 131,
+        "grade": "A",
+        "market_prob": null,
+        "sm_prob": null,
+        "agreement_spread": null
+      },
+      "result": null
+    },
+    {
+      "match_id": "sm_19888259",
+      "package_id": 8943,
+      "kickoff_utc": "2026-11-24T14:00:00.000Z",
+      "computed_utc": "2026-11-23T21:54:17.965Z",
+      "gate_status": "partial",
+      "fixture": {
+        "match_id": "sm_19888259",
+        "competition_id": "sm:1007",
+        "competition_name": "Indian Super League",
+        "home": "NorthEast United",
+        "away": "Sporting Delhi",
+        "kickoff_utc": "2026-11-24T14:00:00.000Z"
+      },
+      "pickCounts": {
+        "A": 3,
+        "B": 3,
+        "C": 2
+      },
+      "topLeg": {
+        "market": "team_over05_home",
+        "selection": "yes",
+        "model_prob": 0.8877469968183627,
+        "effective_prob": 0.8715,
+        "effective_source": "lab-band",
+        "band": "85+",
+        "band_n": 1875,
+        "grade": "A",
+        "market_prob": null,
+        "sm_prob": null,
+        "agreement_spread": null
+      },
+      "result": null
+    },
+    {
+      "match_id": "sm_19792596",
+      "package_id": 8944,
+      "kickoff_utc": "2026-11-24T15:00:00.000Z",
+      "computed_utc": "2026-11-23T21:54:18.386Z",
+      "gate_status": "calibrated",
+      "fixture": {
+        "match_id": "sm_19792596",
+        "competition_id": "sm:830",
+        "competition_name": "Premier League",
+        "home": "Smouha",
+        "away": "National Bank of Egypt",
+        "kickoff_utc": "2026-11-24T15:00:00.000Z"
+      },
+      "pickCounts": {
+        "A": 1,
+        "B": 4,
+        "C": 3
+      },
+      "topLeg": {
+        "market": "ou35",
+        "selection": "under",
+        "model_prob": 0.8914522310984465,
+        "effective_prob": 0.8675,
+        "effective_source": "lab-band",
+        "band": "85+",
+        "band_n": 385,
+        "grade": "A",
+        "market_prob": null,
+        "sm_prob": null,
+        "agreement_spread": null
+      },
+      "result": null
+    }
+  ],
+  "rekam": {
+    "stats": {
+      "filter": {
+        "source": "live-run"
+      },
+      "issued": 9367,
+      "settled": 3021,
+      "hits": 2251,
+      "misses": 770,
+      "hit_ratio": 0.7451175107580271,
+      "empty": false,
+      "due": 8499,
+      "coverage": [
+        3021,
+        8499
+      ],
+      "coverage_ratio": 0.35545358277444405,
+      "voids": 0,
+      "not_started": 848,
+      "awaiting_window": 20,
+      "overdue_pending": 5478,
+      "overdue_by_reason": {
+        "unspecified": 5478
+      },
+      "prob_slice": {
+        "n": 532,
+        "avg_published_prob": 0.7393610086089779,
+        "avg_hit": 0.7236842105263158,
+        "legacy_hitmiss_only": 2489
+      }
+    },
+    "laga_dinilai_unik": 333
+  }
+}

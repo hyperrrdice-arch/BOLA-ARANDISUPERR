@@ -626,6 +626,107 @@ export function ambilRekam(f: FilterRekam, nowUtc: string): RekamData {
   };
 }
 
+export interface RingkasanRekam {
+  stats: CohortStats;
+  /** Jumlah laga fisik unik di antara baris yang sudah dinilai. */
+  laga_dinilai_unik: number;
+}
+
+/**
+ * Pembaca RINGKASAN kohor (PR 1B, brief hal. 8): angka yang sama dengan
+ * `ambilRekam` untuk permukaan yang hanya menampilkan ringkasan
+ * (Beranda) — statistik cohort + jumlah laga unik yang dinilai — TANPA
+ * memuat seluruh baris kohor, nama dari payload paket, opsi filter,
+ * atau tiket resmi. Pada data produksi `ambilRekam` menghabiskan
+ * ±97% biaya baca Beranda (audit PR 1A); pembaca ini menggantinya
+ * tanpa mengubah satu pun angka yang tampil.
+ *
+ * Paritas dengan jalur penuh dijaga menurut konstruksi:
+ * - statistik berasal dari `cohortStats` yang sama, dengan filter
+ *   cohort yang sama (`cohortFilterOf`) DAN peta alasan pending yang
+ *   sama — peta itu dibangun di sini dari kueri sempit atas baris
+ *   pending saja (tanpa outcome, tidak void, laga di antrean konflik
+ *   identitas K1), persis kondisi yang dipakai `ambilRekam` saat
+ *   menyapu seluruh baris;
+ * - `laga_dinilai_unik` menghitung kunci fisik yang sama (`kunciFisik`
+ *   + `petaUidFisik`) atas baris yang sudah dinilai saja.
+ * Basis probabilitas tidak disentuh: statistik tetap basis
+ * `published_prob` lewat `cohortStats`, sama seperti `ambilRekam`.
+ */
+export function ambilRingkasanRekam(
+  f: FilterRekam,
+  nowUtc: string,
+): RingkasanRekam {
+  const cohort = cohortFilterOf(f);
+  const konflik = idKonflikIdentitas();
+
+  const d = dbRo("picks.db");
+  if (!d) {
+    return {
+      stats: cohortStats({ now_utc: nowUtc, filter: cohort }),
+      laga_dinilai_unik: 0,
+    };
+  }
+
+  const { sql, params } = whereCohort(cohort);
+  const sambung = sql ? "AND" : "WHERE";
+
+  // Peta alasan pending — himpunan yang sama dengan yang dibangun
+  // ambilRekam: baris tanpa outcome (hit NULL) dan tidak void yang
+  // laga-nya berada di antrean konflik.
+  const barisPending = d
+    .prepare(
+      `SELECT p.id, p.match_id
+       FROM picks p
+       LEFT JOIN pick_outcomes o ON o.pick_id = p.id
+       LEFT JOIN pick_voids v ON v.pick_id = p.id
+       ${sql}
+       ${sambung} o.hit IS NULL AND v.pick_id IS NULL`,
+    )
+    .all(...(params as never[])) as unknown as {
+    id: number;
+    match_id: string;
+  }[];
+  const alasan = new Map<number, string>();
+  for (const r of barisPending) {
+    if (konflik.has(r.match_id)) alasan.set(r.id, "konflik");
+  }
+  const stats = cohortStats({
+    now_utc: nowUtc,
+    filter: cohort,
+    pending_reasons: alasan.size ? alasan : undefined,
+  });
+
+  // Laga fisik unik yang sudah dinilai — baris settled saja. Bentuk
+  // EXISTS/NOT EXISTS (bukan LEFT JOIN polos): perencana SQLite kalau
+  // tidak digerakkan dari `picks` akan menyapu idx_pick_outcomes_agg
+  // atas SEMUA seri (±160 rb baris) sebelum filter cohort diterapkan
+  // (±195 ms terukur); bentuk ini menyapu cohort lewat indeks source
+  // dan memeriksa outcome/void per baris via kunci primer (±13 ms),
+  // dengan himpunan baris yang persis sama untuk keperluan Set kunci.
+  const punyaUid = kolomAda(d, "picks", "pick_uid");
+  const barisDinilai = d
+    .prepare(
+      `SELECT p.match_id, ${punyaUid ? "p.fixture_uid" : "NULL AS fixture_uid"}
+       FROM picks p
+       ${sql}
+       ${sambung} EXISTS (SELECT 1 FROM pick_outcomes o
+                          WHERE o.pick_id = p.id AND o.hit IN (0, 1))
+         AND NOT EXISTS (SELECT 1 FROM pick_voids v WHERE v.pick_id = p.id)`,
+    )
+    .all(...(params as never[])) as unknown as {
+    match_id: string;
+    fixture_uid: string | null;
+  }[];
+  const uidMap = petaUidFisik(
+    barisDinilai.filter((r) => !r.fixture_uid).map((r) => r.match_id),
+  );
+  const lagaDinilai = new Set<string>();
+  for (const r of barisDinilai) lagaDinilai.add(kunciFisik(r, uidMap));
+
+  return { stats, laga_dinilai_unik: lagaDinilai.size };
+}
+
 /* --------------------------------------------------------- detail tiket */
 
 export interface LegTiket extends SlipLegView {

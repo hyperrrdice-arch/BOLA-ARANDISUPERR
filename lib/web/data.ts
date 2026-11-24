@@ -312,6 +312,23 @@ const LATEST_PER_MATCH = `
 `;
 
 /**
+ * Bentuk kickoff-first (PR 1B, brief hal. 8): jendela kickoff disaring
+ * lewat idx_packages_kickoff SEBELUM latest-per-match dipilih. Subquery
+ * korelasi memeriksa id GLOBAL maksimum per match_id (tanpa filter
+ * jendela di dalamnya), jadi semantiknya persis LATEST_PER_MATCH:
+ * edisi terbaru yang kickoff-nya pindah keluar jendela tetap menyingkir-
+ * kan laga itu, dan edisi lama di dalam jendela tidak hidup lagi.
+ * Yang berubah hanya rencananya: tanpa grup atas seluruh tabel dan
+ * tanpa temp B-tree untuk ORDER BY (urutan datang dari indeks kickoff).
+ * Parameter: (dariUtc, sampaiUtc) inklusif — sama seperti bentuk lama.
+ */
+const LATEST_PER_MATCH_KICKOFF_FIRST = `
+  SELECT p.* FROM packages p
+  WHERE p.kickoff_utc >= ? AND p.kickoff_utc <= ?
+    AND p.id = (SELECT MAX(q.id) FROM packages q WHERE q.match_id = p.match_id)
+`;
+
+/**
  * Seluruh id satu laga fisik dengan `matchId` — untuk hasil laga.
  *
  * K1: dua sumber tautan lewat resolver identitas yang sama dengan
@@ -453,7 +470,7 @@ export function listUpcoming(hours = 72): FixtureListItem[] {
 /** Sama seperti listUpcoming, dengan acuan waktu eksplisit (untuk uji jam beku). */
 function listUpcomingPada(nowMs: number, hours = 72): FixtureListItem[] {
   const rows = packagesDb()
-    .prepare(`${LATEST_PER_MATCH} WHERE p.kickoff_utc >= ? AND p.kickoff_utc <= ? ORDER BY p.kickoff_utc ASC`)
+    .prepare(`${LATEST_PER_MATCH_KICKOFF_FIRST} ORDER BY p.kickoff_utc ASC`)
     .all(
       new Date(nowMs - 3 * 3_600_000).toISOString(),
       new Date(nowMs + hours * 3_600_000).toISOString(),
@@ -526,6 +543,20 @@ export function sorotanBeranda(now: Date = new Date()): SorotanBeranda | null {
   const mendatang = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
     (i) => Date.parse(i.pkg.kickoff_utc) >= nowMs,
   );
+  return sorotanDariDaftar(mendatang, nowMs);
+}
+
+/**
+ * Inti sorotan atas daftar mendatang yang SUDAH dibaca (PR 1B): dipisah
+ * dari pembacaannya supaya pembaca gabungan Beranda memakai logika yang
+ * persis sama atas satu lintasan baca — bukan salinan kedua yang bisa
+ * menyimpang. Tangga fallback tetap di sini: jendela kosong → laga
+ * pertama sesudah jendela → hasil terakhir → null.
+ */
+function sorotanDariDaftar(
+  mendatang: FixtureListItem[],
+  nowMs: number,
+): SorotanBeranda | null {
   for (const item of mendatang) {
     const resmi = bagian(
       () => getOfficialPicks(item.pkg.match_id, fixtureUidOf(item.pkg.match_id)),
@@ -559,6 +590,11 @@ export function sorotanBeranda(now: Date = new Date()): SorotanBeranda | null {
   const sesudah = bagian(() => {
     const row = packagesDb()
       .prepare(
+        // Sengaja tetap bentuk LATEST_PER_MATCH (bukan kickoff-first):
+        // query LIMIT 1 ini jalur dingin (jendela 72 jam kosong), dan
+        // pada kickoff yang SERI urutan kedua bentuk query terbukti
+        // bisa berbeda di data produksi — bentuk lama dipertahankan
+        // persis agar pilihan laga pada seri tidak berubah (PR 1B).
         `${LATEST_PER_MATCH} WHERE p.kickoff_utc > ? ORDER BY p.kickoff_utc ASC LIMIT 1`,
       )
       .get(new Date(nowMs + JENDELA_SOROTAN_JAM * 3_600_000).toISOString()) as
@@ -592,9 +628,23 @@ export function jadwalBerikutnya(
   limit = 5,
 ): FixtureListItem[] {
   const nowMs = now.getTime();
-  let items = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
+  const mendatang = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
     (i) => Date.parse(i.pkg.kickoff_utc) >= nowMs,
   );
+  return jadwalDariDaftar(mendatang, sorotan, limit);
+}
+
+/**
+ * Inti "Jadwal berikutnya" atas daftar mendatang yang SUDAH dibaca
+ * (PR 1B) — pasangan `sorotanDariDaftar`: pengeluaran laga sorotan
+ * memakai identitas fisik yang sama, atas lintasan baca yang sama.
+ */
+function jadwalDariDaftar(
+  mendatang: FixtureListItem[],
+  sorotan: SorotanBeranda | null,
+  limit: number,
+): FixtureListItem[] {
+  let items = mendatang;
   if (sorotan && sorotan.jenis !== "hasil-terakhir") {
     const uidSorotan = fixtureUidOf(sorotan.match_id);
     const sibling = new Set(siblingsOf(sorotan.match_id));
@@ -607,10 +657,36 @@ export function jadwalBerikutnya(
   return items.slice(0, limit);
 }
 
+/**
+ * SATU pembaca Beranda (PR 1B, brief hal. 8): sorotan + jadwal
+ * berikutnya dari SATU nilai nowUtc dan SATU lintasan baca jendela
+ * 72 jam. Sebelumnya halaman memanggil `sorotanBeranda` dan
+ * `jadwalBerikutnya` terpisah — masing-masing menjalankan query
+ * latest-per-match + decode payload + pengayaan yang sama dua kali.
+ * Keluaran identik dengan pasangan lama menurut konstruksi: kedua inti
+ * di atas dipakai bersama, hanya sumber daftarnya yang disatukan.
+ */
+export function berandaSorotanDanJadwal(now: Date = new Date()): {
+  sorotan: SorotanBeranda | null;
+  berikut: FixtureListItem[];
+} {
+  const nowMs = now.getTime();
+  const mendatang = listUpcomingPada(nowMs, JENDELA_SOROTAN_JAM).filter(
+    (i) => Date.parse(i.pkg.kickoff_utc) >= nowMs,
+  );
+  const sorotan = sorotanDariDaftar(mendatang, nowMs);
+  return { sorotan, berikut: jadwalDariDaftar(mendatang, sorotan, 5) };
+}
+
 /** Pertandingan yang baru selesai (untuk panel paket vs kenyataan). */
 export function listFinished(hoursBack = 72, limit = 60): FixtureListItem[] {
   const now = Date.now();
   const rows = packagesDb()
+    // Sengaja tetap bentuk LATEST_PER_MATCH (bukan kickoff-first):
+    // himpunan baris kedua bentuk sama, tetapi urutan di antara
+    // kickoff yang SERI berbeda pada data produksi (59 grup seri pada
+    // jendela selesai staging) dan LIMIT memotong di tengah seri —
+    // bentuk lama dipertahankan persis demi paritas (PR 1B).
     .prepare(`${LATEST_PER_MATCH} WHERE p.kickoff_utc < ? AND p.kickoff_utc >= ? ORDER BY p.kickoff_utc DESC LIMIT ?`)
     .all(
       new Date(now - 3 * 3_600_000).toISOString(),

@@ -16,13 +16,12 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
 import {
-  jadwalBerikutnya,
-  sorotanBeranda,
+  berandaSorotanDanJadwal,
   urlCrestTimNama,
   type FixtureListItem,
   type SorotanBeranda,
 } from "../lib/web/data";
-import { ambilRekam, parseFilterRekam } from "../lib/web/rekam";
+import { ambilRingkasanRekam, parseFilterRekam } from "../lib/web/rekam";
 import { mulaiTimerRute, selesaikanTimerRute } from "../lib/web/timing";
 import {
   int,
@@ -219,8 +218,9 @@ async function SorotanDanJadwal() {
   await connection();
   const t0Timer = mulaiTimerRute();
   const now = new Date();
-  const sorotan = sorotanBeranda(now);
-  const berikut = jadwalBerikutnya(sorotan, now);
+  // Satu pembaca Beranda (PR 1B): sorotan + jadwal dari satu nilai now
+  // dan satu lintasan baca — keluaran identik dengan pasangan lama.
+  const { sorotan, berikut } = berandaSorotanDanJadwal(now);
   if (!sorotan && berikut.length === 0) {
     selesaikanTimerRute("/", t0Timer);
     return (
@@ -244,7 +244,9 @@ async function SorotanDanJadwal() {
 async function RekamRingkas() {
   await connection();
   const now = new Date();
-  const data = ambilRekam(parseFilterRekam({}), now.toISOString());
+  // Pembaca ringkasan kohor (PR 1B): Beranda hanya menampilkan stats +
+  // laga unik — agregat penuh `ambilRekam` tetap untuk /bukti.
+  const data = ambilRingkasanRekam(parseFilterRekam({}), now.toISOString());
   const st = data.stats;
   return (
     <section aria-label="Rekam hasil" className="mt-16 border-t border-garis pt-10 lg:mt-20">
