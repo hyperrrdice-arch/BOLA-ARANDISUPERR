@@ -1,0 +1,166 @@
+{
+  "pooled_1x2": {
+    "n": 1223,
+    "missing_in_dataset": 0,
+    "window": [
+      "2025-10-04",
+      "2026-10-12"
+    ],
+    "ll_ledger_old": 1.0089518717010817,
+    "ll_leaky_regen": 1.0094770523800378,
+    "ll_pit_honest": 1.0094304221309824,
+    "ll_closing": 0.9769154545120882,
+    "delta_old_reported": 0.03203641718899353,
+    "delta_honest": 0.032514967618894275,
+    "leakage_effect_leaky_minus_pit": 0.00004663024905537938,
+    "residual_ledger_minus_leaky": -0.0005251806789561275,
+    "fit_fallbacks": 7,
+    "mean_abs_prob_diff_ledger_vs_leaky": 0.0019157453008622981,
+    "mean_abs_prob_diff_ledger_vs_pit": 0.002031480562933129,
+    "mean_abs_fav_gap_pit": 0.07036842491486923
+  },
+  "bootstrap_1x2": {
+    "pit_minus_closing": {
+      "meanDelta": 0.03251496761889254,
+      "bootstrapMean": 0.032415005801513186,
+      "upperOneSided95": 0.04353352026699853,
+      "ci95Low": 0.018933915401501824,
+      "ci95High": 0.045865047616417694,
+      "nMatches": 1223,
+      "nBlocks": 24,
+      "resamples": 5000,
+      "seed": 20261124
+    },
+    "leaky_minus_pit": {
+      "meanDelta": 0.00004663024905497585,
+      "bootstrapMean": 0.00004809249262066337,
+      "upperOneSided95": 0.0001610087582154282,
+      "ci95Low": -0.00008163709748742393,
+      "ci95High": 0.00018580871743136625,
+      "nMatches": 1223,
+      "nBlocks": 24,
+      "resamples": 5000,
+      "seed": 20261124
+    },
+    "ledger_minus_leaky": {
+      "meanDelta": -0.0005251806789549456,
+      "bootstrapMean": -0.0005908370267826949,
+      "upperOneSided95": 0.000651015207184954,
+      "ci95Low": -0.002593446809884693,
+      "ci95High": 0.0008168180836099851,
+      "nMatches": 1223,
+      "nBlocks": 24,
+      "resamples": 5000,
+      "seed": 20261124
+    }
+  },
+  "per_league_1x2": [
+    {
+      "div": "D2",
+      "n": 73,
+      "ll_ledger_old": 1.065338907703543,
+      "ll_pit_honest": 1.074022119537608,
+      "ll_closing": 1.0499174074162334,
+      "delta_honest": 0.02410471212137466
+    },
+    {
+      "div": "E0",
+      "n": 183,
+      "ll_ledger_old": 1.0344470945215378,
+      "ll_pit_honest": 1.0363014544479654,
+      "ll_closing": 1.0113780026248342,
+      "delta_honest": 0.02492345182313116
+    },
+    {
+      "div": "F1",
+      "n": 133,
+      "ll_ledger_old": 1.0274600984013176,
+      "ll_pit_honest": 1.0303676166563074,
+      "ll_closing": 0.9989194432549358,
+      "delta_honest": 0.031448173401371626
+    },
+    {
+      "div": "F2",
+      "n": 88,
+      "ll_ledger_old": 1.0958662530963859,
+      "ll_pit_honest": 1.0920868008252256,
+      "ll_closing": 1.074438283687396,
+      "delta_honest": 0.017648517137829556
+    },
+    {
+      "div": "G1",
+      "n": 42,
+      "ll_ledger_old": 0.9399542934343953,
+      "ll_pit_honest": 0.9398842315621768,
+      "ll_closing": 0.899538695733246,
+      "delta_honest": 0.040345535828930856
+    },
+    {
+      "div": "I1",
+      "n": 165,
+      "ll_ledger_old": 0.9751789317818228,
+      "ll_pit_honest": 0.975074524223236,
+      "ll_closing": 0.9504556274944728,
+      "delta_honest": 0.024618896728763273
+    },
+    {
+      "div": "I2",
+      "n": 60,
+      "ll_ledger_old": 1.0552526780960794,
+      "ll_pit_honest": 1.053190509533453,
+      "ll_closing": 1.0609883372881,
+      "delta_honest": -0.00779782775464688
+    },
+    {
+      "div": "P1",
+      "n": 144,
+      "ll_ledger_old": 0.9380515125938316,
+      "ll_pit_honest": 0.9375992290105621,
+      "ll_closing": 0.8947069348621172,
+      "delta_honest": 0.042892294148444976
+    },
+    {
+      "div": "SC0",
+      "n": 48,
+      "ll_ledger_old": 0.9934190209878007,
+      "ll_pit_honest": 0.9937478721405616,
+      "ll_closing": 0.982181045201097,
+      "delta_honest": 0.011566826939464647
+    },
+    {
+      "div": "SP1",
+      "n": 169,
+      "ll_ledger_old": 0.9793715129438826,
+      "ll_pit_honest": 0.9780020662407509,
+      "ll_closing": 0.9120043121306778,
+      "delta_honest": 0.06599775411007314
+    },
+    {
+      "div": "T1",
+      "n": 118,
+      "ll_ledger_old": 1.0322972534602777,
+      "ll_pit_honest": 1.0321499411750095,
+      "ll_closing": 0.993714230462758,
+      "delta_honest": 0.03843571071225149
+    }
+  ],
+  "by_fold": {
+    "V1": 553,
+    "H": 663,
+    "null": 7
+  },
+  "by_season": {
+    "2526": 560,
+    "2627": 663
+  },
+  "ou25": {
+    "n": 561,
+    "ll_ledger_old": 0.7000147949296637,
+    "ll_leaky_regen": 0.7009625569462387,
+    "ll_pit_honest": 0.7006795310606733,
+    "ll_closing": 0.6829570358351651,
+    "delta_old_reported": 0.01705775909449858,
+    "delta_honest": 0.017722495225508172,
+    "leakage_effect_leaky_minus_pit": 0.0002830258855653911
+  }
+}

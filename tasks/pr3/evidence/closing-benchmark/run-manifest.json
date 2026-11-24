@@ -1,0 +1,34 @@
+{
+  "tool": "scripts/evaluate-chronological.ts",
+  "mode": "closing-benchmark",
+  "git_head": "3181906d07b0a7ccd2c0edd26420a46a3d5f3944",
+  "generated_at": "2026-11-24T10:36:19.803Z",
+  "data_dir": "/home/hatch/workspace/coding/app-football/data",
+  "dataset": {
+    "file": "thestats_dataset.db",
+    "size_bytes": 3041206272,
+    "mtime": "2026-11-24T09:31:59.896Z"
+  },
+  "inputs": {
+    "universe_matches": 69065,
+    "compavg_matches": 71691,
+    "team_logs": 83426,
+    "matches_hash": "sha256:a9ce4587e3a7247e1c9910cce9a1ce3685f3a4594d26c295daebfac7ddf97a7b",
+    "logs_hash": "sha256:7c3b3068c60ce0a4737c3d8903a8df2405e76472ca3e45cb4887b47d20b30eed"
+  },
+  "config": {
+    "kfit": 10,
+    "halfLifeDays": 365,
+    "rho": 0,
+    "kappaScale": 2,
+    "compAvgMode": "as-of"
+  },
+  "run": "closing-benchmark",
+  "modes": [
+    "as-of",
+    "whole-store"
+  ],
+  "pairs_file": "tasks/pr3/evidence/cb-pairs-dump.json",
+  "pairs_1x2": 1223,
+  "pairs_ou25": 561
+}

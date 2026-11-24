@@ -1,0 +1,84 @@
+{
+  "universe": {
+    "leagues": 63,
+    "holdout_rows": 6708,
+    "window": [
+      "2026-03-21",
+      "2026-11-07"
+    ]
+  },
+  "metrics": {
+    "A10": {
+      "n": 6708,
+      "logloss": 1.0227400451927073,
+      "loglossRaw": 1.0227400451927073,
+      "brier": 0.6124985586617927,
+      "ece": 0.007728536483683889,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "A20": {
+      "n": 6708,
+      "logloss": 1.0224675701767554,
+      "loglossRaw": 1.0224675701767554,
+      "brier": 0.6127650787693039,
+      "ece": 0.011123942661217523,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "B10": {
+      "n": 6708,
+      "logloss": 1.013402262327106,
+      "loglossRaw": 1.013402262327106,
+      "brier": 0.6065786004794809,
+      "ece": 0.014917089622209138,
+      "fallbacks": 0,
+      "coverage": 1
+    },
+    "B20": {
+      "n": 6708,
+      "logloss": 1.014223498439091,
+      "loglossRaw": 1.014223498439091,
+      "brier": 0.6071375472222493,
+      "ece": 0.016099484153378408,
+      "fallbacks": 0,
+      "coverage": 1
+    }
+  },
+  "comparison": {
+    "file": "tasks/experiments/k5-kappa/predictions-h.jsonl",
+    "file_rows": 6708,
+    "recomputed_rows": 6708,
+    "missing_in_recomputed": 0,
+    "per_column": {
+      "A10": {
+        "matched": 6708,
+        "max_abs_prob_diff": 0,
+        "prob_cells_diff_gt_1e_9": 0,
+        "logloss_file": 1.0227400451927073,
+        "logloss_recomputed": 1.0227400451927073
+      },
+      "A20": {
+        "matched": 6708,
+        "max_abs_prob_diff": 0,
+        "prob_cells_diff_gt_1e_9": 0,
+        "logloss_file": 1.0224675701767554,
+        "logloss_recomputed": 1.0224675701767554
+      },
+      "B10": {
+        "matched": 6708,
+        "max_abs_prob_diff": 0,
+        "prob_cells_diff_gt_1e_9": 0,
+        "logloss_file": 1.013402262327106,
+        "logloss_recomputed": 1.013402262327106
+      },
+      "B20": {
+        "matched": 6708,
+        "max_abs_prob_diff": 0,
+        "prob_cells_diff_gt_1e_9": 0,
+        "logloss_file": 1.014223498439091,
+        "logloss_recomputed": 1.014223498439091
+      }
+    }
+  }
+}
