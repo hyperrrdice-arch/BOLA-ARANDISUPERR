@@ -1,0 +1,117 @@
+{
+  "generated_from": {
+    "features": "tasks/ml1/evidence/features.jsonl",
+    "pred_a": "tasks/ml1/evidence/ml1-a/predictions.jsonl",
+    "pred_b": "tasks/ml1/evidence/ml1-b/predictions.jsonl"
+  },
+  "slices": {
+    "pooled": {
+      "label": "Pooled (Universe PR 3 penuh)",
+      "champion": {
+        "n": 10401,
+        "logloss": 1.0239583212641568,
+        "brier": 0.6127747090049234,
+        "delta_vs_champion": null,
+        "ub_ci_95": null,
+        "blocks": null
+      },
+      "ml1_a": {
+        "n": 10401,
+        "logloss": 1.0160146815604876,
+        "brier": 0.6068418031601617,
+        "delta_vs_champion": -0.00794363970366651,
+        "ub_ci_95": -0.005049759411332082,
+        "blocks": 46
+      },
+      "ml1_b": {
+        "n": 10401,
+        "logloss": 1.0153175495292575,
+        "brier": 0.6064804448232154,
+        "delta_vs_champion": -0.00864077173489841,
+        "ub_ci_95": -0.006078428390643886,
+        "blocks": 46
+      },
+      "ablation_b_minus_a": {
+        "mean_delta": -0.0006971320312319665,
+        "ub_ci_95": 0.0005480583035439209,
+        "ci95": [
+          -0.0019691320256228517,
+          0.0008309571305450586
+        ],
+        "blocks": 46
+      }
+    },
+    "kompetitif": {
+      "label": "Liga Kompetitif / Terkalibrasi",
+      "champion": {
+        "n": 6731,
+        "logloss": 1.012686309243716,
+        "brier": 0.6058764164428443,
+        "delta_vs_champion": null,
+        "ub_ci_95": null,
+        "blocks": null
+      },
+      "ml1_a": {
+        "n": 6731,
+        "logloss": 1.012693369733627,
+        "brier": 0.6059875620035767,
+        "delta_vs_champion": 0.000007060489910215418,
+        "ub_ci_95": 0.002136219658947449,
+        "blocks": 38
+      },
+      "ml1_b": {
+        "n": 6731,
+        "logloss": 1.0104372854920878,
+        "brier": 0.6044836388268963,
+        "delta_vs_champion": -0.0022490237516275356,
+        "ub_ci_95": -0.0002553570451575355,
+        "blocks": 38
+      },
+      "ablation_b_minus_a": {
+        "mean_delta": -0.0022560842415377475,
+        "ub_ci_95": -0.0014712875072258904,
+        "ci95": [
+          -0.0030928418869458157,
+          -0.0013203322358805829
+        ],
+        "blocks": 38
+      }
+    },
+    "friendlies": {
+      "label": "Friendlies / Uncalibrated",
+      "champion": {
+        "n": 3670,
+        "logloss": 1.0446318670160881,
+        "brier": 0.625426591085388,
+        "delta_vs_champion": null,
+        "ub_ci_95": null,
+        "blocks": null
+      },
+      "ml1_a": {
+        "n": 3670,
+        "logloss": 1.0221061665486744,
+        "brier": 0.6084085326492599,
+        "delta_vs_champion": -0.02252570046741708,
+        "ub_ci_95": -0.01780572019348082,
+        "blocks": 33
+      },
+      "ml1_b": {
+        "n": 3670,
+        "logloss": 1.024268246323317,
+        "brier": 0.6101427067200089,
+        "delta_vs_champion": -0.02036362069277213,
+        "ub_ci_95": -0.01592613426077186,
+        "blocks": 33
+      },
+      "ablation_b_minus_a": {
+        "mean_delta": 0.0021620797746449245,
+        "ub_ci_95": 0.004950991383320505,
+        "ci95": [
+          -0.0005497243489163194,
+          0.005549845984805929
+        ],
+        "blocks": 33
+      }
+    }
+  }
+}
