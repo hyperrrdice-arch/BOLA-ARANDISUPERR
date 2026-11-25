@@ -105,6 +105,15 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   // Master short forms (SP1): "Santander" = Racing, "La Coruna" tanpa aksen/Deportivo
   "santander": "Racing de Santander",
   "la coruna": "Deportivo La Coruna",
+  // Nama resmi PENUH football-data.org (Item 8 batch 1, kurasi 26 Nov 2026 —
+  // berbasis bukti: tepat 1 kandidat per nama di divisi SP1 dataset, nama
+  // tujuan unik di registry). JANGAN diarahkan ke tim II/W senama.
+  "club atletico de madrid": "Atletico de Madrid",
+  "real racing club de santander": "Racing de Santander",
+  "real sociedad de futbol": "Real Sociedad",
+  "rcd espanyol de barcelona": "Espanyol",
+  "rayo vallecano de madrid": "Rayo Vallecano",
+  "real betis balompie": "Real Betis",
 
   // Italian Serie A & Serie B
   "inter": "Inter Milan",
@@ -150,6 +159,12 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "reggiana": "AC Reggiana",
   "sudtirol": "FC Sudtirol",
   "carrarese": "Carrarese Calcio",
+  // Nama resmi PENUH football-data.org (Item 8 batch 1, kurasi 26 Nov 2026 —
+  // tepat 1 kandidat per nama di divisi I1 dataset).
+  "fc internazionale milano": "Inter Milan",
+  "bologna fc 1909": "Bologna FC",
+  "us sassuolo calcio": "US Sassuolo",
+  "parma calcio 1913": "Parma Calcio",
 
   // German Bundesliga & 2. Bundesliga
   "bayern munich": "Bayern Munich",
@@ -253,6 +268,13 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "martigues": "FC Martigues",
   // Master long form (F1): "Stade Brestois 29" ↔ tm_* "Stade Brestois"
   "stade brestois": "Stade Brestois 29",
+  // Nama resmi PENUH football-data.org (Item 8 batch 1, kurasi 26 Nov 2026 —
+  // tepat 1 kandidat per nama di divisi F1 dataset).
+  "es troyes ac": "ESTAC Troyes",
+  "racing club de lens": "RC Lens",
+  "lille osc": "LOSC Lille",
+  "stade rennais fc 1901": "Stade Rennais",
+  "rc strasbourg alsace": "RC Strasbourg",
 
   // Dutch Eredivisie & Portuguese Primeira Liga
   "ajax": "AFC Ajax",
@@ -261,6 +283,15 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "az": "AZ Alkmaar",
   "twente": "FC Twente",
   "utrecht": "FC Utrecht",
+  // Nama resmi PENUH football-data.org (Item 8 batch 1, kurasi 26 Nov 2026 —
+  // tepat 1 kandidat per nama di divisi N1 dataset; "nec" = NEC Nijmegen,
+  // satu-satunya klub NEC di registry, tidak ada kanonik bernama persis "NEC").
+  "sc cambuur-leeuwarden": "SC Cambuur",
+  "sbv excelsior": "Excelsior",
+  "nec": "NEC Nijmegen",
+  "telstar 1963": "Telstar",
+  "feyenoord rotterdam": "Feyenoord",
+  "fc twente '65": "FC Twente",
   "benfica": "SL Benfica",
   "porto": "FC Porto",
   "sporting lisbon": "Sp Lisbon",
@@ -268,6 +299,17 @@ export const TEAM_NAME_ALIASES: Record<string, string> = {
   "sp lisbon": "Sp Lisbon",
   "sporting": "Sp Lisbon",
   "braga": "SC Braga",
+  // Nama resmi PENUH football-data.org (Item 8 batch 1, kurasi 26 Nov 2026 —
+  // tepat 1 kandidat per nama di divisi P1 dataset; Braga vs Sporting CP
+  // dibedakan tegas: "Sporting Clube de Braga" = Braga, "...de Portugal" =
+  // Sporting CP/Lisbon).
+  "sporting clube de braga": "Sporting Braga",
+  "cf estrela da amadora": "Estrela Amadora",
+  "sporting clube de portugal": "Sp Lisbon",
+  "sport lisboa e benfica": "SL Benfica",
+  "academico de viseu fc": "Academico Viseu",
+  "cs maritimo": "Maritimo",
+  "gd estoril praia": "Estoril",
   "celtic": "Celtic",
   "rangers": "Rangers",
   "galatasaray": "Galatasaray",
