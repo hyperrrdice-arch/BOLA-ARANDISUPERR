@@ -1,0 +1,41 @@
+ML1-B — RUN LOG (Fase 3, semua keluaran aktual)
+
+[1] Latih run 1:
+  $ ~/workspace/tools/ml1-venv/bin/python scripts/ml1-train.py \
+      --features tasks/ml1/evidence/features.jsonl --model b \
+      --outdir tasks/ml1/evidence/ml1-b
+  chosen: num_boost_round=100, lambda_l2=10.0 (grid V1->V2, design §5)
+  nll_v2_chosen = 1.7271406599396455
+  pred_v2_sha256 = 42babb66332e09ddc8ee76e74cdaa69e7798f1fcc0be742da5c5179cc174f7bd
+  pred_h_sha256  = 8e53fdaa3f621924076de7df821ffe6f6ae793699f770129352559a321a9590b
+
+[2] Latih run 2 (determinisme byte-identik, outdir /tmp/ml1-b-run2):
+  chosen identik; nll_v2_chosen identik.
+  sha256 pred-h.jsonl   run1 == run2 = 8e53fdaa3f621924076de7df821ffe6f6ae793699f770129352559a321a9590b
+  sha256 pred-v2.jsonl  run1 == run2 = 42babb66332e09ddc8ee76e74cdaa69e7798f1fcc0be742da5c5179cc174f7bd
+  sha256 train-summary  run1 == run2 = 78b8f3ef0951233765a328dd8f79c396bba3a3ab78d5407d662ec70fd9694704
+  => DETERMINISME BYTE-IDENTIK PASS
+
+[3] Evaluasi H (satu kali):
+  $ npx tsx scripts/ml1-evaluate.ts --model=b \
+      --features=tasks/ml1/evidence/features.jsonl \
+      --pred-dir=tasks/ml1/evidence/ml1-b --out=tasks/ml1/evidence/ml1-b
+  rows_h = 10401
+  champion_ll  = 1.0239583212641568
+  candidate_ll = 1.0153175495292575
+  delta        = -0.00864077173489841
+  upper_one_sided_95 = -0.006078428390643886
+  ci95 = [-0.012021607485374827, -0.005631321220165219]
+  validation_v2_delta = -0.008844977714031144
+  anchor_ok (vs artefak beku PR 4) = true
+  gate_machine = promote -> brief_status = READY_FOR_PROSPECTIVE_CONFIRMATION
+  guard_identical = true
+  promotion_performed = false
+
+[4] Stop-gate suite:
+  $ npx tsx tests/test-kandidat-q1.ts   -> test-kandidat-q1: 33 lolos, 0 gagal (L02 33/33)
+  $ npx tsx tests/test-ml1-features.ts  -> ML1-FEATURES-INJECTION: 22/22 PASS
+
+[5] Catatan seleksi: NLL Poisson V2 ML1-B (1,72714) sedikit di atas ML1-A
+  (1,72539) pada metrik seleksi gol, tetapi log-loss 1X2 H ML1-B lebih baik
+  (delta -0,00864 vs -0,00794). Ablasi berpasangan resmi di Fase 4.

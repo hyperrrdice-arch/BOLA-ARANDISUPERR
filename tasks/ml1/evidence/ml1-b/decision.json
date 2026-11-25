@@ -1,0 +1,54 @@
+{
+  "decision": "READY_FOR_PROSPECTIVE_CONFIRMATION",
+  "machine_decision": "promote",
+  "meaning": "Gate PR 4 LOLOS pada holdout H lama — kandidat HANYA layak konfirmasi periode prospektif baru (Item 19) + persetujuan pemilik via promote-model.ts. TIDAK ada promosi di sprint ini.",
+  "gate_checks": [
+    {
+      "id": "sample_floor",
+      "observed": 2.3,
+      "threshold": 1,
+      "pass": true
+    },
+    {
+      "id": "mean_delta",
+      "observed": -0.00864077173489841,
+      "threshold": -0.005,
+      "pass": true
+    },
+    {
+      "id": "bootstrap_upper",
+      "observed": -0.006078428390643886,
+      "threshold": 0,
+      "pass": true
+    },
+    {
+      "id": "coverage_drop",
+      "observed": 0,
+      "threshold": 0.02,
+      "pass": true
+    },
+    {
+      "id": "brier_increase",
+      "observed": -0.006294264181707976,
+      "threshold": 0.002,
+      "pass": true
+    }
+  ],
+  "headline": {
+    "n": 10401,
+    "blocks": 46,
+    "champion_logloss": 1.0239583212641568,
+    "candidate_logloss": 1.0153175495292575,
+    "mean_delta": -0.00864077173489841,
+    "bootstrap_upper_one_sided_95": -0.006078428390643886,
+    "ci95": [
+      -0.012021607485374827,
+      -0.005631321220165219
+    ],
+    "coverage_champion": 1,
+    "coverage_candidate": 1,
+    "brier_champion": 0.6127747090049234,
+    "brier_candidate": 0.6064804448232154
+  },
+  "promotion_performed": false
+}

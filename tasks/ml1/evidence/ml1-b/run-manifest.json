@@ -1,0 +1,68 @@
+{
+  "tool": "scripts/ml1-evaluate.ts",
+  "candidate": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+  "git_head": "5e09a9a2057f8ccd9824104a03fb4c4c42bb5766",
+  "generated_at": "2026-11-25T15:32:53.945Z",
+  "inputs": {
+    "features_file": "tasks/ml1/evidence/features.jsonl",
+    "features_sha256": "f778551eca8ac934951549208c370ff60584386bbfc7759eaf2429f9218d3187",
+    "pred_h_sha256": "8e53fdaa3f621924076de7df821ffe6f6ae793699f770129352559a321a9590b",
+    "pred_v2_sha256": "42babb66332e09ddc8ee76e74cdaa69e7798f1fcc0be742da5c5179cc174f7bd",
+    "train_summary_sha256": "78b8f3ef0951233765a328dd8f79c396bba3a3ab78d5407d662ec70fd9694704",
+    "design_sha256": "0f0df9909c1f8261a8bd8b190c7d7c18d56c830b87ef0a1fefde6e2f2325a86c",
+    "q1_predictions_sha256": "7f075c7c0ee6c81946341bf61fcdb12824df3fee5a7d4fb3ffc3c906073ca39b"
+  },
+  "config": {
+    "bootstrap": {
+      "resamples": 5000,
+      "seed": 20261124
+    },
+    "gate": "applyKappaDecision (ambang beku repo)"
+  },
+  "anchors": {
+    "champion_vs_pr4_ok": true
+  },
+  "guard": {
+    "before": {
+      "model-manifest.json": {
+        "sha256": "a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315"
+      },
+      "calibrated_ratings.json": {
+        "sha256": "be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+      },
+      "picks.db": {
+        "size_bytes": 60653568,
+        "mtime": "2026-11-25T09:45:10.881Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 92872704,
+        "mtime": "2026-11-25T09:43:50.962Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041361920,
+        "mtime": "2026-11-25T13:24:45.487Z"
+      }
+    },
+    "after": {
+      "model-manifest.json": {
+        "sha256": "a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315"
+      },
+      "calibrated_ratings.json": {
+        "sha256": "be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+      },
+      "picks.db": {
+        "size_bytes": 60653568,
+        "mtime": "2026-11-25T09:45:10.881Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 92872704,
+        "mtime": "2026-11-25T09:43:50.962Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041361920,
+        "mtime": "2026-11-25T13:24:45.487Z"
+      }
+    },
+    "identical": true
+  }
+}

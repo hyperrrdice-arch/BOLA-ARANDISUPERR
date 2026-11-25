@@ -1,0 +1,70 @@
+{
+  "candidate_id": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+  "hypothesis": "ML1-B — ML1-A + proxy shots/SoT as-of dari log kanonik (brief ML1 Tahap B)",
+  "champion": "2.0-dixon-coles-mle+kfit10+hl365+rho:zero+js2 (Level B, evaluator PR 3, as-of)",
+  "backend": {
+    "interpreter": "/home/hatch/workspace/tools/ml1-venv/bin/python",
+    "lightgbm": "4.7.0",
+    "numpy": "2.5.5"
+  },
+  "chosen_config": {
+    "lambda_l2": 10,
+    "num_boost_round": 100
+  },
+  "base_params": {
+    "deterministic_force": true,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_data_in_leaf": 50,
+    "num_threads": 1,
+    "objective": "poisson",
+    "seed": 20261125,
+    "verbose": -1
+  },
+  "feature_names": [
+    "form_gf5_home",
+    "form_ga5_home",
+    "form_gf10_home",
+    "form_ga10_home",
+    "form_gf5_away",
+    "form_ga5_away",
+    "form_gf10_away",
+    "form_ga10_away",
+    "elo_home",
+    "elo_away",
+    "elo_diff",
+    "rest_adv",
+    "venue_neutral",
+    "promoted_home",
+    "promoted_away",
+    "miss_rest",
+    "miss_form_home",
+    "miss_form_away",
+    "n_prior_home",
+    "n_prior_away",
+    "shots_for_home",
+    "shots_against_home",
+    "sot_for_home",
+    "sot_against_home",
+    "shots_for_away",
+    "shots_against_away",
+    "sot_for_away",
+    "sot_against_away",
+    "n_prior_shots_home",
+    "n_prior_shots_away",
+    "has_prior_shots_home",
+    "has_prior_shots_away"
+  ],
+  "trained_on": {
+    "H": 10401,
+    "V1": 10349,
+    "V2": 10362
+  },
+  "intensity_bounds": [
+    0.05,
+    6
+  ],
+  "abstain_policy": "identik dengan fallback champion (matriks)",
+  "offset_composition": "lambda = clamp(exp(log lambda_champion + raw_score), 0.05, 6.0) — init_score TIDAK termasuk di predict() LightGBM (terverifikasi Fase 0)",
+  "artifact_sha256": "92377be6cc4cb2a679646ecd5cc24ba7a4dfa2734f11a52fad77f23c9a395246"
+}
