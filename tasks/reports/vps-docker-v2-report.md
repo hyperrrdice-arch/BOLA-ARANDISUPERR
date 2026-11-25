@@ -176,3 +176,52 @@ Fixture: 2 DB dummy di `/tmp/bola-bktest/dbs` (`alpha.db` jurnal default 1 baris
 | Validasi susulan Fase 3 | `ops/crontab.docker` kini **5/5** path script ada di repo — stop-gate Fase 3 tertutup penuh |
 
 ---
+
+## Fase 5 — Verifikasi Akhir & Tabel Laporan Wajib
+
+Validasi akhir dijalankan **satu per satu (tidak paralel)** di checkout utama (suite tes) dan worktree terpisah (build):
+
+| Cek | Hasil |
+| :--- | :--- |
+| `npx --no-install tsc --noEmit` (tanpa cache) | exit 0 |
+| `npm run lint:gate` | LOLOS (91 error ≤ baseline 92; 0 baru) |
+| `npm run test:quant` | rantai berhenti di `test:model` **42/45** — signature lama checkout utama yang terdokumentasi pra-sprint (3 kegagalan sandbox `point_in_time_violation`: ratings hasil refresh live vs tanggal sandbox 2026-11-21; BUKAN regresi — sprint tidak menyentuh `lib/quant`/evaluator/ratings). Seluruh suite lain dalam rantai dijalankan satu per satu dan **semua hijau**: test-quant 22/22, test-model-artifacts 32/32, experiment-stats 23/23, evaluator-kronologis 22/22, kandidat-q1 (L02) **33/33**, promote-gate 21/21, q0-baselines 19/19, q2-rho 11/11 |
+| `npm run test:data` | exit 0 — 11 suite hijau: data 18/18, identity 58/58, publication 110/110, tickets 69/69, resolver-score 23/23, slip-stats 12/12, ingest-freshness 12/12, fix4 **46/46**, T02 **63/63**, fdorg **43/43**, cohort-duplikat **21/21** |
+| `npm run test:api` | exit 0 — api-contract 42/42 |
+| `npm run build` (worktree di HEAD Fase 4) | exit 0; `.next/standalone/server.js` ada (7.812 byte) |
+| `docker build` / `docker compose config` | `DOCKER_NOT_AVAILABLE_ON_HOST` (CLI tidak terpasang di VM ini) |
+| `sha256sum` manifest + ratings | identik jangkar Fase 0 (lihat Konfirmasi Isolasi) |
+| `git status` | tidak ada DB produksi yang berubah/di-commit oleh sprint; sisa status = churn refresh terjadwal pra-sprint yang sama seperti keadaan awal Fase 0 |
+
+### Tabel Laporan Wajib
+
+| Fase | Status (`SELESAI` / `DOCKER_NOT_AVAILABLE_ON_HOST` / `BLOCKED`) | Commit & File Utama | Bukti Verifikasi (Exit Code / Hash) | Catatan / Tindak Lanjut |
+| :--- | :--- | :--- | :--- | :--- |
+| Fase 0 — Audit DB & Cron | SELESAI | `a111eb0` — `tasks/reports/vps-docker-v2-report.md` | Inventaris aktual: 7 `.db` di `data/` + 9 job cron/systemd tercatat exact; puppeteer HANYA di `tests/helpers`; jangkar sha256 tercatat | Cron fdorg mandiri TIDAK ada di host (jujur) — jadwal hariannya di `crontab.docker` adalah jadwal baru dari brief (03:00 WIB) |
+| Fase 1 — Isolasi `DB_DIR` | SELESAI | `d3da32b` — `lib/db/paths.ts` (baru) + 59 file diarahkan (lib/scripts/tests) + `.env.example` + `.gitignore` | tsc exit 0; lint LOLOS; test:data exit 0 (fix4 46/46, T02 63/63, fdorg 43/43, cohort 21/21); test:api exit 0; L02 33/33; smoke: tanpa `DB_DIR` semua path = `data/`, dengan `DB_DIR` dummy semua = dummy | `lib/quant/*` tak disentuh (non-goal); skrip riset `--data-dir` menjaga kontrak sandbox-nya via `EVAL_DB_DIR`; kompatibilitas mundur terbukti — produksi host saat ini berperilaku identik |
+| Fase 2 — `Dockerfile` Standalone | SELESAI (jalur non-Docker terverifikasi penuh) / `DOCKER_NOT_AVAILABLE_ON_HOST` untuk `docker build` | `cce3a14` — `Dockerfile`, `.dockerignore`, `next.config.ts` (`output: "standalone"` saja) | `npm run build` di worktree exit 0; `.next/standalone/server.js` ada; smoke boot standalone: `/healthz` 200, `/` 200; `docker info` gagal (CLI absen) | Build image pertama di VPS baru akan jadi verifikasi Docker perdana; 1 warning NFT Turbopack untuk `lib/db/paths.ts` diterima; tanpa Chromium & tanpa Python sesuai putusan Fase 0/non-goal |
+| Fase 3 — `docker-compose.yml` & Caddy | SELESAI (validasi statis; `docker compose config` tak tersedia di host) | `ad43df6` — `docker-compose.yml`, `Caddyfile`, `ops/crontab.docker`, `Dockerfile` (+`util-linux` untuk flock) | Parse YAML PyYAML + assert struktur OK; crontab 5 baris valid; path script 5/5 ada (tertutup sesudah Fase 4); file rujukan compose lengkap | Jadwal crontab = inventaris Fase 0 persis (04:21/16:21, 09:00/18:00, 13:30) + fdorg 03:00 & backup 03:30 (baru, jam sepi) |
+| Fase 4 — Safe Backup & Runbook | SELESAI | `e8c0688` — `scripts/backup-sqlite-safe.ts`, `litestream.yml.example`, `docs/VPS-MIGRATION-RUNBOOK.md`, `.gitignore` (`data/backups/`) | Uji terisolasi /tmp: exit 0; `.tar.gz` + `.sha256` terbentuk; `sha256sum -c` OK; restore: integrity ok + jumlah baris persis fixture (1 & 5) | Retensi 7 hari; `RCLONE_REMOTE` opsional (peringatan keras bila rclone absen); litestream = templat, belum diaktifkan (keputusan pemilik) |
+| Fase 5 — Verifikasi Akhir | SELESAI | commit laporan ini — `tasks/reports/vps-docker-v2-report.md` | tsc 0; lint LOLOS; test:data 0; test:api 0; build worktree 0; sha256 identik jangkar; test:quant hijau kecuali signature lama test:model 42/45 (pra-ada, terdokumentasi) | Service produksi tidak pernah di-restart/di-redeploy selama sprint; `.next` produksi tidak pernah ditimpa (semua build di worktree) |
+
+### Konfirmasi Isolasi Live
+
+- `data/model-manifest.json`: Fase 0 `a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315` = Fase 5 `a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315` — **IDENTIK**.
+- `data/calibrated_ratings.json`: Fase 0 `be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685` = Fase 5 `be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685` — **IDENTIK**.
+- Tidak ada DB produksi yang diubah isinya atau masuk commit sprint (seluruh commit hanya kode/konfigurasi/dokumen; `*.db*` ter-gitignore dan tak pernah di-`add`). Rumus/bobot champion, tiket beku, dan environment service produksi tidak disentuh; tidak ada restart/redeploy.
+
+### Daftar Final Database yang Terlindungi di `DB_DIR` & `backup-sqlite-safe.ts`
+
+Seluruhnya di-resolve lewat `lib/db/paths.ts` (`DB_DIR`, default `data/`) dan ter-backup otomatis oleh pemindaian dinamis `backup-sqlite-safe.ts`:
+
+1. `picks.db` — ledger pick safe-bet (append-only; termasuk tiket resmi Fix-4)
+2. `market_snapshots.db` — snapshot odds API-Football (append-only)
+3. `analysis_snapshots.db` — paket analisis/snapshot (juga target replikasi litestream)
+4. `thestats_dataset.db` — dataset hasil/telemetri kanonik (±2,9 GB)
+5. `upcoming_fixtures.db` — katalog fixture mendatang
+6. `predictions.db` — panel prediksi Sportmonks
+7. `football_master.db` — master Sportmonks warisan (read-only)
+
+Di luar cakupan (disengaja): `archive/analysis_snapshots-legacy-2026-10.db` — arsip statis warisan, bukan DB runtime.
+
+---
