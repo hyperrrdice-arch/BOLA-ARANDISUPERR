@@ -96,3 +96,27 @@ dbDir(): /tmp/dbdir-dummy  →  ketujuh DB -> /tmp/dbdir-dummy/*.db
 Catatan proses: satu sisipan import otomatis sempat mendarat di tengah blok import multi-baris `scripts/pick-slate.ts` (error parse ESLint) — diperbaiki manual, lalu seluruh 54 file yang menyentuh `db/paths` diaudit parse bersih via TypeScript compiler API (0 error) dan tsc diulang tanpa cache.
 
 ---
+
+## Fase 2 — `Dockerfile` (Node 24 + Next.js Standalone) & `.dockerignore`
+
+- **`next.config.ts`:** ditambah HANYA `output: "standalone"` (opsi eksisting lain tidak diubah).
+- **`.dockerignore`:** persis daftar brief (`node_modules`, `.next`, `.git`, `storage`, `data/*.db*`, `data/historical/raw`, `data/backtest_cache`, `archive`, `tasks`, `.env`, `.env.local`, `*.log`, `coverage`).
+- **`Dockerfile`** multi-stage `node:24-slim`:
+  - `deps`: `npm ci` (semua dependensi — `tsx` adalah devDependency dan dibutuhkan peran scheduler).
+  - `builder`: `npm run build`.
+  - `runner`: `tzdata` + Supercronic terpasang, `ENV TZ=Asia/Jakarta`; **tanpa dependensi OS Chromium** (putusan Fase 0); salin `.next/standalone` + `.next/static`; `data/` (hanya JSON statis — `*.db*` ter-exclude dari konteks); `scripts/`, `lib/`, `ops/`, `package.json`, `tsconfig.json` (alias `@/*` untuk tsx); `node_modules` lengkap dari stage deps (kebutuhan tsx cron; web memakai subset ter-trace-nya dari direktori yang sama); `/app/storage` milik user `node`; `NODE_ENV=production`, `PORT=3101`, `HOSTNAME=0.0.0.0`, `DB_DIR=/app/storage`; `EXPOSE 3101`; `CMD ["node", "server.js"]`.
+  - Repo **tidak punya `public/`** (terverifikasi) → baris COPY `public/` ditiadakan dengan komentar di Dockerfile.
+  - `ops/` (jadwal cron) dibuat di Fase 3; Dockerfile sudah mereferensikannya.
+
+### Stop-gate Fase 2 — verifikasi jalur non-Docker (daemon tidak tersedia)
+
+| Cek | Hasil |
+| :--- | :--- |
+| `docker info` / `docker build` | **`DOCKER_NOT_AVAILABLE_ON_HOST`** — CLI docker tidak terpasang di VM ini; tidak ada klaim build image |
+| `npm run build` di **worktree terpisah** (bukan checkout produksi) | **exit 0** |
+| `.next/standalone/server.js` | ada (7.812 byte) |
+| Smoke boot standalone (`node .next/standalone/server.js`, port 3199) | `/healthz` **HTTP 200**, `/` **HTTP 200** |
+
+Catatan proses build worktree (jujur): (1) symlink `node_modules` ditolak Turbopack → diganti hardlink-copy; (2) symlink `data/` meracuni cache Turbopack (error loader di luar root) → hardlink-copy + hapus `.next` worktree; (3) build sempat gagal di *collect page data* `/api/agent` karena worktree tidak memiliki `.env.local` (gitignored) → salinan lokal `.env.local` dipakai hanya di worktree dan ikut terhapus bersama worktree. Turbopack memberi 1 *warning* NFT untuk `lib/db/paths.ts` (akses fs dinamis `DB_DIR` → tracing lebih luas) — warning, bukan error; konsekuensi yang diterima demi fleksibilitas `DB_DIR`. Service produksi tidak pernah di-restart/di-redeploy selama fase ini; `.next` checkout utama tidak disentuh (build 100% di worktree, worktree sudah dihapus, checkout utama terverifikasi utuh).
+
+---

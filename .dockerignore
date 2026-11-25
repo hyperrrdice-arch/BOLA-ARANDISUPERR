@@ -1,0 +1,14 @@
+# Docker build context — Sprint Portable VPS & Docker V2
+node_modules
+.next
+.git
+storage
+data/*.db*
+data/historical/raw
+data/backtest_cache
+archive
+tasks
+.env
+.env.local
+*.log
+coverage
