@@ -13,6 +13,12 @@
 //  - <= 80 req/hari per proses (pengaman di bawah kuota 100/hari);
 //  - sisa kuota dari header respons (x-ratelimit-requests-remaining)
 //    dicatat dan dipakai menghentikan larian sebelum kuota habis.
+//  - HALAMAN <= 3: free plan menolak parameter Page > 3 (terbukti live
+//    25 Nov 2026: payload errors {"plan":"Free plans are limited to a
+//    maximum value of 3 for the Page parameter"}). Klien TIDAK PERNAH
+//    membangun request di luar 1..3; halaman selebihnya dilaporkan
+//    eksplisit sebagai skipped-due-to-plan-cap — tidak ada pemotongan
+//    diam-diam.
 //
 // Token dibaca dari env APIFOOTBALL_API_KEY oleh skrip pemanggil dan
 // diteruskan sebagai argumen — modul ini tidak membaca env dan tidak
@@ -25,6 +31,8 @@ export const APIFOOTBALL_MAX_REQ_PER_MINUTE = 9;
 export const APIFOOTBALL_MAX_REQ_PER_DAY = 80;
 /** Berhenti bila sisa kuota harian dari header <= angka ini. */
 export const APIFOOTBALL_MIN_REMAINING = 20;
+/** Batas keras parameter Page pada free plan (API menolak Page > 3). */
+export const APIFOOTBALL_FREE_PLAN_MAX_PAGE = 3;
 
 // ---------------------------------------------------------------------------
 // Rate limiter (jam + sleep terinjeksi agar teruji deterministik)
@@ -251,6 +259,14 @@ export async function fetchApiFootballOddsPage(
   page: number,
   limiter: ApiFootballRateLimiter,
 ): Promise<AfFetchResult> {
+  // Guard batas free plan SEBELUM slot kuota diambil dan SEBELUM request
+  // dibangun: Page di luar 1..APIFOOTBALL_FREE_PLAN_MAX_PAGE pasti ditolak
+  // API dan hanya membakar kuota — request semacam itu tidak pernah dibuat.
+  if (!Number.isInteger(page) || page < 1 || page > APIFOOTBALL_FREE_PLAN_MAX_PAGE) {
+    throw new Error(
+      `api-football: halaman ${page} di luar batas free plan (1..${APIFOOTBALL_FREE_PLAN_MAX_PAGE}) — request tidak dibuat`,
+    );
+  }
   await limiter.acquire();
   const url = `${APIFOOTBALL_BASE_URL}/odds?date=${encodeURIComponent(date)}&page=${page}`;
   const res = await fetchFn(url, { headers: { "x-apisports-key": apiKey } });
@@ -270,6 +286,47 @@ export async function fetchApiFootballOddsPage(
     page: payload.paging?.current ?? page,
     totalPages: payload.paging?.total ?? page,
   };
+}
+
+export interface AfDateFetchResult {
+  /** Halaman yang benar-benar diambil (selalu <= APIFOOTBALL_FREE_PLAN_MAX_PAGE). */
+  pages: AfFetchResult[];
+  /** Total halaman menurut paging API untuk query tanggal ini. */
+  totalPages: number;
+  fetchedPages: number;
+  /** Halaman yang TIDAK diambil karena batas free plan (0 bila utuh). */
+  skippedPages: number;
+  /** true bila query punya lebih banyak halaman daripada yang boleh diambil. */
+  truncated: boolean;
+}
+
+/**
+ * Ambil odds satu tanggal dengan paginasi yang DIBATASI batas free plan.
+ * Query /odds?date= mencakup SEMUA fixture dunia pada tanggal itu (10
+ * entri/halaman), jadi totalPages pada tanggal nyata selalu jauh di atas
+ * 3 — loop lama berjalan sampai API menolak Page 4 dan seluruh larian
+ * mati. Fungsi ini berhenti di halaman 3 dan melaporkan sisanya lewat
+ * skippedPages/truncated agar pemanggil WAJIB menampilkannya sebagai
+ * skipped-due-to-plan-cap (pemotongan diam-diam dilarang).
+ */
+export async function fetchApiFootballOddsForDate(
+  fetchFn: FetchLike,
+  apiKey: string,
+  date: string,
+  limiter: ApiFootballRateLimiter,
+): Promise<AfDateFetchResult> {
+  const pages: AfFetchResult[] = [];
+  let totalPages = 1;
+  let page = 1;
+  do {
+    const res = await fetchApiFootballOddsPage(fetchFn, apiKey, date, page, limiter);
+    pages.push(res);
+    totalPages = res.totalPages;
+    page++;
+  } while (page <= Math.min(totalPages, APIFOOTBALL_FREE_PLAN_MAX_PAGE));
+  const fetchedPages = pages.length;
+  const skippedPages = Math.max(0, totalPages - fetchedPages);
+  return { pages, totalPages, fetchedPages, skippedPages, truncated: skippedPages > 0 };
 }
 
 // ---------------------------------------------------------------------------

@@ -20,7 +20,9 @@ import { DatabaseSync } from "node:sqlite";
 import { Suite } from "./helpers/fixture-env";
 import {
   ApiFootballRateLimiter,
+  APIFOOTBALL_FREE_PLAN_MAX_PAGE,
   captureWindowForInstant,
+  fetchApiFootballOddsForDate,
   fetchApiFootballOddsPage,
   parseApiFootballOdds,
   type AfOddsPayload,
@@ -185,6 +187,54 @@ async function main(): Promise<void> {
   try { await fetchApiFootballOddsPage(fetch500, "mock-key", "2026-11-26", 1, limFetch); }
   catch { threw = true; }
   suite.check("fetch: HTTP 500 → melempar", threw);
+
+  // --- Batas paginasi free plan (Page <= 3) ------------------------------------------
+  // Transport mock yang berpura-pura punya `totalPages` halaman dan mencatat
+  // halaman yang diminta — membuktikan klien TIDAK PERNAH membangun request
+  // Page > 3 dan potongan dilaporkan sebagai skipped-due-to-plan-cap.
+  const fastLimiter = () =>
+    new ApiFootballRateLimiter({
+      maxPerMinute: 100, maxPerDay: 80, now: () => fakeNow, sleep: async () => {},
+    });
+  const mockTransport = (totalPages: number, requested: number[]): FetchLike =>
+    async (url) => {
+      const page = Number(new URL(url).searchParams.get("page"));
+      requested.push(page);
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: (n: string) => (n === "x-ratelimit-requests-remaining" ? "90" : null) },
+        json: async () => ({ ...payload, paging: { current: page, total: totalPages } }),
+      };
+    };
+
+  const req7: number[] = [];
+  const res7 = await fetchApiFootballOddsForDate(mockTransport(7, req7), "mock-key", "2026-11-26", fastLimiter());
+  suite.eq("paginasi: transport 7 halaman → hanya halaman 1..3 yang diminta", req7, [1, 2, 3]);
+  suite.check("paginasi: tidak ada request Page > batas free plan",
+    req7.every((p) => p <= APIFOOTBALL_FREE_PLAN_MAX_PAGE));
+  suite.eq("paginasi: fetchedPages/totalPages terlaporkan", [res7.fetchedPages, res7.totalPages], [3, 7]);
+  suite.eq("paginasi: skipped-due-to-plan-cap = 4 halaman", res7.skippedPages, 4);
+  suite.check("paginasi: truncated terlaporkan eksplisit", res7.truncated === true);
+  const quotes7 = res7.pages.reduce((n, p) => n + parseApiFootballOdds(p.payload).length, 0);
+  suite.eq("paginasi: hitungan laporan larian hanya dari halaman terambil (3×3 quote)", quotes7, 9);
+
+  const req2: number[] = [];
+  const res2 = await fetchApiFootballOddsForDate(mockTransport(2, req2), "mock-key", "2026-11-26", fastLimiter());
+  suite.eq("paginasi: transport 2 halaman → semua diambil", req2, [1, 2]);
+  suite.check("paginasi: 2 halaman → tidak truncated, skipped 0",
+    res2.truncated === false && res2.skippedPages === 0);
+
+  let guardCalls = 0;
+  const guardFetch: FetchLike = async () => {
+    guardCalls++;
+    return { ok: true, status: 200, headers: { get: () => null }, json: async () => payload };
+  };
+  threw = false;
+  try { await fetchApiFootballOddsPage(guardFetch, "mock-key", "2026-11-26", 4, fastLimiter()); }
+  catch { threw = true; }
+  suite.check("paginasi: Page 4 ditolak klien sebelum request dibangun",
+    threw && guardCalls === 0);
 
   // --- Jendela tetap ---------------------------------------------------------------
   suite.eq("jendela: 02:30 UTC = 09:30 WIB → 09:00",
