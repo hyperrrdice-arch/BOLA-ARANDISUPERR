@@ -16,90 +16,90 @@
     }
   },
   "training": {
-    "totalMatches": 73412,
+    "totalMatches": 74218,
     "leagueCount": 84,
     "teamCount": 2088,
     "window": {
       "start": "2024-01-01",
-      "end": "2026-11-16",
+      "end": "2026-11-23",
       "basis": "match_dates"
     },
     "perLeague": [
       {
         "div": "B1",
-        "matches": 1619
+        "matches": 1655
       },
       {
         "div": "D1",
-        "matches": 1575
+        "matches": 1620
       },
       {
         "div": "D2",
-        "matches": 1593
+        "matches": 1638
       },
       {
         "div": "E0",
-        "matches": 1960
+        "matches": 2010
       },
       {
         "div": "E1",
-        "matches": 2879
+        "matches": 2952
       },
       {
         "div": "E2",
-        "matches": 119
+        "matches": 131
       },
       {
         "div": "E3",
-        "matches": 154
+        "matches": 166
       },
       {
         "div": "EC",
-        "matches": 173
+        "matches": 185
       },
       {
         "div": "F1",
-        "matches": 1732
+        "matches": 1777
       },
       {
         "div": "F2",
-        "matches": 1822
+        "matches": 1867
       },
       {
         "div": "G1",
-        "matches": 1231
+        "matches": 1265
       },
       {
         "div": "I1",
-        "matches": 1960
+        "matches": 2020
       },
       {
         "div": "I2",
-        "matches": 1960
+        "matches": 2020
       },
       {
         "div": "N1",
-        "matches": 1602
+        "matches": 1647
       },
       {
         "div": "P1",
-        "matches": 1601
+        "matches": 1628
       },
       {
         "div": "SC0",
-        "matches": 1188
+        "matches": 1221
       },
       {
         "div": "SC1",
-        "matches": 73
+        "matches": 77
       },
       {
         "div": "SC2",
-        "matches": 74
+        "matches": 79
       },
       {
         "div": "SC3",
-        "matches": 70
+        "matches": 74
       },
       {
         "div": "SM1007",
@@ -351,28 +351,28 @@
       },
       {
         "div": "SP1",
-        "matches": 1978
+        "matches": 2029
       },
       {
         "div": "SP2",
-        "matches": 2409
+        "matches": 2472
       },
       {
         "div": "T1",
-        "matches": 1813
+        "matches": 1858
       }
     ],
-    "populationNote": "totalMatches adalah Σ hitungan per fit — jumlah totalMatches yang tersimpan di tiap fit liga (fit warisan dapat membawa korpus multi-musim), BUKAN cacah baris unik dataset dalam jendela latih. Manifest ini: 73.412 (Σ per fit) vs 71.503 baris hasil final dataset dalam jendela [2024-01-01, 2026-11-17) — rekonsiliasi persis PR 1A A6."
+    "populationNote": "totalMatches adalah Σ hitungan per fit — jumlah totalMatches yang tersimpan di tiap fit liga (fit warisan dapat membawa korpus multi-musim), BUKAN cacah baris unik dataset dalam jendela latih."
   },
   "calibration": {
-    "calibrated": 32,
-    "partial": 35,
+    "calibrated": 40,
+    "partial": 43,
     "uncalibrated": 1,
-    "unknown": 16
+    "unknown": 0
   },
-  "ratingsHash": "sha256:8a790aeaa4e54fdd",
-  "generatedBy": "scripts/build-model-manifest.ts --activate",
+  "ratingsHash": "sha256:910a9efe3103ffde",
+  "generatedBy": "scripts/fit-global-offsets.ts",
   "codeSha": null,
-  "generatedAt": "2026-11-20T08:23:32.753Z",
-  "contentHash": "sha256:e4e385a26099dac6a5d4440f9d6c81668d660335f797987d496a7d9822e48a08"
+  "generatedAt": "2026-11-25T21:12:20.877Z",
+  "contentHash": "sha256:b1577ec6604a52dd1f810a649f1490bcdf13b1d0958911b9e8f695897cb98794"
 }

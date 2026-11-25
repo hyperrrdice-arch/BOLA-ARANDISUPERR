@@ -1,0 +1,44 @@
+{
+ "decision": "promote",
+ "experiment": "R-04 — opsi A (fit ulang 16 divisi warisan dari korpus CSV football-data segar) vs status quo (fit warisan beku 11-14 Okt 2026) vs opsi B (routing fixture fd_ ke fit SM)",
+ "basis": "Aturan adopsi pra-registrasi (header scripts/evaluate-r04-shadow.ts, dikunci sebelum hasil dilihat): tingkat adopsi tidak lebih buruk = ΔLL primer <= 0 DAN batas atas CI 95% < +0,005 DAN ΔLL sekunder < 0. Opsi A lolos seluruhnya. Opsi B setara secara statistik (ΔLL A-B +0,0004, CI memuat 0) tapi gugur pada bukti deploy: roster SM tidak me-resolve 27/209 (13%) laga populasi dalam bentuk nama fd, yang di jalur saji jatuh ke fallback lintas-divisi berlabel keliru. Opsi A cakupan penuh by construction.",
+ "gate_checks": [
+  {
+   "id": "primary_delta_ll_nonpositive",
+   "pass": true,
+   "value": -0.0216,
+   "detail": "ΔLL A-SQ jendela primer (kickoff > 2026-11-06, n=74 dukungan bersama) = -0,0216 <= 0"
+  },
+  {
+   "id": "primary_ci_upper_below_margin",
+   "pass": true,
+   "value": 0.0042,
+   "detail": "CI 95% bootstrap berpasangan ΔLL A-SQ [-0,0479, +0,0042]; batas atas < margin +0,005"
+  },
+  {
+   "id": "secondary_delta_ll_negative",
+   "pass": true,
+   "value": -0.014,
+   "detail": "ΔLL A-SQ jendela sekunder pasca-vintage (n=182) = -0,0140 < 0"
+  },
+  {
+   "id": "coverage_full",
+   "pass": true,
+   "value": 1,
+   "detail": "Lengan A menghargai 85/85 laga primer dan 209/209 laga sekunder (roster berkunci nama fd)"
+  }
+ ],
+ "headline": {
+  "coverage_candidate": 1,
+  "coverage_champion": 1,
+  "delta_ll_primary": -0.0216,
+  "delta_ll_secondary": -0.014,
+  "ll_primary": {
+   "sq": 1.01199,
+   "a": 0.99036,
+   "b": 0.98998
+  },
+  "n_primary_common": 74,
+  "n_secondary_common": 182
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "run_id": "r04-2026-11-26",
+ "generated_at_utc": "2026-11-25T21:13:11.842Z",
+ "promotion": {
+  "candidate_content_hash": "sha256:b1577ec6604a52dd1f810a649f1490bcdf13b1d0958911b9e8f695897cb98794",
+  "candidate_ratings_hash": "sha256:910a9efe3103ffde",
+  "candidate_model_version": "2.0-dixon-coles-mle+kfit10+hl365+rho:zero+js2",
+  "input_hashes": {
+   "shadow_evidence": "sha256:7963b1e4af3c96898a26c3a9c264bca56a213c4b25e62a6ab0cdfd0a8b4d2b59",
+   "champion_artifact": "sha256:8a790aeaa4e54fdd43dc290dd229f1f8aca24e5ecbe25bc29666eeab93e648e8",
+   "pre_change_working_ratings": "sha256:be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+  },
+  "coverage": {
+   "candidate": 1,
+   "champion": 1
+  }
+ }
+}

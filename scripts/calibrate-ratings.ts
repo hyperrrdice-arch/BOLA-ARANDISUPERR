@@ -42,6 +42,22 @@
  * uji skala + cakupan telemetri (di bawah) DAN gerbang OOS bila
  * tasks/oos-gate.json tersedia (log-loss held-out harus mengalahkan
  * baseline naive liga, kalau tidak status diturunkan ke partial).
+ *
+ * Fit ulang divisi warisan (R-04, keputusan pemilik 26 Nov 2026):
+ *   16 divisi football-data warisan pra-sprint (entri JSON tanpa field
+ *   `source`, beku di vintage 11–14 Okt 2026) kini ikut di-fit ulang
+ *   tiap run lewat jalur fd di bawah — baris latihnya korpus CSV
+ *   football-data 6 musim (2122..2627) yang diunduh segar, BUKAN baris
+ *   dataset (hasil fd di dataset sebagian besar terjembatani ke baris
+ *   sm_, jadi populasi per-divisi di dataset terlalu tipis untuk fit).
+ *   Mesin + tangga gerbang PERSIS jalur fd yang ada (fitLeague yang
+ *   sama, uji skala 2%, gerbang OOS, cakupan dari baris fd dataset
+ *   musim berjalan). Kontrak gagal-aman: korpus tidak lengkap (satu
+ *   musim saja gagal unduh / total < MIN_MATCHES) → entri lama
+ *   DIPERTAHANKAN utuh dan dicatat di log — fit menyusut tidak pernah
+ *   menimpa fit warisan diam-diam. Bukti pemilihan opsi (shadow,
+ *   pra-registrasi): tasks/r04/evidence/shadow-results.json +
+ *   tasks/reports/r04-legacy-fit-report.md.
  */
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
@@ -49,7 +65,7 @@ import fs from "node:fs";
 import { fitLeagueRatings, fitRhoOnTrain, selectTrainingRows, type FitMatchRow, type LeagueFitResult } from "../lib/quant/fit";
 import { PRODUCTION_MODEL_CONFIG, writeCandidateManifest } from "../lib/quant/model-manifest";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
-import { FD_DIVISIONS } from "../lib/feeds/football-data";
+import { FD_DIVISIONS, fetchSeasonCsv, num } from "../lib/feeds/football-data";
 import { dataFilePath, dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
@@ -245,7 +261,80 @@ function augmentTeamNameAliases(
   return added.length;
 }
 
-function main() {
+// ---------------------------------------------------------------------------
+// Korpus CSV football-data untuk fit ulang divisi warisan (R-04).
+// ---------------------------------------------------------------------------
+
+/** Musim korpus fit warisan — jendela yang sama dengan korpus asal fit
+ *  warisan (data/historical/raw: 2122..2627, 6 musim). */
+const LEGACY_FIT_SEASONS = ["2122", "2223", "2324", "2425", "2526", "2627"] as const;
+
+/**
+ * 16 divisi warisan pra-sprint (R-04): himpunan TERTUTUP — persis divisi
+ * football-data yang entri ratings-nya terpasang sebelum sprint kalibrasi
+ * (di file produksi teridentifikasi dari calibrationDate 11–14 Okt 2026
+ * + field source/calibrationStatus absen; terverifikasi di Fase 0 R-04,
+ * tasks/reports/r04-legacy-fit-report.md). Divisi ekspansi 2026-11-16
+ * (E2/E3/EC/SC1/SC2/SC3) TIDAK termasuk — baris latihnya dataset.
+ */
+const WARISAN_DIVISIONS = new Set([
+  "B1", "D1", "D2", "E0", "E1", "F1", "F2", "G1",
+  "I1", "I2", "N1", "P1", "SC0", "SP1", "SP2", "T1",
+]);
+
+/** Label musim gaya dataset ("2026-2027") dari kode musim fd ("2627"). */
+function fdSeasonLabel(code: string): string {
+  const y = 2000 + Number(code.slice(0, 2));
+  return `${y}-${y + 1}`;
+}
+
+/** Tanggal CSV fd ("dd/mm/yyyy" atau "dd/mm/yy") → ISO "yyyy-mm-dd". */
+function fdDateToIso(raw: string): string | null {
+  const m = raw.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  const y = m[3].length === 2 ? `20${m[3]}` : m[3];
+  return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+}
+
+/**
+ * Baris latih satu divisi warisan dari korpus CSV fd segar (diunduh via
+ * fetchSeasonCsv — sumber yang sama dengan importer produksi). Kunci tim
+ * = nama bentuk-CSV persis seperti roster fit warisan asal, supaya
+ * fixture fd_ (yang membawa bentuk nama yang sama) ter-resolve penuh.
+ * Mengembalikan null bila korpus tidak lengkap (satu musim gagal unduh)
+ * atau total baris < MIN_MATCHES — pemanggil WAJIB mempertahankan entri
+ * lama pada kasus itu (kontrak gagal-aman R-04).
+ */
+async function loadLegacyCorpusRows(div: string): Promise<FitMatchRow[] | null> {
+  const rows: FitMatchRow[] = [];
+  for (const season of LEGACY_FIT_SEASONS) {
+    let raw: Awaited<ReturnType<typeof fetchSeasonCsv>>;
+    try {
+      raw = await fetchSeasonCsv(div, season);
+    } catch {
+      return null;
+    }
+    if (!raw) return null;
+    for (const r of raw) {
+      const iso = fdDateToIso(r.Date ?? "");
+      const hg = num(r, "FTHG");
+      const ag = num(r, "FTAG");
+      if (!iso || !r.HomeTeam || !r.AwayTeam || hg == null || ag == null) continue;
+      rows.push({
+        competition_id: div,
+        season: fdSeasonLabel(season),
+        utc_date: iso,
+        home_team_id: r.HomeTeam,
+        away_team_id: r.AwayTeam,
+        home_score: hg,
+        away_score: ag,
+      });
+    }
+  }
+  return rows.length >= MIN_MATCHES ? rows : null;
+}
+
+async function main() {
   loadCanonicalRegistry();
   const ds = new DatabaseSync(dataPath("thestats_dataset.db"));
   ds.exec("PRAGMA journal_mode = WAL;");
@@ -538,31 +627,61 @@ function main() {
   // hanya sumber cakupan telemetri: log hasil fd (impor menulis 2 baris
   // log per match yang di-insert) — cakupan = match musim berjalan yang
   // punya ≥1 baris log / total match musim berjalan populasi ini.
-  // Entri yang SUDAH ada (16 divisi warisan + semua SM) tidak pernah
-  // disentuh jalur ini — kontrak lama "tanpa mengubah liga legacy yang
-  // sudah terpasang" tetap berlaku; jalur ini hanya mengisi yang kosong.
   // Status TIDAK pernah ditulis tangan: hasil gerbang yang menentukan,
   // dan baris registry di-INSERT OR REPLACE setelah loop registrasi
   // legacy di atas supaya status jujur inilah yang bertahan.
+  //
+  // R-04 (26 Nov 2026): kontrak lama "tanpa mengubah liga legacy yang
+  // sudah terpasang" DICABUT pemilik untuk 16 divisi warisan — entri
+  // tanpa field `source` kini ikut di-fit ulang di sini, dengan baris
+  // latih korpus CSV fd 6 musim (loadLegacyCorpusRows), bukan baris
+  // dataset yang tipis. Sesudah fit ulang pertama, entrinya ber-source
+  // 'football-data-fit' dan run berikutnya memperlakukannya persis
+  // seperti divisi ekspansi — TAPI baris latihnya tetap korpus CSV:
+  // populasi dataset per divisi ini tidak pernah lengkap (hasil fd
+  // terjembatani ke baris sm_), jadi sumber latih dipilih dari ASAL
+  // divisi (warisan/ekspansi), bukan dari source entri saat ini.
+  // Daftar divisi warisan dibekukan di run pertama yang menemukannya
+  // (entri tanpa source) — divisi ekspansi tidak pernah masuk daftar.
   // ---------------------------------------------------------------------
-  let nLegacyFit = 0, nLegacyUncal = 0;
+  let nLegacyFit = 0, nLegacyUncal = 0, nLegacyKept = 0;
   for (const fdDiv of FD_DIVISIONS) {
     const div = fdDiv.code;
-    // Entri warisan/sumber lain tidak disentuh; entri hasil jalur ini
-    // sendiri (source='football-data-fit') di-fit ULANG tiap run — sama
-    // seperti liga SM — supaya fitnya segar mengikuti hasil fd terbaru
-    // dan status registry-nya selalu keluaran gerbang run terakhir.
-    if (ratings.leagues[div] && (ratings.leagues[div] as { source?: string }).source !== "football-data-fit") continue;
-    const matches = selectTrainingRows(
-      ds
+    // Entri sumber lain tidak disentuh; entri hasil jalur ini sendiri
+    // (source='football-data-fit') di-fit ULANG tiap run — sama seperti
+    // liga SM — supaya fitnya segar mengikuti hasil fd terbaru dan
+    // status registry-nya selalu keluaran gerbang run terakhir. Entri
+    // WARISAN (tanpa source) juga di-fit ulang (R-04).
+    const existingEntry = ratings.leagues[div] as { source?: string } | undefined;
+    const isWarisan = WARISAN_DIVISIONS.has(div);
+    if (existingEntry && existingEntry.source !== "football-data-fit" && !isWarisan) continue;
+    if (isWarisan && existingEntry && existingEntry.source !== undefined && existingEntry.source !== "football-data-fit") {
+      // Keadaan tak terduga (entri divisi warisan berubah sumber di luar
+      // jalur ini) — jangan tebak, jangan timpa.
+      console.log(`Legacy warisan ${div}: source entri tak terduga (${existingEntry.source}) — dilewati, entri dipertahankan.`);
+      nLegacyKept += 1;
+      continue;
+    }
+    let trainRows: MatchRow[];
+    if (isWarisan) {
+      const corpus = await loadLegacyCorpusRows(div);
+      if (!corpus) {
+        // Gagal-aman R-04: korpus tak lengkap → entri lama dipertahankan.
+        nLegacyKept += 1;
+        console.log(`Legacy warisan ${div}: korpus CSV tidak lengkap — entri lama DIPERTAHANKAN (tidak ditimpa fit menyusut).`);
+        continue;
+      }
+      trainRows = corpus;
+    } else {
+      trainRows = ds
         .prepare(
           `SELECT competition_id, season, utc_date, home_team_id, away_team_id, home_score, away_score
            FROM matches WHERE competition_id = ? AND status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL
            ORDER BY utc_date`,
         )
-        .all(div) as MatchRow[],
-      nowIso,
-    );
+        .all(div) as MatchRow[];
+    }
+    const matches = selectTrainingRows(trainRows, nowIso);
     if (matches.length === 0) continue; // divisi ini belum mengimpor hasil apa pun
     const teamSet = new Set<string>();
     for (const m of matches) { teamSet.add(m.home_team_id); teamSet.add(m.away_team_id); }
@@ -575,12 +694,18 @@ function main() {
         const curIds = (ds
           .prepare("SELECT match_id FROM matches WHERE competition_id = ? AND season = ?")
           .all(div, currentSeason) as { match_id: string }[]).map((r) => r.match_id);
-        const logged = (
+        const logged = curIds.length === 0 ? 0 : (
           ds.prepare(
             `SELECT COUNT(DISTINCT match_id) AS n FROM team_match_logs WHERE match_id IN (${curIds.map(() => "?").join(",")})`,
           ).get(...curIds) as { n: number }
         ).n;
-        coverage = Math.min(1, logged / cur.length);
+        // Penyebut = populasi yang sama dengan pembilang (baris dataset
+        // musim berjalan divisi ini). Untuk divisi ekspansi cur.length
+        // memang populasi itu juga (baris latihnya dataset); untuk
+        // divisi warisan baris latihnya korpus CSV (lebih lengkap dari
+        // baris dataset yang terjembatani), jadi penyebutnya curIds.
+        const denom = isWarisan ? curIds.length : cur.length;
+        coverage = denom > 0 ? Math.min(1, logged / denom) : null;
       }
     }
     const fdCanonicalId = canonicalIdForLegacyDiv(div);
@@ -662,13 +787,17 @@ function main() {
       coverage, Number(fit.scaleRatio.toFixed(4)), nowIso, "legacy-csv-fit",
       (forcedUncal
         ? "Fit ditulis; status uncalibrated karena gerbang bukti (OOS) — tersaji berlabel (keputusan owner 2026-11-05)."
-        : status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote,
+        : status === "calibrated" ? "Lolos uji skala + cakupan telemetri ≥80%." : `Gerbang gagal: skala=${fit.scaleRatio.toFixed(3)} cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}.`) + oosNote +
+        (isWarisan ? " Fit ulang R-04 dari korpus CSV football-data 6 musim (2122–2627)." : ""),
       fdCanonicalId);
     nLegacyFit += 1;
-    console.log(`Legacy fd ${div} (${fdDiv.name}): fit ditulis, status ${forcedUncal ? "uncalibrated" : status} (n=${matches.length}, skala=${fit.scaleRatio.toFixed(3)}, cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)}).`);
+    console.log(`Legacy fd ${div} (${fdDiv.name}): fit ditulis, status ${forcedUncal ? "uncalibrated" : status} (n=${matches.length}, skala=${fit.scaleRatio.toFixed(3)}, cakupan=${coverage == null ? "n/a" : coverage.toFixed(2)})${isWarisan ? " [R-04: fit ulang warisan dari korpus CSV]" : ""}.`);
   }
   if (nLegacyFit + nLegacyUncal > 0) {
     console.log(`Fit legacy fd baru: ${nLegacyFit} tertulis, ${nLegacyUncal} uncalibrated (data kurang/fit gagal).`);
+  }
+  if (nLegacyKept > 0) {
+    console.log(`Legacy warisan dipertahankan (korpus tak lengkap/sumber tak terduga): ${nLegacyKept} divisi — entri lama tidak ditimpa.`);
   }
 
   // Baris status kanonik (butir d): baris turunan source='canonical' dibangun
@@ -752,4 +881,7 @@ function main() {
   }
 }
 
-main();
+main().catch((e) => {
+  console.error("GAGAL:", e instanceof Error ? e.message : e);
+  process.exit(1);
+});
