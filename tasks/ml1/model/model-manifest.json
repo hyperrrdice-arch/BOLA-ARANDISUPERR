@@ -1,0 +1,45 @@
+{
+  "backend": {
+    "interpreter": "/home/hatch/workspace/tools/ml1-venv/bin/python",
+    "lightgbm": "4.7.0",
+    "numpy": "2.5.5"
+  },
+  "base_params": {
+    "deterministic_force": true,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_data_in_leaf": 50,
+    "num_threads": 1,
+    "objective": "poisson",
+    "seed": 20261125,
+    "verbose": -1
+  },
+  "boosters": {
+    "away": {
+      "file": "ml1-b-away.booster",
+      "sha256": "f3733e1198750ec90770cd88a8b23b8211a13343563173ebefc092e7381fdff8"
+    },
+    "home": {
+      "file": "ml1-b-home.booster",
+      "sha256": "8d0acdd84fa2fef29526999d98f7a80e1a0b65b292016868f12d4473ef8d33d3"
+    }
+  },
+  "candidate_id": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+  "chosen": {
+    "lambda_l2": 10.0,
+    "num_boost_round": 100
+  },
+  "composition": "lambda = clamp(exp(log lambda_champion + raw_score), 0.05, 6.0); Booster.predict() TIDAK menyertakan init_score",
+  "features_sha256": "f778551eca8ac934951549208c370ff60584386bbfc7759eaf2429f9218d3187",
+  "intensity_bounds": [
+    0.05,
+    6.0
+  ],
+  "model": "ml1-b",
+  "pred_h_sha256": "8e53fdaa3f621924076de7df821ffe6f6ae793699f770129352559a321a9590b",
+  "pred_v2_sha256": "42babb66332e09ddc8ee76e74cdaa69e7798f1fcc0be742da5c5179cc174f7bd",
+  "trained_on": {
+    "V1": 10349,
+    "V2": 10362
+  }
+}

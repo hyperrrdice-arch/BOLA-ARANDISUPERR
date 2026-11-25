@@ -21,6 +21,12 @@ Keluaran (deterministik, tanpa timestamp):
   <outdir>/pred-v2.jsonl       — {match, lam, mu} baris V2 dari model V1.
   <outdir>/pred-h.jsonl        — {match, lam, mu} baris H dari model V1+V2.
 
+Opsional (--model-out=<dir>): serialisasi booster refit V1+V2 (head home +
+head away) ke <dir>/ml1-b-home.booster & ml1-b-away.booster (format teks
+LightGBM) + <dir>/model-manifest.json berisi hash booster, konfigurasi
+terpilih, dan jangkar pred-h — dipakai jalur prospektif Item 19. Tanpa flag
+ini perilaku skrip identik dengan versi sprint.
+
 Interpreter resmi: ~/workspace/tools/ml1-venv/bin/python (lightgbm 4.7.0).
 """
 import argparse
@@ -114,6 +120,7 @@ def main() -> int:
     ap.add_argument("--features", required=True)
     ap.add_argument("--model", choices=["a", "b"], required=True)
     ap.add_argument("--outdir", required=True)
+    ap.add_argument("--model-out", default=None)
     args = ap.parse_args()
 
     import os
@@ -154,6 +161,38 @@ def main() -> int:
 
     sha_v2 = write_preds(os.path.join(args.outdir, "pred-v2.jsonl"), by_fold["V2"], lam2_best, mu2_best)
     sha_h = write_preds(os.path.join(args.outdir, "pred-h.jsonl"), by_fold["H"], lamH, muH)
+
+    # --- Serialisasi booster refit (opsional; jalur prospektif Item 19) -----
+    model_manifest = None
+    if args.model_out:
+        os.makedirs(args.model_out, exist_ok=True)
+        tag = f"ml1-{args.model}"
+        home_path = os.path.join(args.model_out, f"{tag}-home.booster")
+        away_path = os.path.join(args.model_out, f"{tag}-away.booster")
+        bh_final.save_model(home_path)
+        ba_final.save_model(away_path)
+        def file_sha(p: str) -> str:
+            with open(p, "rb") as f:
+                return hashlib.sha256(f.read()).hexdigest()
+        model_manifest = {
+            "model": tag,
+            "candidate_id": "ml1-b-gbdt-poisson-form-elo-shots-v1" if args.model == "b" else "ml1-a-gbdt-poisson-form-elo-v1",
+            "trained_on": {"V1": len(by_fold["V1"]), "V2": len(by_fold["V2"])},
+            "chosen": {"num_boost_round": best_rounds, "lambda_l2": best_l2},
+            "base_params": {k: v for k, v in BASE_PARAMS.items()},
+            "features_sha256": hashlib.sha256(open(args.features, "rb").read()).hexdigest(),
+            "pred_h_sha256": sha_h,
+            "pred_v2_sha256": sha_v2,
+            "boosters": {
+                "home": {"file": os.path.basename(home_path), "sha256": file_sha(home_path)},
+                "away": {"file": os.path.basename(away_path), "sha256": file_sha(away_path)},
+            },
+            "backend": {"lightgbm": lgb.__version__, "numpy": np.__version__, "interpreter": sys.executable},
+            "composition": "lambda = clamp(exp(log lambda_champion + raw_score), 0.05, 6.0); Booster.predict() TIDAK menyertakan init_score",
+            "intensity_bounds": [LAM_MIN, LAM_MAX],
+        }
+        with open(os.path.join(args.model_out, "model-manifest.json"), "w", encoding="utf-8") as f:
+            json.dump(model_manifest, f, indent=2, sort_keys=True)
 
     with open(args.features, "rb") as f:
         features_sha = hashlib.sha256(f.read()).hexdigest()
