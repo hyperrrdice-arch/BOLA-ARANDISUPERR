@@ -120,3 +120,30 @@ Catatan proses: satu sisipan import otomatis sempat mendarat di tengah blok impo
 Catatan proses build worktree (jujur): (1) symlink `node_modules` ditolak Turbopack → diganti hardlink-copy; (2) symlink `data/` meracuni cache Turbopack (error loader di luar root) → hardlink-copy + hapus `.next` worktree; (3) build sempat gagal di *collect page data* `/api/agent` karena worktree tidak memiliki `.env.local` (gitignored) → salinan lokal `.env.local` dipakai hanya di worktree dan ikut terhapus bersama worktree. Turbopack memberi 1 *warning* NFT untuk `lib/db/paths.ts` (akses fs dinamis `DB_DIR` → tracing lebih luas) — warning, bukan error; konsekuensi yang diterima demi fleksibilitas `DB_DIR`. Service produksi tidak pernah di-restart/di-redeploy selama fase ini; `.next` checkout utama tidak disentuh (build 100% di worktree, worktree sudah dihapus, checkout utama terverifikasi utuh).
 
 ---
+
+## Fase 3 — `docker-compose.yml`, `Caddyfile`, & Scheduler Cron
+
+- **`docker-compose.yml`** — 3 service persis brief:
+  - `web`: build `.`, image `bola-arandisuperr:local`, `env_file: .env.local`, `DB_DIR=/app/storage` + `TZ=Asia/Jakarta`, volume `./storage:/app/storage`, healthcheck `fetch /healthz` tiap 30 detik (interval 30s, timeout 10s, retries 3, start_period 30s), `restart: unless-stopped`.
+  - `scheduler`: image sama, `command: supercronic /app/ops/crontab.docker`, `working_dir: /app`, env + volume sama dengan web, `depends_on: web (service_healthy)`, `restart: unless-stopped`.
+  - `caddy`: `caddy:2-alpine`, port 80/443, `./Caddyfile` read-only, volume `caddy_data` + `caddy_config`, env `APP_DOMAIN` (default domain produksi), `restart: unless-stopped`.
+- **`Caddyfile`:** `{$APP_DOMAIN:bola.mhmdarandi.biz.id}` → `reverse_proxy web:3101` (sintaks placeholder env Caddy `{$VAR:default}`).
+- **`ops/crontab.docker`** — jadwal produksi aktual WIB (dicocokkan inventaris Fase 0), semua baris ber-`flock -n` anti-tumpang-tindih (kunci di `/app/storage/.lock-*`, lepas otomatis bila proses mati):
+  - `21 4,16 * * *` → `scripts/free-refresh.ts`
+  - `0 9,18 * * *` → `scripts/capture-odds-apifootball.ts`
+  - `30 13 * * *` → `scripts/generate-fix4-ticket.ts`
+  - `0 3 * * *` → `scripts/import-fdorg-results.ts` (jadwal baru dari brief — di host lama tak ada cron fdorg mandiri; 03:00 sebelum refresh 04:21)
+  - `30 3 * * *` → `scripts/backup-sqlite-safe.ts` (artefak Fase 4; sesudah fdorg, sebelum refresh)
+- **Sentuhan lintas-fase:** `Dockerfile` ditambah paket `util-linux` (penyedia `flock`) di stage runner — kebutuhan scheduler Fase 3.
+
+### Stop-gate Fase 3
+
+| Cek | Hasil |
+| :--- | :--- |
+| `docker compose config` | tidak bisa dijalankan — `DOCKER_NOT_AVAILABLE_ON_HOST` (CLI tidak terpasang) |
+| Parse YAML compose (PyYAML) + assert struktur | OK — 3 service, healthcheck 30s, `service_healthy`, port caddy, 2 volume bernama |
+| Sintaks `ops/crontab.docker` (regex 5 kolom cron) | OK — 5 baris valid |
+| Path script di crontab ada di repo | 4/5 ada sekarang; `scripts/backup-sqlite-safe.ts` adalah artefak Fase 4 — validasi diulang penuh sesudah Fase 4 dan dicatat di sana |
+| File rujukan compose (`Dockerfile`, `Caddyfile`, `ops/crontab.docker`, `.env.local`) | semua ada |
+
+---

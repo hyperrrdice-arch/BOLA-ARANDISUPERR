@@ -37,7 +37,7 @@ WORKDIR /app
 # Zona waktu WIB krusial: jadwal cron 04:21/09:00/13:30/16:21/18:00 harus
 # akurat di VPS mana pun. Supercronic = cron ringan untuk scheduler.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends tzdata curl ca-certificates \
+  && apt-get install -y --no-install-recommends tzdata curl ca-certificates util-linux \
   && rm -rf /var/lib/apt/lists/* \
   && curl -fsSL -o /usr/local/bin/supercronic \
        https://github.com/aptible/supercronic/releases/download/v0.2.33/supercronic-linux-amd64 \

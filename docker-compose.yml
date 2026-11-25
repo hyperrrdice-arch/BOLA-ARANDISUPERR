@@ -1,0 +1,69 @@
+# ============================================================================
+# docker-compose.yml — Football Agent (Sprint Portable VPS & Docker V2)
+# ----------------------------------------------------------------------------
+# Tiga service, satu image (lihat Dockerfile):
+#   web       : Next.js standalone di :3101 (internal), DB di volume storage
+#   scheduler : Supercronic menjalankan ops/crontab.docker (jadwal WIB)
+#   caddy     : satu-satunya pintu publik (80/443), HTTPS otomatis via ACME
+# Pindah VPS = clone repo + salin .env.local + ekstrak backup .db ke
+# ./storage/ + `docker compose up -d --build` (lihat docs/VPS-MIGRATION-RUNBOOK.md).
+# ============================================================================
+
+services:
+  web:
+    build: .
+    image: bola-arandisuperr:local
+    env_file:
+      - .env.local
+    environment:
+      DB_DIR: /app/storage
+      TZ: Asia/Jakarta
+    volumes:
+      - ./storage:/app/storage
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3101/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  scheduler:
+    build: .
+    image: bola-arandisuperr:local
+    command: ["supercronic", "/app/ops/crontab.docker"]
+    working_dir: /app
+    env_file:
+      - .env.local
+    environment:
+      DB_DIR: /app/storage
+      TZ: Asia/Jakarta
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-bola.mhmdarandi.biz.id}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

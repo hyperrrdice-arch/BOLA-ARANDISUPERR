@@ -1,0 +1,29 @@
+# ============================================================================
+# Jadwal cron produksi di dalam Docker (Sprint Portable VPS & Docker V2)
+# ----------------------------------------------------------------------------
+# Dibaca Supercronic di service `scheduler`. Semua jam WIB — kontainer
+# berjalan dengan TZ=Asia/Jakarta, jadi ekspresi di bawah dibaca sebagai
+# waktu Jakarta persis seperti jadwal produksi warisan host (inventaris
+# Fase 0). Setiap baris memakai `flock -n` anti-tumpang-tindih: bila run
+# sebelumnya belum selesai, run baru dilewati (bukan mengantre dobel).
+# Seluruh script menyelesaikan path DB lewat lib/db/paths.ts (DB_DIR).
+# ============================================================================
+
+# Rantai refresh gratis 9 langkah (termasuk langkah 9 WAL checkpoint PASSIVE)
+# Warisan host: interval 12 jam berjangkar 16:21 -> 04:21 & 16:21 WIB.
+21 4,16 * * * flock -n /app/storage/.lock-free-refresh npx tsx scripts/free-refresh.ts
+
+# Capture odds API-Football -> market_snapshots.db (jendela tetap Item 20)
+0 9,18 * * * flock -n /app/storage/.lock-capture npx tsx scripts/capture-odds-apifootball.ts
+
+# Tiket resmi Fix-4 (cutoff 14:00 WIB; generator abstain bila kandidat < 4)
+30 13 * * * flock -n /app/storage/.lock-fix4 npx tsx scripts/generate-fix4-ticket.ts
+
+# Hasil FINISHED football-data.org v4 (Item 7) — jadwal BARU dari brief V2:
+# di host lama adapter ini tidak punya cron mandiri (lihat laporan Fase 0).
+# 03:00 WIB: jam sepi, sebelum rantai refresh 04:21.
+0 3 * * * flock -n /app/storage/.lock-fdorg npx tsx scripts/import-fdorg-results.ts
+
+# Backup SQLite aman (VACUUM INTO + integrity_check + tar.gz + sha256).
+# 03:30 WIB: sesudah fdorg, sebelum refresh 04:21.
+30 3 * * * flock -n /app/storage/.lock-backup npx tsx scripts/backup-sqlite-safe.ts

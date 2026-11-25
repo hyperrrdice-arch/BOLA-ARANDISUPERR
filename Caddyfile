@@ -1,0 +1,7 @@
+# Caddyfile — Football Agent (Sprint Portable VPS & Docker V2)
+# Domain bisa ditimpa lewat env APP_DOMAIN di service caddy compose;
+# default domain produksi saat ini. Caddy menerbitkan & memperbarui
+# sertifikat HTTPS otomatis (ACME) begitu DNS A record menunjuk ke VPS.
+{$APP_DOMAIN:bola.mhmdarandi.biz.id} {
+	reverse_proxy web:3101
+}
