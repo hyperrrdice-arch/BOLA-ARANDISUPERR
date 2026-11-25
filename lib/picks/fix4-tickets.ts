@@ -12,7 +12,18 @@
 //    pada/saat cutoff (created_utc <= decision_ts), kickoff di jendela
 //    (cutoff, cutoff+24j], kompetisinya "berfeed" (klasifikasi PR 2 —
 //    tiket tidak pernah berisi pilihan yang tidak akan bisa dinilai),
-//    published_prob >= 0,72, maks 1 pilihan per match_id.
+//    published_prob >= 0,72, maks 1 pilihan per laga FISIK.
+//  - Pick termarking `duplicate_of` TIDAK PERNAH layak (perbaikan pasca
+//    tiket pertama 25 Nov 2026, yang memuat laga Boreham Wood–Aldershot
+//    dua kali karena generator lama tidak menyaringnya): predikat yang
+//    sama dengan publishSlip (tickets.ts) dan cohort.ts (A3) —
+//    `duplicate_of IS NULL` ditegakkan di kueri kandidat.
+//  - "Satu laga" dihitung dari identitas fixture KANONIK hasil tautan
+//    (data/fixture-links.json via SlateIdentity — mekanisme yang sama
+//    dengan pick-slate dan resolver), BUKAN match_id mentah: dua record
+//    kembar tertaut (fd_ vs sm_) adalah satu fixture, maksimal satu
+//    pick boleh masuk tiket. Fixture tanpa tautan memakai match_id-nya
+//    sendiri sebagai kunci (perilaku lama persis).
 //  - Ranking deterministik: published_prob desc, match_id asc, id asc.
 //  - expected_hit_prob tiket = Π published_prob (produk independensi —
 //    angka beku saat terbit; metrik pembuktian membandingkannya dengan
@@ -22,10 +33,13 @@
 //    VOID_OR_UNRESOLVABLE dicatat terpisah dari penyebut hit-rate.
 // ============================================================================
 import { createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import { ensurePublicationSchema } from "./publication";
 import { statusFeedKompetisi } from "./feed-coverage";
 import { SETTLEMENT_WINDOW_MS } from "./cohort";
+import { SlateIdentity, parseSlateLinks } from "./slate-identity";
 import {
   FIX4_ABSTAIN_IF_BELOW_SIZE,
   FIX4_MIN_PUBLISHED_PROB,
@@ -36,6 +50,18 @@ import {
 
 function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
+}
+
+/**
+ * Identitas fixture kanonik dari data/fixture-links.json (boleh tidak
+ * ada) — pola yang sama persis dengan loadSlateIdentity di pick-slate:
+ * berkas hilang/rusak → identitas kosong (semua fixture memakai
+ * match_id-nya sendiri, perilaku warisan).
+ */
+export function loadFix4Identity(cwd: string = process.cwd()): SlateIdentity {
+  const p = path.join(cwd, "data", "fixture-links.json");
+  if (!fs.existsSync(p)) return new SlateIdentity([]);
+  return new SlateIdentity(parseSlateLinks(fs.readFileSync(p, "utf8")));
 }
 
 // ---------------------------------------------------------------------------
@@ -96,10 +122,17 @@ export interface Fix4Candidate {
 
 /**
  * Kandidat layak Fix-4 untuk tanggal WIB tertentu, SUDAH terurut
- * deterministik dan terdedupe per match_id (pilihan terbaik tiap laga).
- * Murni baca — tidak menulis apa pun.
+ * deterministik dan terdedupe per fixture KANONIK (pilihan terbaik
+ * tiap laga fisik; kunci fixture = identitas tautan fixture-links,
+ * fallback match_id). Pick termarking `duplicate_of` tersaring di
+ * kueri dan tidak pernah muncul di hasil. Murni baca — tidak menulis
+ * apa pun ke picks.db (identitas dibaca dari berkas tautan).
  */
-export function selectFix4Candidates(db: DatabaseSync, dateWib: string): Fix4Candidate[] {
+export function selectFix4Candidates(
+  db: DatabaseSync,
+  dateWib: string,
+  identity: SlateIdentity = loadFix4Identity(),
+): Fix4Candidate[] {
   ensureFix4Schema(db);
   const w = fix4WindowForDate(dateWib);
   const rows = db
@@ -107,6 +140,7 @@ export function selectFix4Candidates(db: DatabaseSync, dateWib: string): Fix4Can
       `SELECT id, match_id, competition_canonical_id, kickoff_utc, market, selection, published_prob
        FROM picks
        WHERE published_prob IS NOT NULL
+         AND duplicate_of IS NULL
          AND kickoff_utc > ? AND kickoff_utc <= ?
          AND created_utc <= ?
        ORDER BY published_prob DESC, match_id ASC, id ASC`,
@@ -125,8 +159,9 @@ export function selectFix4Candidates(db: DatabaseSync, dateWib: string): Fix4Can
   for (const r of rows) {
     if (r.published_prob < FIX4_MIN_PUBLISHED_PROB) continue;
     if (statusFeedKompetisi(r.competition_canonical_id) !== "berfeed") continue;
-    if (seenFixture.has(r.match_id)) continue;
-    seenFixture.add(r.match_id);
+    const fixtureKey = identity.physicalKey(r.match_id);
+    if (seenFixture.has(fixtureKey)) continue;
+    seenFixture.add(fixtureKey);
     out.push({
       pick_id: r.id,
       match_id: r.match_id,

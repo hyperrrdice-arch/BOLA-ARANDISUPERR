@@ -35,7 +35,13 @@ export const FIX4_MIN_PUBLISHED_PROB = 0.72;
 /** Jam cutoff harian dalam WIB (14:00). */
 export const FIX4_CUTOFF_HOUR_WIB = 14;
 
-/** Maksimal pilihan per pertandingan (fixture_id = match_id di picks.db). */
+/**
+ * Maksimal pilihan per pertandingan. "Pertandingan" = fixture FISIK:
+ * identitas kanonik hasil tautan fixture-links (dua record kembar
+ * tertaut fd_/sm_ adalah satu fixture), fallback match_id di picks.db
+ * bila fixture tidak tertaut. Pick termarking `duplicate_of` tidak
+ * pernah layak (lihat fix4-tickets.ts).
+ */
 export const FIX4_MAX_LEGS_PER_FIXTURE = 1;
 
 /** Wajib ABSTAIN bila kandidat layak < FIX4_TICKET_SIZE. */

@@ -13,7 +13,10 @@
  *  - snapshot append-only: generate ulang tanggal sama → keputusan sama,
  *    tidak ada baris baru;
  *  - settlement tiket utuh WIN / LOSS / VOID_OR_UNRESOLVABLE + metrik
- *    pembuktian (hit-rate, expected, abstain_days, coverage, Wilson 95%).
+ *    pembuktian (hit-rate, expected, abstain_days, coverage, Wilson 95%);
+ *  - regresi kembar fd_ vs sm_ (pasca tiket pertama 25 Nov 2026): pick
+ *    termarking duplicate_of tidak pernah terpilih, dan dua pick tak
+ *    termarking dari match_id kembar tertaut hanya menyumbang 1 pilihan.
  *
  * Pola sandbox sama dengan test-slip-stats-pr2.ts (fixture-env K0):
  * registri mini ditulis ke sandbox — liga_berfeed (legacy-div E0) dan
@@ -265,6 +268,68 @@ async function main(): Promise<void> {
   suite.eq("metrik: abstain_days = 1", m.abstain_days, 1);
   suite.eq("metrik: published_days = 3", m.published_days, 3);
   suite.eq("metrik: coverage = 3/4", m.coverage, 0.75);
+
+  // --- Regresi kembar fd_ vs sm_ (perbaikan pasca tiket pertama 25 Nov) -----
+  // Produksi: tiket fx4_74f7455229fa1abb0164f623 memuat Boreham Wood–
+  // Aldershot dua kali — pick fd_ termarking duplicate_of → pick sm_
+  // kembarnya, seleksi (dc/1x) dan published_prob (0,8910) identik, dan
+  // generator lama tidak menyaring duplicate_of sama sekali; aturan
+  // 1-per-laga per match_id tidak menolong karena match_id-nya beda.
+  // Dua pertahanan yang diuji di sini:
+  //   D5: pick termarking TIDAK PERNAH terpilih (saringan duplicate_of).
+  //   D6: dua pick TAK termarking dari dua match_id kembar TERTAUT
+  //       (fixture-links) tetap hanya satu yang masuk (kunci fixture
+  //       kanonik) — yang probabilitasnya tertinggi mewakili laga fisik.
+  fs.writeFileSync(
+    path.join(env.dataDir, "fixture-links.json"),
+    JSON.stringify({
+      links: [
+        { twin_id: "fd_9101", canonical_id: "sm_9101" },
+        { twin_id: "fd_9102", canonical_id: "sm_9102" },
+      ],
+    }),
+  );
+  const DC1X = (prob: number): LegSpec[] => [{ market: "dc", selection: "1x", prob }];
+
+  // D5 = 2026-12-04: kembar termarking (reproduksi kasus produksi).
+  const d5sm = publishFixture("sm_9101", "2026-12-04T13:00:00.000Z", "liga_berfeed", DC1X(0.891))[0];
+  const d5fd = publishFixture("fd_9101", "2026-12-04T13:00:00.000Z", "liga_berfeed", DC1X(0.891))[0];
+  db.prepare("UPDATE picks SET duplicate_of = ? WHERE id = ?").run(d5sm, d5fd);
+  publishFixture("fx_m1", "2026-12-04T14:00:00.000Z", "liga_berfeed", L1(0.85));
+  publishFixture("fx_m2", "2026-12-04T15:00:00.000Z", "liga_berfeed", L1(0.83));
+  publishFixture("fx_m3", "2026-12-04T16:00:00.000Z", "liga_berfeed", L1(0.8));
+  const candD5 = fix4.selectFix4Candidates(db, "2026-12-04");
+  suite.check("D5: pick fd_ termarking tidak pernah jadi kandidat",
+    !candD5.some((c) => c.pick_id === d5fd));
+  suite.eq("D5: pasangan kembar menyumbang tepat 1 kandidat (sisi sm_)",
+    candD5.filter((c) => c.match_id === "sm_9101" || c.match_id === "fd_9101").map((c) => c.pick_id),
+    [d5sm]);
+  suite.eq("D5: total kandidat layak = 4", candD5.length, 4);
+  const decD5 = fix4.generateFix4Ticket(db, "2026-12-04", PUBLISH_NOW);
+  suite.eq("D5: status PUBLISHED", decD5.status, "PUBLISHED");
+  suite.check("D5: tiket memuat pick sm_ dan BUKAN pick fd_ termarking",
+    decD5.legs.some((l) => l.pick_id === d5sm) && !decD5.legs.some((l) => l.pick_id === d5fd));
+  suite.eq("D5: laga kembar hanya 1 pilihan di tiket",
+    decD5.legs.filter((l) => l.match_id === "sm_9101" || l.match_id === "fd_9101").length, 1);
+
+  // D6 = 2026-12-06: kembar tertaut TANPA marking — dedupe kunci kanonik.
+  const d6fd = publishFixture("fd_9102", "2026-12-06T13:00:00.000Z", "liga_berfeed", DC1X(0.9))[0];
+  const d6sm = publishFixture("sm_9102", "2026-12-06T13:00:00.000Z", "liga_berfeed", DC1X(0.88))[0];
+  publishFixture("fx_n1", "2026-12-06T14:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_n2", "2026-12-06T15:00:00.000Z", "liga_berfeed", L1(0.82));
+  publishFixture("fx_n3", "2026-12-06T16:00:00.000Z", "liga_berfeed", L1(0.8));
+  const candD6 = fix4.selectFix4Candidates(db, "2026-12-06");
+  suite.eq("D6: dua match_id kembar tertaut → tepat 1 kandidat",
+    candD6.filter((c) => c.match_id === "sm_9102" || c.match_id === "fd_9102").length, 1);
+  suite.eq("D6: wakil laga fisik = pick probabilitas tertinggi (fd_ 0,90)",
+    candD6.filter((c) => c.match_id === "sm_9102" || c.match_id === "fd_9102").map((c) => c.pick_id),
+    [d6fd]);
+  suite.eq("D6: total kandidat layak = 4", candD6.length, 4);
+  const decD6 = fix4.generateFix4Ticket(db, "2026-12-06", PUBLISH_NOW);
+  suite.eq("D6: status PUBLISHED", decD6.status, "PUBLISHED");
+  suite.check("D6: tiket hanya memuat satu sisi kembar",
+    decD6.legs.filter((l) => l.match_id === "sm_9102" || l.match_id === "fd_9102").length === 1 &&
+    !decD6.legs.some((l) => l.pick_id === d6sm));
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
