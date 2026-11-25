@@ -19,6 +19,13 @@
  *    (revisi lama tidak hilang).
  *  - available_at terisi saat ingest pertama dan TIDAK ditimpa ulang;
  *    last_successful_ingest tercatat untuk source "football-data-org".
+ *  - (Fix aktivasi 25 Nov 2026) Nama fdorg berimbuhan badan hukum —
+ *    nama ASLI dari antrean live ("Arsenal FC", "Hull City AFC",
+ *    "Sunderland AFC", ...) — terpetakan lewat kunci terlucuti-imbuhan;
+ *    nama ambigu ("Everton FC", dua tim kanonik) tetap di antrean.
+ *  - (Fix aktivasi 25 Nov 2026) Kegagalan jaringan diulang terbatas
+ *    (1+2, backoff) dan kegagalan satu kompetisi tidak membunuh larian
+ *    multi-kompetisi (isolasi per kompetisi).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -35,6 +42,7 @@ import {
   applyFdorgResults,
   fetchFdorgFinishedMatches,
   parseFdorgFinishedMatches,
+  runFdorgCompetitions,
   type FdorgFetchLike,
   type FdorgFinishedResult,
 } from "../lib/feeds/fdorg-results";
@@ -142,6 +150,36 @@ async function main(): Promise<void> {
       threw = true;
     }
     suite.check("fetch: 429 berulang → lempar (berhenti)", threw && calls2 === 2, `calls=${calls2}`);
+  }
+
+  // --- Fetch: kegagalan jaringan diulang terbatas (backoff), lalu menyerah ------
+  {
+    let calls = 0;
+    const sleeps: number[] = [];
+    const limiter = new FdorgRateLimiter({ sleep: async (ms) => { sleeps.push(ms); } });
+    const fetchFlaky: FdorgFetchLike = async () => {
+      calls++;
+      if (calls <= 2) throw new TypeError("fetch failed");
+      return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ matches: [] }) };
+    };
+    const payload = await fetchFdorgFinishedMatches(fetchFlaky, "token-uji", "PL", limiter);
+    suite.eq("fetch: jaringan gagal 2× lalu sukses (3 percobaan)", calls, 3);
+    suite.eq("fetch: backoff jaringan [2000, 4000]", sleeps, [2000, 4000]);
+    suite.eq("fetch: payload sesudah pulih diteruskan", Array.isArray(payload.matches), true);
+
+    let callsDown = 0;
+    const fetchDown: FdorgFetchLike = async () => {
+      callsDown++;
+      throw new TypeError("fetch failed");
+    };
+    let threwDown = false;
+    try {
+      await fetchFdorgFinishedMatches(fetchDown, "token-uji", "PL", new FdorgRateLimiter({ sleep: async () => {} }));
+    } catch {
+      threwDown = true;
+    }
+    suite.check("fetch: jaringan selalu gagal → lempar setelah 1+2 percobaan",
+      threwDown && callsDown === 3, `calls=${callsDown}`);
   }
 
   // --- Rate limiter: jendela menit ---------------------------------------------
@@ -287,6 +325,105 @@ async function main(): Promise<void> {
       .prepare("SELECT reason FROM fixture_identity_queue WHERE source = ? AND source_match_id = 'fo_match_9005' AND resolved_at IS NULL")
       .get(FDORG_SOURCE) as unknown as { reason: string } | undefined;
     suite.eq("apply(g): antrean fdorg_unmapped_competition", q2?.reason, "fdorg_unmapped_competition");
+
+    // (h) Nama fdorg berimbuhan badan hukum (nama ASLI dari antrean live
+    // 25 Nov 2026) kini terpetakan lewat kunci terlucuti-imbuhan.
+    // Registry fixture diperluas dengan nama kanonik gaya registry
+    // produksi + sepasang "Everton" ambigu (cerminan split sm:13/sm:15064).
+    fs.writeFileSync(
+      path.join(env.dataDir, "team-canonical.json"),
+      JSON.stringify({
+        version: 1,
+        generated_at: "2026-11-25T00:00:00.000Z",
+        generator: "tests/test-fdorg-results.ts (fixture nama fdorg live)",
+        teams: [
+          { canonical_id: "tim_arsenal", name: "Arsenal", members: [{ team_id: "sm:1" }, { team_id: "fd_arsenal" }], aliases: [] },
+          { canonical_id: "tim_chelsea", name: "Chelsea", members: [{ team_id: "sm:2" }, { team_id: "fd_chelsea" }], aliases: [] },
+          { canonical_id: "tim_liverpool", name: "Liverpool", members: [{ team_id: "sm:3" }, { team_id: "fd_liverpool" }], aliases: [] },
+          { canonical_id: "tim_everton", name: "Everton", members: [{ team_id: "sm:4" }, { team_id: "fd_everton" }], aliases: [] },
+          { canonical_id: "tim_everton_chile", name: "Everton", members: [{ team_id: "sm:15064" }], aliases: [] },
+          { canonical_id: "tim_manutd", name: "Manchester United", members: [{ team_id: "fd_manchester-united" }], aliases: [] },
+          { canonical_id: "tim_brighton", name: "Brighton & Hove Albion", members: [{ team_id: "fd_brighton" }], aliases: [] },
+          { canonical_id: "tim_hull", name: "Hull City", members: [{ team_id: "fd_hull" }], aliases: [] },
+          { canonical_id: "tim_sunderland", name: "Sunderland", members: [{ team_id: "fd_sunderland" }], aliases: [] },
+          { canonical_id: "tim_wolves", name: "Wolverhampton Wanderers", members: [{ team_id: "fd_wolves" }], aliases: [] },
+        ],
+      }),
+    );
+    const countFoOn = (yyyymmdd: string) =>
+      (ds.prepare("SELECT COUNT(*) AS n FROM matches WHERE match_id LIKE ?").get(`fo_E0_${yyyymmdd}_%`) as unknown as { n: number }).n;
+
+    const h1 = applyFdorgResults(
+      ds,
+      [result({ api_match_id: 9006, kickoff_utc: "2026-11-19T20:00:00.000Z", home_name: "Manchester United FC", away_name: "Arsenal FC" })],
+      NOW2,
+    );
+    suite.eq("apply(h1): 'Manchester United FC' vs 'Arsenal FC' → applied=1, unmapped=0",
+      [h1.applied, h1.unmapped_team], [1, 0]);
+    suite.eq("apply(h1): baris fo_ 20261119 tertulis", countFoOn("20261119"), 1);
+
+    const h2 = applyFdorgResults(
+      ds,
+      [result({ api_match_id: 9007, kickoff_utc: "2026-11-18T19:45:00.000Z", home_name: "Brighton & Hove Albion FC", away_name: "Hull City AFC" })],
+      NOW2,
+    );
+    suite.eq("apply(h2): 'Brighton & Hove Albion FC' vs 'Hull City AFC' → applied=1, unmapped=0",
+      [h2.applied, h2.unmapped_team], [1, 0]);
+
+    const h3 = applyFdorgResults(
+      ds,
+      [result({ api_match_id: 9008, kickoff_utc: "2026-11-17T20:00:00.000Z", home_name: "Sunderland AFC", away_name: "Wolverhampton Wanderers FC" })],
+      NOW2,
+    );
+    suite.eq("apply(h3): 'Sunderland AFC' vs 'Wolverhampton Wanderers FC' → applied=1, unmapped=0",
+      [h3.applied, h3.unmapped_team], [1, 0]);
+
+    // (i) Nama yang sungguh ambigu (dua tim kanonik bernama sama) TETAP
+    // di antrean — fallback terlucuti tidak menebak di antara keduanya.
+    const i9 = applyFdorgResults(
+      ds,
+      [result({ api_match_id: 9009, kickoff_utc: "2026-11-14T17:30:00.000Z", home_name: "Everton FC", away_name: "Arsenal FC" })],
+      NOW2,
+    );
+    suite.eq("apply(i): 'Everton FC' ambigu → unmapped_team=1, rows_written=0",
+      [i9.unmapped_team, i9.rows_written], [1, 0]);
+    const q3 = ds
+      .prepare("SELECT reason FROM fixture_identity_queue WHERE source = ? AND source_match_id = 'fo_match_9009' AND resolved_at IS NULL")
+      .get(FDORG_SOURCE) as unknown as { reason: string } | undefined;
+    suite.eq("apply(i): antrean fdorg_unmapped_team untuk Everton", q3?.reason, "fdorg_unmapped_team");
+
+    // (j) Isolasi kegagalan per kompetisi: ELC gagal jaringan total,
+    // PL tetap terapan dan DED tetap diproses sesudahnya.
+    const runLogs: string[] = [];
+    const fetchRun: FdorgFetchLike = async (url) => {
+      if (url.includes("/competitions/ELC/")) throw new TypeError("fetch failed");
+      if (url.includes("/competitions/PL/")) {
+        return {
+          ok: true, status: 200, headers: { get: () => null },
+          json: async () => ({
+            matches: [
+              {
+                id: 9101, utcDate: "2026-11-16T20:00:00Z", status: "FINISHED",
+                homeTeam: { name: "Arsenal FC" }, awayTeam: { name: "Chelsea FC" },
+                score: { duration: "REGULAR", fullTime: { home: 1, away: 0 } },
+              },
+            ],
+          }),
+        };
+      }
+      return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ matches: [] }) };
+    };
+    const run = await runFdorgCompetitions(
+      ds, fetchRun, "token-uji", ["PL", "ELC", "DED"],
+      () => NOW2, (l) => runLogs.push(l),
+      new FdorgRateLimiter({ sleep: async () => {} }),
+    );
+    suite.eq("run(j): kegagalan tercatat hanya ELC", run.failures.map((f) => f.code), ["ELC"]);
+    suite.eq("run(j): PL tetap applied=1 meski ELC gagal", run.totals.applied, 1);
+    suite.check("run(j): kegagalan ELC dilog eksplisit",
+      runLogs.some((l) => l.includes("ELC: GAGAL")));
+    suite.check("run(j): DED tetap diproses sesudah kegagalan",
+      runLogs.some((l) => l.includes("DED: parsed=0")));
   } finally {
     process.chdir(prevCwd);
     settleFixtureEnv(env, suite.failedCount > 0);

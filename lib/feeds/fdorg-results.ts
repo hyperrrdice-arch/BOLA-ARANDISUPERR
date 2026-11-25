@@ -16,6 +16,17 @@
 //    Yang tak terpetakan masuk antrean identitas repo
 //    (fixture_identity_queue, source "football-data-org") dan TIDAK
 //    ditulis sebagai baris hasil.
+//  - Nama tim fdorg membawa imbuhan badan hukum ("Arsenal FC",
+//    "Hull City AFC", "Sunderland AFC") yang tidak ada di nama registry.
+//    Normalizer repo hanya memakai bentuk terlucuti untuk pencarian
+//    kamus alias dan mengembalikan bentuk berimbuhan pada fallback,
+//    jadi kunci nama adapter tidak pernah bertemu kunci registry
+//    (terbukti live 25 Nov 2026: 181 baris antrean, 36 dari 37 nama
+//    khas hanya berbeda imbuhan). Pemetaan adapter karena itu mencoba
+//    kunci nama persis lebih dulu, lalu kunci terlucuti-imbuhan yang
+//    dibangun dari nama registry yang sama — kunci terlucuti yang
+//    menunjuk >1 tim kanonik dibuang sebagai ambigu (mis. "Everton"
+//    memang ambigu: sm:13 Inggris vs sm:15064 Chili, tetap di antrean).
 //  - Baris hasil fdorg hidup di namespace-nya sendiri (match_id fo_…,
 //    format yang sama dengan importer fixture fdorg) — pola yang sama
 //    dengan fd_ milik football-data.co.uk.
@@ -130,7 +141,23 @@ export interface FdorgMatchRaw {
   };
 }
 
-/** Ambil laga satu kompetisi (status FINISHED) — 429 dihormati + 1× ulang. */
+/** Batas ulang untuk kegagalan level jaringan (fetch melempar, mis. "fetch failed"). */
+export const FDORG_MAX_NETWORK_RETRIES = 2;
+/** Backoff antar-ulangan jaringan (ms) — lewat limiter.sleepMs agar terinjeksi di uji. */
+export const FDORG_NETWORK_BACKOFF_MS = [2_000, 4_000];
+
+/**
+ * Ambil laga satu kompetisi (status FINISHED).
+ *  - HTTP 429 dihormati: Retry-After + tepat 1× ulang (perilaku asal,
+ *    tidak diubah); 429 berulang → lempar.
+ *  - Kegagalan level jaringan (fetch melempar sebelum ada respons):
+ *    diulang terbatas maks FDORG_MAX_NETWORK_RETRIES kali dengan
+ *    backoff — kegagalan sesaat satu kompetisi tidak lagi membunuh
+ *    seluruh larian (terbukti live 25 Nov 2026: "fetch failed" pada
+ *    kompetisi ke-3 menghentikan 10 kompetisi sisanya). Setelah batas
+ *    ulang habis, error dilempar agar pemanggil mencatat kompetisi itu
+ *    gagal dan melanjutkan kompetisi berikutnya.
+ */
 export async function fetchFdorgFinishedMatches(
   fetchFn: FdorgFetchLike,
   token: string,
@@ -138,13 +165,29 @@ export async function fetchFdorgFinishedMatches(
   limiter: FdorgRateLimiter,
 ): Promise<FdorgMatchesPayload> {
   const url = `${FDORG_BASE_URL}/competitions/${encodeURIComponent(competitionCode)}/matches?status=FINISHED`;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  let rateLimitRetries = 0;
+  let networkRetries = 0;
+  for (;;) {
     await limiter.acquire();
-    const res = await fetchFn(url, { headers: { "X-Auth-Token": token } });
+    let res: Awaited<ReturnType<FdorgFetchLike>>;
+    try {
+      res = await fetchFn(url, { headers: { "X-Auth-Token": token } });
+    } catch (e) {
+      if (networkRetries >= FDORG_MAX_NETWORK_RETRIES) {
+        throw new Error(
+          `fdorg: kegagalan jaringan untuk ${competitionCode} setelah ${networkRetries} pengulangan: ` +
+            (e instanceof Error ? e.message : String(e)),
+        );
+      }
+      await limiter.sleepMs(FDORG_NETWORK_BACKOFF_MS[networkRetries] ?? 4_000);
+      networkRetries++;
+      continue;
+    }
     if (res.status === 429) {
-      if (attempt === 1) {
+      if (rateLimitRetries >= 1) {
         throw new Error(`fdorg: HTTP 429 berulang untuk ${competitionCode} — berhenti, hormati batas`);
       }
+      rateLimitRetries++;
       const retryAfter = Number(res.headers.get("Retry-After") ?? "60");
       await limiter.sleepMs(Math.max(1, Number.isFinite(retryAfter) ? retryAfter : 60) * 1000);
       continue;
@@ -152,7 +195,6 @@ export async function fetchFdorgFinishedMatches(
     if (!res.ok) throw new Error(`fdorg: HTTP ${res.status} untuk ${competitionCode}`);
     return (await res.json()) as FdorgMatchesPayload;
   }
-  throw new Error("fdorg: unreachable");
 }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +297,47 @@ export interface FdorgMapping {
   cidOfTeamRow: Map<string, string>;
   /** nama tim ternormalisasi → canonical_id (hanya yang TIDAK ambigu). */
   cidByTeamName: Map<string, string>;
+  /**
+   * Kunci nama terlucuti-imbuhan → canonical_id, dibangun dari entri
+   * cidByTeamName final (pasca-pembersihan ambiguitas). Kunci yang
+   * menunjuk >1 canonical_id dibuang (ambigu) — fallback ini tidak
+   * pernah menebak di antara dua tim berbeda.
+   */
+  cidByStrippedTeamName: Map<string, string>;
+}
+
+/** Token imbuhan badan hukum yang dilucuti untuk kunci perbandingan longgar. */
+const FDORG_AFFIX_TOKENS =
+  /\b(fc|afc|cf|ac|as|sc|sv|cd|ud|rc|rcd|ssc|vfb|vfl|spvgg|ogc|losc|aj)\b/g;
+
+/**
+ * Kunci perbandingan longgar sebuah nama ternormalisasi: huruf kecil
+ * tanpa imbuhan badan hukum (FC/AFC/CF/...). Dipakai HANYA sebagai
+ * fallback sesudah kunci persis — lihat resolveFdorgTeamCid.
+ */
+export function fdorgStrippedTeamKey(normalizedName: string): string {
+  return normalizedName
+    .toLowerCase()
+    .replace(FDORG_AFFIX_TOKENS, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Resolusi nama tim fdorg → canonical_id. Urutan: (1) nama ternormalisasi
+ * persis (perilaku asal — semua yang dulu terpetakan tetap terpetakan);
+ * (2) kunci terlucuti-imbuhan, untuk nama fdorg berimbuhan badan hukum
+ * ("Arsenal FC" → Arsenal). Tidak ketemu keduanya → undefined (antrean).
+ */
+export function resolveFdorgTeamCid(
+  mapping: FdorgMapping,
+  rawName: string,
+): string | undefined {
+  const normalized = normalizeTeamName(rawName);
+  return (
+    mapping.cidByTeamName.get(normalized) ??
+    mapping.cidByStrippedTeamName.get(fdorgStrippedTeamKey(normalized))
+  );
 }
 
 export function buildFdorgMapping(ds: DatabaseSync): FdorgMapping {
@@ -290,7 +373,18 @@ export function buildFdorgMapping(ds: DatabaseSync): FdorgMapping {
     /* tabel teams belum ada — pemetaan nama hanya dari registry */
   }
   for (const k of ambiguousNames) cidByTeamName.delete(k);
-  return { cidOfTeamRow, cidByTeamName };
+  // Peta fallback terlucuti-imbuhan, diturunkan dari peta nama final.
+  const cidByStrippedTeamName = new Map<string, string>();
+  const strippedAmbiguous = new Set<string>();
+  for (const [name, cid] of cidByTeamName) {
+    const key = fdorgStrippedTeamKey(name);
+    if (!key) continue;
+    const prev = cidByStrippedTeamName.get(key);
+    if (prev && prev !== cid) strippedAmbiguous.add(key);
+    else cidByStrippedTeamName.set(key, cid);
+  }
+  for (const k of strippedAmbiguous) cidByStrippedTeamName.delete(k);
+  return { cidOfTeamRow, cidByTeamName, cidByStrippedTeamName };
 }
 
 // ---------------------------------------------------------------------------
@@ -419,8 +513,8 @@ export function applyFdorgResults(
       sum.unmapped_competition++;
       continue;
     }
-    const homeCid = mapping.cidByTeamName.get(normalizeTeamName(r.home_name));
-    const awayCid = mapping.cidByTeamName.get(normalizeTeamName(r.away_name));
+    const homeCid = resolveFdorgTeamCid(mapping, r.home_name);
+    const awayCid = resolveFdorgTeamCid(mapping, r.away_name);
     if (!homeCid || !awayCid) {
       enqueueIdentity(ds, sourceMatchId, "fdorg_unmapped_team", {
         competition_code: r.competition_code,
@@ -556,4 +650,63 @@ export function applyFdorgResults(
       `unmapped_comp=${sum.unmapped_competition} ambiguous=${sum.identity_ambiguous}`,
   );
   return sum;
+}
+
+// ---------------------------------------------------------------------------
+// Larian multi-kompetisi dengan isolasi kegagalan per kompetisi
+// ---------------------------------------------------------------------------
+
+export interface FdorgImportRunResult {
+  totals: FdorgApplySummary;
+  skipped_basis: number;
+  skipped_status: number;
+  /** Kompetisi yang gagal total (fetch/apply melempar) — larian TIDAK mati karenanya. */
+  failures: { code: string; error: string }[];
+}
+
+/**
+ * Jalankan impor untuk daftar kode kompetisi dengan SATU rate limiter
+ * bersama. Kegagalan satu kompetisi dicatat di `failures` + dilog, lalu
+ * larian MELANJUTKAN kompetisi berikutnya — kegagalan sebagian dilaporkan
+ * apa adanya, tidak pernah menyamar sebagai sukses penuh (pemanggil
+ * memutuskan kode exit dari `failures`).
+ */
+export async function runFdorgCompetitions(
+  ds: DatabaseSync,
+  fetchFn: FdorgFetchLike,
+  token: string,
+  codes: string[],
+  nowUtc: () => string,
+  log: (line: string) => void = () => {},
+  limiter: FdorgRateLimiter = new FdorgRateLimiter(),
+): Promise<FdorgImportRunResult> {
+  const totals: FdorgApplySummary = {
+    applied: 0, duplicates: 0, corrected: 0, conflicts_primary_kept: 0,
+    identity_ambiguous: 0, unmapped_competition: 0, unmapped_team: 0, rows_written: 0,
+  };
+  let skippedBasis = 0;
+  let skippedStatus = 0;
+  const failures: { code: string; error: string }[] = [];
+  for (const code of codes) {
+    try {
+      const payload = await fetchFdorgFinishedMatches(fetchFn, token, code, limiter);
+      const parsed = parseFdorgFinishedMatches(payload, code);
+      skippedBasis += parsed.skipped_basis;
+      skippedStatus += parsed.skipped_status;
+      const s = applyFdorgResults(ds, parsed.results, nowUtc());
+      for (const k of Object.keys(totals) as (keyof FdorgApplySummary)[]) {
+        totals[k] += s[k];
+      }
+      log(
+        `[fdorg-results] ${code}: parsed=${parsed.results.length} applied=${s.applied} dup=${s.duplicates} ` +
+          `corrected=${s.corrected} conflict_primary_kept=${s.conflicts_primary_kept} ` +
+          `unmapped_team=${s.unmapped_team} ambiguous=${s.identity_ambiguous}`,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      failures.push({ code, error: msg });
+      log(`[fdorg-results] ${code}: GAGAL — ${msg} — kompetisi dilewati, larian berlanjut.`);
+    }
+  }
+  return { totals, skipped_basis: skippedBasis, skipped_status: skippedStatus, failures };
 }

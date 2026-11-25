@@ -7,6 +7,12 @@
 // hormati HTTP 429, lalu menerapkan precedence/revisi/available_at lewat
 // lib/feeds/fdorg-results.ts (mesin identitas D2 repo).
 //
+// KETAHANAN LARIAN: kegagalan satu kompetisi (mis. jaringan putus) TIDAK
+// lagi membunuh seluruh larian — kompetisi itu dicatat gagal, sisanya
+// lanjut, dan larian berakhir sebagai SELESAI SEBAGIAN dengan exit 1
+// (jujur terbedakan dari sukses penuh). Kegagalan jaringan sesaat di
+// dalam satu kompetisi diulang terbatas oleh adapter (maks 2×, backoff).
+//
 // Env: FOOTBALL_DATA_API_TOKEN (nama yang dikunci brief Sprint C — beda
 // dari FOOTBALL_DATA_ORG_TOKEN milik importer fixture fdorg lama, yang
 // tidak diubah). Tanpa token: script berhenti dengan pesan jujur
@@ -16,11 +22,8 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import {
   FDORG_CODE_TO_DIV,
-  FdorgRateLimiter,
-  applyFdorgResults,
-  fetchFdorgFinishedMatches,
-  parseFdorgFinishedMatches,
-  type FdorgApplySummary,
+  runFdorgCompetitions,
+  type FdorgFetchLike,
 } from "../lib/feeds/fdorg-results";
 import { recordIngestAttempt } from "../lib/feeds/ingest-freshness";
 
@@ -37,35 +40,29 @@ async function main(): Promise<void> {
   const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
   try {
     recordIngestAttempt(ds, "football-data-org", nowUtc);
-    const limiter = new FdorgRateLimiter();
-    const fetchFn = globalThis.fetch.bind(globalThis);
-    const totals: FdorgApplySummary = {
-      applied: 0, duplicates: 0, corrected: 0, conflicts_primary_kept: 0,
-      identity_ambiguous: 0, unmapped_competition: 0, unmapped_team: 0, rows_written: 0,
-    };
-    let skippedBasis = 0;
-    let skippedStatus = 0;
-    for (const code of Object.keys(FDORG_CODE_TO_DIV)) {
-      const payload = await fetchFdorgFinishedMatches(fetchFn, token, code, limiter);
-      const parsed = parseFdorgFinishedMatches(payload, code);
-      skippedBasis += parsed.skipped_basis;
-      skippedStatus += parsed.skipped_status;
-      const s = applyFdorgResults(ds, parsed.results, new Date().toISOString());
-      for (const k of Object.keys(totals) as (keyof FdorgApplySummary)[]) {
-        totals[k] += s[k];
-      }
-      console.log(
-        `[fdorg-results] ${code}: parsed=${parsed.results.length} applied=${s.applied} dup=${s.duplicates} ` +
-          `corrected=${s.corrected} conflict_primary_kept=${s.conflicts_primary_kept} ` +
-          `unmapped_team=${s.unmapped_team} ambiguous=${s.identity_ambiguous}`,
-      );
-    }
+    const fetchFn = globalThis.fetch.bind(globalThis) as unknown as FdorgFetchLike;
+    const result = await runFdorgCompetitions(
+      ds,
+      fetchFn,
+      token,
+      Object.keys(FDORG_CODE_TO_DIV),
+      () => new Date().toISOString(),
+      (line) => console.log(line),
+    );
+    const totals = result.totals;
     console.log(
       `[fdorg-results] SELESAI applied=${totals.applied} dup=${totals.duplicates} corrected=${totals.corrected} ` +
         `conflict_primary_kept=${totals.conflicts_primary_kept} unmapped_team=${totals.unmapped_team} ` +
         `unmapped_comp=${totals.unmapped_competition} ambiguous=${totals.identity_ambiguous} ` +
-        `rows_written=${totals.rows_written} skipped_basis=${skippedBasis} skipped_status=${skippedStatus}`,
+        `rows_written=${totals.rows_written} skipped_basis=${result.skipped_basis} skipped_status=${result.skipped_status}`,
     );
+    if (result.failures.length > 0) {
+      console.log(
+        `[fdorg-results] SELESAI SEBAGIAN: ${result.failures.length} kompetisi gagal: ` +
+          result.failures.map((f) => `${f.code} (${f.error})`).join("; "),
+      );
+      process.exitCode = 1;
+    }
   } finally {
     ds.close();
   }
