@@ -40,6 +40,27 @@
  * Toleransi 120 menit: drift yang terbukti di produksi ≤ 90 menit;
  * toleransi memberi ruang di atasnya sambil tetap jauh di bawah jarak
  * antar dua laga BERBEDA antara tim yang sama (selalu ≥ 1 hari).
+ *
+ * Perluasan Kembar-Free-Mode (25 Nov 2026, branch fix/kembar-free-mode):
+ * kelas belahan registry BARU — entri kanonik fd_ yang dibuat builder
+ * registry dari feed CSV ("Aldershot", "Solihull", "Kidderminster",
+ * "Doncaster") TIDAK menyatu dengan entri sm: klub yang sama
+ * ("Aldershot Town", "Solihull Moors", "Kidderminster Harriers",
+ * "Doncaster Rovers"), sementara entri fd_ lain (fd_hartlepool,
+ * fd_harrogate) sudah jadi member entri sm:. Baris fd_ ter-resolusi
+ * lewat team_id ke canonical fd_-nya sendiri → kunci tautan beda →
+ * 4 pasangan lolos builder DAN penjaga cadangan slate (produksi
+ * 25 Nov 2026: 59 pick ledger untuk 4 laga fisik). Perbaikannya di
+ * LEVEL TAUTAN juga: aturan varian-akhiran nama (lihat
+ * suffixVariantGroups) menyatukan kunci entri fd_ yang namanya adalah
+ * awalan-token PERSIS dari TEPAT SATU nama kanonik non-fd_ — ambigu
+ * (≥2 kandidat, mis. "Bradford" → City/Town/Park Avenue) menolak
+ * menyatu dan tetap urusan alias manual berbasis bukti per laga.
+ * Penyatuan KUNCI bukan tautan: klaster tetap menuntut lawan sama +
+ * konteks liga cocok + kickoff ≤120 menit, jadi kunci yang menyatu
+ * tidak pernah menautkan laga yang berbeda (mis. "Queens Park" →
+ * kandidat tunggal "Queens Park Rangers" adalah klub LAIN, tetapi
+ * keduanya tidak pernah berbagi lawan/liga/kickoff yang sama).
  */
 
 import fs from "node:fs";
@@ -109,6 +130,89 @@ export function linkTeamKeyFn(
     for (const cid of g.canonical_ids) map.set(cid, g.link_id);
   }
   return (cid: string) => map.get(cid) ?? cid;
+}
+
+/* ------------------------------------- varian akhiran nama (kelas fd_) */
+
+/** Token nama ternormalisasi untuk perbandingan awalan (huruf kecil, tanpa diakritik/tanda baca). */
+export function linkNameTokens(name: string): string[] {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(" ")
+    .filter((t) => t.length > 0);
+}
+
+export interface SuffixVariantGroup {
+  /** canonical_id entri fd_ bernama pendek. */
+  short_id: string;
+  /** canonical_id entri non-fd_ bernama panjang (target penyatuan). */
+  long_id: string;
+  short_name: string;
+  long_name: string;
+}
+
+/**
+ * Grup varian-akhiran dari registry: entri kanonik ber-namespace fd_
+ * yang nama ternormalisasinya adalah AWALAN TOKEN PERSIS (proper
+ * prefix — token lebih sedikit, semua token cocok berurutan) dari
+ * nama TEPAT SATU entri kanonik non-fd_. Tepat-satu adalah syarat
+ * keras: 0 kandidat → bukan kelas ini; ≥2 kandidat → AMBIGU dan
+ * ditolak (penyatuan ditebak dari nama semata bisa menggabung klub
+ * berbeda — "Bradford" adalah awalan City, Town, dan Park Avenue).
+ * Nama yang IDENTIK antar-namespace (token sama persis, bukan awalan
+ * sejati) TIDAK disatukan di sini: belahan nama-identik (mis. dua
+ * "Everton" beda negara) tetap urusan alias manual berbasis bukti.
+ *
+ * Bukti kelas (registry produksi 25 Nov 2026): 38 entri fd_; 30
+ * berelasi awalan; 22 unik (termasuk 4 penyebab bug: fd_aldershot →
+ * sm:194, fd_solihull → sm:1030, fd_kidderminster → sm:832,
+ * fd_doncaster → sm:235); 8 ambigu ditolak.
+ */
+export function suffixVariantGroups(reg: TeamRegistryFile): SuffixVariantGroup[] {
+  const out: SuffixVariantGroup[] = [];
+  const others = reg.teams.filter((t) => !t.canonical_id.startsWith("fd_"));
+  const otherTokens = others.map((t) => ({ t, toks: linkNameTokens(t.name) }));
+  for (const f of reg.teams) {
+    if (!f.canonical_id.startsWith("fd_")) continue;
+    const ft = linkNameTokens(f.name);
+    if (ft.length === 0) continue;
+    const hits = otherTokens.filter(
+      ({ toks }) =>
+        toks.length > ft.length && ft.every((tok, i) => tok === toks[i]),
+    );
+    if (hits.length !== 1) continue;
+    out.push({
+      short_id: f.canonical_id,
+      long_id: hits[0].t.canonical_id,
+      short_name: f.name,
+      long_name: hits[0].t.name,
+    });
+  }
+  return out;
+}
+
+/**
+ * Fungsi kunci tautan KOMPOSIT (dipakai builder tautan + penjaga
+ * cadangan slate): pertama entri fd_ varian-akhiran dipetakan ke
+ * canonical_id panjangnya, lalu alias manual diterapkan atas hasil
+ * itu (alias manual selalu menang dan tetap satu-satunya jalur untuk
+ * belahan nama-identik / lintas-namespace non-fd_). Registry tidak
+ * pernah diubah — ini murni fungsi kunci pencocokan.
+ */
+export function buildLinkTeamKeyFn(
+  reg: TeamRegistryFile,
+  aliases: LinkTeamAliases,
+): (canonicalId: string) => string {
+  const base = linkTeamKeyFn(aliases);
+  const variant = new Map<string, string>();
+  for (const g of suffixVariantGroups(reg)) {
+    variant.set(g.short_id, g.long_id);
+    if (!variant.has(g.long_id)) variant.set(g.long_id, g.long_id);
+  }
+  return (cid: string) => base(variant.get(cid) ?? cid);
 }
 
 /* ------------------------------------------------------- resolusi tim katalog */

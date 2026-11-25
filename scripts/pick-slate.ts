@@ -115,9 +115,9 @@ import {
   takeDistinctByGroup,
 } from "../lib/picks/slate-identity";
 import {
+  buildLinkTeamKeyFn,
   buildTeamResolver,
   clusterTwinRows,
-  linkTeamKeyFn,
   loadLinkTeamAliases,
   resolveLinkRow,
   type LinkableFixtureRow,
@@ -520,7 +520,7 @@ async function main() {
       fs.readFileSync(path.join(dataDir, "team-canonical.json"), "utf8"),
     ) as TeamRegistryFile;
     const teamResolver = buildTeamResolver(reg);
-    const keyOf = linkTeamKeyFn(loadLinkTeamAliases(dataDir));
+    const keyOf = buildLinkTeamKeyFn(reg, loadLinkTeamAliases(dataDir));
     resolveCatalogRow = (row) => resolveLinkRow(row, teamResolver, keyOf);
   } catch {
     resolveCatalogRow = null;

@@ -40,11 +40,12 @@ import {
   sourceOfMatchId,
 } from "../lib/identity/fixture-resolver";
 import {
+  buildLinkTeamKeyFn,
   buildTeamResolver,
   clusterTwinRows,
-  linkTeamKeyFn,
   loadLinkTeamAliases,
   resolveLinkRow,
+  suffixVariantGroups,
   TWIN_KICKOFF_TOLERANCE_MIN,
   type LinkableFixtureRow,
   type TeamRegistryFile,
@@ -58,7 +59,7 @@ function main() {
   ) as TeamRegistryFile;
   const resolver = buildTeamResolver(reg);
   const aliases = loadLinkTeamAliases(path.join(ROOT, "data"));
-  const linkKeyOf = linkTeamKeyFn(aliases);
+  const linkKeyOf = buildLinkTeamKeyFn(reg, aliases);
 
   const up = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
   const fx = up.prepare(
@@ -95,7 +96,7 @@ function main() {
     version: 1,
     generated_at: new Date().toISOString(),
     generator: "scripts/build-fixture-links.ts",
-    note: "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan (Lanjut-5, lib/identity/link-matching.ts): konteks liga sama + tim kandang/tamu sama pada level tautan (alias data/link-team-aliases.json menyatukan entri registry satu klub TANPA menggabung registry) + kickoff dalam rantai ±120 menit (drift mt_ terbukti ≤90 menit). Sebelumnya: kickoff persis + tim kanonik persis.",
+    note: "Tautan pertandingan kembar katalog: twin_id (sumber lain) -> canonical_id (baris Sportmonks). Kunci kecocokan (Lanjut-5 + Kembar-Free-Mode, lib/identity/link-matching.ts): konteks liga sama + tim kandang/tamu sama pada level tautan (alias data/link-team-aliases.json menyatukan entri registry satu klub TANPA menggabung registry; aturan varian-akhiran menyatukan entri fd_ bernama pendek — awalan token persis dari tepat satu nama kanonik non-fd_ — ke canonical panjangnya, ambigu ditolak) + kickoff dalam rantai ±120 menit (drift mt_ terbukti ≤90 menit). Sebelumnya: kickoff persis + tim kanonik persis.",
     stats: {
       fixtures: fx.length,
       duplicate_groups: clusters.length,
@@ -104,6 +105,7 @@ function main() {
       tolerant_groups: tolerantGroups,
       kickoff_tolerance_min: TWIN_KICKOFF_TOLERANCE_MIN,
       link_alias_groups: aliases.groups.length,
+      suffix_variant_groups: suffixVariantGroups(reg).length,
     },
     links,
   };
