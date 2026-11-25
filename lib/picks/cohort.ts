@@ -27,6 +27,13 @@ import { sidikFeedHasil, statusFeedKompetisi } from "./feed-coverage";
 //     dan jumlah baris warisan (hit/miss-saja, tanpa published_prob);
 //   - tanpa penyebut → hit_ratio NULL (tampilan: "Belum ada hasil");
 //     0% hanya muncul bila minimal satu observasi sudah dinilai.
+//   - pick termarking `duplicate_of` (keputusan pemilik A3, 25 Nov 2026)
+//     KELUAR dari seluruh populasi cohort — pembilang DAN penyebut:
+//     kembarannya yang tak termarking mewakili laga yang sama, jadi
+//     menghitung keduanya menggandakan satu observasi. Status pick
+//     TIDAK berubah (bukan void), flag tetap tersimpan untuk audit,
+//     dan resolver tetap menilainya seperti biasa — yang berubah
+//     hanya agregasi statistik utama ini.
 //
 // Alasan pending jatuh tempo (sumber tak mencakup / konflik identitas)
 // tidak disimpan di ledger; pemanggil yang tahu boleh menyerahkan peta
@@ -51,7 +58,8 @@ export interface CohortFilter {
 
 export interface CohortStats {
   filter: CohortFilter;
-  /** Semua baris terbit dalam filter (termasuk void). */
+  /** Semua baris terbit dalam filter (termasuk void; di luar pick
+   *  termarking `duplicate_of` — keputusan pemilik A3). */
   issued: number;
   settled: number;
   hits: number;
@@ -105,7 +113,10 @@ interface CohortRow {
 //    SUM(hit, home_goals, away_goals). Koreksi skor TANPA penambahan
 //    baris (baris outcome yang sama ditulis ulang resolver: hit berbalik
 //    dan/atau gol berubah) mengubah tanda tangan → cache gugur dan
-//    statistik dihitung ulang. Penambahan/penghapusan baris mengubah
+//    statistik dihitung ulang. Jumlah pick termarking `duplicate_of`
+//    ikut ditandatangani (A3): penandaan adalah UPDATE di tempat tanpa
+//    baris baru, jadi tanpa itu cache bisa menyajikan statistik
+//    pra-tanda sesudah populasi cohort berubah. Penambahan/penghapusan baris mengubah
 //    hitungan/MAX(id). published_prob bersifat beku sesudah terbit
 //    (kontrak K2), jadi mutasi di tempat pada kolom itu bukan jalur
 //    koreksi yang sah dan tidak perlu ditandatangani.
@@ -132,6 +143,7 @@ function tandaTanganKeadaan(db: DbCohort): string {
     .prepare(
       `SELECT
          (SELECT COUNT(*) FROM picks) AS n_picks,
+         (SELECT COUNT(*) FROM picks WHERE duplicate_of IS NOT NULL) AS n_dup,
          (SELECT COALESCE(MAX(id), 0) FROM picks) AS max_pick,
          (SELECT COUNT(*) FROM pick_voids) AS n_voids,
          (SELECT COUNT(*) FROM pick_outcomes) AS n_out,
@@ -141,6 +153,7 @@ function tandaTanganKeadaan(db: DbCohort): string {
     )
     .get() as unknown as {
     n_picks: number;
+    n_dup: number;
     max_pick: number;
     n_voids: number;
     n_out: number;
@@ -148,7 +161,7 @@ function tandaTanganKeadaan(db: DbCohort): string {
     sum_hg: number;
     sum_ag: number;
   };
-  return [r.n_picks, r.max_pick, r.n_voids, r.n_out, r.sum_hit, r.sum_hg, r.sum_ag].join("|");
+  return [r.n_picks, r.n_dup, r.max_pick, r.n_voids, r.n_out, r.sum_hit, r.sum_hg, r.sum_ag].join("|");
 }
 
 /** Sidik peta alasan pending (bagian dari kunci cache; FNV-1a atas entri terurut). */
@@ -215,7 +228,11 @@ function hitungCohort(
   },
 ): { stats: CohortStats; validUntilMs: number } {
   const f = opts.filter ?? {};
-  const where: string[] = [];
+  // Basis populasi (keputusan pemilik A3): pick termarking
+  // `duplicate_of` keluar dari SEMUA hitungan cohort — predikat ini
+  // mengalir ke kueri issued/voids/agregat/pending di bawah. Kolomnya
+  // dijamin ada: cohortStats memanggil ensurePublicationSchema dulu.
+  const where: string[] = ["p.duplicate_of IS NULL"];
   const params: unknown[] = [];
   if (f.source) {
     where.push("p.source = ?");

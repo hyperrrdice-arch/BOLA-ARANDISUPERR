@@ -907,10 +907,19 @@ function packageFixtureNames(
 export function ledgerStats(): LedgerStats {
   const d = picksDb();
   const one = (sql: string) => (d.prepare(sql).get() as { n: number }).n;
+  // Keputusan pemilik A3 (25 Nov 2026): pick termarking `duplicate_of`
+  // keluar dari agregasi akurasi live di fungsi ini — pembilang dan
+  // penyebut, selaras dengan cohortStats. Populasi lab tidak pernah
+  // termarking; daftar `recent` di bawah adalah daftar tampil, bukan
+  // statistik — keduanya sengaja tidak berubah. DB lama tanpa kolom
+  // `duplicate_of`: predikat kosong (perilaku lama persis).
+  const punyaDup = kolomAda(d, "picks", "duplicate_of");
+  const dupPred = punyaDup ? " AND duplicate_of IS NULL" : "";
+  const dupPredP = punyaDup ? " AND p.duplicate_of IS NULL" : "";
   const lab_total = one(`SELECT COUNT(*) n FROM picks WHERE source='lab'`);
-  const live_total = one(`SELECT COUNT(*) n FROM picks WHERE source='live-run'`);
+  const live_total = one(`SELECT COUNT(*) n FROM picks WHERE source='live-run'${dupPred}`);
   const live_resolved = one(
-    `SELECT COUNT(*) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='live-run'`,
+    `SELECT COUNT(*) n FROM picks p JOIN pick_outcomes o ON o.pick_id=p.id WHERE p.source='live-run'${dupPredP}`,
   );
   const toGradeStat = (r: Record<string, unknown>): GradeStat => {
     const resolved = r.resolved as number;
@@ -960,7 +969,7 @@ export function ledgerStats(): LedgerStats {
               ${probNEkspr} AS prob_n,
               ${sliceHitEkspr} AS slice_hits
        FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
-       WHERE p.source='live-run' GROUP BY p.grade ORDER BY p.grade`,
+       WHERE p.source='live-run'${dupPredP} GROUP BY p.grade ORDER BY p.grade`,
     )
     .all() as Record<string, unknown>[]).map(toGradeStat);
   // Segmentasi gate (R-01): potongan yang sama persis dengan by_grade,
@@ -976,7 +985,7 @@ export function ledgerStats(): LedgerStats {
               ${probNEkspr} AS prob_n,
               ${sliceHitEkspr} AS slice_hits
        FROM picks p LEFT JOIN pick_outcomes o ON o.pick_id = p.id
-       WHERE p.source='live-run' GROUP BY p.grade, p.gate_status
+       WHERE p.source='live-run'${dupPredP} GROUP BY p.grade, p.gate_status
        ORDER BY p.grade,
                 CASE p.gate_status WHEN 'calibrated' THEN 0
                                    WHEN 'partial' THEN 1
@@ -990,7 +999,7 @@ export function ledgerStats(): LedgerStats {
     .prepare(
       `SELECT p.market AS market, COUNT(*) AS n, SUM(o.hit) AS hits
        FROM picks p JOIN pick_outcomes o ON o.pick_id = p.id
-       WHERE p.source='live-run' GROUP BY p.market ORDER BY n DESC`,
+       WHERE p.source='live-run'${dupPredP} GROUP BY p.market ORDER BY n DESC`,
     )
     .all() as Record<string, unknown>[]).map((r) => ({
       market: r.market as string,
