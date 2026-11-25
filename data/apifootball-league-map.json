@@ -1,0 +1,849 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-25T20:40:00Z",
+ "generator": "riset manual terbukti — tasks/reports/apifootball-league-mapping-report.md",
+ "note": "Peta kompetisi katalog repo -> ID liga API-Football (API-Sports v3). HANYA baris berbukti kuat dari respons GET /leagues live 26 Nov 2026 WIB (cocok nama/negara/tipe + musim + coverage). Baris ambigu/tidak diteliti TIDAK ada di sini — daftarnya di laporan. api_season_current = musim berlabel current=true pada respons; untuk query /odds?league= pakai season itu (J1 League & V.League 1 = 2027 menurut API). api_odds_coverage_current=false berarti API melaporkan liga itu tanpa coverage odds pada musim kini (semua piala domestik yang terpetakan) — capture per-liga boleh tetap dicoba, hasilnya mungkin kosong. Referensi bukti per baris di field evidence + evidence_source.",
+ "source_calls": "24 request total (1x GET /status + 23x GET /leagues) dari anggaran riset maks 25; log lengkap di laporan.",
+ "leagues": [
+  {
+   "catalog_name": "Championship",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:9"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 96,
+   "api_league_id": 40,
+   "api_league_name": "Championship",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara + tipe League persis.",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "Premier League",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:8",
+    "comp_3039"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 94,
+   "api_league_id": 39,
+   "api_league_name": "Premier League",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis; menggabungkan sm:8 + comp_3039 (liga yang sama).",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "League One",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:12",
+    "E2"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 86,
+   "api_league_id": 41,
+   "api_league_name": "League One",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis; menggabungkan sm:12 + E2.",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "League Two",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:14"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 85,
+   "api_league_id": 42,
+   "api_league_name": "League Two",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "Enterprise National League",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:17"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 84,
+   "api_league_id": 43,
+   "api_league_name": "National League",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API tanpa awalan sponsor 'Enterprise'; satu-satunya National League tingkat teratas di respons England (North id=50 / South id=51 adalah divisi di bawahnya, terbukti terpisah).",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "Serie A",
+   "catalog_country": "Italy",
+   "catalog_competition_ids": [
+    "sm:384",
+    "comp_5840"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 63,
+   "api_league_id": 135,
+   "api_league_name": "Serie A",
+   "api_type": "League",
+   "api_country": "Italy",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis (Serie A Women id=139 terpisah).",
+   "evidence_source": "GET /leagues (country-italy) 2026-11-26"
+  },
+  {
+   "catalog_name": "La Liga",
+   "catalog_country": "Spain",
+   "catalog_competition_ids": [
+    "sm:564",
+    "comp_8814"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 62,
+   "api_league_id": 140,
+   "api_league_name": "La Liga",
+   "api_type": "League",
+   "api_country": "Spain",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis; menggabungkan sm:564 'La Liga' + comp_8814 'LaLiga'.",
+   "evidence_source": "GET /leagues (country-spain) 2026-11-26"
+  },
+  {
+   "catalog_name": "Serie B",
+   "catalog_country": "Italy",
+   "catalog_competition_ids": [
+    "sm:387"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 60,
+   "api_league_id": 136,
+   "api_league_name": "Serie B",
+   "api_type": "League",
+   "api_country": "Italy",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-italy) 2026-11-26"
+  },
+  {
+   "catalog_name": "La Liga 2",
+   "catalog_country": "Spain",
+   "catalog_competition_ids": [
+    "sm:567"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 55,
+   "api_league_id": 141,
+   "api_league_name": "Segunda División",
+   "api_type": "League",
+   "api_country": "Spain",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Segunda División' = nama resmi kasta 2 Spanyol yang sama; grup RFEF (id 875-879) adalah kasta 4, terbukti terpisah.",
+   "evidence_source": "GET /leagues (country-spain) 2026-11-26"
+  },
+  {
+   "catalog_name": "Europa Conference League",
+   "catalog_country": "Europe",
+   "catalog_competition_ids": [
+    "sm:2286"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 54,
+   "api_league_id": 848,
+   "api_league_name": "UEFA Europa Conference League",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2021..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'UEFA Europa Conference League' — awalan UEFA; negara API 'World'.",
+   "evidence_source": "GET /leagues (search-europa) 2026-11-26"
+  },
+  {
+   "catalog_name": "Ligat ha'Al",
+   "catalog_country": "Israel",
+   "catalog_competition_ids": [
+    "sm:372"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 49,
+   "api_league_id": 383,
+   "api_league_name": "Ligat Ha'al",
+   "api_type": "League",
+   "api_country": "Israel",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API \"Ligat Ha'al\" — beda kapitalisasi/apostrof saja.",
+   "evidence_source": "GET /leagues (country-israel) 2026-11-26"
+  },
+  {
+   "catalog_name": "Liga Portugal 2",
+   "catalog_country": "Portugal",
+   "catalog_competition_ids": [
+    "sm:465"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 48,
+   "api_league_id": 95,
+   "api_league_name": "Segunda Liga",
+   "api_type": "League",
+   "api_country": "Portugal",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Segunda Liga' = nama resmi kasta 2 yang sama.",
+   "evidence_source": "GET /leagues (country-portugal) 2026-11-26"
+  },
+  {
+   "catalog_name": "Premiership",
+   "catalog_country": "Scotland",
+   "catalog_competition_ids": [
+    "sm:501"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 48,
+   "api_league_id": 179,
+   "api_league_name": "Premiership",
+   "api_type": "League",
+   "api_country": "Scotland",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-scotland) 2026-11-26"
+  },
+  {
+   "catalog_name": "Premier League",
+   "catalog_country": "Egypt",
+   "catalog_competition_ids": [
+    "sm:830"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 46,
+   "api_league_id": 233,
+   "api_league_name": "Premier League",
+   "api_type": "League",
+   "api_country": "Egypt",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis + negara Egypt membedakan dari Premier League negara lain.",
+   "evidence_source": "GET /leagues (country-egypt) 2026-11-26"
+  },
+  {
+   "catalog_name": "Liga Portugal",
+   "catalog_country": "Portugal",
+   "catalog_competition_ids": [
+    "sm:462"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 45,
+   "api_league_id": 94,
+   "api_league_name": "Primeira Liga",
+   "api_type": "League",
+   "api_country": "Portugal",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Primeira Liga' = nama lama resmi kasta teratas Portugal yang sama; satu-satunya League kasta 1 di respons Portugal.",
+   "evidence_source": "GET /leagues (country-portugal) 2026-11-26"
+  },
+  {
+   "catalog_name": "Ligue 1",
+   "catalog_country": "France",
+   "catalog_competition_ids": [
+    "sm:301",
+    "comp_0256"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 45,
+   "api_league_id": 61,
+   "api_league_name": "Ligue 1",
+   "api_type": "League",
+   "api_country": "France",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-france) 2026-11-26"
+  },
+  {
+   "catalog_name": "Bundesliga",
+   "catalog_country": "Germany",
+   "catalog_competition_ids": [
+    "sm:82",
+    "comp_4643"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 45,
+   "api_league_id": 78,
+   "api_league_name": "Bundesliga",
+   "api_type": "League",
+   "api_country": "Germany",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis (Frauen Bundesliga id=82 terpisah).",
+   "evidence_source": "GET /leagues (country-germany) 2026-11-26"
+  },
+  {
+   "catalog_name": "Eredivisie",
+   "catalog_country": "Netherlands",
+   "catalog_competition_ids": [
+    "sm:72",
+    "comp_3809"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 44,
+   "api_league_id": 88,
+   "api_league_name": "Eredivisie",
+   "api_type": "League",
+   "api_country": "Netherlands",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis (Eredivisie Women id=91 terpisah).",
+   "evidence_source": "GET /leagues (country-netherlands) 2026-11-26"
+  },
+  {
+   "catalog_name": "Eerste Divisie",
+   "catalog_country": "Netherlands",
+   "catalog_competition_ids": [
+    "sm:74"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 40,
+   "api_league_id": 89,
+   "api_league_name": "Eerste Divisie",
+   "api_type": "League",
+   "api_country": "Netherlands",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-netherlands) 2026-11-26"
+  },
+  {
+   "catalog_name": "1. Lig",
+   "catalog_country": "Turkey",
+   "catalog_competition_ids": [
+    "sm:603"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 40,
+   "api_league_id": 204,
+   "api_league_name": "1. Lig",
+   "api_type": "League",
+   "api_country": "Turkey",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-turkey) 2026-11-26"
+  },
+  {
+   "catalog_name": "J1 League",
+   "catalog_country": "Japan",
+   "catalog_competition_ids": [
+    "sm:968"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 40,
+   "api_league_id": 98,
+   "api_league_name": "J1 League",
+   "api_type": "League",
+   "api_country": "Japan",
+   "api_seasons": "2012..2027",
+   "api_season_current": 2027,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis. CATATAN: musim 'current' menurut API = 2027 (musim transisi J.League).",
+   "evidence_source": "GET /leagues (country-japan) 2026-11-26"
+  },
+  {
+   "catalog_name": "2. Bundesliga",
+   "catalog_country": "Germany",
+   "catalog_competition_ids": [
+    "sm:85"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 36,
+   "api_league_id": 79,
+   "api_league_name": "2. Bundesliga",
+   "api_type": "League",
+   "api_country": "Germany",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-germany) 2026-11-26"
+  },
+  {
+   "catalog_name": "Super Lig",
+   "catalog_country": "Turkey",
+   "catalog_competition_ids": [
+    "sm:600"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 36,
+   "api_league_id": 203,
+   "api_league_name": "Süper Lig",
+   "api_type": "League",
+   "api_country": "Turkey",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Süper Lig' — beda diakritik saja (ü).",
+   "evidence_source": "GET /leagues (country-turkey) 2026-11-26"
+  },
+  {
+   "catalog_name": "Pro League",
+   "catalog_country": "Belgium",
+   "catalog_competition_ids": [
+    "sm:208"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 36,
+   "api_league_id": 144,
+   "api_league_name": "Jupiler Pro League",
+   "api_type": "League",
+   "api_country": "Belgium",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Jupiler Pro League' = nama sponsor dari Pro League Belgia yang sama; satu-satunya League kasta 1 Belgium di respons.",
+   "evidence_source": "GET /leagues (country-belgium) 2026-11-26"
+  },
+  {
+   "catalog_name": "Europa League",
+   "catalog_country": "Europe",
+   "catalog_competition_ids": [
+    "sm:5"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 36,
+   "api_league_id": 3,
+   "api_league_name": "UEFA Europa League",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2014..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'UEFA Europa League' — awalan UEFA; negara API 'World'.",
+   "evidence_source": "GET /leagues (search-europa) 2026-11-26"
+  },
+  {
+   "catalog_name": "V-League",
+   "catalog_country": "Vietnam",
+   "catalog_competition_ids": [
+    "sm:1073"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 36,
+   "api_league_id": 340,
+   "api_league_name": "V.League 1",
+   "api_type": "League",
+   "api_country": "Vietnam",
+   "api_seasons": "2012..2027",
+   "api_season_current": 2027,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'V.League 1' = kasta teratas Vietnam (V.League 2 id=637 = kasta 2). CATATAN: musim current API = 2027.",
+   "evidence_source": "GET /leagues (country-vietnam) 2026-11-26"
+  },
+  {
+   "catalog_name": "Superliga",
+   "catalog_country": "Romania",
+   "catalog_competition_ids": [
+    "sm:474"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 32,
+   "api_league_id": 283,
+   "api_league_name": "Liga I",
+   "api_type": "League",
+   "api_country": "Romania",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Liga I' = nama lama kasta teratas Romania yang sama (berganti nama SuperLiga sejak 2022; API belum mengganti); Liga II id=284 = kasta 2.",
+   "evidence_source": "GET /leagues (country-romania) 2026-11-26"
+  },
+  {
+   "catalog_name": "Indian Super League",
+   "catalog_country": "India",
+   "catalog_competition_ids": [
+    "sm:1007"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 31,
+   "api_league_id": 323,
+   "api_league_name": "Indian Super League",
+   "api_type": "League",
+   "api_country": "India",
+   "api_seasons": "2018..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-india) 2026-11-26"
+  },
+  {
+   "catalog_name": "Pro League",
+   "catalog_country": "Saudi Arabia",
+   "catalog_competition_ids": [
+    "sm:944"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 30,
+   "api_league_id": 307,
+   "api_league_name": "Pro League",
+   "api_type": "League",
+   "api_country": "Saudi-Arabia",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis + negara API 'Saudi-Arabia'.",
+   "evidence_source": "GET /leagues (country-saudi-arabia) 2026-11-26"
+  },
+  {
+   "catalog_name": "A-League Men",
+   "catalog_country": "Australia",
+   "catalog_competition_ids": [
+    "sm:1356"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 30,
+   "api_league_id": 188,
+   "api_league_name": "A-League",
+   "api_type": "League",
+   "api_country": "Australia",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'A-League'; varian Women id=190 terpisah — katalog adalah Men.",
+   "evidence_source": "GET /leagues (country-australia) 2026-11-26"
+  },
+  {
+   "catalog_name": "Challenger Pro League",
+   "catalog_country": "Belgium",
+   "catalog_competition_ids": [
+    "sm:211"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 28,
+   "api_league_id": 145,
+   "api_league_name": "Challenger Pro League",
+   "api_type": "League",
+   "api_country": "Belgium",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-belgium) 2026-11-26"
+  },
+  {
+   "catalog_name": "Super League",
+   "catalog_country": "Greece",
+   "catalog_competition_ids": [
+    "sm:325"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 28,
+   "api_league_id": 197,
+   "api_league_name": "Super League 1",
+   "api_type": "League",
+   "api_country": "Greece",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Super League 1' = kasta teratas Yunani (Super League 2 id=494 = kasta 2).",
+   "evidence_source": "GET /leagues (country-greece) 2026-11-26"
+  },
+  {
+   "catalog_name": "UAE Pro League",
+   "catalog_country": "United Arab Emirates",
+   "catalog_competition_ids": [
+    "sm:959"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 28,
+   "api_league_id": 301,
+   "api_league_name": "Pro League",
+   "api_type": "League",
+   "api_country": "United-Arab-Emirates",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Pro League' + negara API 'United-Arab-Emirates'; varian U23 id=1218 terpisah.",
+   "evidence_source": "GET /leagues (country-uae) 2026-11-26"
+  },
+  {
+   "catalog_name": "Ligue 2",
+   "catalog_country": "France",
+   "catalog_competition_ids": [
+    "sm:304"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 27,
+   "api_league_id": 62,
+   "api_league_name": "Ligue 2",
+   "api_type": "League",
+   "api_country": "France",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama + negara persis.",
+   "evidence_source": "GET /leagues (country-france) 2026-11-26"
+  },
+  {
+   "catalog_name": "CAF Champions League",
+   "catalog_country": "Africa",
+   "catalog_competition_ids": [
+    "sm:1107"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 24,
+   "api_league_id": 12,
+   "api_league_name": "CAF Champions League",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2019..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis; negara API 'World'.",
+   "evidence_source": "GET /leagues (search-champions-league) 2026-11-26"
+  },
+  {
+   "catalog_name": "AFC Champions League Two",
+   "catalog_country": "Asia",
+   "catalog_competition_ids": [
+    "sm:1088"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 22,
+   "api_league_id": 18,
+   "api_league_name": "AFC Champions League Two",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2021..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis; negara API 'World'.",
+   "evidence_source": "GET /leagues (search-champions-league) 2026-11-26"
+  },
+  {
+   "catalog_name": "Serie A",
+   "catalog_country": "Brazil",
+   "catalog_competition_ids": [
+    "sm:648"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 20,
+   "api_league_id": 71,
+   "api_league_name": "Serie A",
+   "api_type": "League",
+   "api_country": "Brazil",
+   "api_seasons": "2010..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis + negara Brazil membedakan dari Serie A Italy (id=135).",
+   "evidence_source": "GET /leagues (country-brazil) 2026-11-26"
+  },
+  {
+   "catalog_name": "Champions League",
+   "catalog_country": "Europe",
+   "catalog_competition_ids": [
+    "sm:2"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 18,
+   "api_league_id": 2,
+   "api_league_name": "UEFA Champions League",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'UEFA Champions League'; dibedakan dari UEFA Champions League Women (id=525), CAF (12), AFC (17), CONCACAF (16), OFC (27) dalam respons yang sama.",
+   "evidence_source": "GET /leagues (search-champions-league) 2026-11-26"
+  },
+  {
+   "catalog_name": "KNVB Beker",
+   "catalog_country": "Netherlands",
+   "catalog_competition_ids": [
+    "sm:78"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 16,
+   "api_league_id": 90,
+   "api_league_name": "KNVB Beker",
+   "api_type": "Cup",
+   "api_country": "Netherlands",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama + negara + tipe Cup persis. CATATAN: coverage.odds musim kini False.",
+   "evidence_source": "GET /leagues (country-netherlands) 2026-11-26"
+  },
+  {
+   "catalog_name": "AFC Champions League Elite",
+   "catalog_country": "Asia",
+   "catalog_competition_ids": [
+    "sm:1085"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 16,
+   "api_league_id": 17,
+   "api_league_name": "AFC Champions League Elite",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis; negara API 'World'.",
+   "evidence_source": "GET /leagues (search-champions-league) 2026-11-26"
+  },
+  {
+   "catalog_name": "Women's Super League",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:45"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 14,
+   "api_league_id": 44,
+   "api_league_name": "FA WSL",
+   "api_type": "League",
+   "api_country": "England",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'FA WSL' = nama lama liga yang sama (FA Women's Super League); satu-satunya liga wanita kasta teratas England di respons (Women's Championship id=699 = kasta 2).",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "UEFA Women's Champions League",
+   "catalog_country": "Europe",
+   "catalog_competition_ids": [
+    "sm:1419"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 9,
+   "api_league_id": 525,
+   "api_league_name": "UEFA Champions League Women",
+   "api_type": "Cup",
+   "api_country": "World",
+   "api_seasons": "2019..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'UEFA Champions League Women' — urutan kata beda, makna sama; satu-satunya varian wanita UEFA di respons.",
+   "evidence_source": "GET /leagues (search-champions-league) 2026-11-26"
+  },
+  {
+   "catalog_name": "Taça De Portugal",
+   "catalog_country": "Portugal",
+   "catalog_competition_ids": [
+    "sm:468"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 8,
+   "api_league_id": 96,
+   "api_league_name": "Taça de Portugal",
+   "api_type": "Cup",
+   "api_country": "Portugal",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama API 'Taça de Portugal' persis (beda kapitalisasi saja); tipe Cup.",
+   "evidence_source": "GET /leagues (country-portugal) 2026-11-26"
+  },
+  {
+   "catalog_name": "DFB Pokal",
+   "catalog_country": "Germany",
+   "catalog_competition_ids": [
+    "sm:109"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 8,
+   "api_league_id": 81,
+   "api_league_name": "DFB Pokal",
+   "api_type": "Cup",
+   "api_country": "Germany",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama + negara + tipe Cup persis. CATATAN: coverage.odds musim kini False.",
+   "evidence_source": "GET /leagues (country-germany) 2026-11-26"
+  },
+  {
+   "catalog_name": "Kings Cup",
+   "catalog_country": "Saudi Arabia",
+   "catalog_competition_ids": [
+    "sm:950"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 8,
+   "api_league_id": 504,
+   "api_league_name": "King's Cup",
+   "api_type": "Cup",
+   "api_country": "Saudi-Arabia",
+   "api_seasons": "2017..2027",
+   "api_season_current": 2027,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama API \"King's Cup\" persis; tipe Cup. CATATAN: coverage.odds musim kini False; musim current API = 2027.",
+   "evidence_source": "GET /leagues (country-saudi-arabia) 2026-11-26"
+  },
+  {
+   "catalog_name": "Coppa Italia",
+   "catalog_country": "Italy",
+   "catalog_competition_ids": [
+    "sm:390"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 5,
+   "api_league_id": 137,
+   "api_league_name": "Coppa Italia",
+   "api_type": "Cup",
+   "api_country": "Italy",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama + negara + tipe Cup persis. CATATAN: coverage.odds musim kini False.",
+   "evidence_source": "GET /leagues (country-italy) 2026-11-26"
+  },
+  {
+   "catalog_name": "Carabao Cup",
+   "catalog_country": "England",
+   "catalog_competition_ids": [
+    "sm:27"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 4,
+   "api_league_id": 48,
+   "api_league_name": "League Cup",
+   "api_type": "Cup",
+   "api_country": "England",
+   "api_seasons": "2011..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama API 'League Cup' = nama tanpa sponsor dari Carabao Cup (EFL Cup); satu-satunya piala liga England di respons. CATATAN: coverage.odds musim kini False.",
+   "evidence_source": "GET /leagues (country-england) 2026-11-26"
+  },
+  {
+   "catalog_name": "Serie B",
+   "catalog_country": "Brazil",
+   "catalog_competition_ids": [
+    "sm:651"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 2,
+   "api_league_id": 72,
+   "api_league_name": "Serie B",
+   "api_type": "League",
+   "api_country": "Brazil",
+   "api_seasons": "2012..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": true,
+   "evidence": "Nama persis + negara Brazil.",
+   "evidence_source": "GET /leagues (country-brazil) 2026-11-26"
+  },
+  {
+   "catalog_name": "Copa do Brasil",
+   "catalog_country": "Brazil",
+   "catalog_competition_ids": [
+    "sm:654"
+   ],
+   "upcoming_fixtures_2026-11-26_to_2027-01-05": 1,
+   "api_league_id": 73,
+   "api_league_name": "Copa Do Brasil",
+   "api_type": "Cup",
+   "api_country": "Brazil",
+   "api_seasons": "2016..2026",
+   "api_season_current": 2026,
+   "api_odds_coverage_current": false,
+   "evidence": "Nama API 'Copa Do Brasil' — beda kapitalisasi saja; tipe Cup. CATATAN: coverage.odds musim kini False.",
+   "evidence_source": "GET /leagues (country-brazil) 2026-11-26"
+  }
+ ]
+}
