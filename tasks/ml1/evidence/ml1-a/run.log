@@ -1,0 +1,37 @@
+ML1-A — RUN LOG (Fase 2, semua keluaran aktual)
+
+[1] Latih run 1:
+  $ ~/workspace/tools/ml1-venv/bin/python scripts/ml1-train.py \
+      --features tasks/ml1/evidence/features.jsonl --model a \
+      --outdir tasks/ml1/evidence/ml1-a
+  chosen: num_boost_round=200, lambda_l2=10.0 (grid V1->V2, design §5)
+  nll_v2_chosen = 1.7253851265411537
+  pred_v2_sha256 = c5446cc96c2856307644d43e98b256d19b5494d0fff5298c09409df4d0a177a7
+  pred_h_sha256  = aa808b07cad88f6c56b6659c7505c2a5ae60e9efb4be33e7fd9cfeac5b0d44da
+
+[2] Latih run 2 (determinisme byte-identik, outdir /tmp/ml1-a-run2):
+  chosen identik; nll_v2_chosen identik.
+  sha256 pred-h.jsonl   run1 == run2 = aa808b07cad88f6c56b6659c7505c2a5ae60e9efb4be33e7fd9cfeac5b0d44da
+  sha256 pred-v2.jsonl  run1 == run2 = c5446cc96c2856307644d43e98b256d19b5494d0fff5298c09409df4d0a177a7
+  sha256 train-summary  run1 == run2 = 00d75fb8a69abc41ceda9b2420001f87a3f07710bedbef389f58fee594acdf41
+  => DETERMINISME BYTE-IDENTIK PASS
+
+[3] Evaluasi H (satu kali):
+  $ npx tsx scripts/ml1-evaluate.ts --model=a \
+      --features=tasks/ml1/evidence/features.jsonl \
+      --pred-dir=tasks/ml1/evidence/ml1-a --out=tasks/ml1/evidence/ml1-a
+  rows_h = 10401
+  champion_ll  = 1.0239583212641568
+  candidate_ll = 1.0160146815604876
+  delta        = -0.00794363970366651
+  upper_one_sided_95 = -0.005049759411332082
+  ci95 = [-0.012006591840145778, -0.00444625348196403]
+  validation_v2_delta = -0.008169858065044888
+  anchor_ok (vs artefak beku PR 4) = true
+  gate_machine = promote -> brief_status = READY_FOR_PROSPECTIVE_CONFIRMATION
+  guard_identical = true
+  promotion_performed = false
+
+[4] Stop-gate suite:
+  $ npx tsx tests/test-kandidat-q1.ts   -> test-kandidat-q1: 33 lolos, 0 gagal (L02 33/33)
+  $ npx tsx tests/test-ml1-features.ts  -> ML1-FEATURES-INJECTION: 22/22 PASS
