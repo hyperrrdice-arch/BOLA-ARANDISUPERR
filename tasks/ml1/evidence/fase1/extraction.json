@@ -1,0 +1,84 @@
+{
+  "fase": 1,
+  "stop_gate": {
+    "future_injection": "22/22 PASS (tests/test-ml1-features.ts — ML1-A A1-A10, ML1-B B1-B12)",
+    "extraction_determinism": "PASS — 2 run terpisah menghasilkan features.jsonl byte-identik",
+    "features_sha256_run1": "f778551eca8ac934951549208c370ff60584386bbfc7759eaf2429f9218d3187",
+    "features_sha256_run2": "f778551eca8ac934951549208c370ff60584386bbfc7759eaf2429f9218d3187",
+    "guard_identical_both_runs": true
+  },
+  "rows": 31112,
+  "rows_per_fold": {
+    "V1": 10349,
+    "V2": 10362,
+    "H": 10401
+  },
+  "excluded_league_folds_fit_null": [
+    {
+      "league": "sm:163",
+      "fold": "V1"
+    },
+    {
+      "league": "sm:166",
+      "fold": "V1"
+    },
+    {
+      "league": "sm:1666",
+      "fold": "V1"
+    },
+    {
+      "league": "sm:1681",
+      "fold": "V1"
+    },
+    {
+      "league": "sm:1674",
+      "fold": "V2"
+    },
+    {
+      "league": "sm:1750",
+      "fold": "V2"
+    },
+    {
+      "league": "sm:1753",
+      "fold": "V2"
+    },
+    {
+      "league": "sm:1760",
+      "fold": "V2"
+    },
+    {
+      "league": "sm:1128",
+      "fold": "H"
+    },
+    {
+      "league": "sm:1328",
+      "fold": "H"
+    },
+    {
+      "league": "sm:163",
+      "fold": "H"
+    },
+    {
+      "league": "sm:1681",
+      "fold": "H"
+    },
+    {
+      "league": "sm:23",
+      "fold": "H"
+    }
+  ],
+  "note": [
+    "Baris per lipatan audit Item 21: V1 10.354 / V2 10.366 / H 10.406. Selisih kecil (-5/-4/-5) = baris dari 13 liga-lipatan yang fit lipatannya null (aturan genRows PR 4) — tercatat persis di daftar excluded.",
+    "Perbaikan skrip selama Fase 1: liga mungil dengan irisan uji kosong dilewati sebelum foldFit (foldSlice evaluator mengasumsikan train/test tak kosong; universe K5 PR 4 tak pernah menabrak ini). Semantik baris tidak berubah.",
+    "Ekstraksi lambat di VM ini (~14 menit/run, IO-bound membaca DB 3 GB) — bukan anomali; run pertama sempat terpotong runtime replacement dan diulang dari nol."
+  ],
+  "inputs": {
+    "universe_matches": 69065,
+    "compavg_matches": 71695,
+    "team_logs": 83426,
+    "canonical_logs": 85194,
+    "matches_hash": "sha256:a9ce4587e3a7247e1c9910cce9a1ce3685f3a4594d26c295daebfac7ddf97a7b",
+    "logs_hash": "sha256:7c3b3068c60ce0a4737c3d8903a8df2405e76472ca3e45cb4887b47d20b30eed",
+    "canonical_logs_hash": "sha256:00512a8b8b1271716656634c58faf08bbb57260948b6b596e22924758a0228d8"
+  }
+}

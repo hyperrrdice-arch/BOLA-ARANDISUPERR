@@ -1,0 +1,192 @@
+{
+  "tool": "scripts/ml1-extract-features.ts",
+  "git_head": "f3376572e557a5114acbfc92d76c0d37a34fdb6a",
+  "generated_at": "2026-11-25T15:16:53.595Z",
+  "data_dir": "/home/hatch/workspace/coding/app-football/data",
+  "dataset": {
+    "file": "thestats_dataset.db",
+    "size_bytes": 3041361920,
+    "mtime": "2026-11-25T13:24:45.487Z"
+  },
+  "inputs": {
+    "universe_matches": 69065,
+    "compavg_matches": 71695,
+    "team_logs": 83426,
+    "canonical_logs": 85194,
+    "matches_hash": "sha256:a9ce4587e3a7247e1c9910cce9a1ce3685f3a4594d26c295daebfac7ddf97a7b",
+    "logs_hash": "sha256:7c3b3068c60ce0a4737c3d8903a8df2405e76472ca3e45cb4887b47d20b30eed",
+    "canonical_logs_hash": "sha256:00512a8b8b1271716656634c58faf08bbb57260948b6b596e22924758a0228d8"
+  },
+  "config": {
+    "champion": {
+      "kfit": 10,
+      "halfLifeDays": 365,
+      "rho": 0,
+      "kappaScale": 2,
+      "compAvgMode": "as-of"
+    }
+  },
+  "features": {
+    "file": "tasks/ml1/evidence/features.jsonl",
+    "sha256": "f778551eca8ac934951549208c370ff60584386bbfc7759eaf2429f9218d3187",
+    "rows": 31112,
+    "rows_per_fold": {
+      "V1": 10349,
+      "V2": 10362,
+      "H": 10401
+    },
+    "columns_a": [
+      "form_gf5_home",
+      "form_ga5_home",
+      "form_gf10_home",
+      "form_ga10_home",
+      "form_gf5_away",
+      "form_ga5_away",
+      "form_gf10_away",
+      "form_ga10_away",
+      "elo_home",
+      "elo_away",
+      "elo_diff",
+      "rest_adv",
+      "venue_neutral",
+      "promoted_home",
+      "promoted_away",
+      "miss_rest",
+      "miss_form_home",
+      "miss_form_away",
+      "n_prior_home",
+      "n_prior_away"
+    ],
+    "columns_b": [
+      "form_gf5_home",
+      "form_ga5_home",
+      "form_gf10_home",
+      "form_ga10_home",
+      "form_gf5_away",
+      "form_ga5_away",
+      "form_gf10_away",
+      "form_ga10_away",
+      "elo_home",
+      "elo_away",
+      "elo_diff",
+      "rest_adv",
+      "venue_neutral",
+      "promoted_home",
+      "promoted_away",
+      "miss_rest",
+      "miss_form_home",
+      "miss_form_away",
+      "n_prior_home",
+      "n_prior_away",
+      "shots_for_home",
+      "shots_against_home",
+      "sot_for_home",
+      "sot_against_home",
+      "shots_for_away",
+      "shots_against_away",
+      "sot_for_away",
+      "sot_against_away",
+      "n_prior_shots_home",
+      "n_prior_shots_away",
+      "has_prior_shots_home",
+      "has_prior_shots_away"
+    ],
+    "excluded_league_folds_fit_null": [
+      {
+        "league": "sm:163",
+        "fold": "V1"
+      },
+      {
+        "league": "sm:166",
+        "fold": "V1"
+      },
+      {
+        "league": "sm:1666",
+        "fold": "V1"
+      },
+      {
+        "league": "sm:1681",
+        "fold": "V1"
+      },
+      {
+        "league": "sm:1674",
+        "fold": "V2"
+      },
+      {
+        "league": "sm:1750",
+        "fold": "V2"
+      },
+      {
+        "league": "sm:1753",
+        "fold": "V2"
+      },
+      {
+        "league": "sm:1760",
+        "fold": "V2"
+      },
+      {
+        "league": "sm:1128",
+        "fold": "H"
+      },
+      {
+        "league": "sm:1328",
+        "fold": "H"
+      },
+      {
+        "league": "sm:163",
+        "fold": "H"
+      },
+      {
+        "league": "sm:1681",
+        "fold": "H"
+      },
+      {
+        "league": "sm:23",
+        "fold": "H"
+      }
+    ]
+  },
+  "guard": {
+    "before": {
+      "model-manifest.json": {
+        "sha256": "a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315"
+      },
+      "calibrated_ratings.json": {
+        "sha256": "be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+      },
+      "picks.db": {
+        "size_bytes": 60653568,
+        "mtime": "2026-11-25T09:45:10.881Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 92872704,
+        "mtime": "2026-11-25T09:43:50.962Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041361920,
+        "mtime": "2026-11-25T13:24:45.487Z"
+      }
+    },
+    "after": {
+      "model-manifest.json": {
+        "sha256": "a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315"
+      },
+      "calibrated_ratings.json": {
+        "sha256": "be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+      },
+      "picks.db": {
+        "size_bytes": 60653568,
+        "mtime": "2026-11-25T09:45:10.881Z"
+      },
+      "analysis_snapshots.db": {
+        "size_bytes": 92872704,
+        "mtime": "2026-11-25T09:43:50.962Z"
+      },
+      "thestats_dataset.db": {
+        "size_bytes": 3041361920,
+        "mtime": "2026-11-25T13:24:45.487Z"
+      }
+    },
+    "identical": true
+  }
+}
