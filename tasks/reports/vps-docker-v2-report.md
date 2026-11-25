@@ -147,3 +147,32 @@ Catatan proses build worktree (jujur): (1) symlink `node_modules` ditolak Turbop
 | File rujukan compose (`Dockerfile`, `Caddyfile`, `ops/crontab.docker`, `.env.local`) | semua ada |
 
 ---
+
+## Fase 4 — Safe Backup, Templat Off-Host, & Runbook
+
+- **`scripts/backup-sqlite-safe.ts`** (Node 24 `node:sqlite`):
+  - Memindai **dinamis** semua `*.db` di `DB_DIR` (via `lib/db/paths.ts`) — tanpa hardcode; DB masa depan otomatis ikut.
+  - Snapshot konsisten per DB via `VACUUM INTO` ke direktori bertimestamp `bola-backup-<ts>` (aman terhadap WAL & penulisan bersamaan; snapshot = file mandiri tanpa WAL).
+  - `PRAGMA integrity_check` pada **setiap** snapshot — satu saja ≠ `ok` → gagal keras (exit 1, arsip tidak dibuat, snapshot dipertahankan untuk forensik).
+  - Arsip `.tar.gz` + `.sha256` pendamping; direktori snapshot mentah dibuang sesudah arsip jadi.
+  - Retensi lokal default 7 hari (`RETENTION_DAYS`), mencakup arsip + `.sha256` + sisa direktori.
+  - `RCLONE_REMOTE` diset → unggah arsip + `.sha256` via rclone; biner rclone absen → peringatan keras di log, backup lokal tetap selesai (exit 0).
+  - Env: `DB_DIR`, `BACKUP_DIR` (default `<DB_DIR>/backups`), `RETENTION_DAYS`, `RCLONE_REMOTE`. `.gitignore` ditambah `data/backups/` supaya arsip lokal tak pernah ter-commit.
+- **`litestream.yml.example`:** templat replikasi kontinu 3 DB kritis (`picks.db`, `market_snapshots.db`, `analysis_snapshots.db`) ke S3/R2 dengan kredensial via `${VAR}` environment, `sync-interval: 10s`, plus petunjuk restore.
+- **`docs/VPS-MIGRATION-RUNBOOK.md`:** SOP < 10 menit — persiapan TTL DNS → backup final + `sha256sum -c` → VPS baru (clone, `.env.local`, ekstrak `.db` ke `./storage/`, `docker compose up -d --build`) → verifikasi (`/healthz` 200, angka kohor `/` & `/bukti` sama, `integrity_check` di container, DNS A record → SSL Caddy otomatis, host lama sebagai rollback) → opsional 3 baris recreate `ml1-venv`.
+
+### Stop-gate Fase 4 — uji terisolasi di /tmp (bukti aktual)
+
+Fixture: 2 DB dummy di `/tmp/bola-bktest/dbs` (`alpha.db` jurnal default 1 baris; `beta.db` mode WAL 5 baris — meniru picks.db). Jalankan dengan `DB_DIR` + `BACKUP_DIR` terisolasi:
+
+| Cek | Hasil |
+| :--- | :--- |
+| Exit code `backup-sqlite-safe.ts` | **0** |
+| Log snapshot + integritas | `snapshot alpha.db`, `snapshot beta.db`, `integrity_check: ok untuk 2/2 snapshot` |
+| Artefak | `bola-backup-2026-11-25T17-27-34-685Z.tar.gz` (486 byte) + `.tar.gz.sha256` terbentuk |
+| `sha256sum -c` atas arsip | **OK** |
+| Isi tar | kedua snapshot `.db` ada |
+| Restore uji | `alpha.db` integrity ok, 1 baris; `beta.db` integrity ok, 5 baris (persis fixture) |
+| Validasi susulan Fase 3 | `ops/crontab.docker` kini **5/5** path script ada di repo — stop-gate Fase 3 tertutup penuh |
+
+---

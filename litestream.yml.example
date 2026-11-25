@@ -1,0 +1,53 @@
+# ============================================================================
+# litestream.yml.example — Templat replikasi kontinu SQLite (Docker V2)
+# ----------------------------------------------------------------------------
+# Litestream mereplikasi WAL DB kritis secara kontinu ke object storage
+# (Cloudflare R2 / S3 / kompatibel), melengkapi backup harian
+# scripts/backup-sqlite-safe.ts (snapshot titik-waktu). Dengan litestream,
+# kehilangan VPS = kehilangan data maksimal hitungan detik, bukan 1 hari.
+#
+# Cara pakai:
+#   1. Salin file ini menjadi `litestream.yml` (JANGAN commit yang asli —
+#      berisi kredensial bila variabel di-expand manual).
+#   2. Set env: LITESTREAM_BUCKET, LITESTREAM_ENDPOINT (kosongkan untuk AWS
+#      S3; isi endpoint R2: https://<account-id>.r2.cloudflarestorage.com),
+#      LITESTREAM_ACCESS_KEY_ID, LITESTREAM_SECRET_ACCESS_KEY.
+#      Litestream men-expand ${VAR} dari environment secara native.
+#   3. Jalankan sebagai sidecar/proses pendamping yang me-mount volume
+#      storage yang sama: `litestream replicate -config litestream.yml`.
+#      Pulihkan dengan: `litestream restore -config litestream.yml <db>`.
+#
+# Path di bawah mengasumsikan layout Docker (DB_DIR=/app/storage). Untuk
+# host non-Docker, sesuaikan ke lokasi data/ checkout.
+# ============================================================================
+
+dbs:
+  - path: /app/storage/picks.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: picks
+        endpoint: ${LITESTREAM_ENDPOINT}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        sync-interval: 10s
+
+  - path: /app/storage/market_snapshots.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: market_snapshots
+        endpoint: ${LITESTREAM_ENDPOINT}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        sync-interval: 10s
+
+  - path: /app/storage/analysis_snapshots.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: analysis_snapshots
+        endpoint: ${LITESTREAM_ENDPOINT}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        sync-interval: 10s
