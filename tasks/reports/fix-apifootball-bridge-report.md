@@ -3,12 +3,13 @@
 - **Branch:** `fix/apifootball-fixtures-bridge` dari master `fcf4c5a`,
   worktree `~/workspace/coding/app-football-fixbridge`.
 - **Commit:** fix jembatan + tes (satu commit logis) · laporan ini (docs).
-- **Status:** kode + tes selesai dan hijau; **larian live tunggal yang
-  diizinkan KONSUMSI oleh kegagalan yang justru membuktikan fakta
-  kontrak endpoint baru** (lihat Larian live) — verifikasi live
-  ujung-ke-ujung BELUM tercapai dan menunggu satu larian lagi atas kata
-  pemilik. **TIDAK ada merge, deploy, pendaftaran cron, atau hook
-  Fix-4** — aktivasi menunggu kata pemilik sesudah peninjauan.
+- **Status:** kode + tes selesai dan hijau; larian live pertama
+  KONSUMSI oleh kegagalan yang justru membuktikan fakta kontrak
+  endpoint baru (lihat Larian live); **verifikasi live ujung-ke-ujung
+  SUDAH tercapai pada larian kedua atas izin pemilik — lihat bagian
+  "Verifikasi live kedua" di akhir laporan.** **TIDAK ada merge,
+  deploy, pendaftaran cron, atau hook Fix-4** — aktivasi menunggu kata
+  pemilik sesudah peninjauan.
 - **Kerahasiaan:** token hanya diteruskan lewat environment dari
   `.env.local` (blind-copy ke worktree); nilai token tidak pernah
   dicetak di log, laporan, atau chat mana pun.
@@ -198,3 +199,67 @@ Jangkar sebelum larian == sesudah seluruh pekerjaan:
 4. **Aktivasi tetap menunggu kata pemilik:** cron capture 09:00/18:00
    WIB, hook Fix-4 ke alur harian, dan tiket resmi pertama — tidak ada
    satu pun yang didaftarkan/dijalankan oleh branch ini.
+
+---
+
+## Verifikasi live kedua (25 Nov 2026, ±18:05 WIB) — SUKSES ujung-ke-ujung
+
+Menutup celah sisa #1. Pemilik mengizinkan tepat SATU larian capture
+lagi ("gasss"); tepat satu larian dijalankan dari worktree ini, tanpa
+perubahan kode apa pun.
+
+**Pra-larian (isolasi):** target snapshot = `data/market_snapshots.db`
+worktree sendiri — store diinisialisasi segar oleh larian ini (sisa
+sidecar `-wal`/`-shm` yatim dari larian sebelumnya disisihkan dulu
+sebagai `*.livecopy-bridge`, menyusul berkas `.livecopy-bridge` yang
+sudah ada). `upcoming_fixtures.db` = salinan worktree yang sama
+(terverifikasi 4.029 baris). Jalur DB skrip bersifat relatif terhadap
+`process.cwd()` — tidak ada jalur ke checkout utama.
+
+**Output verbatim (exit 0):**
+
+```
+SELESAI capture API-Football: tanggal 2026-11-25, jendela 18:00, peta /fixtures 243 fixture (halaman 1/1), halaman odds 3/18 terambil, 4161 quote terbaca, 1154 snapshot tersimpan, 0 entri odds tanpa pasangan /fixtures dilewati, 3007 quote tak terjembatani dilewati, 4 request terpakai (sisa kuota header: 89).
+PERINGATAN skipped-due-to-plan-cap: 15 dari 18 halaman query /odds?date=2026-11-25 TIDAK diambil karena batas free plan (Page maks 3) — cakupan tangkapan tanggal ini PARSIAL, bukan tangkapan penuh.
+EXIT=0
+```
+
+**Penilaian terhadap kriteria sukses:**
+
+- **Quote terparse > 0 ✓** — 4.161 quote dari 3 halaman odds.
+- **Snapshot tertulis > 0 ✓** — baris `market_snapshots` di DB
+  worktree = **1.154** (terverifikasi query; persis angka baris
+  SELESAI), untuk **7 fixture** yang terjembatani ke katalog repo;
+  pasar: 1x2 = 70 baris, ou = 1.084 baris.
+- **Peta /fixtures terisi ✓** — 243 fixture, envelope halaman 1/1
+  (tidak truncated). **Entri odds tanpa pasangan /fixtures = 0** —
+  jembatan bekerja pada 100% entri odds yang terambil.
+- **first_observed ≈ waktu larian ✓** — semua baris
+  `2026-11-25T11:05:43.763Z` (larian mulai 11:05:39 UTC).
+- **Devig spot-check ✓** — 3 baris pertama: Σ probabilitas devig =
+  **1,000000000000** persis pada ketiganya. Contoh konkret:
+  `sm_19719165` **Avispa Fukuoka vs Yokohama F. Marinos** — pasar 1X2,
+  bookmaker William Hill, metode `shin+renorm`; dua baris berikutnya
+  O/U 0.5 dan O/U 1.5 fixture yang sama (`twoway-proportional+renorm`).
+- **Kuota:** larian ini 4 request (1 fixtures + 3 odds); sisa kuota
+  header sesudah = 89 → **total pemakaian akun hari ini 11 dari 100**
+  (≈7 sebelum larian ini + 4).
+- **3.007 quote dilewati** bukan kegagalan jembatan: fixture-nya tidak
+  ada di katalog `upcoming_fixtures` repo (celah sisa #3 —
+  penjembatanan katalog berbasis nama+tanggal). Peringatan
+  skipped-due-to-plan-cap tetap tercetak: cakupan odds tetap parsial
+  (celah sisa #2).
+
+**Isolasi produksi sesudah larian:** `data/model-manifest.json`
+checkout utama sha256 IDENTIK (`a6cf947a…`);
+`data/market_snapshots.db` produksi byte-identik (4.096 B, sha256
+`97e8d54f…`, **0 baris**); checkout utama tidak disentuh (HEAD tetap
+`fcf4c5a`, status git = baseline yang sama). DB worktree berisi 1.154
+snapshot ini TIDAK di-commit (bukti larian, sejalan dengan perlakuan
+berkas livecopy sebelumnya).
+
+**Kesimpulan:** blocker #3 **TERBUKTI live ujung-ke-ujung** — capture
+kini benar-benar menulis MarketSnapshot lewat jembatan /fixtures.
+Tersisa: celah cakupan (plan-cap ±30 fixture odds/hari + penjembatanan
+katalog) dan aktivasi (cron 09:00/18:00, hook Fix-4, tiket pertama) —
+keputusan pemilik.
