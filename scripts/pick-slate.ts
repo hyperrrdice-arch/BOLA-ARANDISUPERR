@@ -104,6 +104,7 @@ import {
   type PickLeg,
   type Population,
 } from "../lib/picks/engine";
+import { dbPath } from "../lib/db/paths";
 import { writePackage, type PackageInput } from "../lib/picks/packages";
 import {
   SlateIdentity,
@@ -281,8 +282,8 @@ async function main() {
   const iso = (d: Date) => d.toISOString();
 
   const upDb = getUpcomingDb();
-  const dsDb = openRo("data/thestats_dataset.db");
-  const prDb = openRo("data/predictions.db");
+  const dsDb = openRo(dbPath("thestats_dataset.db"));
+  const prDb = openRo(dbPath("predictions.db"));
 
   // Model saji (K4 + fix-5 review K8 §5): pointer manifest aktif dibaca
   // SATU KALI lewat loadServingModel — artefak bobot immutable yang
@@ -486,7 +487,7 @@ async function main() {
   const alreadyRecorded = new Set<string>();
   if (writeLedger) {
     try {
-      const pkDb = openRo("data/picks.db");
+      const pkDb = openRo(dbPath("picks.db"));
       for (const r of pkDb
         .prepare("SELECT DISTINCT match_id FROM picks WHERE source = 'live-run'")
         .all() as unknown as Array<{ match_id: string }>) {
@@ -612,7 +613,7 @@ async function main() {
   ): void => {
     try {
       if (msDb === undefined) {
-        const p = path.join(process.cwd(), "data", "market_snapshots.db");
+        const p = dbPath("market_snapshots.db");
         msDb = fs.existsSync(p) ? openRo(p) : null;
       }
       if (!msDb) {

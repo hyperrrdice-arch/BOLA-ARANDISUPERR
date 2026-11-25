@@ -27,6 +27,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../db/paths";
 import { cohortStats, SETTLEMENT_WINDOW_MS, type CohortFilter, type CohortStats } from "../picks/cohort";
 import { statusFeedKompetisi } from "../picks/feed-coverage";
 import { UNRECORDED_PROB_LABEL } from "../picks/publication";
@@ -53,7 +54,7 @@ function dbRo(file: string): Db | null {
   const key = `ro:${file}`;
   const ada = g.__rekamDbs.get(key);
   if (ada) return ada;
-  const p = path.join(process.cwd(), "data", file);
+  const p = dbPath(file);
   if (!fs.existsSync(p)) return null;
   try {
     const h = new DatabaseSync(p, { readOnly: true });

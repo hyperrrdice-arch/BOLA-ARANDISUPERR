@@ -22,6 +22,7 @@ import {
 import type { TeamRollingTelemetry } from "../lib/db/team-telemetry";
 import { getCompetitionAvgGoals } from "../lib/db/team-telemetry";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../lib/db/paths";
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
@@ -287,7 +288,7 @@ console.log("Temuan 4: confidence special markets (coverage metrik)");
 // ---------------------------------------------------------------------------
 console.log("Temuan 5: rata-rata kompetisi point-in-time");
 {
-  const db = new DatabaseSync("data/thestats_dataset.db", { readOnly: true });
+  const db = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   const bounded = (comp: string, cutoff: string) =>
     (
       db

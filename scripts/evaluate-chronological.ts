@@ -48,6 +48,7 @@ import {
   type ScoredRow,
 } from "../lib/eval/chronological-evaluator";
 import { blockBootstrapDelta, type PairedDeltaRow } from "../lib/quant/experiment-stats";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
@@ -56,6 +57,7 @@ const argVal = (name: string, dflt: string): string => {
 };
 const MODE = argVal("mode", "");
 const DATA_DIR = argVal("data-dir", "data");
+const EVAL_DB_DIR = argVal("data-dir", dbDir());
 const OUT_DIR = argVal("out", "");
 const BOOTSTRAP_SEED = 20261124;
 
@@ -83,7 +85,7 @@ interface LoadedData {
 }
 
 function loadData(): LoadedData {
-  const datasetPath = path.join(DATA_DIR, "thestats_dataset.db");
+  const datasetPath = path.join(EVAL_DB_DIR, "thestats_dataset.db");
   const ds = new DatabaseSync(datasetPath, { readOnly: true });
   const universe = ds
     .prepare(

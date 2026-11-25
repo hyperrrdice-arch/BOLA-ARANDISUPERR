@@ -38,13 +38,14 @@ import {
   KAPPA_DECISION_THRESHOLDS,
   type PairedDeltaRow,
 } from "../lib/quant/experiment-stats";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.split("=").slice(1).join("=") : dflt;
 };
-const DATASET_DIR = argVal("dataset-dir", process.env.K5_DATASET_DIR ?? "data");
+const DATASET_DIR = argVal("dataset-dir", process.env.K5_DATASET_DIR ?? dbDir());
 const OUT_DIR = argVal("out", "tasks/experiments/k5-kappa");
 const MIN_MATCHES = 120;
 const KFIT_SWEEP = [5, 10, 15, 20] as const;

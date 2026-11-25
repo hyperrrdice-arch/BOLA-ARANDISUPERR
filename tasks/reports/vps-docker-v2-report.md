@@ -56,3 +56,43 @@ Temuan tambahan:
 - `git status` awal memuat churn refresh terjadwal yang sudah ada sebelum sprint (modifikasi JSON data + `tasks/*` dari rantai produksi, `data/market_snapshots.db` untracked karena memang gitignored-pola di luar daftar eksplisit, artefak model di `data/model-artifacts/`). Churn ini BUKAN hasil sprint dan tidak disentuh/di-commit oleh sprint.
 
 ---
+
+## Fase 1 — Isolasi Semua Database SQLite ke `DB_DIR`
+
+- **Modul terpusat baru:** `lib/db/paths.ts` — `dbDir()` membaca `process.env.DB_DIR`; tidak diset → `path.join(process.cwd(), "data")` (persis perilaku lama); diset → path absolut/relatif-cwd + `mkdirSync` recursive. `dbPath(file)` untuk .db; `dataDir()`/`dataFilePath()` untuk JSON statis yang SELALU dari `data/`.
+- **Cakupan pengarahan (60 file):** seluruh getter path di `lib/db/*` (dataset, upcoming, snapshot), `lib/picks/ledger.ts`, `lib/picks/packages.ts`, `lib/market/market-snapshot.ts`, helper `db()`/`dbRo()` di `lib/web/data.ts` + `lib/web/rekam.ts` (termasuk tanda-tangan file `.db`/`-wal` di `landingStats`; JSON ratings tetap `data/`), `lib/odds/sportmonks-wire.ts`, 41 file `scripts/` (termasuk seluruh rantai produksi: free-refresh chain, `wal-checkpoint.ts`, `capture-odds-apifootball.ts`, `import-fdorg-results.ts`, `pick-slate.ts`; Fix-4 mengalir lewat `lib/picks/ledger.ts`), dan situs path-produksi di `tests/helpers/*` (seed/probe yang membuka DB produksi). Situs berbasis `env.dataDir` (sandbox tes) sengaja TIDAK diubah — itu mekanisme isolasi tes itu sendiri.
+- **Skrip riset ber-argumen `--data-dir`** (`evaluate-*`, `ml1-*`, `diagnose-q2`, `experiment-k5-kappa`): ditambah `EVAL_DB_DIR = argVal("data-dir", dbDir())` — argumen sandbox tetap menang persis seperti sebelumnya; tanpa argumen, .db mengikuti `DB_DIR`/`data/` sementara JSON tetap dari `DATA_DIR` argumen. Kontrak reproduksibilitas artefak beku (PR 3/PR 4/ML1) tidak berubah.
+- **`lib/quant/*` TIDAK disentuh** (hard non-goal) — fungsi di sana menerima `dataDir` sebagai parameter dari pemanggil; pemanggil produksi mengoper dir statis `data/` untuk JSON, sesuai kontrak.
+- **`.env.example`:** ditambah blok `DB_DIR=./storage` berdokumentasi. **`.gitignore`:** ditambah `/storage/`, `storage/*.db*`, plus `data/market_snapshots.db*` (penyelarasan §0.3 — DB Sprint C itu sebelumnya belum ter-ignore dan tampil untracked).
+
+### Bukti smoke kompatibilitas (wajib, dari parent brief)
+
+Tanpa `DB_DIR` — semua resolve persis ke `data/` seperti sekarang:
+
+```
+dbDir(): /home/hatch/workspace/coding/app-football/data
+picks.db -> data/picks.db · analysis_snapshots.db -> data/analysis_snapshots.db
+thestats_dataset.db -> data/thestats_dataset.db · upcoming_fixtures.db -> data/upcoming_fixtures.db
+market_snapshots.db -> data/market_snapshots.db · football_master.db -> data/football_master.db
+predictions.db -> data/predictions.db
+```
+
+Dengan `DB_DIR=/tmp/dbdir-dummy` — semua resolve ke dummy (direktori terbuat otomatis):
+
+```
+dbDir(): /tmp/dbdir-dummy  →  ketujuh DB -> /tmp/dbdir-dummy/*.db
+```
+
+### Stop-gate Fase 1 (berurutan, semua hijau)
+
+| Cek | Hasil |
+| :--- | :--- |
+| `npx --no-install tsc --noEmit` | exit 0 |
+| `npm run lint:gate` | LOLOS (91 error ≤ baseline 92; 0 error baru) |
+| `npm run test:data` | exit 0 — fix4 **46/46**, T02 market-snapshot **63/63**, fdorg **43/43**, cohort-duplikat **21/21** |
+| `npm run test:api` | exit 0 — api-contract 42/42 |
+| L02 `tests/test-kandidat-q1.ts` | **33/33** (33 lolos, 0 gagal) |
+
+Catatan proses: satu sisipan import otomatis sempat mendarat di tengah blok import multi-baris `scripts/pick-slate.ts` (error parse ESLint) — diperbaiki manual, lalu seluruh 54 file yang menyentuh `db/paths` diaudit parse bersih via TypeScript compiler API (0 error) dan tsc diulang tanpa cache.
+
+---

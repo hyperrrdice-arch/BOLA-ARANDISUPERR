@@ -14,17 +14,14 @@
  *      ke `thestats_dataset.db` (matches + team_match_logs), lalu MENGHAPUS barisnya di sini.
  */
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "./paths";
 import path from "node:path";
 import fs from "node:fs";
 
 let dbInstance: DatabaseSync | null = null;
 
 export function getUpcomingDbPath(): string {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, "upcoming_fixtures.db");
+  return dbPath("upcoming_fixtures.db");
 }
 
 export function getUpcomingDb(): DatabaseSync {

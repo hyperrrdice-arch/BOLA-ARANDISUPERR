@@ -31,6 +31,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
+import { dbPath } from "../lib/db/paths";
 
 const MIN_MATCHES = 120;
 const HALF_LIFE = 365;
@@ -39,7 +40,7 @@ const RHO = 0;
 const KAPPA_SCALE = 2;
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 const round2 = (v: number) => Number(v.toFixed(2));
 const round3 = (v: number) => Number(v.toFixed(3));

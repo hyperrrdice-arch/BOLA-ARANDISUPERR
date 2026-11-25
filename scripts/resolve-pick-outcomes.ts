@@ -54,6 +54,7 @@ import {
   loadFixtureLinkGroups,
   type FixtureLinkGroup,
 } from "../lib/identity/fixture-resolver";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const limitArg = args.find((a) => a.startsWith("--limit="));
@@ -63,7 +64,7 @@ if (limit !== undefined && (!Number.isFinite(limit) || limit < 0)) {
 }
 
 function openRo(file: string): DatabaseSync | null {
-  const p = path.join(process.cwd(), "data", file);
+  const p = dbPath(file);
   if (!fs.existsSync(p)) return null;
   return new DatabaseSync(p, { readOnly: true });
 }

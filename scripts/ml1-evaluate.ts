@@ -39,6 +39,7 @@ import {
 import { ML1_A_FEATURE_NAMES, ML1_B_FEATURE_NAMES } from "../lib/eval/ml1-features";
 import { poissonNll } from "../lib/eval/kandidat-q1-poisson";
 import { applyKappaDecision, blockBootstrapDelta, type PairedDeltaRow } from "../lib/quant/experiment-stats";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
@@ -50,6 +51,7 @@ const FEATURES = argVal("features", "tasks/ml1/evidence/features.jsonl");
 const PRED_DIR = argVal("pred-dir", "");
 const OUT_DIR = argVal("out", "");
 const DATA_DIR = argVal("data-dir", "data");
+const EVAL_DB_DIR = argVal("data-dir", dbDir());
 const Q1_PREDICTIONS = "tasks/pr4/evidence/q1-shadow/predictions.jsonl";
 const BOOTSTRAP_SEED = 20261124;
 const LOCKED_CHAMPION_H_LL = 1.0134022623271062;
@@ -63,7 +65,7 @@ function guardSnapshot(): Record<string, unknown> {
     if (fs.existsSync(p)) snap[f] = { sha256: sha256File(p) };
   }
   for (const db of ["picks.db", "analysis_snapshots.db", "thestats_dataset.db"]) {
-    const p = path.join(DATA_DIR, db);
+    const p = path.join(EVAL_DB_DIR, db);
     if (fs.existsSync(p)) {
       const st = fs.statSync(p);
       snap[db] = { size_bytes: st.size, mtime: st.mtime.toISOString() };

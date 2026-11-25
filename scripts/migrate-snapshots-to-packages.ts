@@ -30,8 +30,9 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { ensurePackagesSchema } from "../lib/picks/packages";
+import { dbPath } from "../lib/db/paths";
 
-const DB_PATH = path.join(process.cwd(), "data", "analysis_snapshots.db");
+const DB_PATH = dbPath("analysis_snapshots.db");
 const NEW_PATH = `${DB_PATH}.new`;
 const ARCHIVE_PATH = path.join(
   process.cwd(),

@@ -24,6 +24,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { smGet } from "./sm-fetch";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -72,9 +73,7 @@ const POINTS = [
 ] as const;
 
 function dataPath(file: string): string {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  return path.join(dir, file);
+  return dbPath(file);
 }
 
 function openDataset(): DatabaseSync {

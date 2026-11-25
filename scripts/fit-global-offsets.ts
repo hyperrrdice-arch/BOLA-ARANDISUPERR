@@ -43,6 +43,7 @@ import {
   type RatingsFileLike,
 } from "../lib/quant/cup-offset-fit";
 import type { CanonicalLeague } from "../lib/quant/league-identity";
+import { dbPath } from "../lib/db/paths";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const nowIso = new Date().toISOString();
@@ -207,7 +208,7 @@ function main(): void {
   }
 
   // ── 3. league_calibration: baris 17 kompetisi (source='cup-offset') ──
-  const ds = new DatabaseSync(path.join(DATA_DIR, "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   // Langkah lain di rantai (telemetry) bisa memegang kunci tulis sesaat —
   // tunggu sampai 120 d alih-alih gagal seketika.
   ds.exec("PRAGMA busy_timeout = 120000");

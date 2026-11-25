@@ -22,9 +22,10 @@
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
+import { dbPath } from "../lib/db/paths";
 
-const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), { readOnly: true });
-const uf = new DatabaseSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"), { readOnly: true });
+const ds = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
+const uf = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
 
 // Pool tanggal per tim: SM-only dan gabungan (SM ∪ fd; dedupe tak mengubah
 // tanggal maksimum, jadi pool tanggal mentah per definisi sumber cukup).

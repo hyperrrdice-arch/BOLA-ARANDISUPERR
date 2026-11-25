@@ -55,6 +55,7 @@ import {
   openMarketSnapshotDb,
 } from "../lib/market/market-snapshot";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -80,7 +81,7 @@ async function main(): Promise<void> {
 
   // Jembatan: (tanggal UTC | nama kandang ternormalisasi | nama tandang
   // ternormalisasi) → match_id katalog.
-  const up = new DatabaseSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"), {
+  const up = new DatabaseSync(dbPath("upcoming_fixtures.db"), {
     readOnly: true,
   });
   const bridge = new Map<string, string>();

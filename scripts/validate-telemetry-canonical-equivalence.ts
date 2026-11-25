@@ -33,9 +33,10 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { getTeamRollingTelemetry, getPreMatchLogs } from "../lib/db/team-telemetry";
+import { dbPath } from "../lib/db/paths";
 
 const CUTOFF = "2026-11-16";
-const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), { readOnly: true });
+const ds = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
 
 const member2Canon = new Map<string, string>();
 {

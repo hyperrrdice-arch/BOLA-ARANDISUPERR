@@ -25,6 +25,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../db/paths";
 import {
   fetchFixtureDetail,
   isSportmonksDegraded,
@@ -129,7 +130,7 @@ export function teamNamesMatch(a: string | null | undefined, b: string | null | 
 
 function openUpcomingReadOnly(): DatabaseSync | null {
   try {
-    const p = path.join(process.cwd(), "data", "upcoming_fixtures.db");
+    const p = dbPath("upcoming_fixtures.db");
     if (!fs.existsSync(p)) return null;
     return new DatabaseSync(p, { readOnly: true } as unknown as { readOnly: boolean });
   } catch {

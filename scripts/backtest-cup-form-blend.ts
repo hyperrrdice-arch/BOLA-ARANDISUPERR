@@ -75,6 +75,7 @@ import {
   type CupBlendBranch,
 } from "../lib/quant/cup-form-blend";
 import { evaluatePick } from "../lib/picks/ledger";
+import { dbPath } from "../lib/db/paths";
 
 const ADOPTION_RULE =
   "Adopt the blend ONLY if ALL three hold on the identical rated population: " +
@@ -85,7 +86,7 @@ const ADOPTION_RULE =
 const RHO = 0; // konvensi lab (parlay-lab RHO) & jalur piala (rho=0)
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 const round2 = (v: number) => Number(v.toFixed(2));
 const round3 = (v: number) => Number(v.toFixed(3));

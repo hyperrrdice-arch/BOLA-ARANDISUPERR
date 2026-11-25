@@ -18,6 +18,7 @@ import {
   daftarPilihanPraLaga,
   parseFilterRekam,
 } from "../../lib/web/rekam";
+import { dbPath } from "../../lib/db/paths";
 
 export const NOW = "2026-11-21T12:00:00.000Z";
 
@@ -67,7 +68,7 @@ function main(): void {
   const kosong = ambilRekam(parseFilterRekam({ liga: "comp_tidak_ada" }), NOW);
 
   // Spot-check SQL mentah pada filter utama (sampel yang sama).
-  const db = new DatabaseSync(path.join(process.cwd(), "data", "picks.db"), {
+  const db = new DatabaseSync(dbPath("picks.db"), {
     readOnly: true,
   });
   const sql = db

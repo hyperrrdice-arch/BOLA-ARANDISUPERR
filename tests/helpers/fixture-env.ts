@@ -20,6 +20,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../../lib/db/paths";
 
 /** Root worktree — ditangkap saat proses suite mulai (npm run dari root). */
 export const REPO_ROOT = process.cwd();
@@ -189,7 +190,7 @@ export async function buildCoreSchemas(): Promise<CoreModules> {
   `);
   const packages = await import("../../lib/picks/packages");
   const snapDb = new DatabaseSync(
-    path.join(process.cwd(), "data", "analysis_snapshots.db"),
+    dbPath("analysis_snapshots.db"),
   );
   packages.ensurePackagesSchema(snapDb);
   snapDb.close();

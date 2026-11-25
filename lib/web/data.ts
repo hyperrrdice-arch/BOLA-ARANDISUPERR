@@ -11,6 +11,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../db/paths";
 import {
   canonicalIdForTeamId,
   canonicalIdForTeamName,
@@ -47,9 +48,10 @@ function db(file: string): Db {
   if (!g.__webDbs) g.__webDbs = new Map();
   let h = g.__webDbs.get(file);
   if (!h) {
-    // Path dibuat statis per subfolder "data" agar tracing build tidak
-    // menyapu seluruh proyek (peringatan NFT Turbopack).
-    h = new DatabaseSync(path.join(process.cwd(), "data", file), { readOnly: true });
+    // Path DB terpusat via lib/db/paths (DB_DIR-aware; default tetap
+    // subfolder "data" yang statis agar tracing build tidak menyapu
+    // seluruh proyek — peringatan NFT Turbopack).
+    h = new DatabaseSync(dbPath(file), { readOnly: true });
     g.__webDbs.set(file, h);
   }
   return h;
@@ -59,7 +61,7 @@ const picksDb = () => db("picks.db");
 const datasetDb = () => db("thestats_dataset.db");
 /** Katalog jadwal hidup di file terpisah dan boleh absen (degrade kosong). */
 function upcomingDb(): Db | null {
-  if (!fs.existsSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"))) return null;
+  if (!fs.existsSync(dbPath("upcoming_fixtures.db"))) return null;
   try {
     return db("upcoming_fixtures.db");
   } catch {
@@ -1152,12 +1154,12 @@ export function landingStats(): LandingStats {
   const dataDir = path.join(process.cwd(), "data");
   const sig = [
     fileSig(path.join(dataDir, "calibrated_ratings.json")),
-    fileSig(path.join(dataDir, "picks.db")),
-    fileSig(path.join(dataDir, "picks.db-wal")),
-    fileSig(path.join(dataDir, "analysis_snapshots.db")),
-    fileSig(path.join(dataDir, "analysis_snapshots.db-wal")),
-    fileSig(path.join(dataDir, "thestats_dataset.db")),
-    fileSig(path.join(dataDir, "thestats_dataset.db-wal")),
+    fileSig(dbPath("picks.db")),
+    fileSig(dbPath("picks.db-wal")),
+    fileSig(dbPath("analysis_snapshots.db")),
+    fileSig(dbPath("analysis_snapshots.db-wal")),
+    fileSig(dbPath("thestats_dataset.db")),
+    fileSig(dbPath("thestats_dataset.db-wal")),
     String(Math.floor(Date.now() / 300_000)),
   ].join("|");
   if (landingCache && landingCache.sig === sig) return landingCache.stats;

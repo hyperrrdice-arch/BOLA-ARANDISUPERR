@@ -26,6 +26,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { dbPath } from "../lib/db/paths";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 
@@ -141,9 +142,9 @@ function collectSeeds(): { seeds: Seed[]; registryStatus: Map<string, string>; j
   const registryStatus = new Map<string, string>();
   const jsonStatus = new Map<string, string>();
 
-  const upDb = new DatabaseSync(path.join(DATA_DIR, "upcoming_fixtures.db"), { readOnly: true });
-  const dsDb = new DatabaseSync(path.join(DATA_DIR, "thestats_dataset.db"), { readOnly: true });
-  const masterDb = new DatabaseSync(path.join(DATA_DIR, "football_master.db"), { readOnly: true });
+  const upDb = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
+  const dsDb = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
+  const masterDb = new DatabaseSync(dbPath("football_master.db"), { readOnly: true });
 
   // 1) Registry kalibrasi — sumber kebenaran status; id sm: = Sportmonks, selain itu divisi legacy.
   //    Baris turunan source='canonical' (ditulis calibrate-ratings.ts) BUKAN

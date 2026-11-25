@@ -18,6 +18,7 @@ import {
   resolveFixtureIdentity,
 } from "../../lib/identity/fixture-resolver";
 import { FD_06, FD_21, SM_06, SM_21, UID_FD_06, UID_FD_21 } from "./verifikasi-seeds";
+import { dbPath } from "../../lib/db/paths";
 
 const aksi = process.argv[2];
 
@@ -32,7 +33,7 @@ const IDS = [
 ];
 
 function bukaDataset(): DatabaseSync {
-  return new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), {
+  return new DatabaseSync(dbPath("thestats_dataset.db"), {
     readOnly: true,
   });
 }
@@ -116,7 +117,7 @@ if (aksi === "umpan") {
     saudaraFd,
   });
 } else if (aksi === "identitas") {
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   const fx21 = getFixtureByUid(ds, UID_FD_21);
   const fx06 = getFixtureByUid(ds, UID_FD_06);
   // Observasi resolver PASCA-penautan: kedua sumber harus 'known' ke

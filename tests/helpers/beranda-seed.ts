@@ -16,6 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { buildCoreSchemas } from "./fixture-env";
+import { dbPath } from "../../lib/db/paths";
 
 const TERBIT = "2026-11-17T12:00:00.000Z";
 const TERBIT_PAKET = "2026-11-24T08:00:00.000Z";
@@ -130,7 +131,7 @@ async function seedUtama(): Promise<void> {
   tulisRegistryDasar();
 
   /* ---- paket Beranda ---- */
-  const snap = new DatabaseSync(path.join(process.cwd(), "data", "analysis_snapshots.db"));
+  const snap = new DatabaseSync(dbPath("analysis_snapshots.db"));
   const insPkg = snap.prepare(
     `INSERT INTO packages (match_id, competition_canonical_id, kickoff_utc,
        computed_utc, trigger, fit_source, gate_status, payload_json)
@@ -168,7 +169,7 @@ async function seedUtama(): Promise<void> {
   snap.close();
 
   /* ---- pick resmi untuk sorotan ---- */
-  const pk = new DatabaseSync(path.join(process.cwd(), "data", "picks.db"));
+  const pk = new DatabaseSync(dbPath("picks.db"));
   const insPick = pk.prepare(
     `INSERT INTO picks (created_utc, match_id, competition_canonical_id, kickoff_utc,
        market, selection, model_prob, effective_prob, gate_status, grade, source,
@@ -249,7 +250,7 @@ async function seedUtama(): Promise<void> {
 
   /* ---- store identitas: alias laga fisik + antrean konflik ---- */
   const identity = await import("../../lib/identity/fixture-resolver");
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   identity.ensureIdentitySchema(ds);
   const insAlias = ds.prepare(
     `INSERT INTO fixture_aliases (source, source_match_id, fixture_uid, match_basis, first_seen_utc, last_seen_utc)
@@ -268,7 +269,7 @@ async function seedCadangan(): Promise<void> {
   await buildCoreSchemas();
   tulisRegistryDasar();
 
-  const snap = new DatabaseSync(path.join(process.cwd(), "data", "analysis_snapshots.db"));
+  const snap = new DatabaseSync(dbPath("analysis_snapshots.db"));
   const insPkg = snap.prepare(
     `INSERT INTO packages (match_id, competition_canonical_id, kickoff_utc,
        computed_utc, trigger, fit_source, gate_status, payload_json)
@@ -288,7 +289,7 @@ async function seedCadangan(): Promise<void> {
   paket(insPkg, "sm_p1b_f", kickFin, "2026-11-20T01:00:00.000Z", "Tim Akhir", "Tim Usai", []);
   snap.close();
 
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   const insTim = ds.prepare(
     "INSERT OR IGNORE INTO teams (team_id, name, short_name, country, stadium, updated_at) VALUES (?, ?, NULL, 'Indonesia', NULL, '2026-11-20T00:00:00.000Z')",
   );

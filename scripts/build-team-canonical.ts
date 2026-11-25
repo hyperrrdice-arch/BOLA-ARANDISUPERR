@@ -26,6 +26,7 @@ import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeTeamName, sanitizeString } from "../lib/quant/team-normalizer";
+import { dbPath } from "../lib/db/paths";
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, "data/team-canonical.json");
@@ -311,7 +312,7 @@ function looseKey(name: string): string {
 }
 
 function main() {
-  const ds = new DatabaseSync(path.join(ROOT, "data/thestats_dataset.db"), { readOnly: true });
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   const rows = ds.prepare("SELECT team_id, name, country FROM teams").all() as unknown as {
     team_id: string; name: string; country: string | null;
   }[];
@@ -323,7 +324,7 @@ function main() {
   const standingsIds = (ds.prepare("SELECT DISTINCT team_id FROM standings").all() as unknown as { team_id: string }[])
     .map((r) => r.team_id);
   ds.close();
-  const up = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
+  const up = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
   const nameById = new Map<string, string>();
   for (const r of up.prepare("SELECT home_team_id AS id, home_team_name AS nm FROM upcoming_fixtures UNION SELECT away_team_id, away_team_name FROM upcoming_fixtures").all() as unknown as { id: string; nm: string }[]) {
     if (r.id && r.nm && !nameById.has(r.id)) nameById.set(r.id, r.nm);
@@ -350,7 +351,7 @@ function main() {
   // fixture dengan aturan grouping yang sama.
   let fixtureSurfaced = 0;
   {
-    const up2 = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
+    const up2 = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
     const fxRows = up2.prepare(
       "SELECT home_team_id AS id, home_team_name AS nm FROM upcoming_fixtures UNION SELECT away_team_id, away_team_name FROM upcoming_fixtures",
     ).all() as unknown as { id: string; nm: string }[];

@@ -30,6 +30,7 @@ import { getUpcomingDb } from "../lib/db/upcoming-fixtures";
 import { parseFixtureDetail } from "../lib/odds/sportmonks-adapter";
 import { pickSmQuotes } from "../lib/odds/sportmonks-wire";
 import { stripVigShin } from "../lib/quant/vig-stripping";
+import { dbPath } from "../lib/db/paths";
 
 const MATCH_ID = "sm_19872622";
 const COMPETITION_ID = "sm:2";
@@ -108,7 +109,7 @@ async function main() {
     .get(MATCH_ID) as Record<string, unknown> | undefined;
   if (!fixture) throw new Error(`fixture ${MATCH_ID} tidak ditemukan di upcoming_fixtures`);
 
-  const dsDb = openRo("data/thestats_dataset.db");
+  const dsDb = openRo(dbPath("thestats_dataset.db"));
   const registry = dsDb
     .prepare("SELECT * FROM league_calibration WHERE league_id = ?")
     .get(COMPETITION_ID) as Record<string, unknown> | undefined;
@@ -319,7 +320,7 @@ async function main() {
   // =========================================================================
   // TAHAP 4 — konteks untuk lapisan verdict parent (semua dari store lokal)
   // =========================================================================
-  const prDb = openRo("data/predictions.db");
+  const prDb = openRo(dbPath("predictions.db"));
   const predRows = prDb
     .prepare("SELECT market, outcome, probability, predictability, captured_utc FROM sm_predictions WHERE fixture_sm_id = ? ORDER BY market, outcome")
     .all(FIXTURE_SM_ID) as Record<string, unknown>[];

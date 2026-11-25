@@ -35,6 +35,7 @@ import {
   FD_DIVISION_CODES,
   type FdRawRow,
 } from "../lib/feeds/football-data";
+import { dbPath } from "../lib/db/paths";
 
 const ROOT = path.resolve(__dirname, "..");
 const RAW_DIR = path.join(ROOT, "data", "historical", "raw");
@@ -83,8 +84,8 @@ interface LabMatch {
 }
 
 function loadLabMatches(canonicalIds: Set<string>): LabMatch[] {
-  const picksDb = new DatabaseSync(path.join(ROOT, "data", "picks.db"), { readOnly: true });
-  const dsDb = new DatabaseSync(path.join(ROOT, "data", "thestats_dataset.db"), { readOnly: true });
+  const picksDb = new DatabaseSync(dbPath("picks.db"), { readOnly: true });
+  const dsDb = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
 
   const pickRows = picksDb
     .prepare(

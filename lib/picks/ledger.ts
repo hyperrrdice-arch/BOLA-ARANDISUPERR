@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../db/paths";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -82,11 +83,7 @@ interface RawPickRow {
 let dbInstance: DatabaseSync | null = null;
 
 export function getPicksDbPath(): string {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, "picks.db");
+  return dbPath("picks.db");
 }
 
 export function getPicksDb(): DatabaseSync {

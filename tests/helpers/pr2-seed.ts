@@ -22,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { buildCoreSchemas } from "./fixture-env";
+import { dbPath } from "../../lib/db/paths";
 
 const TERBIT = "2026-11-19T12:00:00.000Z";
 
@@ -127,7 +128,7 @@ async function main(): Promise<void> {
   if (process.env.PR2_SEED_VARIANT !== "tanpa-registri") tulisRegistri();
 
   /* ---- antrean konflik identitas (dataset sandbox) ---- */
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   ds.exec(
     `CREATE TABLE IF NOT EXISTS fixture_identity_queue (
        id INTEGER PRIMARY KEY, source_match_id TEXT, reason TEXT, resolved_at TEXT
@@ -140,7 +141,7 @@ async function main(): Promise<void> {
   ds.close();
 
   /* ---- paket L01: A (penerbit) lalu B (edisi terbaru) ---- */
-  const snap = new DatabaseSync(path.join(process.cwd(), "data", "analysis_snapshots.db"));
+  const snap = new DatabaseSync(dbPath("analysis_snapshots.db"));
   const insPkg = snap.prepare(
     `INSERT INTO packages (match_id, competition_canonical_id, kickoff_utc,
        computed_utc, trigger, fit_source, gate_status, payload_json)
@@ -160,7 +161,7 @@ async function main(): Promise<void> {
   snap.close();
 
   /* ---- picks ---- */
-  const pk = new DatabaseSync(path.join(process.cwd(), "data", "picks.db"));
+  const pk = new DatabaseSync(dbPath("picks.db"));
   const insPick = pk.prepare(
     `INSERT INTO picks (created_utc, match_id, competition_canonical_id, kickoff_utc,
        market, selection, model_prob, effective_prob, gate_status, grade, source,

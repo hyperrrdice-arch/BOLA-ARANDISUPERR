@@ -19,6 +19,7 @@ import {
   STATUS_LABEL_ID,
 } from "../../lib/web/status";
 import { getUidForMatchId } from "../../lib/identity/fixture-resolver";
+import { dbPath } from "../../lib/db/paths";
 
 const aksi = process.argv[2];
 
@@ -44,7 +45,7 @@ if (aksi === "marseille") {
     matrix: p.package_id !== null ? getPackageMatrix(p.package_id) : null,
   }));
   const gabung = combineSlip(slip);
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), {
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), {
     readOnly: true,
   });
   const uids: Record<string, string | null> = {};

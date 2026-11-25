@@ -34,6 +34,7 @@ import {
   Ml1FeatureExtractor,
   type Ml1CanonicalLogRow,
 } from "../lib/eval/ml1-features";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
@@ -41,6 +42,7 @@ const argVal = (name: string, dflt: string): string => {
   return hit ? hit.slice(name.length + 3) : dflt;
 };
 const DATA_DIR = argVal("data-dir", "data");
+const EVAL_DB_DIR = argVal("data-dir", dbDir());
 const OUT = argVal("out", "tasks/ml1/evidence/features.jsonl");
 const MANIFEST_OUT = argVal("manifest-out", "tasks/ml1/evidence/features-manifest.json");
 
@@ -53,7 +55,7 @@ function guardSnapshot(): Record<string, unknown> {
   const ratingsPath = path.join(DATA_DIR, "calibrated_ratings.json");
   if (fs.existsSync(ratingsPath)) snap["calibrated_ratings.json"] = { sha256: sha256File(ratingsPath) };
   for (const db of ["picks.db", "analysis_snapshots.db", "thestats_dataset.db"]) {
-    const p = path.join(DATA_DIR, db);
+    const p = path.join(EVAL_DB_DIR, db);
     if (fs.existsSync(p)) {
       const st = fs.statSync(p);
       snap[db] = { size_bytes: st.size, mtime: st.mtime.toISOString() };
@@ -77,7 +79,7 @@ interface LoadedData {
 }
 
 function loadData(): LoadedData {
-  const datasetPath = path.join(DATA_DIR, "thestats_dataset.db");
+  const datasetPath = path.join(EVAL_DB_DIR, "thestats_dataset.db");
   const ds = new DatabaseSync(datasetPath, { readOnly: true });
   const universe = ds
     .prepare(

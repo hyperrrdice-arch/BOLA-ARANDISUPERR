@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "./paths";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -166,11 +167,7 @@ export interface TeamMatchLogRecord {
 let dbInstance: DatabaseSync | null = null;
 
 export function getTheStatsDbPath(): string {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, "thestats_dataset.db");
+  return dbPath("thestats_dataset.db");
 }
 
 export function getTheStatsDb(): DatabaseSync {

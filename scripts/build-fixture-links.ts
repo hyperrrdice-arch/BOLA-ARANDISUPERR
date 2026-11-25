@@ -50,6 +50,7 @@ import {
   type LinkableFixtureRow,
   type TeamRegistryFile,
 } from "../lib/identity/link-matching";
+import { dbPath } from "../lib/db/paths";
 
 const ROOT = process.cwd();
 
@@ -61,7 +62,7 @@ function main() {
   const aliases = loadLinkTeamAliases(path.join(ROOT, "data"));
   const linkKeyOf = buildLinkTeamKeyFn(reg, aliases);
 
-  const up = new DatabaseSync(path.join(ROOT, "data/upcoming_fixtures.db"), { readOnly: true });
+  const up = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
   const fx = up.prepare(
     "SELECT match_id, competition_id, competition_name, utc_date, home_team_id, home_team_name, away_team_id, away_team_name FROM upcoming_fixtures",
   ).all() as unknown as LinkableFixtureRow[];
@@ -118,7 +119,7 @@ function main() {
   // resolver hasil dan adapter web tidak bergantung pada file JSON saja.
   // Output JSON di atas tidak berubah. Dataset yang belum ada (checkout
   // tanpa data) dilewati — builder tetap murni penulis registry katalog.
-  const dsPath = path.join(ROOT, "data/thestats_dataset.db");
+  const dsPath = dbPath("thestats_dataset.db");
   if (fs.existsSync(dsPath)) {
     const ds = new DatabaseSync(dsPath);
     ds.exec("PRAGMA journal_mode = WAL;");

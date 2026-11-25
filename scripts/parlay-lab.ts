@@ -74,6 +74,7 @@ import {
   type GraphId,
   type ResolvedTeam,
 } from "../lib/quant/cup-offset-fit";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const SKIP_CUPS = args.includes("--skip-cups");
@@ -88,7 +89,7 @@ const KAPPA_SCALE = 2;
 const MIN_MATCHES = 120; // lantai stabilitas lipatan, sama seperti harness
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 function round4(x: number): number {
   return Math.round(x * 10000) / 10000;

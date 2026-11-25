@@ -47,6 +47,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { calculateDixonColes, poissonLogProb, tauAdjustment } from "../lib/quant/dixon-coles";
 import { stripVigShin } from "../lib/quant/vig-stripping";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const MIN_MATCHES = (() => {
@@ -55,7 +56,7 @@ const MIN_MATCHES = (() => {
 })();
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 
 // ---------------------------------------------------------------------------

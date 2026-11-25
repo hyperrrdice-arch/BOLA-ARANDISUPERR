@@ -23,6 +23,7 @@ import path from "node:path";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { getCanonicalBySourceId } from "../lib/quant/league-identity";
 import { teamSlug, yyyymmdd } from "../lib/feeds/football-data";
+import { dbPath } from "../lib/db/paths";
 
 const CODE_TO_DIV: Record<string, string> = {
   PL: "E0",
@@ -52,7 +53,7 @@ async function main() {
     return;
   }
 
-  const up = new DatabaseSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"));
+  const up = new DatabaseSync(dbPath("upcoming_fixtures.db"));
   up.exec("PRAGMA journal_mode = WAL;");
   up.exec("PRAGMA busy_timeout = 60000;");
 

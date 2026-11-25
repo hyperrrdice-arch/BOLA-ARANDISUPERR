@@ -18,9 +18,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../lib/db/paths";
 
 function main() {
-  const dbPath = path.join(process.cwd(), "data", "thestats_dataset.db");
+  const dbPath = dbPath("thestats_dataset.db");
   if (!fs.existsSync(dbPath)) {
     console.log(`[wal-checkpoint] DILEWATI: ${dbPath} tidak ada.`);
     return;

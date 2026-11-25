@@ -39,6 +39,7 @@ import {
   sourceOfMatchId,
 } from "../lib/identity/fixture-resolver";
 import { canonicalIdForTeamId, canonicalIdForTeamName } from "../lib/quant/team-identity";
+import { dbPath } from "../lib/db/paths";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const ROOT = process.cwd();
@@ -68,7 +69,7 @@ interface CatalogRow {
 }
 
 function main(): void {
-  const dsPath = path.join(ROOT, "data", "thestats_dataset.db");
+  const dsPath = dbPath("thestats_dataset.db");
   if (!fs.existsSync(dsPath)) {
     console.error("data/thestats_dataset.db tidak ada — tidak ada yang dimigrasi.");
     process.exit(1);
@@ -93,7 +94,7 @@ function main(): void {
   const rowById = new Map(matches.map((m) => [m.match_id, m]));
 
   let catalog = new Map<string, CatalogRow>();
-  const upPath = path.join(ROOT, "data", "upcoming_fixtures.db");
+  const upPath = dbPath("upcoming_fixtures.db");
   if (fs.existsSync(upPath)) {
     const up = new DatabaseSync(upPath, { readOnly: true });
     try {

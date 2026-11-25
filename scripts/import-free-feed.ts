@@ -72,6 +72,7 @@ import {
   recordIngestAttempt,
   recordSuccessfulIngest,
 } from "../lib/feeds/ingest-freshness";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (k: string): string | null => {
@@ -94,7 +95,7 @@ const nowIso = new Date().toISOString();
 const todayUtc = nowIso.slice(0, 10);
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 
 interface UnmatchedTeam {

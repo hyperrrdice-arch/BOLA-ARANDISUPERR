@@ -54,6 +54,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
+import { dataFilePath, dbPath } from "../lib/db/paths";
 
 const MIN_MATCHES = 120;
 const HALF_LIFE = 365;
@@ -62,7 +63,7 @@ const RHO = 0;
 const KAPPA_SCALE = 2;
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 const round2 = (v: number) => Number(v.toFixed(2));
 const round3 = (v: number) => Number(v.toFixed(3));
@@ -157,7 +158,7 @@ function loadLogsCombined(): { byTeam: Map<string, LogRow[]>; stats: { fdRows: n
 // --- canonical: tabel saji live, per canonical_team_id ----------------------
 const registryMember2Canon = new Map<string, string>();
 {
-  const reg = JSON.parse(fs.readFileSync(dataPath("team-canonical.json"), "utf8")) as {
+  const reg = JSON.parse(fs.readFileSync(dataFilePath("team-canonical.json"), "utf8")) as {
     teams: { canonical_id: string; members: { team_id: string }[] }[];
   };
   for (const t of reg.teams) for (const m of t.members) registryMember2Canon.set(m.team_id, t.canonical_id);

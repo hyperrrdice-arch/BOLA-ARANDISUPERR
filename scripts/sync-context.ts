@@ -15,6 +15,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
 import { smGet, smGetAllPages } from "./sm-fetch";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const DAYS = (() => {
@@ -23,9 +24,7 @@ const DAYS = (() => {
 })();
 
 function dataPath(file: string): string {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  return path.join(dir, file);
+  return dbPath(file);
 }
 
 interface SmSeason { id: number; league_id: number; is_current?: boolean }

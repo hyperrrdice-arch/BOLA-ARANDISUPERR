@@ -16,6 +16,7 @@ import { spawnSync } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
+import { dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const skip = new Set(
@@ -45,8 +46,8 @@ function coverageReport(): string {
   const lines: string[] = [];
   lines.push(`# Laporan Cakupan Harian — ${now.toISOString()}`);
   lines.push("");
-  const up = new DatabaseSync(path.join(process.cwd(), "data", "upcoming_fixtures.db"), { readOnly: true });
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), { readOnly: true });
+  const up = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   const one = (db: DatabaseSync, sql: string, ...p: unknown[]) =>
     (db.prepare(sql).get(...(p as never[])) as { v: number }).v;
 
@@ -64,7 +65,7 @@ function coverageReport(): string {
   lines.push(`- Odds: ${oddsRows} tangkapan Sportmonks atas ${oddsFixtures} fixture unik.`);
 
   let predLine = "- Predictions: DB belum ada.";
-  const predPath = path.join(process.cwd(), "data", "predictions.db");
+  const predPath = dbPath("predictions.db");
   if (fs.existsSync(predPath)) {
     const pd = new DatabaseSync(predPath, { readOnly: true });
     const pFix = one(pd, "SELECT COUNT(DISTINCT fixture_sm_id) AS v FROM sm_predictions");

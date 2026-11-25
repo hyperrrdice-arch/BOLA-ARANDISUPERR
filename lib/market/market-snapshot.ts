@@ -25,6 +25,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../db/paths";
 import { stripVigShin, stripVigTwoWay } from "../quant/vig-stripping";
 
 export type MarketSnapshotSource = "api-football" | "1xbet";
@@ -34,9 +35,7 @@ export type MarketKind = "1x2" | "ou";
 export const MARKET_MAX_AGE_MS = 12 * 3_600_000;
 
 export function getMarketSnapshotDbPath(): string {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  return path.join(dir, "market_snapshots.db");
+  return dbPath("market_snapshots.db");
 }
 
 export function ensureMarketSnapshotSchema(db: DatabaseSync): void {

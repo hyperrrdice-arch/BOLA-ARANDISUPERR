@@ -35,6 +35,7 @@ import { getUpcomingDb } from "../lib/db/upcoming-fixtures";
 import { parseFixtureDetail } from "../lib/odds/sportmonks-adapter";
 import { pickSmQuotes } from "../lib/odds/sportmonks-wire";
 import { stripVigShin } from "../lib/quant/vig-stripping";
+import { dbPath } from "../lib/db/paths";
 
 // ---------------------------------------------------------------------------
 // Fixture terpilih (hasil scan katalog 4 Nov 2026 ~11:08 WIB, jendela 72 jam):
@@ -114,7 +115,7 @@ async function main() {
     .get(MATCH_ID) as Record<string, unknown> | undefined;
   if (!fixture) throw new Error(`fixture ${MATCH_ID} tidak ditemukan di upcoming_fixtures`);
 
-  const dsDb = openRo("data/thestats_dataset.db");
+  const dsDb = openRo(dbPath("thestats_dataset.db"));
   const registry = dsDb
     .prepare("SELECT * FROM league_calibration WHERE league_id = ?")
     .get(COMPETITION_ID) as Record<string, unknown> | undefined;
@@ -137,7 +138,7 @@ async function main() {
     )
     .all(MATCH_ID) as Record<string, unknown>[];
 
-  const prDb = openRo("data/predictions.db");
+  const prDb = openRo(dbPath("predictions.db"));
   const predCount = prDb
     .prepare("SELECT COUNT(*) AS n FROM sm_predictions WHERE fixture_sm_id = ?")
     .get(FIXTURE_SM_ID) as { n: number };

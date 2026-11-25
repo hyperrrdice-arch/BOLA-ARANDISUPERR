@@ -15,17 +15,14 @@
  *   di luar konvensi tetap disimpan apa adanya (string ternormalisasi).
  */
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
+import { dbPath } from "./paths";
 import path from "node:path";
 import fs from "node:fs";
 
 let snapshotDbInstance: DatabaseSync | null = null;
 
 export function getSnapshotDbPath(): string {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, "analysis_snapshots.db");
+  return dbPath("analysis_snapshots.db");
 }
 
 export function getSnapshotDb(): DatabaseSync {

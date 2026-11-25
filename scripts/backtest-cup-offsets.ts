@@ -50,6 +50,7 @@ import {
 } from "../lib/quant/cup-offset-fit";
 import type { CanonicalLeague } from "../lib/quant/league-identity";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
+import { dbPath } from "../lib/db/paths";
 
 interface CompFold {
   season: string;
@@ -267,7 +268,7 @@ function main() {
   // -------------------------------------------------------------------------
   // Audit tambahan (di luar sistem offset — enumerasi jujur)
   // -------------------------------------------------------------------------
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), { readOnly: true });
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   const countComp = (id: string) =>
     (ds.prepare("SELECT COUNT(*) AS n FROM matches WHERE competition_id = ? AND status='finished' AND home_score IS NOT NULL").get(id) as { n: number }).n;
   const cafComps: Record<string, number> = { "sm:1107": countComp("sm:1107"), "sm:860 (Botola Pro, domestik Maroko)": countComp("sm:860"), "sm:830 (Premier League Mesir)": countComp("sm:830"), "sm:806 (Premier League Afrika Selatan)": countComp("sm:806") };

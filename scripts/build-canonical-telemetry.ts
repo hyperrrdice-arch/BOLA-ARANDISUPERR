@@ -26,9 +26,10 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
+import { dbPath } from "../lib/db/paths";
 
 const ROOT = process.cwd();
-const DB_PATH = path.join(ROOT, "data/thestats_dataset.db");
+const DB_PATH = dbPath("thestats_dataset.db");
 const REPORT = path.join(ROOT, "tasks/telemetry-canonical-report.md");
 
 const SOURCE_PRIORITY: Record<string, number> = {

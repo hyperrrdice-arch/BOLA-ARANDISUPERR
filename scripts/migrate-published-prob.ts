@@ -15,10 +15,11 @@
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { migratePublishedProb } from "../lib/picks/publication-migration";
+import { dbPath } from "../lib/db/paths";
 
 function openRo(file: string): DatabaseSync | null {
   try {
-    return new DatabaseSync(path.join(process.cwd(), "data", file), {
+    return new DatabaseSync(dbPath(file), {
       readOnly: true,
     });
   } catch {
@@ -27,7 +28,7 @@ function openRo(file: string): DatabaseSync | null {
 }
 
 function main(): void {
-  const picksDb = new DatabaseSync(path.join(process.cwd(), "data", "picks.db"));
+  const picksDb = new DatabaseSync(dbPath("picks.db"));
   const packagesDb = openRo("analysis_snapshots.db");
   const datasetDb = openRo("thestats_dataset.db");
   const report = migratePublishedProb({ picksDb, packagesDb, datasetDb });

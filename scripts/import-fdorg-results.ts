@@ -26,6 +26,7 @@ import {
   type FdorgFetchLike,
 } from "../lib/feeds/fdorg-results";
 import { recordIngestAttempt } from "../lib/feeds/ingest-freshness";
+import { dbPath } from "../lib/db/paths";
 
 async function main(): Promise<void> {
   const token = process.env.FOOTBALL_DATA_API_TOKEN;
@@ -37,7 +38,7 @@ async function main(): Promise<void> {
     return;
   }
   const nowUtc = new Date().toISOString();
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"));
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"));
   try {
     recordIngestAttempt(ds, "football-data-org", nowUtc);
     const fetchFn = globalThis.fetch.bind(globalThis) as unknown as FdorgFetchLike;

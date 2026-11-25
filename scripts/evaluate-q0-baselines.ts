@@ -49,6 +49,7 @@ import {
   blockBootstrapDelta,
   type PairedDeltaRow,
 } from "../lib/quant/experiment-stats";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
@@ -56,6 +57,7 @@ const argVal = (name: string, dflt: string): string => {
   return hit ? hit.slice(name.length + 3) : dflt;
 };
 const DATA_DIR = argVal("data-dir", "data");
+const EVAL_DB_DIR = argVal("data-dir", dbDir());
 const OUT_DIR = argVal("out", "tasks/sprint-ab/evidence");
 const BOOTSTRAP_SEED = 20261124;
 const LOCKED_CHAMPION_H_LL = 1.0134022623271062;
@@ -74,7 +76,7 @@ function guardSnapshot(): Record<string, unknown> {
     }
   }
   for (const db of ["picks.db", "analysis_snapshots.db", "thestats_dataset.db"]) {
-    const p = path.join(DATA_DIR, db);
+    const p = path.join(EVAL_DB_DIR, db);
     if (fs.existsSync(p)) {
       const st = fs.statSync(p);
       snap[db] = { size_bytes: st.size, mtime: st.mtime.toISOString() };
@@ -96,7 +98,7 @@ interface LoadedData {
 
 /** Pemuatan data — query identik dengan CLI PR 4 (evaluate-kandidat-q1). */
 function loadData(): LoadedData {
-  const datasetPath = path.join(DATA_DIR, "thestats_dataset.db");
+  const datasetPath = path.join(EVAL_DB_DIR, "thestats_dataset.db");
   const ds = new DatabaseSync(datasetPath, { readOnly: true });
   const universe = ds
     .prepare(

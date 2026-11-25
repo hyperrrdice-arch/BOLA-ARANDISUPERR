@@ -25,6 +25,7 @@ import {
   displayStatus,
 } from "../../lib/web/status";
 import { getUidForMatchId } from "../../lib/identity/fixture-resolver";
+import { dbPath } from "../../lib/db/paths";
 
 const aksi = process.argv[2];
 
@@ -83,7 +84,7 @@ if (aksi === "umpan") {
     matrix: p.package_id !== null ? getPackageMatrix(p.package_id) : null,
   }));
   const gSemua = combineSlip(slipSemua);
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), {
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), {
     readOnly: true,
   });
   const uids: Record<string, string | null> = {};
@@ -161,7 +162,7 @@ if (aksi === "umpan") {
 } else if (aksi === "isolasi") {
   // Dataset sandbox TIDAK punya team_match_logs_canonical (tabel bantu
   // telemetri belum dibangun) — keadaan persis temuan samping L1.
-  const ds = new DatabaseSync(path.join(process.cwd(), "data", "thestats_dataset.db"), {
+  const ds = new DatabaseSync(dbPath("thestats_dataset.db"), {
     readOnly: true,
   });
   let tabelFormAda = true;

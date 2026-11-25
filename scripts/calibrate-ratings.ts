@@ -50,6 +50,7 @@ import { fitLeagueRatings, fitRhoOnTrain, selectTrainingRows, type FitMatchRow, 
 import { PRODUCTION_MODEL_CONFIG, writeCandidateManifest } from "../lib/quant/model-manifest";
 import { normalizeTeamName } from "../lib/quant/team-normalizer";
 import { FD_DIVISIONS } from "../lib/feeds/football-data";
+import { dataFilePath, dbPath } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const NO_OOS_GATE = args.includes("--no-oos-gate");
@@ -85,7 +86,7 @@ const SHRINK_KAPPA = (() => {
 // Poisson-log + tau dari modul kanonis lib/quant/dixon-coles.ts. Jangan
 
 function dataPath(file: string): string {
-  return path.join(process.cwd(), "data", file);
+  return dbPath(file);
 }
 
 type MatchRow = FitMatchRow;
@@ -138,7 +139,7 @@ const fixtureNamesByCanonical = new Map<string, Set<string>>();
 function loadCanonicalRegistry(): void {
   try {
     canonicalFile = JSON.parse(
-      fs.readFileSync(dataPath("league-canonical.json"), "utf8"),
+      fs.readFileSync(dataFilePath("league-canonical.json"), "utf8"),
     ) as CanonicalFileShape;
     for (const e of canonicalFile.leagues) {
       canonicalById.set(e.canonical_id, e);
@@ -304,7 +305,7 @@ function main() {
     teamName.set(t.team_id, t.name);
   }
 
-  const ratingsPath = dataPath("calibrated_ratings.json");
+  const ratingsPath = dataFilePath("calibrated_ratings.json");
   const ratings = JSON.parse(fs.readFileSync(ratingsPath, "utf8")) as {
     version: string; compiledAt: string; totalLeagues: number; totalTeams: number;
     canonical?: { registry: string; registryVersion?: number; registryGeneratedAt?: string; note: string };

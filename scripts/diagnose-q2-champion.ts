@@ -26,6 +26,7 @@ import {
   type ScoredRow,
 } from "../lib/eval/chronological-evaluator";
 import { calculateDixonColes } from "../lib/quant/dixon-coles";
+import { dbDir } from "../lib/db/paths";
 
 const args = process.argv.slice(2);
 const argVal = (name: string, dflt: string): string => {
@@ -33,11 +34,12 @@ const argVal = (name: string, dflt: string): string => {
   return hit ? hit.slice(name.length + 3) : dflt;
 };
 const DATA_DIR = argVal("data-dir", "data");
+const EVAL_DB_DIR = argVal("data-dir", dbDir());
 const OUT_PATH = argVal("out", "tasks/sprint-ab/evidence/q2-diagnostic/diagnostic.json");
 const LOCKED_CHAMPION_H_LL = 1.0134022623271062;
 
 function main(): void {
-  const ds = new DatabaseSync(path.join(DATA_DIR, "thestats_dataset.db"), { readOnly: true });
+  const ds = new DatabaseSync(path.join(EVAL_DB_DIR, "thestats_dataset.db"), { readOnly: true });
   const universe = ds
     .prepare(
       `SELECT match_id, competition_id, utc_date, home_team_id, away_team_id, home_score, away_score
