@@ -19,6 +19,13 @@
  * sama dengan importer fdorg). Quote yang tidak terjembatani DIHITUNG dan
  * dilewati — tidak pernah disimpan dengan ID karangan.
  *
+ * JEMBATAN /fixtures (blocker #3): entri /odds asli TIDAK membawa nama
+ * tim — nama diambil dari GET /fixtures?date= pada tanggal yang sama
+ * (peta fixture.id → nama tim) dan digabung ke entri odds sebelum
+ * parser berjalan. Entri odds yang fixture.id-nya tidak ada di peta
+ * /fixtures dihitung terpisah sebagai "entri odds tanpa pasangan
+ * /fixtures" — tidak dibuang diam-diam.
+ *
  * BATAS FREE PLAN: query /odds?date= mencakup semua fixture dunia pada
  * tanggal itu dan total halamannya jauh di atas 3, sedangkan free plan
  * menolak Page > 3 (terbukti live 25 Nov 2026). Pengambilan dibatasi
@@ -37,7 +44,9 @@ import {
   APIFOOTBALL_MAX_REQ_PER_DAY,
   APIFOOTBALL_MAX_REQ_PER_MINUTE,
   captureWindowForInstant,
+  fetchApiFootballFixturesForDate,
   fetchApiFootballOddsForDate,
+  joinApiFootballOddsWithFixtures,
   parseApiFootballOdds,
   type FetchLike,
 } from "../lib/feeds/api-football";
@@ -96,6 +105,12 @@ async function main(): Promise<void> {
   const fetchFn = globalThis.fetch as unknown as FetchLike;
   const db = openMarketSnapshotDb();
 
+  // Jembatan /fixtures dulu: peta fixture.id → nama tim untuk tanggal
+  // yang sama. /fixtures diambil SATU request tanpa parameter page
+  // (endpoint menolak field Page — bukti live 25 Nov 2026); klaim
+  // halaman ekstra dari envelope dilaporkan eksplisit di bawah.
+  const fixturesFetch = await fetchApiFootballFixturesForDate(fetchFn, apiKey, date, limiter);
+
   // Paginasi dibatasi batas free plan (Page <= 3) oleh
   // fetchApiFootballOddsForDate; halaman selebihnya TIDAK diambil dan
   // dilaporkan eksplisit di bawah sebagai skipped-due-to-plan-cap.
@@ -103,8 +118,11 @@ async function main(): Promise<void> {
   let stored = 0;
   let unmapped = 0;
   let quotes = 0;
+  let unbridged = 0;
   for (const res of dateFetch.pages) {
-    const parsed = parseApiFootballOdds(res.payload);
+    const joined = joinApiFootballOddsWithFixtures(res.payload, fixturesFetch.teamsByFixtureId);
+    unbridged += joined.unbridgedEntries;
+    const parsed = parseApiFootballOdds(joined.payload);
     quotes += parsed.length;
     for (const q of parsed) {
       const key = `${q.kickoff_utc.slice(0, 10)}|${normalizeTeamName(q.home_name)}|${normalizeTeamName(q.away_name)}`;
@@ -128,10 +146,19 @@ async function main(): Promise<void> {
 
   console.log(
     `SELESAI capture API-Football: tanggal ${date}, jendela ${windowLabel}, ` +
-      `halaman ${dateFetch.fetchedPages}/${dateFetch.totalPages} terambil, ` +
-      `${quotes} quote terbaca, ${stored} snapshot tersimpan, ${unmapped} quote tak terjembatani dilewati, ` +
+      `peta /fixtures ${fixturesFetch.teamsByFixtureId.size} fixture (halaman ${fixturesFetch.fetchedPages}/${fixturesFetch.totalPages}), ` +
+      `halaman odds ${dateFetch.fetchedPages}/${dateFetch.totalPages} terambil, ` +
+      `${quotes} quote terbaca, ${stored} snapshot tersimpan, ` +
+      `${unbridged} entri odds tanpa pasangan /fixtures dilewati, ${unmapped} quote tak terjembatani dilewati, ` +
       `${limiter.usedToday} request terpakai (sisa kuota header: ${limiter.lastRemaining ?? "tidak diketahui"}).`,
   );
+  if (fixturesFetch.truncated) {
+    console.log(
+      `PERINGATAN fixtures-tidak-lengkap: envelope /fixtures?date=${date} mengklaim ${fixturesFetch.totalPages} halaman, ` +
+        `tetapi endpoint menolak parameter Page sehingga hanya respons pertama yang terambil — ` +
+        `peta fixture mungkin tidak lengkap; entri odds tanpa pasangan akan terhitung eksplisit di baris SELESAI.`,
+    );
+  }
   if (dateFetch.truncated) {
     console.log(
       `PERINGATAN skipped-due-to-plan-cap: ${dateFetch.skippedPages} dari ${dateFetch.totalPages} halaman ` +

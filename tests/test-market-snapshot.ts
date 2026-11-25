@@ -10,8 +10,12 @@
  *  - Properti devig Shin 3-way & dua-arah: jumlah = 1,0 (toleransi 1e-9),
  *    semua probabilitas di (0,1), monoton (odds lebih pendek → prob lebih
  *    besar).
- *  - Parser payload API-Football v3 (mock realistis): 1X2 + O/U per garis,
- *    baris tak lengkap dilewati.
+ *  - Parser payload API-Football v3 (mock BENTUK ASLI): entri /odds
+ *    TIDAK membawa `teams` — nama tim datang dari payload /fixtures
+ *    terpisah dan digabung per fixture.id (jembatan blocker #3). Payload
+ *    odds mentah tanpa jembatan menghasilkan 0 quote; entri odds yang
+ *    fixture.id-nya tanpa pasangan /fixtures dihitung tak terjembatani.
+ *    1X2 + O/U per garis, baris tak lengkap dilewati.
  *  - Rate limiter: <= 9 req/menit (menunggu), anggaran harian melempar,
  *    sisa kuota header di ambang pengaman menghentikan larian.
  *  - Jendela tetap 09:00/18:00 WIB dikenali; di luar itu null.
@@ -22,9 +26,13 @@ import {
   ApiFootballRateLimiter,
   APIFOOTBALL_FREE_PLAN_MAX_PAGE,
   captureWindowForInstant,
+  fetchApiFootballFixturesForDate,
   fetchApiFootballOddsForDate,
   fetchApiFootballOddsPage,
+  joinApiFootballOddsWithFixtures,
+  parseApiFootballFixtures,
   parseApiFootballOdds,
+  type AfFixturesPayload,
   type AfOddsPayload,
   type FetchLike,
 } from "../lib/feeds/api-football";
@@ -75,13 +83,15 @@ async function main(): Promise<void> {
   try { devigTwoWay(0.5, 2.0); } catch { threw = true; }
   suite.check("devig 2-arah: odds <= 1,0 ditolak (fail-fast)", threw);
 
-  // --- Parser payload mock -----------------------------------------------------
+  // --- Parser payload mock (BENTUK ASLI API) -----------------------------------
+  // Entri /odds asli: { league, fixture{id, timezone, date, timestamp},
+  // update, bookmakers } — TANPA field `teams` (blocker #3). Nama tim
+  // hanya ada di payload /fixtures terpisah (fixturesPayload di bawah).
   const payload: AfOddsPayload = {
     paging: { current: 1, total: 2 },
     response: [
       {
         fixture: { id: 1035072, date: KICKOFF },
-        teams: { home: { name: "Arsenal" }, away: { name: "Chelsea" } },
         bookmakers: [
           {
             id: 8,
@@ -128,15 +138,74 @@ async function main(): Promise<void> {
       },
     ],
   };
-  const quotes = parseApiFootballOdds(payload);
+  // Payload /fixtures bentuk asli: { fixture{id,...}, league,
+  // teams{home{id,name}, away{id,name}}, goals, score } per entri.
+  const fixturesPayload: AfFixturesPayload = {
+    paging: { current: 1, total: 1 },
+    results: 1,
+    response: [
+      {
+        fixture: { id: 1035072, date: KICKOFF },
+        teams: { home: { id: 42, name: "Arsenal" }, away: { id: 49, name: "Chelsea" } },
+      },
+    ],
+  };
+  const teamsById = parseApiFootballFixtures(fixturesPayload);
+  suite.eq("fixtures: peta berisi 1 fixture", teamsById.size, 1);
+  suite.eq("fixtures: nama tim terbaca dari payload /fixtures",
+    teamsById.get(1035072), { home_name: "Arsenal", away_name: "Chelsea" });
+
+  // Payload odds MENTAH (tanpa jembatan) memang menghasilkan 0 quote —
+  // inilah cacat blocker #3; parser tidak mengarang nama tim.
+  suite.eq("parser: payload odds asli tanpa jembatan → 0 quote",
+    parseApiFootballOdds(payload).length, 0);
+
+  const joined = joinApiFootballOddsWithFixtures(payload, teamsById);
+  suite.eq("jembatan: 1 entri terjembatani, 0 tanpa pasangan",
+    [joined.bridgedEntries, joined.unbridgedEntries], [1, 0]);
+  const quotes = parseApiFootballOdds(joined.payload);
   suite.eq("parser: 3 quote utuh (1X2 + O/U 2.5 + O/U 3.5)", quotes.length, 3);
   suite.eq("parser: quote pertama 1X2 Bet365",
     [quotes[0].market, quotes[0].bookmaker, quotes[0].line], ["1x2", "Bet365", null]);
   suite.eq("parser: odds 1X2 terbaca", quotes[0].odds, { home: 1.85, draw: 3.4, away: 4.2 });
   suite.eq("parser: garis O/U terpisah", [quotes[1].line, quotes[2].line], [2.5, 3.5]);
-  suite.eq("parser: kickoff + nama tim terbawa",
+  suite.eq("parser: kickoff + nama tim dari jembatan terbawa",
     [quotes[0].kickoff_utc, quotes[0].home_name, quotes[0].away_name],
     [KICKOFF, "Arsenal", "Chelsea"]);
+
+  // Entri odds yang fixture.id-nya TIDAK ada di peta /fixtures:
+  // dihitung tak terjembatani dan tidak masuk payload hasil.
+  const payloadOrphan: AfOddsPayload = {
+    paging: { current: 1, total: 1 },
+    response: [
+      ...(payload.response ?? []),
+      {
+        fixture: { id: 9999999, date: KICKOFF },
+        bookmakers: [
+          {
+            id: 8,
+            name: "Bet365",
+            bets: [
+              {
+                id: 1,
+                name: "Match Winner",
+                values: [
+                  { value: "Home", odd: "2.00" },
+                  { value: "Draw", odd: "3.10" },
+                  { value: "Away", odd: "3.60" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  const joinedOrphan = joinApiFootballOddsWithFixtures(payloadOrphan, teamsById);
+  suite.eq("jembatan: entri tanpa pasangan /fixtures dihitung eksplisit",
+    [joinedOrphan.bridgedEntries, joinedOrphan.unbridgedEntries], [1, 1]);
+  suite.eq("jembatan: quote dari entri yatim tidak bocor ke hasil parse",
+    parseApiFootballOdds(joinedOrphan.payload).length, 3);
 
   // --- Rate limiter --------------------------------------------------------------
   let fakeNow = Date.parse("2026-11-25T00:00:00.000Z");
@@ -216,7 +285,10 @@ async function main(): Promise<void> {
   suite.eq("paginasi: fetchedPages/totalPages terlaporkan", [res7.fetchedPages, res7.totalPages], [3, 7]);
   suite.eq("paginasi: skipped-due-to-plan-cap = 4 halaman", res7.skippedPages, 4);
   suite.check("paginasi: truncated terlaporkan eksplisit", res7.truncated === true);
-  const quotes7 = res7.pages.reduce((n, p) => n + parseApiFootballOdds(p.payload).length, 0);
+  const quotes7 = res7.pages.reduce(
+    (n, p) => n + parseApiFootballOdds(joinApiFootballOddsWithFixtures(p.payload, teamsById).payload).length,
+    0,
+  );
   suite.eq("paginasi: hitungan laporan larian hanya dari halaman terambil (3×3 quote)", quotes7, 9);
 
   const req2: number[] = [];
@@ -235,6 +307,77 @@ async function main(): Promise<void> {
   catch { threw = true; }
   suite.check("paginasi: Page 4 ditolak klien sebelum request dibangun",
     threw && guardCalls === 0);
+
+  // --- /fixtures: SATU request, TANPA parameter page ------------------------------
+  // Endpoint /fixtures menolak field Page (terbukti live 25 Nov 2026:
+  // payload errors {"page":"The Page field do not exist."}) — berbeda
+  // dari /odds. Klien wajib meminta tepat satu kali tanpa `page=`.
+  const fixturesTransport = (totalPages: number, requestedUrls: string[]): FetchLike =>
+    async (url) => {
+      requestedUrls.push(url);
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: (n: string) => (n === "x-ratelimit-requests-remaining" ? "88" : null) },
+        json: async () => ({ ...fixturesPayload, paging: { current: 1, total: totalPages } }),
+      };
+    };
+  const fxUrls: string[] = [];
+  const resFx1 = await fetchApiFootballFixturesForDate(fixturesTransport(1, fxUrls), "mock-key", "2026-11-26", fastLimiter());
+  suite.eq("fixtures: tepat 1 request untuk satu tanggal", fxUrls.length, 1);
+  suite.check("fixtures: URL request TANPA parameter page (endpoint menolaknya)",
+    !fxUrls[0].includes("page="));
+  suite.check("fixtures: envelope 1 halaman → utuh, tidak truncated, peta terbangun",
+    resFx1.truncated === false && resFx1.skippedPages === 0 && resFx1.teamsByFixtureId.size === 1);
+  const fxUrlsBig: string[] = [];
+  const resFxBig = await fetchApiFootballFixturesForDate(fixturesTransport(4, fxUrlsBig), "mock-key", "2026-11-26", fastLimiter());
+  suite.eq("fixtures: envelope mengklaim 4 halaman → tetap 1 request, sisa 3 dilaporkan skipped",
+    [fxUrlsBig.length, resFxBig.skippedPages, resFxBig.truncated], [1, 3, true]);
+
+  // --- Jalur capture ujung-ke-ujung (transport mock) --------------------------------
+  // Router mock: /fixtures → payload fixtures; /odds → payload odds.
+  // Menjalankan urutan yang sama dengan skrip capture: ambil peta
+  // /fixtures → ambil halaman odds → jembatani → parse → simpan snapshot.
+  const routerFetch: FetchLike = async (url) => ({
+    ok: true,
+    status: 200,
+    headers: { get: (n: string) => (n === "x-ratelimit-requests-remaining" ? "85" : null) },
+    json: async () =>
+      url.includes("/fixtures?")
+        ? fixturesPayload
+        : { ...payload, paging: { current: 1, total: 1 } },
+  });
+  const e2eLimiter = fastLimiter();
+  const fxFetch = await fetchApiFootballFixturesForDate(routerFetch, "mock-key", "2026-11-26", e2eLimiter);
+  const odFetch = await fetchApiFootballOddsForDate(routerFetch, "mock-key", "2026-11-26", e2eLimiter);
+  const dbE2e = memDb();
+  let e2eQuotes = 0;
+  let e2eUnbridged = 0;
+  for (const res of odFetch.pages) {
+    const j = joinApiFootballOddsWithFixtures(res.payload, fxFetch.teamsByFixtureId);
+    e2eUnbridged += j.unbridgedEntries;
+    for (const q of parseApiFootballOdds(j.payload)) {
+      e2eQuotes++;
+      appendMarketSnapshot(dbE2e, {
+        fixture_id: "fx_e2e",
+        source: "api-football",
+        bookmaker: q.bookmaker,
+        market: q.market,
+        line: q.line,
+        odds_raw: q.odds,
+        captured_at: "2026-11-25T02:00:00.000Z",
+      });
+    }
+  }
+  suite.eq("e2e capture: 3 quote terparse dari transport mock", e2eQuotes, 3);
+  suite.eq("e2e capture: 0 entri tanpa pasangan /fixtures", e2eUnbridged, 0);
+  const snap1x2 = listMarketSnapshots(dbE2e, "fx_e2e", "1x2", null);
+  suite.eq("e2e capture: snapshot 1X2 tersimpan", snap1x2.length, 1);
+  const snapSum = Object.values(snap1x2[0].devig_probs).reduce((a, b) => a + b, 0);
+  suite.check("e2e capture: devig snapshot 1X2 berjumlah 1,0 (1e-9)", Math.abs(snapSum - 1) <= 1e-9);
+  suite.eq("e2e capture: snapshot O/U 2.5 + 3.5 tersimpan",
+    listMarketSnapshots(dbE2e, "fx_e2e", "ou", 2.5).length +
+      listMarketSnapshots(dbE2e, "fx_e2e", "ou", 3.5).length, 2);
 
   // --- Jendela tetap ---------------------------------------------------------------
   suite.eq("jendela: 02:30 UTC = 09:30 WIB → 09:00",

@@ -19,6 +19,16 @@
 //    membangun request di luar 1..3; halaman selebihnya dilaporkan
 //    eksplisit sebagai skipped-due-to-plan-cap — tidak ada pemotongan
 //    diam-diam.
+//  - JEMBATAN /fixtures (blocker #3, fix 25 Nov 2026): entri /odds ASLI
+//    TIDAK membawa field `teams` (bentuk terverifikasi dari model typed
+//    resmi: { league, fixture{id,...}, update, bookmakers }) — nama tim
+//    hanya ada di respons /fixtures ({ fixture{id,...}, league,
+//    teams{home{id,name}, away{id,name}}, goals, score }). Parser odds
+//    mengonsumsi payload yang SUDAH dijembatani: entri odds digabung
+//    ke peta fixture.id → nama tim dari /fixtures lewat
+//    joinApiFootballOddsWithFixtures. Entri yang fixture.id-nya tidak
+//    ada di peta DIHITUNG sebagai tak terjembatani — tidak pernah
+//    dibuang diam-diam dan tidak pernah dilengkapi nama karangan.
 //
 // Token dibaca dari env APIFOOTBALL_API_KEY oleh skrip pemanggil dan
 // diteruskan sebagai argumen — modul ini tidak membaca env dan tidak
@@ -158,6 +168,9 @@ function parseOdd(s: string | undefined): number | null {
 
 /**
  * Ekstrak quote 1X2 + O/U dari satu halaman payload /odds.
+ * Mengonsumsi payload yang SUDAH dijembatani /fixtures (lihat
+ * joinApiFootballOddsWithFixtures): respons /odds asli tidak membawa
+ * `teams`, jadi payload mentah tanpa jembatan menghasilkan 0 quote.
  * Baris yang tidak lengkap (odds hilang/tidak valid) dilewati — tidak
  * pernah dilengkapi dengan angka karangan.
  */
@@ -327,6 +340,164 @@ export async function fetchApiFootballOddsForDate(
   const fetchedPages = pages.length;
   const skippedPages = Math.max(0, totalPages - fetchedPages);
   return { pages, totalPages, fetchedPages, skippedPages, truncated: skippedPages > 0 };
+}
+
+// ---------------------------------------------------------------------------
+// Jembatan /fixtures → peta fixture.id ke nama tim (blocker #3)
+// ---------------------------------------------------------------------------
+// Bentuk respons /fixtures terverifikasi dari model typed resmi
+// (Go client api-sports-football-go, pkg.go.dev): setiap entri =
+// { fixture { id, timezone, date, timestamp, ... }, league {...},
+//   teams { home { id, name, logo, winner }, away { id, name, ... } },
+//   goals {...}, score {...} }, dibungkus envelope
+// { get, parameters, errors, results, paging { current, total },
+//   response [...] }.
+// PAGINASI /fixtures BERBEDA dari /odds (terbukti live 25 Nov 2026):
+// endpoint ini MENOLAK parameter Page — request /fixtures?date=&page=1
+// mati dengan payload errors {"page":"The Page field do not exist."}.
+// Jadi /fixtures diambil dalam SATU request tanpa parameter page;
+// paging.total dari envelope tetap dibaca dan dilaporkan: bila suatu
+// saat envelope mengklaim > 1 halaman, sisanya TIDAK bisa diambil
+// (tidak ada parameter untuk memintanya) dan dilaporkan sebagai
+// skipped/truncated secara eksplisit, bukan didiamkan.
+
+export interface ApiFootballFixtureTeams {
+  home_name: string;
+  away_name: string;
+}
+
+interface AfFixtureEntry {
+  fixture?: { id?: number; date?: string };
+  teams?: {
+    home?: { id?: number; name?: string };
+    away?: { id?: number; name?: string };
+  };
+}
+export interface AfFixturesPayload {
+  response?: AfFixtureEntry[];
+  paging?: { current?: number; total?: number };
+  results?: number;
+  errors?: unknown;
+}
+
+/**
+ * Bangun peta fixture.id → nama tim dari satu halaman payload /fixtures.
+ * Entri tanpa id atau tanpa salah satu nama tim dilewati — jembatan
+ * tidak pernah mengarang nama.
+ */
+export function parseApiFootballFixtures(
+  payload: AfFixturesPayload,
+): Map<number, ApiFootballFixtureTeams> {
+  const out = new Map<number, ApiFootballFixtureTeams>();
+  for (const entry of payload.response ?? []) {
+    const id = entry.fixture?.id;
+    const home = entry.teams?.home?.name;
+    const away = entry.teams?.away?.name;
+    if (id == null || !home || !away) continue;
+    out.set(id, { home_name: home, away_name: away });
+  }
+  return out;
+}
+
+export interface AfFixturesDateFetchResult {
+  /** Payload respons tunggal /fixtures. */
+  payload: AfFixturesPayload;
+  remaining: number | null;
+  /** paging.total dari envelope (1 pada respons nyata). */
+  totalPages: number;
+  /** Selalu 1: endpoint menolak parameter Page — hanya satu request. */
+  fetchedPages: number;
+  /** Halaman yang diklaim envelope tetapi tidak dapat diambil (0 bila utuh). */
+  skippedPages: number;
+  truncated: boolean;
+  /** Peta fixture.id → nama tim dari respons. */
+  teamsByFixtureId: Map<number, ApiFootballFixtureTeams>;
+}
+
+/**
+ * Ambil /fixtures satu tanggal dalam SATU request (YYYY-MM-DD, UTC
+ * API) dan bangun peta fixture.id → nama tim. Parameter `page` TIDAK
+ * dikirim: endpoint menolaknya (bukti live di komentar bagian ini).
+ * paging.total envelope tetap diperiksa — klaim > 1 halaman dilaporkan
+ * sebagai truncated karena tidak ada cara meminta halaman berikutnya.
+ */
+export async function fetchApiFootballFixturesForDate(
+  fetchFn: FetchLike,
+  apiKey: string,
+  date: string,
+  limiter: ApiFootballRateLimiter,
+): Promise<AfFixturesDateFetchResult> {
+  await limiter.acquire();
+  const url = `${APIFOOTBALL_BASE_URL}/fixtures?date=${encodeURIComponent(date)}`;
+  const res = await fetchFn(url, { headers: { "x-apisports-key": apiKey } });
+  const remainingRaw = res.headers.get("x-ratelimit-requests-remaining");
+  const remaining = remainingRaw != null ? Number(remainingRaw) : null;
+  limiter.noteRemaining(Number.isFinite(remaining) ? remaining : null);
+  if (!res.ok) {
+    throw new Error(`api-football: HTTP ${res.status} pada /fixtures?date=${date}`);
+  }
+  const payload = (await res.json()) as AfFixturesPayload;
+  if (payload.errors && Object.keys(payload.errors as object).length > 0) {
+    throw new Error(`api-football: payload errors: ${JSON.stringify(payload.errors)}`);
+  }
+  const totalPages = payload.paging?.total ?? 1;
+  const skippedPages = Math.max(0, totalPages - 1);
+  return {
+    payload,
+    remaining: Number.isFinite(remaining) ? remaining : null,
+    totalPages,
+    fetchedPages: 1,
+    skippedPages,
+    truncated: skippedPages > 0,
+    teamsByFixtureId: parseApiFootballFixtures(payload),
+  };
+}
+
+export interface AfOddsJoinResult {
+  /** Payload odds dengan `teams` terpasang pada entri yang terjembatani. */
+  payload: AfOddsPayload;
+  /** Entri yang fixture.id-nya ditemukan di peta /fixtures. */
+  bridgedEntries: number;
+  /** Entri yang fixture.id-nya TIDAK ada di peta — dilewati + dihitung. */
+  unbridgedEntries: number;
+}
+
+/**
+ * Jembatani satu halaman payload /odds ke peta /fixtures: pasang
+ * `teams { home { name }, away { name } }` dari peta ke setiap entri
+ * berdasarkan fixture.id, sehingga parser odds mengonsumsi bentuk
+ * tergabung. Entri tanpa pasangan di peta TIDAK dimasukkan ke payload
+ * hasil dan dihitung di `unbridgedEntries` — pemanggil WAJIB
+ * melaporkannya (tidak ada pembuangan diam-diam). Peta adalah satu-
+ * satunya sumber nama tim: field `teams` bawaan entri odds (tidak ada
+ * di respons asli) tidak pernah dipakai.
+ */
+export function joinApiFootballOddsWithFixtures(
+  payload: AfOddsPayload,
+  teamsByFixtureId: ReadonlyMap<number, ApiFootballFixtureTeams>,
+): AfOddsJoinResult {
+  const joined: AfOddsEntry[] = [];
+  let unbridgedEntries = 0;
+  for (const entry of payload.response ?? []) {
+    const id = entry.fixture?.id;
+    const teams = id != null ? teamsByFixtureId.get(id) : undefined;
+    if (!teams) {
+      unbridgedEntries++;
+      continue;
+    }
+    joined.push({
+      ...entry,
+      teams: {
+        home: { name: teams.home_name },
+        away: { name: teams.away_name },
+      },
+    });
+  }
+  return {
+    payload: { ...payload, response: joined },
+    bridgedEntries: joined.length,
+    unbridgedEntries,
+  };
 }
 
 // ---------------------------------------------------------------------------
