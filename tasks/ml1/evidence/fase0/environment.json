@@ -1,0 +1,54 @@
+{
+  "fase": 0,
+  "basis_commit": "cc1728d",
+  "anchors": {
+    "data/model-manifest.json": "a6cf947a4f9f1ccfb80fcfccc739dca522bfc00dd042f2b6759530dca2b54315",
+    "data/calibrated_ratings.json": "be93286a1f55836e7645ea03d7f19415e8a193b6d6ab5c9d257229589a636685"
+  },
+  "backend": {
+    "selected": "lightgbm",
+    "preference_order": ["lightgbm", "xgboost", "sklearn HistGradientBoostingRegressor(loss='poisson')"],
+    "lightgbm_version": "4.7.0",
+    "api": "native (lgb.train + lgb.Dataset); sklearn API tidak dipakai (butuh scikit-learn, tidak terpasang)",
+    "interpreter": "/home/hatch/workspace/tools/ml1-venv/bin/python",
+    "install": {
+      "system_python": "3.12.3 (externally managed, PEP 668)",
+      "pip_user_lightgbm": "DITOLAK oleh PEP 668 (externally-managed-environment)",
+      "venv": "/home/hatch/workspace/tools/ml1-venv (persisten di home, selamat dari runtime replacement)",
+      "command": "python3 -m venv ~/workspace/tools/ml1-venv && ~/workspace/tools/ml1-venv/bin/pip install lightgbm numpy scipy pandas",
+      "installed": { "lightgbm": "4.7.0", "numpy": "2.5.5", "scipy": "1.18.1", "pandas": "3.1.1" }
+    },
+    "smoke_tests": [
+      {
+        "test": "Poisson objective + determinisme (data sintetis 400 baris, seed tetap, num_threads=1, deterministic_force=true, 2x run)",
+        "result": "PASS - hash prediksi identik byte-per-byte: d16155fe6a483f7e0857f491a75fb1693f936f8fb12124657908318eba46134f"
+      },
+      {
+        "test": "Semantik offset init_score (uji acak: init_score acak independen dari X)",
+        "result": "TERVERIFIKASI: Booster.predict() TIDAK menyertakan init_score (korelasi log-pred vs init acak -0,22 = kompensasi pohon, bukan penjumlahan offset). Komposisi yang benar: lambda = exp(init_score + raw_score)."
+      },
+      {
+        "test": "Komposisi offset memulihkan koreksi tertanam (y ~ Poisson(lam0 * exp(0.3*X1)), init=log lam0)",
+        "result": "PASS - corr(raw_score, 0.3*X1) = 0,9624; NLL exp(init+raw) = 0,8923 < NLL offset-only 0,9631 < NLL predict() naif 0,9222"
+      }
+    ]
+  },
+  "artifact_format_inspection": {
+    "sources": [
+      "tasks/pr4/evidence/q1-shadow/{design.md,run-manifest.json,predictions.jsonl,metrics.json,decision.json,candidate-artifact.json}",
+      "tasks/sprint-ab/evidence/q0-elo/{design.md,run-manifest.json,predictions.jsonl,metrics.json,decision.json}",
+      "tasks/sprint-ab/evidence/q2a-rho/ (set yang sama + candidate-artifact.json)",
+      "lib/eval/chronological-evaluator.ts (lipatan V1/V2/H, matrixProbs, summarizePredictions, isoWeekKey)",
+      "lib/quant/experiment-stats.ts (blockBootstrapDelta + applyKappaDecision; ambang beku: meanDelta <= -0,005; UB satu-sisi 95% < 0; coverage drop <= 0,02; brier increase <= 0,002; lantai n >= 1000 & blok >= 20)",
+      "scripts/evaluate-kandidat-q1.ts (protokol: fit V1 -> seleksi di V2 -> refit V1+V2 -> H sekali; penjaga isolasi sha256+stat sebelum/sesudah)"
+    ],
+    "ml1_artifact_set": ["design.md", "run-manifest.json", "predictions.jsonl", "metrics.json", "decision.json", "candidate-artifact.json", "run.log"],
+    "predictions_row_format": "{match, league, date, week, hs, as, champ:{lam,mu,p,pOver25}, cand:{lam,mu,p,pOver25,abstain}, features:{...}, fallback} (identik Q1)"
+  },
+  "universe_facts": {
+    "universe": "matches sm:% finished skor non-null = 69.065 laga / 103 kompetisi (replika PR 3 persis, sama dengan audit Item 21)",
+    "registry_status_counts": { "calibrated": 49, "partial": 38, "uncalibrated": 44 },
+    "club_friendlies": { "sm:2451": 12624, "sm:2452": 3056, "total": 15680, "status": "uncalibrated" },
+    "canonical_logs": "team_match_logs_canonical 85.194 baris; kunci seri per tim = team_id (format tm_*, sama dengan matches.home_team_id/away_team_id); match_date format tanggal (YYYY-MM-DD); kolom shots_for/against + shots_on_target_for/against tersedia"
+  }
+}
