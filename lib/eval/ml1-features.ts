@@ -69,6 +69,10 @@ export class Ml1FeatureExtractor {
   private readonly teamGfPrefix = new Map<string, number[]>();
   private readonly teamGaPrefix = new Map<string, number[]>();
   private readonly eloByMatch = new Map<string, { home: number; away: number }>();
+  /** Rating Elo per tim SESUDAH laga selesai terakhir di kompetisinya
+   *  (keadaan akhir urutan predict-then-update konstruktor) — dipakai jalur
+   *  prospektif Item 19 untuk fixture yang belum ada di universe. */
+  private readonly eloFinalByComp = new Map<string, Map<string, number>>();
   private readonly shotSeries = new Map<string, ShotSeries>();
 
   /**
@@ -116,7 +120,7 @@ export class Ml1FeatureExtractor {
       arr.push(m);
       byComp.set(m.competition_id, arr);
     }
-    for (const arr of byComp.values()) {
+    for (const [compId, arr] of byComp) {
       const ratings = new Map<string, number>();
       const rating = (t: string): number => ratings.get(t) ?? ELO_START;
       for (const m of arr) {
@@ -130,6 +134,7 @@ export class Ml1FeatureExtractor {
         ratings.set(m.home_team_id, rh + delta);
         ratings.set(m.away_team_id, ra - delta);
       }
+      this.eloFinalByComp.set(compId, ratings);
     }
 
     // --- Indeks shots bergulir per tim (log kanonik, shots_for non-null) --
@@ -203,7 +208,7 @@ export class Ml1FeatureExtractor {
   }
 
   /** Vektor ML1-A (20 kolom, urutan ML1_A_FEATURE_NAMES). */
-  featuresA(m: EvalMatchRow): number[] {
+  featuresA(m: EvalMatchRow, eloOverride?: { home: number; away: number }): number[] {
     const cutoff = m.utc_date.slice(0, 10);
     const q1f = this.q1.featuresFor(m);
     const f5h = this.formWindow(m.home_team_id, cutoff, ML1_FORM_WINDOWS[0]);
@@ -212,7 +217,7 @@ export class Ml1FeatureExtractor {
     const f10a = this.formWindow(m.away_team_id, cutoff, ML1_FORM_WINDOWS[1]);
     const nH = this.nPrior(m.home_team_id, cutoff);
     const nA = this.nPrior(m.away_team_id, cutoff);
-    const elo = this.eloByMatch.get(m.match_id) ?? { home: ELO_START, away: ELO_START };
+    const elo = eloOverride ?? this.eloByMatch.get(m.match_id) ?? { home: ELO_START, away: ELO_START };
     return [
       f5h.gf, f5h.ga, f10h.gf, f10h.ga,
       f5a.gf, f5a.ga, f10a.gf, f10a.ga,
@@ -226,9 +231,9 @@ export class Ml1FeatureExtractor {
   }
 
   /** Vektor ML1-B (32 kolom, urutan ML1_B_FEATURE_NAMES) — 20 kolom pertama identik ML1-A. */
-  featuresB(m: EvalMatchRow): number[] {
+  featuresB(m: EvalMatchRow, eloOverride?: { home: number; away: number }): number[] {
     const cutoff = m.utc_date.slice(0, 10);
-    const a = this.featuresA(m);
+    const a = this.featuresA(m, eloOverride);
     const sh = this.shotsBlock(m.home_team_id, cutoff);
     const sa = this.shotsBlock(m.away_team_id, cutoff);
     return [
@@ -237,5 +242,23 @@ export class Ml1FeatureExtractor {
       sa.sf, sa.sa, sa.sotf, sa.sota,
       sh.n, sa.n, sh.has, sa.has,
     ];
+  }
+
+  /**
+   * Vektor ML1-B untuk fixture yang BELUM ada di universe (jalur prospektif
+   * Item 19): semua komponen as-of (form/shots/rest) memakai cutoff tanggal
+   * fixture persis seperti baris universe; Elo diambil dari keadaan akhir
+   * kompetisi (rating sesudah laga selesai terakhir tim di kompetisi itu —
+   * yaitu rating pra-laga yang benar bila seluruh riwayat selesai mendahului
+   * fixture). Tim/kompetisi tak dikenal → ELO_START, sama seperti fallback
+   * baris universe tanpa riwayat.
+   */
+  prospectiveFeaturesB(m: EvalMatchRow): number[] {
+    const finals = this.eloFinalByComp.get(m.competition_id);
+    const elo = {
+      home: finals?.get(m.home_team_id) ?? ELO_START,
+      away: finals?.get(m.away_team_id) ?? ELO_START,
+    };
+    return this.featuresB(m, elo);
   }
 }
