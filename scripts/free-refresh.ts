@@ -16,6 +16,9 @@
  *      diimpor di langkah 1 termasuk) ditulis ke ledger pick; tanpa langkah
  *      ini pick menumpuk tak pernah dinilai (regresi 7–16 Nov 2026: rantai
  *      lama memanggilnya, rantai bebas awal tidak).
+ *   9. wal-checkpoint.ts — PRAGMA wal_checkpoint(PASSIVE) atas
+ *      thestats_dataset.db (evaluasi WAL A4): triplet dicatat ke log;
+ *      langkah ini TIDAK PERNAH menggagalkan rantai (selalu exit 0).
  *
  * Setiap langkah spawnSync npx tsx dengan stdio inherit; ringkasan satu
  * baris per langkah (nama + exit code + durasi); exit non-nol bila ada
@@ -43,6 +46,9 @@ const STEPS: Step[] = [
   // Penilai ledger: jalan terakhir, sesudah impor hasil + slate, supaya
   // hasil yang baru tiba di langkah 1 langsung menilai pick yang menunggu.
   { name: "resolve-pick-outcomes", script: "scripts/resolve-pick-outcomes.ts", scriptArgs: [] },
+  // Penutup: checkpoint WAL PASSIVE (langkah 9) — skripnya sendiri
+  // menjamin exit 0, jadi rantai tidak pernah putus di sini.
+  { name: "wal-checkpoint", script: "scripts/wal-checkpoint.ts", scriptArgs: [] },
 ];
 
 function main() {
