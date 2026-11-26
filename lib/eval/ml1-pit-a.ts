@@ -544,7 +544,7 @@ export function computedFormatSig(s: string): string {
 const ZONED_ISO_RE =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
 
-function parseInstant(v: string | null | undefined): number | null {
+export function parseInstant(v: string | null | undefined): number | null {
   if (typeof v !== "string") return null;
   const m = ZONED_ISO_RE.exec(v.trim());
   if (!m) return null;
@@ -575,7 +575,7 @@ function parseInstant(v: string | null | undefined): number | null {
 }
 
 /** Kickoff wajib berpresisi jam (punya komponen 'T'); tanggal-saja = invalid. */
-function parseKickoff(v: string | null | undefined): number | null {
+export function parseKickoff(v: string | null | undefined): number | null {
   if (typeof v !== "string" || !v.includes("T")) return null;
   return parseInstant(v);
 }

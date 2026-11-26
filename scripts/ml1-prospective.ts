@@ -33,6 +33,15 @@
  *   npx tsx scripts/ml1-prospective.ts --pit-a [--limit=N]
  *     (mode eksperimen ML1-PIT A — lihat lib/eval/ml1-pit-a.ts; menulis
  *      HANYA ke ml1_prospective_pit_a.db; --now ditolak pada mode ini)
+ *   npx tsx scripts/ml1-prospective.ts --pit-b [--limit=N]
+ *     (mode ML1-PIT B — lihat lib/eval/ml1-pit-b.ts; snapshot tiga store
+ *      dipin sebelum keputusan, input fitur dibekukan sebagai proyeksi
+ *      terarsip; menulis HANYA ke ml1_prospective_pit_b.db + artefak
+ *      proyeksi di <DB_DIR>/pitb-projections/; --now ditolak; eksklusif
+ *      dengan --pit-a)
+ *   npx tsx scripts/ml1-prospective.ts --pit-b-replay=<file.jsonl.gz>
+ *     (replay proyeksi PIT B terarsip: verifikasi hash + cetak hash
+ *      vektor hasil hitung ulang per fixture)
  *
  * Keluaran terakhir stdout = satu baris JSON ringkasan run (dipakai cron).
  * Exit 3 bila penjaga isolasi gagal (berkas saji/DB produksi berubah).
@@ -72,14 +81,20 @@ import {
   loadCanonicalTeams,
 } from "../lib/quant/team-identity";
 import { blockBootstrapDelta, type PairedDeltaRow } from "../lib/quant/experiment-stats";
-import { dataDir, dbPath } from "../lib/db/paths";
+import { dataDir, dbDir, dbPath } from "../lib/db/paths";
 import {
   createPythonInferenceExecutor,
   runMl1PitA,
 } from "../lib/eval/ml1-pit-a";
+import {
+  replayPitBProjectionFile,
+  runMl1PitB,
+} from "../lib/eval/ml1-pit-b";
 
 const args = process.argv.slice(2);
 const PIT_A_MODE = args.includes("--pit-a");
+const PIT_B_MODE = args.includes("--pit-b");
+const PIT_B_REPLAY = args.find((a) => a.startsWith("--pit-b-replay="))?.slice("--pit-b-replay=".length) ?? null;
 const argVal = (name: string, dflt: string): string => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : dflt;
@@ -672,8 +687,88 @@ function runPitACli(): void {
   }
 }
 
-if (PIT_A_MODE) {
+// ---------------------------------------------------------------------------
+// MODE --pit-b (Brief ML1-PIT B): shadow ML1-B dengan bukti ketersediaan
+// fitur — snapshot tiga store dipin sebelum decision_at_utc, input fitur
+// dibekukan sebagai proyeksi terarsip (feature_snapshot_id), fitur dihitung
+// dari proyeksi itu. Implementasi di lib/eval/ml1-pit-b.ts (clock +
+// executor injeksi untuk tes); di sini perakitan produksi: DB masukan
+// read-only via dbPath(), jam AKTUAL, executor Python produksi. Hasil
+// HANYA ke ml1_prospective_pit_b.db + <DB_DIR>/pitb-projections/.
+// ---------------------------------------------------------------------------
+function runPitBCli(): void {
+  if (args.some((a) => a === "--now" || a.startsWith("--now="))) {
+    console.error(
+      "ML1-PIT-B: --now tidak didukung bersama --pit-b — jam keputusan selalu jam aktual. " +
+        "Untuk waktu buatan gunakan fixture uji tests/test-ml1-pit-b.ts (clock injeksi).",
+    );
+    process.exit(2);
+  }
+  let dataset: DatabaseSync | null = null;
+  let upcoming: DatabaseSync | null = null;
+  let snapshots: DatabaseSync | null = null;
+  try {
+    dataset = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
+    upcoming = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
+    snapshots = new DatabaseSync(dbPath("analysis_snapshots.db"), { readOnly: true });
+    const summary = runMl1PitB({
+      dataset,
+      upcoming,
+      snapshots,
+      outputDbPath: dbPath("ml1_prospective_pit_b.db"),
+      projectionDir: path.join(dbDir(), "pitb-projections"),
+      dataDirPath: dataDir(),
+      modelDir: MODEL_DIR,
+      clock: () => new Date(),
+      executor: createPythonInferenceExecutor({
+        pythonPath: PYTHON,
+        predictScriptPath: path.join(process.cwd(), "scripts/ml1-predict.py"),
+      }),
+      limit: LIMIT,
+    });
+    console.log(JSON.stringify(summary));
+  } catch (err) {
+    console.error(
+      `ML1-PIT-B GAGAL: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    process.exitCode = 1;
+  } finally {
+    dataset?.close();
+    upcoming?.close();
+    snapshots?.close();
+  }
+}
+
+function runPitBReplayCli(file: string): void {
+  try {
+    const res = replayPitBProjectionFile(file);
+    console.log(
+      JSON.stringify({
+        tool: "ml1-prospective-pit-b-replay",
+        status: "ok",
+        feature_snapshot_id: res.featureSnapshotId,
+        decision_at_utc: res.meta.decision_at_utc,
+        fixtures: res.vectors.size,
+        vector_hashes: Object.fromEntries(res.vectorHashes),
+      }),
+    );
+  } catch (err) {
+    console.error(
+      `ML1-PIT-B REPLAY GAGAL: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    process.exitCode = 1;
+  }
+}
+
+if (PIT_B_REPLAY !== null) {
+  runPitBReplayCli(PIT_B_REPLAY);
+} else if (PIT_A_MODE && PIT_B_MODE) {
+  console.error("ML1-PIT: --pit-a dan --pit-b eksklusif — pilih satu mode per run.");
+  process.exit(2);
+} else if (PIT_A_MODE) {
   runPitACli();
+} else if (PIT_B_MODE) {
+  runPitBCli();
 } else {
   main();
 }
