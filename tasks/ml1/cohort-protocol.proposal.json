@@ -1,0 +1,252 @@
+{
+  "protocol": {
+    "protocol_version": 1,
+    "status": "PROPOSED_PENDING_OWNER_APPROVAL",
+    "study": {
+      "candidate_id": "ml1-b",
+      "candidate_manifest_sha256": null,
+      "eval_version": "ml1-pit-b-v2",
+      "feature_code_version": "pit-b-feature-code-v2",
+      "runner_version": "ml1-predict.py:pit-v1",
+      "horizon_id": "slate_pre_match"
+    },
+    "unit": {
+      "per": "satu fixture fisik per fixture_uid dan horizon slate_pre_match",
+      "pair": "satu pasangan peluang 1X2 dari paket champion aktual dan ML1-B per fixture"
+    },
+    "horizon": {
+      "min_lead_seconds_exclusive": 0,
+      "max_lead_seconds": 259200,
+      "buckets": [
+        {
+          "label": "<12h",
+          "max_lead_seconds": 43200
+        },
+        {
+          "label": "12-<36h",
+          "max_lead_seconds": 129600
+        },
+        {
+          "label": "36-72h",
+          "max_lead_seconds": 259200
+        }
+      ],
+      "applied_before_dedupe": true,
+      "first_eligible_prediction_kept": true
+    },
+    "cadence": {
+      "batches_per_day": 1,
+      "proposed_time_wib": "17:30",
+      "after_verified_refresh": true,
+      "production_limit": null,
+      "missed_runs_recorded": true
+    },
+    "window": {
+      "weeks": 12,
+      "t0": null,
+      "t1": null,
+      "grading_cutoff": null,
+      "kickoff_in": "[T0, T1)",
+      "decision_from": "T0",
+      "min_blocks_with_graded": 8
+    },
+    "competitive_primary": {
+      "basis": "canonical competition ID liga domestik reguler terverifikasi dengan cakupan awal memadai; titik awal = divisi feed yang didukung",
+      "separate_from": "league_calibration",
+      "legacy_slice_field_used": false,
+      "list": [
+        {
+          "competition_id": "sm:8",
+          "fd_code": "E0",
+          "name": "Premier League",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:564",
+          "fd_code": "SP1",
+          "name": "La Liga",
+          "country": "Spain",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:384",
+          "fd_code": "I1",
+          "name": "Serie A",
+          "country": "Italy",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:82",
+          "fd_code": "D1",
+          "name": "Bundesliga",
+          "country": "Germany",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:301",
+          "fd_code": "F1",
+          "name": "Ligue 1",
+          "country": "France",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:9",
+          "fd_code": "E1",
+          "name": "Championship",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:387",
+          "fd_code": "I2",
+          "name": "Serie B",
+          "country": "Italy",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:85",
+          "fd_code": "D2",
+          "name": "2. Bundesliga",
+          "country": "Germany",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:304",
+          "fd_code": "F2",
+          "name": "Ligue 2",
+          "country": "France",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:72",
+          "fd_code": "N1",
+          "name": "Eredivisie",
+          "country": "Netherlands",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:208",
+          "fd_code": "B1",
+          "name": "Pro League (First Division A)",
+          "country": "Belgium",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:501",
+          "fd_code": "SC0",
+          "name": "Premiership",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:600",
+          "fd_code": "T1",
+          "name": "Super Lig",
+          "country": "Turkey",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:325",
+          "fd_code": "G1",
+          "name": "Super League",
+          "country": "Greece",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:12",
+          "fd_code": "E2",
+          "name": "League One",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:14",
+          "fd_code": "E3",
+          "name": "League Two",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:17",
+          "fd_code": "EC",
+          "name": "Enterprise National League",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC1",
+          "fd_code": "SC1",
+          "name": "Scottish Championship",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC2",
+          "fd_code": "SC2",
+          "name": "Scottish League One",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC3",
+          "fd_code": "SC3",
+          "name": "Scottish League Two",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        }
+      ]
+    },
+    "champion": {
+      "primary_marker_repo_baseline": "sha256:910a9efe3103ffde",
+      "primary_marker": null,
+      "marker_change": "strata terpisah — tidak tercampur ke primer",
+      "marker_missing": "diagnostik saja — tidak masuk primer"
+    },
+    "probability_validation": {
+      "finite": true,
+      "range": [
+        0,
+        1
+      ],
+      "sum_tolerance": 0.02
+    },
+    "gates": {
+      "min_graded_competitive": 500,
+      "max_mean_delta_ll": -0.005,
+      "bootstrap_resamples": 5000,
+      "bootstrap_seed": 20261124,
+      "bootstrap_upper_one_sided_95_below": 0,
+      "min_blocks": 8
+    },
+    "review": {
+      "formal_review_date": null,
+      "single_formal_review": true
+    },
+    "policies": {
+      "reschedule": "prediksi tetap terikat fixture_uid + kickoff saat issue; kickoff kanonik yang berubah membuat grading pending (kickoff_evidence_conflict) sampai bukti jadwal/hasil konsisten; prediksi tidak diterbitkan ulang dan lead time tidak dihitung ulang",
+      "version_change": "perubahan manifest kandidat / feature code / runner di tengah studi membentuk strata terpisah; strata primer dibekukan ke versi manifest ini",
+      "correction": "grading append-only: koreksi revisi menambah edisi grading baru; forecast dan laporan beku lama tidak berubah dan tetap reproducible dari cutoff laporannya",
+      "rerun": "rerun tidak menggandakan fixture dan tidak mengganti prediksi lama; edisi pertama yang tercatat adalah yang disimpan",
+      "missed_batch": "batch terlewat dicatat di funnel (hari batch yang diharapkan vs aktual) dan dilaporkan sebagai deviasi",
+      "protocol_amendment": "perubahan parameter apa pun = versi protokol baru + cohort_id baru; kohor lama ditutup di bawah manifest-nya sendiri"
+    },
+    "funnel": {
+      "stages": [
+        "scheduled_in_scope",
+        "stored_predictions",
+        "gap_no_prediction",
+        "graded",
+        "pending",
+        "void",
+        "invalid",
+        "identity_doubtful",
+        "evidence_issues",
+        "inference_failed_or_skipped_at_issue"
+      ],
+      "denominator": "fixture terjadwal dalam cakupan dari katalog/identitas pada snapshot (canonical_fixtures, kickoff dalam jendela)"
+    }
+  },
+  "protocol_sha256": "902f416624841def2414068d1b48704a81b4618000bf1d1e4394c9868227b2d7",
+  "cohort_id": "ml1b-cohort-902f416624841def"
+}
