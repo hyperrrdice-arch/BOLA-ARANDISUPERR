@@ -1,384 +1,57 @@
 /**
- * BERANDA — brief redesain §3A (2026-11-21).
+ * BERANDA — satu hero AMOLED (brief frontend Beranda/Analisa/Jadwal §3).
  *
- * Urutan ponsel: kepala halaman, tanggal+zona, judul dinamis
- * ("Malam ini" / "Pertandingan hari ini"), SATU panel sorotan gelap,
- * lalu jadwal berikutnya; desktop mensejajarkan jadwal berikutnya di
- * kanan sorotan (kolom ±7:5). Sesudahnya rekam hasil ringkas dengan
- * penyebut lengkap + tautan arsip. Scene bola 3D dan animasi hero
- * KELUAR dari jalur render rute ini (brief §6): konten utama terlihat
- * dari render pertama, angka tim+jam berasal dari server.
- *
- * Shell statis prerender (Cache Components); angka dibaca pulau async
- * di dalam <Suspense> dari lapisan baca lib/web/data.ts + rekam.ts.
+ * Halaman berakhir sesudah hero: wordmark + navigasi global di kepala,
+ * lalu satu kolom terpusat — judul Archivo dua baris, subteks, CTA
+ * pill "Lihat Analisa" ke /analisa, dan bola grafit statis di bawah.
+ * Tidak ada pembaca data di rute ini: sorotan, jadwal berikutnya, dan
+ * ringkasan hasil TIDAK lagi dirender di sini (fungsi bacanya tetap
+ * hidup untuk /bukti dan tes parity); teks status penyegaran pindah
+ * ke footer Jadwal. Tanpa canvas/Three.js/GSAP — gerak maksimal
+ * reveal CSS singkat pada artwork, hormat prefers-reduced-motion
+ * lewat override global.
  */
-import { Suspense } from "react";
 import Link from "next/link";
-import { connection } from "next/server";
-import {
-  berandaSorotanDanJadwal,
-  urlCrestTimNama,
-  type FixtureListItem,
-  type SorotanBeranda,
-} from "../lib/web/data";
-import {
-  ambilRingkasanRekam,
-  ambilWaktuRefreshTerakhir,
-  parseFilterRekam,
-} from "../lib/web/rekam";
-import { mulaiTimerRute, selesaikanTimerRute } from "../lib/web/timing";
-import {
-  int,
-  jamWibOnly,
-  judulBeranda,
-  kunciTanggal,
-  labelZona,
-  pct,
-  tanggalJamWib,
-  tanggalPanjang,
-  tanggalZona,
-  ZONA_BAKU,
-} from "../lib/web/format";
-import { EmptyState } from "../components/ui";
+import Image from "next/image";
 import { TopBar } from "../components/Nav";
-import BarisLaga from "../components/laga/BarisLaga";
-
-/* ------------------------------------------------------------- kepala */
-
-async function KepalaBeranda() {
-  await connection();
-  const now = new Date();
-  return (
-    <div>
-      <p className="text-sm text-sekunder">{tanggalZona(now)}</p>
-      <h1 className="font-display mt-2 text-[40px] leading-[1.03] font-bold text-tinta lg:text-[52px]">
-        {judulBeranda(now)}
-      </h1>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------ sorotan */
-
-function PanelSorotan({ s }: { s: SorotanBeranda }) {
-  const jam = `${jamWibOnly(s.kickoff_utc)} ${labelZona(ZONA_BAKU)}`;
-  /* Sorotan RINGKAS (brief upgrade P1): panel lama setinggi 335 px
-     terukur di 390×844 — laga pertama baru mulai di y=618 dan hanya
-     satu baris jadwal yang terlihat utuh sebelum navigasi bawah.
-     Susunan isi dipertahankan persis (liga + jam → dua nama tim →
-     label prediksi → peluang → waktu terbit → "Baca analisis"),
-     tetapi dipadatkan: nama tim satu baris mengalir, angka peluang
-     26 px, metadata 12 px sekunder, CTA tetap target 44 px. */
-  const kelasCta =
-    "inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-jingga px-4 text-sm font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-[var(--duration-micro)] hover:opacity-90";
-  return (
-    <section
-      aria-label="Sorotan"
-      className="panel-gelap bg-gelap px-4 py-3 text-tinta sm:px-5 sm:py-4"
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="tabular-nums text-[15px] font-semibold whitespace-nowrap text-jingga">
-          {s.jenis === "hasil-terakhir" ? tanggalJamWib(s.kickoff_utc) : jam}
-        </p>
-        <p className="truncate text-right text-[12px] text-gelap-sekunder">
-          {s.competition_name}
-        </p>
-      </div>
-      {/* Nama tim + CTA sebaris: CTA di samping nama (bukan di baris
-          angka) supaya baris peluang tidak membungkus dan panel
-          tetap ringkas — terukur, membungkusnya CTA ke baris sendiri
-          menambah ±44 px. flex-wrap hanya aktif pada lebar ekstrem
-          (mis. teks 200% ≈ 195 px efektif): CTA turun ke baris
-          sendiri di sana ketimbang memaksa scroll horizontal —
-          pada semua lebar brief (≥320 px) tata letak tak berubah. */}
-      <div className="mt-1 flex flex-wrap items-center gap-3">
-        <h2 className="font-display min-w-0 flex-1 text-[23px] leading-[1.08] font-bold break-words sm:text-[26px]">
-          {s.home} <span className="font-normal text-gelap-sekunder">vs</span> {s.away}
-        </h2>
-        {s.jenis === "prediksi" && (
-          <Link href={`/pertandingan/${s.match_id}`} className={kelasCta}>
-            Baca analisis <span aria-hidden="true">→</span>
-          </Link>
-        )}
-        {(s.jenis === "tanpa-prediksi" || s.jenis === "berikutnya") && (
-          <Link href="/pertandingan" className={kelasCta}>
-            Lihat jadwal laga <span aria-hidden="true">→</span>
-          </Link>
-        )}
-        {s.jenis === "hasil-terakhir" && (
-          <Link href="/bukti" className={kelasCta}>
-            Lihat rekam hasil <span aria-hidden="true">→</span>
-          </Link>
-        )}
-      </div>
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        {s.jenis === "prediksi" && (
-          <>
-            <span className="font-display tabular-nums text-[26px] leading-none font-bold">
-              {pct(s.prob)}
-            </span>
-            <span className="min-w-0 text-sm">{s.label_prediksi}</span>
-            {s.published_at_utc && (
-              <span className="text-[12px] whitespace-nowrap text-gelap-sekunder">
-                Terbit {jamWibOnly(s.published_at_utc)} {labelZona(ZONA_BAKU)}
-              </span>
-            )}
-          </>
-        )}
-        {s.jenis === "tanpa-prediksi" && (
-          <p className="min-w-0 flex-1 text-[13px] leading-snug text-gelap-sekunder">
-            Prediksi resmi untuk laga ini belum terbit.
-          </p>
-        )}
-        {s.jenis === "berikutnya" && (
-          <p className="min-w-0 flex-1 text-[13px] leading-snug text-gelap-sekunder">
-            Belum ada laga pada jendela dekat. Laga berikutnya: {tanggalJamWib(s.kickoff_utc)}.
-          </p>
-        )}
-        {s.jenis === "hasil-terakhir" && (
-          <>
-            <span className="font-display tabular-nums text-[26px] leading-none font-bold">
-              {s.home_goals}–{s.away_goals}
-            </span>
-            <span className="text-[12px] text-gelap-sekunder">Skor 90 menit</span>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------- jadwal berikutnya */
-
-function BarisBerikutnya({ item }: { item: FixtureListItem }) {
-  const f = item.pkg.payload.fixture;
-  /* Pola baris yang sama dengan Jadwal (Addendum Jadwal per Liga):
-     jam kiri, crest + dua baris tim, label liga di baris metadata,
-     chevron kanan. Sorotan di atasnya tidak berubah. */
-  return (
-    <li className="py-3">
-      <BarisLaga
-        href={`/pertandingan/${item.pkg.match_id}`}
-        ariaLabel={`${f.home} melawan ${f.away}, ${tanggalJamWib(item.pkg.kickoff_utc)}`}
-        jam={jamWibOnly(item.pkg.kickoff_utc)}
-        home={f.home}
-        away={f.away}
-        logoHome={urlCrestTimNama(f.home)}
-        logoAway={urlCrestTimNama(f.away)}
-        skor={null}
-        statusLabel={null}
-        meta={<span className="block text-[13px] text-sekunder">{f.competition_name}</span>}
-        kanan={
-          <span aria-hidden="true" className="shrink-0 text-xl text-sekunder">
-            ›
-          </span>
-        }
-      />
-    </li>
-  );
-}
-
-function JadwalBerikutnya({ items }: { items: FixtureListItem[] }) {
-  if (items.length === 0) return null;
-  const elemen: React.ReactNode[] = [];
-  let kunciSebelumnya = "";
-  for (const item of items) {
-    const kunci = kunciTanggal(item.pkg.kickoff_utc);
-    if (kunci !== kunciSebelumnya) {
-      elemen.push(
-        <li
-          key={`tgl-${kunci}`}
-          className="pt-3 pb-1 text-[13px] font-semibold tracking-[0.04em] text-sekunder uppercase"
-        >
-          {tanggalPanjang(item.pkg.kickoff_utc)}
-        </li>,
-      );
-      kunciSebelumnya = kunci;
-    }
-    elemen.push(<BarisBerikutnya key={item.pkg.match_id} item={item} />);
-  }
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-[28px] leading-tight font-bold text-tinta">
-          Jadwal berikutnya
-        </h2>
-        <span className="text-sm text-sekunder">{labelZona(ZONA_BAKU)}</span>
-      </div>
-      <ul className="mt-2 divide-y divide-garis border-t-2 border-tinta">{elemen}</ul>
-      <p className="mt-4">
-        <Link
-          href="/pertandingan"
-          className="inline-flex min-h-[44px] items-center gap-2 text-[15px] font-medium text-jingga-teks hover:underline"
-        >
-          Lihat seluruh jadwal <span aria-hidden="true">→</span>
-        </Link>
-      </p>
-    </div>
-  );
-}
-
-async function SorotanDanJadwal() {
-  await connection();
-  const t0Timer = mulaiTimerRute();
-  const now = new Date();
-  // Satu pembaca Beranda (PR 1B): sorotan + jadwal dari satu nilai now
-  // dan satu lintasan baca — keluaran identik dengan pasangan lama.
-  const { sorotan, berikut } = berandaSorotanDanJadwal(now);
-  if (!sorotan && berikut.length === 0) {
-    selesaikanTimerRute("/", t0Timer);
-    return (
-      <EmptyState
-        title="Belum ada pertandingan pada jendela ini"
-        note="Jadwal dan prediksi baru muncul setelah penyegaran data berikutnya."
-      />
-    );
-  }
-  selesaikanTimerRute("/", t0Timer);
-  return (
-    <div className="grid items-start gap-6 lg:grid-cols-[7fr_5fr] lg:gap-8">
-      {sorotan && <PanelSorotan s={sorotan} />}
-      <JadwalBerikutnya items={berikut} />
-    </div>
-  );
-}
-
-/* --------------------------------------------------------- rekam ringkas */
-
-async function RekamRingkas() {
-  await connection();
-  const now = new Date();
-  // Pembaca ringkasan kohor (PR 1B): Beranda hanya menampilkan stats +
-  // laga unik — agregat penuh `ambilRekam` tetap untuk /bukti.
-  const data = ambilRingkasanRekam(parseFilterRekam({}), now.toISOString());
-  const st = data.stats;
-  return (
-    <section aria-label="Rekam hasil" className="mt-16 border-t border-garis pt-10 lg:mt-20">
-      <h2 className="font-display text-[32px] leading-tight font-bold text-tinta">Rekam hasil</h2>
-      {st.settled > 0 ? (
-        <div className="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-12">
-          <div>
-            <p className="font-display tabular-nums text-[38px] leading-[1.05] font-bold text-tinta lg:text-[44px]">
-              {int(st.hits)} dari {int(st.settled)} pilihan tepat
-            </p>
-            <p className="mt-2 text-[15px] leading-relaxed text-sekunder">
-              {pct(st.hit_ratio)} dari pilihan yang sudah dinilai, mencakup{" "}
-              {int(data.laga_dinilai_unik)} laga.
-            </p>
-          </div>
-          <div>
-            <p className="text-[15px] font-semibold text-tinta">Cakupan penilaian</p>
-            <p className="mt-1 text-[15px] leading-relaxed text-sekunder">
-              {int(st.settled)} dari {int(st.due)} pilihan yang jatuh tempo sudah dinilai.
-            </p>
-            <p className="font-display tabular-nums mt-3 text-[26px] leading-none font-bold text-tinta">
-              {pct(st.coverage_ratio)}
-            </p>
-            <div
-              aria-hidden="true"
-              className="mt-2 h-[6px] w-full max-w-sm bg-garis"
-            >
-              <div
-                className="h-full bg-tinta"
-                style={{ width: `${Math.round((st.coverage_ratio ?? 0) * 100)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-sekunder">
-          Belum ada pilihan yang sudah dinilai.
-          {st.due > 0 &&
-            ` ${int(st.due)} pilihan masih menunggu hasil resmi.`}
-        </p>
-      )}
-      <p className="mt-6">
-        <Link
-          href="/bukti"
-          className="inline-flex min-h-[44px] items-center gap-2 text-[15px] font-medium text-jingga-teks hover:underline"
-        >
-          Lihat rekam hasil <span aria-hidden="true">→</span>
-        </Link>
-      </p>
-    </section>
-  );
-}
-
-/* ------------------------------------------------- waktu penyegaran */
-
-/**
- * Waktu refresh data terakhir yang selesai sukses (B2.2a) — dari
- * marker `free_refresh_last_success_utc` yang ditulis rantai refresh
- * sesudah langkah data terakhirnya berhasil, dibaca read-only.
- * Marker absen/rusak/future → "Waktu pembaruan belum tersedia".
- * Info jadwal selalu dilabeli "Jadwal refresh" supaya tidak terbaca
- * sebagai waktu sukses yang tercatat.
- */
-async function WaktuPenyegaran() {
-  await connection();
-  const marker = ambilWaktuRefreshTerakhir(new Date().toISOString());
-  return (
-    <span className="text-sekunder">
-      {marker
-        ? ` · Penyegaran data terakhir · ${tanggalJamWib(marker)}`
-        : " · Waktu pembaruan belum tersedia"}
-      {" · Jadwal refresh tiap 12 jam."}
-    </span>
-  );
-}
-
-/* ---------------------------------------------------------------- page */
+import bolaGrafit from "./bola-hero-grafit.webp";
 
 export default function LandingPage() {
   return (
     <div className="flex min-h-full flex-col bg-kertas text-tinta">
-      <TopBar />
+      <TopBar denganCari={false} />
 
       <main id="main-content" className="flex-1">
-        <section className="shell-x mx-auto w-full max-w-[1200px] pt-6 pb-16 sm:pt-10 lg:pt-14">
-          <Suspense
-            fallback={
-              <div>
-                <p className="text-sm text-sekunder">Memuat tanggal…</p>
-                <h1 className="font-display mt-2 text-[40px] leading-[1.03] font-bold text-tinta lg:text-[52px]">
-                  Pertandingan hari ini
-                </h1>
-              </div>
-            }
-          >
-            <KepalaBeranda />
-          </Suspense>
-
-          <div className="mt-5 sm:mt-8">
-            <Suspense
-              fallback={<p className="py-10 text-sm text-sekunder">Memuat sorotan…</p>}
+        <section className="shell-x mx-auto flex w-full max-w-[1200px] flex-col items-center pt-12 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] text-center sm:pt-14 md:pb-20 lg:pt-20">
+          <h1 className="font-sans text-[38px] leading-[1.02] font-bold tracking-[-0.02em] text-tinta min-[390px]:text-[43px] md:text-[68px]">
+            <span className="block">Baca laga.</span>
+            <span className="block">Susun parlay.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-sekunder md:text-[17px]">
+            Cek peluang tiap laga sebelum menyusun tiket.
+          </p>
+          <p className="mt-7">
+            <Link
+              href="/analisa"
+              prefetch={false}
+              className="inline-flex min-h-[48px] items-center gap-1.5 rounded-full bg-jingga px-7 text-[15px] font-semibold whitespace-nowrap text-accent-ink transition-opacity duration-[var(--duration-micro)] hover:opacity-90"
             >
-              <SorotanDanJadwal />
-            </Suspense>
+              Lihat Analisa <span aria-hidden="true">›</span>
+            </Link>
+          </p>
+          <div className="hero-masuk mt-10 lg:mt-12">
+            <Image
+              src={bolaGrafit}
+              alt=""
+              width={760}
+              height={630}
+              priority
+              sizes="(min-width: 1024px) 520px, (min-width: 640px) 380px, 350px"
+              className="h-auto w-[min(350px,92vw)] sm:w-[380px] lg:w-[520px] [@media(max-height:760px)]:w-[270px]"
+            />
           </div>
-
-          <Suspense fallback={null}>
-            <RekamRingkas />
-          </Suspense>
         </section>
       </main>
-
-      {/* ---------------------------------------------------------- FOOTER */}
-      <footer className="border-t border-garis">
-        <div className="shell-x mx-auto flex w-full max-w-[1200px] flex-col gap-2 py-10 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] sm:flex-row sm:items-baseline sm:justify-between md:pb-10">
-          <p className="text-[15px]">
-            <span className="font-display text-[19px] font-bold text-tinta italic">
-              Bola<span className="text-jingga not-italic">.</span>
-            </span>
-            <Suspense
-              fallback={<span className="text-sekunder"> · Memuat waktu pembaruan…</span>}
-            >
-              <WaktuPenyegaran />
-            </Suspense>
-          </p>
-          <p className="text-[13px] text-faint">Probabilitas, tercatat.</p>
-        </div>
-      </footer>
     </div>
   );
 }

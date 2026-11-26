@@ -1,13 +1,22 @@
 /**
- * KEPALA HALAMAN + NAVIGASI BAWAH (brief redesain §2, lembar acuan 1–2).
+ * KEPALA HALAMAN + NAVIGASI BAWAH.
  * Desktop: wordmark "Bola." (Barlow Condensed tebal miring, titik
- * jingga) di kiri, empat tautan di sebelahnya, aksi "Cari tim" di kanan
- * menuju kolom pencarian Jadwal. Ponsel: wordmark + cari di atas, empat
- * tujuan tetap di bawah (NavClient). Garis halus menutup kepala.
+ * jingga) di kiri, lima tautan di sebelahnya, aksi "Cari tim" di kanan
+ * menuju kolom pencarian daftar yang sedang dibuka (Analisa/Jadwal).
+ * Ponsel: wordmark + cari di atas (tinggi kepala ±56 px), lima tujuan
+ * tetap di bawah (NavClient). Garis halus menutup kepala.
+ * Beranda memakai kepala tanpa aksi cari (`denganCari={false}`):
+ * hero-nya hanya berisi wordmark + navigasi global.
  */
 import { Suspense } from "react";
 import Link from "next/link";
-import NavClient, { BottomNavClient, BottomNavStatic, NavStatic } from "./NavClient";
+import NavClient, {
+  BottomNavClient,
+  BottomNavStatic,
+  CariTimClient,
+  CariTimStatic,
+  NavStatic,
+} from "./NavClient";
 
 export function Wordmark() {
   return (
@@ -21,39 +30,20 @@ export function Wordmark() {
   );
 }
 
-function CariTim() {
-  return (
-    <Link
-      href="/pertandingan"
-      className="ml-auto inline-flex min-h-[44px] items-center gap-2 text-[15px] whitespace-nowrap text-sekunder transition-colors duration-[var(--duration-micro)] hover:text-tinta"
-    >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="h-[18px] w-[18px]"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      >
-        <circle cx="10.5" cy="10.5" r="6.5" />
-        <path d="M15.5 15.5 21 21" />
-      </svg>
-      Cari tim
-    </Link>
-  );
-}
-
-export function TopBar() {
+export function TopBar({ denganCari = true }: { denganCari?: boolean }) {
   return (
     <>
       <header className="border-b border-garis">
-        <div className="shell-x mx-auto flex w-full max-w-[1200px] items-center gap-5 md:gap-9">
+        <div className="shell-x mx-auto flex w-full max-w-[1200px] items-center gap-5 py-1.5 md:gap-9">
           <Wordmark />
           <Suspense fallback={<NavStatic />}>
             <NavClient />
           </Suspense>
-          <CariTim />
+          {denganCari && (
+            <Suspense fallback={<CariTimStatic />}>
+              <CariTimClient />
+            </Suspense>
+          )}
         </div>
       </header>
       <Suspense fallback={<BottomNavStatic />}>

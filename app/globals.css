@@ -150,6 +150,18 @@ body {
   animation: grupMasuk var(--duration-fast) var(--ease-ui);
 }
 
+/* Hero Beranda: reveal singkat artwork bola grafit (naik 8 px +
+   pudarkan, satu token layout). Override reduced-motion global di
+   bawah membuatnya seketika; hero tetap utuh saat animasi mati. */
+@keyframes heroMasuk {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-masuk {
+  animation: heroMasuk var(--duration-layout) var(--ease-ui);
+}
+
 /* Bilah ringkasan Pilihan di HP (brief §9): masuk 6 px selama 160 ms
    setiap isi draf berubah. */
 @keyframes ringkasanMasuk {
