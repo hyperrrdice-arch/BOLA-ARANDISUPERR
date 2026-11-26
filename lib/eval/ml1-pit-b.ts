@@ -63,6 +63,17 @@
  * ISOLASI: store masukan dibuka read-only oleh pemanggil dan tidak pernah
  * ditulis; DB pilot dan DB PIT A tidak disentuh. Mode ini shadow-only:
  * tanpa cron, tanpa grading, tanpa aktivasi produksi.
+ *
+ * PERBAIKAN BUKTI v2 (Brief Kohor §2, eval_version ml1-pit-b-v2):
+ *  - §2A byte registry tim + fixture-links dibaca/dibekukan SEBELUM jam
+ *    keputusan; waktu capture + hash tercatat di manifest snapshot.
+ *  - §2B urutan shots dinormalisasi satu kali (comparePitBShotRows) dan
+ *    dipakai serializer + komputasi + replay — seri di batas window
+ *    tidak lagi mengubah subset antara issue dan replay.
+ *  - §2C verifyPitBArtifacts() memverifikasi arsip terhadap manifest
+ *    tercatat per proyeksi unik.
+ *  - §2D fallback skema legacy memakai alias tunggal; ketiga transaksi
+ *    baca dilepas sesudah materialisasi, sebelum serialisasi/kompresi.
  */
 import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
@@ -96,14 +107,23 @@ import {
 } from "../identity/fixture-resolver";
 import type { CanonicalTeam } from "../quant/team-identity";
 
-export const PIT_B_EVAL_VERSION = "ml1-pit-b-v1";
+/**
+ * Versi bukti AKTIF untuk baris baru. v2 menutup celah bukti Brief Kohor
+ * §2: registry/link dibekukan SEBELUM jam keputusan (capture tercatat di
+ * manifest) dan urutan input dinormalisasi satu kali untuk issue+replay.
+ * Baris v1 yang sudah terlanjur tersimpan TIDAK otomatis memperoleh
+ * status strict v2 — mereka tetap diagnostik.
+ */
+export const PIT_B_EVAL_VERSION = "ml1-pit-b-v2";
+/** Versi bukti lama — diterima parser proyeksi untuk replay diagnostik. */
+export const PIT_B_EVAL_VERSION_V1 = "ml1-pit-b-v1";
 export const PIT_B_HORIZON_ID = "slate_pre_match";
 export const PIT_B_DATA_STATUS = "PIT_B_STAGED";
 export const PIT_B_FEATURE_TIME_STATUS = "snapshot_visible";
 export const PIT_B_INPUT_EVIDENCE_STATUS = "snapshot_visible";
 export const PIT_B_PROJECTION_SCHEMA_VERSION = 1;
 /** Versi kode fitur beku yang menghasilkan vektor dari proyeksi. */
-export const PIT_B_FEATURE_CODE_VERSION = "pit-b-feature-code-v1";
+export const PIT_B_FEATURE_CODE_VERSION = "pit-b-feature-code-v2";
 /** Versi runner inferensi (kontrak scripts/ml1-predict.py jalur PIT). */
 export const PIT_B_RUNNER_VERSION = "ml1-predict.py:pit-v1";
 
@@ -282,6 +302,12 @@ export interface PitBProjectionMeta {
   registry_team_canonical_present: boolean;
   registry_fixture_links_sha256: string;
   registry_fixture_links_present: boolean;
+  /**
+   * Waktu baca SELESAI untuk byte registry/link yang dibekukan (Brief
+   * Kohor §2A). Keduanya wajib <= decision_at_utc: byte ditangkap sebelum
+   * jam keputusan diambil. Absen pada proyeksi v1 (diagnostik).
+   */
+  registry_captured_at_utc?: { team_canonical: string; fixture_links: string };
   counts: PitBVisibilityCounts & { fixtures: number; packages: number };
 }
 
@@ -295,6 +321,35 @@ export interface PitBProjection {
 
 const cmpStr = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
+const cmpNumNull = (a: number | null, b: number | null): number => {
+  const x = a === null || a === undefined ? Number.NEGATIVE_INFINITY : a;
+  const y = b === null || b === undefined ? Number.NEGATIVE_INFINITY : b;
+  return x < y ? -1 : x > y ? 1 : 0;
+};
+
+/**
+ * Urutan shots KANONIK — dinormalisasi SATU kali dan dipakai serializer,
+ * komputasi live, dan replay (Brief Kohor §2B). Tie-break total atas
+ * kolom proyeksi: tim, tanggal, log_id (NULL sesudah non-NULL), source,
+ * lalu keempat metrik — sehingga dua baris yang seri di batas window-10
+ * selalu masuk/keluar window dengan cara yang sama di semua jalur.
+ * Tanpa ini, urutan sisip SQLite yang berbeda mengubah subset window
+ * (kasus audit: shots_for_home 6,8 saat issue vs 16,6 saat replay).
+ */
+export function comparePitBShotRows(a: PitBShotRow, b: PitBShotRow): number {
+  return (
+    cmpStr(a.team_id, b.team_id) ||
+    cmpStr(a.match_date, b.match_date) ||
+    (a.log_id === null || a.log_id === undefined ? 1 : 0) - (b.log_id === null || b.log_id === undefined ? 1 : 0) ||
+    cmpStr(a.log_id ?? "", b.log_id ?? "") ||
+    cmpStr(a.source ?? "", b.source ?? "") ||
+    cmpNumNull(a.shots_for, b.shots_for) ||
+    cmpNumNull(a.shots_against, b.shots_against) ||
+    cmpNumNull(a.shots_on_target_for, b.shots_on_target_for) ||
+    cmpNumNull(a.shots_on_target_against, b.shots_on_target_against)
+  );
+}
+
 /**
  * Serialisasi JSONL deterministik: meta dulu, lalu hasil terurut
  * (kompetisi, utc_date, match_id), shots terurut (tim, tanggal, log_id),
@@ -307,9 +362,7 @@ export function serializePitBProjection(proj: PitBProjection): string {
     (x, y) => cmpStr(x.competition_id, y.competition_id) || cmpStr(x.utc_date, y.utc_date) || cmpStr(x.match_id, y.match_id),
   );
   for (const r of results) lines.push(JSON.stringify({ kind: "result", ...r }));
-  const shots = [...proj.shots].sort(
-    (x, y) => cmpStr(x.team_id, y.team_id) || cmpStr(x.match_date, y.match_date) || cmpStr(x.log_id ?? "", y.log_id ?? ""),
-  );
+  const shots = [...proj.shots].sort(comparePitBShotRows);
   for (const s of shots) lines.push(JSON.stringify({ kind: "shot", ...s }));
   const fixtures = [...proj.fixtures].sort((x, y) => cmpStr(x.fixture_uid, y.fixture_uid));
   for (const f of fixtures) lines.push(JSON.stringify({ kind: "fixture", ...f }));
@@ -333,7 +386,7 @@ export function parsePitBProjection(jsonl: string): PitBProjection {
       `ML1-PIT-B: versi skema proyeksi tidak didukung (meta.schema_version=${String(meta.schema_version)}).`,
     );
   }
-  if (meta.eval_version !== PIT_B_EVAL_VERSION) {
+  if (meta.eval_version !== PIT_B_EVAL_VERSION && meta.eval_version !== PIT_B_EVAL_VERSION_V1) {
     throw new Error(`ML1-PIT-B: eval_version proyeksi tidak cocok (${String(meta.eval_version)}).`);
   }
   const proj: PitBProjection = { meta, results: [], shots: [], fixtures: [], packages: [] };
@@ -390,7 +443,10 @@ export function extractorInputsFromProjection(proj: PitBProjection): {
     .map(toRow);
   const seasonByMatchId = new Map<string, string>();
   for (const r of proj.results) if (r.season) seasonByMatchId.set(r.match_id, r.season);
-  const canonicalLogs: Ml1CanonicalLogRow[] = proj.shots.map((s) => ({
+  // Log kanonik dinormalisasi dengan komparator yang sama persis dengan
+  // serializer — urutan yang diterima extractor identik saat issue dan
+  // replay, apa pun urutan sisip SQLite asalnya (Brief Kohor §2B).
+  const canonicalLogs: Ml1CanonicalLogRow[] = [...proj.shots].sort(comparePitBShotRows).map((s) => ({
     team_id: s.team_id,
     match_date: s.match_date,
     shots_for: s.shots_for,
@@ -499,6 +555,154 @@ export function replayPitBProjectionFile(
   return { feature_snapshot_id: sha, meta: proj.meta, vectors, vectorHashes };
 }
 
+export interface PitBArtifactRejection {
+  fixture_uid: string;
+  feature_snapshot_id: string;
+  reason: string;
+}
+
+export interface PitBArtifactVerification {
+  snapshots_checked: number;
+  snapshots_ok: number;
+  rows_checked: number;
+  rows_ok: number;
+  /** UID yang lolos SEMUA cek dan ber-versi bukti aktif (strict). */
+  strict_uids: string[];
+  rejected: PitBArtifactRejection[];
+  snapshot_errors: { feature_snapshot_id: string; reason: string }[];
+}
+
+interface PitBVerifyRow {
+  eval_version: string;
+  fixture_uid: string;
+  source_match_id: string;
+  kickoff_utc: string;
+  home_team_key: string;
+  away_team_key: string;
+  package_id: number;
+  package_payload_sha256: string;
+  champion_ratings_marker: string | null;
+  feature_snapshot_id: string;
+  features_sha256: string;
+}
+
+/**
+ * VERIFIKASI ARTEFAK TERIKAT MANIFEST TERCATAT (Brief Kohor §2C).
+ * Join predictions.feature_snapshot_id → feature_snapshots, lalu per
+ * proyeksi UNIK (bukan per baris): baca arsip, dekompresi, verifikasi
+ * SHA-256 JSONL terhadap `projection_sha256` tercatat, cocokkan meta
+ * (cutoff, versi feature code/runner, hash registry) terhadap baris
+ * manifest, dan bandingkan hash vektor replay per UID terhadap
+ * `features_sha256` baris prediksi + identitas fixture/paket di
+ * proyeksi. Gzip valid yang isinya diedit tetap ditolak karena hash isi
+ * JSONL berubah. Baris ber-versi bukti lama tidak masuk strict walau
+ * arsipnya valid — mereka diagnostik.
+ */
+export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: string): PitBArtifactVerification {
+  const out: PitBArtifactVerification = {
+    snapshots_checked: 0,
+    snapshots_ok: 0,
+    rows_checked: 0,
+    rows_ok: 0,
+    strict_uids: [],
+    rejected: [],
+    snapshot_errors: [],
+  };
+  const snaps = shadowDb.prepare("SELECT * FROM feature_snapshots").all() as unknown as Record<string, unknown>[];
+  const snapById = new Map<string, Record<string, unknown>>();
+  for (const s of snaps) snapById.set(String(s.feature_snapshot_id), s);
+  const rows = shadowDb.prepare("SELECT * FROM predictions").all() as unknown as PitBVerifyRow[];
+  const bySnap = new Map<string, PitBVerifyRow[]>();
+  for (const r of rows) {
+    const arr = bySnap.get(r.feature_snapshot_id) ?? [];
+    arr.push(r);
+    bySnap.set(r.feature_snapshot_id, arr);
+  }
+  out.rows_checked = rows.length;
+
+  for (const [snapId, snapRows] of bySnap) {
+    const rejectAll = (reason: string): void => {
+      for (const r of snapRows) out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason });
+    };
+    const snap = snapById.get(snapId);
+    if (!snap) {
+      out.snapshot_errors.push({ feature_snapshot_id: snapId, reason: "snapshot_manifest_missing" });
+      rejectAll("snapshot_manifest_missing");
+      continue;
+    }
+    out.snapshots_checked++;
+    let replay: PitBReplayResult;
+    try {
+      replay = replayPitBProjectionFile(path.join(projectionDir, String(snap.projection_file)), {
+        expectedSha256: String(snap.projection_sha256),
+      });
+    } catch (err) {
+      const reason = `archive_verify_failed: ${err instanceof Error ? err.message : String(err)}`;
+      out.snapshot_errors.push({ feature_snapshot_id: snapId, reason });
+      rejectAll("archive_verify_failed");
+      continue;
+    }
+    const meta = replay.meta;
+    const metaMismatch =
+      meta.decision_at_utc !== String(snap.decision_at_utc) ||
+      meta.cutoff_utc !== String(snap.cutoff_utc) ||
+      meta.feature_code_version !== String(snap.feature_code_version) ||
+      meta.runner_version !== String(snap.runner_version) ||
+      meta.registry_team_canonical_sha256 !== String(snap.registry_team_canonical_sha256) ||
+      meta.registry_fixture_links_sha256 !== String(snap.registry_fixture_links_sha256);
+    if (metaMismatch) {
+      out.snapshot_errors.push({ feature_snapshot_id: snapId, reason: "manifest_meta_mismatch" });
+      rejectAll("manifest_meta_mismatch");
+      continue;
+    }
+    out.snapshots_ok++;
+    // Parse ulang proyeksi untuk cek identitas fixture + paket per baris.
+    const proj = parsePitBProjection(
+      (() => {
+        const raw = fs.readFileSync(path.join(projectionDir, String(snap.projection_file)));
+        return gunzipSync(raw).toString("utf8");
+      })(),
+    );
+    const fixtureByUid = new Map(proj.fixtures.map((f) => [f.fixture_uid, f]));
+    const packageByUid = new Map(proj.packages.map((p) => [p.fixture_uid, p]));
+    for (const r of snapRows) {
+      const replayHash = replay.vectorHashes.get(r.fixture_uid);
+      if (replayHash === undefined) {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "uid_not_in_projection" });
+        continue;
+      }
+      if (replayHash !== r.features_sha256) {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "features_hash_mismatch" });
+        continue;
+      }
+      const fx = fixtureByUid.get(r.fixture_uid);
+      if (
+        !fx ||
+        fx.source_match_id !== r.source_match_id ||
+        fx.kickoff_utc !== r.kickoff_utc ||
+        fx.home_team_key !== r.home_team_key ||
+        fx.away_team_key !== r.away_team_key
+      ) {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "fixture_identity_mismatch" });
+        continue;
+      }
+      const pk = packageByUid.get(r.fixture_uid);
+      if (
+        !pk ||
+        pk.package_id !== r.package_id ||
+        pk.package_payload_sha256 !== r.package_payload_sha256 ||
+        (pk.champion_ratings_marker ?? null) !== (r.champion_ratings_marker ?? null)
+      ) {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "package_identity_mismatch" });
+        continue;
+      }
+      out.rows_ok++;
+      if (r.eval_version === PIT_B_EVAL_VERSION) out.strict_uids.push(r.fixture_uid);
+    }
+  }
+  return out;
+}
+
 /**
  * Tulis artefak proyeksi secara ATOMIK: gzip (mtime 0) ke file staging di
  * direktori yang sama, lalu rename ke nama final berbasis hash isi.
@@ -596,6 +800,7 @@ export function ensurePitBSchema(db: DatabaseSync): void {
       projection_sha256 TEXT NOT NULL,
       registry_team_canonical_sha256 TEXT NOT NULL,
       registry_fixture_links_sha256 TEXT NOT NULL,
+      registry_captures_json TEXT NOT NULL DEFAULT '',
       feature_code_version TEXT NOT NULL,
       runner_version TEXT NOT NULL,
       counts_json TEXT NOT NULL,
@@ -651,6 +856,12 @@ export function ensurePitBSchema(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_pitb_uid ON predictions(fixture_uid);
     CREATE INDEX IF NOT EXISTS idx_pitb_snapshot ON predictions(feature_snapshot_id);
   `);
+  // Migrasi aditif untuk DB shadow v1 yang sudah ada: kolom capture
+  // registry (Brief Kohor §2A). DB baru sudah memilikinya dari CREATE.
+  const fsCols = db.prepare("PRAGMA table_info(feature_snapshots)").all() as unknown as { name: string }[];
+  if (!fsCols.some((c) => c.name === "registry_captures_json")) {
+    db.exec("ALTER TABLE feature_snapshots ADD COLUMN registry_captures_json TEXT NOT NULL DEFAULT ''");
+  }
 }
 
 const INSERT_PIT_B_SQL = `
@@ -704,7 +915,13 @@ function tableColumns(db: DatabaseSync, table: string): Set<string> {
 
 function loadRawResults(dataset: DatabaseSync): RawResultRow[] {
   const cols = tableColumns(dataset, "matches");
-  const avail = cols.has("available_at") ? "available_at" : "NULL AS available_at";
+  if (cols.size === 0) {
+    throw new Error("ML1-PIT-B: tabel matches tidak ditemukan di dataset — store wajib tidak terbaca.");
+  }
+  // Kolom opsional absen → ekspresi NULL polos; alias ditulis SATU kali di
+  // daftar SELECT (Brief Kohor §2D — versi lama menyisipkan alias dua kali
+  // untuk skema legacy: "NULL AS available_at AS available_at").
+  const avail = cols.has("available_at") ? "available_at" : "NULL";
   return dataset
     .prepare(
       `SELECT match_id, competition_id, utc_date, home_team_id, away_team_id,
@@ -720,8 +937,8 @@ function loadRawShots(dataset: DatabaseSync): PitBShotRow[] {
   if (cols.size === 0) {
     throw new Error("ML1-PIT-B: tabel team_match_logs_canonical tidak ditemukan di dataset — store wajib tidak terbaca.");
   }
-  const logId = cols.has("log_id") ? "log_id" : "NULL AS log_id";
-  const src = cols.has("chosen_source") ? "chosen_source" : "NULL AS chosen_source";
+  const logId = cols.has("log_id") ? "log_id" : "NULL";
+  const src = cols.has("chosen_source") ? "chosen_source" : "NULL";
   return dataset
     .prepare(
       `SELECT ${logId} AS log_id, team_id, match_date, shots_for, shots_against,
@@ -733,6 +950,9 @@ function loadRawShots(dataset: DatabaseSync): PitBShotRow[] {
 
 function loadRegistryStatus(dataset: DatabaseSync): Map<string, string> {
   const out = new Map<string, string>();
+  if (tableColumns(dataset, "league_calibration").size === 0) {
+    throw new Error("ML1-PIT-B: tabel league_calibration tidak ditemukan di dataset — store wajib tidak terbaca.");
+  }
   for (const r of dataset.prepare("SELECT league_id, status FROM league_calibration").all() as unknown as { league_id: string; status: string }[]) {
     out.set(r.league_id, r.status);
   }
@@ -857,6 +1077,14 @@ export interface PitBDeps {
   clock: PitAClock;
   executor: PitAInferenceExecutor;
   limit?: number;
+  /**
+   * Batas lead maksimum (ms) untuk horizon kohor — diterapkan SEBELUM
+   * dedupe permanen/insert (Brief Kohor §3): fixture yang kickoff-nya
+   * masih lebih jauh dari batas ini TIDAK disimpan pada run ini, supaya
+   * baris terlalu dini tidak mengunci kesempatan eligible berikutnya.
+   * Undefined/0 = tanpa gerbang (perilaku PIT B dasar).
+   */
+  maxLeadMs?: number;
 }
 
 export interface PitBFeatureCoverage {
@@ -878,6 +1106,7 @@ export interface PitBRunSummary {
   decision_at_utc: string;
   issued_at_utc: string | null;
   snapshot_pinned_at_utc: { snapshots: string; dataset: string; upcoming: string };
+  registry_captured_at_utc: { team_canonical: string; fixture_links: string };
   feature_snapshot_id: string | null;
   projection: { file: string; bytes: number; sha256: string } | null;
   candidates_by_source: Record<string, number>;
@@ -960,9 +1189,40 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
     let prepCandidatesBySource: Record<string, number> = {};
     let prepUniqueFixtures = 0;
     let identityReady = false;
+    let matResults: PitBResultRow[] = [];
+    let matShots: PitBShotRow[] = [];
+    let frozenRegistrySha = { team: "", teamPresent: false, links: "", linksPresent: false };
+    const registryCaptures = { team_canonical: "", fixture_links: "" };
+    const registryCaptureMs = { team_canonical: Number.NaN, fixture_links: Number.NaN };
     const pinStart = performance.now();
     let readTxnMs = 0;
     try {
+      // ---------------------------------------------------------- CAPTURE -
+      // Brief Kohor §2A: byte registry tim + fixture-links DIBACA DAN
+      // DIBEKUKAN sebelum jam keputusan diambil — dari byte yang sama
+      // dengan yang diparse. Waktu baca selesai dicap dari clock dan
+      // wajib <= decision_at_utc; perubahan file sesudah momen ini tidak
+      // mengubah pemetaan keputusan (revalidasi pascainferensi tetap
+      // memakai kondisi terbaru untuk menerima/menolak).
+      const registry = readPitBTeamRegistry(deps.dataDirPath);
+      {
+        const t = deps.clock();
+        if (!Number.isFinite(t.getTime())) {
+          throw new Error("ML1-PIT-B: clock menghasilkan waktu tidak valid saat capture registry tim.");
+        }
+        registryCaptures.team_canonical = t.toISOString();
+        registryCaptureMs.team_canonical = t.getTime();
+      }
+      const links = readPitBLinks(deps.dataDirPath);
+      {
+        const t = deps.clock();
+        if (!Number.isFinite(t.getTime())) {
+          throw new Error("ML1-PIT-B: clock menghasilkan waktu tidak valid saat capture fixture-links.");
+        }
+        registryCaptures.fixture_links = t.toISOString();
+        registryCaptureMs.fixture_links = t.getTime();
+      }
+
       pinStore("snapshots", snapshots, "SELECT COUNT(*) AS n FROM packages");
       pinStore("dataset", dataset, "SELECT COUNT(*) AS n FROM matches");
       pinStore("upcoming", upcoming, "SELECT COUNT(*) AS n FROM upcoming_fixtures");
@@ -980,10 +1240,13 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
           );
         }
       }
-
-      // Registry + tautan dari byte yang dibaca pada jendela pin.
-      const registry = readPitBTeamRegistry(deps.dataDirPath);
-      const links = readPitBLinks(deps.dataDirPath);
+      for (const k of ["team_canonical", "fixture_links"] as const) {
+        if (registryCaptureMs[k] > decisionMs) {
+          throw new Error(
+            `ML1-PIT-B: capture ${k} (${registryCaptures[k]}) melampaui decision_at_utc (${decision_at_utc}) — byte registry harus dibekukan sebelum keputusan.`,
+          );
+        }
+      }
 
       // Seleksi paket as-of di dalam transaksi snapshots yang terpin.
       const sel = selectPackagesAsOf(snapshots, decisionMs, decision_at_utc);
@@ -1021,6 +1284,12 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
       }
       const processable: PitPreparedFixture[] = [];
       for (const p of prep.eligible) {
+        // Gerbang horizon kohor SEBELUM dedupe: terlalu dini → tidak
+        // disimpan, tidak mengunci (Brief Kohor §3).
+        if (deps.maxLeadMs !== undefined && deps.maxLeadMs > 0 && p.winner.kickoffMs - decisionMs > deps.maxLeadMs) {
+          skip("lead_beyond_horizon");
+          continue;
+        }
         if (storedByUid.has(p.uid)) {
           skip("already_stored");
           continue;
@@ -1133,39 +1402,49 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
         b.eloFallbackAway = !(set?.has(b.fixtureInput.away_team_key) ?? false);
       }
       attempts = built;
-
-      // Bekukan proyeksi + tulis file atomik SEBELUM baris mengacu padanya.
-      if (attempts.length > 0) {
-        projection = {
-          meta: {
-            kind: "meta",
-            schema_version: PIT_B_PROJECTION_SCHEMA_VERSION,
-            eval_version: PIT_B_EVAL_VERSION,
-            horizon_id: PIT_B_HORIZON_ID,
-            decision_at_utc,
-            cutoff_utc: decision_at_utc,
-            snapshot_pinned_at_utc: { ...pins },
-            feature_code_version: PIT_B_FEATURE_CODE_VERSION,
-            runner_version: PIT_B_RUNNER_VERSION,
-            registry_team_canonical_sha256: registry.sha256,
-            registry_team_canonical_present: registry.present,
-            registry_fixture_links_sha256: links.sha256,
-            registry_fixture_links_present: links.present,
-            counts: { ...counts, fixtures: attempts.length, packages: attempts.length },
-          },
-          results,
-          shots,
-          fixtures: attempts.map((a) => a.fixtureInput),
-          packages: attempts.map((a) => a.packageInfo),
-        };
-        projectionFile = writePitBProjectionAtomic(deps.projectionDir, serializePitBProjection(projection));
-      }
+      matResults = results;
+      matShots = shots;
+      // Hash registry/link yang dibekukan disimpan untuk meta proyeksi
+      // (objek proyeksi sendiri dibangun SESUDAH transaksi dilepas).
+      frozenRegistrySha = { team: registry.sha256, teamPresent: registry.present, links: links.sha256, linksPresent: links.present };
     } finally {
-      // Transaksi baca dilepas sebelum konstruksi fitur berat + inferensi.
+      // Brief Kohor §2D: ketiga transaksi read-only DILEPAS sesudah
+      // materialisasi, SEBELUM serialisasi/kompresi/I-O proyeksi —
+      // snapshot tidak menahan WAL selama pekerjaan CPU/disk berjalan.
       endPinnedRead(snapshots);
       endPinnedRead(dataset);
       endPinnedRead(upcoming);
       readTxnMs = performance.now() - pinStart;
+    }
+
+    // Bekukan proyeksi dari materialisasi + tulis file atomik SEBELUM
+    // baris mana pun mengacu padanya (penulisan tetap mendahului commit
+    // referensi di fase tulis).
+    if (attempts.length > 0) {
+      projection = {
+        meta: {
+          kind: "meta",
+          schema_version: PIT_B_PROJECTION_SCHEMA_VERSION,
+          eval_version: PIT_B_EVAL_VERSION,
+          horizon_id: PIT_B_HORIZON_ID,
+          decision_at_utc,
+          cutoff_utc: decision_at_utc,
+          snapshot_pinned_at_utc: { ...pins },
+          feature_code_version: PIT_B_FEATURE_CODE_VERSION,
+          runner_version: PIT_B_RUNNER_VERSION,
+          registry_team_canonical_sha256: frozenRegistrySha.team,
+          registry_team_canonical_present: frozenRegistrySha.teamPresent,
+          registry_fixture_links_sha256: frozenRegistrySha.links,
+          registry_fixture_links_present: frozenRegistrySha.linksPresent,
+          registry_captured_at_utc: { ...registryCaptures },
+          counts: { ...counts, fixtures: attempts.length, packages: attempts.length },
+        },
+        results: matResults,
+        shots: matShots,
+        fixtures: attempts.map((a) => a.fixtureInput),
+        packages: attempts.map((a) => a.packageInfo),
+      };
+      projectionFile = writePitBProjectionAtomic(deps.projectionDir, serializePitBProjection(projection));
     }
 
     // ---------------------------------------------------------- FITUR -----
@@ -1311,9 +1590,9 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
                 `INSERT INTO feature_snapshots (
                    feature_snapshot_id, schema_version, eval_version, decision_at_utc, cutoff_utc,
                    snapshot_pinned_at_utc_json, projection_file, projection_bytes, projection_sha256,
-                   registry_team_canonical_sha256, registry_fixture_links_sha256,
+                   registry_team_canonical_sha256, registry_fixture_links_sha256, registry_captures_json,
                    feature_code_version, runner_version, counts_json, created_utc
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                  ON CONFLICT(feature_snapshot_id) DO NOTHING`,
               )
               .run(
@@ -1328,6 +1607,7 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
                 projFile.sha256,
                 proj.meta.registry_team_canonical_sha256,
                 proj.meta.registry_fixture_links_sha256,
+                JSON.stringify(proj.meta.registry_captured_at_utc ?? {}),
                 PIT_B_FEATURE_CODE_VERSION,
                 PIT_B_RUNNER_VERSION,
                 JSON.stringify(proj.meta.counts),
@@ -1445,6 +1725,7 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
       decision_at_utc,
       issued_at_utc,
       snapshot_pinned_at_utc: { ...pins },
+      registry_captured_at_utc: { ...registryCaptures },
       feature_snapshot_id: projectionFile?.sha256 ?? null,
       projection: projectionFile
         ? { file: projectionFile.file, bytes: projectionFile.bytes, sha256: projectionFile.sha256 }
