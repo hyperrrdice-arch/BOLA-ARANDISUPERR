@@ -21,23 +21,35 @@ import { DatabaseSync } from "node:sqlite";
 import { dbPath } from "../lib/db/paths";
 
 function main() {
-  const dbPath = dbPath("thestats_dataset.db");
-  if (!fs.existsSync(dbPath)) {
-    console.log(`[wal-checkpoint] DILEWATI: ${dbPath} tidak ada.`);
+  const startedAt = Date.now();
+  let datasetPath: string;
+  try {
+    datasetPath = dbPath("thestats_dataset.db");
+  } catch (err) {
+    console.log(
+      `[wal-checkpoint] GAGAL (diabaikan, refresh tetap sukses): resolusi path gagal: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return;
+  }
+  if (!fs.existsSync(datasetPath)) {
+    console.log(`[wal-checkpoint] DILEWATI: ${datasetPath} tidak ada.`);
     return;
   }
   let db: DatabaseSync | null = null;
   try {
-    db = new DatabaseSync(dbPath);
+    db = new DatabaseSync(datasetPath);
     const row = db.prepare("PRAGMA wal_checkpoint(PASSIVE)").get() as
       | { busy: number; log: number; checkpointed: number }
       | undefined;
+    const durasiMs = Date.now() - startedAt;
     if (row) {
       console.log(
-        `[wal-checkpoint] thestats_dataset.db PASSIVE: busy=${row.busy} log=${row.log} checkpointed=${row.checkpointed}`,
+        `[wal-checkpoint] thestats_dataset.db PASSIVE: busy=${row.busy} log=${row.log} checkpointed=${row.checkpointed} durasi=${durasiMs}ms`,
       );
     } else {
-      console.log("[wal-checkpoint] thestats_dataset.db PASSIVE: tanpa baris hasil (bukan mode WAL?).");
+      console.log(
+        `[wal-checkpoint] thestats_dataset.db PASSIVE: tanpa baris hasil (bukan mode WAL?) durasi=${durasiMs}ms.`,
+      );
     }
   } catch (err) {
     console.log(
