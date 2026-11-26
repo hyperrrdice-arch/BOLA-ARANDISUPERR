@@ -32,6 +32,25 @@
  *  A12 Isolasi: hash fixture input + DB pilot identik sebelum/sesudah
  *      (termasuk daftar file); mode legacy + format ringkasan cron tetap
  *      kompatibel; --pit-a --now ditolak.
+ *
+ * Kasus review PR #6 (Brief Review PR6 §1–§3):
+ *  R1  Cek clock akhir benar-benar membaca clock: pembacaan berurutan
+ *      10.00 → 10:29:59.999 → 10.30; laga 10.30 gugur di cek akhir, laga
+ *      20.00 commit; jumlah pembacaan dibuktikan, row aktual dicek di SQLite.
+ *  R2  State kanonik berubah saat inferensi: cancelled / kickoff kanonik
+ *      berubah / baris kanonik hilang → skip; fixture kontrol tersimpan.
+ *  R3  Edisi alias rusak tetap pemenang: payload `{` edisi 09.05 mengalahkan
+ *      edisi valid 09.00 → fixture keluar seluruhnya; variasi payload JSON
+ *      `null` dan array juga invalid; kontrol valid tersimpan.
+ *  R4  Eligibility sebelum limit: laga cancelled di upcoming tidak memakan
+ *      slot inferensi --limit=1; jatah jatuh ke laga valid.
+ *  R5  Urutan instant lintas format: `08:30:00.000-01:00` (= 09.30 UTC)
+ *      mengalahkan `09:00:00.000Z`; timestamp bukti keluar UTC seragam.
+ *  R6  Konflik tiga alias transitif: A–B lewat file tautan, B–C lewat
+ *      bridge sm_id_map, UID A ≠ UID C → konflik seluruh komponen.
+ *  R7  Pin snapshot + WAL: edisi yang baru di-commit sesudah pin (oleh
+ *      koneksi penulis kedua, DB mode WAL) tetap absen dari run berjalan;
+ *      isi & skema sumber terjaga; housekeeping WAL/SHM dicatat terpisah.
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -175,12 +194,17 @@ function addUpcoming(
   db.close();
 }
 
-function addIdentity(env: PitAEnv, uid: string, matchIds: string[], names?: { home: string; away: string }): void {
+function addIdentity(
+  env: PitAEnv,
+  uid: string,
+  matchIds: string[],
+  opts: { home?: string; away?: string; kickoff?: string } = {},
+): void {
   const db = new DatabaseSync(env.datasetPath);
   db.prepare(
     `INSERT OR IGNORE INTO canonical_fixtures (fixture_uid, competition_id, home_name, away_name, kickoff_utc, state, created_at, updated_at)
-     VALUES (?, 'sm:100', ?, ?, '2026-11-27T20:00:00.000Z', 'scheduled', '2026-11-27T00:00:00.000Z', '2026-11-27T00:00:00.000Z')`,
-  ).run(uid, names?.home ?? "Fixture Home", names?.away ?? "Fixture Away");
+     VALUES (?, 'sm:100', ?, ?, ?, 'scheduled', '2026-11-27T00:00:00.000Z', '2026-11-27T00:00:00.000Z')`,
+  ).run(uid, opts.home ?? "Fixture Home", opts.away ?? "Fixture Away", opts.kickoff ?? "2026-11-27T20:00:00.000Z");
   const ins = db.prepare(
     `INSERT INTO fixture_aliases (source, source_match_id, fixture_uid, match_basis, first_seen_utc, last_seen_utc)
      VALUES (?, ?, ?, 'fixture', '2026-11-27T00:00:00.000Z', '2026-11-27T00:00:00.000Z')`,
@@ -240,7 +264,8 @@ function seedFixture(
   },
 ): number {
   addUpcoming(env, opts.matchId, opts.kickoff);
-  addIdentity(env, opts.uid, [opts.matchId, ...(opts.alsoIds ?? [])]);
+  // Seed kanonik mengikuti kickoff fixture ini (presisi exact bawaan skema).
+  addIdentity(env, opts.uid, [opts.matchId, ...(opts.alsoIds ?? [])], { kickoff: opts.kickoff });
   return addPkg(env, {
     matchId: opts.matchId,
     computed: opts.computed ?? "2026-11-27T09:00:00.000Z",
@@ -320,6 +345,8 @@ interface StoredRow {
   champ_lam: number;
   issued_at_utc: string;
   decision_at_utc: string;
+  kickoff_utc: string;
+  package_computed_utc: string;
   champion_ratings_marker: string | null;
   champion_provenance_status: string;
   package_payload_sha256: string;
@@ -403,7 +430,9 @@ console.log("\nA3. Edisi terbaru as-of memajukan kickoff hingga lewat cutoff");
   const env = makeEnv("a3");
   addUpcoming(env, "fd_104", "2026-11-27T20:00:00.000Z");
   addUpcoming(env, "sm_104", "2026-11-27T09:30:00.000Z");
-  addIdentity(env, "fx_uid_a3", ["fd_104", "sm_104"]);
+  // Kickoff kanonik = kickoff edisi terbaru (09.30) — fixture gugur di cek
+  // kickoff pemenang, sebelum eligibility kanonik berperan.
+  addIdentity(env, "fx_uid_a3", ["fd_104", "sm_104"], { kickoff: "2026-11-27T09:30:00.000Z" });
   addPkg(env, { matchId: "fd_104", computed: "2026-11-27T08:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", lam: 1.5 });
   addPkg(env, { matchId: "sm_104", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T09:30:00.000Z", lam: 1.7 });
   const clk = makeClock(DECISION);
@@ -825,6 +854,259 @@ console.log("\nA12. Isolasi, penolakan --now, dan kompatibilitas legacy");
     "A12: legacy mempertahankan kunci ringkasan cron",
     legacyJson !== null && "graded_new" in legacyJson && "guard_identical" in legacyJson && "kompetitif" in legacyJson,
   );
+}
+
+// ============================================================================
+// R1 — cek clock akhir benar-benar membaca clock (review §1, prioritas tinggi)
+// ============================================================================
+console.log("\nR1. Pembacaan clock akhir pada tahap penerbitan");
+{
+  const env = makeEnv("r1");
+  seedFixture(env, { matchId: "fd_701", uid: "fx_uid_r1a", kickoff: "2026-11-27T10:30:00.000Z" });
+  seedFixture(env, { matchId: "fd_702", uid: "fx_uid_r1b", kickoff: "2026-11-27T20:00:00.000Z" });
+  // Clock berurutan persis fixture review: keputusan 10.00, sesudah lock
+  // 10:29:59.999, lalu 10.30 untuk pembacaan berikutnya (dan seterusnya).
+  const readings = [
+    "2026-11-27T10:00:00.000Z",
+    "2026-11-27T10:29:59.999Z",
+    "2026-11-27T10:30:00.000Z",
+  ];
+  let calls = 0;
+  const clock = () => {
+    const iso = readings[Math.min(calls, readings.length - 1)];
+    calls++;
+    return new Date(iso);
+  };
+  const s = runPitA(env, { clock, executor: stubExecutor(env) });
+  const rows = readRows(env);
+  suite.eq("R1: hanya laga 20.00 yang commit", s.predicted_new, 1);
+  suite.eq("R1: row aktual di SQLite = laga 20.00", rows.map((r) => r.fixture_uid), ["fx_uid_r1b"]);
+  suite.eq("R1: laga 10.30 gugur sebagai kickoff_passed", s.skipped.kickoff_passed ?? 0, 1);
+  suite.check(
+    "R1: pembacaan akhir benar-benar dipanggil (>=4: decision + 2 issued per baris + cek akhir)",
+    calls >= 4,
+    `calls=${calls}`,
+  );
+  suite.eq("R1: issued_at_utc baris = pembacaan per barisnya", rows[0]?.issued_at_utc, "2026-11-27T10:30:00.000Z");
+  suite.eq("R1: decision_at_utc tetap 10.00", rows[0]?.decision_at_utc, DECISION);
+}
+
+// ============================================================================
+// R2 — state kanonik berubah saat inferensi (review §1, prioritas tinggi)
+// ============================================================================
+console.log("\nR2. Perubahan state/jadwal kanonik saat inferensi");
+{
+  const env = makeEnv("r2");
+  seedFixture(env, { matchId: "fd_711", uid: "fx_uid_r2a", kickoff: "2026-11-27T20:00:00.000Z" });
+  seedFixture(env, { matchId: "fd_712", uid: "fx_uid_r2b", kickoff: "2026-11-27T20:00:00.000Z" });
+  seedFixture(env, { matchId: "fd_713", uid: "fx_uid_r2c", kickoff: "2026-11-27T20:00:00.000Z" });
+  seedFixture(env, { matchId: "fd_714", uid: "fx_uid_r2d", kickoff: "2026-11-27T20:00:00.000Z" });
+  const clk = makeClock(DECISION);
+  const exec = stubExecutor(env, {
+    onCall: () => {
+      const ds = new DatabaseSync(env.datasetPath);
+      // UID yang sama berubah menjadi cancelled di canonical_fixtures,
+      // sementara upcoming sumber masih scheduled dengan kickoff cocok.
+      ds.prepare("UPDATE canonical_fixtures SET state = 'cancelled' WHERE fixture_uid = 'fx_uid_r2a'").run();
+      ds.prepare("UPDATE canonical_fixtures SET kickoff_utc = '2026-11-27T21:00:00.000Z' WHERE fixture_uid = 'fx_uid_r2b'").run();
+      ds.prepare("DELETE FROM canonical_fixtures WHERE fixture_uid = 'fx_uid_r2c'").run();
+      ds.close();
+    },
+  });
+  const s = runPitA(env, { clock: clk.clock, executor: exec });
+  const rows = readRows(env);
+  suite.eq("R2: hanya fixture kontrol yang tersimpan", s.predicted_new, 1);
+  suite.eq("R2: fixture kontrol = fd_714", rows.map((r) => r.fixture_uid), ["fx_uid_r2d"]);
+  suite.eq("R2: kanonik cancelled + kanonik hilang → fixture_state_ineligible", s.skipped.fixture_state_ineligible ?? 0, 2);
+  suite.eq("R2: kickoff kanonik berubah → schedule_conflict", s.skipped.schedule_conflict ?? 0, 1);
+}
+
+// ============================================================================
+// R3 — edisi alias rusak tetap pemenang seleksi (review §1, prioritas tinggi)
+// ============================================================================
+console.log("\nR3. Pemenang rusak mengeluarkan seluruh fixture");
+{
+  const env = makeEnv("r3");
+  addUpcoming(env, "fd_704", "2026-11-27T20:00:00.000Z");
+  addUpcoming(env, "sm_704", "2026-11-27T20:00:00.000Z");
+  addIdentity(env, "fx_uid_r3a", ["fd_704", "sm_704"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  const idValidOld = addPkg(env, { matchId: "fd_704", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", lam: 1.5 });
+  addPkg(env, { matchId: "sm_704", computed: "2026-11-27T09:05:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", payloadRaw: "{" });
+  // Variasi payload JSON valid bertipe non-objek: null dan array.
+  addUpcoming(env, "fd_705", "2026-11-27T20:00:00.000Z");
+  addIdentity(env, "fx_uid_r3b", ["fd_705"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  addPkg(env, { matchId: "fd_705", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", payloadRaw: "null" });
+  addUpcoming(env, "fd_706", "2026-11-27T20:00:00.000Z");
+  addIdentity(env, "fx_uid_r3c", ["fd_706"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  addPkg(env, { matchId: "fd_706", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", payloadRaw: "[1,2,3]" });
+  // Kontrol yang selalu layak.
+  seedFixture(env, { matchId: "fd_707", uid: "fx_uid_r3d", kickoff: "2026-11-27T20:00:00.000Z" });
+  const clk = makeClock(DECISION);
+  const s = runPitA(env, { clock: clk.clock, executor: stubExecutor(env) });
+  const rows = readRows(env);
+  suite.eq("R3: hanya kontrol yang tersimpan", s.predicted_new, 1);
+  suite.eq("R3: kontrol = fd_707", rows.map((r) => r.fixture_uid), ["fx_uid_r3d"]);
+  suite.eq("R3: tiga pemenang rusak → invalid_package", s.skipped.invalid_package ?? 0, 3);
+  suite.check(
+    "R3: edisi lama fd_704 yang valid TIDAK menyelamatkan fixture",
+    !rows.some((r) => r.package_id === idValidOld),
+  );
+}
+
+// ============================================================================
+// R4 — eligibility sebelum limit (review §1, prioritas sedang)
+// ============================================================================
+console.log("\nR4. Laga batal tidak memakan jatah inferensi");
+{
+  const env = makeEnv("r4");
+  // Laga 10.30 sudah cancelled di upcoming SEBELUM run.
+  addUpcoming(env, "fd_721", "2026-11-27T10:30:00.000Z", { status: "cancelled" });
+  addIdentity(env, "fx_uid_r4a", ["fd_721"], { kickoff: "2026-11-27T10:30:00.000Z" });
+  addPkg(env, { matchId: "fd_721", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T10:30:00.000Z" });
+  // Kontrol yang selalu layak.
+  seedFixture(env, { matchId: "fd_722", uid: "fx_uid_r4b", kickoff: "2026-11-27T20:00:00.000Z" });
+  const clk = makeClock(DECISION);
+  const seenRequests: string[] = [];
+  const exec = stubExecutor(env, { onCall: (reqs) => seenRequests.push(...reqs.map((r) => r.match_id)) });
+  const s = runPitA(env, { clock: clk.clock, executor: exec, limit: 1 });
+  const rows = readRows(env);
+  suite.eq("R4: attempted = 1 (jatah tidak habis untuk laga batal)", s.attempted, 1);
+  suite.eq("R4: yang diinferensi = laga valid", seenRequests, ["fd_722"]);
+  suite.eq("R4: laga valid tersimpan", s.predicted_new, 1);
+  suite.eq("R4: row = kontrol", rows.map((r) => r.fixture_uid), ["fx_uid_r4b"]);
+  suite.check("R4: laga batal tercatat fixture_state_ineligible", (s.skipped.fixture_state_ineligible ?? 0) >= 1, JSON.stringify(s.skipped));
+}
+
+// ============================================================================
+// R5 — urutan instant lintas format timestamp (review §1, prioritas sedang)
+// ============================================================================
+console.log("\nR5. Perbandingan instant lintas format + normalisasi keluaran");
+{
+  const env = makeEnv("r5");
+  addUpcoming(env, "fd_731", "2026-11-27T20:00:00.000Z");
+  addIdentity(env, "fx_uid_r5", ["fd_731"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  addPkg(env, { matchId: "fd_731", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", lam: 1.1 });
+  // 08:30 di zona -01:00 = 09.30 UTC — lebih baru dari edisi 09.00Z, walau
+  // urutan leksikalnya lebih kecil. Kickoff-nya pun ditulis ber-offset.
+  const idOffset = addPkg(env, {
+    matchId: "fd_731",
+    computed: "2026-11-27T08:30:00.000-01:00",
+    kickoff: "2026-11-27T21:00:00.000+01:00",
+    lam: 1.9,
+  });
+  const clk = makeClock(DECISION);
+  const s = runPitA(env, { clock: clk.clock, executor: stubExecutor(env) });
+  const rows = readRows(env);
+  suite.eq("R5: satu row tersimpan", s.predicted_new, 1);
+  suite.eq("R5: edisi 09.30 UTC (ber-offset) terpilih", rows[0]?.package_id, idOffset);
+  suite.eq("R5: champ_lam dari edisi ber-offset", rows[0]?.champ_lam, 1.9);
+  suite.eq("R5: package_computed_utc dinormalisasi UTC seragam", rows[0]?.package_computed_utc, "2026-11-27T09:30:00.000Z");
+  suite.eq("R5: kickoff_utc dinormalisasi UTC seragam", rows[0]?.kickoff_utc, "2026-11-27T20:00:00.000Z");
+}
+
+// ============================================================================
+// R6 — konflik tiga alias transitif lintas K1 + file tautan + bridge
+// ============================================================================
+console.log("\nR6. Konflik komponen alias transitif (K1/link/bridge)");
+{
+  const env = makeEnv("r6");
+  addUpcoming(env, "fd_801", "2026-11-27T20:00:00.000Z");
+  addUpcoming(env, "sm_801", "2026-11-27T20:00:00.000Z");
+  addUpcoming(env, "fd_802", "2026-11-27T20:00:00.000Z");
+  // A: fd_801 + sm_801 di K1. C: fd_802 di K1.
+  addIdentity(env, "fx_uid_r6a", ["fd_801", "sm_801"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  addIdentity(env, "fx_uid_r6c", ["fd_802"], { kickoff: "2026-11-27T20:00:00.000Z" });
+  // A–B lewat file tautan; B–C lewat bridge sm_id_map (sm_801 <-> fd_802).
+  setLinks(env, [{ twin_id: "sm_801", canonical_id: "fd_801" }]);
+  const up = new DatabaseSync(env.upcomingPath);
+  up.prepare("INSERT INTO sm_id_map (match_id, sm_fixture_id) VALUES ('fd_802', 801)").run();
+  up.close();
+  addPkg(env, { matchId: "fd_801", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z" });
+  addPkg(env, { matchId: "fd_802", computed: "2026-11-27T09:00:00.000Z", kickoff: "2026-11-27T20:00:00.000Z" });
+  // Kontrol yang selalu layak.
+  seedFixture(env, { matchId: "fd_803", uid: "fx_uid_r6d", kickoff: "2026-11-27T20:00:00.000Z" });
+  const clk = makeClock(DECISION);
+  const s = runPitA(env, { clock: clk.clock, executor: stubExecutor(env) });
+  const rows = readRows(env);
+  suite.eq("R6: hanya kontrol yang tersimpan", s.predicted_new, 1);
+  suite.eq("R6: kontrol = fd_803", rows.map((r) => r.fixture_uid), ["fx_uid_r6d"]);
+  suite.check("R6: konflik seluruh komponen tercatat", (s.skipped.identity_conflict ?? 0) >= 1, JSON.stringify(s.skipped));
+  suite.check(
+    "R6: tidak ada row untuk UID A maupun C",
+    !rows.some((r) => r.fixture_uid === "fx_uid_r6a" || r.fixture_uid === "fx_uid_r6c"),
+  );
+}
+
+// ============================================================================
+// R7 — pin snapshot, penulis kedua, dan kontrol WAL
+// ============================================================================
+console.log("\nR7. Edisi pasca-pin absen + read-only menjaga isi/skema sumber (WAL)");
+{
+  // R7a: edisi yang di-commit penulis kedua SESUDAH pin tidak terlihat run.
+  const env = makeEnv("r7a");
+  const idOld = seedFixture(env, { matchId: "fd_741", uid: "fx_uid_r7a", kickoff: "2026-11-27T20:00:00.000Z", lam: 1.5 });
+  const clk = makeClock(DECISION);
+  const exec = stubExecutor(env, {
+    onCall: () => {
+      addPkg(env, { matchId: "fd_741", computed: "2026-11-27T09:30:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", lam: 9.9 });
+    },
+  });
+  const s = runPitA(env, { clock: clk.clock, executor: exec });
+  const rows = readRows(env);
+  suite.eq("R7a: run tetap menyimpan 1 row", s.predicted_new, 1);
+  suite.eq("R7a: edisi terpin (09.00) yang dipakai, bukan edisi pasca-pin", rows[0]?.package_id, idOld);
+  suite.eq("R7a: champ_lam edisi terpin", rows[0]?.champ_lam, 1.5);
+  // Edisi pasca-pin memang ter-commit di sumber — run berikutnya (DB shadow
+  // baru) membuktikan ia terlihat begitu pin diambil ulang.
+  fs.rmSync(env.outputPath, { force: true });
+  const s2 = runPitA(env, { clock: clk.clock, executor: stubExecutor(env) });
+  suite.eq("R7a: run berikutnya melihat edisi 09.30", readRows(env)[0]?.champ_lam, 9.9);
+  suite.eq("R7a: run berikutnya predicted_new", s2.predicted_new, 1);
+
+  // R7b: snapshots dalam mode WAL + koneksi penulis kedua saat run berjalan.
+  const env2 = makeEnv("r7b");
+  const idOld2 = seedFixture(env2, { matchId: "fd_742", uid: "fx_uid_r7b", kickoff: "2026-11-27T20:00:00.000Z", lam: 1.5 });
+  const walConn = new DatabaseSync(env2.snapshotsPath);
+  const walMode = (walConn.prepare("PRAGMA journal_mode=WAL").get() as { journal_mode: string }).journal_mode;
+  walConn.close();
+  suite.eq("R7b: fixture snapshots berada di mode WAL", walMode, "wal");
+  const dumpSource = () => {
+    const db = new DatabaseSync(env2.snapshotsPath, { readOnly: true });
+    const schema = db
+      .prepare("SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name")
+      .all();
+    const pkgs = db.prepare("SELECT * FROM packages ORDER BY id").all();
+    db.close();
+    return { schema: JSON.stringify(schema), pkgs: JSON.stringify(pkgs) };
+  };
+  const beforeDump = dumpSource();
+  let writerOk = false;
+  const exec2 = stubExecutor(env2, {
+    onCall: () => {
+      // Koneksi penulis kedua menulis saat run berjalan (handle sumber
+      // read-only milik run tetap terbuka).
+      addPkg(env2, { matchId: "fd_742", computed: "2026-11-27T09:15:00.000Z", kickoff: "2026-11-27T20:00:00.000Z", lam: 8.8 });
+      writerOk = true;
+    },
+  });
+  const clk2 = makeClock(DECISION);
+  const s3 = runPitA(env2, { clock: clk2.clock, executor: exec2 });
+  const rows3 = readRows(env2);
+  suite.check("R7b: penulis kedua berhasil menulis di mode WAL", writerOk);
+  suite.eq("R7b: run memakai edisi terpin", rows3[0]?.package_id, idOld2);
+  const afterDump = dumpSource();
+  suite.eq("R7b: skema sumber tidak berubah", afterDump.schema, beforeDump.schema);
+  const pkgsBefore = JSON.parse(beforeDump.pkgs) as unknown[];
+  const pkgsAfter = JSON.parse(afterDump.pkgs) as unknown[];
+  suite.eq("R7b: isi sumber = isi awal + tepat satu edisi penulis kedua", pkgsAfter.length, pkgsBefore.length + 1);
+  suite.eq(
+    "R7b: baris sumber awal identik sesudah run (read-only menjaga isi)",
+    JSON.stringify(pkgsAfter.slice(0, pkgsBefore.length)),
+    beforeDump.pkgs,
+  );
+  // Housekeeping WAL/SHM dicatat terpisah dari perubahan isi.
+  const sidecars = fs.readdirSync(env2.dataDir).filter((f) => f.endsWith("-wal") || f.endsWith("-shm"));
+  console.log(`   [R7b] housekeeping WAL/SHM sesudah run: ${sidecars.length > 0 ? sidecars.join(", ") : "(tidak ada — sudah ter-checkpoint)"}`);
 }
 
 // ----------------------------------------------------------------------------

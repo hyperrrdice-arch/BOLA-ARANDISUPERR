@@ -6,17 +6,27 @@
  *  1. Paket champion edisi berapa yang SUDAH TERSEDIA saat keputusan?
  *     → seleksi edisi `slate` as-of: predikat `computed_utc <= decision_at_utc`
  *       berada DI DALAM subquery selector latest (pola brief §3), tie-break
- *       `computed_utc DESC, id DESC`; kickoff dicek dari edisi terpilih.
+ *       `computed_utc DESC, id DESC`. Per komponen alias, PEMENANG dipilih
+ *       dulu (instant komputasi DESC, ID paket DESC) dan HANYA pemenang yang
+ *       divalidasi kickoff + payload-nya — pemenang rusak mengeluarkan
+ *       seluruh fixture, edisi lama alias lain tidak menyelamatkannya.
  *  2. Apakah inferensi sempat dicatat SEBELUM kickoff?
  *     → `decision_at_utc` (dari clock, dipin sesudah snapshot paket terkunci)
- *       dan `issued_at_utc` (dari clock yang sama, diambil SESUDAH lock tulis)
- *       disimpan terpisah; per baris wajib
- *       `package_computed_utc <= decision_at_utc <= issued_at_utc < kickoff_utc`,
- *       diverifikasi ulang sesudah inferensi lewat pembacaan baru.
+ *       dan `issued_at_utc` (dari clock yang sama, dibaca PER BARIS sesudah
+ *       lock tulis) disimpan terpisah; per baris wajib
+ *       `package_computed_utc <= decision_at_utc <= issued_at_utc < kickoff_utc`.
+ *       Sesudah staging insert, clock dibaca LAGI sebelum commit: baris yang
+ *       kickoff-nya sudah lewat/sama dibuang dari transaksi yang sama.
+ *       Eligibility (upcoming + state/jadwal kanonik + UID) diperiksa oleh
+ *       SATU fungsi di dua titik: sebelum limit dan sesudah inferensi
+ *       (lookup baru), supaya laga batal tidak memakan jatah inferensi dan
+ *       perubahan state saat inferensi tetap tertangkap.
  *  3. Apakah fixture fisik ini sudah punya prediksi di horizon yang sama?
- *     → dedupe per UID kanonik K1 SEBELUM inferensi/limit; unique key
- *       `(eval_version, fixture_uid, horizon_id)` + conflict handler tertarget;
- *       set alias terverifikasi disimpan per baris untuk deteksi drift rerun.
+ *     → dedupe per UID kanonik K1 SEBELUM inferensi/limit; komponen alias
+ *       dihitung transitif (K1 + tautan fixture + bridge `sm_id_map`);
+ *       unique key `(eval_version, fixture_uid, horizon_id)` + conflict
+ *       handler tertarget; set alias terverifikasi disimpan per baris untuk
+ *       deteksi drift rerun.
  *
  * ISOLASI: DB masukan (thestats_dataset, upcoming_fixtures,
  * analysis_snapshots) dibuka `{ readOnly: true }` oleh pemanggil dan modul
@@ -35,12 +45,19 @@
  * FORMAT WAKTU: store produksi menyimpan `computed_utc` seragam sebagai
  * ISO 8601 UTC milidetik (`2026-11-26T09:47:57.248Z`, terverifikasi pada
  * SHA basis) dan `kickoff_utc` mayoritas format yang sama (ada varian
- * valid tanpa milidetik, 20 char). Perbandingan leksikal SQLite pada
- * selector hanya dipakai untuk `computed_utc`; semua perbandingan lain
- * (kickoff, validasi as-of) dilakukan atas instant hasil `Date.parse`
- * agar varian UTC yang valid tetap konsisten. Nilai waktu kosong/invalid
- * — termasuk kickoff tanggal-saja tanpa komponen jam — membuat edisi
- * dilewati (`invalid_time`).
+ * valid tanpa milidetik, 20 char). Jalur cepat selector memakai
+ * perbandingan leksikal SQLite untuk `computed_utc`, TETAPI setiap match
+ * kandidat diperiksa varian formatnya lebih dulu: bila ada edisi dengan
+ * format non-seragam (mis. offset numerik `+01:00`/`-01:00` yang urutan
+ * leksikalnya menyimpang dari urutan instant), seleksi match itu dihitung
+ * ulang per instant dengan parser berzona eksplisit (`Date.parse` atas
+ * ISO 8601 berzona: UTC ± milidetik atau offset numerik valid). Semua
+ * perbandingan lain (kickoff, validasi as-of, ranking pemenang) selalu
+ * atas instant. Field waktu pada baris keluaran (`decision_at_utc`,
+ * `issued_at_utc`, `kickoff_utc`, `package_computed_utc`) dinormalisasi
+ * ke UTC ISO milidetik; hash payload tetap dari byte mentah. Nilai waktu
+ * kosong/invalid — termasuk kickoff tanggal-saja tanpa komponen jam —
+ * membuat edisi dilewati (`invalid_time`).
  */
 import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
@@ -477,6 +494,14 @@ interface RawPkgRow {
   payload_json: string;
 }
 
+/** Edisi terpilih per alias SESUDAH seleksi as-of, SEBELUM validasi isi. */
+interface ParsedEdition {
+  raw: RawPkgRow;
+  computedMs: number | null;
+  kickoffMs: number | null;
+}
+
+/** Edisi PEMENANG grup yang lolos validasi kickoff + payload. */
 interface ValidEdition {
   raw: RawPkgRow;
   computedMs: number;
@@ -488,11 +513,50 @@ interface ValidEdition {
 
 const PKG_COLS = "id, match_id, competition_canonical_id, computed_utc, kickoff_utc, lambda, mu, ratings_marker, payload_json";
 
-/** Parse instant ISO; null bila kosong/invalid. */
+/**
+ * Format seragam jalur cepat: ISO 8601 UTC, dengan atau tanpa milidetik,
+ * diakhiri `Z`. Varian di luar pola ini (offset numerik, tanpa zona, dst.)
+ * memicu seleksi ulang per instant untuk match yang bersangkutan.
+ */
+const UNIFORM_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+
+/**
+ * Parser berzona eksplisit: hanya menerima ISO 8601 dengan penanda zona
+ * yang jelas — `Z` (UTC, ± milidetik) atau offset numerik valid
+ * (`+hh:mm`/`-hh:mm`, jam ≤ 14, menit ≤ 59). String tanpa zona DITOLAK
+ * (instant-nya ambigu), begitu pula nilai di luar rentang kalender.
+ */
+const ZONED_ISO_RE =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
+
 function parseInstant(v: string | null | undefined): number | null {
-  if (typeof v !== "string" || v.trim() === "") return null;
-  const ms = Date.parse(v);
-  return Number.isFinite(ms) ? ms : null;
+  if (typeof v !== "string") return null;
+  const m = ZONED_ISO_RE.exec(v.trim());
+  if (!m) return null;
+  const yN = Number(m[1]), moN = Number(m[2]), dN = Number(m[3]);
+  const hN = Number(m[4]), miN = Number(m[5]), sN = Number(m[6]);
+  const fracMs = m[7] ? Math.round(Number(`0${m[7]}`) * 1000) : 0;
+  const zone = m[8];
+  if (moN < 1 || moN > 12 || dN < 1 || dN > 31 || hN > 23 || miN > 59 || sN > 59) return null;
+  let offsetMs = 0;
+  if (zone !== "Z") {
+    const oh = Number(zone.slice(1, 3));
+    const om = Number(zone.slice(4, 6));
+    if (oh > 14 || om > 59 || (oh === 14 && om !== 0)) return null;
+    offsetMs = (oh * 60 + om) * 60_000 * (zone.startsWith("-") ? -1 : 1);
+  }
+  const ms = Date.UTC(yN, moN - 1, dN, hN, miN, sN, fracMs) - offsetMs;
+  // Verifikasi round-trip: komponen lokal (pada offset-nya) harus sama
+  // persis — menolak tanggal mustahil seperti 31 Februari yang akan
+  // digeser diam-diam oleh aritmetika kalender.
+  const back = new Date(ms + offsetMs);
+  if (
+    back.getUTCFullYear() !== yN || back.getUTCMonth() !== moN - 1 || back.getUTCDate() !== dN ||
+    back.getUTCHours() !== hN || back.getUTCMinutes() !== miN || back.getUTCSeconds() !== sN
+  ) {
+    return null;
+  }
+  return ms;
 }
 
 /** Kickoff wajib berpresisi jam (punya komponen 'T'); tanggal-saja = invalid. */
@@ -574,7 +638,19 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     };
     for (const [matchId, r] of [...selectedRaw.entries()]) {
       const ms = parseInstant(r.computed_utc);
-      if (ms === null || ms > decisionMs) {
+      // Deteksi varian format pada SEMUA edisi calon match ini (query
+      // terindeks per match_id — volume yang terbaca hanya histori match
+      // kandidat, bukan seluruh tabel): satu saja edisi non-seragam
+      // membuat urutan leksikal tidak bisa dipercaya untuk match ini,
+      // jadi seleksinya dihitung ulang per instant.
+      let hasVariant = !UNIFORM_UTC_RE.test(r.computed_utc);
+      if (!hasVariant) {
+        const allComputed = snapshots
+          .prepare("SELECT computed_utc FROM packages WHERE match_id = ? AND trigger = 'slate'")
+          .all(matchId) as unknown as { computed_utc: string }[];
+        hasVariant = allComputed.some((c) => !UNIFORM_UTC_RE.test(c.computed_utc));
+      }
+      if (hasVariant || ms === null || ms > decisionMs) {
         const fixed = refetchByInstant(matchId);
         if (fixed) selectedRaw.set(matchId, fixed);
         // fixed === null: baris primer dipertahankan; fase validasi yang
@@ -598,48 +674,25 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     }
   }
 
-  // --------------------------------------------------------- §3 VALIDASI --
-  const editions = new Map<string, ValidEdition>();
+  // ------------------------------------------- §3 PARSE (tanpa validasi isi)
+  // PEMENANG DULU, VALIDASI KEMUDIAN: di titik ini edisi terpilih per alias
+  // hanya di-parse waktunya. Payload TIDAK divalidasi per edisi — validasi
+  // isi hanya berlaku untuk pemenang grup (§4), sehingga edisi alias yang
+  // rusak tidak bisa "menyelamatkan" fixture lewat edisi yang lebih lama.
+  const parsed = new Map<string, ParsedEdition>();
   for (const [matchId, raw] of selectedRaw) {
-    const computedMs = parseInstant(raw.computed_utc);
-    const kickoffMs = parseKickoff(raw.kickoff_utc);
-    if (computedMs === null || kickoffMs === null) {
-      skip("invalid_time");
-      continue;
-    }
-    let payload: { fixture?: { home?: unknown; away?: unknown }; probabilities?: Record<string, unknown> };
-    try {
-      payload = JSON.parse(raw.payload_json) as typeof payload;
-    } catch {
-      skip("invalid_package");
-      continue;
-    }
-    const probs = payload.probabilities ?? {};
-    const champP = [probs["1x2:1"], probs["1x2:x"], probs["1x2:2"]] as unknown[];
-    const probsOk = champP.every(
-      (v) => typeof v === "number" && Number.isFinite(v) && v > 0 && v <= 1,
-    );
-    const lamOk = typeof raw.lambda === "number" && Number.isFinite(raw.lambda) && raw.lambda > 0;
-    const muOk = typeof raw.mu === "number" && Number.isFinite(raw.mu) && raw.mu > 0;
-    if (!probsOk || !lamOk || !muOk) {
-      skip("invalid_package");
-      continue;
-    }
-    editions.set(matchId, {
+    parsed.set(matchId, {
       raw,
-      computedMs,
-      kickoffMs,
-      champP: champP as [number, number, number],
-      homeName: typeof payload.fixture?.home === "string" ? payload.fixture.home : null,
-      awayName: typeof payload.fixture?.away === "string" ? payload.fixture.away : null,
+      computedMs: parseInstant(raw.computed_utc),
+      kickoffMs: parseKickoff(raw.kickoff_utc),
     });
   }
   for (const matchId of unparseableComputed) {
-    if (!editions.has(matchId) && !selectedRaw.has(matchId)) skip("invalid_time");
+    if (!parsed.has(matchId)) skip("invalid_time");
   }
 
   const candidatesBySource: Record<string, number> = {};
-  for (const matchId of editions.keys()) {
+  for (const matchId of parsed.keys()) {
     const src = sourceOfMatchId(matchId);
     candidatesBySource[src] = (candidatesBySource[src] ?? 0) + 1;
   }
@@ -701,21 +754,54 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
 
   interface Group {
     uid: string;
-    members: Map<string, ValidEdition>;
+    /** Id sumber yang punya edisi terpilih di komponen ini. */
+    editionIds: string[];
     aliasSet: Set<string>;
+  }
+  // Komponen alias TRANSITIF: BFS atas graf aliasSetOf — A–B lewat file
+  // tautan dan B–C lewat bridge tetap satu komponen, jadi dua UID berbeda
+  // di ujung mana pun berarti konflik untuk SELURUH komponen.
+  const components: Set<string>[] = [];
+  {
+    const assigned = new Set<string>();
+    for (const startId of parsed.keys()) {
+      if (assigned.has(startId)) continue;
+      const comp = new Set<string>();
+      const queue = [startId];
+      while (queue.length > 0) {
+        const cur = queue.pop() as string;
+        if (comp.has(cur)) continue;
+        comp.add(cur);
+        assigned.add(cur);
+        for (const a of aliasSetOf(cur)) if (!comp.has(a)) queue.push(a);
+      }
+      components.push(comp);
+    }
   }
   const groups = new Map<string, Group>();
   const normName = (s: string | null): string => (s ?? "").trim().toLowerCase();
-  for (const [matchId, ed] of editions) {
-    const aliases = aliasSetOf(matchId);
-    const uidSet = new Map<string, string[]>();
-    for (const a of aliases) {
-      const uid = uidOf(a);
-      if (uid) {
-        const arr = uidSet.get(uid) ?? [];
-        arr.push(a);
-        uidSet.set(uid, arr);
+  /** Nama laga dari payload — parse lunak khusus cek orientasi (bukan validasi isi). */
+  const payloadNames = (raw: RawPkgRow): { home: string | null; away: string | null } => {
+    try {
+      const p = JSON.parse(raw.payload_json) as { fixture?: { home?: unknown; away?: unknown } } | null;
+      if (p !== null && typeof p === "object" && !Array.isArray(p)) {
+        return {
+          home: typeof p.fixture?.home === "string" ? p.fixture.home : null,
+          away: typeof p.fixture?.away === "string" ? p.fixture.away : null,
+        };
       }
+    } catch {
+      // Payload rusak tidak menyumbang bukti orientasi; pemenang divalidasi ketat nanti.
+    }
+    return { home: null, away: null };
+  };
+  for (const comp of components) {
+    const editionIds = [...comp].filter((id) => parsed.has(id));
+    if (editionIds.length === 0) continue;
+    const uidSet = new Set<string>();
+    for (const id of comp) {
+      const uid = uidOf(id);
+      if (uid) uidSet.add(uid);
     }
     if (uidSet.size === 0) {
       skip("identity_unresolved");
@@ -725,27 +811,21 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       skip("identity_conflict");
       continue;
     }
-    const uid = [...uidSet.keys()][0];
-    let g = groups.get(uid);
-    if (!g) {
-      g = { uid, members: new Map(), aliasSet: new Set() };
-      groups.set(uid, g);
-    }
-    g.members.set(matchId, ed);
-    for (const a of aliases) g.aliasSet.add(a);
-  }
-  // Alias terdaftar untuk UID ikut set grup (dasar deteksi drift rerun).
-  for (const g of groups.values()) {
+    const uid = [...uidSet][0];
+    const aliasSet = new Set<string>(comp);
+    // Alias terdaftar untuk UID ikut set grup (dasar deteksi drift rerun).
     if (identityReady) {
-      for (const a of getAliasesForUid(dataset, g.uid)) g.aliasSet.add(a.source_match_id);
+      for (const a of getAliasesForUid(dataset, uid)) aliasSet.add(a.source_match_id);
     }
+    groups.set(uid, { uid, editionIds, aliasSet });
   }
   // Konflik orientasi: nama kandang/tandang antar-edisi grup tertukar, atau
   // tertukar terhadap fixture kanonik UID → bukti identitas bertentangan.
   for (const g of [...groups.values()]) {
-    const pairs = [...g.members.values()]
-      .filter((e) => e.homeName && e.awayName)
-      .map((e) => `${normName(e.homeName)}|${normName(e.awayName)}`);
+    const pairs = g.editionIds
+      .map((id) => payloadNames((parsed.get(id) as ParsedEdition).raw))
+      .filter((n) => n.home && n.away)
+      .map((n) => `${normName(n.home)}|${normName(n.away)}`);
     let conflict = false;
     for (let i = 0; i < pairs.length && !conflict; i++) {
       const [h, a] = pairs[i].split("|");
@@ -759,8 +839,9 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       if (cf?.home_name && cf?.away_name) {
         const ch = normName(cf.home_name);
         const ca = normName(cf.away_name);
-        for (const e of g.members.values()) {
-          if (e.homeName && e.awayName && normName(e.homeName) === ca && normName(e.awayName) === ch && ch !== ca) {
+        for (const id of g.editionIds) {
+          const n = payloadNames((parsed.get(id) as ParsedEdition).raw);
+          if (n.home && n.away && normName(n.home) === ca && normName(n.away) === ch && ch !== ca) {
             conflict = true;
           }
         }
@@ -773,33 +854,193 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
   }
   const uniqueFixtures = groups.size;
 
-  // Pemenang grup: computed DESC, id DESC, match_id ASC (urutan brief §4.3).
+  // Pemenang grup: instant komputasi DESC, id paket DESC, match_id ASC
+  // (urutan brief §4.3). HANYA pemenang yang divalidasi isinya: pemenang
+  // rusak/waktunya invalid/kickoff-nya lewat mengeluarkan SELURUH fixture.
   interface Prepared {
-    group: Group;
+    uid: string;
+    aliasSet: Set<string>;
     winner: ValidEdition;
     winnerId: string;
     method: string;
   }
   const prepared: Prepared[] = [];
   for (const g of groups.values()) {
-    const members = [...g.members.entries()].sort((x, y) => {
-      if (y[1].computedMs !== x[1].computedMs) return y[1].computedMs - x[1].computedMs;
-      if (y[1].raw.id !== x[1].raw.id) return y[1].raw.id - x[1].raw.id;
-      return x[0].localeCompare(y[0]);
-    });
-    const [winnerId, winner] = members[0];
+    const ranked = g.editionIds
+      .map((id) => ({ id, ed: parsed.get(id) as ParsedEdition }))
+      .sort((x, y) => {
+        const cx = x.ed.computedMs ?? Number.NEGATIVE_INFINITY;
+        const cy = y.ed.computedMs ?? Number.NEGATIVE_INFINITY;
+        if (cy !== cx) return cy - cx;
+        if (y.ed.raw.id !== x.ed.raw.id) return y.ed.raw.id - x.ed.raw.id;
+        return x.id.localeCompare(y.id);
+      });
+    const { id: winnerId, ed: winParsed } = ranked[0];
+    if (winParsed.computedMs === null || winParsed.kickoffMs === null) {
+      skip("invalid_time");
+      continue;
+    }
     // Cek kickoff edisi PEMENANG sebelum limit: jadwal lama yang masih
     // future tidak menghidupkan fixture yang edisi terbarunya sudah lewat.
-    if (winner.kickoffMs <= decisionMs) {
+    if (winParsed.kickoffMs <= decisionMs) {
       skip("kickoff_not_future");
       continue;
     }
+    // Validasi payload pemenang. Bedakan dua kegagalan: store tidak bisa
+    // dibuka (error infrastruktur — dilempar pemanggil di fase snapshot)
+    // vs ISI payload rusak (di sini): JSON tidak parseable, atau parseable
+    // tetapi bukan objek (null/array/primitive), atau field wajib tidak
+    // valid → invalid_package.
+    let payload: { fixture?: { home?: unknown; away?: unknown }; probabilities?: Record<string, unknown> } | null =
+      null;
+    let payloadOk = true;
+    try {
+      const p = JSON.parse(winParsed.raw.payload_json) as unknown;
+      if (p !== null && typeof p === "object" && !Array.isArray(p)) {
+        payload = p as { fixture?: { home?: unknown; away?: unknown }; probabilities?: Record<string, unknown> };
+      } else {
+        payloadOk = false;
+      }
+    } catch {
+      payloadOk = false;
+    }
+    if (payloadOk && payload !== null) {
+      const probs = payload.probabilities ?? {};
+      const champP = [probs["1x2:1"], probs["1x2:x"], probs["1x2:2"]] as unknown[];
+      const probsOk = champP.every(
+        (v) => typeof v === "number" && Number.isFinite(v) && v > 0 && v <= 1,
+      );
+      const lamOk = typeof winParsed.raw.lambda === "number" && Number.isFinite(winParsed.raw.lambda) && winParsed.raw.lambda > 0;
+      const muOk = typeof winParsed.raw.mu === "number" && Number.isFinite(winParsed.raw.mu) && winParsed.raw.mu > 0;
+      if (!probsOk || !lamOk || !muOk) payloadOk = false;
+    }
+    if (!payloadOk || payload === null) {
+      skip("invalid_package");
+      continue;
+    }
+    const winner: ValidEdition = {
+      raw: winParsed.raw,
+      computedMs: winParsed.computedMs,
+      kickoffMs: winParsed.kickoffMs,
+      champP: [
+        (payload.probabilities as Record<string, number>)["1x2:1"],
+        (payload.probabilities as Record<string, number>)["1x2:x"],
+        (payload.probabilities as Record<string, number>)["1x2:2"],
+      ],
+      homeName: typeof payload.fixture?.home === "string" ? payload.fixture.home : null,
+      awayName: typeof payload.fixture?.away === "string" ? payload.fixture.away : null,
+    };
     // Metode identitas untuk id sumber pemenang.
     let method = "identity_sibling";
     if (uidOf(winnerId) === g.uid) method = "fixture_aliases";
     else if (linkSiblingsOf(linkGroups, winnerId).some((id) => id !== winnerId && uidOf(id) === g.uid)) method = "fixture_links";
     else if (bridgeIds(winnerId).some((id) => uidOf(id) === g.uid)) method = "sm_id_map";
-    prepared.push({ group: g, winner, winnerId, method });
+    prepared.push({ uid: g.uid, aliasSet: g.aliasSet, winner, winnerId, method });
+  }
+
+  // ------------------------------------------- ELIGIBILITY (satu fungsi) --
+  // Dipakai di DUA titik dengan lookup yang sesuai fasenya:
+  //  (1) sebelum limit — cache fase awal, tanpa pembacaan identitas segar;
+  //  (2) sesudah inferensi — semua lookup BARU (tautan/bridge dibaca ulang,
+  //      UID tanpa cache, ID tim dibekukan dari yang dipakai inferensi).
+  // Mengembalikan kategori skip, atau null bila fixture layak.
+  const uidOfFresh = (matchId: string): string | null => {
+    if (!identityTablesExist(dataset)) return null;
+    return getUidForMatchId(dataset, matchId);
+  };
+  const aliasSetFresh = (matchId: string, groupsNow: FixtureLinkGroup[]): string[] => {
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    const push = (id: string | null | undefined) => {
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        ordered.push(id);
+      }
+    };
+    push(matchId);
+    if (identityReady) for (const id of getSiblingIds(dataset, matchId)) push(id);
+    for (const id of linkSiblingsOf(groupsNow, matchId)) push(id);
+    for (const id of bridgeIds(matchId)) push(id);
+    return ordered;
+  };
+  const checkEligibility = (args: {
+    winnerId: string;
+    uid: string;
+    kickoffMs: number;
+    aliasSet: Set<string>;
+    frozenTeam: { homeId: string; awayId: string } | null;
+    freshIdentity: boolean;
+  }): string | null => {
+    // Upcoming pemenang: hilang / di luar scheduled → tidak layak.
+    const up = upcoming
+      .prepare("SELECT utc_date, status, home_team_id, away_team_id FROM upcoming_fixtures WHERE match_id = ?")
+      .get(args.winnerId) as
+      | { utc_date: string | null; status: string | null; home_team_id: unknown; away_team_id: unknown }
+      | undefined;
+    if (!up) return "fixture_state_ineligible";
+    const statusRaw = typeof up.status === "string" ? up.status.trim() : "";
+    if (statusRaw !== "scheduled") return "fixture_state_ineligible";
+    const upKickoffMs = parseKickoff(up.utc_date);
+    if (upKickoffMs === null || upKickoffMs !== args.kickoffMs) return "schedule_conflict";
+    // ID tim yang dibekukan untuk inferensi tidak boleh berubah.
+    if (args.frozenTeam) {
+      if (String(up.home_team_id) !== args.frozenTeam.homeId || String(up.away_team_id) !== args.frozenTeam.awayId) {
+        return "identity_changed";
+      }
+    }
+    // Bukti kanonik: fixture hilang / state bukan scheduled → tidak layak
+    // WALAU upcoming sumber masih terjadwal. Kickoff kanonik presisi
+    // `exact` wajib sama instant-nya dengan paket; jalur `date_only`
+    // bergantung pada upcoming berwaktu tepat (sudah dicek di atas) selama
+    // tanggalnya tidak berkonflik.
+    if (identityReady) {
+      const cf = getFixtureByUid(dataset, args.uid);
+      if (!cf) return "fixture_state_ineligible";
+      if (cf.state !== "scheduled") return "fixture_state_ineligible";
+      if (cf.kickoff_precision === "date_only") {
+        const cfDate = typeof cf.kickoff_utc === "string" ? cf.kickoff_utc.slice(0, 10) : "";
+        if (cfDate === "" || cfDate !== new Date(args.kickoffMs).toISOString().slice(0, 10)) {
+          return "schedule_conflict";
+        }
+      } else {
+        const cfMs = parseInstant(cf.kickoff_utc);
+        if (cfMs === null || cfMs !== args.kickoffMs) return "schedule_conflict";
+      }
+    }
+    // Identitas segar (hanya titik pasca-inferensi): komponen alias dari
+    // data link/bridge/K1 terbaru ∪ set alias grup awal harus tetap
+    // menunjuk tepat UID yang sama.
+    if (args.freshIdentity) {
+      const groupsNow = loadFixtureLinkGroups(deps.dataDirPath);
+      const ids = new Set<string>(args.aliasSet);
+      for (const id of aliasSetFresh(args.winnerId, groupsNow)) ids.add(id);
+      const uids = new Set<string>();
+      for (const id of ids) {
+        const u = uidOfFresh(id);
+        if (u) uids.add(u);
+      }
+      if (uids.size !== 1 || !uids.has(args.uid)) return "identity_changed";
+    }
+    return null;
+  };
+
+  // Eligibility SEBELUM limit: laga yang sudah batal (upcoming/kanonik)
+  // atau jadwalnya berkonflik tidak memakan jatah inferensi.
+  const eligible: Prepared[] = [];
+  for (const p of prepared) {
+    const reason = checkEligibility({
+      winnerId: p.winnerId,
+      uid: p.uid,
+      kickoffMs: p.winner.kickoffMs,
+      aliasSet: p.aliasSet,
+      frozenTeam: null,
+      freshIdentity: false,
+    });
+    if (reason) {
+      skip(reason);
+      continue;
+    }
+    eligible.push(p);
   }
 
   // ------------------------------------------- §4.4 ROW TERSIMPAN + DRIFT --
@@ -824,15 +1065,15 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       for (const a of aliases) aliasOwner.set(a, r.fixture_uid);
     }
     const processable: Prepared[] = [];
-    for (const p of prepared) {
-      if (storedByUid.has(p.group.uid)) {
+    for (const p of eligible) {
+      if (storedByUid.has(p.uid)) {
         skip("already_stored");
         continue;
       }
       let drift = false;
-      for (const a of p.group.aliasSet) {
+      for (const a of p.aliasSet) {
         const owner = aliasOwner.get(a);
-        if (owner && owner !== p.group.uid) drift = true;
+        if (owner && owner !== p.uid) drift = true;
       }
       if (drift) {
         skip("identity_changed_since_issue");
@@ -843,7 +1084,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     // Urutan proses stabil: kickoff, lalu UID. Limit = fixture fisik.
     processable.sort((x, y) => {
       if (x.winner.kickoffMs !== y.winner.kickoffMs) return x.winner.kickoffMs - y.winner.kickoffMs;
-      return x.group.uid.localeCompare(y.group.uid);
+      return x.uid.localeCompare(y.uid);
     });
     const limited = limit > 0 ? processable.slice(0, limit) : processable;
 
@@ -856,6 +1097,9 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       awayKey: string;
       homeName: string;
       awayName: string;
+      /** ID tim sumber persis seperti yang dipakai inferensi (dibekukan). */
+      frozenHomeTeamId: string;
+      frozenAwayTeamId: string;
       slice: string;
       registryStatus: string | null;
     }
@@ -869,7 +1113,9 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
         | { match_id: string; home_team_id: string; away_team_id: string; home_team_name: string; away_team_name: string }
         | undefined;
       if (!up) {
-        skip("no_upcoming_row");
+        // Eligibility baru saja membuktikan baris ini ada — hilang di
+        // antaranya berarti state berubah; kategori yang sama dipakai.
+        skip("fixture_state_ineligible");
         continue;
       }
       const homeKey = resolveTeamKey(String(up.home_team_id), up.home_team_name);
@@ -877,7 +1123,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       const row: EvalMatchRow = {
         match_id: p.winnerId,
         competition_id: p.winner.raw.competition_canonical_id ?? "",
-        utc_date: p.winner.raw.kickoff_utc ?? "",
+        utc_date: new Date(p.winner.kickoffMs).toISOString(),
         home_team_id: homeKey,
         away_team_id: awayKey,
         home_score: 0,
@@ -891,6 +1137,8 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
         awayKey,
         homeName: up.home_team_name,
         awayName: up.away_team_name,
+        frozenHomeTeamId: String(up.home_team_id),
+        frozenAwayTeamId: String(up.away_team_id),
         slice: registryStatus === "calibrated" || registryStatus === "partial" ? "kompetitif" : "friendlies",
         registryStatus,
       });
@@ -915,22 +1163,21 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     }
 
     // ------------------------------------------- §5 REVALIDASI + TULIS ----
+    // Jam aktual pada tahap penerbitan:
+    //  - SESUDAH lock tulis diperoleh, clock dibaca PER BARIS tepat saat
+    //    baris itu akan dicatat (issued_at_utc baris tersebut). Jam yang
+    //    tidak finite atau mundur melewati decision → rollback batch.
+    //  - SESUDAH semua staging insert dan SEBELUM commit, clock dibaca
+    //    LAGI; baris staging yang kickoff-nya sudah lewat/sama dengan
+    //    waktu cek akhir dibuang dari transaksi yang sama
+    //    (`kickoff_passed`), baris lain tetap commit. Jam akhir invalid
+    //    atau mundur dari issuance mana pun → rollback batch.
+    //  `predicted_new` menghitung baris yang benar-benar commit.
     let issued_at_utc: string | null = null;
     let predictedNew = 0;
     if (execResult !== null && attempts.length > 0) {
       out.exec("BEGIN IMMEDIATE");
       try {
-        // issued_at diambil SESUDAH lock tulis diperoleh — waktu antre
-        // lock tidak disamarkan timestamp yang lebih lama.
-        const issuedDate = deps.clock();
-        const issuedMs = issuedDate.getTime();
-        if (!Number.isFinite(issuedMs) || issuedMs < decisionMs) {
-          out.exec("ROLLBACK");
-          skip("clock_invalid", attempts.length);
-          return finishSummary();
-        }
-        issued_at_utc = issuedDate.toISOString();
-
         // Keadaan tersimpan dibaca ulang DI BAWAH lock tulis (drift race).
         const freshStored = out
           .prepare(
@@ -950,6 +1197,10 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
           for (const a of aliases) freshOwner.set(a, r.fixture_uid);
         }
 
+        const staged: { uid: string; kickoffMs: number }[] = [];
+        let maxIssuedMs = Number.NEGATIVE_INFINITY;
+        let batchRolledBack = false;
+
         for (const a of attempts) {
           const res = execResult.results.get(a.winnerId);
           if (!res) continue; // sudah divalidasi ada — pertahanan terakhir.
@@ -957,53 +1208,50 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
             skip("clock_invalid");
             continue;
           }
-          if (freshByUid.has(a.group.uid)) {
+          if (freshByUid.has(a.uid)) {
             skip("already_stored");
             continue;
           }
           let drift = false;
-          for (const al of a.group.aliasSet) {
+          for (const al of a.aliasSet) {
             const owner = freshOwner.get(al);
-            if (owner && owner !== a.group.uid) drift = true;
+            if (owner && owner !== a.uid) drift = true;
           }
           if (drift) {
             skip("identity_changed_since_issue");
             continue;
           }
-          // Identitas dibaca ulang segar: UID grup tidak boleh berubah.
-          const freshUids = new Set<string>();
-          for (const al of new Set<string>([...a.group.aliasSet, ...aliasSetOf(a.winnerId)])) {
-            const u = uidOfFresh(al);
-            if (u) freshUids.add(u);
-          }
-          if (freshUids.size !== 1 || !freshUids.has(a.group.uid)) {
-            skip("identity_changed");
+          // Eligibility titik kedua — semua lookup BARU: upcoming, state
+          // dan jadwal kanonik, komponen alias segar, ID tim beku.
+          const reason = checkEligibility({
+            winnerId: a.winnerId,
+            uid: a.uid,
+            kickoffMs: a.winner.kickoffMs,
+            aliasSet: a.aliasSet,
+            frozenTeam: { homeId: a.frozenHomeTeamId, awayId: a.frozenAwayTeamId },
+            freshIdentity: true,
+          });
+          if (reason) {
+            skip(reason);
             continue;
           }
-          // Jadwal sumber dibaca ulang segar dari upcoming_fixtures.
-          const upFresh = upcoming
-            .prepare("SELECT utc_date, status FROM upcoming_fixtures WHERE match_id = ?")
-            .get(a.winnerId) as { utc_date: string | null; status: string | null } | undefined;
-          if (!upFresh) {
-            skip("fixture_state_ineligible");
-            continue;
+          // Jam penerbitan baris ini, dibaca sekarang (sesudah lock).
+          const issuedDate = deps.clock();
+          const issuedMs = issuedDate.getTime();
+          if (!Number.isFinite(issuedMs) || issuedMs < decisionMs) {
+            out.exec("ROLLBACK");
+            skip("clock_invalid", attempts.length);
+            predictedNew = 0;
+            batchRolledBack = true;
+            break;
           }
-          const statusRaw = typeof upFresh.status === "string" ? upFresh.status.trim() : "";
-          if (statusRaw !== "scheduled") {
-            skip("fixture_state_ineligible");
-            continue;
-          }
-          const upKickoffMs = parseKickoff(upFresh.utc_date);
-          if (upKickoffMs === null || upKickoffMs !== a.winner.kickoffMs) {
-            skip("schedule_conflict");
-            continue;
-          }
-          // Syarat pre-match terakhir, tepat sebelum commit per baris:
-          // package_computed <= decision <= issued < kickoff.
+          // Syarat pre-match per baris: decision <= issued < kickoff.
           if (issuedMs >= a.winner.kickoffMs) {
             skip("kickoff_passed");
             continue;
           }
+          issued_at_utc = issuedDate.toISOString();
+          if (issuedMs > maxIssuedMs) maxIssuedMs = issuedMs;
           const mp = matrixProbs(res.lam, res.mu, 0);
           const marker = a.winner.raw.ratings_marker;
           const inserted = insertPitARow(out, {
@@ -1011,17 +1259,18 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
             horizon_id: PIT_A_HORIZON_ID,
             feature_time_status: PIT_A_FEATURE_TIME_STATUS,
             status: PIT_A_DATA_STATUS,
-            fixture_uid: a.group.uid,
+            fixture_uid: a.uid,
             source_match_id: a.winnerId,
             identity_method: a.method,
-            aliases_json: JSON.stringify([...a.group.aliasSet].sort()),
+            aliases_json: JSON.stringify([...a.aliasSet].sort()),
             competition_id: a.winner.raw.competition_canonical_id,
             decision_at_utc,
             issued_at_utc,
-            kickoff_utc: a.winner.raw.kickoff_utc as string,
+            // Field waktu bukti dinormalisasi ke UTC ISO milidetik.
+            kickoff_utc: new Date(a.winner.kickoffMs).toISOString(),
             lead_seconds: Math.round((a.winner.kickoffMs - decisionMs) / 1000),
             package_id: a.winner.raw.id,
-            package_computed_utc: a.winner.raw.computed_utc,
+            package_computed_utc: new Date(a.winner.computedMs).toISOString(),
             package_payload_sha256: sha256Utf8(a.winner.raw.payload_json),
             champion_ratings_marker: marker,
             champion_provenance_status: marker !== null && marker !== "" ? "package_marker" : "unknown",
@@ -1047,13 +1296,44 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
           });
           if (inserted) {
             predictedNew++;
-            freshByUid.set(a.group.uid, new Set(a.group.aliasSet));
-            for (const al of a.group.aliasSet) freshOwner.set(al, a.group.uid);
+            staged.push({ uid: a.uid, kickoffMs: a.winner.kickoffMs });
+            freshByUid.set(a.uid, new Set(a.aliasSet));
+            for (const al of a.aliasSet) freshOwner.set(al, a.uid);
           } else {
             skip("already_stored");
           }
         }
-        out.exec("COMMIT");
+
+        if (!batchRolledBack) {
+          // CEK CLOCK AKHIR: baca clock sekali lagi sebelum commit.
+          const finalDate = deps.clock();
+          const finalMs = finalDate.getTime();
+          if (
+            !Number.isFinite(finalMs) ||
+            finalMs < decisionMs ||
+            (staged.length > 0 && finalMs < maxIssuedMs)
+          ) {
+            out.exec("ROLLBACK");
+            skip("clock_invalid", attempts.length);
+            predictedNew = 0;
+            batchRolledBack = true;
+          } else {
+            // Buang baris staging yang kickoff-nya sudah lewat/sama pada
+            // waktu cek akhir; baris lain tetap commit dalam transaksi ini.
+            for (const st of staged) {
+              if (st.kickoffMs <= finalMs) {
+                out
+                  .prepare(
+                    "DELETE FROM predictions WHERE eval_version = ? AND fixture_uid = ? AND horizon_id = ?",
+                  )
+                  .run(PIT_A_EVAL_VERSION, st.uid, PIT_A_HORIZON_ID);
+                predictedNew--;
+                skip("kickoff_passed");
+              }
+            }
+            out.exec("COMMIT");
+          }
+        }
       } catch (err) {
         try {
           out.exec("ROLLBACK");
@@ -1083,11 +1363,6 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       };
     }
 
-    // UID segar tanpa cache run (untuk revalidasi pasca-inferensi).
-    function uidOfFresh(matchId: string): string | null {
-      if (!identityTablesExist(dataset)) return null;
-      return getUidForMatchId(dataset, matchId);
-    }
   } finally {
     out.close();
   }
