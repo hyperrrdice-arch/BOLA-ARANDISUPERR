@@ -90,9 +90,13 @@ suite.check("healthz: kontrak status 200 tertulis",
   /status:\s*200/.test(healthz));
 
 /* --------------------------------------- penjaga pemasangan timing */
+/* Beranda keluar dari daftar ini: sejak brief Beranda/Analisa/Jadwal
+   ia adalah hero statis TANPA pembaca data — tidak ada latensi baca
+   yang perlu dicatat, dan penjaga di bawah memastikan ia tetap begitu.
+   Daftar Analisa/Jadwal kini dirender komponen bersama DaftarLaga,
+   jadi pemasangan timing dinilai di berkas itu (satu pemasangan untuk
+   dua templat rute). */
 for (const [rel, templat] of [
-  ["app/page.tsx", '"/"'],
-  ["app/(terminal)/pertandingan/page.tsx", '"/pertandingan"'],
   ["app/(terminal)/pertandingan/[matchId]/page.tsx", '"/pertandingan/[matchId]"'],
 ] as const) {
   const isi = baca(rel);
@@ -102,6 +106,29 @@ for (const [rel, templat] of [
     isi.includes(`selesaikanTimerRute(${templat}, t0Timer)`));
   suite.check(`${rel}: memulai timer sesudah connection()`,
     isi.indexOf("mulaiTimerRute()") > isi.indexOf("await connection()"));
+}
+
+{
+  const rel = "components/jadwal/DaftarLaga.tsx";
+  const isi = baca(rel);
+  suite.check(`${rel}: mengimpor helper timing`, isi.includes("lib/web/timing"));
+  suite.check(
+    `${rel}: memetakan mode ke templat "/analisa" | "/pertandingan"`,
+    isi.includes('mode === "analisa" ? "/analisa" : "/pertandingan"') &&
+      isi.includes("selesaikanTimerRute(tujuan, t0Timer)"),
+  );
+  suite.check(
+    `${rel}: memulai timer sesudah connection()`,
+    isi.indexOf("mulaiTimerRute()") > isi.indexOf("await connection()"),
+  );
+}
+
+{
+  const isi = baca("app/page.tsx");
+  suite.check(
+    "app/page.tsx: Beranda hero tidak mengimpor lapisan data/timing",
+    !/lib\/web\/(data|rekam|timing)/.test(isi),
+  );
 }
 
 const timingTs = baca("lib/web/timing.ts");

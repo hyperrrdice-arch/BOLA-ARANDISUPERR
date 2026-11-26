@@ -57,7 +57,7 @@ import {
 } from "@/lib/web/sumber-peluang";
 import { mulaiTimerRute, selesaikanTimerRute } from "@/lib/web/timing";
 import { adaptasiMatriks } from "@/lib/web/peta-skor";
-import { parseFilterJadwal, queryJadwal } from "@/lib/web/jadwal";
+import { tujuanKembaliDariDetail } from "@/lib/web/jadwal";
 import {
   EmptyState,
   FormChips,
@@ -226,12 +226,19 @@ export default async function AnalisisPage({
   return <AnalisisContent params={params} searchParams={searchParams} />;
 }
 
-function hrefKembali(sp: Record<string, string | string[] | undefined>): string {
+/**
+ * Konteks kembali daftar: `asal` memilih tab asal dari allowlist
+ * (analisa|jadwal — selain itu Jadwal), `kembali` adalah filter
+ * terserialisasi yang disanitasi ulang sebelum menjadi URL tujuan.
+ * Deep link lama tanpa `asal` jatuh ke Jadwal seperti sebelumnya.
+ */
+function konteksKembali(sp: Record<string, string | string[] | undefined>): {
+  href: string;
+  label: string;
+} {
+  const asal = Array.isArray(sp.asal) ? sp.asal[0] : sp.asal;
   const mentah = Array.isArray(sp.kembali) ? sp.kembali[0] : sp.kembali;
-  if (!mentah) return "/pertandingan";
-  const sebagaiParams: Record<string, string | string[] | undefined> = {};
-  for (const [k, v] of new URLSearchParams(mentah).entries()) sebagaiParams[k] = v;
-  return `/pertandingan?${queryJadwal(parseFilterJadwal(sebagaiParams))}`;
+  return tujuanKembaliDariDetail(asal ?? null, mentah ?? null);
 }
 
 async function AnalisisContent({
@@ -244,7 +251,7 @@ async function AnalisisContent({
   const { matchId } = await params;
   const sp = await searchParams;
   const tz = zonaValid(Array.isArray(sp.tz) ? sp.tz[0] : sp.tz);
-  const kembali = hrefKembali(sp);
+  const kembali = konteksKembali(sp);
   await connection();
   const t0Timer = mulaiTimerRute();
   const detail = getMatchDetail(matchId);
@@ -254,8 +261,8 @@ async function AnalisisContent({
     selesaikanTimerRute("/pertandingan/[matchId]", t0Timer);
     return (
       <div>
-        <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">
-          ← Kembali ke jadwal
+        <Link href={kembali.href} className="text-sm text-mid-gray transition-colors hover:text-ink">
+          ← {kembali.label}
         </Link>
         <header className="mt-8">
           <p className="text-sm text-mid-gray">
@@ -276,8 +283,8 @@ async function AnalisisContent({
           />
         </div>
         <p className="mt-6">
-          <Link href={kembali} className="text-[15px] font-medium text-ink hover:text-accent">
-            Kembali ke jadwal <span className="text-accent">→</span>
+          <Link href={kembali.href} className="text-[15px] font-medium text-ink hover:text-accent">
+            {kembali.label} <span className="text-accent">→</span>
           </Link>
         </p>
       </div>
@@ -378,8 +385,8 @@ async function AnalisisContent({
   selesaikanTimerRute("/pertandingan/[matchId]", t0Timer);
   return (
     <div>
-      <Link href={kembali} className="text-sm text-mid-gray transition-colors hover:text-ink">
-        ← Kembali ke jadwal
+      <Link href={kembali.href} className="text-sm text-mid-gray transition-colors hover:text-ink">
+        ← {kembali.label}
       </Link>
 
       {/* ---------------------------------------------------------- header */}

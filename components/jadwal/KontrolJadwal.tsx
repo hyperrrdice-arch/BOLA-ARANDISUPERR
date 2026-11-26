@@ -24,7 +24,15 @@ const kelasKontrol =
   "min-h-11 rounded-md border border-hairline-strong bg-paper px-3 py-2 text-[15px] text-ink";
 const kelasLabel = "flex flex-col gap-1.5 text-[13px] text-mid-gray";
 
-function RingkasanFilter({ filter, tanggalHariIni }: { filter: FilterJadwal; tanggalHariIni: string }) {
+function RingkasanFilter({
+  filter,
+  tanggalHariIni,
+  tujuan,
+}: {
+  filter: FilterJadwal;
+  tanggalHariIni: string;
+  tujuan: "/analisa" | "/pertandingan";
+}) {
   const aktif: string[] = [];
   if (filter.q) aktif.push(`Pencarian “${filter.q}”`);
   if (filter.mode === "sekarang") aktif.push("Pintasan: Sekarang");
@@ -44,7 +52,7 @@ function RingkasanFilter({ filter, tanggalHariIni }: { filter: FilterJadwal; tan
       <span>
         Filter aktif: <span className="text-ink">{aktif.join(" · ")}</span>
       </span>
-      <Link href="/pertandingan" className="font-medium text-accent-deep underline underline-offset-4">
+      <Link href={tujuan} className="font-medium text-accent-deep underline underline-offset-4">
         Hapus filter
       </Link>
     </p>
@@ -56,11 +64,14 @@ export default function KontrolJadwal({
   ligaTersedia,
   negaraTersedia,
   tanggalHariIni,
+  tujuan,
 }: {
   filter: FilterJadwal;
   ligaTersedia: string[];
   negaraTersedia: string[];
   tanggalHariIni: string;
+  /** Rute daftar asal kontrol ini — semua navigasi kontrol menetap di tab asal. */
+  tujuan: "/analisa" | "/pertandingan";
 }) {
   const [panelTerbuka, setPanelTerbuka] = useState(false);
   const tombolFilterRef = useRef<HTMLButtonElement>(null);
@@ -86,12 +97,12 @@ export default function KontrolJadwal({
   };
 
   const hrefPintasan = (mode: ModeJadwal) =>
-    `/pertandingan?${queryJadwal({ ...filter, mode })}`;
+    `${tujuan}?${queryJadwal({ ...filter, mode })}`;
 
   return (
     <div className="mt-8">
       {/* ------------------------------------------------ pencarian */}
-      <form method="get" action="/pertandingan" role="search" className="flex gap-2">
+      <form method="get" action={tujuan} role="search" className="flex gap-2">
         <label className="min-w-0 flex-1">
           <span className="sr-only">Cari tim atau liga</span>
           <input
@@ -151,7 +162,7 @@ export default function KontrolJadwal({
         </button>
       </div>
 
-      <RingkasanFilter filter={filter} tanggalHariIni={tanggalHariIni} />
+      <RingkasanFilter filter={filter} tanggalHariIni={tanggalHariIni} tujuan={tujuan} />
 
       {/* ------------------------------------------------------ panel */}
       {panelTerbuka && (
@@ -179,7 +190,7 @@ export default function KontrolJadwal({
                 Tutup
               </button>
             </div>
-            <form method="get" action="/pertandingan" className="mt-4 flex flex-col gap-4">
+            <form method="get" action={tujuan} className="mt-4 flex flex-col gap-4">
               <label className={kelasLabel}>
                 Tanggal
                 <input
@@ -242,7 +253,7 @@ export default function KontrolJadwal({
                   Terapkan
                 </button>
                 <Link
-                  href="/pertandingan"
+                  href={tujuan}
                   className="flex min-h-11 items-center px-3 text-[15px] font-medium text-accent-deep"
                 >
                   Atur ulang

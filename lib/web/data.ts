@@ -1960,6 +1960,9 @@ export interface JadwalItem {
   status: StatusTampil;
   home_goals: number | null;
   away_goals: number | null;
+  /** Menit berjalan laga live — pass-through dari keadaanBatch (sumber
+      menyatakannya di string status); null bila sumber tak memberi. */
+  menit: number | null;
   /** Untuk laga ditunda: jadwal asal (tanggal baris katalognya sendiri). */
   jadwal_asal_utc: string | null;
   /** Untuk laga ditunda: kickoff jadwal ulang bila baris sibling terjadwal ada. */
@@ -2177,6 +2180,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       status,
       home_goals: keadaan?.home_goals ?? null,
       away_goals: keadaan?.away_goals ?? null,
+      menit: keadaan?.menit ?? null,
       jadwal_asal_utc: status === "postponed" ? m.kickoff_utc : null,
       jadwal_ulang_utc: status === "postponed" ? jadwalUlangBatch(ctx, m.match_id, m.kickoff_utc) : null,
       package_id: pkg?.id ?? null,

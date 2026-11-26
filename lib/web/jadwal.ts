@@ -336,6 +336,139 @@ export function kelompokPerKompetisi<T extends PunyaGrup>(items: T[]): GrupKompe
   return [...map.values()];
 }
 
+/* ------------------------------------- urutan grup liga (brief §5) */
+
+/**
+ * Prioritas grup liga pada daftar Analisa/Jadwal — HANYA urutan tampil
+ * grup, bukan ranking model: delapan kompetisi teratas menurut ID
+ * kanonik (kunci ID/alias registry, bukan teks label — Serie A Italia
+ * sm:384 tidak tertukar dengan Serie A Brasil sm:648). Liga lain
+ * menyusul menurut negara, nama liga, lalu kunci grup. Grup hanya
+ * terbentuk dari laga yang lolos filter, jadi grup kosong tak pernah
+ * muncul dan peringkat tidak mengurangi cakupan.
+ */
+export const PRIORITAS_GRUP_LIGA: Record<string, number> = {
+  "sm:2": 0, // Champions League
+  "sm:5": 1, // Europa League
+  "sm:2286": 2, // Conference League
+  "sm:8": 3, // Premier League Inggris
+  "sm:564": 4, // LaLiga
+  "sm:384": 5, // Serie A Italia
+  "sm:82": 6, // Bundesliga
+  "sm:301": 7, // Ligue 1
+};
+
+type PunyaUrutanGrup = {
+  canonical_id: string | null;
+  negara: string | null;
+  nama: string;
+  kunci: string;
+};
+
+/** Urutkan grup liga sesuai prioritas §5; stabil untuk input teracak. */
+export function urutkanGrupLiga<T extends PunyaUrutanGrup>(grup: T[]): T[] {
+  const peringkat = (g: T): number =>
+    g.canonical_id !== null && g.canonical_id in PRIORITAS_GRUP_LIGA
+      ? PRIORITAS_GRUP_LIGA[g.canonical_id]
+      : Number.MAX_SAFE_INTEGER;
+  return grup
+    .map((g, i) => ({ g, i }))
+    .sort(
+      (x, y) =>
+        peringkat(x.g) - peringkat(y.g) ||
+        (x.g.negara ?? "").localeCompare(y.g.negara ?? "") ||
+        x.g.nama.localeCompare(y.g.nama) ||
+        x.g.kunci.localeCompare(y.g.kunci) ||
+        x.i - y.i,
+    )
+    .map(({ g }) => g);
+}
+
+/* ------------------------------------------ strip tanggal (brief §4) */
+
+export interface StripTanggal {
+  /** Kunci tanggal lokal "YYYY-MM-DD". */
+  kunci: string;
+  /** "Hari ini" untuk tanggal berjalan; selain itu nama hari singkat. */
+  labelHari: string;
+  /** Tanggal singkat, mis. "27 Nov". */
+  labelTanggal: string;
+  /** Tanggal fokus yang sedang tampil. */
+  aktif: boolean;
+  hariIni: boolean;
+}
+
+const fmtHariSingkat = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "UTC",
+  weekday: "short",
+});
+const fmtTanggalSingkat = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "UTC",
+  day: "numeric",
+  month: "short",
+});
+
+/** Instant tengah hari UTC dari kunci kalender — aman untuk label. */
+function tengahHariKunci(kunci: string): Date {
+  const [y, m, d] = kunci.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 12));
+}
+
+/**
+ * Strip lima tanggal di sekitar tanggal fokus (±2 hari). Label dan
+ * penanda "Hari ini" mengikuti zona aktif lewat kunci tanggal lokal;
+ * memilih satu tanggal menulis mode "tanggal" pada filter (pemanggil
+ * yang membentuk URL-nya lewat queryJadwal).
+ */
+export function daftarStripTanggal(
+  fokus: string,
+  tz: string,
+  now: Date = new Date(),
+): StripTanggal[] {
+  const kunciHariIni = kunciTanggal(now.toISOString(), tz);
+  return [-2, -1, 0, 1, 2].map((geser) => {
+    const kunci = geserKunci(fokus, geser);
+    const tengah = tengahHariKunci(kunci);
+    return {
+      kunci,
+      labelHari:
+        kunci === kunciHariIni ? "Hari ini" : fmtHariSingkat.format(tengah),
+      labelTanggal: fmtTanggalSingkat.format(tengah),
+      aktif: geser === 0,
+      hariIni: kunci === kunciHariIni,
+    };
+  });
+}
+
+/* --------------------------------- konteks kembali Detail (brief §4) */
+
+/**
+ * Tujuan tombol kembali pada Detail laga: asal daftar yang diizinkan
+ * hanya `analisa` dan `jadwal` (allowlist rute internal). `kembali`
+ * adalah query filter terserialisasi — disanitasi ulang lewat
+ * parseFilterJadwal sebelum dibentuk menjadi URL. Deep link lama yang
+ * hanya membawa `kembali` (tanpa `asal`) jatuh ke Jadwal; asal tak
+ * dikenal juga jatuh ke Jadwal.
+ */
+export function tujuanKembaliDariDetail(
+  asal: string | null | undefined,
+  kembaliMentah: string | null | undefined,
+  now: Date = new Date(),
+): { href: string; label: string } {
+  const keAnalisa = asal === "analisa";
+  const basis = keAnalisa ? "/analisa" : "/pertandingan";
+  const label = keAnalisa ? "Kembali ke analisa" : "Kembali ke jadwal";
+  if (!kembaliMentah) return { href: basis, label };
+  const sebagaiParams: Record<string, string | string[] | undefined> = {};
+  for (const [k, v] of new URLSearchParams(kembaliMentah).entries()) {
+    sebagaiParams[k] = v;
+  }
+  return {
+    href: `${basis}?${queryJadwal(parseFilterJadwal(sebagaiParams, now))}`,
+    label,
+  };
+}
+
 export interface KelompokJadwal<T> {
   /** Kunci tanggal lokal "YYYY-MM-DD". */
   kunci: string;

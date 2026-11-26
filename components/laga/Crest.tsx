@@ -16,7 +16,7 @@ export default function Crest({
 }: {
   url: string | null;
   nama: string;
-  ukuran?: 20 | 24;
+  ukuran?: 20 | 24 | 28;
 }) {
   const [gagal, setGagal] = useState(false);
   const px = `${ukuran}px`;
@@ -45,7 +45,7 @@ export default function Crest({
       style={{
         width: px,
         height: px,
-        fontSize: ukuran === 24 ? "10px" : "9px",
+        fontSize: ukuran === 28 ? "11px" : ukuran === 24 ? "10px" : "9px",
         letterSpacing: "0.02em",
       }}
     >
