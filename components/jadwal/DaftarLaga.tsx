@@ -205,7 +205,7 @@ export default async function DaftarLaga({
 
   selesaikanTimerRute(tujuan, t0Timer);
   return (
-    <div className="-mt-8 md:mt-0">
+    <div className="-mt-[32px] md:mt-0">
       <header>
         <h1 className="font-display text-[2.5rem] leading-tight font-semibold tracking-[-0.02em] text-ink">
           {mode === "analisa" ? "Analisa" : "Jadwal pertandingan"}

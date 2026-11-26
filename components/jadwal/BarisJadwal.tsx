@@ -164,7 +164,7 @@ export default function BarisJadwal({
         meta={meta ?? undefined}
       />
       {picks.length > 0 && (
-        <ul className="mt-3 space-y-1.5 pl-16 sm:pl-[76px]">
+        <ul className="mt-3 space-y-1.5 pl-[64px] sm:pl-[76px]">
           {/* flex-wrap pada li: pada lebar ekstrem (teks 200%) persen +
               verdik turun ke baris berikut ketimbang meluapkan baris
               laga; tak berubah pada lebar brief. */}

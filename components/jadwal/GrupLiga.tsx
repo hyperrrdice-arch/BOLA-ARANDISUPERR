@@ -40,7 +40,7 @@ export default function GrupLiga({
           type="button"
           aria-expanded={terbuka}
           onClick={() => setTerbuka((v) => !v)}
-          className="flex min-h-11 w-full flex-wrap items-center gap-2.5 px-3 py-2 text-left sm:px-4"
+          className="flex min-h-11 w-full flex-wrap items-center gap-2.5 px-3 py-2 text-left sm:px-[16px]"
         >
           <Crest url={logoUrl} nama={nama} ukuran={28} />
           <span className="font-display text-[17px] font-semibold text-ink">{nama}</span>
@@ -63,7 +63,7 @@ export default function GrupLiga({
           </span>
         </button>
       </h3>
-      {terbuka && <div className="px-3 sm:px-4">{children}</div>}
+      {terbuka && <div className="px-3 sm:px-[16px]">{children}</div>}
     </div>
   );
 }

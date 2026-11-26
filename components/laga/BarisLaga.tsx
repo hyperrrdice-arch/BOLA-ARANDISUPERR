@@ -61,7 +61,7 @@ export default function BarisLaga({
       className="block transition-colors hover:bg-surface-alt/40"
     >
       <span className="flex items-start gap-[16px] sm:gap-6">
-        <span className="w-12 flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums sm:w-[3.25rem]">
+        <span className="w-[48px] flex-none pt-0.5 text-sm whitespace-nowrap text-mid-gray tabular-nums sm:w-[52px]">
           {jam}
         </span>
         <span className="min-w-0 flex-1">
@@ -71,7 +71,7 @@ export default function BarisLaga({
         {kanan}
       </span>
       {(statusLabel || meta) && (
-        <span className="mt-1.5 block pl-16 text-[13px] text-mid-gray sm:pl-[76px]">
+        <span className="mt-1.5 block pl-[64px] text-[13px] text-mid-gray sm:pl-[76px]">
           {statusLabel && <span className="block font-medium">{statusLabel}</span>}
           {meta}
         </span>

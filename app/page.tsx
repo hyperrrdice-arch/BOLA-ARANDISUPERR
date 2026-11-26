@@ -22,12 +22,12 @@ export default function LandingPage() {
       <TopBar denganCari={false} />
 
       <main id="main-content" className="flex-1">
-        <section className="shell-x mx-auto flex w-full max-w-[1200px] flex-col items-center pt-12 pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] text-center sm:pt-14 md:pb-20 lg:pt-20">
+        <section className="shell-x mx-auto flex w-full max-w-[1200px] flex-col items-center pt-[48px] pb-[calc(52px+env(safe-area-inset-bottom)+2.5rem)] text-center sm:pt-[56px] md:pb-20 lg:pt-[80px]">
           <h1 className="font-sans text-[38px] leading-[1.02] font-bold tracking-[-0.02em] text-tinta min-[390px]:text-[43px] md:text-[68px]">
             <span className="block">Baca laga.</span>
             <span className="block">Susun parlay.</span>
           </h1>
-          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-sekunder md:text-[17px]">
+          <p className="mt-[16px] max-w-md text-[15px] leading-relaxed text-sekunder md:text-[17px]">
             Cek peluang tiap laga sebelum menyusun tiket.
           </p>
           <p className="mt-7">
@@ -39,7 +39,7 @@ export default function LandingPage() {
               Lihat Analisa <span aria-hidden="true">›</span>
             </Link>
           </p>
-          <div className="hero-masuk mt-10 lg:mt-12">
+          <div className="hero-masuk mt-10 lg:mt-[48px]">
             <Image
               src={bolaGrafit}
               alt=""
