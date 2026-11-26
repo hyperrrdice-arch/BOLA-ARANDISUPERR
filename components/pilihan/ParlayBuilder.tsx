@@ -111,8 +111,14 @@ const FILTERS: { id: GradeFilter; label: string }[] = [
 const semKey = (p: BuilderPick) =>
   kunciSemantikPilihan(p.fixtureUid, p.market, p.line, p.selection);
 
-/** Label basis per pilihan (§5): angka terbit + kalimat rinciannya. */
+/**
+ * Label basis per pilihan (§5): angka terbit + kalimat rinciannya.
+ * Label B2.2b dari proyeksi bersama (memakai effective_source, jadi
+ * stated-fallback terbaca sebagai peluang model) didahulukan; baris
+ * umpan lama tanpa proyeksi jatuh ke aturan basis mentah sebelumnya.
+ */
 function labelBasisBaris(p: BuilderPick): string {
+  if (p.labelBasis) return p.labelBasis;
   if (p.basisTerbit === "effective") return "Peluang saat terbit";
   if (p.basisTerbit === "model") return "Peluang model saat terbit";
   return labelBasisPeluang(p.basisTerbit);
@@ -120,6 +126,7 @@ function labelBasisBaris(p: BuilderPick): string {
 
 /** Kalimat rincian basis (§5) untuk baris ringkasan Pilihanmu. */
 function rincianBasis(p: BuilderPick): string | null {
+  if (p.keteranganBasis !== undefined) return p.keteranganBasis;
   if (p.basisTerbit === "effective") return "Disesuaikan menggunakan hasil uji historis.";
   if (p.basisTerbit === "model") return "Dihitung dari model skor.";
   return null;
@@ -915,6 +922,7 @@ export default function ParlayBuilder({
                                   {p.publishedAtUtc
                                     ? ` · terbit ${jamWibOnly(p.publishedAtUtc)}`
                                     : ""}
+                                  {p.teksPembanding ? ` · ${p.teksPembanding}` : ""}
                                 </span>
                               </span>
                             </span>

@@ -50,6 +50,11 @@ import {
   zonaValid,
 } from "@/lib/web/format";
 import { labelStatus } from "@/lib/web/status";
+import {
+  labelSumberPeluang,
+  panelArsipAdaNilai,
+  teksPembanding,
+} from "@/lib/web/sumber-peluang";
 import { mulaiTimerRute, selesaikanTimerRute } from "@/lib/web/timing";
 import { adaptasiMatriks } from "@/lib/web/peta-skor";
 import { parseFilterJadwal, queryJadwal } from "@/lib/web/jadwal";
@@ -156,11 +161,28 @@ function verdikDetail(pk: OfficialPick, selesai: boolean): string {
   return selesai ? "Menunggu hasil resmi" : "Menunggu hasil";
 }
 
-/** Kalimat basis peluang terbit (brief §5) untuk rincian satu pilihan. */
-function kalimatBasis(basis: string | null | undefined): string {
-  if (basis === "effective") return "Disesuaikan menggunakan hasil uji historis.";
-  if (basis === "model") return "Dihitung dari model skor.";
-  return labelBasisPeluang(basis);
+/**
+ * Proyeksi sumber peluang + pembanding (B2.2b) untuk satu pilihan
+ * resmi — aturan bersama lib/web/sumber-peluang atas bukti beku baris
+ * itu sendiri. Menggantikan kalimat basis lama yang menyimpulkan
+ * "disesuaikan dari uji historis" dari basis effective saja, padahal
+ * effective bisa berarti fallback angka model (stated-fallback).
+ */
+function sumberDariPick(pk: OfficialPick) {
+  return labelSumberPeluang({
+    probability_basis: pk.probability_basis,
+    effective_source: pk.effective_source,
+    evidence_source: pk.evidence_source ?? null,
+    market_prob: pk.market_prob,
+    line: pk.line ?? "",
+    odds_bookmaker: pk.odds_bookmaker ?? null,
+    odds_period: pk.odds_period ?? null,
+    odds_line: pk.odds_line ?? null,
+    odds_decimal: pk.odds_decimal ?? null,
+    odds_captured_utc: pk.odds_captured_utc ?? null,
+    decision_at_utc: pk.decision_at_utc ?? null,
+    kickoff_at_issue_utc: pk.kickoff_at_issue_utc ?? null,
+  });
 }
 
 /* ------------------------------------------------------------------- page */
@@ -480,6 +502,10 @@ async function AnalisisContent({
           <ul className="mt-6 space-y-4">
             {kejadianResmi.map((k) => {
               const pk = k.pick;
+              const sumber = sumberDariPick(pk);
+              const pembandingTeks = teksPembanding(sumber.pembanding, tz);
+              const basisDikenal =
+                pk.probability_basis === "model" || pk.probability_basis === "effective";
               return (
                 <li key={pk.pick_uid} className="border-t border-hairline/50 pt-4">
                   <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -495,7 +521,9 @@ async function AnalisisContent({
                       ) : pk.published_prob !== null ? (
                         <>
                           <Prob value={pk.published_prob} strong />{" "}
-                          <span className="text-[13px] text-faint">peluang saat terbit</span>
+                          <span className="text-[13px] text-faint">
+                            {basisDikenal ? sumber.label_basis : "peluang saat terbit"}
+                          </span>
                         </>
                       ) : (
                         <span className="text-[13px] text-faint">
@@ -511,10 +539,12 @@ async function AnalisisContent({
                         </>
                       ) : (
                         <>
-                          {kalimatBasis(pk.probability_basis)} · {labelGate(pk.gate_status)}
+                          {sumber.keterangan_basis && <>{sumber.keterangan_basis} · </>}
+                          {labelGate(pk.gate_status)}
                           {pk.published_at_utc && (
                             <> · Terbit {tanggalJamWib(pk.published_at_utc, tz)}</>
                           )}
+                          {pembandingTeks && <> · {pembandingTeks}</>}
                           {" · "}
                         </>
                       )}
@@ -676,6 +706,9 @@ async function AnalisisContent({
           </table>
         </div>
         <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-faint">
+          <p>
+            Perbandingan dari analisis terbaru · Dihitung {tanggalJamWib(pkg.computed_utc, tz)}.
+          </p>
           {disagreeCount > 0 && (
             <p>
               Model dan harga pasar berbeda lebih dari 10 poin pada {disagreeCount} pilihan.
@@ -689,13 +722,13 @@ async function AnalisisContent({
                   {p.market.bookmakers.length > 0 && (
                     <> · {p.market.bookmakers.join(", ")}</>
                   )}
-                  . Peluang pasar adalah peluang tersirat setelah margin dihapus.
+                  . Peluang tersirat pasar diturunkan dari odds setelah margin dihapus.
                 </>
               ) : (
                 <>
                   Harga pasar tersedia, tetapi waktu tangkapnya tidak tercatat pada
-                  paket ini. Peluang pasar adalah peluang tersirat setelah margin
-                  dihapus.
+                  paket ini. Peluang tersirat pasar diturunkan dari odds setelah
+                  margin dihapus.
                 </>
               )}
             </p>
@@ -708,7 +741,7 @@ async function AnalisisContent({
       {/* ------------------------------------------------------ panel arsip */}
       <section className="mt-16">
         <SectionHead label="Panel arsip" />
-        {p.sm_panel ? (
+        {p.sm_panel && panelArsipAdaNilai(p.sm_panel) ? (
           <>
             <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-faint">
               Panel arsip Sportmonks ·{" "}

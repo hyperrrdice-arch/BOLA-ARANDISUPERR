@@ -1590,6 +1590,16 @@ export interface OfficialPick extends PickRow {
   line: string | null;
   /** UID laga fisik tersimpan di ledger; NULL pada baris pra-K1. */
   fixture_uid: string | null;
+  /* Bukti quote beku (B2.2b) — kolom aditif ledger dari publikasi K2;
+     opsional karena DB lama bisa belum memuat kolomnya (diisi null). */
+  evidence_source?: string | null;
+  odds_bookmaker?: string | null;
+  odds_period?: string | null;
+  odds_line?: string | null;
+  odds_decimal?: number | null;
+  odds_captured_utc?: string | null;
+  decision_at_utc?: string | null;
+  kickoff_at_issue_utc?: string | null;
 }
 
 /**
@@ -1615,6 +1625,14 @@ export function getOfficialPicks(matchId: string, fixtureUid: string | null): Of
     pick_uid: string;
     line: string | null;
     fixture_uid: string | null;
+    evidence_source?: string | null;
+    odds_bookmaker?: string | null;
+    odds_period?: string | null;
+    odds_line?: string | null;
+    odds_decimal?: number | null;
+    odds_captured_utc?: string | null;
+    decision_at_utc?: string | null;
+    kickoff_at_issue_utc?: string | null;
   })[];
   const computedCache = new Map<number, string | null>();
   return rows.map((r) => {
@@ -1635,7 +1653,18 @@ export function getOfficialPicks(matchId: string, fixtureUid: string | null): Of
         computedCache.set(r.package_id, computed);
       }
     }
-    return { ...r, package_computed_utc: computed };
+    return {
+      ...r,
+      package_computed_utc: computed,
+      evidence_source: r.evidence_source ?? null,
+      odds_bookmaker: r.odds_bookmaker ?? null,
+      odds_period: r.odds_period ?? null,
+      odds_line: r.odds_line ?? null,
+      odds_decimal: r.odds_decimal ?? null,
+      odds_captured_utc: r.odds_captured_utc ?? null,
+      decision_at_utc: r.decision_at_utc ?? null,
+      kickoff_at_issue_utc: r.kickoff_at_issue_utc ?? null,
+    };
   });
 }
 

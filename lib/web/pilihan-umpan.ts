@@ -20,6 +20,7 @@
  * halaman yang terakumulasi).
  */
 import { kunciTanggal } from "./format";
+import { teksPembanding as formatTeksPembanding } from "./sumber-peluang";
 import { lipatTeks } from "./jadwal";
 import {
   kunciSemantikPilihan,
@@ -51,6 +52,21 @@ export interface BuilderPick {
   probBasis: "lab" | "model";
   /** Basis peluang terbit mentah dari ledger (effective/model/…) untuk label. */
   basisTerbit: string | null;
+  /**
+   * Label basis menurut aturan B2.2b (proyeksi bersama
+   * lib/web/sumber-peluang atas baris edisi resmi yang sama) — aditif
+   * opsional; absen pada baris umpan lama tanpa proyeksi.
+   */
+  labelBasis?: string;
+  /** Keterangan basis B2.2b ("Disesuaikan dari uji historis" dsb.). */
+  keteranganBasis?: string | null;
+  /**
+   * Teks pembanding pasar siap tampil (B2.2b): "Pembanding pasar ·
+   * [bookmaker] · Tercatat …" / "Model saja" / "…belum terverifikasi";
+   * null = tanpa keterangan pembanding. BUKAN raw odds — payload
+   * daftar tetap ringkas dan matriks tetap lazy.
+   */
+  teksPembanding?: string | null;
   /** Waktu terbit pilihan (ISO UTC) — ditampilkan di samping basis. */
   publishedAtUtc: string | null;
   /** Peluang model mentah, referensi. */
@@ -86,6 +102,9 @@ export function keBuilderPick(p: PilihanPraLaga): BuilderPick {
     prob: p.published_prob,
     probBasis: p.probability_basis === "effective" ? "lab" : "model",
     basisTerbit: p.probability_basis,
+    labelBasis: p.sumber?.label_basis,
+    keteranganBasis: p.sumber?.keterangan_basis ?? null,
+    teksPembanding: p.sumber ? formatTeksPembanding(p.sumber.pembanding) : null,
     publishedAtUtc: p.published_at_utc,
     modelProb: p.model_prob,
     sourcesAgree: p.sources_agree,

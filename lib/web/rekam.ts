@@ -46,6 +46,10 @@ import {
   fix4WindowForDate,
 } from "../picks/fix4-policy";
 import { FREE_REFRESH_LAST_SUCCESS_KEY } from "../picks/packages";
+import {
+  labelSumberPeluang,
+  type LabelSumberPeluang,
+} from "./sumber-peluang";
 import { jendelaTanggalUtc } from "./jadwal";
 
 /** Seri produksi ledger — kolom `source` baris terbit diisi dari seri ini. */
@@ -864,6 +868,13 @@ export interface PilihanPraLaga {
    * (terbit pertama) dan tidak boleh dipakai menghitung gabungan.
    */
   konflik: KonflikPilihan | null;
+  /**
+   * Proyeksi label sumber peluang + pembanding (B2.2b) dari bukti beku
+   * baris edisi perwakilan yang sama — bukan dari paket terbaru.
+   * Field aditif opsional: selalu diisi `daftarPilihanPraLaga`, tetapi
+   * konsumen lama yang membangun baris sendiri tidak wajib mengisinya.
+   */
+  sumber?: LabelSumberPeluang;
 }
 
 /** Baris edisi resmi minimum untuk pengelompokan kejadian semantik. */
@@ -957,6 +968,20 @@ export function kelompokkanKejadianResmi<T extends BarisEdisiResmi>(
  * Pengelompokan memakai aturan bersama `kelompokkanKejadianResmi`:
  * kejadian berkonflik ditahan dari kombinasi.
  */
+/** Baris umpan mentah: kolom bukti beku B2.2b (absen → null pada DB lama). */
+interface BarisUmpanDb extends RekamRowDb {
+  pick_uid: string;
+  effective_source?: string | null;
+  evidence_source?: string | null;
+  odds_bookmaker?: string | null;
+  odds_period?: string | null;
+  odds_line?: string | null;
+  odds_decimal?: number | null;
+  odds_captured_utc?: string | null;
+  decision_at_utc?: string | null;
+  kickoff_at_issue_utc?: string | null;
+}
+
 export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
   const d = dbRo("picks.db");
   if (!d || !kolomAda(d, "picks", "pick_uid")) return [];
@@ -967,7 +992,7 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
          AND kickoff_utc > ?
        ORDER BY kickoff_utc ASC, grade ASC, published_prob DESC`,
     )
-    .all(SERI_PRODUKSI, nowUtc) as unknown as (RekamRowDb & { pick_uid: string })[];
+    .all(SERI_PRODUKSI, nowUtc) as unknown as BarisUmpanDb[];
   muatNamaPaketBatch(rows.map((r) => r.package_id));
   const uidMap = petaUidFisik(
     rows.filter((r) => !r.fixture_uid).map((r) => r.match_id),
@@ -1001,6 +1026,20 @@ export function daftarPilihanPraLaga(nowUtc: string): PilihanPraLaga[] {
       sources_agree: sources,
       package_id: r.package_id,
       konflik,
+      sumber: labelSumberPeluang({
+        probability_basis: r.probability_basis,
+        effective_source: r.effective_source ?? null,
+        evidence_source: r.evidence_source ?? null,
+        market_prob: r.market_prob,
+        line: r.line ?? "",
+        odds_bookmaker: r.odds_bookmaker ?? null,
+        odds_period: r.odds_period ?? null,
+        odds_line: r.odds_line ?? null,
+        odds_decimal: r.odds_decimal ?? null,
+        odds_captured_utc: r.odds_captured_utc ?? null,
+        decision_at_utc: r.decision_at_utc ?? null,
+        kickoff_at_issue_utc: r.kickoff_at_issue_utc ?? null,
+      }),
     });
   }
   return out;
