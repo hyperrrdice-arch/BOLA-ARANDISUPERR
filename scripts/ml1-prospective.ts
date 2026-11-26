@@ -30,6 +30,9 @@
  *
  * Pakai:
  *   npx tsx scripts/ml1-prospective.ts [--now=<ISO>] [--limit=N]
+ *   npx tsx scripts/ml1-prospective.ts --pit-a [--limit=N]
+ *     (mode eksperimen ML1-PIT A — lihat lib/eval/ml1-pit-a.ts; menulis
+ *      HANYA ke ml1_prospective_pit_a.db; --now ditolak pada mode ini)
  *
  * Keluaran terakhir stdout = satu baris JSON ringkasan run (dipakai cron).
  * Exit 3 bila penjaga isolasi gagal (berkas saji/DB produksi berubah).
@@ -70,8 +73,13 @@ import {
 } from "../lib/quant/team-identity";
 import { blockBootstrapDelta, type PairedDeltaRow } from "../lib/quant/experiment-stats";
 import { dataDir, dbPath } from "../lib/db/paths";
+import {
+  createPythonInferenceExecutor,
+  runMl1PitA,
+} from "../lib/eval/ml1-pit-a";
 
 const args = process.argv.slice(2);
+const PIT_A_MODE = args.includes("--pit-a");
 const argVal = (name: string, dflt: string): string => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : dflt;
@@ -614,4 +622,58 @@ function main(): void {
   }
 }
 
-main();
+// ---------------------------------------------------------------------------
+// MODE --pit-a (Brief ML1-PIT A): shadow ML1-B dengan seleksi paket as-of,
+// dedupe UID kanonik sebelum inferensi/limit, dan provenance champion dari
+// paket yang benar-benar dipakai. Implementasi di lib/eval/ml1-pit-a.ts
+// (dapat diuji dengan clock + executor injeksi); di sini hanya perakitan
+// dependensi produksi: DB masukan read-only via dbPath(), jam AKTUAL, dan
+// executor Python produksi. Hasil HANYA ke ml1_prospective_pit_a.db.
+// ---------------------------------------------------------------------------
+function runPitACli(): void {
+  if (args.some((a) => a === "--now" || a.startsWith("--now="))) {
+    console.error(
+      "ML1-PIT-A: --now tidak didukung bersama --pit-a — jam keputusan selalu jam aktual. " +
+        "Untuk waktu buatan gunakan fixture uji tests/test-ml1-pit-a.ts (clock injeksi).",
+    );
+    process.exit(2);
+  }
+  let dataset: DatabaseSync | null = null;
+  let upcoming: DatabaseSync | null = null;
+  let snapshots: DatabaseSync | null = null;
+  try {
+    dataset = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
+    upcoming = new DatabaseSync(dbPath("upcoming_fixtures.db"), { readOnly: true });
+    snapshots = new DatabaseSync(dbPath("analysis_snapshots.db"), { readOnly: true });
+    const summary = runMl1PitA({
+      dataset,
+      upcoming,
+      snapshots,
+      outputDbPath: dbPath("ml1_prospective_pit_a.db"),
+      dataDirPath: dataDir(),
+      modelDir: MODEL_DIR,
+      clock: () => new Date(),
+      executor: createPythonInferenceExecutor({
+        pythonPath: PYTHON,
+        predictScriptPath: path.join(process.cwd(), "scripts/ml1-predict.py"),
+      }),
+      limit: LIMIT,
+    });
+    console.log(JSON.stringify(summary));
+  } catch (err) {
+    console.error(
+      `ML1-PIT-A GAGAL: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    process.exitCode = 1;
+  } finally {
+    dataset?.close();
+    upcoming?.close();
+    snapshots?.close();
+  }
+}
+
+if (PIT_A_MODE) {
+  runPitACli();
+} else {
+  main();
+}
