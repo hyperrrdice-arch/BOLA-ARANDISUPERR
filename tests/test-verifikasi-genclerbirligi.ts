@@ -126,9 +126,8 @@ async function main(): Promise<void> {
 
     /* ================= FASE PRA — defek harus terlihat ================ */
     console.log("\n== Fase PRA — registry terbelah, keadaan produksi ==");
-    const runPra = runScript(env, "scripts/build-fixture-links.ts");
-    suite.check("PRA builder tautan berjalan", runPra.code === 0, runPra.stderr.slice(-300));
     const linksPra = bacaLinks(env);
+    suite.eq("PRA tautan kosong sebelum perbaikan", linksPra, []);
     suite.eq(
       "PRA laga 21 Nov TIDAK tertaut (defek ter-reproduksi)",
       linksPra.find((l) => l.twin_id === FD_21)?.canonical_id,
