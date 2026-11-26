@@ -27,6 +27,7 @@ if (aksi === "jadwal") {
       status: i.status,
       home_goals: i.home_goals,
       away_goals: i.away_goals,
+      menit: i.menit,
     })),
   );
 } else if (aksi === "detail") {

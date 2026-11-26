@@ -32,14 +32,17 @@ import {
 import { seedKatalog, seedPaketObjek, seedPicks, type BarisKatalog } from "./helpers/redesain-seeds";
 import {
   cocokPencarian,
+  daftarStripTanggal,
   jendelaPintasan,
   lipatTeks,
   parseFilterJadwal,
   queryJadwal,
+  tujuanKembaliDariDetail,
   urutSekarang,
   urutTampilJadwal,
 } from "../lib/web/jadwal";
 import type { StatusTampil } from "../lib/web/status";
+import { tabAktif, ITEMS } from "../components/NavClient";
 
 const suite = new Suite("redesain-jadwal");
 
@@ -135,6 +138,88 @@ suite.eq(
   ["live", "menunggu", "jadwal"],
 );
 
+/* ================================ murni: strip tanggal + kembali */
+const NOW_STRIP = new Date("2026-11-27T03:00:00.000Z"); // 10.00 WIB, 27 Nov
+const strip = daftarStripTanggal("2026-11-27", "Asia/Jakarta", NOW_STRIP);
+suite.eq(
+  "strip: lima tanggal fokus ±2",
+  strip.map((t) => t.kunci),
+  ["2026-11-25", "2026-11-26", "2026-11-27", "2026-11-28", "2026-11-29"],
+);
+suite.eq("strip: tengah aktif", strip[2].aktif, true);
+suite.eq("strip: hari ini berlabel 'Hari ini'", strip[2].labelHari, "Hari ini");
+suite.eq("strip: tanggal singkat '27 Nov'", strip[2].labelTanggal, "27 Nov");
+suite.check(
+  "strip: tanggal lain bukan 'Hari ini'",
+  strip.every((t, i) => i === 2 || (t.labelHari !== "Hari ini" && !t.hariIni)),
+);
+/* Pergantian hari zona: 17.30 UTC = 00.30 WIB keesokan hari. */
+const stripZona = daftarStripTanggal("2026-11-27", "UTC", new Date("2026-11-26T17:30:00.000Z"));
+suite.eq("strip: zona UTC — 'Hari ini' jatuh 26 Nov", stripZona.find((t) => t.hariIni)?.kunci, "2026-11-26");
+const stripWib = daftarStripTanggal("2026-11-27", "Asia/Jakarta", new Date("2026-11-26T17:30:00.000Z"));
+suite.eq("strip: zona WIB — 'Hari ini' jatuh 27 Nov", stripWib.find((t) => t.hariIni)?.kunci, "2026-11-27");
+
+const KB_NOW = new Date("2026-11-27T03:00:00.000Z");
+suite.eq(
+  "kembali: asal analisa + filter pulih ke /analisa",
+  tujuanKembaliDariDetail("analisa", "tanggal=2026-11-28&status=selesai", KB_NOW),
+  { href: "/analisa?tanggal=2026-11-28&status=selesai", label: "Kembali ke analisa" },
+);
+suite.eq(
+  "kembali: asal jadwal -> /pertandingan",
+  tujuanKembaliDariDetail("jadwal", "tanggal=2026-11-28", KB_NOW).href,
+  "/pertandingan?tanggal=2026-11-28",
+);
+suite.eq(
+  "kembali: deep link lama tanpa asal jatuh ke Jadwal",
+  tujuanKembaliDariDetail(null, "tanggal=2026-11-28", KB_NOW),
+  { href: "/pertandingan?tanggal=2026-11-28", label: "Kembali ke jadwal" },
+);
+suite.eq(
+  "kembali: asal tak dikenal ditolak allowlist -> Jadwal",
+  tujuanKembaliDariDetail("https://evil.example", "tanggal=2026-11-28", KB_NOW).href,
+  "/pertandingan?tanggal=2026-11-28",
+);
+suite.eq(
+  "kembali: tanpa filter -> rute asal polos",
+  tujuanKembaliDariDetail("analisa", null, KB_NOW),
+  { href: "/analisa", label: "Kembali ke analisa" },
+);
+suite.eq(
+  "kembali: tanggal tak sah disanitasi ke hari ini zona baku",
+  tujuanKembaliDariDetail("jadwal", "tanggal=2026-13-40", KB_NOW).href,
+  "/pertandingan?tanggal=2026-11-27",
+);
+
+/* ====================================== murni: navigasi lima tab */
+{
+  suite.eq(
+    "nav: lima label persis Beranda · Analisa · Jadwal · Pilihan · Hasil",
+    ITEMS.map((i) => i.label),
+    ["Beranda", "Analisa", "Jadwal", "Pilihan", "Hasil"],
+  );
+  suite.eq("nav: / -> Beranda", tabAktif("/", null), "/");
+  suite.eq("nav: /analisa -> Analisa", tabAktif("/analisa", null), "/analisa");
+  suite.eq("nav: /pertandingan -> Jadwal", tabAktif("/pertandingan", null), "/pertandingan");
+  suite.eq(
+    "nav: Detail dari Analisa -> Analisa aktif",
+    tabAktif("/pertandingan/sm_1", "analisa"),
+    "/analisa",
+  );
+  suite.eq(
+    "nav: Detail tanpa asal -> Jadwal aktif",
+    tabAktif("/pertandingan/sm_1", null),
+    "/pertandingan",
+  );
+  suite.eq(
+    "nav: Detail asal tak dikenal -> Jadwal aktif",
+    tabAktif("/pertandingan/sm_1", "xyz"),
+    "/pertandingan",
+  );
+  suite.eq("nav: /pilihan -> Pilihan", tabAktif("/pilihan", null), "/pilihan");
+  suite.eq("nav: /bukti -> Hasil", tabAktif("/bukti", null), "/bukti");
+}
+
 /* ============================================================ sandbox */
 interface JadwalProbe {
   match_id: string;
@@ -145,6 +230,7 @@ interface JadwalProbe {
   status: string;
   home_goals: number | null;
   away_goals: number | null;
+  menit: number | null;
 }
 interface DetailProbe {
   pkgId: number;
@@ -351,6 +437,11 @@ async function main(): Promise<void> {
     );
     const live = jadwal.find((i) => i.match_id === "sm_r4_live");
     suite.eq("probe jadwal: status live terkonfirmasi dari katalog", live?.status, "live");
+    suite.eq(
+      "probe jadwal: menit pass-through null bila sumber tak memberi menit",
+      live?.menit,
+      null,
+    );
     const urut = urutSekarang(
       jadwal.map((i) => ({ ...i, status: i.status as StatusTampil })),
     );

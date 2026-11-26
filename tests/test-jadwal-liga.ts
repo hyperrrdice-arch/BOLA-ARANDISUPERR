@@ -27,8 +27,9 @@ import {
   type FixtureEnv,
 } from "./helpers/fixture-env";
 import { seedKatalog, type BarisKatalog } from "./helpers/redesain-seeds";
-import { kelompokPerKompetisi } from "../lib/web/jadwal";
+import { kelompokPerKompetisi, urutkanGrupLiga } from "../lib/web/jadwal";
 import { monogram, urlLogoKompetisi, urlLogoTim } from "../lib/web/logo";
+import { menitDariStatusMentah } from "../lib/web/status";
 
 const suite = new Suite("jadwal-liga");
 
@@ -101,6 +102,56 @@ suite.eq(
 suite.eq("grup: gerbang dari baris pertama yang punya", grup[0].gate_status, "calibrated");
 suite.eq("grup: Brasil terpisah walau nama sama", grup[1].items.map((i) => i.id), ["bra-1"]);
 suite.eq("grup: tak-terpetakan membawa label sumber", grup[2].sumber, "TheStats");
+
+/* ------------------------------------------- urutan grup liga (§5) */
+type GrupUrutan = {
+  canonical_id: string | null;
+  negara: string | null;
+  nama: string;
+  kunci: string;
+};
+const gu = (canonical_id: string | null, negara: string | null, nama: string, kunci: string): GrupUrutan => ({
+  canonical_id,
+  negara,
+  nama,
+  kunci,
+});
+const masukanGrup: GrupUrutan[] = [
+  gu("sm:648", "Brazil", "Serie A", "k:sm:648"),
+  gu("sm:301", "France", "Ligue 1", "k:sm:301"),
+  gu(null, "Argentina", "Primera División", "m:arg"),
+  gu("sm:2", "Europe", "Champions League", "k:sm:2"),
+  gu("sm:384", "Italy", "Serie A", "k:sm:384"),
+  gu("sm:8", "England", "Premier League", "k:sm:8"),
+  gu("sm:5", "Europe", "Europa League", "k:sm:5"),
+  gu("sm:999", "Spain", "Segunda División", "k:sm:999"),
+];
+const urutanGrup = urutkanGrupLiga(masukanGrup).map((x) => x.kunci);
+suite.eq(
+  "urutan §5: UEFA -> lima domestik prioritas -> sisanya negara/nama/kunci",
+  urutanGrup,
+  ["k:sm:2", "k:sm:5", "k:sm:8", "k:sm:384", "k:sm:301", "m:arg", "k:sm:648", "k:sm:999"],
+);
+suite.eq(
+  "urutan §5: stabil terhadap input dibalik",
+  urutkanGrupLiga([...masukanGrup].reverse()).map((x) => x.kunci),
+  urutanGrup,
+);
+suite.eq(
+  "urutan §5: cakupan tak berubah (himpunan kunci sama)",
+  [...urutanGrup].sort(),
+  masukanGrup.map((x) => x.kunci).sort(),
+);
+suite.check(
+  "urutan §5: Serie A Italia (prioritas) mendahului Serie A Brasil (lainnya)",
+  urutanGrup.indexOf("k:sm:384") < urutanGrup.indexOf("k:sm:648"),
+);
+
+/* ------------------------------------------------- menit live (§6) */
+suite.eq("menit: \"63'\" terbaca 63", menitDariStatusMentah("63'"), 63);
+suite.eq("menit: \"2H 63'\" terbaca 63", menitDariStatusMentah("2H 63'"), 63);
+suite.eq("menit: 'live' tanpa menit -> null", menitDariStatusMentah("live"), null);
+suite.eq("menit: null -> null", menitDariStatusMentah(null), null);
 
 /* ========================================================== sandbox */
 const JAM = 3_600_000;
