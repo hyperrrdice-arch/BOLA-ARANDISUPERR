@@ -746,7 +746,7 @@ function runPitBReplayCli(file: string): void {
       JSON.stringify({
         tool: "ml1-prospective-pit-b-replay",
         status: "ok",
-        feature_snapshot_id: res.featureSnapshotId,
+        feature_snapshot_id: res.feature_snapshot_id,
         decision_at_utc: res.meta.decision_at_utc,
         fixtures: res.vectors.size,
         vector_hashes: Object.fromEntries(res.vectorHashes),
