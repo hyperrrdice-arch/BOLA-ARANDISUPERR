@@ -327,3 +327,43 @@ export function getPackageStoreMeta(key: string): string | null {
     | undefined;
   return row?.value ?? null;
 }
+
+/* -------------------------------------------------- marker refresh bebas */
+
+/** Key meta: cap ISO UTC refresh bebas terakhir yang selesai SUKSES (B2.2a). */
+export const FREE_REFRESH_LAST_SUCCESS_KEY = "free_refresh_last_success_utc";
+
+/**
+ * Catat keberhasilan SATU siklus refresh bebas penuh (B2.2a): dipanggil
+ * `scripts/free-refresh.ts` HANYA sesudah langkah data terakhir
+ * (`resolve-pick-outcomes`) selesai sukses — kegagalan langkah data mana
+ * pun tidak pernah mencapai fungsi ini, jadi marker lama tetap utuh.
+ * Larian sukses dengan nol pick baru tetap menggeser marker: yang
+ * dicatat adalah selesainya siklus, bukan jumlah pick.
+ *
+ * Upsert SATU statement (atomik) dengan penjaga monoton: nilai hanya
+ * diganti bila cap baru lebih besar dari yang tersimpan, jadi larian
+ * lama yang berakhir belakangan tidak memundurkan marker. Cap
+ * dinormalkan ke bentuk kanonik `Date.toISOString()` (milidetik + Z)
+ * supaya perbandingan leksikografik di SQL = perbandingan kronologis.
+ *
+ * Mengembalikan true bila nilai tersimpan sesudah panggilan ini sama
+ * dengan cap yang diberikan (tertulis sekarang, atau sudah sama).
+ */
+export function catatRefreshSukses(utcIso: string): boolean {
+  const ms = Date.parse(utcIso);
+  if (!Number.isFinite(ms)) {
+    throw new Error(`catatRefreshSukses: cap waktu tidak valid: ${utcIso}`);
+  }
+  const cap = new Date(ms).toISOString();
+  const db = getPackagesDb();
+  const res = db
+    .prepare(
+      `INSERT INTO meta (key, value) VALUES (?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value
+       WHERE excluded.value > meta.value`,
+    )
+    .run(FREE_REFRESH_LAST_SUCCESS_KEY, cap);
+  if (Number(res.changes) > 0) return true;
+  return getPackageStoreMeta(FREE_REFRESH_LAST_SUCCESS_KEY) === cap;
+}

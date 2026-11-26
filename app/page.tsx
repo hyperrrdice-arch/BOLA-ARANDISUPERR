@@ -21,7 +21,11 @@ import {
   type FixtureListItem,
   type SorotanBeranda,
 } from "../lib/web/data";
-import { ambilRingkasanRekam, parseFilterRekam } from "../lib/web/rekam";
+import {
+  ambilRingkasanRekam,
+  ambilWaktuRefreshTerakhir,
+  parseFilterRekam,
+} from "../lib/web/rekam";
 import { mulaiTimerRute, selesaikanTimerRute } from "../lib/web/timing";
 import {
   int,
@@ -300,6 +304,29 @@ async function RekamRingkas() {
   );
 }
 
+/* ------------------------------------------------- waktu penyegaran */
+
+/**
+ * Waktu refresh data terakhir yang selesai sukses (B2.2a) — dari
+ * marker `free_refresh_last_success_utc` yang ditulis rantai refresh
+ * sesudah langkah data terakhirnya berhasil, dibaca read-only.
+ * Marker absen/rusak/future → "Waktu pembaruan belum tersedia".
+ * Info jadwal selalu dilabeli "Jadwal refresh" supaya tidak terbaca
+ * sebagai waktu sukses yang tercatat.
+ */
+async function WaktuPenyegaran() {
+  await connection();
+  const marker = ambilWaktuRefreshTerakhir(new Date().toISOString());
+  return (
+    <span className="text-sekunder">
+      {marker
+        ? ` · Penyegaran data terakhir · ${tanggalJamWib(marker)}`
+        : " · Waktu pembaruan belum tersedia"}
+      {" · Jadwal refresh tiap 12 jam."}
+    </span>
+  );
+}
+
 /* ---------------------------------------------------------------- page */
 
 export default function LandingPage() {
@@ -343,7 +370,11 @@ export default function LandingPage() {
             <span className="font-display text-[19px] font-bold text-tinta italic">
               Bola<span className="text-jingga not-italic">.</span>
             </span>
-            <span className="text-sekunder"> · Data disegarkan tiap 12 jam.</span>
+            <Suspense
+              fallback={<span className="text-sekunder"> · Memuat waktu pembaruan…</span>}
+            >
+              <WaktuPenyegaran />
+            </Suspense>
           </p>
           <p className="text-[13px] text-faint">Probabilitas, tercatat.</p>
         </div>

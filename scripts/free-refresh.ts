@@ -16,7 +16,14 @@
  *      diimpor di langkah 1 termasuk) ditulis ke ledger pick; tanpa langkah
  *      ini pick menumpuk tak pernah dinilai (regresi 7–16 Nov 2026: rantai
  *      lama memanggilnya, rantai bebas awal tidak).
- *   9. wal-checkpoint.ts — PRAGMA wal_checkpoint(PASSIVE) atas
+ *   9. MARKER refresh sukses (B2.2a) — sesudah langkah 8 sukses, cap
+ *      ISO UTC ditulis ke `analysis_snapshots.db.meta` key
+ *      `free_refresh_last_success_utc` lewat `catatRefreshSukses`
+ *      (upsert atomik + monoton). Kegagalan langkah data mana pun →
+ *      marker lama utuh; kegagalan MENULIS marker dicatat eksplisit
+ *      sebagai kegagalan marker (bukan kegagalan impor/publikasi) dan
+ *      tidak membatalkan keberhasilan langkah data.
+ *  10. wal-checkpoint.ts — PRAGMA wal_checkpoint(PASSIVE) atas
  *      thestats_dataset.db (evaluasi WAL A4): triplet dicatat ke log;
  *      langkah ini TIDAK PERNAH menggagalkan rantai (selalu exit 0).
  *
@@ -27,6 +34,7 @@
  * Pakai: npx tsx scripts/free-refresh.ts
  */
 import { spawnSync } from "node:child_process";
+import { catatRefreshSukses } from "../lib/picks/packages";
 
 interface Step {
   name: string;
@@ -51,24 +59,56 @@ const STEPS: Step[] = [
   { name: "wal-checkpoint", script: "scripts/wal-checkpoint.ts", scriptArgs: [] },
 ];
 
+/** Jalankan satu langkah; kembalikan true bila exit 0. */
+function jalankanLangkah(step: Step): boolean {
+  const t0 = Date.now();
+  const res = spawnSync("npx", ["tsx", step.script, ...step.scriptArgs], {
+    stdio: "inherit",
+    env: process.env,
+    cwd: process.cwd(),
+  });
+  const durS = ((Date.now() - t0) / 1000).toFixed(1);
+  console.log(`[free-refresh] ${step.name}: exit=${res.status ?? "null"} durasi=${durS}s`);
+  return res.status === 0;
+}
+
 function main() {
+  // Langkah data = semua kecuali penutup WAL; marker sukses hanya
+  // boleh ditulis di antara langkah data terakhir dan penutup itu.
+  const langkahData = STEPS.filter((s) => s.name !== "wal-checkpoint");
+  const langkahWal = STEPS.find((s) => s.name === "wal-checkpoint");
   let failed: string | null = null;
-  for (const step of STEPS) {
-    const t0 = Date.now();
-    const res = spawnSync("npx", ["tsx", step.script, ...step.scriptArgs], {
-      stdio: "inherit",
-      env: process.env,
-      cwd: process.cwd(),
-    });
-    const durS = ((Date.now() - t0) / 1000).toFixed(1);
-    console.log(`[free-refresh] ${step.name}: exit=${res.status ?? "null"} durasi=${durS}s`);
-    if (res.status !== 0) {
+  for (const step of langkahData) {
+    if (!jalankanLangkah(step)) {
       failed = step.name;
       break;
     }
   }
   if (failed) {
     console.log(`[free-refresh] SELESAI DENGAN KEGAGALAN di langkah ${failed}.`);
+    process.exit(1);
+  }
+
+  // Semua langkah data sukses (termasuk nol pick baru) → geser marker.
+  // Kegagalan menulis marker dicatat eksplisit dan terpisah: langkah
+  // data SUDAH berhasil, jadi rantai tetap ditutup dengan checkpoint.
+  try {
+    const cap = new Date().toISOString();
+    const bergerak = catatRefreshSukses(cap);
+    console.log(
+      `[free-refresh] marker refresh sukses: ${cap}` +
+        (bergerak ? "" : " (tidak digeser — cap tersimpan lebih baru)"),
+    );
+  } catch (err) {
+    console.error(
+      `[free-refresh] MARKER GAGAL DITULIS (langkah data sukses; ini kegagalan pencatatan marker, bukan impor/publikasi): ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+
+  if (langkahWal && !jalankanLangkah(langkahWal)) {
+    console.log("[free-refresh] SELESAI DENGAN KEGAGALAN di langkah wal-checkpoint.");
     process.exit(1);
   }
   console.log("[free-refresh] SELESAI: semua langkah sukses (mode bebas, tanpa Sportmonks).");

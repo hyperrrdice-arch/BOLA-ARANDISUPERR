@@ -1,0 +1,47 @@
+env fixture: /tmp/bola-b22-siklus-tZPeIl
+marker sebelum : 2026-11-20T00:00:00.000Z
+
+=== SIKLUS 1: semua langkah sukses, nol pick baru ===
+[stub] import-free-feed jalan
+[free-refresh] import-free-feed: exit=0 durasi=1.2s
+[stub] build-team-canonical jalan
+[free-refresh] build-team-canonical: exit=0 durasi=1.0s
+[stub] build-fixture-links jalan
+[free-refresh] build-fixture-links: exit=0 durasi=1.2s
+[stub] calibrate-ratings jalan
+[free-refresh] calibrate-ratings: exit=0 durasi=1.0s
+[stub] fit-global-offsets jalan
+[free-refresh] fit-global-offsets: exit=0 durasi=1.0s
+[stub] build-canonical-telemetry jalan
+[free-refresh] build-canonical-telemetry: exit=0 durasi=1.1s
+[stub] pick-slate jalan
+[free-refresh] pick-slate: exit=0 durasi=1.0s
+[stub] resolve-pick-outcomes jalan
+[free-refresh] resolve-pick-outcomes: exit=0 durasi=1.0s
+[free-refresh] marker refresh sukses: 2026-11-26T16:57:58.226Z
+[stub] wal-checkpoint jalan
+[free-refresh] wal-checkpoint: exit=0 durasi=1.0s
+[free-refresh] SELESAI: semua langkah sukses (mode bebas, tanpa Sportmonks).
+exit=0
+marker sesudah : 2026-11-26T16:57:58.226Z
+
+=== SIKLUS 2: resolver gagal (exit 3) ===
+[stub] import-free-feed jalan
+[free-refresh] import-free-feed: exit=0 durasi=0.9s
+[stub] build-team-canonical jalan
+[free-refresh] build-team-canonical: exit=0 durasi=0.9s
+[stub] build-fixture-links jalan
+[free-refresh] build-fixture-links: exit=0 durasi=0.9s
+[stub] calibrate-ratings jalan
+[free-refresh] calibrate-ratings: exit=0 durasi=0.8s
+[stub] fit-global-offsets jalan
+[free-refresh] fit-global-offsets: exit=0 durasi=0.9s
+[stub] build-canonical-telemetry jalan
+[free-refresh] build-canonical-telemetry: exit=0 durasi=0.9s
+[stub] pick-slate jalan
+[free-refresh] pick-slate: exit=0 durasi=0.9s
+[stub] resolver gagal
+[free-refresh] resolve-pick-outcomes: exit=3 durasi=1.0s
+[free-refresh] SELESAI DENGAN KEGAGALAN di langkah resolve-pick-outcomes.
+exit=1
+marker sesudah : 2026-11-26T16:57:58.226Z (harus sama dengan sesudah siklus 1)

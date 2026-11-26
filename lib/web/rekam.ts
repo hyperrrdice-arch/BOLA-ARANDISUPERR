@@ -45,6 +45,7 @@ import {
   fix4DateWibOf,
   fix4WindowForDate,
 } from "../picks/fix4-policy";
+import { FREE_REFRESH_LAST_SUCCESS_KEY } from "../picks/packages";
 import { jendelaTanggalUtc } from "./jadwal";
 
 /** Seri produksi ledger — kolom `source` baris terbit diisi dari seri ini. */
@@ -1151,6 +1152,42 @@ export function kalimatRingkasan(s: CohortStats, lagaDinilaiUnik: number): Kalim
 export function bulatkanTampil(x: number | null): number | null {
   if (x === null || x === undefined || !Number.isFinite(x)) return null;
   return Math.round(x * 10_000) / 10_000;
+}
+
+/* --------------------------------------- waktu refresh data terakhir */
+
+/**
+ * Marker refresh bebas terakhir yang selesai SUKSES (B2.2a), ditulis
+ * `scripts/free-refresh.ts` ke `analysis_snapshots.db.meta` sesudah
+ * langkah data terakhirnya berhasil.
+ *
+ * Jalur baca KHUSUS render: koneksi read-only (`dbRo`, menghormati
+ * `DB_DIR`), SATU SELECT berdasarkan key, TANPA memastikan skema dan
+ * tanpa menulis apa pun (getter store writer `getPackageStoreMeta`
+ * memastikan skema — sengaja tidak dipakai di sini). DB/tabel absen,
+ * key hilang, nilai tidak terbaca sebagai timestamp, atau cap di masa
+ * depan terhadap `nowUtc` → null; pemanggil menampilkan "Waktu
+ * pembaruan belum tersedia". Waktu yang dikembalikan HANYA dari
+ * marker — bukan jam buka halaman, mtime berkas, tanggal ingest, atau
+ * MAX(published_at_utc).
+ */
+export function ambilWaktuRefreshTerakhir(nowUtc: string): string | null {
+  const d = dbRo("analysis_snapshots.db");
+  if (!d) return null;
+  try {
+    if (!tabelAda(d, "meta")) return null;
+    const row = d
+      .prepare("SELECT value FROM meta WHERE key = ?")
+      .get(FREE_REFRESH_LAST_SUCCESS_KEY) as { value: string } | undefined;
+    if (!row || typeof row.value !== "string") return null;
+    const ms = Date.parse(row.value);
+    if (!Number.isFinite(ms)) return null;
+    const nowMs = Date.parse(nowUtc);
+    if (Number.isFinite(nowMs) && ms > nowMs) return null;
+    return new Date(ms).toISOString();
+  } catch {
+    return null;
+  }
 }
 
 /* ------------------------------------- keputusan tiket harian Fix-4 */
