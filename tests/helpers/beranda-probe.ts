@@ -8,8 +8,10 @@
  *   utama    — sorotan prediksi + kasus kickoff direvisi + parity rekam
  *              pada beberapa filter (termasuk beda zona waktu);
  *   cadangan — tangga fallback sorotan: tanpa-prediksi, berikutnya,
- *              hasil-terakhir (listFinished memakai jam asli proses —
- *              laga selesai di-seed relatif terhadap jam asli suite);
+ *              hasil-terakhir (listFinished memakai Date.now() proses —
+ *              Date.now() ditambatkan ke BERANDA_JAM_ASLI, jam asli
+ *              fiktif yang sama dengan yang dipakai seed menanam laga
+ *              selesai, supaya skenario deterministik);
  *   kosong   — skema saja, nol data.
  * Probe tidak menilai apa pun; suite yang menilai.
  */
@@ -24,6 +26,7 @@ import {
   ambilRingkasanRekam,
   parseFilterRekam,
 } from "../../lib/web/rekam";
+import { BERANDA_JAM_ASLI } from "./fixture-env";
 
 export const NOW_A = "2026-11-24T12:00:00.000Z";
 export const NOW_T = "2026-11-24T05:00:00.000Z";
@@ -90,6 +93,11 @@ function main(): void {
       },
     };
   } else if (skenario === "cadangan") {
+    // listFinished (satu-satunya pembaca jam asli di tangga fallback)
+    // membaca Date.now() proses. Tambatkan ke jam asli fiktif yang
+    // sama dengan seed — tanpa ini hasil skenario bergantung pada jam
+    // dinding mesin saat suite berjalan (bom waktu B0.1).
+    Date.now = () => Date.parse(BERANDA_JAM_ASLI);
     out = {
       tanpaPrediksi: pasanganSorotan(NOW_T),
       berikutnya: pasanganSorotan(NOW_B),

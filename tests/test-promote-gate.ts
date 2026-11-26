@@ -19,6 +19,7 @@ import {
   REPO_ROOT,
   Suite,
   createFixtureEnv,
+  runScript,
   settleFixtureEnv,
 } from "./helpers/fixture-env";
 import {
@@ -314,20 +315,18 @@ console.log("\nB. promote-model.ts CLI (sandbox)");
 console.log("\nC. pick-slate --no-ledger (sandbox)");
 {
   const env = createFixtureEnv("noledger");
-  const run = spawnSync(
-    "npx",
-    [
-      "--no-install",
-      "tsx",
-      path.join(REPO_ROOT, "scripts/pick-slate.ts"),
-      "--no-ledger",
-    ],
-    { cwd: env.root, encoding: "utf8" },
-  );
-  suite.eq("pick-slate --no-ledger: exit 1", run.status, 1);
+  // runScript memakai executable tsx absolut dari REPO_ROOT — pola lama
+  // spawnSync("npx", { cwd: env.root }) bergantung pada cache _npx lokal:
+  // di mesin bersih (CI) npx gagal menemukan tsx dan exit 1 karena alasan
+  // yang salah, sehingga assert exit sempat lolos tanpa CLI benar-benar
+  // berjalan (B0.1, Brief Temuan Terakhir 26 Nov 2026).
+  const run = runScript(env, "scripts/pick-slate.ts", ["--no-ledger"], {
+    DB_DIR: env.dataDir,
+  });
+  suite.eq("pick-slate --no-ledger: exit 1", run.code, 1);
   suite.check(
     "pick-slate --no-ledger: pesan penolakan eksplisit",
-    (run.stderr ?? "").includes("--no-ledger ditolak"),
+    run.stderr.includes("--no-ledger ditolak"),
     run.stderr,
   );
   suite.check(

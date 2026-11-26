@@ -7,15 +7,17 @@
  *              ringkasan rekam;
  *   cadangan — paket tanpa pick (tanpa-prediksi), paket jauh di masa
  *              depan (berikutnya), dan laga selesai relatif terhadap
- *              jam ASLI proses (hasil-terakhir membaca listFinished
- *              yang memakai jam asli, bukan jam beku probe);
+ *              jam asli FIKTIF yang dibekukan (BERANDA_JAM_ASLI):
+ *              hasil-terakhir membaca listFinished yang memakai
+ *              Date.now() proses, bukan jam beku probe — probe
+ *              menambatkan Date.now()-nya ke nilai yang sama;
  *   kosong   — skema saja.
  * Mencetak "SEED_OK" bila selesai.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { buildCoreSchemas } from "./fixture-env";
+import { BERANDA_JAM_ASLI, buildCoreSchemas } from "./fixture-env";
 import { dbPath } from "../../lib/db/paths";
 
 const TERBIT = "2026-11-17T12:00:00.000Z";
@@ -283,9 +285,12 @@ async function seedCadangan(): Promise<void> {
   paket(insPkg, "sm_p1b_n", "2027-06-10T18:00:00.000Z", "2027-05-30T01:00:00.000Z", "Tim Nanti", "Tim Kelak", [
     { market: "1x2", selection: "1", eff: 0.61, grade: "B" },
   ]);
-  // F: laga selesai relatif terhadap jam asli (listFinished membaca
-  // jendela [asli−720j, asli−3j]) → sorotan "hasil-terakhir" di NOW_H.
-  const kickFin = new Date(Date.now() - 26 * 3_600_000).toISOString();
+  // F: laga selesai relatif terhadap jam asli fiktif BERANDA_JAM_ASLI
+  // (listFinished membaca jendela [asli−720j, asli−3j] dari Date.now()
+  // proses; probe menambatkan Date.now() ke nilai yang sama) →
+  // sorotan "hasil-terakhir" di NOW_H. Kickoff ini juga selalu SEBELUM
+  // NOW_T, jadi F tidak pernah menyusup ke jadwal beku tanpa-prediksi.
+  const kickFin = new Date(Date.parse(BERANDA_JAM_ASLI) - 26 * 3_600_000).toISOString();
   paket(insPkg, "sm_p1b_f", kickFin, "2026-11-20T01:00:00.000Z", "Tim Akhir", "Tim Usai", []);
   snap.close();
 

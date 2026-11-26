@@ -25,6 +25,23 @@ import { dbPath } from "../../lib/db/paths";
 /** Root worktree — ditangkap saat proses suite mulai (npm run dari root). */
 export const REPO_ROOT = process.cwd();
 
+/**
+ * Jam "asli" fiktif yang DIBEKUKAN untuk fixture Beranda PR 1B: pembaca
+ * `listFinished` (lib/web/data.ts) memakai `Date.now()` proses, bukan jam
+ * beku probe, jadi laga selesai fixture harus relatif terhadap satu jam
+ * asli yang sama di seed dan di probe. beranda-seed menanam kickoff laga
+ * selesai relatif terhadap nilai ini; beranda-probe menambatkan
+ * `Date.now()` prosesnya ke nilai ini juga. Tanpa tambatan ini fixture
+ * bergeser mengikuti jam dinding mesin dan assertion jendela beku
+ * berubah makna seiring waktu (bom waktu B0.1: laga F menyusup ke
+ * jadwal NOW_T begitu jam asli melewati 25 Nov 07:00 UTC).
+ * Nilai dipilih di dalam jendela penulisan fixture: cukup sesudah
+ * kickoff laga F (nilai ini − 26 jam) untuk jendela listFinished
+ * [−720 jam, −3 jam], tetapi sebelum kickoff laga T (24 Nov 06:00 UTC)
+ * + 3 jam agar laga T tidak ikut masuk jendela selesai.
+ */
+export const BERANDA_JAM_ASLI = "2026-11-24T08:00:00.000Z";
+
 export interface FixtureEnv {
   label: string;
   root: string;
