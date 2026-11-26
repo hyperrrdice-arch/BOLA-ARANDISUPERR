@@ -39,7 +39,12 @@ import {
   type SlipLegView,
   type SlipRecordStats,
 } from "../picks/tickets";
-import { MARKET_LABEL, ZONA_BAKU, int, pct, zonaValid } from "./format";
+import { MARKET_LABEL, ZONA_BAKU, int, labelPilihan, pct, zonaValid } from "./format";
+import {
+  FIX4_TICKET_SIZE,
+  fix4DateWibOf,
+  fix4WindowForDate,
+} from "../picks/fix4-policy";
 import { jendelaTanggalUtc } from "./jadwal";
 
 /** Seri produksi ledger — kolom `source` baris terbit diisi dari seri ini. */
@@ -1146,4 +1151,204 @@ export function kalimatRingkasan(s: CohortStats, lagaDinilaiUnik: number): Kalim
 export function bulatkanTampil(x: number | null): number | null {
   if (x === null || x === undefined || !Number.isFinite(x)) return null;
   return Math.round(x * 10_000) / 10_000;
+}
+
+/* ------------------------------------- keputusan tiket harian Fix-4 */
+
+/**
+ * Status kartu "Keputusan tiket hari ini" (B2.1) — selalu untuk tanggal
+ * WIB dari `nowUtc`, TIDAK pernah digeser filter zona halaman:
+ * - `menunggu`         belum ada baris keputusan dan cutoff belum tiba;
+ * - `belum-tersedia`   belum ada baris keputusan dan cutoff sudah lewat;
+ * - `abstain`          baris ABSTAIN tercatat (baris selalu menang atas jam);
+ * - `terbit`           baris PUBLISHED dengan tiket + tepat
+ *                      FIX4_TICKET_SIZE pilihan utuh;
+ * - `tercatat-tak-utuh` baris PUBLISHED tercatat tetapi tiket/pilihannya
+ *                      tidak utuh — detail tidak dikarang;
+ * - `data-belum-ada`   picks.db atau tabel Fix-4 belum tersedia.
+ */
+export type StatusKeputusanFix4 =
+  | "menunggu"
+  | "belum-tersedia"
+  | "abstain"
+  | "terbit"
+  | "tercatat-tak-utuh"
+  | "data-belum-ada";
+
+export interface PilihanKeputusanFix4 {
+  position: number;
+  pick_id: number;
+  match_id: string;
+  market: string;
+  selection: string;
+  /** published_prob BEKU dari fix4_ticket_legs — bukan angka picks kini. */
+  published_prob: number;
+  /** Nama laga dari paket penerbit pick; null bila paket/nama tak ada. */
+  home: string | null;
+  away: string | null;
+  competition_name: string | null;
+  /**
+   * Label pilihan yang jujur: `labelPilihan` dengan nama tim bila nama
+   * tersedia; label pasar + seleksi mentah bila tidak (tidak dikarang).
+   */
+  label: string;
+  /** Tautan detail laga (pola yang sama dengan baris rekam lain). */
+  href_detail: string;
+}
+
+export interface KeputusanFix4HariIni {
+  /** Tanggal keputusan dalam WIB (YYYY-MM-DD) — tanggal kartu ini. */
+  date_wib: string;
+  status: StatusKeputusanFix4;
+  /** Ukuran tiket dari kebijakan (untuk copy "dari N yang dibutuhkan"). */
+  ukuran_tiket: number;
+  /** Cutoff kebijakan tanggal ini (ISO UTC) — label UI "Batas penilaian". */
+  batas_penilaian_utc: string;
+  /** created_utc baris keputusan; null bila belum ada baris. */
+  dicatat_utc: string | null;
+  /** Kandidat layak dari baris keputusan; null bila belum ada baris. */
+  eligible_count: number | null;
+  ticket_uid: string | null;
+  /** expected_hit_prob beku tiket; hanya terisi pada status `terbit`. */
+  expected_hit_prob: number | null;
+  /** Pilihan beku urut position; hanya terisi pada status `terbit`. */
+  pilihan: PilihanKeputusanFix4[];
+}
+
+function tabelAda(d: Db, nama: string): boolean {
+  try {
+    return d.prepare(`PRAGMA table_info(${nama})`).all().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Proyeksi read-only keputusan Fix-4 untuk SATU tanggal WIB (hari ini
+ * menurut `nowUtc`). SELECT dibatasi satu tanggal + satu tiket; skema
+ * TIDAK dibuat dan tidak ada penulisan dari jalur web ini (pembaca
+ * internal `readDecision` di fix4-tickets.ts memanggil ensureFix4Schema
+ * lewat jalur generatornya — kartu ini sengaja tidak memakainya).
+ * DB/tabel absen adalah keadaan data, bukan error: status
+ * `data-belum-ada` dan halaman tetap berfungsi.
+ */
+export function ambilKeputusanFix4HariIni(nowUtc: string): KeputusanFix4HariIni {
+  const date_wib = fix4DateWibOf(nowUtc);
+  const w = fix4WindowForDate(date_wib);
+  const dasar: KeputusanFix4HariIni = {
+    date_wib,
+    status: "data-belum-ada",
+    ukuran_tiket: FIX4_TICKET_SIZE,
+    batas_penilaian_utc: w.decision_ts_utc,
+    dicatat_utc: null,
+    eligible_count: null,
+    ticket_uid: null,
+    expected_hit_prob: null,
+    pilihan: [],
+  };
+  const d = dbRo("picks.db");
+  if (!d) return dasar;
+  try {
+    if (!tabelAda(d, "fix4_daily_decisions")) return dasar;
+    const row = d
+      .prepare(
+        `SELECT status, decision_ts, eligible_count, ticket_uid, created_utc
+         FROM fix4_daily_decisions WHERE date_wib = ?`,
+      )
+      .get(date_wib) as
+      | {
+          status: string;
+          decision_ts: string;
+          eligible_count: number;
+          ticket_uid: string | null;
+          created_utc: string;
+        }
+      | undefined;
+    if (!row) {
+      return {
+        ...dasar,
+        status:
+          Date.parse(nowUtc) < Date.parse(w.decision_ts_utc)
+            ? "menunggu"
+            : "belum-tersedia",
+      };
+    }
+    const tercatat: KeputusanFix4HariIni = {
+      ...dasar,
+      status: "tercatat-tak-utuh",
+      batas_penilaian_utc: row.decision_ts,
+      dicatat_utc: row.created_utc,
+      eligible_count: row.eligible_count,
+      ticket_uid: row.ticket_uid,
+    };
+    if (row.status === "ABSTAIN") return { ...tercatat, status: "abstain" };
+    if (row.status !== "PUBLISHED") return tercatat;
+    if (
+      !row.ticket_uid ||
+      !tabelAda(d, "fix4_tickets") ||
+      !tabelAda(d, "fix4_ticket_legs")
+    ) {
+      return tercatat;
+    }
+    const tiket = d
+      .prepare("SELECT expected_hit_prob FROM fix4_tickets WHERE ticket_uid = ?")
+      .get(row.ticket_uid) as { expected_hit_prob: number } | undefined;
+    if (!tiket) return tercatat;
+    const legs = d
+      .prepare(
+        `SELECT position, pick_id, match_id, market, selection, published_prob
+         FROM fix4_ticket_legs WHERE ticket_uid = ? ORDER BY position ASC`,
+      )
+      .all(row.ticket_uid) as unknown as {
+      position: number;
+      pick_id: number;
+      match_id: string;
+      market: string;
+      selection: string;
+      published_prob: number;
+    }[];
+    if (legs.length !== FIX4_TICKET_SIZE) return tercatat;
+
+    /* Nama laga lewat package_id pick penerbit (batch, maks 4 id). */
+    const pkgByPick = new Map<number, number | null>();
+    if (kolomAda(d, "picks", "package_id")) {
+      const ids = legs.map((l) => l.pick_id);
+      const rows = d
+        .prepare(
+          `SELECT id, package_id FROM picks WHERE id IN (${ids.map(() => "?").join(",")})`,
+        )
+        .all(...(ids as never[])) as unknown as {
+        id: number;
+        package_id: number | null;
+      }[];
+      for (const r of rows) pkgByPick.set(r.id, r.package_id);
+    }
+    muatNamaPaketBatch(legs.map((l) => pkgByPick.get(l.pick_id) ?? null));
+    const pilihan: PilihanKeputusanFix4[] = legs.map((l) => {
+      const nama = namaDariPaket(pkgByPick.get(l.pick_id) ?? null);
+      return {
+        position: l.position,
+        pick_id: l.pick_id,
+        match_id: l.match_id,
+        market: l.market,
+        selection: l.selection,
+        published_prob: l.published_prob,
+        home: nama?.home ?? null,
+        away: nama?.away ?? null,
+        competition_name: nama?.competition_name ?? null,
+        label: nama
+          ? labelPilihan(l.market, l.selection, nama.home, nama.away)
+          : `${MARKET_LABEL[l.market] ?? l.market} · ${l.selection}`,
+        href_detail: `/pertandingan/${l.match_id}`,
+      };
+    });
+    return {
+      ...tercatat,
+      status: "terbit",
+      expected_hit_prob: tiket.expected_hit_prob,
+      pilihan,
+    };
+  } catch {
+    return dasar;
+  }
 }

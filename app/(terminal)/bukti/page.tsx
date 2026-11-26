@@ -44,6 +44,7 @@ import {
 } from "../../../lib/web/format";
 import {
   ambilDetailTiket,
+  ambilKeputusanFix4HariIni,
   ambilRekam,
   bulatkanTampil,
   kalimatRingkasan,
@@ -53,6 +54,7 @@ import {
   type BarisRekam,
   type DetailTiket,
   type KelompokLagaRekam,
+  type KeputusanFix4HariIni,
   type RekamData,
 } from "../../../lib/web/rekam";
 import type { OfficialSlipView } from "../../../lib/picks/tickets";
@@ -217,6 +219,108 @@ function DetailTiketBlok({ detail, tz }: { detail: DetailTiket; tz: string }) {
   );
 }
 
+/* ------------------------------------------- keputusan tiket hari ini */
+
+/**
+ * Kartu keputusan Fix-4 HARI INI dalam WIB (B2.1). Tanggal kartu berasal
+ * dari `fix4DateWibOf(nowUtc)` di lapisan baca — filter zona halaman
+ * TIDAK menggesernya, dan semua jam di kartu ini selalu WIB. Status
+ * dipahami lewat teks; angka peluang adalah snapshot beku saat terbit.
+ */
+const STATUS_KEPUTUSAN_LABEL: Record<KeputusanFix4HariIni["status"], string> = {
+  menunggu: "Menunggu keputusan",
+  "belum-tersedia": "Keputusan belum tersedia",
+  abstain: "Abstain",
+  terbit: "Tiket terbit",
+  "tercatat-tak-utuh": "Tiket tercatat · detail belum tersedia",
+  "data-belum-ada": "Data tiket belum tersedia",
+};
+
+function KartuKeputusanFix4({ k }: { k: KeputusanFix4HariIni }) {
+  const jamBatas = jamWibOnly(k.batas_penilaian_utc, ZONA_BAKU);
+  return (
+    <section className="mt-10" aria-label="Keputusan tiket hari ini">
+      <div className="rounded-md border border-hairline bg-surface p-4 sm:p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Keputusan tiket hari ini
+          </h2>
+          <p className="text-[13px] text-faint">
+            {tanggalPanjang(`${k.date_wib}T12:00:00.000Z`, ZONA_BAKU)} · WIB
+          </p>
+        </div>
+        <p className="mt-3 text-[15px] text-ink">
+          Status: <strong>{STATUS_KEPUTUSAN_LABEL[k.status]}</strong>
+        </p>
+
+        {k.status === "menunggu" && (
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
+            Belum ada keputusan yang tercatat untuk hari ini. Batas penilaian
+            pukul {jamBatas} WIB.
+          </p>
+        )}
+        {k.status === "belum-tersedia" && (
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
+            Batas penilaian pukul {jamBatas} WIB sudah lewat, tetapi belum ada
+            keputusan yang tercatat untuk hari ini.
+          </p>
+        )}
+        {k.status === "abstain" && (
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
+            {int(k.eligible_count)} kandidat layak dari {int(k.ukuran_tiket)}{" "}
+            yang dibutuhkan — tidak ada tiket yang diterbitkan hari ini.
+          </p>
+        )}
+        {k.status === "data-belum-ada" && (
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-mid-gray">
+            Rekam hasil di bawah tetap dapat dipakai.
+          </p>
+        )}
+
+        {k.status === "terbit" && (
+          <ul className="mt-3">
+            {k.pilihan.map((p) => (
+              <li key={p.position} className="border-t border-hairline/50 first:border-t-0">
+                <Link
+                  href={p.href_detail}
+                  className="flex min-h-[44px] flex-wrap items-center gap-x-3 gap-y-1 py-2.5"
+                >
+                  <span className="min-w-0 flex-1">
+                    {p.home && p.away ? (
+                      <>
+                        <span className="block text-ink">
+                          {p.home} <span className="text-faint">vs</span> {p.away}
+                        </span>
+                        <span className="block text-[13px] text-mid-gray">
+                          {p.label}
+                          {p.competition_name ? ` · ${p.competition_name}` : ""}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="block text-ink">{p.label}</span>
+                    )}
+                  </span>
+                  <span className="shrink-0 text-right">
+                    <Prob value={p.published_prob} />
+                    <span className="block text-[12px] text-faint">Peluang resmi</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {k.dicatat_utc && (
+          <p className="mt-3 text-[13px] text-faint">
+            Dicatat {tanggalJamWib(k.dicatat_utc, ZONA_BAKU)} · Batas penilaian{" "}
+            {jamBatas} WIB
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ------------------------------------------------------------- baris */
 
 function alasanPending(b: BarisRekam): string | null {
@@ -345,6 +449,7 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
   const filter = parseFilterRekam(params);
   const tz = filter.tz;
   const nowUtc = new Date().toISOString();
+  const keputusan = ambilKeputusanFix4HariIni(nowUtc);
   const data: RekamData = ambilRekam(filter, nowUtc);
   const s = data.stats;
   const ringkasan = kalimatRingkasan(s, data.laga_dinilai_unik);
@@ -509,6 +614,8 @@ async function BuktiContent({ searchParams }: { searchParams: Promise<Params> })
           Ringkasan dan daftar mengikuti periode serta filter yang kamu pilih.
         </p>
       </header>
+
+      <KartuKeputusanFix4 k={keputusan} />
 
       {typeof tiketParam === "string" && tiketParam ? (
         detailTiket ? (
