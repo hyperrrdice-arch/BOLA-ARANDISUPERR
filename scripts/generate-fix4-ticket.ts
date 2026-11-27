@@ -17,8 +17,16 @@
  *   npx tsx scripts/generate-fix4-ticket.ts [--date=YYYY-MM-DD]
  *   (tanggal dalam WIB; default = tanggal WIB hari ini)
  */
+import fs from "node:fs";
+import { DatabaseSync } from "node:sqlite";
+import { dbPath } from "../lib/db/paths";
 import { getPicksDb } from "../lib/picks/ledger";
-import { fix4WaitingIfBeforeCutoff, generateFix4Ticket } from "../lib/picks/fix4-tickets";
+import {
+  fix4WaitingIfBeforeCutoff,
+  generateFix4Ticket,
+  readExistingFix4Decision,
+  type Fix4GenerationResult,
+} from "../lib/picks/fix4-tickets";
 import { fix4DateWibOf } from "../lib/picks/fix4-policy";
 
 const args = process.argv.slice(2);
@@ -38,10 +46,35 @@ if (waiting) {
   process.exit(0);
 }
 
-const db = getPicksDb();
-const decision = generateFix4Ticket(db, dateWib, nowUtc, {
-  now: () => new Date().toISOString(),
-});
+// Retry scheduler (finalisasi PR #12 — F3): keputusan yang sudah
+// tercatat dikembalikan lewat koneksi READ-ONLY lebih dulu. Getter
+// writable (getPicksDb) menjalankan init + backfill legacy saat
+// dibuka — di bawah lock writer lain ia menunggu dan dapat mengubah
+// baris legacy sebelum menjawab; jalur baca ini tidak meminta lock
+// tulis sama sekali. Getter writable hanya dibuka bila keputusan
+// baru memang perlu dibuat, dan generateFix4Ticket tetap mengecek
+// ulang keputusan di dalam transaksi tulisnya (scheduler bersamaan
+// tidak menghasilkan keputusan ganda).
+let decision: Fix4GenerationResult | null = null;
+try {
+  const picksFile = dbPath("picks.db");
+  if (fs.existsSync(picksFile)) {
+    const ro = new DatabaseSync(picksFile, { readOnly: true });
+    try {
+      decision = readExistingFix4Decision(ro, dateWib);
+    } finally {
+      ro.close();
+    }
+  }
+} catch {
+  decision = null;
+}
+if (!decision) {
+  const db = getPicksDb();
+  decision = generateFix4Ticket(db, dateWib, nowUtc, {
+    now: () => new Date().toISOString(),
+  });
+}
 
 if (decision.status === "WAITING_CUTOFF") {
   console.log(`FIX-4 ${dateWib}: ${decision.reason}`);
