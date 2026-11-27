@@ -47,7 +47,9 @@
  * SHA basis) dan `kickoff_utc` mayoritas format yang sama (ada varian
  * valid tanpa milidetik, 20 char). Jalur cepat selector memakai
  * perbandingan leksikal SQLite untuk `computed_utc`, TETAPI setiap match
- * kandidat diperiksa varian formatnya lebih dulu: bila ada edisi dengan
+ * kandidat diperiksa varian formatnya lebih dulu (jalur cepat hanya sah
+ * bila SELURUH edisi match memakai presisi UTC yang SERAGAM — `09:00:00Z`
+ * vs `09:00:00.500Z` dihitung varian; regresi PIT B §1): bila ada edisi dengan
  * format non-seragam (mis. offset numerik `+01:00`/`-01:00` yang urutan
  * leksikalnya menyimpang dari urutan instant), seleksi match itu dihitung
  * ulang per instant dengan parser berzona eksplisit (`Date.parse` atas
@@ -482,7 +484,7 @@ export interface PitARunSummary {
   skipped: Record<string, number>;
 }
 
-interface RawPkgRow {
+export interface RawPkgRow {
   id: number;
   match_id: string;
   competition_canonical_id: string | null;
@@ -495,14 +497,14 @@ interface RawPkgRow {
 }
 
 /** Edisi terpilih per alias SESUDAH seleksi as-of, SEBELUM validasi isi. */
-interface ParsedEdition {
+export interface ParsedEdition {
   raw: RawPkgRow;
   computedMs: number | null;
   kickoffMs: number | null;
 }
 
 /** Edisi PEMENANG grup yang lolos validasi kickoff + payload. */
-interface ValidEdition {
+export interface ValidEdition {
   raw: RawPkgRow;
   computedMs: number;
   kickoffMs: number;
@@ -521,6 +523,19 @@ const PKG_COLS = "id, match_id, competition_canonical_id, computed_utc, kickoff_
 const UNIFORM_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 
 /**
+ * Tanda tangan presisi format UTC seragam: `z0` tanpa pecahan, `z<n>` dengan
+ * pecahan n digit, `other` di luar pola seragam. Perbandingan leksikal
+ * SQLite hanya setara urutan instant bila semua string berbagi tanda tangan
+ * yang sama (kasus campuran `09:00:00Z` vs `09:00:00.500Z`: '.' (0x2E) <
+ * 'Z' (0x5A) membuat edisi yang lebih baru kalah secara leksikal).
+ */
+export function computedFormatSig(s: string): string {
+  if (!UNIFORM_UTC_RE.test(s)) return "other";
+  const f = /\.(\d+)Z$/.exec(s);
+  return f ? `z${f[1].length}` : "z0";
+}
+
+/**
  * Parser berzona eksplisit: hanya menerima ISO 8601 dengan penanda zona
  * yang jelas — `Z` (UTC, ± milidetik) atau offset numerik valid
  * (`+hh:mm`/`-hh:mm`, jam ≤ 14, menit ≤ 59). String tanpa zona DITOLAK
@@ -529,7 +544,7 @@ const UNIFORM_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 const ZONED_ISO_RE =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
 
-function parseInstant(v: string | null | undefined): number | null {
+export function parseInstant(v: string | null | undefined): number | null {
   if (typeof v !== "string") return null;
   const m = ZONED_ISO_RE.exec(v.trim());
   if (!m) return null;
@@ -560,120 +575,315 @@ function parseInstant(v: string | null | undefined): number | null {
 }
 
 /** Kickoff wajib berpresisi jam (punya komponen 'T'); tanggal-saja = invalid. */
-function parseKickoff(v: string | null | undefined): number | null {
+export function parseKickoff(v: string | null | undefined): number | null {
   if (typeof v !== "string" || !v.includes("T")) return null;
   return parseInstant(v);
 }
 
-export function runMl1PitA(deps: PitADeps): PitARunSummary {
-  const { dataset, upcoming, snapshots } = deps;
-  const limit = deps.limit ?? 0;
-  const skipped: Record<string, number> = {};
-  const skip = (cat: string, n = 1) => {
-    skipped[cat] = (skipped[cat] ?? 0) + n;
-  };
+// ============================================================================
+// Pin snapshot + seleksi paket as-of — DIPISAH dari run PIT A supaya PIT B
+// dapat membuka transaksi pin pada TIGA store lebih dulu, mengambil SATU
+// decision_at_utc sesudah seluruh pin, lalu menjalankan seleksi ini di
+// dalam transaksi yang sudah terbuka (tanpa transaksi kedua / baca ulang
+// clock keputusan).
+// ============================================================================
 
-  // ---------------------------------------------------------- §3 SNAPSHOT --
-  // Snapshot baca paket dalam SATU transaksi read-only singkat: pembacaan
-  // pertama men-pin snapshot, BARU sesudah itu decision_at_utc diambil dari
-  // clock dan dipakai untuk seluruh batch.
-  let decisionMs = Number.NaN;
-  let decision_at_utc = "";
+/** Mulai transaksi baca dan PIN snapshot SQLite lewat pembacaan tabel sungguhan. */
+export function beginPinnedRead(db: DatabaseSync, probeSql: string): void {
+  db.exec("BEGIN");
+  db.prepare(probeSql).get();
+}
+
+/** Lepas transaksi baca; kegagalan COMMIT di sini berarti transaksi sudah lepas. */
+export function endPinnedRead(db: DatabaseSync): void {
+  try {
+    db.exec("COMMIT");
+  } catch {
+    // Transaksi baca sudah lepas — tidak ada yang perlu dipulihkan.
+  }
+}
+
+export interface PitPackageSelection {
+  selectedRaw: Map<string, RawPkgRow>;
+  unparseableComputed: Set<string>;
+}
+
+/**
+ * Seleksi edisi `slate` terbaru as-of di dalam transaksi baca yang SUDAH
+ * dipin pemanggil. Predikat `computed_utc <= decision` berada DI DALAM
+ * subquery selector latest (pola brief PIT A §3), tie-break
+ * `computed_utc DESC, id DESC`. Jalur cepat leksikal hanya dipakai bila
+ * seluruh edisi satu match berbagi presisi UTC seragam; varian apa pun
+ * (offset numerik, presisi campuran, nilai tak terparse, atau edisi primer
+ * melampaui keputusan) memicu seleksi ulang per instant untuk match itu.
+ */
+export function selectPackagesAsOf(
+  snapshots: DatabaseSync,
+  decisionMs: number,
+  decision_at_utc: string,
+): PitPackageSelection {
   const selectedRaw = new Map<string, RawPkgRow>();
   const unparseableComputed = new Set<string>();
-  snapshots.exec("BEGIN");
-  try {
-    snapshots.prepare("SELECT COUNT(*) AS n FROM packages").get();
-    const decisionDate = deps.clock();
-    decisionMs = decisionDate.getTime();
-    if (!Number.isFinite(decisionMs)) {
-      throw new Error("ML1-PIT-A: clock menghasilkan waktu tidak valid untuk decision_at_utc.");
-    }
-    decision_at_utc = decisionDate.toISOString();
+  const primary = snapshots
+    .prepare(
+      `SELECT ${PKG_COLS} FROM packages p
+       WHERE p.trigger = 'slate'
+         AND p.id = (
+           SELECT p2.id FROM packages p2
+           WHERE p2.match_id = p.match_id AND p2.trigger = 'slate'
+             AND p2.computed_utc <= ?
+           ORDER BY p2.computed_utc DESC, p2.id DESC
+           LIMIT 1
+         )`,
+    )
+    .all(decision_at_utc) as unknown as RawPkgRow[];
+  for (const r of primary) selectedRaw.set(r.match_id, r);
 
-    // Selector latest as-of: predikat computed_utc <= decision DI DALAM
-    // subquery (pola brief §3), tie-break computed_utc DESC, id DESC.
-    // Tanpa predikat kickoff luar — kickoff edisi terpilih dicek di kode
-    // (perbandingan instant), dan lookup grup perlu melihat edisi yang
-    // memajukan kickoff melewati cutoff.
-    const primary = snapshots
-      .prepare(
-        `SELECT ${PKG_COLS} FROM packages p
-         WHERE p.trigger = 'slate'
-           AND p.id = (
-             SELECT p2.id FROM packages p2
-             WHERE p2.match_id = p.match_id AND p2.trigger = 'slate'
-               AND p2.computed_utc <= ?
-             ORDER BY p2.computed_utc DESC, p2.id DESC
-             LIMIT 1
-           )`,
-      )
-      .all(decision_at_utc) as unknown as RawPkgRow[];
-    for (const r of primary) selectedRaw.set(r.match_id, r);
-
-    // Konsistensi instant (§3.3): varian UTC valid yang urutan leksikalnya
-    // berbeda dari urutan instant ditangani per-match dengan pemindaian
-    // instant penuh atas edisi match itu saja (terbatas, jarang terjadi).
-    const refetchByInstant = (matchId: string): RawPkgRow | null => {
-      const rows = snapshots
-        .prepare(`SELECT ${PKG_COLS} FROM packages WHERE match_id = ? AND trigger = 'slate'`)
-        .all(matchId) as unknown as RawPkgRow[];
-      let best: RawPkgRow | null = null;
-      let bestMs = Number.NEGATIVE_INFINITY;
-      let sawUnparseable = false;
-      for (const r of rows) {
-        const ms = parseInstant(r.computed_utc);
-        if (ms === null) {
-          sawUnparseable = true;
-          continue;
-        }
-        if (ms > decisionMs) continue;
-        if (ms > bestMs || (ms === bestMs && best !== null && r.id > best.id)) {
-          best = r;
-          bestMs = ms;
-        }
-      }
-      if (best === null && sawUnparseable) unparseableComputed.add(matchId);
-      return best;
-    };
-    for (const [matchId, r] of [...selectedRaw.entries()]) {
+  // Konsistensi instant (§3.3): varian yang urutan leksikalnya berbeda dari
+  // urutan instant ditangani per-match dengan pemindaian instant penuh atas
+  // edisi match itu saja (terbatas, jarang terjadi).
+  const refetchByInstant = (matchId: string): RawPkgRow | null => {
+    const rows = snapshots
+      .prepare(`SELECT ${PKG_COLS} FROM packages WHERE match_id = ? AND trigger = 'slate'`)
+      .all(matchId) as unknown as RawPkgRow[];
+    let best: RawPkgRow | null = null;
+    let bestMs = Number.NEGATIVE_INFINITY;
+    let sawUnparseable = false;
+    for (const r of rows) {
       const ms = parseInstant(r.computed_utc);
-      // Deteksi varian format pada SEMUA edisi calon match ini (query
-      // terindeks per match_id — volume yang terbaca hanya histori match
-      // kandidat, bukan seluruh tabel): satu saja edisi non-seragam
-      // membuat urutan leksikal tidak bisa dipercaya untuk match ini,
-      // jadi seleksinya dihitung ulang per instant.
-      let hasVariant = !UNIFORM_UTC_RE.test(r.computed_utc);
-      if (!hasVariant) {
-        const allComputed = snapshots
-          .prepare("SELECT computed_utc FROM packages WHERE match_id = ? AND trigger = 'slate'")
-          .all(matchId) as unknown as { computed_utc: string }[];
-        hasVariant = allComputed.some((c) => !UNIFORM_UTC_RE.test(c.computed_utc));
+      if (ms === null) {
+        sawUnparseable = true;
+        continue;
       }
-      if (hasVariant || ms === null || ms > decisionMs) {
-        const fixed = refetchByInstant(matchId);
-        if (fixed) selectedRaw.set(matchId, fixed);
-        // fixed === null: baris primer dipertahankan; fase validasi yang
-        // menghitungnya sebagai invalid_time (atau memang belum ada edisi).
-        if (fixed === null && ms !== null && ms > decisionMs) selectedRaw.delete(matchId);
+      if (ms > decisionMs) continue;
+      if (ms > bestMs || (ms === bestMs && best !== null && r.id > best.id)) {
+        best = r;
+        bestMs = ms;
       }
     }
-    const allIds = snapshots
-      .prepare("SELECT DISTINCT match_id FROM packages WHERE trigger = 'slate'")
-      .all() as unknown as { match_id: string }[];
-    for (const { match_id } of allIds) {
-      if (selectedRaw.has(match_id)) continue;
-      const fixed = refetchByInstant(match_id);
-      if (fixed) selectedRaw.set(match_id, fixed);
+    if (best === null && sawUnparseable) unparseableComputed.add(matchId);
+    return best;
+  };
+  for (const [matchId, r] of [...selectedRaw.entries()]) {
+    const ms = parseInstant(r.computed_utc);
+    // Deteksi varian format pada SEMUA edisi calon match ini (query
+    // terindeks per match_id — volume yang terbaca hanya histori match
+    // kandidat, bukan seluruh tabel): satu saja edisi yang presisi/formatnya
+    // berbeda membuat urutan leksikal tidak bisa dipercaya untuk match ini,
+    // jadi seleksinya dihitung ulang per instant.
+    const selSig = computedFormatSig(r.computed_utc);
+    let hasVariant = selSig === "other";
+    if (!hasVariant) {
+      const allComputed = snapshots
+        .prepare("SELECT computed_utc FROM packages WHERE match_id = ? AND trigger = 'slate'")
+        .all(matchId) as unknown as { computed_utc: string }[];
+      hasVariant = allComputed.some((c) => computedFormatSig(c.computed_utc) !== selSig);
     }
-  } finally {
-    try {
-      snapshots.exec("COMMIT");
-    } catch {
-      // Transaksi baca sudah lepas — tidak ada yang perlu dipulihkan.
+    if (hasVariant || ms === null || ms > decisionMs) {
+      const fixed = refetchByInstant(matchId);
+      if (fixed) selectedRaw.set(matchId, fixed);
+      // fixed === null: baris primer dipertahankan; fase validasi yang
+      // menghitungnya sebagai invalid_time (atau memang belum ada edisi).
+      if (fixed === null && ms !== null && ms > decisionMs) selectedRaw.delete(matchId);
     }
   }
+  const allIds = snapshots
+    .prepare("SELECT DISTINCT match_id FROM packages WHERE trigger = 'slate'")
+    .all() as unknown as { match_id: string }[];
+  for (const { match_id } of allIds) {
+    if (selectedRaw.has(match_id)) continue;
+    const fixed = refetchByInstant(match_id);
+    if (fixed) selectedRaw.set(match_id, fixed);
+  }
+  return { selectedRaw, unparseableComputed };
+}
 
+/** Id jembatan sm_id_map untuk satu id sumber (kedua arah). */
+export function bridgeIdsOf(upcoming: DatabaseSync, matchId: string): string[] {
+  const out: string[] = [];
+  try {
+    const fwd = upcoming
+      .prepare("SELECT sm_fixture_id FROM sm_id_map WHERE match_id = ?")
+      .get(matchId) as { sm_fixture_id: number } | undefined;
+    if (fwd) out.push(`sm_${fwd.sm_fixture_id}`);
+    const m = /^sm_(\d+)$/.exec(matchId);
+    if (m) {
+      const rev = upcoming
+        .prepare("SELECT match_id FROM sm_id_map WHERE sm_fixture_id = ?")
+        .all(Number(m[1])) as unknown as { match_id: string }[];
+      for (const r of rev) out.push(r.match_id);
+    }
+  } catch {
+    // sm_id_map boleh tidak ada di store lama — jembatan dilewati.
+  }
+  return out;
+}
+
+// ============================================================================
+// Eligibility bersama (satu fungsi, dua titik pakai: sebelum limit dan
+// sesudah inferensi). PIT B memakai fungsi yang sama — titik keduanya
+// membaca data SEGAR sesudah transaksi pin dilepas.
+// ============================================================================
+export interface PitIdentityHandles {
+  dataset: DatabaseSync;
+  upcoming: DatabaseSync;
+  dataDirPath: string;
+  identityReady: boolean;
+}
+
+export interface PitEligibilityArgs {
+  winnerId: string;
+  uid: string;
+  kickoffMs: number;
+  aliasSet: Set<string>;
+  frozenTeam: { homeId: string; awayId: string } | null;
+  freshIdentity: boolean;
+}
+
+function uidOfFresh(handles: PitIdentityHandles, matchId: string): string | null {
+  if (!identityTablesExist(handles.dataset)) return null;
+  return getUidForMatchId(handles.dataset, matchId);
+}
+
+function aliasSetFresh(
+  handles: PitIdentityHandles,
+  matchId: string,
+  groupsNow: FixtureLinkGroup[],
+): string[] {
+  const ordered: string[] = [];
+  const seen = new Set<string>();
+  const push = (id: string | null | undefined) => {
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      ordered.push(id);
+    }
+  };
+  push(matchId);
+  if (handles.identityReady) for (const id of getSiblingIds(handles.dataset, matchId)) push(id);
+  for (const id of linkSiblingsOf(groupsNow, matchId)) push(id);
+  for (const id of bridgeIdsOf(handles.upcoming, matchId)) push(id);
+  return ordered;
+}
+
+/**
+ * Mengembalikan kategori skip, atau null bila fixture layak. Titik
+ * pra-limit memakai identitas dari fase persiapan; titik pasca-inferensi
+ * (`freshIdentity`) membangun ulang KOMPONEN ALIAS PENUH dari id sumber
+ * pemenang dengan data K1/file tautan/bridge TERBARU (BFS transitif) —
+ * hanya komponen segar itu yang menjadi bukti identitas aktif: tautan
+ * yang hilang di tengah inferensi atau hop baru menuju UID lain sama-sama
+ * menggugurkan fixture. Set alias snapshot hanya dipakai untuk deteksi
+ * DRIFT (alias yang dulu menunjuk UID ini tidak boleh kini menunjuk UID
+ * lain), bukan sebagai bukti identitas.
+ */
+export function checkPitEligibility(handles: PitIdentityHandles, args: PitEligibilityArgs): string | null {
+  const { dataset, upcoming } = handles;
+  // Upcoming pemenang: hilang / di luar scheduled → tidak layak.
+  const up = upcoming
+    .prepare("SELECT utc_date, status, home_team_id, away_team_id FROM upcoming_fixtures WHERE match_id = ?")
+    .get(args.winnerId) as
+    | { utc_date: string | null; status: string | null; home_team_id: unknown; away_team_id: unknown }
+    | undefined;
+  if (!up) return "fixture_state_ineligible";
+  const statusRaw = typeof up.status === "string" ? up.status.trim() : "";
+  if (statusRaw !== "scheduled") return "fixture_state_ineligible";
+  const upKickoffMs = parseKickoff(up.utc_date);
+  if (upKickoffMs === null || upKickoffMs !== args.kickoffMs) return "schedule_conflict";
+  // ID tim yang dibekukan untuk inferensi tidak boleh berubah.
+  if (args.frozenTeam) {
+    if (String(up.home_team_id) !== args.frozenTeam.homeId || String(up.away_team_id) !== args.frozenTeam.awayId) {
+      return "identity_changed";
+    }
+  }
+  // Bukti kanonik: fixture hilang / state bukan scheduled → tidak layak
+  // WALAU upcoming sumber masih terjadwal. Kickoff kanonik presisi
+  // `exact` wajib sama instant-nya dengan paket; jalur `date_only`
+  // bergantung pada upcoming berwaktu tepat (sudah dicek di atas) selama
+  // tanggalnya tidak berkonflik.
+  if (handles.identityReady) {
+    const cf = getFixtureByUid(dataset, args.uid);
+    if (!cf) return "fixture_state_ineligible";
+    if (cf.state !== "scheduled") return "fixture_state_ineligible";
+    if (cf.kickoff_precision === "date_only") {
+      const cfDate = typeof cf.kickoff_utc === "string" ? cf.kickoff_utc.slice(0, 10) : "";
+      if (cfDate === "" || cfDate !== new Date(args.kickoffMs).toISOString().slice(0, 10)) {
+        return "schedule_conflict";
+      }
+    } else {
+      const cfMs = parseInstant(cf.kickoff_utc);
+      if (cfMs === null || cfMs !== args.kickoffMs) return "schedule_conflict";
+    }
+  }
+  // Identitas segar (hanya titik pasca-inferensi): komponen alias PENUH
+  // dibangun ulang dari data terbaru; lanjut hanya bila komponen segar
+  // membuktikan tepat satu UID — UID yang sama dengan yang diterbitkan.
+  if (args.freshIdentity) {
+    const groupsNow = loadFixtureLinkGroups(handles.dataDirPath);
+    const component = new Set<string>();
+    const queue = [args.winnerId];
+    while (queue.length > 0) {
+      const cur = queue.pop() as string;
+      if (component.has(cur)) continue;
+      component.add(cur);
+      for (const id of aliasSetFresh(handles, cur, groupsNow)) {
+        if (!component.has(id)) queue.push(id);
+      }
+    }
+    const uids = new Set<string>();
+    for (const id of component) {
+      const u = uidOfFresh(handles, id);
+      if (u) uids.add(u);
+    }
+    if (uids.size !== 1 || !uids.has(args.uid)) return "identity_changed";
+    // Drift alias snapshot: alias yang tercatat untuk UID ini tidak boleh
+    // sekarang menunjuk UID lain (alias hilang sendiri bukan bukti aktif —
+    // komponen segar di atas yang memutuskan).
+    for (const id of args.aliasSet) {
+      const u = uidOfFresh(handles, id);
+      if (u !== null && u !== args.uid) return "identity_changed";
+    }
+  }
+  return null;
+}
+
+/** Fixture pemenang grup yang lolos validasi isi (siap eligibility). */
+export interface PitPreparedFixture {
+  uid: string;
+  aliasSet: Set<string>;
+  winner: ValidEdition;
+  winnerId: string;
+  method: string;
+}
+
+export interface PitPrepareArgs {
+  dataset: DatabaseSync;
+  upcoming: DatabaseSync;
+  dataDirPath: string;
+  linkGroups: FixtureLinkGroup[];
+  selectedRaw: Map<string, RawPkgRow>;
+  unparseableComputed: Set<string>;
+  decisionMs: number;
+  skip: (cat: string, n?: number) => void;
+}
+
+export interface PitPrepareResult {
+  /** Fixture yang lolos validasi pemenang + eligibility pra-limit. */
+  eligible: PitPreparedFixture[];
+  candidatesBySource: Record<string, number>;
+  uniqueFixtures: number;
+  identityReady: boolean;
+}
+
+/**
+ * Persiapan kandidat bersama PIT A/PIT B: parse edisi terpilih → komponen
+ * alias transitif + resolusi UID → pemenang grup + validasi isinya →
+ * eligibility SEBELUM limit. Semua bacaan berjalan lewat handle yang
+ * diserahkan pemanggil: PIT A memanggilnya sesudah snapshot paket dilepas
+ * (bacaan live), PIT B memanggilnya SELAGI transaksi pin tiga store masih
+ * terbuka (bacaan = snapshot terpin) — dengan `decisionMs` yang sama.
+ */
+export function preparePitCandidates(args: PitPrepareArgs): PitPrepareResult {
+  const { dataset, upcoming, dataDirPath, linkGroups, selectedRaw, unparseableComputed, decisionMs, skip } = args;
   // ------------------------------------------- §3 PARSE (tanpa validasi isi)
   // PEMENANG DULU, VALIDASI KEMUDIAN: di titik ini edisi terpilih per alias
   // hanya di-parse waktunya. Payload TIDAK divalidasi per edisi — validasi
@@ -698,7 +908,6 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
   }
 
   // ------------------------------------------------------- §4 IDENTITAS --
-  const linkGroups: FixtureLinkGroup[] = loadFixtureLinkGroups(deps.dataDirPath);
   const identityReady = identityTablesExist(dataset);
   const aliasCache = new Map<string, string[]>();
   const uidCache = new Map<string, string | null>();
@@ -712,25 +921,6 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     return uid;
   };
 
-  const bridgeIds = (matchId: string): string[] => {
-    const out: string[] = [];
-    try {
-      const fwd = upcoming
-        .prepare("SELECT sm_fixture_id FROM sm_id_map WHERE match_id = ?")
-        .get(matchId) as { sm_fixture_id: number } | undefined;
-      if (fwd) out.push(`sm_${fwd.sm_fixture_id}`);
-      const m = /^sm_(\d+)$/.exec(matchId);
-      if (m) {
-        const rev = upcoming
-          .prepare("SELECT match_id FROM sm_id_map WHERE sm_fixture_id = ?")
-          .all(Number(m[1])) as unknown as { match_id: string }[];
-        for (const r of rev) out.push(r.match_id);
-      }
-    } catch {
-      // sm_id_map boleh tidak ada di store lama — jembatan dilewati.
-    }
-    return out;
-  };
 
   /** Set alias satu id: store identitas + grup tautan + bridge sm_id_map. */
   const aliasSetOf = (matchId: string): string[] => {
@@ -747,7 +937,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     push(matchId);
     if (identityReady) for (const id of getSiblingIds(dataset, matchId)) push(id);
     for (const id of linkSiblingsOf(linkGroups, matchId)) push(id);
-    for (const id of bridgeIds(matchId)) push(id);
+    for (const id of bridgeIdsOf(upcoming, matchId)) push(id);
     aliasCache.set(matchId, ordered);
     return ordered;
   };
@@ -857,14 +1047,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
   // Pemenang grup: instant komputasi DESC, id paket DESC, match_id ASC
   // (urutan brief §4.3). HANYA pemenang yang divalidasi isinya: pemenang
   // rusak/waktunya invalid/kickoff-nya lewat mengeluarkan SELURUH fixture.
-  interface Prepared {
-    uid: string;
-    aliasSet: Set<string>;
-    winner: ValidEdition;
-    winnerId: string;
-    method: string;
-  }
-  const prepared: Prepared[] = [];
+  const prepared: PitPreparedFixture[] = [];
   for (const g of groups.values()) {
     const ranked = g.editionIds
       .map((id) => ({ id, ed: parsed.get(id) as ParsedEdition }))
@@ -934,7 +1117,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     let method = "identity_sibling";
     if (uidOf(winnerId) === g.uid) method = "fixture_aliases";
     else if (linkSiblingsOf(linkGroups, winnerId).some((id) => id !== winnerId && uidOf(id) === g.uid)) method = "fixture_links";
-    else if (bridgeIds(winnerId).some((id) => uidOf(id) === g.uid)) method = "sm_id_map";
+    else if (bridgeIdsOf(upcoming, winnerId).some((id) => uidOf(id) === g.uid)) method = "sm_id_map";
     prepared.push({ uid: g.uid, aliasSet: g.aliasSet, winner, winnerId, method });
   }
 
@@ -944,89 +1127,12 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
   //  (2) sesudah inferensi — semua lookup BARU (tautan/bridge dibaca ulang,
   //      UID tanpa cache, ID tim dibekukan dari yang dipakai inferensi).
   // Mengembalikan kategori skip, atau null bila fixture layak.
-  const uidOfFresh = (matchId: string): string | null => {
-    if (!identityTablesExist(dataset)) return null;
-    return getUidForMatchId(dataset, matchId);
-  };
-  const aliasSetFresh = (matchId: string, groupsNow: FixtureLinkGroup[]): string[] => {
-    const ordered: string[] = [];
-    const seen = new Set<string>();
-    const push = (id: string | null | undefined) => {
-      if (id && !seen.has(id)) {
-        seen.add(id);
-        ordered.push(id);
-      }
-    };
-    push(matchId);
-    if (identityReady) for (const id of getSiblingIds(dataset, matchId)) push(id);
-    for (const id of linkSiblingsOf(groupsNow, matchId)) push(id);
-    for (const id of bridgeIds(matchId)) push(id);
-    return ordered;
-  };
-  const checkEligibility = (args: {
-    winnerId: string;
-    uid: string;
-    kickoffMs: number;
-    aliasSet: Set<string>;
-    frozenTeam: { homeId: string; awayId: string } | null;
-    freshIdentity: boolean;
-  }): string | null => {
-    // Upcoming pemenang: hilang / di luar scheduled → tidak layak.
-    const up = upcoming
-      .prepare("SELECT utc_date, status, home_team_id, away_team_id FROM upcoming_fixtures WHERE match_id = ?")
-      .get(args.winnerId) as
-      | { utc_date: string | null; status: string | null; home_team_id: unknown; away_team_id: unknown }
-      | undefined;
-    if (!up) return "fixture_state_ineligible";
-    const statusRaw = typeof up.status === "string" ? up.status.trim() : "";
-    if (statusRaw !== "scheduled") return "fixture_state_ineligible";
-    const upKickoffMs = parseKickoff(up.utc_date);
-    if (upKickoffMs === null || upKickoffMs !== args.kickoffMs) return "schedule_conflict";
-    // ID tim yang dibekukan untuk inferensi tidak boleh berubah.
-    if (args.frozenTeam) {
-      if (String(up.home_team_id) !== args.frozenTeam.homeId || String(up.away_team_id) !== args.frozenTeam.awayId) {
-        return "identity_changed";
-      }
-    }
-    // Bukti kanonik: fixture hilang / state bukan scheduled → tidak layak
-    // WALAU upcoming sumber masih terjadwal. Kickoff kanonik presisi
-    // `exact` wajib sama instant-nya dengan paket; jalur `date_only`
-    // bergantung pada upcoming berwaktu tepat (sudah dicek di atas) selama
-    // tanggalnya tidak berkonflik.
-    if (identityReady) {
-      const cf = getFixtureByUid(dataset, args.uid);
-      if (!cf) return "fixture_state_ineligible";
-      if (cf.state !== "scheduled") return "fixture_state_ineligible";
-      if (cf.kickoff_precision === "date_only") {
-        const cfDate = typeof cf.kickoff_utc === "string" ? cf.kickoff_utc.slice(0, 10) : "";
-        if (cfDate === "" || cfDate !== new Date(args.kickoffMs).toISOString().slice(0, 10)) {
-          return "schedule_conflict";
-        }
-      } else {
-        const cfMs = parseInstant(cf.kickoff_utc);
-        if (cfMs === null || cfMs !== args.kickoffMs) return "schedule_conflict";
-      }
-    }
-    // Identitas segar (hanya titik pasca-inferensi): komponen alias dari
-    // data link/bridge/K1 terbaru ∪ set alias grup awal harus tetap
-    // menunjuk tepat UID yang sama.
-    if (args.freshIdentity) {
-      const groupsNow = loadFixtureLinkGroups(deps.dataDirPath);
-      const ids = new Set<string>(args.aliasSet);
-      for (const id of aliasSetFresh(args.winnerId, groupsNow)) ids.add(id);
-      const uids = new Set<string>();
-      for (const id of ids) {
-        const u = uidOfFresh(id);
-        if (u) uids.add(u);
-      }
-      if (uids.size !== 1 || !uids.has(args.uid)) return "identity_changed";
-    }
-    return null;
-  };
+  const pitHandles: PitIdentityHandles = { dataset, upcoming, dataDirPath, identityReady };
+  const checkEligibility = (a: PitEligibilityArgs): string | null => checkPitEligibility(pitHandles, a);
 
   // Eligibility SEBELUM limit: laga yang sudah batal (upcoming/kanonik)
   // atau jadwalnya berkonflik tidak memakan jatah inferensi.
-  const eligible: Prepared[] = [];
+  const eligible: PitPreparedFixture[] = [];
   for (const p of prepared) {
     const reason = checkEligibility({
       winnerId: p.winnerId,
@@ -1042,6 +1148,62 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     }
     eligible.push(p);
   }
+
+  return { eligible, candidatesBySource, uniqueFixtures, identityReady };
+}
+
+export function runMl1PitA(deps: PitADeps): PitARunSummary {
+  const { dataset, upcoming, snapshots } = deps;
+  const limit = deps.limit ?? 0;
+  const skipped: Record<string, number> = {};
+  const skip = (cat: string, n = 1) => {
+    skipped[cat] = (skipped[cat] ?? 0) + n;
+  };
+
+  // ---------------------------------------------------------- §3 SNAPSHOT --
+  // Snapshot baca paket dalam SATU transaksi read-only singkat: pembacaan
+  // pertama men-pin snapshot, BARU sesudah itu decision_at_utc diambil dari
+  // clock dan dipakai untuk seluruh batch.
+  let decisionMs = Number.NaN;
+  let decision_at_utc = "";
+  let selectedRaw = new Map<string, RawPkgRow>();
+  let unparseableComputed = new Set<string>();
+  beginPinnedRead(snapshots, "SELECT COUNT(*) AS n FROM packages");
+  try {
+    const decisionDate = deps.clock();
+    decisionMs = decisionDate.getTime();
+    if (!Number.isFinite(decisionMs)) {
+      throw new Error("ML1-PIT-A: clock menghasilkan waktu tidak valid untuk decision_at_utc.");
+    }
+    decision_at_utc = decisionDate.toISOString();
+    const sel = selectPackagesAsOf(snapshots, decisionMs, decision_at_utc);
+    selectedRaw = sel.selectedRaw;
+    unparseableComputed = sel.unparseableComputed;
+  } finally {
+    endPinnedRead(snapshots);
+  }
+
+  // ------------------------------------------- PERSIAPAN KANDIDAT --------
+  // Parse + identitas + pemenang + eligibility pra-limit hidup di
+  // preparePitCandidates (dipakai bersama PIT B). PIT A memanggilnya di
+  // sini — sesudah snapshot paket dilepas, jadi bacaannya live seperti
+  // sebelumnya; PIT B memanggilnya di bawah transaksi pin tiga store.
+  const prep = preparePitCandidates({
+    dataset,
+    upcoming,
+    dataDirPath: deps.dataDirPath,
+    linkGroups: loadFixtureLinkGroups(deps.dataDirPath),
+    selectedRaw,
+    unparseableComputed,
+    decisionMs,
+    skip,
+  });
+  const eligible = prep.eligible;
+  const candidatesBySource = prep.candidatesBySource;
+  const uniqueFixtures = prep.uniqueFixtures;
+  const identityReady = prep.identityReady;
+  const checkEligibility = (a: PitEligibilityArgs): string | null =>
+    checkPitEligibility({ dataset, upcoming, dataDirPath: deps.dataDirPath, identityReady }, a);
 
   // ------------------------------------------- §4.4 ROW TERSIMPAN + DRIFT --
   const out = new DatabaseSync(deps.outputDbPath);
@@ -1064,7 +1226,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
       storedByUid.set(r.fixture_uid, new Set(aliases));
       for (const a of aliases) aliasOwner.set(a, r.fixture_uid);
     }
-    const processable: Prepared[] = [];
+    const processable: PitPreparedFixture[] = [];
     for (const p of eligible) {
       if (storedByUid.has(p.uid)) {
         skip("already_stored");
@@ -1091,7 +1253,7 @@ export function runMl1PitA(deps: PitADeps): PitARunSummary {
     // ------------------------------------------------------ §5 FITUR ------
     const data = loadData(dataset);
     const extractor = new Ml1FeatureExtractor(data.universe, data.compAvg, data.seasonByMatchId, data.canonicalLogs);
-    interface Attempt extends Prepared {
+    interface Attempt extends PitPreparedFixture {
       featB: number[];
       homeKey: string;
       awayKey: string;
