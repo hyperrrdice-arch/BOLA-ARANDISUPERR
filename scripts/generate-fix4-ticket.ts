@@ -29,6 +29,9 @@ const nowUtc = new Date().toISOString();
 // Penjaga cutoff di boundary CLI: sebelum cutoff 14:00 WIB berhenti di
 // sini — TANPA membuka DB writable sama sekali (keputusan resmi adalah
 // himpunan AS-OF cutoff; calon yang terbit sampai cutoff harus terhitung).
+// Jam masuk ini HANYA untuk penjaga cutoff: jam penerbitan dibaca ulang
+// oleh generateFix4Ticket sesudah lock tulisnya diperoleh (revisi
+// PR #12, R1) lewat clock hidup yang diteruskan di bawah.
 const waiting = fix4WaitingIfBeforeCutoff(dateWib, nowUtc);
 if (waiting) {
   console.log(`FIX-4 ${dateWib}: ${waiting.reason}`);
@@ -36,7 +39,9 @@ if (waiting) {
 }
 
 const db = getPicksDb();
-const decision = generateFix4Ticket(db, dateWib, nowUtc);
+const decision = generateFix4Ticket(db, dateWib, nowUtc, {
+  now: () => new Date().toISOString(),
+});
 
 if (decision.status === "WAITING_CUTOFF") {
   console.log(`FIX-4 ${dateWib}: ${decision.reason}`);
