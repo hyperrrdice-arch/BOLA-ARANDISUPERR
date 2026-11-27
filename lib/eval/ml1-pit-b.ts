@@ -559,6 +559,8 @@ export interface PitBArtifactRejection {
   fixture_uid: string;
   feature_snapshot_id: string;
   reason: string;
+  /** Baris prediksi spesifik yang ditolak (revisi tindak lanjut §3.2). */
+  prediction_id?: number;
 }
 
 export interface PitBArtifactVerification {
@@ -568,22 +570,37 @@ export interface PitBArtifactVerification {
   rows_ok: number;
   /** UID yang lolos SEMUA cek dan ber-versi bukti aktif (strict). */
   strict_uids: string[];
+  /**
+   * ID baris prediksi yang lolos SEMUA cek ikatan bukti per baris
+   * (termasuk hash ulang features_json tersimpan + nilai champion dari
+   * proyeksi). Grader kohor memakai himpunan per baris ini, bukan UID.
+   */
+  strict_prediction_ids: number[];
   rejected: PitBArtifactRejection[];
   snapshot_errors: { feature_snapshot_id: string; reason: string }[];
 }
 
 interface PitBVerifyRow {
+  id: number;
   eval_version: string;
   fixture_uid: string;
   source_match_id: string;
   kickoff_utc: string;
   home_team_key: string;
   away_team_key: string;
+  decision_at_utc: string;
   package_id: number;
+  package_computed_utc: string;
   package_payload_sha256: string;
   champion_ratings_marker: string | null;
+  champ_lam: number;
+  champ_mu: number;
+  champ_p_h: number;
+  champ_p_d: number;
+  champ_p_a: number;
   feature_snapshot_id: string;
   features_sha256: string;
+  features_json: string;
 }
 
 /**
@@ -597,6 +614,13 @@ interface PitBVerifyRow {
  * proyeksi. Gzip valid yang isinya diedit tetap ditolak karena hash isi
  * JSONL berubah. Baris ber-versi bukti lama tidak masuk strict walau
  * arsipnya valid — mereka diagnostik.
+ *
+ * Revisi tindak lanjut §3.2: verifikasi juga MENGIKAT isi baris prediksi
+ * tersimpan ke bukti beku — waktu keputusan baris vs snapshot, waktu
+ * hitung paket vs proyeksi, intensitas (λ/μ) + peluang champion vs paket
+ * proyeksi, dan hash ulang `features_json` tersimpan terhadap hash
+ * tersimpan + hash replay. Hasil per baris tersedia sebagai
+ * `strict_prediction_ids`; mutasi satu field tersimpan pun ditolak.
  */
 export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: string): PitBArtifactVerification {
   const out: PitBArtifactVerification = {
@@ -605,6 +629,7 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
     rows_checked: 0,
     rows_ok: 0,
     strict_uids: [],
+    strict_prediction_ids: [],
     rejected: [],
     snapshot_errors: [],
   };
@@ -622,7 +647,9 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
 
   for (const [snapId, snapRows] of bySnap) {
     const rejectAll = (reason: string): void => {
-      for (const r of snapRows) out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason });
+      for (const r of snapRows) {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason, prediction_id: r.id });
+      }
     };
     const snap = snapById.get(snapId);
     if (!snap) {
@@ -666,13 +693,16 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
     const fixtureByUid = new Map(proj.fixtures.map((f) => [f.fixture_uid, f]));
     const packageByUid = new Map(proj.packages.map((p) => [p.fixture_uid, p]));
     for (const r of snapRows) {
+      const rejectRow = (reason: string): void => {
+        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason, prediction_id: r.id });
+      };
       const replayHash = replay.vectorHashes.get(r.fixture_uid);
       if (replayHash === undefined) {
-        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "uid_not_in_projection" });
+        rejectRow("uid_not_in_projection");
         continue;
       }
       if (replayHash !== r.features_sha256) {
-        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "features_hash_mismatch" });
+        rejectRow("features_hash_mismatch");
         continue;
       }
       const fx = fixtureByUid.get(r.fixture_uid);
@@ -683,7 +713,7 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
         fx.home_team_key !== r.home_team_key ||
         fx.away_team_key !== r.away_team_key
       ) {
-        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "fixture_identity_mismatch" });
+        rejectRow("fixture_identity_mismatch");
         continue;
       }
       const pk = packageByUid.get(r.fixture_uid);
@@ -693,11 +723,61 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
         pk.package_payload_sha256 !== r.package_payload_sha256 ||
         (pk.champion_ratings_marker ?? null) !== (r.champion_ratings_marker ?? null)
       ) {
-        out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason: "package_identity_mismatch" });
+        rejectRow("package_identity_mismatch");
+        continue;
+      }
+      // --- Ikatan bukti per baris (Brief Tindak Lanjut §3.2) -------------
+      // Baris prediksi tersimpan harus sama persis dengan bukti beku di
+      // proyeksi; mutasi satu field pun menolak baris dari grading ketat.
+      // (a) Waktu keputusan baris == waktu keputusan snapshot/proyeksi.
+      const rowDecisionMs = parseInstant(r.decision_at_utc);
+      const snapDecisionMs = parseInstant(String(snap.decision_at_utc));
+      if (rowDecisionMs === null || snapDecisionMs === null || rowDecisionMs !== snapDecisionMs) {
+        rejectRow("decision_time_mismatch");
+        continue;
+      }
+      // (b) Waktu hitung paket baris == paket di proyeksi.
+      const rowComputedMs = parseInstant(r.package_computed_utc);
+      const projComputedMs = parseInstant(pk.package_computed_utc);
+      if (rowComputedMs === null || projComputedMs === null || rowComputedMs !== projComputedMs) {
+        rejectRow("package_computed_mismatch");
+        continue;
+      }
+      // (c) Intensitas + peluang champion baris == paket di proyeksi
+      // (nilai disalin verbatim saat issue; toleransi hanya debu float).
+      const nearEq = (a: number, b: number): boolean => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 1e-9;
+      if (
+        !nearEq(pk.champ_lam, r.champ_lam) ||
+        !nearEq(pk.champ_mu, r.champ_mu) ||
+        !nearEq(pk.champ_p_h, r.champ_p_h) ||
+        !nearEq(pk.champ_p_d, r.champ_p_d) ||
+        !nearEq(pk.champ_p_a, r.champ_p_a)
+      ) {
+        rejectRow("champion_values_mismatch");
+        continue;
+      }
+      // (d) Hash ulang vektor fitur TERSIMPAN di baris: harus sama dengan
+      // hash tersimpan (features_sha256) DAN hash replay dari arsip.
+      let storedVector: unknown = null;
+      try {
+        storedVector = JSON.parse(r.features_json);
+      } catch {
+        storedVector = null;
+      }
+      if (
+        !Array.isArray(storedVector) ||
+        !storedVector.every((v) => typeof v === "number" && Number.isFinite(v)) ||
+        featureVectorHash(storedVector as number[]) !== r.features_sha256 ||
+        featureVectorHash(storedVector as number[]) !== replayHash
+      ) {
+        rejectRow("features_json_mismatch");
         continue;
       }
       out.rows_ok++;
-      if (r.eval_version === PIT_B_EVAL_VERSION) out.strict_uids.push(r.fixture_uid);
+      if (r.eval_version === PIT_B_EVAL_VERSION) {
+        out.strict_uids.push(r.fixture_uid);
+        out.strict_prediction_ids.push(r.id);
+      }
     }
   }
   return out;
