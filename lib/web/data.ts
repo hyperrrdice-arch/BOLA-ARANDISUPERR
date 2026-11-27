@@ -42,6 +42,7 @@ import {
   petaUidFisik,
   type KonflikPilihan,
 } from "./rekam";
+import { canonicalLineFor } from "../picks/publication";
 
 type Db = DatabaseSync;
 const g = globalThis as unknown as { __webDbs?: Map<string, Db> };
@@ -1989,6 +1990,14 @@ export interface JadwalItem {
     label_basis: string;
     keterangan_basis: string | null;
   } | null;
+  /**
+   * Jejak konflik edisi resmi untuk kejadian yang sama dengan topLeg,
+   * bila edisi-edisi resminya berbeda angka terbit (aturan per
+   * kejadian yang sama dengan Detail, brief validasi rilis §2).
+   * Non-null ⇒ topLegResmi WAJIB null: tidak ada angka tunggal yang
+   * boleh tampil sebagai jawaban. Diisi oleh lengkapiTopLegResmi().
+   */
+  topLegKonflik: KonflikPilihan | null;
 }
 
 function ringkasPaket(pkg: PackageRow): { pickCounts: { A: number; B: number; C: number }; topLeg: Leg | null } {
@@ -2206,6 +2215,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       pickCounts: ringkas.pickCounts,
       topLeg: ringkas.topLeg,
       topLegResmi: null,
+      topLegKonflik: null,
     });
   }
   // Dedup per UID kanonik: alias provider untuk laga fisik yang sama
@@ -2242,16 +2252,24 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
  * butir 6) tidak berubah: Jadwal tidak pernah menampilkan angka ini.
  *
  * Analisa menautkan angka topLeg dari paket terbaru ke angka terbit
- * resmi market+selection yang sama bila pilihan itu sudah terbit,
- * supaya angka paket terbaru tidak pernah tampil seolah-olah angka
- * resmi (brief tindak lanjut §2.3). Pemuatan massal: satu PRAGMA
+ * resmi kejadian yang sama bila pilihan itu sudah terbit, supaya
+ * angka paket terbaru tidak pernah tampil seolah-olah angka resmi
+ * (brief tindak lanjut §2.3). Pemuatan massal: satu PRAGMA
  * (cek tiga kolom sekaligus), satu query alias batch, satu SELECT
  * ledger untuk seluruh himpunan item. Baris resmi dipetakan ke item
- * pemiliknya lewat id sibling atau UID laga. Pemilihan kandidat per
- * item deterministik: edisi yang sama dengan paket tampil
- * didahulukan, lalu terbitan terakhir, lalu probabilitas terbit
- * tertinggi. Label basis diproyeksikan dari baris resmi itu sendiri
- * lewat proyeksi bersama B2.2 (labelSumberPeluang). Kegagalan apa pun
+ * pemiliknya lewat id sibling atau UID laga.
+ *
+ * Resolusi per item memakai aturan per kejadian yang PERSIS sama
+ * dengan Detail (brief validasi rilis §2): baris resmi item
+ * dikelompokkan oleh `kelompokkanKejadianResmi` (kunci = identitas
+ * laga fisik + market + line + selection), lalu grup yang cocok
+ * dengan leg dipilih lewat line KANONIK publikasi untuk market leg
+ * (`canonicalLineFor` — pada pasar OU garis tertanam di nama pasar).
+ * Edisi sepakat → angka edisi perwakilan (terbit pertama, prinsip
+ * keputusan-pertama K2) + label basis B2.2 dari baris itu sendiri.
+ * Edisi berbeda angka → `topLegKonflik` terisi dan topLegResmi tetap
+ * null: tidak ada angka tunggal yang dipilih diam-diam (kasus arsip
+ * BTTS Marseille dua alias, 0,6276 vs 0,7727). Kegagalan apa pun
  * (ledger/DB lama tanpa kolom) degrade ke topLegResmi tetap null.
  */
 export function lengkapiTopLegResmi(items: JadwalItem[]): void {
@@ -2308,42 +2326,93 @@ export function lengkapiTopLegResmi(items: JadwalItem[]): void {
       if (arr) arr.push(r);
       else resmiByItem.set(pemilik, [r]);
     }
+    /* Proyeksi label B2.2 dari SATU edisi resmi perwakilan. Bukti
+       quote pada OfficialPick bersifat opsional (kolom aditif bisa
+       absen di DB lama) — normalkan ke null sebelum masuk proyeksi. */
+    const labelDariEdisi = (resmi: OfficialPick): JadwalItem["topLegResmi"] => {
+      const label = labelSumberPeluang({
+        ...resmi,
+        evidence_source: resmi.evidence_source ?? null,
+        odds_bookmaker: resmi.odds_bookmaker ?? null,
+        odds_period: resmi.odds_period ?? null,
+        odds_line: resmi.odds_line ?? null,
+        odds_decimal: resmi.odds_decimal ?? null,
+        odds_captured_utc: resmi.odds_captured_utc ?? null,
+        decision_at_utc: resmi.decision_at_utc ?? null,
+        kickoff_at_issue_utc: resmi.kickoff_at_issue_utc ?? null,
+      });
+      return {
+        prob: resmi.published_prob as number,
+        label_basis: label.label_basis,
+        keterangan_basis: label.keterangan_basis,
+      };
+    };
     for (const it of target) {
       const leg = it.topLeg;
       if (!leg) continue;
-      const kandidat = (resmiByItem.get(it) ?? []).filter(
-        (p) => p.market === leg.market && p.selection === leg.selection,
+      const baris = resmiByItem.get(it) ?? [];
+      if (baris.length === 0) continue;
+      /* Semua baris di himpunan ini sudah milik laga fisik item ini
+         (pemetaan batch lewat sibling/UID di atas), jadi baris
+         ber-UID NULL diarahkan ke kunci fisik item lewat uidMap;
+         baris ber-UID memakai UID-nya sendiri — persis kunciFisik
+         yang dipakai pengelompokan Detail. */
+      const kunciItem = it.fixture_uid ?? it.match_id;
+      const uidMap = new Map<string, string>();
+      for (const r of baris) {
+        if (!r.fixture_uid) uidMap.set(r.match_id, kunciItem);
+      }
+      const garisLeg = canonicalLineFor(leg.market);
+      const cocok = kelompokkanKejadianResmi(baris, uidMap).filter(
+        (g) =>
+          g.perwakilan.market === leg.market &&
+          (g.perwakilan.line ?? "") === garisLeg &&
+          g.perwakilan.selection === leg.selection,
       );
-      kandidat.sort(
-        (a, b) =>
-          (b.package_id === it.package_id ? 1 : 0) -
-            (a.package_id === it.package_id ? 1 : 0) ||
-          String(b.published_at_utc ?? "").localeCompare(
-            String(a.published_at_utc ?? ""),
-          ) ||
-          (b.published_prob ?? 0) - (a.published_prob ?? 0),
-      );
-      const resmi = kandidat[0];
+      if (cocok.length === 0) continue;
+      if (cocok.length > 1) {
+        /* Patologis: kunci fisik terbelah menjadi >1 grup untuk
+           kejadian yang sama. Gabungkan edisinya (urut terbit, lalu
+           id — urutan yang sama dengan aturan bersama) supaya konflik
+           antar-grup tidak tersembunyi di balik grup pertama. */
+        const edisi = cocok
+          .flatMap((g) => g.edisi)
+          .sort(
+            (a, b) =>
+              String(a.published_at_utc ?? "").localeCompare(
+                String(b.published_at_utc ?? ""),
+              ) || a.id - b.id,
+          );
+        const angka = new Set(
+          edisi
+            .map((e) => e.published_prob)
+            .filter((v): v is number => v !== null),
+        );
+        if (angka.size > 1) {
+          it.topLegKonflik = {
+            nilai: edisi
+              .filter((e) => e.published_prob !== null)
+              .map((e) => ({
+                published_prob: e.published_prob as number,
+                match_id: e.match_id,
+                pick_uid: e.pick_uid,
+                package_id: e.package_id,
+                published_at_utc: e.published_at_utc,
+              })),
+          };
+        } else if (edisi[0] && edisi[0].published_prob !== null) {
+          it.topLegResmi = labelDariEdisi(edisi[0]);
+        }
+        continue;
+      }
+      const grup = cocok[0];
+      if (grup.konflik) {
+        it.topLegKonflik = grup.konflik;
+        continue;
+      }
+      const resmi = grup.perwakilan;
       if (resmi && resmi.published_prob !== null) {
-        /* Bukti quote pada OfficialPick bersifat opsional (kolom
-           aditif bisa absen di DB lama) — normalkan ke null sebelum
-           masuk proyeksi B2.2. */
-        const label = labelSumberPeluang({
-          ...resmi,
-          evidence_source: resmi.evidence_source ?? null,
-          odds_bookmaker: resmi.odds_bookmaker ?? null,
-          odds_period: resmi.odds_period ?? null,
-          odds_line: resmi.odds_line ?? null,
-          odds_decimal: resmi.odds_decimal ?? null,
-          odds_captured_utc: resmi.odds_captured_utc ?? null,
-          decision_at_utc: resmi.decision_at_utc ?? null,
-          kickoff_at_issue_utc: resmi.kickoff_at_issue_utc ?? null,
-        });
-        it.topLegResmi = {
-          prob: resmi.published_prob,
-          label_basis: label.label_basis,
-          keterangan_basis: label.keterangan_basis,
-        };
+        it.topLegResmi = labelDariEdisi(resmi);
       }
     }
   } catch {

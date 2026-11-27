@@ -162,13 +162,14 @@ async function ke(url) {
   hasil.jadwalBesok = { status, next: await baris("sm_aks_next") };
 }
 
-/* Analisa besok: identitas angka resmi vs paket */
+/* Analisa besok: identitas angka resmi vs paket + konflik dua alias */
 {
   const status = await ke(`/analisa?tanggal=${TGL_BESOK}`);
   hasil.analisa = {
     status,
     resmi: await baris("sm_aks_resmi"),
     paket: await baris("sm_aks_paket"),
+    konflik: await baris("sm_aks_konflik"),
     nav: await navAktif(),
   };
 }
@@ -217,6 +218,16 @@ for (const lebar of [320, 390]) {
   await page.screenshot({ path: path.join(OUT, `kandidat-beranda-${lebar}.png`) });
   await ke(`/analisa?tanggal=${TGL_BESOK}`);
   await page.screenshot({ path: path.join(OUT, `kandidat-analisa-${lebar}.png`) });
+  if (lebar === 390) {
+    /* Smoke khusus keadaan konflik: gulir baris sm_aks_konflik ke
+       dalam viewport lalu simpan sebagai bukti smoke 390px. */
+    await page.evaluate(() => {
+      const a = document.querySelector('a[href*="sm_aks_konflik"]');
+      if (a) a.scrollIntoView({ block: "center" });
+    });
+    await new Promise((r) => setTimeout(r, 400));
+    await page.screenshot({ path: path.join(OUT, "analisa-konflik-390.png") });
+  }
   await ke(`/pertandingan?tanggal=${TGL_INI}`);
   await page.screenshot({ path: path.join(OUT, `kandidat-jadwal-${lebar}.png`) });
 }

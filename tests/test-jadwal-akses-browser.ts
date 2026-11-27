@@ -62,6 +62,7 @@ interface HasilProbe {
     status: number;
     resmi: BarisInfo | null;
     paket: BarisInfo | null;
+    konflik: BarisInfo | null;
     nav: NavInfo[];
   } | null;
   hilangAnalisa: {
@@ -285,6 +286,26 @@ async function main(): Promise<void> {
         p.teks.includes("Belum terbit resmi"),
       p?.teks ?? "baris tidak ditemukan",
     );
+    /* Konflik dua alias (validasi rilis §2): status konflik jelas,
+       TANPA satu angka pun sebagai jawaban — bukan 77% (edisi sm_),
+       bukan 63% (edisi mt_), bukan 70% (paket tampil), dan tanpa
+       label paket (kasus ini BUKAN paket-saja). */
+    const kf = h.analisa?.konflik;
+    suite.check(
+      "analisa konflik: status 'Dua sumber berbeda angka' tampil",
+      !!kf && kf.teks.includes("Dua sumber berbeda angka"),
+      kf?.teks ?? "baris tidak ditemukan",
+    );
+    suite.check(
+      "analisa konflik: tidak ada angka tunggal (77%/63%/70% semua absen)",
+      !!kf && !kf.teks.includes("77%") && !kf.teks.includes("63%") && !kf.teks.includes("70%"),
+      kf?.teks ?? "",
+    );
+    suite.check(
+      "analisa konflik: tanpa label 'Paket terbaru' dan tanpa label basis resmi",
+      !!kf && !kf.teks.includes("Paket terbaru") && !kf.teks.includes("Peluang saat terbit"),
+      kf?.teks ?? "",
+    );
     cekNav(h.analisa?.nav, "Analisa", "analisa");
 
     /* ------------------------------------- §2.3 kembali detail + 404 */
@@ -332,6 +353,7 @@ async function main(): Promise<void> {
       "kandidat-beranda-390.png",
       "kandidat-analisa-320.png",
       "kandidat-analisa-390.png",
+      "analisa-konflik-390.png",
       "kandidat-jadwal-320.png",
       "kandidat-jadwal-390.png",
     ]) {

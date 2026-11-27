@@ -10,7 +10,11 @@
  *      peluang btts 45% tetapi pilihan resmi ledger 68% basis model —
  *      Analisa wajib menampilkan 68% + "Peluang model saat terbit";
  *      sm_aks_paket hanya punya paket (77%) tanpa pilihan resmi —
- *      wajib berlabel "Paket terbaru · Belum terbit resmi".
+ *      wajib berlabel "Paket terbaru · Belum terbit resmi";
+ *      sm_aks_konflik punya DUA edisi resmi BTTS dari dua alias laga
+ *      yang sama (0,6276 vs 0,7727 — pola arsip Marseille) — Analisa
+ *      wajib menampilkan status "Dua sumber berbeda angka" TANPA satu
+ *      angka pun (bukan 77%, bukan 63%, bukan 70% milik paket).
  *   3. Cap refresh B2.2 di footer Jadwal (meta disemai 1 jam lalu),
  *      logo kompetisi/tim dari logo-assets panggung, dan konteks
  *      kembali Detail/404.
@@ -119,6 +123,7 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
   const iso = (ms: number) => new Date(ms).toISOString();
   const koDone = padaJamWib(0, 8, now);
   const koLive = padaJamWib(0, 9, now);
+  const koKonflik = padaJamWib(1, 14, now);
   const koNext = padaJamWib(1, 15, now);
   const koResmi = padaJamWib(1, 16, now);
   const koPaket = padaJamWib(1, 17, now);
@@ -132,6 +137,14 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
   const identity = await import("../../lib/identity/fixture-resolver");
   const ds0 = new DatabaseSync(path.join(env.dataDir, "thestats_dataset.db"));
   identity.ensureIdentitySchema(ds0);
+  /* Alias laga konflik: dua id sumber, satu UID fisik — edisi resmi
+     BTTS-nya berbeda angka (pola arsip Marseille dua alias). */
+  const insAlias = ds0.prepare(
+    `INSERT INTO fixture_aliases (source, source_match_id, fixture_uid, match_basis, first_seen_utc, last_seen_utc)
+     VALUES ('seed', ?, 'uid-aks-konflik', 'seed', ?, ?)`,
+  );
+  insAlias.run("sm_aks_konflik", iso(now), iso(now));
+  insAlias.run("mt_aks_konflik", iso(now), iso(now));
   ds0.close();
 
   fs.writeFileSync(
@@ -181,12 +194,14 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
         tim("sm:aks8", "Resmi Away", "tm_aks_a4"),
         tim("sm:aks9", "Paket Home", "tm_aks_h5"),
         tim("sm:aks10", "Paket Away", "tm_aks_a5"),
+        tim("sm:aks11", "Konflik Home", "tm_aks_h6"),
+        tim("sm:aks12", "Konflik Away", "tm_aks_a6"),
       ],
     }),
   );
   /* Logo panggung: berkas disalin suite ke public/logo-uji.webp. */
   const logoTim: Record<string, string> = {};
-  for (let i = 1; i <= 10; i++) logoTim[`sm:aks${i}`] = "/logo-uji.webp";
+  for (let i = 1; i <= 12; i++) logoTim[`sm:aks${i}`] = "/logo-uji.webp";
   fs.writeFileSync(
     path.join(env.dataDir, "logo-assets.json"),
     JSON.stringify({ kompetisi: { "sm:1": "/logo-uji.webp" }, tim: logoTim }),
@@ -244,6 +259,14 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
       away_team_id: "tm_aks_a5",
       away_team_name: "Paket Away",
     }),
+    katalog({
+      match_id: "sm_aks_konflik",
+      utc_date: iso(koKonflik),
+      home_team_id: "tm_aks_h6",
+      home_team_name: "Konflik Home",
+      away_team_id: "tm_aks_a6",
+      away_team_name: "Konflik Away",
+    }),
   ]);
 
   seedPaketObjek(env, [
@@ -288,6 +311,11 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
       }),
     ]),
   ]);
+  const idsKonflik = seedPaketObjek(env, [
+    paket("sm_aks_konflik", "Konflik Home", "Konflik Away", koKonflik, [
+      leg({ model_prob: 0.7, effective_prob: 0.7 }),
+    ]),
+  ]);
 
   seedPicks(env, [
     {
@@ -307,6 +335,47 @@ export async function seedPanggungAkses(env: FixtureEnv): Promise<PanggungAkses>
       competition_canonical_id: "sm:1",
       kickoff_utc: iso(koResmi),
       package_id: idsLama.get("sm_aks_resmi") ?? null,
+      fixture_uid: null,
+    },
+    /* Konflik: edisi alias mt_ terbit lebih dulu 0,6276; edisi sm_
+       (id katalog yang tampil) terbit belakangan 0,7727. Keduanya
+       fixture_uid NULL — tautan fisik hanya dari store alias. */
+    {
+      match_id: "mt_aks_konflik",
+      market: "btts",
+      selection: "yes",
+      line: "",
+      model_prob: 0.7,
+      market_prob: null,
+      sm_prob: null,
+      published_prob: 0.6276,
+      probability_basis: "effective",
+      published_at_utc: iso(koKonflik - 6 * JAM),
+      grade: "A",
+      gate_status: "calibrated",
+      pick_uid: "uid-aks-konflik-mt",
+      competition_canonical_id: "sm:1",
+      kickoff_utc: iso(koKonflik),
+      package_id: null,
+      fixture_uid: null,
+    },
+    {
+      match_id: "sm_aks_konflik",
+      market: "btts",
+      selection: "yes",
+      line: "",
+      model_prob: 0.7,
+      market_prob: null,
+      sm_prob: null,
+      published_prob: 0.7727,
+      probability_basis: "effective",
+      published_at_utc: iso(koKonflik - 5 * JAM),
+      grade: "A",
+      gate_status: "calibrated",
+      pick_uid: "uid-aks-konflik-sm",
+      competition_canonical_id: "sm:1",
+      kickoff_utc: iso(koKonflik),
+      package_id: idsKonflik.get("sm_aks_konflik") ?? null,
       fixture_uid: null,
     },
   ]);

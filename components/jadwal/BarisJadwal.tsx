@@ -83,6 +83,7 @@ export default function BarisJadwal({
   const tz = filter.tz;
   const leg = item.topLeg;
   const resmi = item.topLegResmi;
+  const konflik = item.topLegKonflik;
   const counts = hitunganKelas(item);
   const statusLabel = labelBarisStatus(item);
   const selesai = item.status === "finished" || item.status === "abandoned";
@@ -159,8 +160,15 @@ export default function BarisJadwal({
      Identitas angka (§2.3): resmi → angka ledger + label basis B2.2
      (keterangan kalibrasi lab-band ikut, karena itulah klaim yang
      membedakan basisnya); belum resmi → angka paket terbaru dengan
-     label paketnya. */
-  const identitasAngka = !tampilProb ? null : resmi ? (
+     label paketnya. Edisi resmi BERKONFLIK (validasi rilis §2,
+     resolusi per kejadian yang sama dengan Detail) → status konflik
+     yang jelas dan TIDAK ada angka tunggal yang tampil sebagai
+     jawaban — bukan angka resmi, bukan pula angka paket. */
+  const identitasAngka = !tampilProb ? null : konflik ? (
+    <>
+      {" "}· <span className="font-medium text-brick">Dua sumber berbeda angka</span>
+    </>
+  ) : resmi ? (
     <>
       {" "}· {resmi.label_basis}
       {resmi.label_basis === "Peluang saat terbit" && resmi.keterangan_basis && (
@@ -173,7 +181,7 @@ export default function BarisJadwal({
   const metaAnalisa =
     mode !== "analisa" || metaStatus ? null : leg ? (
       <>
-        {tampilProb && (
+        {tampilProb && !konflik && (
           <span className="block">
             <Prob value={resmi ? resmi.prob : leg.effective_prob} strong />{" "}
             <span className="text-ink-soft">
@@ -181,7 +189,7 @@ export default function BarisJadwal({
             </span>
           </span>
         )}
-        {!tampilProb && (
+        {(!tampilProb || konflik) && (
           <span className="block">
             {labelPilihan(leg.market, leg.selection, item.home, item.away)}
           </span>
