@@ -11,6 +11,11 @@
  *                              operation key yang sudah sukses.
  * spec.barrier_file: worker menunggu file itu muncul sebelum mulai
  * (gerbang lepas bersama untuk dua worker paralel).
+ * spec.ready_file: bila diisi bersama barrier_file, worker menulis
+ * file ini SEBELUM menunggu — bukti tiba di gerbang yang bisa
+ * diverifikasi pemanggil (ia melepas barrier hanya sesudah SEMUA
+ * ready_file ada, bukan sesudah tidur tetap). Hasil mode publish
+ * lalu membawa `barrier_waited_ms` sebagai bukti ikut menunggu.
  */
 import fs from "node:fs";
 import {
@@ -25,6 +30,7 @@ interface Spec {
   now: string;
   fixture_status: string;
   barrier_file?: string;
+  ready_file?: string;
 }
 
 function printAndExit(obj: unknown, code: number): never {
@@ -35,13 +41,16 @@ function printAndExit(obj: unknown, code: number): never {
 function main(): void {
   const spec = JSON.parse(fs.readFileSync(process.argv[2], "utf8")) as Spec;
   const mode = process.argv[3] ?? "publish";
+  let barrierWaitedMs: number | null = null;
   if (spec.barrier_file) {
+    if (spec.ready_file) fs.writeFileSync(spec.ready_file, String(process.pid));
     const t0 = Date.now();
     const sab = new Int32Array(new SharedArrayBuffer(4));
     while (!fs.existsSync(spec.barrier_file)) {
       if (Date.now() - t0 > 30_000) process.exit(9);
       Atomics.wait(sab, 0, 0, 10);
     }
+    barrierWaitedMs = Date.now() - t0;
   }
   const commitOpts = {
     now: () => spec.now,
@@ -60,7 +69,10 @@ function main(): void {
     process.exit(4);
   }
   const r = publishPicks(spec.input, commitOpts);
-  printAndExit(r, 0);
+  printAndExit(
+    barrierWaitedMs === null ? r : { ...r, barrier_waited_ms: barrierWaitedMs },
+    0,
+  );
 }
 
 main();

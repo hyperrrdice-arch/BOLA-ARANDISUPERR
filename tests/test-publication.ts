@@ -229,16 +229,59 @@ async function main(): Promise<void> {
   {
     const inp = makeInput();
     const goFile = path.join(env.root, "go-d05");
-    const spec = writeSpec("spec-d05", inp, "2026-11-20T12:00:00.000Z", {
+    const readyA = path.join(env.root, "ready-d05-a");
+    const readyB = path.join(env.root, "ready-d05-b");
+    /* Dua spec terpisah (input identik → operation key sama) supaya
+       tiap worker punya ready_file sendiri: barrier TERBUKTI, bukan
+       diasumsikan — barrier dilepas hanya sesudah kedua worker
+       menulis ready_file-nya (bukti tiba di gerbang), menggantikan
+       tidur tetap 700 ms yang tidak membuktikan apa pun dan bisa
+       kalah cepat dari start worker di runner CI yang sibuk. */
+    const specA = writeSpec("spec-d05-a", inp, "2026-11-20T12:00:00.000Z", {
       barrier_file: goFile,
+      ready_file: readyA,
     });
-    const w1 = runWorker(spec, "publish");
-    const w2 = runWorker(spec, "publish");
-    await new Promise((r) => setTimeout(r, 700));
+    const specB = writeSpec("spec-d05-b", inp, "2026-11-20T12:00:00.000Z", {
+      barrier_file: goFile,
+      ready_file: readyB,
+    });
+    const w1 = runWorker(specA, "publish");
+    const w2 = runWorker(specB, "publish");
+    let keduaSiap = false;
+    {
+      const batas = Date.now() + 30_000;
+      while (Date.now() < batas) {
+        if (fs.existsSync(readyA) && fs.existsSync(readyB)) {
+          keduaSiap = true;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 25));
+      }
+    }
     fs.writeFileSync(goFile, "go");
     const [a, b] = await Promise.all([w1, w2]);
-    suite.eq("D05 paralel: worker A exit 0", a.code, 0);
-    suite.eq("D05 paralel: worker B exit 0", b.code, 0);
+    /* stderr worker SELALU ikut pada detail assertion yang gagal —
+       kegagalan CI 45892149087 ("worker B exit 1") tidak terbaca
+       akar sebabnya karena stderr tidak pernah dicetak. */
+    const errDetail = (w: WorkerOut): string =>
+      w.stderr.trim() ? `stderr: ${w.stderr.trim().slice(-600)}` : "stderr kosong";
+    suite.check(
+      "D05 paralel: kedua worker terbukti tiba di barrier sebelum dilepas",
+      keduaSiap &&
+        typeof a.json?.barrier_waited_ms === "number" &&
+        typeof b.json?.barrier_waited_ms === "number",
+      `siap=${keduaSiap} waited A=${String(a.json?.barrier_waited_ms)} B=${String(b.json?.barrier_waited_ms)}; ${errDetail(a)} | ${errDetail(b)}`,
+    );
+    suite.check(
+      "D05 paralel: worker A exit 0",
+      a.code === 0,
+      `exit=${a.code}; ${errDetail(a)}`,
+    );
+    suite.check(
+      "D05 paralel: worker B exit 0",
+      b.code === 0,
+      `exit=${b.code}; ${errDetail(b)}`,
+    );
     suite.eq(
       "D05 paralel: operation key sama",
       a.json?.operation_key,
@@ -253,7 +296,7 @@ async function main(): Promise<void> {
       "D05 paralel: status terbit/komit",
       ["published", "already_committed"].includes(String(a.json?.status)) &&
         ["published", "already_committed"].includes(String(b.json?.status)),
-      `${a.json?.status}/${b.json?.status}`,
+      `${a.json?.status}/${b.json?.status}; ${errDetail(a)} | ${errDetail(b)}`,
     );
     suite.eq(
       "D05 paralel: tepat 1 pick resmi",
