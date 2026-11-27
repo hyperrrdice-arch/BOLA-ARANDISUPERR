@@ -40,6 +40,22 @@
 //    membekukan keputusan pukul 13:25 WIB karena dispatch cron lebih
 //    awal; audit read-only membuktikan tidak ada calon yang terlewat
 //    pada dua hari itu — lihat Laporan-Fix4-Cutoff-Tindak-Lanjut.)
+//  - KOREKSI AUDIT PRODUKSI 27 Nov 2026 §1 (tiga cacat, tes D8–D10):
+//    (A) kickoff di jendela BUKAN jaminan laga belum mulai: pada dispatch
+//    14:10, leg berkickoff 14:05 lolos jendela. Jalur generator kini
+//    mengecek ulang tiap kandidat pada nowUtc — leg yang sudah kickoff
+//    saat keputusan ditulis, atau yang sudah tercatat void/batal di
+//    pick_voids, ditahan. Tanpa bukti status baris warisan dipertahan-
+//    kan (fallback konservatif). Definisi cutoff tidak berubah.
+//    (B) dedupe laga fisik memakai kunci gabungan: fixture_uid persisten
+//    yang tercatat di pick ∪ kunci tautan fixture-links (union transitif)
+//    — dua pick pasar berbeda ber-UID sama adalah satu laga fisik walau
+//    belum tertaut di fixture-links.
+//    (C) kandidat diambil DI DALAM transaksi keputusan, sesudah kunci
+//    tulis (BEGIN IMMEDIATE) dan sesudah cek ulang keputusan di transaksi
+//    yang sama — state yang dibaca adalah state sesudah lock, bukan
+//    snapshot sebelum lock (race WAL: kandidat ke-4 yang commit tepat
+//    sebelum lock tidak lagi terlewat).
 // ============================================================================
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -131,22 +147,31 @@ export interface Fix4Candidate {
 
 /**
  * Kandidat layak Fix-4 untuk tanggal WIB tertentu, SUDAH terurut
- * deterministik dan terdedupe per fixture KANONIK (pilihan terbaik
- * tiap laga fisik; kunci fixture = identitas tautan fixture-links,
- * fallback match_id). Pick termarking `duplicate_of` tersaring di
- * kueri dan tidak pernah muncul di hasil. Murni baca — tidak menulis
- * apa pun ke picks.db (identitas dibaca dari berkas tautan).
+ * deterministik dan terdedupe per laga FISIK (pilihan terbaik tiap
+ * laga). Kunci laga fisik adalah gabungan (union transitif) dari:
+ * fixture_uid persisten yang tercatat di pick, dan kunci identitas
+ * tautan fixture-links (fallback match_id untuk baris tak tertaut dan
+ * ber-UID kosong). Pick termarking `duplicate_of` tersaring di kueri
+ * dan tidak pernah muncul di hasil. Murni baca — tidak menulis apa pun
+ * ke picks.db (identitas dibaca dari berkas tautan).
+ *
+ * Parameter `nowUtc` (opsional, diisi jalur generator): cek ulang saat
+ * penerbitan — kandidat yang sudah kickoff pada momen itu
+ * (kickoff_utc <= nowUtc) atau yang sudah tercatat void/batal di
+ * pick_voids ditahan. Tanpa bukti status (tidak ada baris void), baris
+ * warisan dipertahankan: fallback konservatif, bukan tebakan.
  */
 export function selectFix4Candidates(
   db: DatabaseSync,
   dateWib: string,
   identity: SlateIdentity = loadFix4Identity(),
+  nowUtc?: string,
 ): Fix4Candidate[] {
   ensureFix4Schema(db);
   const w = fix4WindowForDate(dateWib);
   const rows = db
     .prepare(
-      `SELECT id, match_id, competition_canonical_id, kickoff_utc, market, selection, published_prob
+      `SELECT id, match_id, fixture_uid, competition_canonical_id, kickoff_utc, market, selection, published_prob
        FROM picks
        WHERE published_prob IS NOT NULL
          AND duplicate_of IS NULL
@@ -157,20 +182,80 @@ export function selectFix4Candidates(
     .all(w.window_start_utc, w.window_end_utc, w.decision_ts_utc) as unknown as {
     id: number;
     match_id: string;
+    fixture_uid: string | null;
     competition_canonical_id: string | null;
     kickoff_utc: string;
     market: string;
     selection: string;
     published_prob: number;
   }[];
-  const seenFixture = new Set<string>();
+
+  // Cek ulang penerbitan (hanya bila nowUtc diberikan): ambang waktu +
+  // himpunan pick yang terbukti void/batal menurut pick_voids.
+  let nowMs: number | null = null;
+  let voided: ReadonlySet<number> | null = null;
+  if (nowUtc !== undefined) {
+    nowMs = Date.parse(nowUtc);
+    if (!Number.isFinite(nowMs)) throw new Error(`fix4: timestamp tidak valid: ${nowUtc}`);
+    const hasVoidsTable = db
+      .prepare("SELECT 1 AS x FROM sqlite_master WHERE type = 'table' AND name = 'pick_voids'")
+      .get() as { x: number } | undefined;
+    if (hasVoidsTable) {
+      voided = new Set(
+        (db.prepare("SELECT pick_id FROM pick_voids").all() as unknown as { pick_id: number }[]).map(
+          (r) => r.pick_id,
+        ),
+      );
+    }
+  }
+
+  // Union-find atas baris kandidat: dua baris adalah laga fisik yang
+  // sama bila berbagi fixture_uid persisten ATAU kunci tautan yang sama
+  // (transitif — satu baris dapat menjembatani UID dan tautan).
+  const parent = rows.map((_, i) => i);
+  const find = (x: number): number => {
+    let root = x;
+    while (parent[root] !== root) root = parent[root];
+    while (parent[x] !== root) {
+      const next = parent[x];
+      parent[x] = root;
+      x = next;
+    }
+    return root;
+  };
+  const union = (a: number, b: number): void => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[rb] = ra;
+  };
+  const firstByUid = new Map<string, number>();
+  const firstByLink = new Map<string, number>();
+  rows.forEach((r, i) => {
+    if (r.fixture_uid) {
+      const j = firstByUid.get(r.fixture_uid);
+      if (j === undefined) firstByUid.set(r.fixture_uid, i);
+      else union(i, j);
+    }
+    const linkKey = identity.physicalKey(r.match_id);
+    const j = firstByLink.get(linkKey);
+    if (j === undefined) firstByLink.set(linkKey, i);
+    else union(i, j);
+  });
+
+  const seenFixture = new Set<number>();
   const out: Fix4Candidate[] = [];
-  for (const r of rows) {
-    if (r.published_prob < FIX4_MIN_PUBLISHED_PROB) continue;
-    if (statusFeedKompetisi(r.competition_canonical_id) !== "berfeed") continue;
-    const fixtureKey = identity.physicalKey(r.match_id);
-    if (seenFixture.has(fixtureKey)) continue;
-    seenFixture.add(fixtureKey);
+  rows.forEach((r, i) => {
+    if (r.published_prob < FIX4_MIN_PUBLISHED_PROB) return;
+    if (statusFeedKompetisi(r.competition_canonical_id) !== "berfeed") return;
+    if (nowMs !== null) {
+      // Sudah kickoff pada saat keputusan ditulis → tahan.
+      if (Date.parse(r.kickoff_utc) <= nowMs) return;
+      // Terbukti batal/void sebelum keputusan ditulis → tahan.
+      if (voided !== null && voided.has(r.id)) return;
+    }
+    const fixtureRoot = find(i);
+    if (seenFixture.has(fixtureRoot)) return;
+    seenFixture.add(fixtureRoot);
     out.push({
       pick_id: r.id,
       match_id: r.match_id,
@@ -180,7 +265,7 @@ export function selectFix4Candidates(
       selection: r.selection,
       published_prob: r.published_prob,
     });
-  }
+  });
   return out;
 }
 
@@ -313,6 +398,9 @@ function readDecision(db: DatabaseSync, dateWib: string): Fix4Decision | null {
  * Sebelum cutoff (nowUtc < decision_ts) TIDAK menulis apa pun dan
  * mengembalikan status WAITING_CUTOFF — penjaga ini berjalan sebelum
  * skema disentuh, jadi pemanggil lain aman dari pembekuan dini.
+ * Sesudah cutoff, SELURUH bacaan (cek keputusan + seleksi kandidat)
+ * terjadi di dalam satu transaksi BEGIN IMMEDIATE agar keputusan
+ * memakai state ledger sesudah lock, bukan snapshot sebelumnya.
  */
 export function generateFix4Ticket(
   db: DatabaseSync,
@@ -322,11 +410,7 @@ export function generateFix4Ticket(
   const waiting = fix4WaitingIfBeforeCutoff(dateWib, nowUtc);
   if (waiting) return waiting;
   ensureFix4Schema(db);
-  const existing = readDecision(db, dateWib);
-  if (existing) return existing;
-
   const w = fix4WindowForDate(dateWib);
-  const candidates = selectFix4Candidates(db, dateWib);
 
   db.exec("BEGIN IMMEDIATE");
   try {
@@ -336,6 +420,13 @@ export function generateFix4Ticket(
       db.exec("COMMIT");
       return raced;
     }
+    // Kandidat diambil DI DALAM transaksi, sesudah kunci tulis diperoleh
+    // dan sesudah cek ulang keputusan di transaksi yang sama: state
+    // ledger yang dibaca adalah state sesudah lock — kandidat yang commit
+    // dari penulis lain tepat sebelum lock ikut terhitung (audit 27 Nov
+    // 2026 §1, race snapshot WAL). Selektor juga mengecek ulang kickoff
+    // aktual + status batal tiap kandidat pada nowUtc.
+    const candidates = selectFix4Candidates(db, dateWib, loadFix4Identity(), nowUtc);
     if (FIX4_ABSTAIN_IF_BELOW_SIZE && candidates.length < FIX4_TICKET_SIZE) {
       const reason =
         `kandidat layak ${candidates.length} < ${FIX4_TICKET_SIZE} ` +
