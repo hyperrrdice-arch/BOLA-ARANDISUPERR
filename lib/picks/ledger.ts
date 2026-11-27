@@ -1,5 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { dbPath } from "../db/paths";
+import { openWritableDb } from "../db/writable-open";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -86,13 +87,12 @@ export function getPicksDbPath(): string {
   return dbPath("picks.db");
 }
 
-export function getPicksDb(): DatabaseSync {
-  if (dbInstance) {
-    return dbInstance;
-  }
-
-  const db = new DatabaseSync(getPicksDbPath());
-
+/**
+ * Inisialisasi koneksi picks.db: PRAGMA + skema + migrasi aditif +
+ * backfill warisan. Idempoten — aman diulang dari awal oleh retry di
+ * openWritableDb (D05).
+ */
+function initPicksDb(db: DatabaseSync): void {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   db.exec("PRAGMA foreign_keys = ON;");
@@ -182,7 +182,18 @@ export function getPicksDb(): DatabaseSync {
     }
   }
 
-  dbInstance = db;
+}
+
+export function getPicksDb(): DatabaseSync {
+  if (dbInstance) {
+    return dbInstance;
+  }
+  // openWritableDb memasang busy_timeout lebih dulu lalu me-retry
+  // seluruh init secara terbatas bila proses lain sedang memegang lock
+  // tulis (D05, brief validasi rilis 2026-11-27 §3) — tanpa itu,
+  // pembukaan bisa gagal seketika "database is locked" (errcode 5)
+  // saat worker lain bertransaksi. Lihat lib/db/writable-open.ts.
+  dbInstance = openWritableDb(getPicksDbPath(), initPicksDb);
   return dbInstance;
 }
 
