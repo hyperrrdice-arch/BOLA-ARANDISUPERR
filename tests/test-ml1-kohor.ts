@@ -27,6 +27,20 @@
  *      rerun grading idempoten.
  *  K9  Isolasi: input + pilot + PIT A terjaga; grader hanya menulis
  *      lokasi shadow.
+ *  K10 Isolasi cohort_id (tindak lanjut §3.1): dua manifest pada satu
+ *      DB shadow — B tanpa grading sendiri laporannya n=0, B menulis
+ *      gradingnya sendiri, koreksi A tidak mengubah laporan B, rerun
+ *      masing-masing stabil.
+ *  K11 Ikatan bukti (tindak lanjut §3.2): mutasi SATU field tersimpan
+ *      (vektor fitur, hash fitur, SHA/ID kandidat, peluang + λ/μ
+ *      champion, marker, identitas paket, waktu hitung paket, waktu
+ *      keputusan, kickoff) → baris ditolak evidence_invalid; kontrol
+ *      utuh tetap graded dengan LL yang benar.
+ *  K12 Manifest beku (tindak lanjut §3.3): proposal = staging saja,
+ *      mode official mensyaratkan manifest FROZEN lengkap + cutoff
+ *      grading == cutoff beku, snapshot grading formal ter-persist,
+ *      koreksi pasca-cutoff tidak masuk laporan lama, klasifikasi
+ *      mengikuti allowlist manifest.
  */
 import { createHash } from "node:crypto";
 import { gunzipSync, gzipSync } from "node:zlib";
@@ -57,6 +71,7 @@ import {
   evaluateCohortFromDb,
   gradeCohort,
   protocolHash,
+  validateProtocolManifest,
   type CohortProtocol,
 } from "../lib/eval/ml1-cohort";
 import { ML1_B_FEATURE_NAMES } from "../lib/eval/ml1-features";
@@ -499,12 +514,28 @@ function setCanonical(env: KohorEnv, uid: string, opts: { state: string; current
   db.close();
 }
 
-function testProtocol(overrides: Partial<CohortProtocol> = {}): CohortProtocol {
+type TestProtocolOverrides = Omit<Partial<CohortProtocol>, "study" | "champion" | "window" | "gates" | "review" | "competitive_primary"> & {
+  study?: Partial<CohortProtocol["study"]>;
+  champion?: Partial<CohortProtocol["champion"]>;
+  window?: Partial<CohortProtocol["window"]>;
+  gates?: Partial<CohortProtocol["gates"]>;
+  review?: Partial<CohortProtocol["review"]>;
+  competitive_primary?: Partial<CohortProtocol["competitive_primary"]>;
+};
+
+function testProtocol(overrides: TestProtocolOverrides = {}): CohortProtocol {
   const base = buildProposedProtocol();
   const p: CohortProtocol = {
     ...base,
     ...overrides,
+    // Kandidat fixture: baris fabrikasi + executor stub diterbitkan atas
+    // nama kandidat ini; protokol tes mengikat ke kandidat yang sama.
+    study: { ...base.study, candidate_id: "ml1-b-fixture-candidate", ...(overrides.study ?? {}) },
     champion: { ...base.champion, primary_marker: PRIMARY_MARKER, ...(overrides.champion ?? {}) },
+    window: { ...base.window, ...(overrides.window ?? {}) },
+    gates: { ...base.gates, ...(overrides.gates ?? {}) },
+    review: { ...base.review, ...(overrides.review ?? {}) },
+    competitive_primary: { ...base.competitive_primary, ...(overrides.competitive_primary ?? {}) },
   };
   return p;
 }
@@ -787,7 +818,7 @@ console.log("\nK5. Jendela horizon + strata marker + funnel");
   const shadow = new DatabaseSync(env2.outputPath, { readOnly: true });
   const dataset = new DatabaseSync(env2.datasetPath, { readOnly: true });
   const ev = evaluateCohortFromDb(shadow, protocol, { cohortId: cohortIdFor(protocol), reportCutoffUtc: "2026-12-06T00:00:00.000Z", asOfUtc: "2026-12-06T00:00:00.000Z" });
-  const funnel = computeCohortFunnel(shadow, dataset, protocol, "2026-12-06T00:00:00.000Z");
+  const funnel = computeCohortFunnel(shadow, dataset, protocol, "2026-12-06T00:00:00.000Z", cohortIdFor(protocol));
   dataset.close();
   shadow.close();
   suite.eq("K5: pair primer hanya dari fixture layak (alias + good)", ev.evaluation.pairs, 2);
@@ -962,6 +993,260 @@ console.log("\nK9. Isolasi input, pilot, PIT A");
   suite.eq("K9: DB PIT A tidak berubah (hash file)", sha256File(env.pitAPath), pitAHash);
   suite.check("K9: grading hanya menulis tabel shadow cohort_gradings", gradingRows(env).length >= 1);
   suite.check("K9: protocol hash + cohort_id deterministik", cohortIdFor(protocol) === `ml1b-cohort-${protocolHash(protocol).slice(0, 16)}`);
+}
+
+// ============================================================================
+// K10 — isolasi kohor pada satu DB shadow (Brief Tindak Lanjut §3.1)
+// ============================================================================
+console.log("\nK10. Isolasi cohort_id pada DB shadow yang sama");
+{
+  const env = makeEnv("k10");
+  fabricateBatch(env, [{ uid: "fx_k10", sourceId: "fd_k10", kickoff: KICKOFF }]);
+  addIdentity(env, "fx_k10", ["fd_k10"], { competition: "sm:8" });
+  addRevision(env, "fx_k10", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+  setCanonical(env, "fx_k10", { state: "finished", currentRevision: 1 });
+  const protoA = testProtocol();
+  const protoB = testProtocol({
+    window: {
+      weeks: 12, t0: "2026-11-20T00:00:00.000Z", t1: "2026-12-10T00:00:00.000Z",
+      grading_cutoff: null, kickoff_in: "[T0, T1)", decision_from: "T0", min_blocks_with_graded: 8,
+    },
+    gates: { min_graded_competitive: 250, max_mean_delta_ll: -0.005, bootstrap_resamples: 5000, bootstrap_seed: 20261124, bootstrap_upper_one_sided_95_below: 0, min_blocks: 8 },
+  });
+  const evalFor = (protocol: CohortProtocol, cutoff: string) => {
+    const shadow = new DatabaseSync(env.outputPath, { readOnly: true });
+    try {
+      return evaluateCohortFromDb(shadow, protocol, { cohortId: cohortIdFor(protocol), reportCutoffUtc: cutoff, asOfUtc: cutoff });
+    } finally {
+      shadow.close();
+    }
+  };
+  const gA = grade(env, protoA, "2026-12-05T00:00:00.000Z");
+  suite.eq("K10: kohor A grading 1 baris", gA.new_gradings, 1);
+  const evB0 = evalFor(protoB, "2026-12-06T00:00:00.000Z");
+  suite.eq("K10: laporan B sebelum B grading — 0 grading terbaca", evB0.operations.latest_gradings, 0);
+  suite.eq("K10: laporan B sebelum B grading — 0 pair (bukan pair A)", evB0.evaluation.pairs, 0);
+  const gB = grade(env, protoB, "2026-12-05T00:00:00.000Z");
+  suite.eq("K10: B menulis grading SENDIRI (bukan idempoten milik A)", gB.new_gradings, 1);
+  suite.eq("K10: B tanpa idempotent skip pada larian pertamanya", gB.idempotent_skips, 0);
+  suite.eq("K10: total baris = 1 per kohor", gradingRows(env).length, 2);
+  const evB1 = evalFor(protoB, "2026-12-06T00:00:00.000Z");
+  suite.eq("K10: laporan B sesudah grading sendiri — 1 pair", evB1.evaluation.pairs, 1);
+  const deltaB = evB1.evaluation.mean_delta_ll;
+  // Rerun masing-masing kohor: stabil, tanpa baris baru.
+  const gA2 = grade(env, protoA, "2026-12-05T00:00:00.000Z");
+  const gB2 = grade(env, protoB, "2026-12-05T00:00:00.000Z");
+  suite.eq("K10: rerun A idempoten", gA2.new_gradings, 0);
+  suite.eq("K10: rerun B idempoten", gB2.new_gradings, 0);
+  suite.eq("K10: rerun A skip tercatat 1", gA2.idempotent_skips, 1);
+  suite.eq("K10: rerun B skip tercatat 1", gB2.idempotent_skips, 1);
+  // Koreksi revisi hanya di-grading ulang oleh A → laporan B tidak berubah.
+  addRevision(env, "fx_k10", { revision: 2, status: "finished", home: 1, away: 1, observed: "2026-12-03T00:00:00.000Z" });
+  setCanonical(env, "fx_k10", { state: "finished", currentRevision: 2 });
+  const gA3 = grade(env, protoA, "2026-12-05T00:00:00.000Z", "2026-12-06T12:00:00.000Z");
+  suite.eq("K10: koreksi menambah edisi di A", gA3.new_gradings, 1);
+  const evB2 = evalFor(protoB, "2026-12-07T00:00:00.000Z");
+  suite.eq("K10: laporan B tidak berubah oleh koreksi A (pair)", evB2.evaluation.pairs, 1);
+  suite.eq("K10: laporan B tidak berubah oleh koreksi A (mean Δ)", evB2.evaluation.mean_delta_ll, deltaB);
+  const evA2 = evalFor(protoA, "2026-12-07T00:00:00.000Z");
+  suite.check("K10: laporan A memakai koreksinya sendiri (mean Δ berubah)", evA2.evaluation.mean_delta_ll !== deltaB, `${evA2.evaluation.mean_delta_ll} vs ${deltaB}`);
+  // Funnel ter-scope kohor: B menghitung grading-nya sendiri.
+  const shadow = new DatabaseSync(env.outputPath, { readOnly: true });
+  const dataset = new DatabaseSync(env.datasetPath, { readOnly: true });
+  const funnelB = computeCohortFunnel(shadow, dataset, protoB, "2026-12-07T00:00:00.000Z", cohortIdFor(protoB));
+  dataset.close();
+  shadow.close();
+  suite.eq("K10: funnel B — graded milik B saja", funnelB.graded, 1);
+}
+
+// ============================================================================
+// K11 — mutasi per field pada prediksi tersimpan → ditolak (§3.2)
+// ============================================================================
+console.log("\nK11. Ikatan bukti: mutasi satu field tersimpan ditolak");
+{
+  const protocol = testProtocol({ study: { candidate_manifest_sha256: "fab-candidate-manifest" } });
+  const cases: { name: string; sql: string | null; status: string; reason: string | null }[] = [
+    { name: "kontrol tanpa mutasi", sql: null, status: "graded", reason: null },
+    { name: "features_json → []", sql: "UPDATE predictions SET features_json = '[]'", status: "evidence_invalid", reason: "features_json_mismatch" },
+    { name: "features_sha256 diganti", sql: "UPDATE predictions SET features_sha256 = '0000000000000000000000000000000000000000000000000000000000000000'", status: "evidence_invalid", reason: "features_hash_mismatch" },
+    { name: "candidate_manifest_sha256 diganti", sql: "UPDATE predictions SET candidate_manifest_sha256 = 'sha256:mutated-candidate'", status: "evidence_invalid", reason: "candidate_manifest_mismatch" },
+    { name: "candidate_id diganti", sql: "UPDATE predictions SET candidate_id = 'ml1-b-lain'", status: "evidence_invalid", reason: "candidate_id_mismatch" },
+    { name: "peluang champion → [0.9,0.05,0.05]", sql: "UPDATE predictions SET champ_p_h = 0.9, champ_p_d = 0.05, champ_p_a = 0.05", status: "evidence_invalid", reason: "champion_values_mismatch" },
+    { name: "champ_lam diganti", sql: "UPDATE predictions SET champ_lam = 2.5", status: "evidence_invalid", reason: "champion_values_mismatch" },
+    { name: "champ_mu diganti", sql: "UPDATE predictions SET champ_mu = 0.7", status: "evidence_invalid", reason: "champion_values_mismatch" },
+    { name: "champion_ratings_marker diganti", sql: "UPDATE predictions SET champion_ratings_marker = 'sha256:deadbeefdeadbeef'", status: "evidence_invalid", reason: "package_identity_mismatch" },
+    { name: "package_payload_sha256 diganti", sql: "UPDATE predictions SET package_payload_sha256 = '1111111111111111111111111111111111111111111111111111111111111111'", status: "evidence_invalid", reason: "package_identity_mismatch" },
+    { name: "package_id diganti", sql: "UPDATE predictions SET package_id = 9999", status: "evidence_invalid", reason: "package_identity_mismatch" },
+    { name: "package_computed_utc diganti", sql: "UPDATE predictions SET package_computed_utc = '2026-11-27T10:30:00.000Z'", status: "evidence_invalid", reason: "package_computed_mismatch" },
+    { name: "decision_at_utc diganti", sql: "UPDATE predictions SET decision_at_utc = '2026-11-27T10:30:00.000Z', issued_at_utc = '2026-11-27T10:31:00.000Z'", status: "evidence_invalid", reason: "decision_time_mismatch" },
+    { name: "kickoff_utc diganti", sql: "UPDATE predictions SET kickoff_utc = '2026-11-28T21:00:00.000Z'", status: "evidence_invalid", reason: "fixture_identity_mismatch" },
+  ];
+  for (const c of cases) {
+    const env = makeEnv("k11");
+    fabricateBatch(env, [{ uid: "fx_k11", sourceId: "fd_k11", kickoff: KICKOFF, champ: [0.5, 0.3, 0.2] }]);
+    addIdentity(env, "fx_k11", ["fd_k11"], { competition: "sm:8" });
+    addRevision(env, "fx_k11", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+    setCanonical(env, "fx_k11", { state: "finished", currentRevision: 1 });
+    if (c.sql) {
+      const db = new DatabaseSync(env.outputPath);
+      db.prepare(`${c.sql} WHERE fixture_uid = 'fx_k11'`).run();
+      db.close();
+    }
+    grade(env, protocol, "2026-12-05T00:00:00.000Z");
+    const row = gradingRows(env).find((r) => r.fixture_uid === "fx_k11");
+    suite.eq(`K11: ${c.name} → status ${c.status}`, row?.status, c.status);
+    if (c.reason !== null) suite.eq(`K11: ${c.name} → alasan ${c.reason}`, row?.reason, c.reason);
+    if (c.name.startsWith("kontrol")) {
+      suite.eq("K11: kontrol — LL champion benar -ln(0,5)", Math.round((row?.ll_champion as number) * 10000) / 10000, 0.6931);
+    }
+    const shadow = new DatabaseSync(env.outputPath, { readOnly: true });
+    const ev = evaluateCohortFromDb(shadow, protocol, { cohortId: cohortIdFor(protocol), reportCutoffUtc: "2026-12-06T00:00:00.000Z", asOfUtc: "2026-12-06T00:00:00.000Z" });
+    shadow.close();
+    suite.eq(`K11: ${c.name} → pair evaluasi ${c.status === "graded" ? 1 : 0}`, ev.evaluation.pairs, c.status === "graded" ? 1 : 0);
+  }
+}
+
+// ============================================================================
+// K12 — penegakan manifest beku + cutoff formal + snapshot laporan (§3.3)
+// ============================================================================
+console.log("\nK12. Manifest beku ditegakkan; proposal hanya staging");
+{
+  const gradeMode = (env: KohorEnv, protocol: CohortProtocol, cutoff: string, mode?: "staging" | "official", gradedAt = "2026-12-05T00:00:00.000Z") => {
+    const shadow = new DatabaseSync(env.outputPath);
+    const dataset = new DatabaseSync(env.datasetPath, { readOnly: true });
+    try {
+      return gradeCohort({
+        shadowDb: shadow, dataset, projectionDir: env.projectionDir, protocol,
+        cohortId: cohortIdFor(protocol), gradingCutoffUtc: cutoff, clock: () => new Date(gradedAt), mode,
+      });
+    } finally {
+      dataset.close();
+      shadow.close();
+    }
+  };
+  const env = makeEnv("k12");
+  fabricateBatch(env, [{ uid: "fx_k12", sourceId: "fd_k12", kickoff: KICKOFF }]);
+  addIdentity(env, "fx_k12", ["fd_k12"], { competition: "sm:8" });
+  addRevision(env, "fx_k12", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+  setCanonical(env, "fx_k12", { state: "finished", currentRevision: 1 });
+
+  const proposal = testProtocol();
+  const valProposal = validateProtocolManifest(proposal);
+  suite.eq("K12: proposal valid untuk staging", valProposal.ok, true);
+  suite.eq("K12: proposal ber-mode staging", valProposal.mode, "staging");
+  suite.check("K12: proposal mencatat nilai produksi kosong sebagai warning", valProposal.warnings.length >= 3, valProposal.warnings.join(" | "));
+
+  let errOfficial = "";
+  try {
+    gradeMode(env, proposal, "2026-12-05T00:00:00.000Z", "official");
+  } catch (err) {
+    errOfficial = err instanceof Error ? err.message : String(err);
+  }
+  suite.check("K12: mode official pada proposal → ditolak", errOfficial.includes("FROZEN_FOR_COLLECTION"), errOfficial);
+
+  const frozenIncomplete: CohortProtocol = {
+    ...testProtocol(),
+    status: "FROZEN_FOR_COLLECTION",
+    champion: { ...testProtocol().champion, primary_marker: null },
+  };
+  const valIncomplete = validateProtocolManifest(frozenIncomplete);
+  suite.eq("K12: manifest FROZEN tak lengkap → tidak ok", valIncomplete.ok, false);
+  suite.check("K12: error menyebut marker + SHA kandidat", valIncomplete.errors.some((e) => e.includes("primary_marker")) && valIncomplete.errors.some((e) => e.includes("candidate_manifest_sha256")), valIncomplete.errors.join(" | "));
+  let errIncomplete = "";
+  try {
+    gradeMode(env, frozenIncomplete, "2026-12-05T00:00:00.000Z");
+  } catch (err) {
+    errIncomplete = err instanceof Error ? err.message : String(err);
+  }
+  suite.check("K12: grading dengan manifest FROZEN tak lengkap → ditolak", errIncomplete.includes("manifest final tidak lengkap"), errIncomplete);
+
+  // Manifest FINAL membekukan SHA kandidat sebagai hash SHA-256 asli;
+  // baris yang diterbitkan di bawahnya membawa SHA yang sama.
+  const FAB_CANDIDATE_SHA = sha256Str("fab-candidate-manifest");
+  {
+    const db = new DatabaseSync(env.outputPath);
+    db.prepare("UPDATE predictions SET candidate_manifest_sha256 = ? WHERE fixture_uid = 'fx_k12'").run(FAB_CANDIDATE_SHA);
+    db.close();
+  }
+  const frozenFull: CohortProtocol = {
+    ...testProtocol({
+      study: { candidate_manifest_sha256: FAB_CANDIDATE_SHA },
+      window: {
+        weeks: 12, t0: "2026-11-27T00:00:00.000Z", t1: "2026-12-04T00:00:00.000Z",
+        grading_cutoff: "2026-12-05T00:00:00.000Z", kickoff_in: "[T0, T1)", decision_from: "T0", min_blocks_with_graded: 8,
+      },
+    }),
+    status: "FROZEN_FOR_COLLECTION",
+    review: { formal_review_date: "2026-12-20", single_formal_review: true },
+  };
+  const valFull = validateProtocolManifest(frozenFull);
+  suite.eq("K12: manifest FROZEN lengkap → ok + mode official", `${valFull.ok}/${valFull.mode}`, "true/official");
+  let errCutoff = "";
+  try {
+    gradeMode(env, frozenFull, "2026-12-04T00:00:00.000Z");
+  } catch (err) {
+    errCutoff = err instanceof Error ? err.message : String(err);
+  }
+  suite.check("K12: cutoff grading ≠ cutoff beku → ditolak", errCutoff.includes("cutoff beku"), errCutoff);
+  const gFrozen = gradeMode(env, frozenFull, "2026-12-05T00:00:00.000Z", undefined, "2026-12-05T12:00:00.000Z");
+  suite.eq("K12: grading resmi pada cutoff beku berjalan", gFrozen.new_gradings, 1);
+
+  // Laporan formal di-persist + snapshot grading dibekukan.
+  const shadowW = new DatabaseSync(env.outputPath);
+  const evPersist = evaluateCohortFromDb(shadowW, frozenFull, {
+    cohortId: cohortIdFor(frozenFull), reportCutoffUtc: "2026-12-05T12:00:00.000Z", asOfUtc: "2026-12-05T12:00:00.000Z", persist: true,
+  });
+  const reportRow = shadowW.prepare("SELECT id, report_json FROM cohort_reports WHERE cohort_id = ?").get(cohortIdFor(frozenFull)) as unknown as { id: number; report_json: string };
+  const snapRows = shadowW.prepare("SELECT * FROM cohort_report_gradings WHERE report_id = ?").all(reportRow.id) as unknown as Record<string, unknown>[];
+  shadowW.close();
+  suite.eq("K12: laporan formal — 1 pair", evPersist.evaluation.pairs, 1);
+  suite.eq("K12: snapshot grading formal — 1 baris beku", snapRows.length, 1);
+  suite.eq("K12: snapshot menunjuk grading yang dipakai", snapRows[0]?.status, "graded");
+  suite.check("K12: report_json tersimpan memuat pair yang sama", JSON.parse(reportRow.report_json).evaluation.pairs === 1, reportRow.report_json.slice(0, 120));
+
+  // Koreksi tiba SESUDAH cutoff formal: revisinya tidak terlihat pada
+  // cutoff beku dan skor koreksi TIDAK PERNAH ter-grading di kohor beku;
+  // laporan lama tidak berubah. (Pointer kanonik yang sudah maju melewati
+  // revisi yang terlihat pada cutoff membuat re-grade mencatat edisi
+  // proof_conflict — sinyal jujur, tercatat SESUDAH cutoff laporan,
+  // sehingga tidak masuk laporan beku.)
+  addRevision(env, "fx_k12", { revision: 2, status: "finished", home: 1, away: 1, observed: "2026-12-06T00:00:00.000Z" });
+  setCanonical(env, "fx_k12", { state: "finished", currentRevision: 2 });
+  const gAfter = gradeMode(env, frozenFull, "2026-12-05T00:00:00.000Z", undefined, "2026-12-07T00:00:00.000Z");
+  const rowsAfter = gradingRows(env).filter((r) => r.fixture_uid === "fx_k12");
+  suite.check(
+    "K12: skor koreksi pasca-cutoff tidak pernah ter-grading di kohor beku",
+    rowsAfter.every((r) => !(r.home_score === 1 && r.away_score === 1)),
+    JSON.stringify(rowsAfter.map((r) => [r.status, r.home_score, r.away_score])),
+  );
+  suite.check(
+    "K12: edisi pasca-cutoff (bila ada) hanya proof_conflict current_revision_mismatch",
+    rowsAfter.slice(1).every((r) => r.status === "proof_conflict" && r.reason === "current_revision_mismatch"),
+    JSON.stringify(rowsAfter.map((r) => [r.status, r.reason])),
+  );
+  void gAfter;
+  const shadow2 = new DatabaseSync(env.outputPath, { readOnly: true });
+  const evOld = evaluateCohortFromDb(shadow2, frozenFull, { cohortId: cohortIdFor(frozenFull), reportCutoffUtc: "2026-12-05T12:00:00.000Z", asOfUtc: "2026-12-05T12:00:00.000Z" });
+  shadow2.close();
+  suite.eq("K12: laporan lama tetap 1 pair dengan Δ sama", `${evOld.evaluation.pairs}/${evOld.evaluation.mean_delta_ll}`, `${evPersist.evaluation.pairs}/${evPersist.evaluation.mean_delta_ll}`);
+
+  // Klasifikasi mengikuti ALLOWLIST manifest, bukan konstanta kode.
+  const env2 = makeEnv("k12b");
+  fabricateBatch(env2, [{ uid: "fx_k12b", sourceId: "fd_k12b", kickoff: KICKOFF }]);
+  addIdentity(env2, "fx_k12b", ["fd_k12b"], { competition: "sm:8" });
+  addRevision(env2, "fx_k12b", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+  setCanonical(env2, "fx_k12b", { state: "finished", currentRevision: 1 });
+  const narrowList: CohortProtocol = {
+    ...testProtocol(),
+    competitive_primary: {
+      ...testProtocol().competitive_primary,
+      list: testProtocol().competitive_primary.list.filter((e) => e.competition_id !== "sm:8"),
+    },
+  };
+  grade(env2, narrowList, "2026-12-05T00:00:00.000Z");
+  const rowNarrow = gradingRows(env2).find((r) => r.fixture_uid === "fx_k12b");
+  suite.eq("K12: sm:8 di luar allowlist manifest → strata non_primary", rowNarrow?.stratum, "non_primary_competition");
+  suite.eq("K12: grading tetap berjalan (strata, bukan penolakan)", rowNarrow?.status, "graded");
 }
 
 // ============================================================================
