@@ -31,6 +31,15 @@
 //  - Settlement tiket konsisten dengan slipRecordStats/cohort: jendela
 //    jatuh tempo 6 jam sesudah kickoff (SETTLEMENT_WINDOW_MS), status
 //    VOID_OR_UNRESOLVABLE dicatat terpisah dari penyebut hit-rate.
+//  - PENJAGA CUTOFF (koreksi tindak lanjut 27 Nov 2026): keputusan hanya
+//    boleh dibekukan pada/sesudah cutoff 14:00 WIB (now >= decision_ts).
+//    Panggilan sebelum cutoff menghasilkan status WAITING_CUTOFF
+//    ("Menunggu batas penilaian") TANPA menulis apa pun — himpunan calon
+//    resmi adalah himpunan AS-OF cutoff, jadi calon yang terbit sampai
+//    cutoff tetap terhitung. (Larian produksi 26–27 Nov 2026 sempat
+//    membekukan keputusan pukul 13:25 WIB karena dispatch cron lebih
+//    awal; audit read-only membuktikan tidak ada calon yang terlewat
+//    pada dua hari itu — lihat Laporan-Fix4-Cutoff-Tindak-Lanjut.)
 // ============================================================================
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -194,6 +203,56 @@ export interface Fix4Decision {
   already_existed: boolean;
 }
 
+/**
+ * Hasil generator bila dipanggil SEBELUM cutoff 14:00 WIB: keputusan
+ * belum boleh dibekukan. Bukan keputusan tercatat — tidak pernah ditulis
+ * ke fix4_daily_decisions; murni sinyal "Menunggu batas penilaian".
+ */
+export interface Fix4WaitingDecision {
+  date_wib: string;
+  status: "WAITING_CUTOFF";
+  decision_ts: string;
+  eligible_count: null;
+  reason: string;
+  ticket_uid: null;
+  expected_hit_prob: null;
+  legs: Fix4Candidate[];
+  already_existed: false;
+}
+
+/** Hasil panggilan generator: keputusan beku, atau menunggu cutoff. */
+export type Fix4GenerationResult = Fix4Decision | Fix4WaitingDecision;
+
+/**
+ * Penjaga cutoff bersama (generator inti + CLI): kembalikan objek
+ * WAITING_CUTOFF bila nowUtc < decision_ts tanggal itu, null bila
+ * generasi sudah boleh jalan (now >= decision_ts; tepat pada cutoff
+ * SUDAH boleh — batas inklusif yang sama dengan saringan kandidat
+ * created_utc <= decision_ts). Murni hitungan jam — tidak menyentuh DB.
+ */
+export function fix4WaitingIfBeforeCutoff(
+  dateWib: string,
+  nowUtc: string,
+): Fix4WaitingDecision | null {
+  const w = fix4WindowForDate(dateWib);
+  const now = Date.parse(nowUtc);
+  if (!Number.isFinite(now)) throw new Error(`fix4: timestamp tidak valid: ${nowUtc}`);
+  if (now >= Date.parse(w.decision_ts_utc)) return null;
+  return {
+    date_wib: dateWib,
+    status: "WAITING_CUTOFF",
+    decision_ts: w.decision_ts_utc,
+    eligible_count: null,
+    reason:
+      `Menunggu batas penilaian — keputusan ${dateWib} baru dibekukan ` +
+      `pada cutoff ${w.decision_ts_utc} (14:00 WIB).`,
+    ticket_uid: null,
+    expected_hit_prob: null,
+    legs: [],
+    already_existed: false,
+  };
+}
+
 function readDecision(db: DatabaseSync, dateWib: string): Fix4Decision | null {
   const d = db
     .prepare(
@@ -251,12 +310,17 @@ function readDecision(db: DatabaseSync, dateWib: string): Fix4Decision | null {
 /**
  * Hasilkan (atau baca kembali) keputusan Fix-4 satu tanggal WIB.
  * Menulis snapshot beku secara append-only; tidak pernah menimpa.
+ * Sebelum cutoff (nowUtc < decision_ts) TIDAK menulis apa pun dan
+ * mengembalikan status WAITING_CUTOFF — penjaga ini berjalan sebelum
+ * skema disentuh, jadi pemanggil lain aman dari pembekuan dini.
  */
 export function generateFix4Ticket(
   db: DatabaseSync,
   dateWib: string,
   nowUtc: string,
-): Fix4Decision {
+): Fix4GenerationResult {
+  const waiting = fix4WaitingIfBeforeCutoff(dateWib, nowUtc);
+  if (waiting) return waiting;
   ensureFix4Schema(db);
   const existing = readDecision(db, dateWib);
   if (existing) return existing;

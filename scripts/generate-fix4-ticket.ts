@@ -18,7 +18,7 @@
  *   (tanggal dalam WIB; default = tanggal WIB hari ini)
  */
 import { getPicksDb } from "../lib/picks/ledger";
-import { generateFix4Ticket } from "../lib/picks/fix4-tickets";
+import { fix4WaitingIfBeforeCutoff, generateFix4Ticket } from "../lib/picks/fix4-tickets";
 import { fix4DateWibOf } from "../lib/picks/fix4-policy";
 
 const args = process.argv.slice(2);
@@ -26,10 +26,21 @@ const dateArg = args.find((a) => a.startsWith("--date="))?.split("=")[1];
 const dateWib = dateArg ?? fix4DateWibOf(new Date());
 const nowUtc = new Date().toISOString();
 
+// Penjaga cutoff di boundary CLI: sebelum cutoff 14:00 WIB berhenti di
+// sini — TANPA membuka DB writable sama sekali (keputusan resmi adalah
+// himpunan AS-OF cutoff; calon yang terbit sampai cutoff harus terhitung).
+const waiting = fix4WaitingIfBeforeCutoff(dateWib, nowUtc);
+if (waiting) {
+  console.log(`FIX-4 ${dateWib}: ${waiting.reason}`);
+  process.exit(0);
+}
+
 const db = getPicksDb();
 const decision = generateFix4Ticket(db, dateWib, nowUtc);
 
-if (decision.status === "ABSTAIN") {
+if (decision.status === "WAITING_CUTOFF") {
+  console.log(`FIX-4 ${dateWib}: ${decision.reason}`);
+} else if (decision.status === "ABSTAIN") {
   console.log(
     `FIX-4 ${dateWib}: ABSTAIN — ${decision.reason ?? "kandidat layak kurang"} ` +
       `(keputusan ${decision.already_existed ? "sudah tercatat sebelumnya" : "baru dibekukan"}, cutoff ${decision.decision_ts}).`,
