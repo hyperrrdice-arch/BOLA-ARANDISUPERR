@@ -63,13 +63,40 @@
  *    (DDL/BEGIN IMMEDIATE), basis lama mengembalikan UID yang sama.
  *    Kontrol D13b: sebelum cutoff generator tidak menyentuh DB sama
  *    sekali (penjaga WAITING_CUTOFF murni jam).
+ *
+ * Regresi finalisasi PR #12 (brief finalisasi pemilik 27 Nov 2026; tes
+ * ditulis GAGAL dulu di head 6bdd732):
+ *  - D14 (F1): batas kickoff yang sama sampai menjelang COMMIT. Batas
+ *    penerbitan internal = paling awal dari kickoff ledger dan kickoff
+ *    kanonik presisi 'exact'. (a) kickoff kanonik 07:10:01 terlewati
+ *    oleh jam akhir 07:10:02 SELAGI transaksi menulis (jam digeser tepat
+ *    pada INSERT tiket) → percobaan ter-rollback, evaluasi ulang →
+ *    ABSTAIN tanpa tiket/leg. (b) pola sama dengan laga pengganti →
+ *    PUBLISHED dari 4 laga aman. (c) kontrol: kickoff belum tercapai
+ *    saat commit → terbit persis baseline. (d) jam melompat pada setiap
+ *    percobaan tulis → guard retry habis, kegagalan jelas, nol baris.
+ *  - D15 (F2): bukti pembatalan dari LEDGER walau dataset absen. Void
+ *    provider_cancelled ber-UID di picks.db menahan SELURUH laga walau
+ *    (a) thestats_dataset.db absen dan (b) DB dataset tanpa tabel
+ *    identitas. Kontrol (c): void per-pick biasa tetap per-pick —
+ *    market lain ber-UID sama yang sah boleh dipilih.
+ *  - D16 (F3): retry lewat CLI ASLI (scripts/generate-fix4-ticket.ts,
+ *    proses OS terpisah) saat proses lain memegang lock writer
+ *    (lock-holder-signal, barrier berkas) dan picks.db memuat baris
+ *    legacy belum ter-backfill: CLI wajib mengembalikan UID yang sama
+ *    SELAGI lock masih dipegang, tanpa mengubah baris legacy dan tanpa
+ *    keputusan baru. Head 6bdd732 membuka getPicksDb() lebih dulu →
+ *    menunggu lock lalu menjalankan backfill sebelum menjawab.
  */
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
+  REPO_ROOT,
   Suite,
   buildCoreSchemas,
   createFixtureEnv,
+  runScript,
   settleFixtureEnv,
 } from "./helpers/fixture-env";
 
@@ -767,6 +794,298 @@ async function main(): Promise<void> {
     "2027-01-03T06:59:00.000Z",
   );
   suite.eq("D13b: sebelum cutoff → WAITING_CUTOFF tanpa menyentuh DB", waitD13.status, "WAITING_CUTOFF");
+
+  // --- D14 (F1): batas kickoff yang sama sampai menjelang COMMIT -------------
+  // Dataset dibuka lagi (handle D12 sudah ditutup) untuk menanam fixture
+  // kanonik kasus-kasus ini pada berkas yang sama.
+  const dsDb2 = new DatabaseSync(path.join(env.dataDir, "thestats_dataset.db"));
+  const putCanonical2 = (uid: string, kickoff: string | null): void => {
+    dsDb2.prepare(
+      `INSERT INTO canonical_fixtures
+         (fixture_uid, competition_id, kickoff_utc, kickoff_precision, state, created_at, updated_at)
+       VALUES (?, 'liga_berfeed', ?, 'exact', 'scheduled', ?, ?)`,
+    ).run(uid, kickoff, PUBLISH_NOW, PUBLISH_NOW);
+  };
+  // Pembungkus DB yang menggeser jam terinjeksi tepat saat statement
+  // INSERT tiket pertama dieksekusi — kickoff terlewati SELAGI transaksi
+  // menulis, bukan sebelum seleksi dimulai.
+  const makeFlipDb = (flip: () => void): import("node:sqlite").DatabaseSync => {
+    let flipped = false;
+    const wrapped = {
+      prepare: (sql: string) => {
+        const stmt = db.prepare(sql);
+        if (!sql.includes("INSERT INTO fix4_tickets")) return stmt;
+        return {
+          run: (...a: never[]) => {
+            if (!flipped) {
+              flipped = true;
+              flip();
+            }
+            return stmt.run(...a);
+          },
+          get: (...a: never[]) => stmt.get(...a),
+          all: (...a: never[]) => stmt.all(...a),
+        };
+      },
+      exec: (sql: string) => db.exec(sql),
+    };
+    return wrapped as unknown as import("node:sqlite").DatabaseSync;
+  };
+  const countDate = (table: string, date: string): number =>
+    (db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE date_wib = ?`).get(date) as { n: number }).n;
+
+  // D14a = 2027-01-05 (kasus tabel brief): kickoff ledger 13:00Z (20:00
+  // WIB), kickoff kanonik exact 07:10:01Z; jam seleksi 07:10:00, jam
+  // akhir 07:10:02. Head 6bdd732 menerbitkan laga ini karena cek akhir
+  // hanya membaca kickoff ledger dari snapshot pick.
+  const d14aBad = publishFixture("fx_ba1", "2027-01-05T13:00:00.000Z", "liga_berfeed", L1(0.9), undefined, "uid-d14-batas")[0];
+  publishFixture("fx_ba2", "2027-01-05T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_ba3", "2027-01-05T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_ba4", "2027-01-05T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  putCanonical2("uid-d14-batas", "2027-01-05T07:10:01.000Z");
+  let d14aNow = "2027-01-05T07:10:00.000Z";
+  const decD14a = fix4.generateFix4Ticket(
+    makeFlipDb(() => {
+      d14aNow = "2027-01-05T07:10:02.000Z";
+    }),
+    "2027-01-05",
+    "2027-01-05T07:10:00.000Z",
+    { now: () => d14aNow, datasetDb: dsDb2 },
+  );
+  suite.eq("D14a: kickoff kanonik terlewati saat menulis → ABSTAIN", decD14a.status, "ABSTAIN");
+  suite.eq("D14a: kandidat aman tersisa = 3", decD14a.eligible_count, 3);
+  suite.check("D14a: leg batas tidak masuk hasil", !decD14a.legs.some((l) => l.pick_id === d14aBad));
+  const d14aDec = db.prepare(
+    "SELECT created_utc FROM fix4_daily_decisions WHERE date_wib = '2027-01-05'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D14a: created_utc keputusan = jam evaluasi ulang pasca-rollback", d14aDec?.created_utc, "2027-01-05T07:10:02.000Z");
+  suite.eq("D14a: nol tiket dari percobaan ter-rollback", countDate("fix4_tickets", "2027-01-05"), 0);
+  const nLegD14a = (db.prepare(
+    `SELECT COUNT(*) AS n FROM fix4_ticket_legs l JOIN fix4_tickets t ON t.ticket_uid = l.ticket_uid
+     WHERE t.date_wib = '2027-01-05'`,
+  ).get() as { n: number }).n;
+  suite.eq("D14a: nol leg dari percobaan ter-rollback", nLegD14a, 0);
+
+  // D14b = 2027-01-07: pola D14a + satu laga pengganti aman → percobaan
+  // pertama ter-rollback, evaluasi ulang menerbitkan 4 laga aman.
+  const d14bBad = publishFixture("fx_bb1", "2027-01-07T13:00:00.000Z", "liga_berfeed", L1(0.9), undefined, "uid-d14-ganti")[0];
+  publishFixture("fx_bb2", "2027-01-07T13:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_bb3", "2027-01-07T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_bb4", "2027-01-07T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_bb5", "2027-01-07T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  putCanonical2("uid-d14-ganti", "2027-01-07T07:10:01.000Z");
+  let d14bNow = "2027-01-07T07:10:00.000Z";
+  const decD14b = fix4.generateFix4Ticket(
+    makeFlipDb(() => {
+      d14bNow = "2027-01-07T07:10:02.000Z";
+    }),
+    "2027-01-07",
+    "2027-01-07T07:10:00.000Z",
+    { now: () => d14bNow, datasetDb: dsDb2 },
+  );
+  suite.eq("D14b: evaluasi ulang sesudah rollback → PUBLISHED", decD14b.status, "PUBLISHED");
+  suite.eq("D14b: leg = 4 laga aman pengganti, urutan ranking",
+    decD14b.legs.map((l) => l.match_id), ["fx_bb2", "fx_bb3", "fx_bb4", "fx_bb5"]);
+  suite.check("D14b: leg batas tidak masuk tiket", !decD14b.legs.some((l) => l.pick_id === d14bBad));
+  suite.eq("D14b: tepat satu tiket (percobaan pertama ter-rollback)", countDate("fix4_tickets", "2027-01-07"), 1);
+  suite.eq("D14b: tepat satu keputusan", countDate("fix4_daily_decisions", "2027-01-07"), 1);
+  const d14bTicket = db.prepare(
+    "SELECT created_utc FROM fix4_tickets WHERE date_wib = '2027-01-07'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D14b: created_utc tiket = jam evaluasi ulang", d14bTicket?.created_utc, "2027-01-07T07:10:02.000Z");
+
+  // D14c = 2027-01-09 (kontrol): kickoff kanonik exact = kickoff ledger,
+  // jam tetap — kickoff belum tercapai saat commit → terbit persis
+  // baseline (urutan + peluang beku + cap waktu seleksi).
+  publishFixture("fx_bc1", "2027-01-09T13:00:00.000Z", "liga_berfeed", L1(0.9), undefined, "uid-d14-c1");
+  publishFixture("fx_bc2", "2027-01-09T14:00:00.000Z", "liga_berfeed", L1(0.88), undefined, "uid-d14-c2");
+  publishFixture("fx_bc3", "2027-01-09T15:00:00.000Z", "liga_berfeed", L1(0.86), undefined, "uid-d14-c3");
+  publishFixture("fx_bc4", "2027-01-09T16:00:00.000Z", "liga_berfeed", L1(0.84), undefined, "uid-d14-c4");
+  putCanonical2("uid-d14-c1", "2027-01-09T13:00:00.000Z");
+  putCanonical2("uid-d14-c2", "2027-01-09T14:00:00.000Z");
+  putCanonical2("uid-d14-c3", "2027-01-09T15:00:00.000Z");
+  putCanonical2("uid-d14-c4", "2027-01-09T16:00:00.000Z");
+  const decD14c = fix4.generateFix4Ticket(db, "2027-01-09", "2027-01-09T07:10:00.000Z", { datasetDb: dsDb2 });
+  suite.eq("D14c: kickoff belum tercapai saat commit → PUBLISHED", decD14c.status, "PUBLISHED");
+  suite.eq("D14c: urutan leg sesuai baseline", decD14c.legs.map((l) => l.match_id),
+    ["fx_bc1", "fx_bc2", "fx_bc3", "fx_bc4"]);
+  suite.eq("D14c: peluang leg beku sesuai baseline", decD14c.legs.map((l) => l.published_prob),
+    [0.9, 0.88, 0.86, 0.84]);
+  const d14cTicket = db.prepare(
+    "SELECT created_utc FROM fix4_tickets WHERE date_wib = '2027-01-09'",
+  ).get() as { created_utc: string } | undefined;
+  const d14cDec = db.prepare(
+    "SELECT created_utc FROM fix4_daily_decisions WHERE date_wib = '2027-01-09'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D14c: created_utc tiket = jam seleksi", d14cTicket?.created_utc, "2027-01-09T07:10:00.000Z");
+  suite.eq("D14c: created_utc keputusan = jam seleksi (sama dengan tiket)", d14cDec?.created_utc, "2027-01-09T07:10:00.000Z");
+  dsDb2.close();
+
+  // D14d = 2027-01-10: jam melompat +60 dtk pada SETIAP sampel. Lima
+  // laga dekat berkickoff berjenjang (T0+30..T0+270) selalu mencapai
+  // kickoff tepat pada pemeriksaan akhir salah satu percobaan; empat
+  // laga jauh aman. Tiga percobaan tulis habis → kegagalan jelas dan
+  // TIDAK ada baris apa pun yang tertinggal.
+  const d14dNear: [string, number][] = [
+    ["2027-01-10T07:10:30.000Z", 0.95],
+    ["2027-01-10T07:11:30.000Z", 0.94],
+    ["2027-01-10T07:12:30.000Z", 0.93],
+    ["2027-01-10T07:13:30.000Z", 0.92],
+    ["2027-01-10T07:14:30.000Z", 0.91],
+  ];
+  d14dNear.forEach(([k, p], i) => publishFixture(`fx_bd${i + 1}`, k, "liga_berfeed", L1(p)));
+  publishFixture("fx_bd6", "2027-01-10T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_bd7", "2027-01-10T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_bd8", "2027-01-10T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_bd9", "2027-01-10T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  const d14dSamples = [
+    "2027-01-10T07:10:00.000Z",
+    "2027-01-10T07:11:00.000Z",
+    "2027-01-10T07:12:00.000Z",
+    "2027-01-10T07:13:00.000Z",
+    "2027-01-10T07:14:00.000Z",
+    "2027-01-10T07:15:00.000Z",
+  ];
+  let d14dIdx = 0;
+  let d14dErr: unknown = null;
+  try {
+    fix4.generateFix4Ticket(db, "2027-01-10", d14dSamples[0], {
+      now: () => d14dSamples[Math.min(d14dIdx++, d14dSamples.length - 1)],
+      datasetDb: null,
+    });
+  } catch (e) {
+    d14dErr = e;
+  }
+  suite.check("D14d: guard retry habis → kegagalan jelas menyebut kickoff",
+    d14dErr instanceof Error && /kickoff/i.test(d14dErr.message), String(d14dErr));
+  suite.eq("D14d: nol keputusan tertinggal", countDate("fix4_daily_decisions", "2027-01-10"), 0);
+  suite.eq("D14d: nol tiket tertinggal", countDate("fix4_tickets", "2027-01-10"), 0);
+
+  // --- D15 (F2): bukti pembatalan dari ledger walau dataset absen ------------
+  const insertVoid = (pickId: number, uid: string, reason: string): void => {
+    db.prepare(
+      "INSERT INTO pick_voids (pick_id, fixture_uid, voided_utc, reason, policy_version) VALUES (?, ?, ?, ?, ?)",
+    ).run(pickId, uid, PUBLISH_NOW, reason, "test");
+  };
+
+  // D15a = 2027-01-11: dataset ABSEN (datasetDb: null). Void
+  // provider_cancelled ber-UID hanya ada di picks.db — market kedua
+  // ber-UID sama tetap harus tertahan. Head 6bdd732: loader jatuh ke
+  // fallback, void hanya menyaring pick-nya → market kedua masuk.
+  const d15a1 = publishFixture("px_b1", "2027-01-11T13:00:00.000Z", "liga_berfeed",
+    [{ market: "1x2", selection: "1", prob: 0.9 }], undefined, "uid-d15-pc")[0];
+  const d15a2 = publishFixture("px_b2", "2027-01-11T13:00:00.000Z", "liga_berfeed",
+    [{ market: "dc", selection: "1x", prob: 0.88 }], undefined, "uid-d15-pc")[0];
+  publishFixture("fx_be1", "2027-01-11T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_be2", "2027-01-11T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_be3", "2027-01-11T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  insertVoid(d15a1, "uid-d15-pc", "provider_cancelled");
+  const decD15a = fix4.generateFix4Ticket(db, "2027-01-11", "2027-01-11T07:10:00.000Z", { datasetDb: null });
+  suite.eq("D15a: dataset absen, provider_cancelled di ledger menahan seluruh laga → ABSTAIN", decD15a.status, "ABSTAIN");
+  suite.eq("D15a: kandidat layak = 3", decD15a.eligible_count, 3);
+  suite.check("D15a: kedua pick laga batal tertahan",
+    !decD15a.legs.some((l) => l.pick_id === d15a1 || l.pick_id === d15a2));
+  suite.eq("D15a: nol tiket", countDate("fix4_tickets", "2027-01-11"), 0);
+
+  // D15b = 2027-01-13: dataset ADA sebagai berkas tetapi TANPA tabel
+  // identitas — loader mengembalikan null; bukti ledger tetap berlaku.
+  const d15b1 = publishFixture("px_b3", "2027-01-13T13:00:00.000Z", "liga_berfeed",
+    [{ market: "1x2", selection: "1", prob: 0.9 }], undefined, "uid-d15b-pc")[0];
+  const d15b2 = publishFixture("px_b4", "2027-01-13T13:00:00.000Z", "liga_berfeed",
+    [{ market: "dc", selection: "1x", prob: 0.88 }], undefined, "uid-d15b-pc")[0];
+  publishFixture("fx_bf1", "2027-01-13T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_bf2", "2027-01-13T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_bf3", "2027-01-13T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  insertVoid(d15b1, "uid-d15b-pc", "provider_cancelled");
+  const emptyDsDb = new DatabaseSync(path.join(env.dataDir, "dataset-tanpa-identitas.db"));
+  const decD15b = fix4.generateFix4Ticket(db, "2027-01-13", "2027-01-13T07:10:00.000Z", { datasetDb: emptyDsDb });
+  suite.eq("D15b: DB tanpa tabel identitas, provider_cancelled di ledger menahan seluruh laga → ABSTAIN", decD15b.status, "ABSTAIN");
+  suite.eq("D15b: kandidat layak = 3", decD15b.eligible_count, 3);
+  suite.check("D15b: kedua pick laga batal tertahan",
+    !decD15b.legs.some((l) => l.pick_id === d15b1 || l.pick_id === d15b2));
+  suite.eq("D15b: nol tiket", countDate("fix4_tickets", "2027-01-13"), 0);
+  emptyDsDb.close();
+
+  // D15c = 2027-01-15 (kontrol): void per-pick BUKAN provider_cancelled
+  // + fixture tanpa bukti pembatalan → void individual tersaring,
+  // market lain ber-UID sama yang sah mewakili laga.
+  const d15c1 = publishFixture("px_b5", "2027-01-15T13:00:00.000Z", "liga_berfeed",
+    [{ market: "1x2", selection: "1", prob: 0.9 }], undefined, "uid-d15c")[0];
+  const d15c2 = publishFixture("px_b6", "2027-01-15T13:00:00.000Z", "liga_berfeed",
+    [{ market: "dc", selection: "1x", prob: 0.88 }], undefined, "uid-d15c")[0];
+  publishFixture("fx_bg1", "2027-01-15T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_bg2", "2027-01-15T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_bg3", "2027-01-15T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  insertVoid(d15c1, "uid-d15c", "pasar_ditutup");
+  const decD15c = fix4.generateFix4Ticket(db, "2027-01-15", "2027-01-15T07:10:00.000Z", { datasetDb: null });
+  suite.eq("D15c: void per-pick biasa → PUBLISHED", decD15c.status, "PUBLISHED");
+  suite.eq("D15c: kandidat layak = 4", decD15c.eligible_count, 4);
+  suite.check("D15c: pick void tersaring, market lain yang sah mewakili laga",
+    !decD15c.legs.some((l) => l.pick_id === d15c1) && decD15c.legs.some((l) => l.pick_id === d15c2));
+
+  // --- D16 (F3): retry lewat CLI asli di bawah lock writer proses lain -------
+  // Baris legacy live-run dengan notes eff= yang BELUM ter-backfill
+  // (effective_prob NULL) ditanam langsung — getter writable mana pun
+  // yang membuka picks.db akan mengubahnya lewat backfill ledger.
+  const srcLegacy = db.prepare("SELECT * FROM picks WHERE id = ?").get(pickA) as unknown as Record<string, unknown>;
+  const legacyRow: Record<string, unknown> = { ...srcLegacy };
+  delete legacyRow.id;
+  legacyRow.match_id = "fx_legacy_cli";
+  legacyRow.fixture_uid = "uid-legacy-cli";
+  legacyRow.pick_uid = "pick-uid-legacy-cli";
+  legacyRow.kickoff_utc = "2027-02-01T13:00:00.000Z";
+  legacyRow.kickoff_at_issue_utc = "2027-02-01T13:00:00.000Z";
+  legacyRow.notes = "warisan uji CLI eff=0.85 lab-band";
+  legacyRow.effective_prob = null;
+  legacyRow.effective_source = null;
+  legacyRow.published_prob = null;
+  const legacyCols = Object.keys(legacyRow);
+  db.prepare(
+    `INSERT INTO picks (${legacyCols.join(", ")}) VALUES (${legacyCols.map(() => "?").join(", ")})`,
+  ).run(...legacyCols.map((c) => legacyRow[c] as never));
+
+  // Proses terpisah menahan BEGIN IMMEDIATE sampai file pelepas ditulis
+  // (barrier berkas lock-holder-signal — tanpa tebakan waktu).
+  const picksPath = path.join(env.dataDir, "picks.db");
+  const readyFile = path.join(env.root, "d16-lock-ready");
+  const releaseFile = path.join(env.root, "d16-lock-release");
+  const tsxBin = path.join(REPO_ROOT, "node_modules", ".bin", "tsx");
+  const holder = spawn(
+    tsxBin,
+    [path.join(REPO_ROOT, "tests/helpers/lock-holder-signal.ts"), picksPath, readyFile, releaseFile, "60000"],
+    { cwd: env.root, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  let holderCode: number | null = null;
+  const holderDone = new Promise<void>((resolve) => {
+    holder.on("close", (code) => {
+      holderCode = code;
+      resolve();
+    });
+  });
+  let holderReady = false;
+  for (let i = 0; i < 400 && !holderReady; i++) {
+    if (fs.existsSync(readyFile)) holderReady = true;
+    else await new Promise((r) => setTimeout(r, 50));
+  }
+  suite.check("D16: proses lain benar-benar memegang lock writer", holderReady);
+
+  const tCli = Date.now();
+  const cliRes = runScript(env, "scripts/generate-fix4-ticket.ts", ["--date=2026-11-26"]);
+  const cliElapsedMs = Date.now() - tCli;
+  suite.eq("D16: CLI retry keluar 0", cliRes.code, 0);
+  suite.check("D16: CLI mengembalikan UID tiket yang sama",
+    cliRes.stdout.includes(decD.ticket_uid ?? "—"), cliRes.stdout.slice(0, 200));
+  suite.check("D16: CLI kembali SELAGI lock masih dipegang (pelepas belum ditulis, < 30 dtk)",
+    cliElapsedMs < 30000 && !fs.existsSync(releaseFile), `elapsed=${cliElapsedMs}ms`);
+  const legacyAfter = db.prepare(
+    "SELECT effective_prob FROM picks WHERE match_id = 'fx_legacy_cli'",
+  ).get() as { effective_prob: number | null } | undefined;
+  suite.eq("D16: baris legacy TIDAK ter-backfill oleh retry CLI", legacyAfter?.effective_prob, null);
+  suite.eq("D16: jumlah keputusan 2026-11-26 tetap 1", countDate("fix4_daily_decisions", "2026-11-26"), 1);
+  fs.writeFileSync(releaseFile, "release");
+  await Promise.race([holderDone, new Promise((r) => setTimeout(r, 15000))]);
+  if (holderCode === null) holder.kill();
+  suite.eq("D16: holder melepas lock lewat barrier berkas (exit 0)", holderCode, 0);
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
