@@ -22,6 +22,13 @@
  * registri mini ditulis ke sandbox — liga_berfeed (legacy-div E0) dan
  * liga_tanpa_feed (alias sm saja). Semua pick diterbitkan via publishPicks
  * asli dengan jam terbit 2026-11-25T02:00Z (sebelum semua cutoff Fix-4).
+ *
+ * Penjaga cutoff (koreksi 27 Nov 2026): generator hanya boleh membekukan
+ * pada/sesudah cutoff 14:00 WIB tanggalnya, jadi semua panggilan generate
+ * di suite ini memakai now pada/sesudah cutoff masing-masing. Bagian D7
+ * menguji penjaganya sendiri: T−1 ms menunggu tanpa menulis, tepat T
+ * boleh membekukan, T+1 ms retry idempoten, dan calon yang terbit pukul
+ * 13:50 WIB (sebelum cutoff) ikut terhitung saat generasi berjalan.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -101,6 +108,7 @@ async function main(): Promise<void> {
     kickoff: string,
     comp: string,
     legs: LegSpec[],
+    nowOverride?: string,
   ): number[] => {
     seq++;
     const input: import("../lib/picks/publication").PublishFixtureInput = {
@@ -137,7 +145,7 @@ async function main(): Promise<void> {
       })),
     };
     const r = pub.publishPicks(input, {
-      now: () => PUBLISH_NOW,
+      now: () => nowOverride ?? PUBLISH_NOW,
       fixture_state: () => ({ status: "scheduled", kickoff_utc: kickoff }),
     });
     if (r.status !== "published") {
@@ -162,7 +170,8 @@ async function main(): Promise<void> {
   publishFixture("fx_i", "2026-11-27T08:00:00.000Z", "liga_berfeed", L1(0.99)); // sesudah jendela
 
   const db = ledger.getPicksDb();
-  const decD = fix4.generateFix4Ticket(db, "2026-11-26", PUBLISH_NOW);
+  // Tepat pada cutoff (T) — batas inklusif: generasi SUDAH boleh jalan.
+  const decD = fix4.generateFix4Ticket(db, "2026-11-26", "2026-11-26T07:00:00.000Z");
   suite.eq("D: status PUBLISHED", decD.status, "PUBLISHED");
   suite.eq("D: kandidat layak = 5 (A, B, C, D, H)", decD.eligible_count, 5);
   suite.eq(
@@ -190,7 +199,7 @@ async function main(): Promise<void> {
   publishFixture("fx_t1", "2026-11-28T14:00:00.000Z", "liga_berfeed", L1(0.8));
   const d2top = publishFixture("fx_u1", "2026-11-28T15:00:00.000Z", "liga_berfeed", L1(0.9));
   const d2mid = publishFixture("fx_u2", "2026-11-28T16:00:00.000Z", "liga_berfeed", L1(0.85));
-  const decD2x = fix4.generateFix4Ticket(db, "2026-11-28", PUBLISH_NOW);
+  const decD2x = fix4.generateFix4Ticket(db, "2026-11-28", "2026-11-28T07:00:00.000Z");
   suite.eq(
     "D2: seri 0,80 → tie-break match_id asc (fx_t1 sebelum fx_t2)",
     decD2x.legs.map((l) => l.match_id),
@@ -202,7 +211,7 @@ async function main(): Promise<void> {
   publishFixture("fx_v2", "2026-11-30T14:00:00.000Z", "liga_berfeed", L1(0.85));
   publishFixture("fx_v3", "2026-11-30T15:00:00.000Z", "liga_berfeed", L1(0.8));
   publishFixture("fx_v4", "2026-11-30T16:00:00.000Z", "liga_tanpa_feed", L1(0.99));
-  const decD3 = fix4.generateFix4Ticket(db, "2026-11-30", PUBLISH_NOW);
+  const decD3 = fix4.generateFix4Ticket(db, "2026-11-30", "2026-11-30T07:00:00.000Z");
   suite.eq("D3: hanya 3 layak → ABSTAIN", decD3.status, "ABSTAIN");
   suite.eq("D3: eligible_count = 3", decD3.eligible_count, 3);
   suite.check("D3: alasan tercatat memuat jumlah kandidat",
@@ -219,7 +228,7 @@ async function main(): Promise<void> {
     publishFixture("fx_w3", "2026-12-02T15:00:00.000Z", "liga_berfeed", L1(0.86))[0],
     publishFixture("fx_w4", "2026-12-02T16:00:00.000Z", "liga_berfeed", L1(0.84))[0],
   ];
-  const decD4 = fix4.generateFix4Ticket(db, "2026-12-02", PUBLISH_NOW);
+  const decD4 = fix4.generateFix4Ticket(db, "2026-12-02", "2026-12-02T07:00:00.000Z");
   suite.eq("D4: PUBLISHED", decD4.status, "PUBLISHED");
 
   // --- Settlement -------------------------------------------------------------
@@ -305,7 +314,7 @@ async function main(): Promise<void> {
     candD5.filter((c) => c.match_id === "sm_9101" || c.match_id === "fd_9101").map((c) => c.pick_id),
     [d5sm]);
   suite.eq("D5: total kandidat layak = 4", candD5.length, 4);
-  const decD5 = fix4.generateFix4Ticket(db, "2026-12-04", PUBLISH_NOW);
+  const decD5 = fix4.generateFix4Ticket(db, "2026-12-04", "2026-12-04T07:00:00.000Z");
   suite.eq("D5: status PUBLISHED", decD5.status, "PUBLISHED");
   suite.check("D5: tiket memuat pick sm_ dan BUKAN pick fd_ termarking",
     decD5.legs.some((l) => l.pick_id === d5sm) && !decD5.legs.some((l) => l.pick_id === d5fd));
@@ -325,11 +334,55 @@ async function main(): Promise<void> {
     candD6.filter((c) => c.match_id === "sm_9102" || c.match_id === "fd_9102").map((c) => c.pick_id),
     [d6fd]);
   suite.eq("D6: total kandidat layak = 4", candD6.length, 4);
-  const decD6 = fix4.generateFix4Ticket(db, "2026-12-06", PUBLISH_NOW);
+  const decD6 = fix4.generateFix4Ticket(db, "2026-12-06", "2026-12-06T07:00:00.000Z");
   suite.eq("D6: status PUBLISHED", decD6.status, "PUBLISHED");
   suite.check("D6: tiket hanya memuat satu sisi kembar",
     decD6.legs.filter((l) => l.match_id === "sm_9102" || l.match_id === "fd_9102").length === 1 &&
     !decD6.legs.some((l) => l.pick_id === d6sm));
+
+  // --- D7 = 2026-12-08: penjaga cutoff (koreksi 27 Nov 2026) -----------------
+  // Produksi 26–27 Nov membekukan keputusan pukul 13:25 WIB (dispatch cron
+  // lebih awal dari jadwal nominal 13:30). Penjaga memastikan pembekuan
+  // hanya terjadi pada/sesudah cutoff 14:00 WIB = 07:00:00.000Z.
+  publishFixture("fx_p1", "2026-12-08T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_p2", "2026-12-08T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_p3", "2026-12-08T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  // Calon ke-4 terbit pukul 13:50 WIB hari keputusan (06:50Z) — sebelum
+  // cutoff, jadi WAJIB ikut terhitung saat generasi berjalan pada cutoff.
+  const pickLate = publishFixture(
+    "fx_p4", "2026-12-08T16:00:00.000Z", "liga_berfeed", L1(0.84),
+    "2026-12-08T06:50:00.000Z",
+  )[0];
+
+  // T−1 ms: menunggu, dan TIDAK menulis apa pun (tak ada ABSTAIN dini).
+  const waitD7 = fix4.generateFix4Ticket(db, "2026-12-08", "2026-12-08T06:59:59.999Z");
+  suite.eq("D7: T−1 ms → WAITING_CUTOFF", waitD7.status, "WAITING_CUTOFF");
+  suite.check("D7: alasan memuat 'Menunggu batas penilaian'",
+    (waitD7.reason ?? "").includes("Menunggu batas penilaian"));
+  const nDecD7pre = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_daily_decisions WHERE date_wib = '2026-12-08'",
+  ).get() as { n: number }).n;
+  suite.eq("D7: T−1 ms tidak menulis baris keputusan", nDecD7pre, 0);
+  const nTickD7pre = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_tickets WHERE date_wib = '2026-12-08'",
+  ).get() as { n: number }).n;
+  suite.eq("D7: T−1 ms tidak menulis baris tiket", nTickD7pre, 0);
+
+  // Tepat T: generasi boleh jalan; calon terbit 13:50 ikut masuk tiket.
+  const decD7 = fix4.generateFix4Ticket(db, "2026-12-08", "2026-12-08T07:00:00.000Z");
+  suite.eq("D7: tepat T → PUBLISHED", decD7.status, "PUBLISHED");
+  suite.eq("D7: kandidat layak = 4 (termasuk terbitan 13:50)", decD7.eligible_count, 4);
+  suite.check("D7: tiket memuat pick yang terbit pukul 13:50 WIB",
+    decD7.legs.some((l) => l.pick_id === pickLate));
+
+  // T+1 ms: retry idempoten — keputusan yang sama, tetap satu baris/hari.
+  const decD7retry = fix4.generateFix4Ticket(db, "2026-12-08", "2026-12-08T07:00:00.001Z");
+  suite.check("D7: retry T+1 ms → already_existed", decD7retry.already_existed === true);
+  suite.eq("D7: retry ticket_uid sama", decD7retry.ticket_uid, decD7.ticket_uid);
+  const nDecD7 = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_daily_decisions WHERE date_wib = '2026-12-08'",
+  ).get() as { n: number }).n;
+  suite.eq("D7: tepat satu keputusan tercatat per hari", nDecD7, 1);
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
