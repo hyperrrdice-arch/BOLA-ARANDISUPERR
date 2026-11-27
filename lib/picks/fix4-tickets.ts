@@ -363,6 +363,9 @@ function openDatasetEvidenceDb(): DatabaseSync | null {
  * seleksi internal mengembalikan batas kickoff penerbitan per pick
  * (F1 — paling awal dari kickoff ledger dan kickoff kanonik 'exact');
  * saringan waktu memakai batas itu, bukan hanya kickoff ledger.
+ * Batas kanonik dihitung per GRUP laga fisik (D17): kickoff kanonik
+ * 'exact' paling awal dari semua alias segrup, sehingga alias terpilih
+ * yang tidak punya UID tetap terikat bukti kanonik grupnya.
  */
 /**
  * Hasil seleksi internal generator: kandidat layak + batas kickoff
@@ -440,24 +443,6 @@ function selectFix4CandidatesInternal(
   const resolvedUid = (r: Fix4CandidateRow): string | null =>
     r.fixture_uid ?? evidence?.uidByMatchId.get(r.match_id) ?? null;
 
-  // Batas kickoff penerbitan per baris (F1): paling awal dari kickoff
-  // ledger dan kickoff kanonik presisi 'exact' yang valid. Bukti
-  // kanonik absen → kickoff ledger. Batas ini yang dibandingkan
-  // dengan jam penerbitan di seleksi DAN di pemeriksaan pra-COMMIT
-  // generator — bukan snapshot publikasi pick, yang tidak berubah.
-  const boundMsOf = (r: Fix4CandidateRow): number => {
-    let bound = Date.parse(r.kickoff_utc);
-    const uid = resolvedUid(r);
-    const fx = uid ? evidence?.canonicalByUid.get(uid) : undefined;
-    if (fx && fx.kickoff_utc !== null && fx.kickoff_precision === "exact") {
-      const kMs = Date.parse(fx.kickoff_utc);
-      if (Number.isFinite(kMs)) {
-        bound = Number.isFinite(bound) ? Math.min(bound, kMs) : kMs;
-      }
-    }
-    return bound;
-  };
-
   // Union-find atas baris kandidat: dua baris adalah laga fisik yang
   // sama bila berbagi fixture_uid persisten (atau UID alias dataset)
   // ATAU kunci tautan yang sama (transitif — satu baris dapat
@@ -492,6 +477,39 @@ function selectFix4CandidatesInternal(
     if (j === undefined) firstByLink.set(linkKey, i);
     else union(i, j);
   });
+
+  // Batas kickoff kanonik per GRUP laga fisik (D17): kickoff kanonik
+  // presisi 'exact' PALING AWAL dari semua alias dalam grup, dihitung
+  // sesudah penggabungan alias selesai. Alias yang terpilih bisa saja
+  // tidak punya UID (bukti kanoniknya kosong) sementara alias lain
+  // segrup membuktikan kickoff sebenarnya jauh lebih awal — batas
+  // grup inilah yang harus berlaku, bukan batas alias terpilih saja.
+  const groupCanonicalBoundMs = new Map<number, number>();
+  rows.forEach((r, i) => {
+    const uid = resolvedUid(r);
+    const fx = uid ? evidence?.canonicalByUid.get(uid) : undefined;
+    if (!fx || fx.kickoff_utc === null || fx.kickoff_precision !== "exact") return;
+    const kMs = Date.parse(fx.kickoff_utc);
+    if (!Number.isFinite(kMs)) return;
+    const root = find(i);
+    const prev = groupCanonicalBoundMs.get(root);
+    if (prev === undefined || kMs < prev) groupCanonicalBoundMs.set(root, kMs);
+  });
+
+  // Batas kickoff penerbitan per kandidat (F1 + D17): waktu yang lebih
+  // awal antara kickoff yang tersimpan di pick dan batas kanonik
+  // grupnya. Grup tanpa bukti kanonik → kickoff ledger. Batas ini yang
+  // dibandingkan dengan jam penerbitan di seleksi DAN di pemeriksaan
+  // pra-COMMIT generator — bukan snapshot publikasi pick, yang tidak
+  // berubah.
+  const boundMsOf = (r: Fix4CandidateRow, i: number): number => {
+    let bound = Date.parse(r.kickoff_utc);
+    const groupBound = groupCanonicalBoundMs.get(find(i));
+    if (groupBound !== undefined) {
+      bound = Number.isFinite(bound) ? Math.min(bound, groupBound) : groupBound;
+    }
+    return bound;
+  };
 
   // Grup laga fisik yang tertahan oleh bukti (R2 + F2): satu baris
   // yang terbukti bermasalah menahan SELURUH grupnya — termasuk void
@@ -547,13 +565,13 @@ function selectFix4CandidatesInternal(
     if (nowMs !== null) {
       // Batas kickoff penerbitan (ledger/kanonik paling awal, F1)
       // sudah tercapai pada saat keputusan ditulis → tahan.
-      if (boundMsOf(r) <= nowMs) return;
+      if (boundMsOf(r, i) <= nowMs) return;
       // Terbukti batal/void sebelum keputusan ditulis → tahan.
       if (voided !== null && voided.has(r.id)) return;
     }
     if (seenFixture.has(fixtureRoot)) return;
     seenFixture.add(fixtureRoot);
-    boundMsByPickId.set(r.id, boundMsOf(r));
+    boundMsByPickId.set(r.id, boundMsOf(r, i));
     out.push({
       pick_id: r.id,
       match_id: r.match_id,
