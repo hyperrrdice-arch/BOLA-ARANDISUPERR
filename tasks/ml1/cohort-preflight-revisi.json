@@ -1,0 +1,563 @@
+{
+  "tool": "ml1-cohort-preflight-revisi",
+  "generated_utc": "2026-11-27T09:19:44.100Z",
+  "snapshot": {
+    "source": "production analysis_snapshots.db + upcoming_fixtures.db (read-only)",
+    "free_refresh_last_success_utc": "2026-11-26T21:52:20.178Z",
+    "as_of_utc": "2026-11-26T21:52:20.178Z"
+  },
+  "funnel": {
+    "as_of_utc": "2026-11-26T21:52:20.178Z",
+    "horizon_seconds": 259200,
+    "primary_marker": "sha256:910a9efe3103ffde",
+    "leagues": [
+      {
+        "competition_id": "sm:14",
+        "scheduled": 12,
+        "with_package": 12,
+        "primary_marker": 12,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:17",
+        "scheduled": 12,
+        "with_package": 12,
+        "primary_marker": 12,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:9",
+        "scheduled": 12,
+        "with_package": 12,
+        "primary_marker": 12,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:12",
+        "scheduled": 11,
+        "with_package": 11,
+        "primary_marker": 11,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:567",
+        "scheduled": 11,
+        "with_package": 11,
+        "primary_marker": 11,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "comp_3039",
+        "scheduled": 10,
+        "with_package": 0,
+        "primary_marker": 0,
+        "other_marker": 0,
+        "no_package": 10
+      },
+      {
+        "competition_id": "comp_5840",
+        "scheduled": 10,
+        "with_package": 2,
+        "primary_marker": 2,
+        "other_marker": 0,
+        "no_package": 8
+      },
+      {
+        "competition_id": "comp_8814",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 8,
+        "other_marker": 2,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:603",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 10,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:648",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 10,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:74",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 10,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:8",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 10,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:968",
+        "scheduled": 10,
+        "with_package": 10,
+        "primary_marker": 10,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "comp_0256",
+        "scheduled": 9,
+        "with_package": 1,
+        "primary_marker": 0,
+        "other_marker": 1,
+        "no_package": 8
+      },
+      {
+        "competition_id": "comp_3809",
+        "scheduled": 9,
+        "with_package": 0,
+        "primary_marker": 0,
+        "other_marker": 0,
+        "no_package": 9
+      },
+      {
+        "competition_id": "comp_4643",
+        "scheduled": 9,
+        "with_package": 2,
+        "primary_marker": 0,
+        "other_marker": 2,
+        "no_package": 7
+      },
+      {
+        "competition_id": "sm:208",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:301",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:387",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:564",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:72",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:82",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:85",
+        "scheduled": 9,
+        "with_package": 9,
+        "primary_marker": 9,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:1107",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:262",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:384",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:453",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:465",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:474",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:573",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:609",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:663",
+        "scheduled": 8,
+        "with_package": 8,
+        "primary_marker": 8,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:1073",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:211",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:325",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:444",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:462",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:486",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:600",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:806",
+        "scheduled": 7,
+        "with_package": 7,
+        "primary_marker": 7,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:1034",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:181",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:229",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:372",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:501",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:591",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:938",
+        "scheduled": 6,
+        "with_package": 6,
+        "primary_marker": 6,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:244",
+        "scheduled": 5,
+        "with_package": 5,
+        "primary_marker": 5,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:271",
+        "scheduled": 5,
+        "with_package": 5,
+        "primary_marker": 5,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:274",
+        "scheduled": 5,
+        "with_package": 5,
+        "primary_marker": 5,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:743",
+        "scheduled": 4,
+        "with_package": 0,
+        "primary_marker": 0,
+        "other_marker": 0,
+        "no_package": 4
+      },
+      {
+        "competition_id": "sm:1007",
+        "scheduled": 3,
+        "with_package": 3,
+        "primary_marker": 3,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:1356",
+        "scheduled": 2,
+        "with_package": 2,
+        "primary_marker": 2,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:651",
+        "scheduled": 2,
+        "with_package": 0,
+        "primary_marker": 0,
+        "other_marker": 0,
+        "no_package": 2
+      },
+      {
+        "competition_id": "sm:1122",
+        "scheduled": 1,
+        "with_package": 1,
+        "primary_marker": 1,
+        "other_marker": 0,
+        "no_package": 0
+      },
+      {
+        "competition_id": "sm:2451",
+        "scheduled": 1,
+        "with_package": 0,
+        "primary_marker": 0,
+        "other_marker": 0,
+        "no_package": 1
+      }
+    ],
+    "totals": {
+      "scheduled": 426,
+      "with_package": 377,
+      "primary_marker": 372,
+      "other_marker": 5,
+      "no_package": 49
+    },
+    "marker_distribution_asof": [
+      {
+        "marker": "sha256:910a9efe3103ffde",
+        "packages": 372
+      },
+      {
+        "marker": "sha256:8a790aeaa4e54fdd",
+        "packages": 5
+      }
+    ],
+    "fixtures_without_package": [
+      "sm_19902586",
+      "mt_200855331",
+      "mt_899837994",
+      "mt_899072865",
+      "mt_988470123",
+      "mt_511976345",
+      "sm_19674574",
+      "sm_19674575",
+      "sm_19902643",
+      "sm_19902644",
+      "sm_19902645",
+      "sm_19902646",
+      "mt_155684166",
+      "mt_022015219",
+      "mt_988973871",
+      "mt_200193878",
+      "mt_988360423",
+      "mt_466100950",
+      "mt_155794066",
+      "mt_644908652",
+      "mt_155834766",
+      "mt_200251012",
+      "mt_988477070",
+      "mt_022917497",
+      "mt_200713278",
+      "mt_377265827",
+      "mt_511386245",
+      "mt_644528352",
+      "mt_200855303",
+      "mt_200855392",
+      "mt_466829415",
+      "mt_899742609",
+      "mt_022911788",
+      "mt_511388687",
+      "mt_022357097",
+      "mt_377405216",
+      "mt_466259115",
+      "mt_644018591",
+      "mt_733621059",
+      "mt_155198599",
+      "mt_377266508",
+      "mt_899632565",
+      "mt_022587940",
+      "mt_466402602",
+      "mt_511496545",
+      "mt_899837932",
+      "mt_733044120",
+      "mt_377145316",
+      "mt_466109715"
+    ],
+    "fixtures_other_marker": [
+      {
+        "match_id": "mt_200251050",
+        "competition_id": "comp_4643",
+        "marker": "sha256:8a790aeaa4e54fdd"
+      },
+      {
+        "match_id": "mt_511589184",
+        "competition_id": "comp_4643",
+        "marker": "sha256:8a790aeaa4e54fdd"
+      },
+      {
+        "match_id": "mt_200853678",
+        "competition_id": "comp_0256",
+        "marker": "sha256:8a790aeaa4e54fdd"
+      },
+      {
+        "match_id": "mt_200231623",
+        "competition_id": "comp_8814",
+        "marker": "sha256:8a790aeaa4e54fdd"
+      },
+      {
+        "match_id": "mt_733762493",
+        "competition_id": "comp_8814",
+        "marker": "sha256:8a790aeaa4e54fdd"
+      }
+    ]
+  },
+  "stored_predictions": {
+    "pit_b_shadow_db_exists_in_production": false,
+    "note": "Koleksi PIT B belum pernah jalan di produksi (tidak ada DB shadow) → prediksi tersimpan kohor = 0. Pilot legacy ml1_prospective.db adalah strata terpisah dan tidak dihitung di funnel ini."
+  }
+}
