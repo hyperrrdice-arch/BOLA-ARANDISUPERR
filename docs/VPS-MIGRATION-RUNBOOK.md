@@ -93,7 +93,7 @@ DNS untuk menerbitkan sertifikat.
 | 03:30 | `backup-sqlite-safe.ts` (backup harian + retensi 7 hari) |
 | 04:21 & 16:21 | `free-refresh.ts` (rantai 9 langkah incl. WAL checkpoint) |
 | 09:00 & 18:00 | `capture-odds-apifootball.ts` |
-| 13:30 | `generate-fix4-ticket.ts` (tiket resmi harian) |
+| 14:10 | `generate-fix4-ticket.ts` (tiket resmi harian) |
 
 Untuk backup off-host otomatis, set `RCLONE_REMOTE` (mis. `r2:bola-backups`)
 di `.env.local` — script backup mengunggah arsip + `.sha256` tiap run.
