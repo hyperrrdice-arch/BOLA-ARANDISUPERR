@@ -36,12 +36,14 @@ import {
   canonicalJson,
   cohortIdFor,
   computeCohortFunnel,
+  computeMarkerFunnel,
   countAnomalousScores,
   countOrphanProjections,
   evaluateCohortFromDb,
   finalizeProtocol,
   gradeCohort,
   protocolHash,
+  validateProtocolManifest,
   type CohortProtocol,
 } from "../lib/eval/ml1-cohort";
 
@@ -95,6 +97,7 @@ function cmdGrade(): void {
   const shadow = openShadow();
   const dataset = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   try {
+    const modeFlag = flag("mode");
     const summary = gradeCohort({
       shadowDb: shadow,
       dataset,
@@ -103,6 +106,7 @@ function cmdGrade(): void {
       cohortId,
       gradingCutoffUtc: cutoff,
       clock: () => new Date(),
+      mode: modeFlag === "official" ? "official" : modeFlag === "staging" ? "staging" : undefined,
     });
     console.log(JSON.stringify({ tool: "ml1-cohort-grade", ...summary }, null, 2));
   } finally {
@@ -123,7 +127,7 @@ function cmdEvaluate(): void {
       asOfUtc: now,
       persist: args.includes("--persist"),
     });
-    const funnel = computeCohortFunnel(shadow, dataset, protocol, now);
+    const funnel = computeCohortFunnel(shadow, dataset, protocol, now, cohortId);
     console.log(JSON.stringify({ tool: "ml1-cohort-evaluate", evaluation, operations, funnel }, null, 2));
   } finally {
     dataset.close();
@@ -137,13 +141,38 @@ function cmdPreflight(): void {
   const dataset = new DatabaseSync(dbPath("thestats_dataset.db"), { readOnly: true });
   const snapshots = new DatabaseSync(dbPath("analysis_snapshots.db"), { readOnly: true });
   try {
-    // Marker champion AKTUAL: ratings_marker pada paket slate terbaru.
+    // INVENTARIS paket slate (semua edisi, tanpa jendela/selector) —
+    // angka lama 558/9.876 + 41 marker berasal dari sini dan BUKAN
+    // penyebut kohor. Funnel resmi ada di marker_funnel_asof di bawah.
     const markerRows = snapshots
       .prepare(
         `SELECT ratings_marker, COUNT(*) AS n FROM packages
          WHERE trigger = 'slate' GROUP BY ratings_marker ORDER BY MAX(computed_utc) DESC`,
       )
       .all() as unknown as { ratings_marker: string | null; n: number }[];
+    // Funnel marker dengan penyebut benar (§3.4): fixture terjadwal
+    // unik dalam horizon dari titik as-of snapshot, paket dipilih
+    // dengan selector as-of PIT. As-of default = computed paket
+    // terbaru pada snapshot (titik segar snapshot sesudah refresh).
+    let markerFunnel: ReturnType<typeof computeMarkerFunnel> | null = null;
+    const upcomingPath = dbPath("upcoming_fixtures.db");
+    if (fs.existsSync(upcomingPath)) {
+      const latestComputed = snapshots
+        .prepare("SELECT MAX(computed_utc) AS m FROM packages WHERE trigger = 'slate'")
+        .get() as unknown as { m: string | null };
+      if (latestComputed.m) {
+        const upcoming = new DatabaseSync(upcomingPath, { readOnly: true });
+        try {
+          markerFunnel = computeMarkerFunnel(snapshots, upcoming, {
+            asOfUtc: flag("asof") ?? latestComputed.m,
+            horizonSeconds: protocol.horizon.max_lead_seconds,
+            primaryMarker: protocol.champion.primary_marker ?? protocol.champion.primary_marker_repo_baseline,
+          });
+        } finally {
+          upcoming.close();
+        }
+      }
+    }
     let modelManifestHash: string | null = null;
     try {
       const mm = JSON.parse(fs.readFileSync(path.join(dataDir(), "model-manifest.json"), "utf8")) as { ratingsHash?: string };
@@ -172,7 +201,9 @@ function cmdPreflight(): void {
           protocol_sha256: protocolHash(protocol),
           champion_marker_repo_baseline: protocol.champion.primary_marker_repo_baseline,
           champion_marker_model_manifest_ratings_hash: modelManifestHash,
-          champion_markers_on_latest_slate_packages: markerRows,
+          slate_package_inventory_all_editions: markerRows,
+          marker_funnel_asof: markerFunnel,
+          manifest_validation: validateProtocolManifest(protocol),
           anomalous_scores: anomalies,
           artifact_verification: verification,
           orphan_projections: orphans,

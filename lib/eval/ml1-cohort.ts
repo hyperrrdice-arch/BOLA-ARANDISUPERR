@@ -93,6 +93,22 @@ export function classifyCompetition(competitionId: string | null | undefined): "
     : "unknown";
 }
 
+/**
+ * Klasifikasi memakai ALLOWLIST manifest yang dibekukan — bukan
+ * konstanta kode (Brief Tindak Lanjut §3.3). Manifest adalah sumber
+ * kebenaran klasifikasi + penyebut: mengubah daftar berarti manifest
+ * baru + cohort_id baru.
+ */
+export function classifyCompetitionFor(
+  protocol: CohortProtocol,
+  competitionId: string | null | undefined,
+): "competitive_primary" | "unknown" {
+  if (competitionId === null || competitionId === undefined) return "unknown";
+  return protocol.competitive_primary.list.some((e) => e.competition_id === competitionId)
+    ? "competitive_primary"
+    : "unknown";
+}
+
 export interface CohortProtocol {
   protocol_version: number;
   status: "PROPOSED_PENDING_OWNER_APPROVAL" | "FROZEN_FOR_COLLECTION";
@@ -294,6 +310,61 @@ export function finalizeProtocol(p: CohortProtocol): FinalizedProtocol {
 }
 
 // ============================================================================
+// §3.3 (tindak lanjut) — Penegakan manifest beku
+// ============================================================================
+export interface ProtocolManifestValidation {
+  /** true bila tidak ada error struktural / kelengkapan untuk modenya. */
+  ok: boolean;
+  /** "official" hanya untuk manifest FROZEN_FOR_COLLECTION yang lengkap. */
+  mode: "staging" | "official";
+  errors: string[];
+  warnings: string[];
+}
+
+const isSha256Hex = (s: string | null): s is string => s !== null && /^[0-9a-f]{64}$/.test(s);
+
+/**
+ * Validasi manifest protokol. Manifest PROPOSAL hanya sah untuk
+ * staging: nilai produksi yang masih kosong tercatat sebagai warning.
+ * Gate resmi mensyaratkan manifest FINAL (FROZEN_FOR_COLLECTION) dengan
+ * hash kandidat valid dan SEMUA nilai produksi lengkap — kandidat
+ * ID/SHA, versi fitur/runner, marker primer, horizon, dan jendela
+ * (T0/T1/cutoff grading/tanggal tinjauan) dibekukan di manifest.
+ */
+export function validateProtocolManifest(p: CohortProtocol): ProtocolManifestValidation {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const isFinal = p.status === "FROZEN_FOR_COLLECTION";
+  const req = (cond: boolean, msg: string): void => {
+    if (!cond) (isFinal ? errors : warnings).push(msg);
+  };
+  req(isSha256Hex(p.study.candidate_manifest_sha256), "study.candidate_manifest_sha256 belum hash SHA-256 kandidat yang valid");
+  req(p.study.candidate_id !== "", "study.candidate_id kosong");
+  req(p.study.eval_version === PIT_B_EVAL_VERSION, "study.eval_version tidak sama dengan versi bukti aktif");
+  req(p.study.feature_code_version === PIT_B_FEATURE_CODE_VERSION, "study.feature_code_version tidak sama dengan versi kode fitur aktif");
+  req(p.study.runner_version === PIT_B_RUNNER_VERSION, "study.runner_version tidak sama dengan versi runner aktif");
+  req(p.study.horizon_id === PIT_B_HORIZON_ID, "study.horizon_id tidak sama dengan horizon aktif");
+  req(p.champion.primary_marker !== null && p.champion.primary_marker !== "", "champion.primary_marker belum dikunci");
+  req(p.window.t0 !== null, "window.t0 belum diisi");
+  req(p.window.t1 !== null, "window.t1 belum diisi");
+  req(p.window.grading_cutoff !== null, "window.grading_cutoff belum diisi");
+  req(p.review.formal_review_date !== null, "review.formal_review_date belum diisi");
+  if (p.competitive_primary.list.length === 0) errors.push("competitive_primary.list kosong");
+  if (!(p.horizon.max_lead_seconds > p.horizon.min_lead_seconds_exclusive)) {
+    errors.push("horizon tidak valid: max_lead_seconds harus > min_lead_seconds_exclusive");
+  }
+  const t0Ms = p.window.t0 !== null ? parseInstant(p.window.t0) : null;
+  const t1Ms = p.window.t1 !== null ? parseInstant(p.window.t1) : null;
+  const cutoffMs = p.window.grading_cutoff !== null ? parseInstant(p.window.grading_cutoff) : null;
+  if (p.window.t0 !== null && t0Ms === null) errors.push("window.t0 bukan instant yang valid");
+  if (p.window.t1 !== null && t1Ms === null) errors.push("window.t1 bukan instant yang valid");
+  if (p.window.grading_cutoff !== null && cutoffMs === null) errors.push("window.grading_cutoff bukan instant yang valid");
+  if (t0Ms !== null && t1Ms !== null && !(t0Ms < t1Ms)) errors.push("window tidak valid: t0 harus < t1");
+  if (t1Ms !== null && cutoffMs !== null && cutoffMs < t1Ms) errors.push("window tidak valid: grading_cutoff sebelum t1");
+  return { ok: errors.length === 0, mode: isFinal ? "official" : "staging", errors, warnings };
+}
+
+// ============================================================================
 // §4 — Grader shadow berbasis UID (append-only, idempoten)
 // ============================================================================
 export type CohortGradingStatus =
@@ -331,9 +402,7 @@ export interface CohortGradingRow {
   evidence_key: string;
 }
 
-export function ensureCohortGradingSchema(db: DatabaseSync): void {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS cohort_gradings (
+const COHORT_GRADING_COLUMNS = `
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       prediction_id INTEGER NOT NULL,
       fixture_uid TEXT NOT NULL,
@@ -355,9 +424,40 @@ export function ensureCohortGradingSchema(db: DatabaseSync): void {
       brier_candidate REAL,
       delta_ll REAL,
       block_key TEXT,
-      evidence_key TEXT NOT NULL,
-      UNIQUE (prediction_id, evidence_key)
+      evidence_key TEXT NOT NULL`;
+
+const COHORT_GRADING_COLUMN_LIST =
+  "id, prediction_id, fixture_uid, cohort_id, edition, graded_at_utc, grading_cutoff_utc, status, stratum, reason, home_score, away_score, revision, revision_checksum, outcome_index, ll_champion, ll_candidate, brier_champion, brier_candidate, delta_ll, block_key, evidence_key";
+
+export function ensureCohortGradingSchema(db: DatabaseSync): void {
+  // Migrasi isolasi kohor (Brief Tindak Lanjut §3.1): skema lama memakai
+  // UNIQUE (prediction_id, evidence_key) TANPA cohort_id, sehingga
+  // grading kohor kedua atas bukti yang sama tertelan sebagai
+  // "idempoten" milik kohor pertama. Tabel lama dibangun ulang dengan
+  // kunci ter-scope kohor; baris lama dipertahankan apa adanya.
+  const existing = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'cohort_gradings'")
+    .get() as unknown as { sql: string } | undefined;
+  if (existing && !/UNIQUE\s*\(\s*cohort_id\s*,\s*prediction_id\s*,\s*evidence_key\s*\)/.test(existing.sql)) {
+    db.exec("ALTER TABLE cohort_gradings RENAME TO cohort_gradings_legacy_unscoped");
+  }
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS cohort_gradings (
+${COHORT_GRADING_COLUMNS},
+      UNIQUE (cohort_id, prediction_id, evidence_key)
     );
+  `);
+  const legacy = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'cohort_gradings_legacy_unscoped'")
+    .get() as unknown as { name: string } | undefined;
+  if (legacy) {
+    db.exec(`
+      INSERT OR IGNORE INTO cohort_gradings (${COHORT_GRADING_COLUMN_LIST})
+        SELECT ${COHORT_GRADING_COLUMN_LIST} FROM cohort_gradings_legacy_unscoped;
+      DROP TABLE cohort_gradings_legacy_unscoped;
+    `);
+  }
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_cohort_gradings_uid ON cohort_gradings(fixture_uid);
     CREATE INDEX IF NOT EXISTS idx_cohort_gradings_cohort ON cohort_gradings(cohort_id);
     CREATE TABLE IF NOT EXISTS cohort_reports (
@@ -368,6 +468,16 @@ export function ensureCohortGradingSchema(db: DatabaseSync): void {
       created_utc TEXT NOT NULL,
       evaluator_version TEXT NOT NULL,
       report_json TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS cohort_report_gradings (
+      report_id INTEGER NOT NULL,
+      cohort_id TEXT NOT NULL,
+      prediction_id INTEGER NOT NULL,
+      grading_id INTEGER NOT NULL,
+      edition INTEGER NOT NULL,
+      status TEXT NOT NULL,
+      delta_ll REAL,
+      PRIMARY KEY (report_id, prediction_id)
     );
   `);
 }
@@ -388,6 +498,7 @@ interface CohortPredictionRow {
   package_computed_utc: string;
   package_payload_sha256: string;
   champion_ratings_marker: string | null;
+  candidate_id: string | null;
   candidate_manifest_sha256: string | null;
   feature_snapshot_id: string;
   home_name: string | null;
@@ -442,6 +553,13 @@ export interface CohortGradeDeps {
   /** Hanya revisi dengan observed_at <= cutoff ini yang terlihat. */
   gradingCutoffUtc: string;
   clock: () => Date;
+  /**
+   * Mode penegakan manifest. "official" mensyaratkan manifest FINAL
+   * yang lengkap dan cutoff grading persis sama dengan cutoff beku
+   * manifest. Tanpa mode: manifest FROZEN tetap ditegakkan sebagai
+   * official; manifest proposal berjalan sebagai staging.
+   */
+  mode?: "staging" | "official";
 }
 
 export interface CohortGradeSummary {
@@ -500,8 +618,10 @@ function gradeOne(
   pred: CohortPredictionRow,
   ctx: {
     protocol: CohortProtocol;
-    strictUids: Set<string>;
+    strictPredIds: Set<number>;
+    verifyReasonByPredId: Map<number, string>;
     verifyReasonByUid: Map<string, string>;
+    snapVersions: Map<string, { feature_code_version: string; runner_version: string }>;
     dataset: DatabaseSync;
     gradingCutoffMs: number;
   },
@@ -511,8 +631,35 @@ function gradeOne(
   if (pred.eval_version !== PIT_B_EVAL_VERSION) {
     return draft("evidence_invalid", "legacy_evidence", "evidence_version_legacy");
   }
-  if (!ctx.strictUids.has(pred.fixture_uid)) {
-    return draft("evidence_invalid", "primary", ctx.verifyReasonByUid.get(pred.fixture_uid) ?? "artifact_not_verified");
+  // Ikatan bukti PER BARIS (bukan per UID): baris tersimpan harus lolos
+  // verifikasi artefak + ikatan isi terhadap proyeksi beku (§3.2).
+  if (!ctx.strictPredIds.has(pred.id)) {
+    return draft(
+      "evidence_invalid",
+      "primary",
+      ctx.verifyReasonByPredId.get(pred.id) ?? ctx.verifyReasonByUid.get(pred.fixture_uid) ?? "artifact_not_verified",
+    );
+  }
+  // 1b) Ikatan kandidat + versi ke protokol yang dibekukan: ID kandidat
+  // harus sama; SHA manifest kandidat harus sama bila manifest
+  // membekukannya; versi fitur/runner snapshot harus sama dengan versi
+  // beku protokol. Hasil kandidat tersimpan terikat ke provenance ini.
+  if (pred.candidate_id !== protocol.study.candidate_id) {
+    return draft("evidence_invalid", "primary", "candidate_id_mismatch");
+  }
+  if (
+    protocol.study.candidate_manifest_sha256 !== null &&
+    pred.candidate_manifest_sha256 !== protocol.study.candidate_manifest_sha256
+  ) {
+    return draft("evidence_invalid", "primary", "candidate_manifest_mismatch");
+  }
+  const snapV = ctx.snapVersions.get(pred.feature_snapshot_id);
+  if (
+    !snapV ||
+    snapV.feature_code_version !== protocol.study.feature_code_version ||
+    snapV.runner_version !== protocol.study.runner_version
+  ) {
+    return draft("evidence_invalid", "primary", "evidence_version_against_protocol");
   }
   // 2) Rantai waktu: computed <= decision <= issue < kickoff.
   const computedMs = parseInstant(pred.package_computed_utc);
@@ -545,8 +692,9 @@ function gradeOne(
   if (!(leadSec > protocol.horizon.min_lead_seconds_exclusive && leadSec <= protocol.horizon.max_lead_seconds)) {
     return draft("diagnostic", "out_of_horizon", "lead_out_of_horizon");
   }
-  // 6) Klasifikasi kompetisi (strata, bukan penentu status outcome).
-  const stratum = classifyCompetition(pred.competition_id) === "competitive_primary" ? "primary" : "non_primary_competition";
+  // 6) Klasifikasi kompetisi dari ALLOWLIST manifest (strata, bukan
+  // penentu status outcome).
+  const stratum = classifyCompetitionFor(protocol, pred.competition_id) === "competitive_primary" ? "primary" : "non_primary_competition";
 
   // 7) Identitas: UID dari prediksi; orientasi dibekukan saat issue.
   const cf = ctx.dataset
@@ -670,10 +818,40 @@ export function gradeCohort(deps: CohortGradeDeps): CohortGradeSummary {
   if (gradingCutoffMs === null) {
     throw new Error(`ML1-KOHOR: grading cutoff tidak valid: ${deps.gradingCutoffUtc}`);
   }
+  // Penegakan manifest beku (§3.3): mode official — atau manifest yang
+  // sudah FROZEN — mensyaratkan manifest final yang lengkap dan cutoff
+  // grading persis sama dengan cutoff beku manifest. Manifest proposal
+  // hanya berjalan sebagai staging.
+  const validation = validateProtocolManifest(protocol);
+  const official = deps.mode === "official" || protocol.status === "FROZEN_FOR_COLLECTION";
+  if (deps.mode === "official" && protocol.status !== "FROZEN_FOR_COLLECTION") {
+    throw new Error("ML1-KOHOR: mode official mensyaratkan manifest FROZEN_FOR_COLLECTION (proposal hanya untuk staging).");
+  }
+  if (official) {
+    if (!validation.ok) {
+      throw new Error(`ML1-KOHOR: manifest final tidak lengkap: ${validation.errors.join("; ")}`);
+    }
+    const frozenCutoffMs = protocol.window.grading_cutoff !== null ? parseInstant(protocol.window.grading_cutoff) : null;
+    if (frozenCutoffMs === null || frozenCutoffMs !== gradingCutoffMs) {
+      throw new Error("ML1-KOHOR: grading cutoff tidak sama dengan cutoff beku manifest.");
+    }
+  }
   // Verifikasi artefak per proyeksi unik terhadap manifest tercatat.
   const verification: PitBArtifactVerification = verifyPitBArtifacts(shadowDb, deps.projectionDir);
-  const strictUids = new Set(verification.strict_uids);
+  const strictPredIds = new Set(verification.strict_prediction_ids);
   const verifyReasonByUid = new Map(verification.rejected.map((r) => [r.fixture_uid, r.reason] as const));
+  const verifyReasonByPredId = new Map<number, string>();
+  for (const r of verification.rejected) {
+    if (r.prediction_id !== undefined && !verifyReasonByPredId.has(r.prediction_id)) {
+      verifyReasonByPredId.set(r.prediction_id, r.reason);
+    }
+  }
+  const snapVersions = new Map<string, { feature_code_version: string; runner_version: string }>();
+  for (const s of shadowDb
+    .prepare("SELECT feature_snapshot_id, feature_code_version, runner_version FROM feature_snapshots")
+    .all() as unknown as { feature_snapshot_id: string; feature_code_version: string; runner_version: string }[]) {
+    snapVersions.set(s.feature_snapshot_id, { feature_code_version: s.feature_code_version, runner_version: s.runner_version });
+  }
 
   let gradedAtUtc = "";
   const drafts: { pred: CohortPredictionRow; d: GradeDraft; evidenceKey: string }[] = [];
@@ -693,7 +871,7 @@ export function gradeCohort(deps: CohortGradeDeps): CohortGradeSummary {
         if (!(pred.kickoff_utc >= windowT0 && pred.kickoff_utc < windowT1)) continue;
         if (pred.decision_at_utc < windowT0) continue;
       }
-      const d = gradeOne(pred, { protocol, strictUids, verifyReasonByUid, dataset, gradingCutoffMs });
+      const d = gradeOne(pred, { protocol, strictPredIds, verifyReasonByPredId, verifyReasonByUid, snapVersions, dataset, gradingCutoffMs });
       const evidenceKey = sha256Hex(
         canonicalJson([pred.fixture_uid, d.status, d.stratum, d.reason, d.revision, d.home_score, d.away_score, d.revision_checksum]),
       );
@@ -711,15 +889,15 @@ export function gradeCohort(deps: CohortGradeDeps): CohortGradeSummary {
     for (const { pred, d, evidenceKey } of drafts) {
       byStatus[d.status] = (byStatus[d.status] ?? 0) + 1;
       const existing = shadowDb
-        .prepare("SELECT id FROM cohort_gradings WHERE prediction_id = ? AND evidence_key = ?")
-        .get(pred.id, evidenceKey) as unknown as { id: number } | undefined;
+        .prepare("SELECT id FROM cohort_gradings WHERE cohort_id = ? AND prediction_id = ? AND evidence_key = ?")
+        .get(deps.cohortId, pred.id, evidenceKey) as unknown as { id: number } | undefined;
       if (existing) {
         idempotentSkips++;
         continue;
       }
       const maxEd = shadowDb
-        .prepare("SELECT COALESCE(MAX(edition), 0) AS m FROM cohort_gradings WHERE prediction_id = ?")
-        .get(pred.id) as unknown as { m: number };
+        .prepare("SELECT COALESCE(MAX(edition), 0) AS m FROM cohort_gradings WHERE cohort_id = ? AND prediction_id = ?")
+        .get(deps.cohortId, pred.id) as unknown as { m: number };
       shadowDb
         .prepare(
           `INSERT INTO cohort_gradings (
@@ -835,6 +1013,8 @@ function groupDelta(pairs: CohortPair[], key: (p: CohortPair) => string): Record
 export interface CohortEvaluation {
   cohort_id: string;
   protocol_sha256: string;
+  /** Status manifest sumber (PROPOSED… = staging; FROZEN… = resmi). */
+  manifest_status: string;
   evaluator_version: string;
   report_cutoff_utc: string;
   window_closed: boolean;
@@ -897,6 +1077,7 @@ export function evaluatePairs(
   return {
     cohort_id: opts.cohortId,
     protocol_sha256: protocolHash(protocol),
+    manifest_status: protocol.status,
     evaluator_version: COHORT_EVALUATOR_VERSION,
     report_cutoff_utc: opts.reportCutoffUtc,
     window_closed: opts.windowClosed,
@@ -923,11 +1104,15 @@ export interface CohortOperationsReport {
   unique_fixtures: number;
 }
 
-/** Grading TERBARU per prediksi yang tersedia pada cutoff laporan. */
-export function latestGradingsAsOf(shadowDb: DatabaseSync, reportCutoffUtc: string): CohortGradingRow[] {
+/**
+ * Grading TERBARU per prediksi MILIK SATU KOHOR yang tersedia pada
+ * cutoff laporan. Filter cohort_id wajib: tanpa itu laporan satu kohor
+ * membaca grading kohor lain di DB shadow yang sama (§3.1).
+ */
+export function latestGradingsAsOf(shadowDb: DatabaseSync, reportCutoffUtc: string, cohortId: string): CohortGradingRow[] {
   const rows = shadowDb
-    .prepare("SELECT * FROM cohort_gradings WHERE graded_at_utc <= ? ORDER BY prediction_id, edition")
-    .all(reportCutoffUtc) as unknown as CohortGradingRow[];
+    .prepare("SELECT * FROM cohort_gradings WHERE cohort_id = ? AND graded_at_utc <= ? ORDER BY prediction_id, edition")
+    .all(cohortId, reportCutoffUtc) as unknown as CohortGradingRow[];
   const latest = new Map<number, CohortGradingRow>();
   for (const r of rows) latest.set(r.prediction_id, r);
   return [...latest.values()];
@@ -944,7 +1129,7 @@ export function evaluateCohortFromDb(
   opts: { cohortId: string; reportCutoffUtc: string; asOfUtc: string; persist?: boolean },
 ): { evaluation: CohortEvaluation; operations: CohortOperationsReport; pairs: CohortPair[] } {
   ensureCohortGradingSchema(shadowDb);
-  const latest = latestGradingsAsOf(shadowDb, opts.reportCutoffUtc);
+  const latest = latestGradingsAsOf(shadowDb, opts.reportCutoffUtc, opts.cohortId);
   const byStatus: Record<string, number> = {};
   const byReason: Record<string, number> = {};
   const uniqueFixtures = new Set<string>();
@@ -990,7 +1175,7 @@ export function evaluateCohortFromDb(
     windowClosed,
   });
   if (opts.persist) {
-    shadowDb
+    const res = shadowDb
       .prepare(
         "INSERT INTO cohort_reports (cohort_id, protocol_sha256, report_cutoff_utc, created_utc, evaluator_version, report_json) VALUES (?, ?, ?, ?, ?, ?)",
       )
@@ -1002,6 +1187,16 @@ export function evaluateCohortFromDb(
         COHORT_EVALUATOR_VERSION,
         canonicalJson({ evaluation, operations: { latest_gradings: latest.length, by_status: byStatus, by_reason: byReason, unique_fixtures: uniqueFixtures.size } }),
       );
+    // Snapshot grading formal (§3.3): baris grading persis yang dipakai
+    // laporan ini dibekukan per report_id, sehingga laporan tetap
+    // reproducible persis walau grading koreksi ditambahkan sesudahnya.
+    const reportId = Number(res.lastInsertRowid);
+    const insSnap = shadowDb.prepare(
+      "INSERT INTO cohort_report_gradings (report_id, cohort_id, prediction_id, grading_id, edition, status, delta_ll) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    );
+    for (const g of latest) {
+      insSnap.run(reportId, opts.cohortId, g.prediction_id, g.id, g.edition, g.status, g.delta_ll);
+    }
   }
   return {
     evaluation,
@@ -1041,21 +1236,32 @@ export function computeCohortFunnel(
   dataset: DatabaseSync,
   protocol: CohortProtocol,
   reportCutoffUtc: string,
+  cohortId: string,
 ): CohortFunnel {
   ensureCohortGradingSchema(shadowDb);
   const { t0, t1 } = { t0: protocol.window.t0, t1: protocol.window.t1 };
   let scheduled: number | null = null;
   if (t0 !== null && t1 !== null) {
-    const row = dataset
-      .prepare("SELECT COUNT(*) AS n FROM canonical_fixtures WHERE kickoff_utc >= ? AND kickoff_utc < ?")
-      .get(t0, t1) as unknown as { n: number };
-    scheduled = Number(row.n);
+    // Penyebut funnel = fixture terjadwal dalam ALLOWLIST manifest
+    // (§3.3), bukan seluruh katalog.
+    const allow = protocol.competitive_primary.list.map((e) => e.competition_id);
+    if (allow.length === 0) {
+      scheduled = 0;
+    } else {
+      const placeholders = allow.map(() => "?").join(", ");
+      const row = dataset
+        .prepare(
+          `SELECT COUNT(*) AS n FROM canonical_fixtures WHERE kickoff_utc >= ? AND kickoff_utc < ? AND competition_id IN (${placeholders})`,
+        )
+        .get(t0, t1, ...allow) as unknown as { n: number };
+      scheduled = Number(row.n);
+    }
   }
   const preds = shadowDb.prepare("SELECT * FROM predictions WHERE horizon_id = ?").all(protocol.study.horizon_id) as unknown as CohortPredictionRow[];
   const inWindow = preds.filter(
     (p) => t0 === null || t1 === null || (p.kickoff_utc >= t0 && p.kickoff_utc < t1 && p.decision_at_utc >= t0),
   );
-  const latest = latestGradingsAsOf(shadowDb, reportCutoffUtc);
+  const latest = latestGradingsAsOf(shadowDb, reportCutoffUtc, cohortId);
   const countStatus = (statuses: string[]): number => latest.filter((g) => statuses.includes(g.status)).length;
   const leadBuckets: Record<string, number> = {};
   const byComp: Record<string, number> = {};
@@ -1110,6 +1316,116 @@ export function computeCohortFunnel(
     coverage_by_marker: byMarker,
     coverage_by_feature_code_version: byFeatureVersion,
     missed_batches: missed,
+  };
+}
+
+/**
+ * Funnel marker preflight dengan PENYEBUT YANG BENAR (Brief Tindak
+ * Lanjut §3.4). Angka lama (558/9.876, 41 marker) adalah inventaris
+ * paket slate per fixture terbaru TANPA jendela dan tanpa selector
+ * as-of. Di sini penyebutnya adalah fixture TERJADWAL unik dalam
+ * horizon dari satu titik as-of (snapshot sesudah refresh), dan paket
+ * yang dihitung adalah paket yang benar-benar akan dipilih selector
+ * as-of PIT (trigger 'slate', edisi terbaru dengan computed <= as-of,
+ * seri dipecah oleh id terbesar — semantik selectPackagesAsOf).
+ */
+export interface MarkerFunnelLeague {
+  competition_id: string;
+  scheduled: number;
+  with_package: number;
+  primary_marker: number;
+  other_marker: number;
+  no_package: number;
+}
+
+export interface MarkerFunnel {
+  as_of_utc: string;
+  horizon_seconds: number;
+  primary_marker: string;
+  leagues: MarkerFunnelLeague[];
+  totals: { scheduled: number; with_package: number; primary_marker: number; other_marker: number; no_package: number };
+  /** Distribusi marker atas paket TERPILIH as-of saja (bukan inventaris). */
+  marker_distribution_asof: { marker: string | null; packages: number }[];
+  fixtures_without_package: string[];
+  fixtures_other_marker: { match_id: string; competition_id: string | null; marker: string | null }[];
+}
+
+export function computeMarkerFunnel(
+  snapshotsDb: DatabaseSync,
+  upcomingDb: DatabaseSync,
+  opts: { asOfUtc: string; horizonSeconds: number; primaryMarker: string },
+): MarkerFunnel {
+  const asOfMs = parseInstant(opts.asOfUtc);
+  if (asOfMs === null) throw new Error(`ML1-KOHOR: as-of preflight tidak valid: ${opts.asOfUtc}`);
+  const horizonEndMs = asOfMs + opts.horizonSeconds * 1000;
+  const fixtures = upcomingDb
+    .prepare("SELECT match_id, competition_id, utc_date FROM upcoming_fixtures ORDER BY utc_date, match_id")
+    .all() as unknown as { match_id: string; competition_id: string | null; utc_date: string }[];
+  const scheduled = fixtures.filter((f) => {
+    const ms = parseInstant(f.utc_date);
+    return ms !== null && ms > asOfMs && ms <= horizonEndMs;
+  });
+  const scheduledIds = new Set(scheduled.map((f) => f.match_id));
+  // Paket terpilih as-of per fixture terjadwal (semantik selector PIT).
+  const editions = snapshotsDb
+    .prepare("SELECT id, match_id, ratings_marker, computed_utc FROM packages WHERE trigger = 'slate'")
+    .all() as unknown as { id: number; match_id: string; ratings_marker: string | null; computed_utc: string }[];
+  const chosen = new Map<string, { id: number; marker: string | null; computedMs: number }>();
+  for (const e of editions) {
+    if (!scheduledIds.has(e.match_id)) continue;
+    const ms = parseInstant(e.computed_utc);
+    if (ms === null || ms > asOfMs) continue;
+    const cur = chosen.get(e.match_id);
+    if (!cur || ms > cur.computedMs || (ms === cur.computedMs && e.id > cur.id)) {
+      chosen.set(e.match_id, { id: e.id, marker: e.ratings_marker, computedMs: ms });
+    }
+  }
+  const byLeague = new Map<string, MarkerFunnelLeague>();
+  const markerDist = new Map<string | null, number>();
+  const withoutPackage: string[] = [];
+  const otherMarker: { match_id: string; competition_id: string | null; marker: string | null }[] = [];
+  for (const f of scheduled) {
+    const key = f.competition_id ?? "(null)";
+    const row = byLeague.get(key) ?? { competition_id: key, scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0 };
+    row.scheduled++;
+    const c = chosen.get(f.match_id);
+    if (!c) {
+      row.no_package++;
+      withoutPackage.push(f.match_id);
+    } else {
+      row.with_package++;
+      markerDist.set(c.marker, (markerDist.get(c.marker) ?? 0) + 1);
+      if (c.marker === opts.primaryMarker) {
+        row.primary_marker++;
+      } else {
+        row.other_marker++;
+        otherMarker.push({ match_id: f.match_id, competition_id: f.competition_id, marker: c.marker });
+      }
+    }
+    byLeague.set(key, row);
+  }
+  const leagues = [...byLeague.values()].sort((a, b) => b.scheduled - a.scheduled || (a.competition_id < b.competition_id ? -1 : 1));
+  const totals = leagues.reduce(
+    (acc, l) => ({
+      scheduled: acc.scheduled + l.scheduled,
+      with_package: acc.with_package + l.with_package,
+      primary_marker: acc.primary_marker + l.primary_marker,
+      other_marker: acc.other_marker + l.other_marker,
+      no_package: acc.no_package + l.no_package,
+    }),
+    { scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0 },
+  );
+  return {
+    as_of_utc: opts.asOfUtc,
+    horizon_seconds: opts.horizonSeconds,
+    primary_marker: opts.primaryMarker,
+    leagues,
+    totals,
+    marker_distribution_asof: [...markerDist.entries()]
+      .map(([marker, packages]) => ({ marker, packages }))
+      .sort((a, b) => b.packages - a.packages),
+    fixtures_without_package: withoutPackage,
+    fixtures_other_marker: otherMarker,
   };
 }
 
