@@ -19,7 +19,12 @@
  */
 import Link from "next/link";
 import { connection } from "next/server";
-import { cakupanJadwal, listSchedule, type JadwalItem } from "@/lib/web/data";
+import {
+  cakupanJadwal,
+  lengkapiTopLegResmi,
+  listSchedule,
+  type JadwalItem,
+} from "@/lib/web/data";
 import {
   GATE_LABEL,
   kunciTanggal,
@@ -147,6 +152,9 @@ export default async function DaftarLaga({
   let gagalMuat = false;
   try {
     semua = listSchedule(jendela.dariUtc, jendela.sampaiUtc);
+    /* Identitas angka resmi (§2.3) hanya ditampilkan Analisa; Jadwal
+       tidak membayar querynya (budget SQL Fix-6 butir 6). */
+    if (mode === "analisa") lengkapiTopLegResmi(semua);
   } catch {
     gagalMuat = true;
   }

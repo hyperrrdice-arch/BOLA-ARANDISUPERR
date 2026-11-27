@@ -1979,6 +1979,10 @@ export interface JadwalItem {
    * ledger-nya sendiri (lib/web/sumber-peluang). Null = belum ada
    * pilihan resmi untuk pilihan itu — angka topLeg murni milik paket
    * terbaru dan wajib beridentitas paket, bukan angka resmi.
+   * Diisi oleh lengkapiTopLegResmi() — SENGAJA bukan di listSchedule:
+   * hanya jalur Analisa yang menampilkannya, dan budget SQL halaman
+   * Jadwal (Fix-6 butir 6: ≤ 8 statement) tidak boleh membayar query
+   * yang tidak pernah ia tampilkan.
    */
   topLegResmi: {
     prob: number;
@@ -2150,56 +2154,6 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
   muatDatasetBatch([...semuaSibling], ctx.datasetById);
   muatKatalogBatch([...semuaSibling], ctx.catalogById);
 
-  // Pilihan resmi (ledger) untuk seluruh jendela, dimuat massal (pola
-  // konteks batch yang sama): Analisa menautkan angka topLeg dari paket
-  // terbaru ke angka terbit resmi market+selection yang sama bila
-  // pilihan itu sudah terbit, supaya angka paket terbaru tidak pernah
-  // tampil seolah-olah angka resmi (brief tindak lanjut §2.3). Baris
-  // resmi dipetakan ke item pemiliknya lewat id sibling atau UID laga.
-  const resmiByItem = new Map<string, OfficialPick[]>();
-  try {
-    const d = picksDb();
-    if (kolomAda(d, "picks", "pick_uid") && kolomAda(d, "picks", "published_prob")) {
-      const punyaUid = kolomAda(d, "picks", "fixture_uid");
-      const itemOf = new Map<string, string>();
-      for (const id of semuaId) {
-        for (const s of ctx.siblingsById.get(id) ?? [id]) itemOf.set(s, id);
-        const uid = ctx.uidById.get(id);
-        if (uid) itemOf.set(uid, id);
-      }
-      const kunci = [...itemOf.keys()];
-      if (kunci.length > 0) {
-        const marks = kunci.map(() => "?").join(",");
-        const rows = (
-          punyaUid
-            ? d
-                .prepare(
-                  `SELECT * FROM picks WHERE pick_uid IS NOT NULL AND published_prob IS NOT NULL
-                     AND (match_id IN (${marks}) OR fixture_uid IN (${marks}))`,
-                )
-                .all(...kunci, ...kunci)
-            : d
-                .prepare(
-                  `SELECT * FROM picks WHERE pick_uid IS NOT NULL AND published_prob IS NOT NULL
-                     AND match_id IN (${marks})`,
-                )
-                .all(...kunci)
-        ) as unknown as OfficialPick[];
-        for (const r of rows) {
-          const pemilik =
-            itemOf.get(r.match_id) ??
-            (r.fixture_uid ? itemOf.get(r.fixture_uid) : undefined);
-          if (!pemilik) continue;
-          const arr = resmiByItem.get(pemilik);
-          if (arr) arr.push(r);
-          else resmiByItem.set(pemilik, [r]);
-        }
-      }
-    }
-  } catch {
-    /* ledger tak tersedia di DB ini: semua item tanpa angka resmi */
-  }
-
   const nowMs = Date.now();
   const items: JadwalItem[] = [];
   for (const m of byId.values()) {
@@ -2215,46 +2169,6 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       status = terapkanWaktu("scheduled", m.kickoff_utc, nowMs);
     }
     const ringkas = pkg ? ringkasPaket(pkg) : { pickCounts: { A: 0, B: 0, C: 0 }, topLeg: null };
-    /* Angka resmi untuk topLeg: kandidat market+selection yang sama
-       dari ledger; edisi yang sama dengan paket tampil didahulukan,
-       lalu terbitan terakhir, lalu probabilitas terbit tertinggi —
-       deterministik. Label basis diproyeksikan dari baris resmi itu
-       sendiri lewat proyeksi bersama B2.2. */
-    let topLegResmi: JadwalItem["topLegResmi"] = null;
-    if (ringkas.topLeg) {
-      const leg = ringkas.topLeg;
-      const kandidat = (resmiByItem.get(m.match_id) ?? []).filter(
-        (p) => p.market === leg.market && p.selection === leg.selection,
-      );
-      kandidat.sort(
-        (a, b) =>
-          (b.package_id === pkg?.id ? 1 : 0) - (a.package_id === pkg?.id ? 1 : 0) ||
-          String(b.published_at_utc ?? "").localeCompare(String(a.published_at_utc ?? "")) ||
-          (b.published_prob ?? 0) - (a.published_prob ?? 0),
-      );
-      const resmi = kandidat[0];
-      if (resmi && resmi.published_prob !== null) {
-        /* Bukti quote pada OfficialPick bersifat opsional (kolom
-           aditif bisa absen di DB lama) — normalkan ke null sebelum
-           masuk proyeksi B2.2. */
-        const label = labelSumberPeluang({
-          ...resmi,
-          evidence_source: resmi.evidence_source ?? null,
-          odds_bookmaker: resmi.odds_bookmaker ?? null,
-          odds_period: resmi.odds_period ?? null,
-          odds_line: resmi.odds_line ?? null,
-          odds_decimal: resmi.odds_decimal ?? null,
-          odds_captured_utc: resmi.odds_captured_utc ?? null,
-          decision_at_utc: resmi.decision_at_utc ?? null,
-          kickoff_at_issue_utc: resmi.kickoff_at_issue_utc ?? null,
-        });
-        topLegResmi = {
-          prob: resmi.published_prob,
-          label_basis: label.label_basis,
-          keterangan_basis: label.keterangan_basis,
-        };
-      }
-    }
     const identitas = identitasKompetisiTampil(
       m.competition_canonical_id,
       m.competition_id_mentah,
@@ -2291,7 +2205,7 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       gate_status: pkg?.gate_status ?? null,
       pickCounts: ringkas.pickCounts,
       topLeg: ringkas.topLeg,
-      topLegResmi,
+      topLegResmi: null,
     });
   }
   // Dedup per UID kanonik: alias provider untuk laga fisik yang sama
@@ -2319,6 +2233,122 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       a.match_id.localeCompare(b.match_id),
   );
   return dedup;
+}
+
+/**
+ * Lengkapi `topLegResmi` pada item hasil listSchedule — dipanggil
+ * HANYA oleh jalur Analisa (DaftarLaga mode analisa), bukan oleh
+ * listSchedule sendiri, supaya budget SQL halaman Jadwal (Fix-6
+ * butir 6) tidak berubah: Jadwal tidak pernah menampilkan angka ini.
+ *
+ * Analisa menautkan angka topLeg dari paket terbaru ke angka terbit
+ * resmi market+selection yang sama bila pilihan itu sudah terbit,
+ * supaya angka paket terbaru tidak pernah tampil seolah-olah angka
+ * resmi (brief tindak lanjut §2.3). Pemuatan massal: satu PRAGMA
+ * (cek tiga kolom sekaligus), satu query alias batch, satu SELECT
+ * ledger untuk seluruh himpunan item. Baris resmi dipetakan ke item
+ * pemiliknya lewat id sibling atau UID laga. Pemilihan kandidat per
+ * item deterministik: edisi yang sama dengan paket tampil
+ * didahulukan, lalu terbitan terakhir, lalu probabilitas terbit
+ * tertinggi. Label basis diproyeksikan dari baris resmi itu sendiri
+ * lewat proyeksi bersama B2.2 (labelSumberPeluang). Kegagalan apa pun
+ * (ledger/DB lama tanpa kolom) degrade ke topLegResmi tetap null.
+ */
+export function lengkapiTopLegResmi(items: JadwalItem[]): void {
+  const target = items.filter((i) => i.topLeg !== null);
+  if (target.length === 0) return;
+  try {
+    const d = picksDb();
+    const kolom = new Set(
+      (d.prepare("PRAGMA table_info(picks)").all() as { name: string }[]).map(
+        (c) => c.name,
+      ),
+    );
+    if (!kolom.has("pick_uid") || !kolom.has("published_prob")) return;
+    const punyaUid = kolom.has("fixture_uid");
+    const uidById = new Map<string, string>();
+    const siblingsById = new Map<string, string[]>();
+    muatAliasBatch(
+      target.map((i) => i.match_id),
+      uidById,
+      siblingsById,
+    );
+    const itemOf = new Map<string, JadwalItem>();
+    for (const it of target) {
+      for (const s of siblingsById.get(it.match_id) ?? [it.match_id]) {
+        itemOf.set(s, it);
+      }
+      if (it.fixture_uid) itemOf.set(it.fixture_uid, it);
+    }
+    const kunci = [...itemOf.keys()];
+    if (kunci.length === 0) return;
+    const marks = kunci.map(() => "?").join(",");
+    const rows = (
+      punyaUid
+        ? d
+            .prepare(
+              `SELECT * FROM picks WHERE pick_uid IS NOT NULL AND published_prob IS NOT NULL
+                 AND (match_id IN (${marks}) OR fixture_uid IN (${marks}))`,
+            )
+            .all(...kunci, ...kunci)
+        : d
+            .prepare(
+              `SELECT * FROM picks WHERE pick_uid IS NOT NULL AND published_prob IS NOT NULL
+                 AND match_id IN (${marks})`,
+            )
+            .all(...kunci)
+    ) as unknown as OfficialPick[];
+    const resmiByItem = new Map<JadwalItem, OfficialPick[]>();
+    for (const r of rows) {
+      const pemilik =
+        itemOf.get(r.match_id) ??
+        (r.fixture_uid ? itemOf.get(r.fixture_uid) : undefined);
+      if (!pemilik) continue;
+      const arr = resmiByItem.get(pemilik);
+      if (arr) arr.push(r);
+      else resmiByItem.set(pemilik, [r]);
+    }
+    for (const it of target) {
+      const leg = it.topLeg;
+      if (!leg) continue;
+      const kandidat = (resmiByItem.get(it) ?? []).filter(
+        (p) => p.market === leg.market && p.selection === leg.selection,
+      );
+      kandidat.sort(
+        (a, b) =>
+          (b.package_id === it.package_id ? 1 : 0) -
+            (a.package_id === it.package_id ? 1 : 0) ||
+          String(b.published_at_utc ?? "").localeCompare(
+            String(a.published_at_utc ?? ""),
+          ) ||
+          (b.published_prob ?? 0) - (a.published_prob ?? 0),
+      );
+      const resmi = kandidat[0];
+      if (resmi && resmi.published_prob !== null) {
+        /* Bukti quote pada OfficialPick bersifat opsional (kolom
+           aditif bisa absen di DB lama) — normalkan ke null sebelum
+           masuk proyeksi B2.2. */
+        const label = labelSumberPeluang({
+          ...resmi,
+          evidence_source: resmi.evidence_source ?? null,
+          odds_bookmaker: resmi.odds_bookmaker ?? null,
+          odds_period: resmi.odds_period ?? null,
+          odds_line: resmi.odds_line ?? null,
+          odds_decimal: resmi.odds_decimal ?? null,
+          odds_captured_utc: resmi.odds_captured_utc ?? null,
+          decision_at_utc: resmi.decision_at_utc ?? null,
+          kickoff_at_issue_utc: resmi.kickoff_at_issue_utc ?? null,
+        });
+        it.topLegResmi = {
+          prob: resmi.published_prob,
+          label_basis: label.label_basis,
+          keterangan_basis: label.keterangan_basis,
+        };
+      }
+    }
+  } catch {
+    /* ledger tak tersedia di DB ini: semua item tanpa angka resmi */
+  }
 }
 
 /** Jendela liputan jadwal yang benar-benar diketahui (katalog ∪ paket). */
