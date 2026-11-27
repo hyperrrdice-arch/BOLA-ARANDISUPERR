@@ -311,12 +311,32 @@ export interface PitBProjectionMeta {
   counts: PitBVisibilityCounts & { fixtures: number; packages: number };
 }
 
+/**
+ * Keluaran inferensi kandidat per fixture — dibekukan ke dalam arsip
+ * proyeksi yang sama dengan fitur + paket champion (Brief Validasi
+ * Rilis §4.2). Sebelumnya cand_* hanya hidup di baris DB shadow, jadi
+ * mutasi peluang kandidat tersimpan tidak terdeteksi verifikasi walau
+ * ID/SHA kandidat benar. Dengan baris arsip ini, verifier membandingkan
+ * nilai kandidat tersimpan terhadap bukti issue yang hash-nya terikat
+ * manifest snapshot — mutasi satu field pun ditolak.
+ */
+export interface PitBCandidateOutput {
+  fixture_uid: string;
+  cand_lam: number;
+  cand_mu: number;
+  cand_p_h: number;
+  cand_p_d: number;
+  cand_p_a: number;
+}
+
 export interface PitBProjection {
   meta: PitBProjectionMeta;
   results: PitBResultRow[];
   shots: PitBShotRow[];
   fixtures: PitBFixtureInput[];
   packages: PitBPackageInfo[];
+  /** Absen pada arsip v1 / arsip lama (parser mengembalikan []). */
+  candidate_outputs: PitBCandidateOutput[];
 }
 
 const cmpStr = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
@@ -368,6 +388,8 @@ export function serializePitBProjection(proj: PitBProjection): string {
   for (const f of fixtures) lines.push(JSON.stringify({ kind: "fixture", ...f }));
   const packages = [...proj.packages].sort((x, y) => cmpStr(x.fixture_uid, y.fixture_uid));
   for (const p of packages) lines.push(JSON.stringify({ kind: "package", ...p }));
+  const candOutputs = [...(proj.candidate_outputs ?? [])].sort((x, y) => cmpStr(x.fixture_uid, y.fixture_uid));
+  for (const c of candOutputs) lines.push(JSON.stringify({ kind: "candidate_output", ...c }));
   return lines.join("\n") + "\n";
 }
 
@@ -389,7 +411,7 @@ export function parsePitBProjection(jsonl: string): PitBProjection {
   if (meta.eval_version !== PIT_B_EVAL_VERSION && meta.eval_version !== PIT_B_EVAL_VERSION_V1) {
     throw new Error(`ML1-PIT-B: eval_version proyeksi tidak cocok (${String(meta.eval_version)}).`);
   }
-  const proj: PitBProjection = { meta, results: [], shots: [], fixtures: [], packages: [] };
+  const proj: PitBProjection = { meta, results: [], shots: [], fixtures: [], packages: [], candidate_outputs: [] };
   for (const line of lines.slice(1)) {
     let row: { kind?: unknown } & Record<string, unknown>;
     try {
@@ -401,6 +423,7 @@ export function parsePitBProjection(jsonl: string): PitBProjection {
     else if (row.kind === "shot") proj.shots.push(row as unknown as PitBShotRow);
     else if (row.kind === "fixture") proj.fixtures.push(row as unknown as PitBFixtureInput);
     else if (row.kind === "package") proj.packages.push(row as unknown as PitBPackageInfo);
+    else if (row.kind === "candidate_output") proj.candidate_outputs.push(row as unknown as PitBCandidateOutput);
     else throw new Error(`ML1-PIT-B: kind baris proyeksi tidak dikenal (${String(row.kind)}).`);
   }
   return proj;
@@ -598,6 +621,11 @@ interface PitBVerifyRow {
   champ_p_h: number;
   champ_p_d: number;
   champ_p_a: number;
+  cand_lam: number;
+  cand_mu: number;
+  cand_p_h: number;
+  cand_p_d: number;
+  cand_p_a: number;
   feature_snapshot_id: string;
   features_sha256: string;
   features_json: string;
@@ -692,6 +720,7 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
     );
     const fixtureByUid = new Map(proj.fixtures.map((f) => [f.fixture_uid, f]));
     const packageByUid = new Map(proj.packages.map((p) => [p.fixture_uid, p]));
+    const candidateByUid = new Map(proj.candidate_outputs.map((c) => [c.fixture_uid, c]));
     for (const r of snapRows) {
       const rejectRow = (reason: string): void => {
         out.rejected.push({ fixture_uid: r.fixture_uid, feature_snapshot_id: snapId, reason, prediction_id: r.id });
@@ -755,6 +784,29 @@ export function verifyPitBArtifacts(shadowDb: DatabaseSync, projectionDir: strin
       ) {
         rejectRow("champion_values_mismatch");
         continue;
+      }
+      // (e) Keluaran kandidat baris == keluaran kandidat yang dibekukan
+      // di arsip proyeksi saat issue (Brief Validasi Rilis §4.2). Hanya
+      // untuk proyeksi versi bukti aktif: arsip v1 memang tidak membawa
+      // keluaran kandidat dan barisnya tetap diagnostik. Mutasi peluang
+      // kandidat yang masih berbentuk distribusi valid pun ditolak di
+      // sini, walau ID/SHA kandidat pada baris tetap benar.
+      if (meta.eval_version === PIT_B_EVAL_VERSION) {
+        const co = candidateByUid.get(r.fixture_uid);
+        if (!co) {
+          rejectRow("candidate_output_missing");
+          continue;
+        }
+        if (
+          !nearEq(co.cand_lam, r.cand_lam) ||
+          !nearEq(co.cand_mu, r.cand_mu) ||
+          !nearEq(co.cand_p_h, r.cand_p_h) ||
+          !nearEq(co.cand_p_d, r.cand_p_d) ||
+          !nearEq(co.cand_p_a, r.cand_p_a)
+        ) {
+          rejectRow("candidate_values_mismatch");
+          continue;
+        }
       }
       // (d) Hash ulang vektor fitur TERSIMPAN di baris: harus sama dengan
       // hash tersimpan (features_sha256) DAN hash replay dari arsip.
@@ -1497,9 +1549,11 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
       readTxnMs = performance.now() - pinStart;
     }
 
-    // Bekukan proyeksi dari materialisasi + tulis file atomik SEBELUM
-    // baris mana pun mengacu padanya (penulisan tetap mendahului commit
-    // referensi di fase tulis).
+    // Bekukan proyeksi dari materialisasi. File atomiknya ditulis
+    // SESUDAH inferensi (di bawah), karena arsip yang sama kini juga
+    // membekukan keluaran kandidat per fixture (Brief Validasi Rilis
+    // §4.2); penulisan tetap mendahului commit referensi di fase tulis,
+    // sehingga tidak ada baris yang mengacu ke artefak yang belum final.
     if (attempts.length > 0) {
       projection = {
         meta: {
@@ -1523,8 +1577,8 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
         shots: matShots,
         fixtures: attempts.map((a) => a.fixtureInput),
         packages: attempts.map((a) => a.packageInfo),
+        candidate_outputs: [],
       };
-      projectionFile = writePitBProjectionAtomic(deps.projectionDir, serializePitBProjection(projection));
     }
 
     // ---------------------------------------------------------- FITUR -----
@@ -1555,6 +1609,10 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
 
     // ------------------------------------------------------- INFERENSI ----
     let execResult: PitAExecutorResult | null = null;
+    // Keluaran kandidat BEKU per UID: nilai yang sama persis masuk ke
+    // arsip proyeksi dan ke baris prediksi, supaya verifier dapat
+    // mengikat baris ke bukti issue (§4.2).
+    const frozenCandidate = new Map<string, PitBCandidateOutput>();
     if (attempts.length > 0) {
       execResult = deps.executor({
         modelDir: deps.modelDir,
@@ -1574,6 +1632,23 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
         })),
         execResult.results,
       );
+      if (projection !== null) {
+        for (const a of attempts) {
+          const res = execResult.results.get(a.prep.winnerId);
+          if (!res) continue; // sudah divalidasi ada — pertahanan terakhir.
+          const mp = matrixProbs(res.lam, res.mu, 0);
+          frozenCandidate.set(a.prep.uid, {
+            fixture_uid: a.prep.uid,
+            cand_lam: res.lam,
+            cand_mu: res.mu,
+            cand_p_h: mp.p[0],
+            cand_p_d: mp.p[1],
+            cand_p_a: mp.p[2],
+          });
+        }
+        projection.candidate_outputs = [...frozenCandidate.values()];
+        projectionFile = writePitBProjectionAtomic(deps.projectionDir, serializePitBProjection(projection));
+      }
     }
 
     // ------------------------------------------- REVALIDASI + TULIS -------
@@ -1695,7 +1770,13 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
               );
             manifestWritten = true;
           }
-          const mp = matrixProbs(res.lam, res.mu, 0);
+          // Peluang kandidat dari peta BEKU yang sama dengan yang masuk
+          // arsip proyeksi — baris dan bukti tidak mungkin berbeda.
+          const frozen = frozenCandidate.get(a.prep.uid);
+          if (!frozen) {
+            skip("candidate_output_missing");
+            continue;
+          }
           const feat = feats.get(a.prep.uid);
           if (!feat) {
             skip("feature_missing");
@@ -1740,11 +1821,11 @@ export function runMl1PitB(deps: PitBDeps): PitBRunSummary {
             champ_p_h: a.packageInfo.champ_p_h,
             champ_p_d: a.packageInfo.champ_p_d,
             champ_p_a: a.packageInfo.champ_p_a,
-            cand_lam: res.lam,
-            cand_mu: res.mu,
-            cand_p_h: mp.p[0],
-            cand_p_d: mp.p[1],
-            cand_p_a: mp.p[2],
+            cand_lam: frozen.cand_lam,
+            cand_mu: frozen.cand_mu,
+            cand_p_h: frozen.cand_p_h,
+            cand_p_d: frozen.cand_p_d,
+            cand_p_a: frozen.cand_p_a,
             features_json: JSON.stringify(feat.vector),
           });
           if (inserted) {

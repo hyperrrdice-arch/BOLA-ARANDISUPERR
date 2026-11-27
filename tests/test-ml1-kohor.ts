@@ -357,6 +357,10 @@ interface FabricatedPred {
   marker?: string | null;
   champ?: [number, number, number];
   cand?: [number, number, number];
+  candLam?: number;
+  candMu?: number;
+  candidateId?: string;
+  candidateManifestSha256?: string;
   competition?: string;
   homeName?: string;
   awayName?: string;
@@ -415,6 +419,16 @@ function fabricateBatch(env: KohorEnv, preds: FabricatedPred[], decision = DECIS
       champ_p_d: (p.champ ?? [0.5, 0.3, 0.2])[1],
       champ_p_a: (p.champ ?? [0.5, 0.3, 0.2])[2],
     })),
+    // Keluaran kandidat dibekukan ke arsip dengan nilai yang sama
+    // persis dengan baris prediksi di bawah (ikatan bukti §4.2).
+    candidate_outputs: preds.map((p) => ({
+      fixture_uid: p.uid,
+      cand_lam: p.candLam ?? 1.6,
+      cand_mu: p.candMu ?? 1.1,
+      cand_p_h: (p.cand ?? [0.55, 0.28, 0.17])[0],
+      cand_p_d: (p.cand ?? [0.55, 0.28, 0.17])[1],
+      cand_p_a: (p.cand ?? [0.55, 0.28, 0.17])[2],
+    })),
   };
   const feats = computePitBFeatures(proj);
   const file = writePitBProjectionAtomic(env.projectionDir, serializePitBProjection(proj));
@@ -459,8 +473,8 @@ function fabricateBatch(env: KohorEnv, preds: FabricatedPred[], decision = DECIS
         package_payload_sha256: sha256Str(`payload-${p.uid}`),
         champion_ratings_marker: p.marker === undefined ? PRIMARY_MARKER : p.marker,
         champion_provenance_status: p.marker === null ? "unknown" : "package_marker",
-        candidate_id: "ml1-b-fixture-candidate",
-        candidate_manifest_sha256: "fab-candidate-manifest",
+        candidate_id: p.candidateId ?? "ml1-b-fixture-candidate",
+        candidate_manifest_sha256: p.candidateManifestSha256 ?? "fab-candidate-manifest",
         feature_snapshot_id: file.sha256,
         features_sha256: feat.hash,
         elo_fallback_home: 0,
@@ -476,8 +490,8 @@ function fabricateBatch(env: KohorEnv, preds: FabricatedPred[], decision = DECIS
         champ_p_h: (p.champ ?? [0.5, 0.3, 0.2])[0],
         champ_p_d: (p.champ ?? [0.5, 0.3, 0.2])[1],
         champ_p_a: (p.champ ?? [0.5, 0.3, 0.2])[2],
-        cand_lam: 1.6,
-        cand_mu: 1.1,
+        cand_lam: p.candLam ?? 1.6,
+        cand_mu: p.candMu ?? 1.1,
         cand_p_h: (p.cand ?? [0.55, 0.28, 0.17])[0],
         cand_p_d: (p.cand ?? [0.55, 0.28, 0.17])[1],
         cand_p_a: (p.cand ?? [0.55, 0.28, 0.17])[2],
@@ -1074,6 +1088,12 @@ console.log("\nK11. Ikatan bukti: mutasi satu field tersimpan ditolak");
     { name: "peluang champion → [0.9,0.05,0.05]", sql: "UPDATE predictions SET champ_p_h = 0.9, champ_p_d = 0.05, champ_p_a = 0.05", status: "evidence_invalid", reason: "champion_values_mismatch" },
     { name: "champ_lam diganti", sql: "UPDATE predictions SET champ_lam = 2.5", status: "evidence_invalid", reason: "champion_values_mismatch" },
     { name: "champ_mu diganti", sql: "UPDATE predictions SET champ_mu = 0.7", status: "evidence_invalid", reason: "champion_values_mismatch" },
+    // Brief Validasi Rilis §4.2: keluaran kandidat kini terikat ke arsip
+    // proyeksi beku — mutasi peluang kandidat yang MASIH distribusi
+    // valid (ID/SHA kandidat tetap benar) tetap ditolak.
+    { name: "peluang kandidat → [0.9,0.05,0.05]", sql: "UPDATE predictions SET cand_p_h = 0.9, cand_p_d = 0.05, cand_p_a = 0.05", status: "evidence_invalid", reason: "candidate_values_mismatch" },
+    { name: "cand_lam diganti", sql: "UPDATE predictions SET cand_lam = 2.9", status: "evidence_invalid", reason: "candidate_values_mismatch" },
+    { name: "cand_mu diganti", sql: "UPDATE predictions SET cand_mu = 0.4", status: "evidence_invalid", reason: "candidate_values_mismatch" },
     { name: "champion_ratings_marker diganti", sql: "UPDATE predictions SET champion_ratings_marker = 'sha256:deadbeefdeadbeef'", status: "evidence_invalid", reason: "package_identity_mismatch" },
     { name: "package_payload_sha256 diganti", sql: "UPDATE predictions SET package_payload_sha256 = '1111111111111111111111111111111111111111111111111111111111111111'", status: "evidence_invalid", reason: "package_identity_mismatch" },
     { name: "package_id diganti", sql: "UPDATE predictions SET package_id = 9999", status: "evidence_invalid", reason: "package_identity_mismatch" },
@@ -1104,6 +1124,27 @@ console.log("\nK11. Ikatan bukti: mutasi satu field tersimpan ditolak");
     shadow.close();
     suite.eq(`K11: ${c.name} → pair evaluasi ${c.status === "graded" ? 1 : 0}`, ev.evaluation.pairs, c.status === "graded" ? 1 : 0);
   }
+}
+
+// Retry grading atas bukti kandidat yang utuh: idempoten, baris tetap
+// strict, dan tidak ada edisi ganda (§4.2 — retry/idempotensi terjaga).
+{
+  const protocol = testProtocol({ study: { candidate_manifest_sha256: "fab-candidate-manifest" } });
+  const env = makeEnv("k11r");
+  fabricateBatch(env, [{ uid: "fx_k11r", sourceId: "fd_k11r", kickoff: KICKOFF, champ: [0.5, 0.3, 0.2] }]);
+  addIdentity(env, "fx_k11r", ["fd_k11r"], { competition: "sm:8" });
+  addRevision(env, "fx_k11r", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+  setCanonical(env, "fx_k11r", { state: "finished", currentRevision: 1 });
+  const g1 = grade(env, protocol, "2026-12-05T00:00:00.000Z");
+  suite.eq("K11R: grading pertama menulis 1 edisi", g1.new_gradings, 1);
+  const g2 = grade(env, protocol, "2026-12-05T00:00:00.000Z", "2026-12-05T06:00:00.000Z");
+  suite.eq("K11R: retry grading — 0 edisi baru", g2.new_gradings, 0);
+  suite.eq("K11R: retry grading — 1 idempotent skip", g2.idempotent_skips, 1);
+  suite.eq("K11R: total edisi tetap 1", gradingRows(env).length, 1);
+  const dbRo = new DatabaseSync(env.outputPath, { readOnly: true });
+  const v = verifyPitBArtifacts(dbRo, env.projectionDir);
+  dbRo.close();
+  suite.eq("K11R: baris utuh tetap strict sesudah ikatan kandidat", v.strict_prediction_ids.length, 1);
 }
 
 // ============================================================================
