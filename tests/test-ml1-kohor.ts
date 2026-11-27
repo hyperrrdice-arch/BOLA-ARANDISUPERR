@@ -66,11 +66,13 @@ import {
 } from "../lib/eval/ml1-pit-b";
 import {
   buildProposedProtocol,
+  canonicalJson,
   cohortIdFor,
   computeCohortFunnel,
   evaluateCohortFromDb,
   gradeCohort,
   protocolHash,
+  recomputeFrozenReport,
   validateProtocolManifest,
   type CohortProtocol,
 } from "../lib/eval/ml1-cohort";
@@ -1247,10 +1249,10 @@ console.log("\nK12. Manifest beku ditegakkan; proposal hanya staging");
 
   // Koreksi tiba SESUDAH cutoff formal: revisinya tidak terlihat pada
   // cutoff beku dan skor koreksi TIDAK PERNAH ter-grading di kohor beku;
-  // laporan lama tidak berubah. (Pointer kanonik yang sudah maju melewati
-  // revisi yang terlihat pada cutoff membuat re-grade mencatat edisi
-  // proof_conflict — sinyal jujur, tercatat SESUDAH cutoff laporan,
-  // sehingga tidak masuk laporan beku.)
+  // laporan lama tidak berubah. Pointer kanonik yang maju karena revisi
+  // pasca-cutoff kini dinilai as-of cutoff (Validasi Rilis §4.3):
+  // re-grade pada cutoff beku menghasilkan draft yang sama dengan
+  // edisi formal → idempoten, TANPA edisi proof_conflict pencemar.
   addRevision(env, "fx_k12", { revision: 2, status: "finished", home: 1, away: 1, observed: "2026-12-06T00:00:00.000Z" });
   setCanonical(env, "fx_k12", { state: "finished", currentRevision: 2 });
   const gAfter = gradeMode(env, frozenFull, "2026-12-05T00:00:00.000Z", undefined, "2026-12-07T00:00:00.000Z");
@@ -1260,12 +1262,9 @@ console.log("\nK12. Manifest beku ditegakkan; proposal hanya staging");
     rowsAfter.every((r) => !(r.home_score === 1 && r.away_score === 1)),
     JSON.stringify(rowsAfter.map((r) => [r.status, r.home_score, r.away_score])),
   );
-  suite.check(
-    "K12: edisi pasca-cutoff (bila ada) hanya proof_conflict current_revision_mismatch",
-    rowsAfter.slice(1).every((r) => r.status === "proof_conflict" && r.reason === "current_revision_mismatch"),
-    JSON.stringify(rowsAfter.map((r) => [r.status, r.reason])),
-  );
-  void gAfter;
+  suite.eq("K12: re-grade pada cutoff beku sesudah koreksi — idempoten (0 edisi baru)", gAfter.new_gradings, 0);
+  suite.eq("K12: re-grade pada cutoff beku sesudah koreksi — 1 idempotent skip", gAfter.idempotent_skips, 1);
+  suite.eq("K12: tidak ada edisi pencemar pasca-cutoff", rowsAfter.length, 1);
   const shadow2 = new DatabaseSync(env.outputPath, { readOnly: true });
   const evOld = evaluateCohortFromDb(shadow2, frozenFull, { cohortId: cohortIdFor(frozenFull), reportCutoffUtc: "2026-12-05T12:00:00.000Z", asOfUtc: "2026-12-05T12:00:00.000Z" });
   shadow2.close();
@@ -1288,6 +1287,81 @@ console.log("\nK12. Manifest beku ditegakkan; proposal hanya staging");
   const rowNarrow = gradingRows(env2).find((r) => r.fixture_uid === "fx_k12b");
   suite.eq("K12: sm:8 di luar allowlist manifest → strata non_primary", rowNarrow?.stratum, "non_primary_competition");
   suite.eq("K12: grading tetap berjalan (strata, bukan penolakan)", rowNarrow?.status, "graded");
+}
+
+// ============================================================================
+// K14 — reproduksibilitas cutoff formal (Brief Validasi Rilis §4.3):
+// koreksi hasil SESUDAH cutoff tidak boleh mengubah laporan formal —
+// baik saat grading pertama berjalan terlambat (sesudah koreksi tiba)
+// maupun saat laporan dihitung ulang dari set baris bekunya.
+// ============================================================================
+console.log("\nK14. Cutoff formal: koreksi pasca-cutoff tidak mengubah laporan");
+{
+  const protocol = testProtocol({ study: { candidate_manifest_sha256: "fab-candidate-manifest" } });
+  const FORMAL_CUTOFF = "2026-12-20T00:00:00.000Z";
+
+  // Skenario A — grading pertama pada cutoff formal berjalan SESUDAH
+  // koreksi tiba (pointer kanonik sudah di revisi 2). Sebelum perbaikan:
+  // proof_conflict current_revision_mismatch → 0 pair.
+  {
+    const env = makeEnv("k14a");
+    fabricateBatch(env, [{ uid: "fx_k14a", sourceId: "fd_k14a", kickoff: KICKOFF, champ: [0.5, 0.3, 0.2] }]);
+    addIdentity(env, "fx_k14a", ["fd_k14a"], { competition: "sm:8" });
+    addRevision(env, "fx_k14a", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+    addRevision(env, "fx_k14a", { revision: 2, status: "finished", home: 1, away: 1, observed: "2026-12-21T00:00:00.000Z" });
+    setCanonical(env, "fx_k14a", { state: "finished", currentRevision: 2 });
+    const g = grade(env, protocol, FORMAL_CUTOFF, "2026-12-22T00:00:00.000Z");
+    suite.eq("K14A: grading terlambat pada cutoff formal tetap menulis edisi", g.new_gradings, 1);
+    const row = gradingRows(env).find((r) => r.fixture_uid === "fx_k14a");
+    suite.eq("K14A: status graded (bukan proof_conflict)", row?.status, "graded");
+    suite.eq("K14A: skor yang dinilai = skor as-of cutoff (2-0)", `${row?.home_score}-${row?.away_score}`, "2-0");
+    const shadow = new DatabaseSync(env.outputPath, { readOnly: true });
+    const ev = evaluateCohortFromDb(shadow, protocol, { cohortId: cohortIdFor(protocol), reportCutoffUtc: "2026-12-22T00:00:00.000Z", asOfUtc: "2026-12-22T00:00:00.000Z" });
+    shadow.close();
+    suite.eq("K14A: laporan cutoff formal = 1 pair", ev.evaluation.pairs, 1);
+  }
+
+  // Skenario B — grade → persist → koreksi → re-grade → hitung ulang:
+  // laporan lama identik dari ketiga jalur (terbaru-pada-cutoff sesudah
+  // re-grade, dan set beku laporan).
+  {
+    const env = makeEnv("k14b");
+    fabricateBatch(env, [{ uid: "fx_k14b", sourceId: "fd_k14b", kickoff: KICKOFF, champ: [0.5, 0.3, 0.2] }]);
+    addIdentity(env, "fx_k14b", ["fd_k14b"], { competition: "sm:8" });
+    addRevision(env, "fx_k14b", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-11-29T00:00:00.000Z" });
+    setCanonical(env, "fx_k14b", { state: "finished", currentRevision: 1 });
+    const g1 = grade(env, protocol, FORMAL_CUTOFF, "2026-12-20T12:00:00.000Z");
+    suite.eq("K14B: grading formal menulis 1 edisi", g1.new_gradings, 1);
+    const shadowW = new DatabaseSync(env.outputPath);
+    const evPersist = evaluateCohortFromDb(shadowW, protocol, {
+      cohortId: cohortIdFor(protocol), reportCutoffUtc: "2026-12-20T12:00:00.000Z", asOfUtc: "2026-12-20T12:00:00.000Z", persist: true,
+    });
+    const reportRow = shadowW.prepare("SELECT id FROM cohort_reports WHERE cohort_id = ?").get(cohortIdFor(protocol)) as unknown as { id: number };
+    shadowW.close();
+    suite.eq("K14B: laporan formal ter-persist = 1 pair", evPersist.evaluation.pairs, 1);
+
+    addRevision(env, "fx_k14b", { revision: 2, status: "finished", home: 1, away: 1, observed: "2026-12-21T00:00:00.000Z" });
+    setCanonical(env, "fx_k14b", { state: "finished", currentRevision: 2 });
+    const g2 = grade(env, protocol, FORMAL_CUTOFF, "2026-12-23T00:00:00.000Z");
+    suite.eq("K14B: re-grade sesudah koreksi — 0 edisi baru", g2.new_gradings, 0);
+    suite.eq("K14B: re-grade sesudah koreksi — 1 idempotent skip", g2.idempotent_skips, 1);
+    suite.eq("K14B: total edisi tetap 1 (tidak ada edisi pencemar)", gradingRows(env).length, 1);
+
+    const shadow2 = new DatabaseSync(env.outputPath, { readOnly: true });
+    const evLate = evaluateCohortFromDb(shadow2, protocol, { cohortId: cohortIdFor(protocol), reportCutoffUtc: "2026-12-23T00:00:00.000Z", asOfUtc: "2026-12-23T00:00:00.000Z" });
+    suite.eq("K14B: hitung ulang terbaru-pada-cutoff sesudah re-grade tetap 1 pair", evLate.evaluation.pairs, 1);
+    suite.eq("K14B: Δ hitung ulang = Δ laporan formal", evLate.evaluation.mean_delta_ll, evPersist.evaluation.mean_delta_ll);
+    const frozen = recomputeFrozenReport(shadow2, reportRow.id, protocol);
+    shadow2.close();
+    suite.check("K14B: laporan beku ditemukan untuk dihitung ulang", frozen !== null, `report ${reportRow.id}`);
+    suite.eq("K14B: hitung ulang dari set beku = 1 pair", frozen?.evaluation.pairs, 1);
+    suite.eq("K14B: Δ dari set beku = Δ laporan formal", frozen?.evaluation.mean_delta_ll, evPersist.evaluation.mean_delta_ll);
+    suite.eq(
+      "K14B: hitung ulang dari set beku identik byte-per-byte dengan report_json tersimpan",
+      frozen ? canonicalJson({ evaluation: frozen.evaluation, operations: frozen.operations }) : "(null)",
+      frozen?.stored_report_json ?? "(null)",
+    );
+  }
 }
 
 // ============================================================================

@@ -742,11 +742,39 @@ function gradeOne(
   if (visible.length === 0) return draft("pending", stratum, "no_revision_visible");
   const latest = visible[visible.length - 1];
 
-  // 9) Konsistensi bukti: state kanonik + current_revision vs revisi.
+  // 9) Konsistensi bukti: state kanonik + current_revision vs revisi —
+  // dinilai AS-OF cutoff grading (Brief Validasi Rilis §4.3). Pointer
+  // kanonik adalah keadaan SEKARANG; bila ia sudah melewati revisi
+  // terbaru yang terlihat pada cutoff DAN revisi yang ditunjuknya
+  // teramati SESUDAH cutoff, keadaaan as-of cutoff tetap `latest`:
+  // edisi pasca-cutoff dipisahkan ke cutoff grading berikutnya dan
+  // TIDAK mencemari laporan formal cutoff ini (sebelumnya, re-grade
+  // pada cutoff formal sesudah koreksi tiba menulis proof_conflict
+  // yang menelan pair yang sah — hitung ulang laporan lama menjadi
+  // 0 pair). Pointer yang majunya tidak dijelaskan revisi pasca-cutoff
+  // (revisi penunjuk hilang / teramati sebelum cutoff / pointer mundur)
+  // tetap proof_conflict seperti sebelumnya.
+  let pointerBeyondCutoff = false;
   if (cf.current_revision !== latest.revision) {
-    return draft("proof_conflict", stratum, "current_revision_mismatch");
+    const pointerRevision = revisions.find((r) => r.revision === cf.current_revision);
+    const pointerObsMs = pointerRevision ? parseInstant(pointerRevision.observed_at) : null;
+    if (
+      cf.current_revision > latest.revision &&
+      pointerRevision !== undefined &&
+      pointerObsMs !== null &&
+      pointerObsMs > ctx.gradingCutoffMs
+    ) {
+      pointerBeyondCutoff = true;
+    } else {
+      return draft("proof_conflict", stratum, "current_revision_mismatch");
+    }
   }
+  // State as-of cutoff: bila pointer sudah dipegang revisi pasca-cutoff,
+  // state kanonik saat ini milik revisi itu — state as-of didefinisikan
+  // oleh revisi terlihat terbaru itu sendiri, jadi cek state sekarang
+  // dilewati (bukan dibuktikan ulang dari keadaan masa depan).
   const stateConsistent =
+    pointerBeyondCutoff ||
     (cf.state === "finished" && latest.status === "finished") ||
     (cf.state === "cancelled" && latest.status === "cancelled") ||
     (cf.state === "postponed" && latest.status === "postponed") ||
@@ -1119,17 +1147,17 @@ export function latestGradingsAsOf(shadowDb: DatabaseSync, reportCutoffUtc: stri
 }
 
 /**
- * Bangun pasangan primer + laporan operasi dari DB shadow pada cutoff
- * laporan. Snapshot laporan yang dibekukan mengacu grading yang tersedia
- * pada cutoff itu — laporan lama tetap reproducible sesudah koreksi.
+ * Inti pembangunan evaluasi dari SATU SET baris grading yang sudah
+ * dipilih pemanggil (terbaru-pada-cutoff, atau set beku satu laporan).
+ * Dipakai bersama oleh evaluateCohortFromDb dan recomputeFrozenReport
+ * supaya kedua jalur menghitung dengan cara yang persis sama.
  */
-export function evaluateCohortFromDb(
+function buildEvaluationFromGradings(
   shadowDb: DatabaseSync,
+  latest: CohortGradingRow[],
   protocol: CohortProtocol,
-  opts: { cohortId: string; reportCutoffUtc: string; asOfUtc: string; persist?: boolean },
+  opts: { cohortId: string; reportCutoffUtc: string; asOfUtc: string },
 ): { evaluation: CohortEvaluation; operations: CohortOperationsReport; pairs: CohortPair[] } {
-  ensureCohortGradingSchema(shadowDb);
-  const latest = latestGradingsAsOf(shadowDb, opts.reportCutoffUtc, opts.cohortId);
   const byStatus: Record<string, number> = {};
   const byReason: Record<string, number> = {};
   const uniqueFixtures = new Set<string>();
@@ -1174,30 +1202,6 @@ export function evaluateCohortFromDb(
     reportCutoffUtc: opts.reportCutoffUtc,
     windowClosed,
   });
-  if (opts.persist) {
-    const res = shadowDb
-      .prepare(
-        "INSERT INTO cohort_reports (cohort_id, protocol_sha256, report_cutoff_utc, created_utc, evaluator_version, report_json) VALUES (?, ?, ?, ?, ?, ?)",
-      )
-      .run(
-        opts.cohortId,
-        evaluation.protocol_sha256,
-        opts.reportCutoffUtc,
-        opts.asOfUtc,
-        COHORT_EVALUATOR_VERSION,
-        canonicalJson({ evaluation, operations: { latest_gradings: latest.length, by_status: byStatus, by_reason: byReason, unique_fixtures: uniqueFixtures.size } }),
-      );
-    // Snapshot grading formal (§3.3): baris grading persis yang dipakai
-    // laporan ini dibekukan per report_id, sehingga laporan tetap
-    // reproducible persis walau grading koreksi ditambahkan sesudahnya.
-    const reportId = Number(res.lastInsertRowid);
-    const insSnap = shadowDb.prepare(
-      "INSERT INTO cohort_report_gradings (report_id, cohort_id, prediction_id, grading_id, edition, status, delta_ll) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    );
-    for (const g of latest) {
-      insSnap.run(reportId, opts.cohortId, g.prediction_id, g.id, g.edition, g.status, g.delta_ll);
-    }
-  }
   return {
     evaluation,
     operations: {
@@ -1207,6 +1211,107 @@ export function evaluateCohortFromDb(
       unique_fixtures: uniqueFixtures.size,
     },
     pairs,
+  };
+}
+
+/**
+ * Bangun pasangan primer + laporan operasi dari DB shadow pada cutoff
+ * laporan: set grading yang dipakai adalah edisi TERBARU per prediksi
+ * yang tersedia pada cutoff itu. Dengan `persist`, laporan + set baris
+ * grading persisnya dibekukan ke cohort_reports/cohort_report_gradings
+ * (snapshot formal §3.3) — dari set beku itulah laporan dapat dihitung
+ * ulang secara identik sesudah koreksi (recomputeFrozenReport).
+ */
+export function evaluateCohortFromDb(
+  shadowDb: DatabaseSync,
+  protocol: CohortProtocol,
+  opts: { cohortId: string; reportCutoffUtc: string; asOfUtc: string; persist?: boolean },
+): { evaluation: CohortEvaluation; operations: CohortOperationsReport; pairs: CohortPair[] } {
+  ensureCohortGradingSchema(shadowDb);
+  const latest = latestGradingsAsOf(shadowDb, opts.reportCutoffUtc, opts.cohortId);
+  const built = buildEvaluationFromGradings(shadowDb, latest, protocol, opts);
+  if (opts.persist) {
+    const res = shadowDb
+      .prepare(
+        "INSERT INTO cohort_reports (cohort_id, protocol_sha256, report_cutoff_utc, created_utc, evaluator_version, report_json) VALUES (?, ?, ?, ?, ?, ?)",
+      )
+      .run(
+        opts.cohortId,
+        built.evaluation.protocol_sha256,
+        opts.reportCutoffUtc,
+        opts.asOfUtc,
+        COHORT_EVALUATOR_VERSION,
+        canonicalJson({ evaluation: built.evaluation, operations: built.operations }),
+      );
+    // Snapshot grading formal: baris grading persis yang dipakai
+    // laporan ini dibekukan per report_id.
+    const reportId = Number(res.lastInsertRowid);
+    const insSnap = shadowDb.prepare(
+      "INSERT INTO cohort_report_gradings (report_id, cohort_id, prediction_id, grading_id, edition, status, delta_ll) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    );
+    for (const g of latest) {
+      insSnap.run(reportId, opts.cohortId, g.prediction_id, g.id, g.edition, g.status, g.delta_ll);
+    }
+  }
+  return built;
+}
+
+export interface FrozenReportRecompute {
+  report_id: number;
+  cohort_id: string;
+  protocol_sha256: string;
+  report_cutoff_utc: string;
+  created_utc: string;
+  /** report_json persis seperti tersimpan saat laporan dibekukan. */
+  stored_report_json: string;
+  evaluation: CohortEvaluation;
+  operations: CohortOperationsReport;
+  pairs: CohortPair[];
+}
+
+/**
+ * Hitung ulang SATU laporan beku dari set baris grading yang dibekukan
+ * bersamanya (cohort_report_gradings), BUKAN dari edisi terbaru saat
+ * ini (Brief Validasi Rilis §4.3). Edisi grading yang ditulis sesudah
+ * laporan — termasuk edisi milik cutoff grading berikutnya — tidak
+ * dapat mengubah hasil hitung ulang ini; evaluasi yang dihasilkan
+ * harus identik dengan report_json tersimpan.
+ */
+export function recomputeFrozenReport(
+  shadowDb: DatabaseSync,
+  reportId: number,
+  protocol: CohortProtocol,
+): FrozenReportRecompute | null {
+  ensureCohortGradingSchema(shadowDb);
+  const report = shadowDb
+    .prepare("SELECT id, cohort_id, protocol_sha256, report_cutoff_utc, created_utc, report_json FROM cohort_reports WHERE id = ?")
+    .get(reportId) as unknown as {
+      id: number; cohort_id: string; protocol_sha256: string; report_cutoff_utc: string; created_utc: string; report_json: string;
+    } | undefined;
+  if (!report) return null;
+  const frozenIds = shadowDb
+    .prepare("SELECT grading_id FROM cohort_report_gradings WHERE report_id = ? ORDER BY prediction_id")
+    .all(reportId) as unknown as { grading_id: number }[];
+  let gradings: CohortGradingRow[] = [];
+  if (frozenIds.length > 0) {
+    const placeholders = frozenIds.map(() => "?").join(", ");
+    gradings = shadowDb
+      .prepare(`SELECT * FROM cohort_gradings WHERE id IN (${placeholders}) ORDER BY prediction_id, edition`)
+      .all(...frozenIds.map((r) => r.grading_id)) as unknown as CohortGradingRow[];
+  }
+  const built = buildEvaluationFromGradings(shadowDb, gradings, protocol, {
+    cohortId: report.cohort_id,
+    reportCutoffUtc: report.report_cutoff_utc,
+    asOfUtc: report.created_utc,
+  });
+  return {
+    report_id: report.id,
+    cohort_id: report.cohort_id,
+    protocol_sha256: report.protocol_sha256,
+    report_cutoff_utc: report.report_cutoff_utc,
+    created_utc: report.created_utc,
+    stored_report_json: report.report_json,
+    ...built,
   };
 }
 
