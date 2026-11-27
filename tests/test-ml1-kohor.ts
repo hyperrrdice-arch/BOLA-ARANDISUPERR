@@ -69,6 +69,7 @@ import {
   canonicalJson,
   cohortIdFor,
   computeCohortFunnel,
+  computeMarkerFunnel,
   evaluateCohortFromDb,
   gradeCohort,
   protocolHash,
@@ -1361,6 +1362,72 @@ console.log("\nK14. Cutoff formal: koreksi pasca-cutoff tidak mengubah laporan")
       frozen ? canonicalJson({ evaluation: frozen.evaluation, operations: frozen.operations }) : "(null)",
       frozen?.stored_report_json ?? "(null)",
     );
+  }
+}
+
+// ============================================================================
+// K15 — penyebut preflight = laga fisik (Brief Validasi Rilis §4.4).
+// Fixture persis brief: satu laga dengan DUA alias + satu laga batal.
+// Penghitungan per baris lama menghasilkan scheduled=3, primary=2;
+// penyebut laga fisik menghasilkan physical=2, cancelled=1,
+// scheduled(penyebut)=1, primary=1. Ditambah satu laga tanpa paket dan
+// satu laga marker lain untuk cakupan bucket.
+// ============================================================================
+console.log("\nK15. Preflight: penyebut laga fisik, bucket terpisah");
+{
+  const env = makeEnv("k15");
+  const K_A = "2026-11-28T20:00:00.000Z";
+  const K_C = "2026-11-29T20:00:00.000Z";
+  // Laga A — dua alias, keduanya berpaket marker primer.
+  addUpcoming(env, "fd_a", K_A);
+  addUpcoming(env, "sm_a", K_A);
+  addIdentity(env, "uid_a", ["fd_a", "sm_a"], { competition: "sm:8", kickoff: K_A });
+  addPkg(env, { matchId: "fd_a", computed: "2026-11-27T09:00:00.000Z", kickoff: K_A, marker: PRIMARY_MARKER });
+  addPkg(env, { matchId: "sm_a", computed: "2026-11-27T09:30:00.000Z", kickoff: K_A, marker: PRIMARY_MARKER });
+  // Laga C — batal secara kanonik.
+  addUpcoming(env, "fd_c", K_C);
+  addIdentity(env, "uid_c", ["fd_c"], { competition: "sm:8", kickoff: K_C });
+  setCanonical(env, "uid_c", { state: "cancelled", currentRevision: 0 });
+  // Laga D — terjadwal, tanpa paket.
+  addUpcoming(env, "fd_d", K_A);
+  addIdentity(env, "uid_d", ["fd_d"], { competition: "sm:8", kickoff: K_A });
+  // Laga E — terjadwal, paket marker lain.
+  addUpcoming(env, "fd_e", K_A);
+  addIdentity(env, "uid_e", ["fd_e"], { competition: "sm:8", kickoff: K_A });
+  addPkg(env, { matchId: "fd_e", computed: "2026-11-27T09:00:00.000Z", kickoff: K_A, marker: "sha256:8a790aeaa4e54fdd" });
+
+  const snaps = new DatabaseSync(env.snapshotsPath, { readOnly: true });
+  const up = new DatabaseSync(env.upcomingPath, { readOnly: true });
+  const ds = new DatabaseSync(env.datasetPath, { readOnly: true });
+  try {
+    const funnel = computeMarkerFunnel(snaps, up, ds, {
+      asOfUtc: DECISION,
+      horizonSeconds: 72 * 3600,
+      primaryMarker: PRIMARY_MARKER,
+      allowlist: ["sm:8"],
+      dataDirPath: env.staticDir,
+    });
+    suite.eq("K15: baris katalog mentah dalam horizon", funnel.catalog_rows, 5);
+    suite.eq("K15: laga fisik sesudah pelipatan alias", funnel.physical_matches, 4);
+    suite.eq("K15: baris alias ganda terlipat", funnel.alias_duplicate_rows, 1);
+    suite.eq("K15: bucket cancelled terpisah", funnel.buckets.cancelled, 1);
+    suite.eq("K15: bucket schedule_conflict kosong", funnel.buckets.schedule_conflict, 0);
+    suite.eq("K15: bucket identity_unresolved kosong", funnel.buckets.identity_unresolved, 0);
+    suite.eq("K15: penyebut allowlist = laga fisik terjadwal", funnel.totals.scheduled, 3);
+    suite.eq("K15: penyebut berpaket", funnel.totals.with_package, 2);
+    suite.eq("K15: marker primer dihitung SEKALI per laga fisik", funnel.totals.primary_marker, 1);
+    suite.eq("K15: marker lain terpisah", funnel.totals.other_marker, 1);
+    suite.eq("K15: tanpa paket terpisah", funnel.totals.no_package, 1);
+    const lg = funnel.leagues.find((l) => l.competition_id === "sm:8");
+    suite.eq("K15: baris liga — physical", lg?.physical, 4);
+    suite.eq("K15: baris liga — cancelled", lg?.cancelled, 1);
+    suite.eq("K15: baris liga — scheduled", lg?.scheduled, 3);
+    suite.eq("K15: daftar tanpa paket menyebut uid_d", JSON.stringify(funnel.fixtures_without_package), JSON.stringify(["uid_d"]));
+    suite.eq("K15: distribusi marker as-of hanya dari penyebut", JSON.stringify(funnel.marker_distribution_asof.map((m) => m.packages).sort()), JSON.stringify([1, 1]));
+  } finally {
+    snaps.close();
+    up.close();
+    ds.close();
   }
 }
 

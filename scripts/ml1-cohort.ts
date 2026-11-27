@@ -150,10 +150,11 @@ function cmdPreflight(): void {
          WHERE trigger = 'slate' GROUP BY ratings_marker ORDER BY MAX(computed_utc) DESC`,
       )
       .all() as unknown as { ratings_marker: string | null; n: number }[];
-    // Funnel marker dengan penyebut benar (§3.4): fixture terjadwal
-    // unik dalam horizon dari titik as-of snapshot, paket dipilih
-    // dengan selector as-of PIT. As-of default = computed paket
-    // terbaru pada snapshot (titik segar snapshot sesudah refresh).
+    // Funnel marker dengan penyebut LAGA FISIK (Validasi Rilis §4.4):
+    // komponen alias + status kanonik + selector as-of kolektor yang
+    // sama, penyebut = laga fisik terjadwal dalam allowlist manifest.
+    // As-of default = computed paket terbaru pada snapshot (titik
+    // segar snapshot sesudah refresh).
     let markerFunnel: ReturnType<typeof computeMarkerFunnel> | null = null;
     const upcomingPath = dbPath("upcoming_fixtures.db");
     if (fs.existsSync(upcomingPath)) {
@@ -163,10 +164,12 @@ function cmdPreflight(): void {
       if (latestComputed.m) {
         const upcoming = new DatabaseSync(upcomingPath, { readOnly: true });
         try {
-          markerFunnel = computeMarkerFunnel(snapshots, upcoming, {
+          markerFunnel = computeMarkerFunnel(snapshots, upcoming, dataset, {
             asOfUtc: flag("asof") ?? latestComputed.m,
             horizonSeconds: protocol.horizon.max_lead_seconds,
             primaryMarker: protocol.champion.primary_marker ?? protocol.champion.primary_marker_repo_baseline,
+            allowlist: protocol.competitive_primary.list.map((e) => e.competition_id),
+            dataDirPath: dataDir(),
           });
         } finally {
           upcoming.close();

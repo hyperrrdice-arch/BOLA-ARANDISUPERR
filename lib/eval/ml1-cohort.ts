@@ -31,10 +31,25 @@ import {
   PIT_B_FEATURE_CODE_VERSION,
   PIT_B_HORIZON_ID,
   PIT_B_RUNNER_VERSION,
+  readPitBLinks,
   verifyPitBArtifacts,
   type PitBArtifactVerification,
 } from "./ml1-pit-b";
-import { beginPinnedRead, endPinnedRead, parseInstant } from "./ml1-pit-a";
+import {
+  beginPinnedRead,
+  bridgeIdsOf,
+  endPinnedRead,
+  parseInstant,
+  parseKickoff,
+  selectPackagesAsOf,
+} from "./ml1-pit-a";
+import {
+  getFixtureByUid,
+  getSiblingIds,
+  getUidForMatchId,
+  identityTablesExist,
+  linkSiblingsOf,
+} from "../identity/fixture-resolver";
 
 // ============================================================================
 // §3 — Manifest protokol
@@ -1425,17 +1440,43 @@ export function computeCohortFunnel(
 }
 
 /**
- * Funnel marker preflight dengan PENYEBUT YANG BENAR (Brief Tindak
- * Lanjut §3.4). Angka lama (558/9.876, 41 marker) adalah inventaris
- * paket slate per fixture terbaru TANPA jendela dan tanpa selector
- * as-of. Di sini penyebutnya adalah fixture TERJADWAL unik dalam
- * horizon dari satu titik as-of (snapshot sesudah refresh), dan paket
- * yang dihitung adalah paket yang benar-benar akan dipilih selector
- * as-of PIT (trigger 'slate', edisi terbaru dengan computed <= as-of,
- * seri dipecah oleh id terbesar — semantik selectPackagesAsOf).
+ * Funnel marker preflight dengan PENYEBUT LAGA FISIK (Brief Validasi
+ * Rilis §4.4, menggantikan penghitungan per baris katalog §3.4).
+ *
+ * Versi sebelumnya menghitung BARIS upcoming_fixtures: satu laga fisik
+ * dengan dua alias terhitung dua kali (fixture brief: 2 alias + 1 laga
+ * batal → scheduled=3, primary_marker=2), dan laga batal ikut
+ * penyebut. Versi ini memakai ulang seleksi as-of KOLEKTOR:
+ *  - komponen alias transitif yang sama dengan preparePitCandidates
+ *    (sibling store identitas + grup fixture-links + bridge sm_id_map)
+ *    → satu komponen = satu laga fisik;
+ *  - status dari fixture kanonik (state) + status baris katalog,
+ *    semantik checkPitEligibility: non-scheduled tidak masuk penyebut;
+ *  - edisi paket dari selectPackagesAsOf (selector as-of PIT yang
+ *    sama), pemenang antar-alias diurutkan computed DESC, id DESC
+ *    seperti pemenang grup kolektor.
+ * Penyebut = laga fisik terjadwal (bukan batal / bukan konflik jadwal /
+ * identitas terbukti) DALAM ALLOWLIST. Bucket eksklusi dilaporkan
+ * terpisah dengan prioritas: cancelled → identity_unresolved →
+ * schedule_conflict → other_state (satu laga masuk tepat satu bucket).
  */
 export interface MarkerFunnelLeague {
   competition_id: string;
+  /** Laga fisik dalam horizon untuk kompetisi ini. */
+  physical: number;
+  cancelled: number;
+  identity_unresolved: number;
+  schedule_conflict: number;
+  other_state: number;
+  /** Penyebut: laga fisik terjadwal yang lolos semua bucket eksklusi. */
+  scheduled: number;
+  with_package: number;
+  primary_marker: number;
+  other_marker: number;
+  no_package: number;
+}
+
+export interface MarkerFunnelTotals {
   scheduled: number;
   with_package: number;
   primary_marker: number;
@@ -1447,10 +1488,21 @@ export interface MarkerFunnel {
   as_of_utc: string;
   horizon_seconds: number;
   primary_marker: string;
+  /** Baris katalog mentah dalam horizon (sebelum pelipatan alias). */
+  catalog_rows: number;
+  /** Laga fisik sesudah pelipatan alias. */
+  physical_matches: number;
+  /** Baris katalog ekstra yang terlipat ke laga fisik yang sama. */
+  alias_duplicate_rows: number;
+  buckets: { cancelled: number; identity_unresolved: number; schedule_conflict: number; other_state: number };
   leagues: MarkerFunnelLeague[];
-  totals: { scheduled: number; with_package: number; primary_marker: number; other_marker: number; no_package: number };
-  /** Distribusi marker atas paket TERPILIH as-of saja (bukan inventaris). */
+  /** Total atas penyebut ALLOWLIST saja. */
+  totals: MarkerFunnelTotals;
+  /** Total atas penyebut semua kompetisi. */
+  totals_all: MarkerFunnelTotals;
+  /** Distribusi marker atas paket pemenang penyebut allowlist. */
   marker_distribution_asof: { marker: string | null; packages: number }[];
+  /** Laga fisik penyebut allowlist tanpa paket terpilih (UID bila ada). */
   fixtures_without_package: string[];
   fixtures_other_marker: { match_id: string; competition_id: string | null; marker: string | null }[];
 }
@@ -1458,74 +1510,187 @@ export interface MarkerFunnel {
 export function computeMarkerFunnel(
   snapshotsDb: DatabaseSync,
   upcomingDb: DatabaseSync,
-  opts: { asOfUtc: string; horizonSeconds: number; primaryMarker: string },
+  datasetDb: DatabaseSync,
+  opts: { asOfUtc: string; horizonSeconds: number; primaryMarker: string; allowlist: string[]; dataDirPath: string },
 ): MarkerFunnel {
   const asOfMs = parseInstant(opts.asOfUtc);
   if (asOfMs === null) throw new Error(`ML1-KOHOR: as-of preflight tidak valid: ${opts.asOfUtc}`);
   const horizonEndMs = asOfMs + opts.horizonSeconds * 1000;
-  const fixtures = upcomingDb
-    .prepare("SELECT match_id, competition_id, utc_date FROM upcoming_fixtures ORDER BY utc_date, match_id")
-    .all() as unknown as { match_id: string; competition_id: string | null; utc_date: string }[];
-  const scheduled = fixtures.filter((f) => {
-    const ms = parseInstant(f.utc_date);
+  const allow = new Set(opts.allowlist);
+  const catalog = upcomingDb
+    .prepare("SELECT match_id, competition_id, utc_date, status FROM upcoming_fixtures ORDER BY utc_date, match_id")
+    .all() as unknown as { match_id: string; competition_id: string | null; utc_date: string; status: string | null }[];
+  const inHorizon = catalog.filter((f) => {
+    const ms = parseKickoff(f.utc_date) ?? parseInstant(f.utc_date);
     return ms !== null && ms > asOfMs && ms <= horizonEndMs;
   });
-  const scheduledIds = new Set(scheduled.map((f) => f.match_id));
-  // Paket terpilih as-of per fixture terjadwal (semantik selector PIT).
-  const editions = snapshotsDb
-    .prepare("SELECT id, match_id, ratings_marker, computed_utc FROM packages WHERE trigger = 'slate'")
-    .all() as unknown as { id: number; match_id: string; ratings_marker: string | null; computed_utc: string }[];
-  const chosen = new Map<string, { id: number; marker: string | null; computedMs: number }>();
-  for (const e of editions) {
-    if (!scheduledIds.has(e.match_id)) continue;
-    const ms = parseInstant(e.computed_utc);
-    if (ms === null || ms > asOfMs) continue;
-    const cur = chosen.get(e.match_id);
-    if (!cur || ms > cur.computedMs || (ms === cur.computedMs && e.id > cur.id)) {
-      chosen.set(e.match_id, { id: e.id, marker: e.ratings_marker, computedMs: ms });
+  const rowById = new Map(inHorizon.map((f) => [f.match_id, f]));
+
+  // --- Komponen alias transitif (semantik preparePitCandidates) -------
+  const identityReady = identityTablesExist(datasetDb);
+  const linkGroups = readPitBLinks(opts.dataDirPath).groups;
+  const aliasCache = new Map<string, string[]>();
+  const aliasSetOf = (matchId: string): string[] => {
+    const hit = aliasCache.get(matchId);
+    if (hit) return hit;
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    const push = (id: string | null | undefined): void => {
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        ordered.push(id);
+      }
+    };
+    push(matchId);
+    if (identityReady) for (const id of getSiblingIds(datasetDb, matchId)) push(id);
+    for (const id of linkSiblingsOf(linkGroups, matchId)) push(id);
+    for (const id of bridgeIdsOf(upcomingDb, matchId)) push(id);
+    aliasCache.set(matchId, ordered);
+    return ordered;
+  };
+  const components: Set<string>[] = [];
+  {
+    const assigned = new Set<string>();
+    for (const f of inHorizon) {
+      if (assigned.has(f.match_id)) continue;
+      const comp = new Set<string>();
+      const queue = [f.match_id];
+      while (queue.length > 0) {
+        const cur = queue.pop() as string;
+        if (comp.has(cur)) continue;
+        comp.add(cur);
+        assigned.add(cur);
+        for (const a of aliasSetOf(cur)) if (!comp.has(a)) queue.push(a);
+      }
+      components.push(comp);
     }
   }
+  const uidCache = new Map<string, string | null>();
+  const uidOf = (matchId: string): string | null => {
+    if (!identityReady) return null;
+    const hit = uidCache.get(matchId);
+    if (hit !== undefined) return hit;
+    const uid = getUidForMatchId(datasetDb, matchId);
+    uidCache.set(matchId, uid);
+    return uid;
+  };
+
+  // --- Seleksi edisi as-of kolektor (dipakai ulang apa adanya) ---------
+  const { selectedRaw } = selectPackagesAsOf(snapshotsDb, asOfMs, opts.asOfUtc);
+
+  const emptyLeague = (competition_id: string): MarkerFunnelLeague => ({
+    competition_id, physical: 0, cancelled: 0, identity_unresolved: 0, schedule_conflict: 0,
+    other_state: 0, scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0,
+  });
   const byLeague = new Map<string, MarkerFunnelLeague>();
+  const buckets = { cancelled: 0, identity_unresolved: 0, schedule_conflict: 0, other_state: 0 };
   const markerDist = new Map<string | null, number>();
   const withoutPackage: string[] = [];
   const otherMarker: { match_id: string; competition_id: string | null; marker: string | null }[] = [];
-  for (const f of scheduled) {
-    const key = f.competition_id ?? "(null)";
-    const row = byLeague.get(key) ?? { competition_id: key, scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0 };
-    row.scheduled++;
-    const c = chosen.get(f.match_id);
-    if (!c) {
-      row.no_package++;
-      withoutPackage.push(f.match_id);
-    } else {
-      row.with_package++;
-      markerDist.set(c.marker, (markerDist.get(c.marker) ?? 0) + 1);
-      if (c.marker === opts.primaryMarker) {
-        row.primary_marker++;
-      } else {
-        row.other_marker++;
-        otherMarker.push({ match_id: f.match_id, competition_id: f.competition_id, marker: c.marker });
+  let physicalMatches = 0;
+
+  for (const comp of components) {
+    const rows = [...comp].filter((id) => rowById.has(id)).map((id) => rowById.get(id) as (typeof inHorizon)[number]);
+    if (rows.length === 0) continue;
+    physicalMatches++;
+    const uidSet = new Set<string>();
+    for (const id of comp) {
+      const u = uidOf(id);
+      if (u) uidSet.add(u);
+    }
+    const uid = uidSet.size === 1 ? [...uidSet][0] : null;
+    const canonical = uid !== null ? getFixtureByUid(datasetDb, uid) : null;
+    const competition = canonical?.competition_id ?? rows[0].competition_id ?? "(null)";
+    const league = byLeague.get(competition) ?? emptyLeague(competition);
+    byLeague.set(competition, league);
+    league.physical++;
+
+    // Bucket eksklusi (prioritas tetap, satu laga = satu bucket).
+    const rowStatus = (r: (typeof rows)[number]): string => (typeof r.status === "string" ? r.status.trim().toLowerCase() : "");
+    const isCancelled =
+      canonical?.state === "cancelled" || rows.some((r) => rowStatus(r) === "cancelled" || rowStatus(r) === "canceled");
+    let exclusion: keyof typeof buckets | null = null;
+    if (isCancelled) exclusion = "cancelled";
+    else if (uid === null) exclusion = "identity_unresolved";
+    else {
+      const rowKickoffs = new Set(rows.map((r) => parseKickoff(r.utc_date) ?? parseInstant(r.utc_date)));
+      let conflict = rowKickoffs.size > 1;
+      if (!conflict && canonical?.kickoff_utc) {
+        if (canonical.kickoff_precision === "date_only") {
+          const cfDate = canonical.kickoff_utc.slice(0, 10);
+          conflict = rows.some((r) => (r.utc_date ?? "").slice(0, 10) !== cfDate);
+        } else {
+          const cfMs = parseInstant(canonical.kickoff_utc);
+          conflict = cfMs === null || rows.some((r) => (parseKickoff(r.utc_date) ?? parseInstant(r.utc_date)) !== cfMs);
+        }
+      }
+      if (conflict) exclusion = "schedule_conflict";
+      else if (
+        (canonical !== null && canonical.state !== "scheduled") ||
+        rows.some((r) => rowStatus(r) !== "" && rowStatus(r) !== "scheduled")
+      ) {
+        exclusion = "other_state";
       }
     }
-    byLeague.set(key, row);
+    if (exclusion !== null) {
+      buckets[exclusion]++;
+      league[exclusion]++;
+      continue;
+    }
+
+    // Laga fisik terjadwal → penyebut. Paket: pemenang antar-alias dari
+    // edisi terpilih as-of (computed DESC, id paket DESC — semantik
+    // pemenang grup kolektor).
+    league.scheduled++;
+    let winner: { id: number; marker: string | null; computedMs: number } | null = null;
+    for (const id of comp) {
+      const raw = selectedRaw.get(id);
+      if (!raw) continue;
+      const ms = parseInstant(raw.computed_utc);
+      if (ms === null) continue;
+      if (winner === null || ms > winner.computedMs || (ms === winner.computedMs && raw.id > winner.id)) {
+        winner = { id: raw.id, marker: raw.ratings_marker, computedMs: ms };
+      }
+    }
+    const inAllowlist = allow.has(competition);
+    if (winner === null) {
+      league.no_package++;
+      if (inAllowlist) withoutPackage.push(uid ?? rows[0].match_id);
+    } else {
+      league.with_package++;
+      if (inAllowlist) markerDist.set(winner.marker, (markerDist.get(winner.marker) ?? 0) + 1);
+      if (winner.marker === opts.primaryMarker) {
+        league.primary_marker++;
+      } else {
+        league.other_marker++;
+        if (inAllowlist) otherMarker.push({ match_id: uid ?? rows[0].match_id, competition_id: competition, marker: winner.marker });
+      }
+    }
   }
-  const leagues = [...byLeague.values()].sort((a, b) => b.scheduled - a.scheduled || (a.competition_id < b.competition_id ? -1 : 1));
-  const totals = leagues.reduce(
-    (acc, l) => ({
-      scheduled: acc.scheduled + l.scheduled,
-      with_package: acc.with_package + l.with_package,
-      primary_marker: acc.primary_marker + l.primary_marker,
-      other_marker: acc.other_marker + l.other_marker,
-      no_package: acc.no_package + l.no_package,
-    }),
-    { scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0 },
-  );
+
+  const leagues = [...byLeague.values()].sort((a, b) => b.physical - a.physical || (a.competition_id < b.competition_id ? -1 : 1));
+  const sumTotals = (rows: MarkerFunnelLeague[]): MarkerFunnelTotals =>
+    rows.reduce(
+      (acc, l) => ({
+        scheduled: acc.scheduled + l.scheduled,
+        with_package: acc.with_package + l.with_package,
+        primary_marker: acc.primary_marker + l.primary_marker,
+        other_marker: acc.other_marker + l.other_marker,
+        no_package: acc.no_package + l.no_package,
+      }),
+      { scheduled: 0, with_package: 0, primary_marker: 0, other_marker: 0, no_package: 0 },
+    );
   return {
     as_of_utc: opts.asOfUtc,
     horizon_seconds: opts.horizonSeconds,
     primary_marker: opts.primaryMarker,
+    catalog_rows: inHorizon.length,
+    physical_matches: physicalMatches,
+    alias_duplicate_rows: inHorizon.length - physicalMatches,
+    buckets,
     leagues,
-    totals,
+    totals: sumTotals(leagues.filter((l) => allow.has(l.competition_id))),
+    totals_all: sumTotals(leagues),
     marker_distribution_asof: [...markerDist.entries()]
       .map(([marker, packages]) => ({ marker, packages }))
       .sort((a, b) => b.packages - a.packages),
