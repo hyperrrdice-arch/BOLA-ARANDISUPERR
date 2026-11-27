@@ -1432,6 +1432,63 @@ console.log("\nK15. Preflight: penyebut laga fisik, bucket terpisah");
 }
 
 // ============================================================================
+// K13 — draf manifest vs artefak kandidat AKTUAL (Brief Validasi Rilis
+// §4.1): draf lama mengisi candidate_id "ml1-b" sedangkan artefak
+// memakai "ml1-b-gbdt-poisson-form-elo-shots-v1" dan gate membandingkan
+// ID secara persis → draf lama menolak prediksi aktual. Draf yang
+// diperbaiki mengambil ID + SHA dari byte model-manifest yang sama,
+// hash protokol/cohort_id konsisten, dan gate menerima prediksi
+// artefak asli (menolak ID/SHA yang salah).
+// ============================================================================
+console.log("\nK13. Draf manifest selaras dengan artefak kandidat aktual");
+{
+  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  const draftRaw = JSON.parse(fs.readFileSync(path.join(repoRoot, "tasks/ml1/cohort-protocol.draft-review.json"), "utf8")) as {
+    protocol: CohortProtocol;
+    protocol_sha256: string;
+    cohort_id: string;
+  };
+  const modelManifestPath = path.join(repoRoot, "tasks/ml1/model/model-manifest.json");
+  const modelManifest = JSON.parse(fs.readFileSync(modelManifestPath, "utf8")) as { candidate_id: string };
+  const modelManifestSha = sha256File(modelManifestPath);
+  const draftProtocol = draftRaw.protocol;
+  suite.eq("K13: candidate_id draf == candidate_id artefak aktual", draftProtocol.study.candidate_id, modelManifest.candidate_id);
+  suite.eq("K13: SHA kandidat draf == SHA-256 byte model-manifest", draftProtocol.study.candidate_manifest_sha256, modelManifestSha);
+  suite.eq("K13: protocol_sha256 draf konsisten dengan isi protokol", draftRaw.protocol_sha256, protocolHash(draftProtocol));
+  suite.eq("K13: cohort_id draf konsisten dengan protokol", draftRaw.cohort_id, cohortIdFor(draftProtocol));
+  suite.eq("K13: draf lolos validasi manifest (staging)", validateProtocolManifest(draftProtocol).ok, true);
+
+  const K13_KICKOFF = "2026-12-10T20:00:00.000Z";
+  const K13_DECISION = "2026-12-08T10:00:00.000Z";
+  const buildK13 = (label: string, pred: { candidateId?: string; candidateManifestSha256?: string }): KohorEnv => {
+    const env = makeEnv(label);
+    fabricateBatch(env, [{
+      uid: "fx_k13", sourceId: "fd_k13", kickoff: K13_KICKOFF,
+      candidateId: pred.candidateId ?? modelManifest.candidate_id,
+      candidateManifestSha256: pred.candidateManifestSha256 ?? modelManifestSha,
+    }], K13_DECISION);
+    addIdentity(env, "fx_k13", ["fd_k13"], { competition: "sm:8", kickoff: K13_KICKOFF });
+    addRevision(env, "fx_k13", { revision: 1, status: "finished", home: 2, away: 0, observed: "2026-12-11T00:00:00.000Z" });
+    setCanonical(env, "fx_k13", { state: "finished", currentRevision: 1 });
+    return env;
+  };
+  const envOk = buildK13("k13ok", {});
+  grade(envOk, draftProtocol, "2026-12-20T00:00:00.000Z");
+  const rowOk = gradingRows(envOk).find((r) => r.fixture_uid === "fx_k13");
+  suite.eq("K13: prediksi artefak aktual DITERIMA gate draf (graded)", rowOk?.status, "graded");
+
+  const envBadId = buildK13("k13id", { candidateId: "ml1-b" });
+  grade(envBadId, draftProtocol, "2026-12-20T00:00:00.000Z");
+  const rowBadId = gradingRows(envBadId).find((r) => r.fixture_uid === "fx_k13");
+  suite.eq("K13: ID kandidat lama/salah tetap ditolak", `${rowBadId?.status}/${rowBadId?.reason}`, "evidence_invalid/candidate_id_mismatch");
+
+  const envBadSha = buildK13("k13sha", { candidateManifestSha256: sha256Str("manifest-kandidat-lain") });
+  grade(envBadSha, draftProtocol, "2026-12-20T00:00:00.000Z");
+  const rowBadSha = gradingRows(envBadSha).find((r) => r.fixture_uid === "fx_k13");
+  suite.eq("K13: SHA kandidat salah tetap ditolak", `${rowBadSha?.status}/${rowBadSha?.reason}`, "evidence_invalid/candidate_manifest_mismatch");
+}
+
+// ============================================================================
 for (const root of envsToClean) {
   try {
     fs.rmSync(root, { recursive: true, force: true });

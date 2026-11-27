@@ -4,13 +4,14 @@
     "proposal_file": "tasks/ml1/cohort-protocol.proposal.json",
     "proposal_protocol_sha256": "902f416624841def2414068d1b48704a81b4618000bf1d1e4394c9868227b2d7",
     "proposal_cohort_id": "ml1b-cohort-902f416624841def",
-    "note": "File proposal beku TIDAK diubah. cohort_id final akan dihitung ulang dari hash manifest saat status dibekukan ke FROZEN_FOR_COLLECTION oleh pemilik."
+    "note": "File proposal beku TIDAK diubah. cohort_id final akan dihitung ulang dari hash manifest saat status dibekukan ke FROZEN_FOR_COLLECTION oleh pemilik.",
+    "revised": "2026-11-27 (Validasi Rilis §4.1 + §4.4): candidate_id diselaraskan ke candidate_id artefak aktual dari byte model-manifest yang sama dengan SHA-nya; protocol_sha256/cohort_id diregenerasi; preflight diukur ulang dengan penyebut laga fisik. T0/T1 TIDAK diubah (bukti feed bergulir belum konklusif — lihat laporan)."
   },
   "protocol": {
     "protocol_version": 1,
     "status": "PROPOSED_PENDING_OWNER_APPROVAL",
     "study": {
-      "candidate_id": "ml1-b",
+      "candidate_id": "ml1-b-gbdt-poisson-form-elo-shots-v1",
       "candidate_manifest_sha256": "7bfd125b86f0894c79e0c6b3b4f0c5078824bbfcd48234965adcd5aa6f3a76f2",
       "eval_version": "ml1-pit-b-v2",
       "feature_code_version": "pit-b-feature-code-v2",
@@ -268,8 +269,8 @@
       "denominator": "fixture terjadwal dalam cakupan dari katalog/identitas pada snapshot (canonical_fixtures, kickoff dalam jendela)"
     }
   },
-  "protocol_sha256": "5dd2078fac1d082397b7e8f4e1fc54beec143f88a10519eb1b760590958a7bb7",
-  "cohort_id": "ml1b-cohort-5dd2078fac1d0823",
+  "protocol_sha256": "70393738e172309d4b91689a6136665439adf49da2dc798de8e4d7497b7d55d6",
+  "cohort_id": "ml1b-cohort-70393738e172309d",
   "manifest_validation_on_draft": {
     "ok": true,
     "mode": "staging",
@@ -300,7 +301,7 @@
     "champion.primary_marker": {
       "value": "sha256:910a9efe3103ffde",
       "status": "PROPOSED",
-      "rationale": "Marker aktual dari preflight revisi: ratingsHash manifest model aktif; 372/377 paket terpilih as-of dalam horizon (98,7%) dan 166/166 pada cakupan allowlist proposal; satu-satunya marker lain yang terpilih adalah marker pra-R-04 sha256:8a790aeaa4e54fdd (5 paket, semua di luar allowlist)."
+      "rationale": "Marker aktual dari preflight revisi-2 (penyebut laga fisik, as-of refresh 2026-11-27T09:34:18Z, horizon 72 jam): penyebut allowlist 45 laga fisik terjadwal terbukti-UID — 45/45 berpaket dan 45/45 marker primer ini; distribusi marker atas paket terpilih penyebut hanya berisi marker ini. Angka 166/166 revisi sebelumnya adalah hitungan per baris katalog tanpa resolusi UID (indikasi awal). Mayoritas katalog belum punya identitas kanonik (319/368 laga fisik identity_unresolved) — lihat finding preflight."
     },
     "study.candidate_manifest_sha256": {
       "value": "7bfd125b86f0894c79e0c6b3b4f0c5078824bbfcd48234965adcd5aa6f3a76f2",
@@ -308,9 +309,9 @@
       "rationale": "SHA-256 file tasks/ml1/model/model-manifest.json — nilai yang benar-benar dibawa baris PIT B dari executor (hash file manifest kandidat), sehingga grader dapat mengikatnya. BUKAN hash git."
     },
     "study.candidate_code_head": {
-      "value": "82d504649f0d9abd18ae7621481390d018725cfb",
+      "value": "e9fd799 (branch feat/ml1-kohor-prospektif)",
       "status": "PROPOSED",
-      "rationale": "HEAD branch feat/ml1-kohor-prospektif sesudah revisi tindak lanjut (commit yang membawa draf ini mengikuti HEAD tersebut). Kode kandidat yang akan dibekukan saat aktivasi."
+      "rationale": "HEAD branch tepat sebelum commit revisi gate validasi rilis ini; commit yang membawa draf terkoreksi mengikuti HEAD tersebut. Kode kandidat yang akan dibekukan saat aktivasi."
     },
     "competitive_primary.additions": {
       "value": [
@@ -319,29 +320,53 @@
       ],
       "status": "PROPOSED",
       "rationale": "ID kanonik terbukti dari alias league-canonical.json + fit terkalibrasi + cakupan preflight penuh bermarker primer (11/11 dan 7/7). Caveat: fit sportmonks SM567 berstatus 'partial' (fit legacy SP2 'calibrated')."
+    },
+    "study.candidate_id": {
+      "value": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+      "status": "PROPOSED",
+      "rationale": "candidate_id artefak aktual dari tasks/ml1/model/model-manifest.json — byte yang sama dengan sumber SHA kandidat. Nilai lama 'ml1-b' di draf sebelumnya SALAH: gate membandingkan ID secara persis, sehingga draf lama menolak prediksi artefak asli (terbukti di suite K13 sebelum perbaikan)."
     }
   },
   "preflight": {
-    "file": "tasks/ml1/cohort-preflight-revisi.json",
+    "file": "tasks/ml1/cohort-preflight-revisi2.json",
     "snapshot": {
-      "source": "production analysis_snapshots.db + upcoming_fixtures.db (read-only)",
-      "free_refresh_last_success_utc": "2026-11-26T21:52:20.178Z",
-      "as_of_utc": "2026-11-26T21:52:20.178Z"
+      "source": "production analysis_snapshots.db + upcoming_fixtures.db + thestats_dataset.db (read-only)",
+      "free_refresh_last_success_utc": "2026-11-27T09:34:18.084Z",
+      "as_of_utc": "2026-11-27T09:34:18.084Z"
+    },
+    "method": "computeMarkerFunnel v2: komponen alias transitif (sibling identitas + fixture-links + bridge sm_id_map) = satu laga fisik; status/UID dari store identitas kanonik (semantik checkPitEligibility kolektor); edisi paket dari selectPackagesAsOf, pemenang antar-alias computed DESC + id DESC. Penyebut = laga fisik terjadwal terbukti-UID dalam allowlist draf (22 kompetisi).",
+    "totals_catalog": {
+      "catalog_rows": 417,
+      "physical_matches": 368,
+      "alias_duplicate_rows": 49,
+      "buckets": {
+        "cancelled": 0,
+        "identity_unresolved": 319,
+        "schedule_conflict": 2,
+        "other_state": 0
+      }
     },
     "totals_all_leagues": {
-      "scheduled": 426,
-      "with_package": 377,
-      "primary_marker": 372,
-      "other_marker": 5,
-      "no_package": 49
+      "scheduled": 47,
+      "with_package": 45,
+      "primary_marker": 45,
+      "other_marker": 0,
+      "no_package": 2
     },
     "totals_allowlist_draft": {
-      "scheduled": 166,
-      "with_package": 166,
-      "primary_marker": 166,
+      "scheduled": 45,
+      "with_package": 45,
+      "primary_marker": 45,
       "other_marker": 0,
       "no_package": 0
     },
+    "marker_distribution_asof_allowlist": [
+      {
+        "marker": "sha256:910a9efe3103ffde",
+        "packages": 45
+      }
+    ],
+    "identity_finding": "Mayoritas baris katalog horizon 72 jam TIDAK punya identitas kanonik (319/368 laga fisik): fixture_aliases hanya mencakup liga yang diproses pipeline identitas (utamanya sm:8/301/384/82/72 + UCL). Kolektor PIT B akan melewati laga yang sama sebagai identity_unresolved — penyebut kolektabel memang jauh lebih kecil dari hitungan baris katalog 166/166 sebelumnya (indikasi awal per-baris, tanpa resolusi UID).",
     "stored_predictions_cohort": 0,
     "stored_predictions_note": "DB shadow PIT B tidak ada di produksi — koleksi belum pernah jalan. Pilot legacy (415 prediksi) adalah strata terpisah dan tidak dicampur ke metrik kohor ketat."
   },
