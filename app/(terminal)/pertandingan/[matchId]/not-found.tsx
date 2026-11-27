@@ -1,6 +1,11 @@
-import Link from "next/link";
+import TautanKembali404 from "@/components/jadwal/TautanKembali404";
 
-/** 404 lokal untuk ID laga yang benar-benar asing (bab U3.6/U6). */
+/**
+ * 404 lokal untuk ID laga yang benar-benar asing (bab U3.6/U6).
+ * Tautan kembali menghormati konteks asal daftar (asal + filter
+ * tersanitasi) lewat komponen klien TautanKembali404 — halaman
+ * not-found sendiri tidak menerima searchParams dari server.
+ */
 export default function LagaTidakDitemukan() {
   return (
     <div className="py-16 text-center">
@@ -9,9 +14,7 @@ export default function LagaTidakDitemukan() {
         Alamat ini tidak menunjuk pertandingan mana pun di jadwal.
       </p>
       <p className="mt-6">
-        <Link href="/pertandingan" className="text-[15px] font-medium text-ink hover:text-accent">
-          Kembali ke jadwal <span className="text-accent">→</span>
-        </Link>
+        <TautanKembali404 />
       </p>
     </div>
   );

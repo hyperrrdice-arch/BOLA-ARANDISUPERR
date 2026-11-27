@@ -11,12 +11,19 @@
  * - Analisa: peluang event terkuat dalam SATU area ("76% · Minimal
  *   2 gol"), kelas + hitungan kelas, daftar penilaian ringkas sesudah
  *   laga selesai, dan "Analisa belum tersedia" untuk laga tanpa paket.
+ *   Angka yang tampil selalu beridentitas sumber (brief tindak lanjut
+ *   §2.3): bila pilihan yang sama sudah terbit resmi, angkanya adalah
+ *   angka ledger + label basis B2.2-nya; bila belum, angkanya milik
+ *   paket terbaru dan dilabeli persis begitu — angka paket terbaru
+ *   tidak pernah tampil seolah-olah angka resmi.
  * - Jadwal: berhenti di info pertandingan — pembaca pick khusus
  *   Analisa (getPackagePicks) tidak dipanggil dan tidak ada persen,
  *   grade, gerbang, odds, atau ringkasan pick di markup.
  *
  * Seluruh baris adalah satu tautan ke Detail kanonik dengan konteks
  * asal (`asal=analisa|jadwal`) + filter terserialisasi (`kembali`).
+ * Nama aksesibel tautan membawa tim, status, dan skor yang tersedia
+ * (termasuk 0–0), karena aria-label menimpa seluruh teks anak.
  */
 import { getPackagePicks, type JadwalItem } from "@/lib/web/data";
 import {
@@ -75,7 +82,9 @@ export default function BarisJadwal({
 }) {
   const tz = filter.tz;
   const leg = item.topLeg;
+  const resmi = item.topLegResmi;
   const counts = hitunganKelas(item);
+  const statusLabel = labelBarisStatus(item);
   const selesai = item.status === "finished" || item.status === "abandoned";
   /* Pembaca pick khusus Analisa: mode Jadwal tidak memanggilnya. */
   const picks =
@@ -115,13 +124,58 @@ export default function BarisJadwal({
       "Status belum diketahui"
     ) : null;
 
-  /* Isi khusus Analisa: peluang event + kelas, atau ketiadaan analisa. */
+  /* Nama aksesibel baris (§2.2): aria-label menimpa teks anak, jadi
+     nama memuat tim, status baris, dan skor yang tersedia — termasuk
+     0–0 yang sah. Keadaan yang label barisnya null (ditunda /
+     dibatalkan / dihentikan / tak dikenal) menyumbang kata status
+     dari keterangan statusnya sendiri. */
+  const statusAksesibel =
+    statusLabel ??
+    (item.status === "postponed"
+      ? "Ditunda"
+      : item.status === "cancelled"
+        ? "Dibatalkan"
+        : item.status === "abandoned"
+          ? "Dihentikan"
+          : item.status === "unknown"
+            ? "Status belum diketahui"
+            : null);
+  const skorAksesibel = skor
+    ? item.status === "abandoned"
+      ? `Skor saat laga dihentikan ${skor.home}–${skor.away}`
+      : `Skor ${skor.home}–${skor.away}`
+    : null;
+  const ariaLabel = [
+    `${item.home} melawan ${item.away}`,
+    item.competition_name,
+    tanggalJamWib(item.kickoff_utc, tz),
+    statusAksesibel,
+    skorAksesibel,
+  ]
+    .filter((x): x is string => Boolean(x))
+    .join(", ");
+
+  /* Isi khusus Analisa: peluang event + kelas, atau ketiadaan analisa.
+     Identitas angka (§2.3): resmi → angka ledger + label basis B2.2
+     (keterangan kalibrasi lab-band ikut, karena itulah klaim yang
+     membedakan basisnya); belum resmi → angka paket terbaru dengan
+     label paketnya. */
+  const identitasAngka = !tampilProb ? null : resmi ? (
+    <>
+      {" "}· {resmi.label_basis}
+      {resmi.label_basis === "Peluang saat terbit" && resmi.keterangan_basis && (
+        <> · {resmi.keterangan_basis}</>
+      )}
+    </>
+  ) : (
+    <> · Paket terbaru · Belum terbit resmi</>
+  );
   const metaAnalisa =
     mode !== "analisa" || metaStatus ? null : leg ? (
       <>
         {tampilProb && (
           <span className="block">
-            <Prob value={leg.effective_prob} strong />{" "}
+            <Prob value={resmi ? resmi.prob : leg.effective_prob} strong />{" "}
             <span className="text-ink-soft">
               · {labelPilihan(leg.market, leg.selection, item.home, item.away)}
             </span>
@@ -135,6 +189,7 @@ export default function BarisJadwal({
         <span className="block text-[12px] text-faint">
           Pilihan terkuat · Kelas {leg.grade}
           {counts && <> · {counts}</>}
+          {identitasAngka}
         </span>
       </>
     ) : item.package_id ? (
@@ -148,14 +203,14 @@ export default function BarisJadwal({
     <div className="border-t border-hairline/50 py-4 first:border-t-0">
       <BarisLaga
         href={hrefDetail(item, filter, mode)}
-        ariaLabel={`${item.home} melawan ${item.away}, ${item.competition_name}, ${tanggalJamWib(item.kickoff_utc, tz)}`}
+        ariaLabel={ariaLabel}
         jam={jamWibOnly(item.kickoff_utc, tz)}
         home={item.home}
         away={item.away}
         logoHome={urlLogoTim(item.home_canonical_id)}
         logoAway={urlLogoTim(item.away_canonical_id)}
         skor={skor}
-        statusLabel={labelBarisStatus(item)}
+        statusLabel={statusLabel}
         kanan={
           <span aria-hidden="true" className="shrink-0 text-xl text-sekunder">
             ›
