@@ -2234,7 +2234,20 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
       );
       const resmi = kandidat[0];
       if (resmi && resmi.published_prob !== null) {
-        const label = labelSumberPeluang(resmi);
+        /* Bukti quote pada OfficialPick bersifat opsional (kolom
+           aditif bisa absen di DB lama) — normalkan ke null sebelum
+           masuk proyeksi B2.2. */
+        const label = labelSumberPeluang({
+          ...resmi,
+          evidence_source: resmi.evidence_source ?? null,
+          odds_bookmaker: resmi.odds_bookmaker ?? null,
+          odds_period: resmi.odds_period ?? null,
+          odds_line: resmi.odds_line ?? null,
+          odds_decimal: resmi.odds_decimal ?? null,
+          odds_captured_utc: resmi.odds_captured_utc ?? null,
+          decision_at_utc: resmi.decision_at_utc ?? null,
+          kickoff_at_issue_utc: resmi.kickoff_at_issue_utc ?? null,
+        });
         topLegResmi = {
           prob: resmi.published_prob,
           label_basis: label.label_basis,
