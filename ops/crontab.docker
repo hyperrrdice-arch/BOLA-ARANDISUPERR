@@ -17,7 +17,7 @@
 0 9,18 * * * flock -n /app/storage/.lock-capture npx tsx scripts/capture-odds-apifootball.ts
 
 # Tiket resmi Fix-4 (cutoff 14:00 WIB; generator abstain bila kandidat < 4)
-30 13 * * * flock -n /app/storage/.lock-fix4 npx tsx scripts/generate-fix4-ticket.ts
+10 14 * * * flock -n /app/storage/.lock-fix4 npx tsx scripts/generate-fix4-ticket.ts
 
 # Hasil FINISHED football-data.org v4 (Item 7) — jadwal BARU dari brief V2:
 # di host lama adapter ini tidak punya cron mandiri (lihat laporan Fase 0).

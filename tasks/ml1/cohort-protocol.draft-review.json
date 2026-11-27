@@ -1,0 +1,374 @@
+{
+  "document": "DRAFT manifest kohor SIAP REVIEW — semua nilai keputusan berstatus PROPOSED; BELUM beku, BELUM aktif. Aktivasi = keputusan pemilik terpisah sesudah review.",
+  "based_on": {
+    "proposal_file": "tasks/ml1/cohort-protocol.proposal.json",
+    "proposal_protocol_sha256": "902f416624841def2414068d1b48704a81b4618000bf1d1e4394c9868227b2d7",
+    "proposal_cohort_id": "ml1b-cohort-902f416624841def",
+    "note": "File proposal beku TIDAK diubah. cohort_id final akan dihitung ulang dari hash manifest saat status dibekukan ke FROZEN_FOR_COLLECTION oleh pemilik.",
+    "revised": "2026-11-27 (Validasi Rilis §4.1 + §4.4): candidate_id diselaraskan ke candidate_id artefak aktual dari byte model-manifest yang sama dengan SHA-nya; protocol_sha256/cohort_id diregenerasi; preflight diukur ulang dengan penyebut laga fisik. T0/T1 TIDAK diubah (bukti feed bergulir belum konklusif — lihat laporan)."
+  },
+  "protocol": {
+    "protocol_version": 1,
+    "status": "PROPOSED_PENDING_OWNER_APPROVAL",
+    "study": {
+      "candidate_id": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+      "candidate_manifest_sha256": "7bfd125b86f0894c79e0c6b3b4f0c5078824bbfcd48234965adcd5aa6f3a76f2",
+      "eval_version": "ml1-pit-b-v2",
+      "feature_code_version": "pit-b-feature-code-v2",
+      "runner_version": "ml1-predict.py:pit-v1",
+      "horizon_id": "slate_pre_match"
+    },
+    "unit": {
+      "per": "satu fixture fisik per fixture_uid dan horizon slate_pre_match",
+      "pair": "satu pasangan peluang 1X2 dari paket champion aktual dan ML1-B per fixture"
+    },
+    "horizon": {
+      "min_lead_seconds_exclusive": 0,
+      "max_lead_seconds": 259200,
+      "buckets": [
+        {
+          "label": "<12h",
+          "max_lead_seconds": 43200
+        },
+        {
+          "label": "12-<36h",
+          "max_lead_seconds": 129600
+        },
+        {
+          "label": "36-72h",
+          "max_lead_seconds": 259200
+        }
+      ],
+      "applied_before_dedupe": true,
+      "first_eligible_prediction_kept": true
+    },
+    "cadence": {
+      "batches_per_day": 1,
+      "proposed_time_wib": "17:30",
+      "after_verified_refresh": true,
+      "production_limit": null,
+      "missed_runs_recorded": true
+    },
+    "window": {
+      "weeks": 12,
+      "t0": "2026-12-07T00:00:00.000Z",
+      "t1": "2027-03-01T00:00:00.000Z",
+      "grading_cutoff": "2027-03-15T00:00:00.000Z",
+      "kickoff_in": "[T0, T1)",
+      "decision_from": "T0",
+      "min_blocks_with_graded": 8
+    },
+    "competitive_primary": {
+      "basis": "canonical competition ID liga domestik reguler terverifikasi dengan cakupan awal memadai; titik awal = divisi feed yang didukung",
+      "separate_from": "league_calibration",
+      "legacy_slice_field_used": false,
+      "list": [
+        {
+          "competition_id": "sm:8",
+          "fd_code": "E0",
+          "name": "Premier League",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:564",
+          "fd_code": "SP1",
+          "name": "La Liga",
+          "country": "Spain",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:384",
+          "fd_code": "I1",
+          "name": "Serie A",
+          "country": "Italy",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:82",
+          "fd_code": "D1",
+          "name": "Bundesliga",
+          "country": "Germany",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:301",
+          "fd_code": "F1",
+          "name": "Ligue 1",
+          "country": "France",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:9",
+          "fd_code": "E1",
+          "name": "Championship",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:387",
+          "fd_code": "I2",
+          "name": "Serie B",
+          "country": "Italy",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:85",
+          "fd_code": "D2",
+          "name": "2. Bundesliga",
+          "country": "Germany",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:304",
+          "fd_code": "F2",
+          "name": "Ligue 2",
+          "country": "France",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:72",
+          "fd_code": "N1",
+          "name": "Eredivisie",
+          "country": "Netherlands",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:208",
+          "fd_code": "B1",
+          "name": "Pro League (First Division A)",
+          "country": "Belgium",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:501",
+          "fd_code": "SC0",
+          "name": "Premiership",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:600",
+          "fd_code": "T1",
+          "name": "Super Lig",
+          "country": "Turkey",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:325",
+          "fd_code": "G1",
+          "name": "Super League",
+          "country": "Greece",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:12",
+          "fd_code": "E2",
+          "name": "League One",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:14",
+          "fd_code": "E3",
+          "name": "League Two",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:17",
+          "fd_code": "EC",
+          "name": "Enterprise National League",
+          "country": "England",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC1",
+          "fd_code": "SC1",
+          "name": "Scottish Championship",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC2",
+          "fd_code": "SC2",
+          "name": "Scottish League One",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "SC3",
+          "fd_code": "SC3",
+          "name": "Scottish League Two",
+          "country": "Scotland",
+          "basis": "fd_division_supported+domestic_regular; id terverifikasi di league-canonical.json"
+        },
+        {
+          "competition_id": "sm:567",
+          "fd_code": "SP2",
+          "name": "Segunda División (La Liga 2)",
+          "country": "Spain",
+          "basis": "PROPOSED tambahan: id terbukti di league-canonical.json (alias legacy-div SP2 'Spanish Segunda Division' + ratings-key SP2/SM567; fit legacy SP2 calibrated); preflight revisi: 11 terjadwal, 11 paket terpilih as-of, 11 marker primer"
+        },
+        {
+          "competition_id": "sm:462",
+          "fd_code": "P1",
+          "name": "Primeira Liga (Liga Portugal)",
+          "country": "Portugal",
+          "basis": "PROPOSED tambahan: id terbukti di league-canonical.json (alias legacy-div P1 'Portuguese Primeira Liga' + ratings-key P1/SM462; fit P1 + SM462 calibrated); preflight revisi: 7 terjadwal, 7 paket terpilih as-of, 7 marker primer"
+        }
+      ]
+    },
+    "champion": {
+      "primary_marker_repo_baseline": "sha256:910a9efe3103ffde",
+      "primary_marker": "sha256:910a9efe3103ffde",
+      "marker_change": "strata terpisah — tidak tercampur ke primer",
+      "marker_missing": "diagnostik saja — tidak masuk primer"
+    },
+    "probability_validation": {
+      "finite": true,
+      "range": [
+        0,
+        1
+      ],
+      "sum_tolerance": 0.02
+    },
+    "gates": {
+      "min_graded_competitive": 500,
+      "max_mean_delta_ll": -0.005,
+      "bootstrap_resamples": 5000,
+      "bootstrap_seed": 20261124,
+      "bootstrap_upper_one_sided_95_below": 0,
+      "min_blocks": 8
+    },
+    "review": {
+      "formal_review_date": "2027-03-22",
+      "single_formal_review": true
+    },
+    "policies": {
+      "reschedule": "prediksi tetap terikat fixture_uid + kickoff saat issue; kickoff kanonik yang berubah membuat grading pending (kickoff_evidence_conflict) sampai bukti jadwal/hasil konsisten; prediksi tidak diterbitkan ulang dan lead time tidak dihitung ulang",
+      "version_change": "perubahan manifest kandidat / feature code / runner di tengah studi membentuk strata terpisah; strata primer dibekukan ke versi manifest ini",
+      "correction": "grading append-only: koreksi revisi menambah edisi grading baru; forecast dan laporan beku lama tidak berubah dan tetap reproducible dari cutoff laporannya",
+      "rerun": "rerun tidak menggandakan fixture dan tidak mengganti prediksi lama; edisi pertama yang tercatat adalah yang disimpan",
+      "missed_batch": "batch terlewat dicatat di funnel (hari batch yang diharapkan vs aktual) dan dilaporkan sebagai deviasi",
+      "protocol_amendment": "perubahan parameter apa pun = versi protokol baru + cohort_id baru; kohor lama ditutup di bawah manifest-nya sendiri"
+    },
+    "funnel": {
+      "stages": [
+        "scheduled_in_scope",
+        "stored_predictions",
+        "gap_no_prediction",
+        "graded",
+        "pending",
+        "void",
+        "invalid",
+        "identity_doubtful",
+        "evidence_issues",
+        "inference_failed_or_skipped_at_issue"
+      ],
+      "denominator": "fixture terjadwal dalam cakupan dari katalog/identitas pada snapshot (canonical_fixtures, kickoff dalam jendela)"
+    }
+  },
+  "protocol_sha256": "70393738e172309d4b91689a6136665439adf49da2dc798de8e4d7497b7d55d6",
+  "cohort_id": "ml1b-cohort-70393738e172309d",
+  "manifest_validation_on_draft": {
+    "ok": true,
+    "mode": "staging",
+    "errors": [],
+    "warnings": []
+  },
+  "proposed_values": {
+    "window.t0": {
+      "value": "2026-12-07T00:00:00.000Z",
+      "status": "PROPOSED",
+      "rationale": "Senin pertama sesudah jendela review pemilik; koleksi harian 17:30 WIB sesudah refresh terverifikasi."
+    },
+    "window.t1": {
+      "value": "2027-03-01T00:00:00.000Z",
+      "status": "PROPOSED",
+      "rationale": "T0 + 12 pekan sesuai desain jendela proposal. CATATAN PEMILIK: katalog fixture saat ini berakhir ±5 Jan 2027 — paruh kedua jendela hanya terisi bila katalog diperpanjang; alternatifnya jendela dipersingkat saat pembekuan."
+    },
+    "window.grading_cutoff": {
+      "value": "2027-03-15T00:00:00.000Z",
+      "status": "PROPOSED",
+      "rationale": "T1 + 14 hari agar hasil + koreksi revisi mengendap sebelum grading formal."
+    },
+    "review.formal_review_date": {
+      "value": "2027-03-22",
+      "status": "PROPOSED",
+      "rationale": "Satu pekan sesudah cutoff grading formal; satu tinjauan formal tunggal sesuai protokol."
+    },
+    "champion.primary_marker": {
+      "value": "sha256:910a9efe3103ffde",
+      "status": "PROPOSED",
+      "rationale": "Marker aktual dari preflight revisi-2 (penyebut laga fisik, as-of refresh 2026-11-27T09:34:18Z, horizon 72 jam): penyebut allowlist 45 laga fisik terjadwal terbukti-UID — 45/45 berpaket dan 45/45 marker primer ini; distribusi marker atas paket terpilih penyebut hanya berisi marker ini. Angka 166/166 revisi sebelumnya adalah hitungan per baris katalog tanpa resolusi UID (indikasi awal). Mayoritas katalog belum punya identitas kanonik (319/368 laga fisik identity_unresolved) — lihat finding preflight."
+    },
+    "study.candidate_manifest_sha256": {
+      "value": "7bfd125b86f0894c79e0c6b3b4f0c5078824bbfcd48234965adcd5aa6f3a76f2",
+      "status": "PROPOSED",
+      "rationale": "SHA-256 file tasks/ml1/model/model-manifest.json — nilai yang benar-benar dibawa baris PIT B dari executor (hash file manifest kandidat), sehingga grader dapat mengikatnya. BUKAN hash git."
+    },
+    "study.candidate_code_head": {
+      "value": "e9fd799 (branch feat/ml1-kohor-prospektif)",
+      "status": "PROPOSED",
+      "rationale": "HEAD branch tepat sebelum commit revisi gate validasi rilis ini; commit yang membawa draf terkoreksi mengikuti HEAD tersebut. Kode kandidat yang akan dibekukan saat aktivasi."
+    },
+    "competitive_primary.additions": {
+      "value": [
+        "sm:567 (Segunda División, SP2)",
+        "sm:462 (Primeira Liga, P1)"
+      ],
+      "status": "PROPOSED",
+      "rationale": "ID kanonik terbukti dari alias league-canonical.json + fit terkalibrasi + cakupan preflight penuh bermarker primer (11/11 dan 7/7). Caveat: fit sportmonks SM567 berstatus 'partial' (fit legacy SP2 'calibrated')."
+    },
+    "study.candidate_id": {
+      "value": "ml1-b-gbdt-poisson-form-elo-shots-v1",
+      "status": "PROPOSED",
+      "rationale": "candidate_id artefak aktual dari tasks/ml1/model/model-manifest.json — byte yang sama dengan sumber SHA kandidat. Nilai lama 'ml1-b' di draf sebelumnya SALAH: gate membandingkan ID secara persis, sehingga draf lama menolak prediksi artefak asli (terbukti di suite K13 sebelum perbaikan)."
+    }
+  },
+  "preflight": {
+    "file": "tasks/ml1/cohort-preflight-revisi2.json",
+    "snapshot": {
+      "source": "production analysis_snapshots.db + upcoming_fixtures.db + thestats_dataset.db (read-only)",
+      "free_refresh_last_success_utc": "2026-11-27T09:34:18.084Z",
+      "as_of_utc": "2026-11-27T09:34:18.084Z"
+    },
+    "method": "computeMarkerFunnel v2: komponen alias transitif (sibling identitas + fixture-links + bridge sm_id_map) = satu laga fisik; status/UID dari store identitas kanonik (semantik checkPitEligibility kolektor); edisi paket dari selectPackagesAsOf, pemenang antar-alias computed DESC + id DESC. Penyebut = laga fisik terjadwal terbukti-UID dalam allowlist draf (22 kompetisi).",
+    "totals_catalog": {
+      "catalog_rows": 417,
+      "physical_matches": 368,
+      "alias_duplicate_rows": 49,
+      "buckets": {
+        "cancelled": 0,
+        "identity_unresolved": 319,
+        "schedule_conflict": 2,
+        "other_state": 0
+      }
+    },
+    "totals_all_leagues": {
+      "scheduled": 47,
+      "with_package": 45,
+      "primary_marker": 45,
+      "other_marker": 0,
+      "no_package": 2
+    },
+    "totals_allowlist_draft": {
+      "scheduled": 45,
+      "with_package": 45,
+      "primary_marker": 45,
+      "other_marker": 0,
+      "no_package": 0
+    },
+    "marker_distribution_asof_allowlist": [
+      {
+        "marker": "sha256:910a9efe3103ffde",
+        "packages": 45
+      }
+    ],
+    "identity_finding": "Mayoritas baris katalog horizon 72 jam TIDAK punya identitas kanonik (319/368 laga fisik): fixture_aliases hanya mencakup liga yang diproses pipeline identitas (utamanya sm:8/301/384/82/72 + UCL). Kolektor PIT B akan melewati laga yang sama sebagai identity_unresolved — penyebut kolektabel memang jauh lebih kecil dari hitungan baris katalog 166/166 sebelumnya (indikasi awal per-baris, tanpa resolusi UID).",
+    "stored_predictions_cohort": 0,
+    "stored_predictions_note": "DB shadow PIT B tidak ada di produksi — koleksi belum pernah jalan. Pilot legacy (415 prediksi) adalah strata terpisah dan tidak dicampur ke metrik kohor ketat."
+  },
+  "activation": "Tidak ada koleksi, cron, atau aktivasi yang dinyalakan oleh draf ini. Langkah aktivasi mengikuti keputusan pemilik atas draf ini."
+}

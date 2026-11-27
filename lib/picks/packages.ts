@@ -1,5 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { dbPath } from "../db/paths";
+import { openWritableDb } from "../db/writable-open";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -176,11 +177,19 @@ export function getPackagesDb(): DatabaseSync {
   if (dbInstance) {
     return dbInstance;
   }
-  const db = new DatabaseSync(getPackagesDbPath());
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA synchronous = NORMAL;");
-  ensurePackagesSchema(db);
-  dbInstance = db;
+  // openWritableDb memasang busy_timeout lebih dulu lalu me-retry
+  // seluruh init secara terbatas bila proses lain sedang memegang lock
+  // tulis (D05, brief validasi rilis 2026-11-27 §3) — tanpa itu,
+  // konversi journal_mode pada file yang belum WAL (mis. hasil
+  // restore) dan CREATE skema pada file baru bisa gagal seketika
+  // "database is locked" (errcode 5). Init di sini idempoten (PRAGMA +
+  // ensurePackagesSchema yang serba IF NOT EXISTS), jadi aman diulang.
+  // Lihat lib/db/writable-open.ts.
+  dbInstance = openWritableDb(getPackagesDbPath(), (db) => {
+    db.exec("PRAGMA journal_mode = WAL;");
+    db.exec("PRAGMA synchronous = NORMAL;");
+    ensurePackagesSchema(db);
+  });
   return dbInstance;
 }
 
