@@ -29,6 +29,18 @@
  * menguji penjaganya sendiri: T−1 ms menunggu tanpa menulis, tepat T
  * boleh membekukan, T+1 ms retry idempoten, dan calon yang terbit pukul
  * 13:50 WIB (sebelum cutoff) ikut terhitung saat generasi berjalan.
+ *
+ * Regresi audit produksi 27 Nov 2026 §1 (tes ditulis GAGAL dulu):
+ *  - D8: leg berkickoff 14:05 WIB tersaring pada dispatch 14:10 (kickoff
+ *    aktual dicek ulang pada saat keputusan ditulis); kontrol D8b pada
+ *    14:04 membuktikan leg yang sama tetap layak sebelum kickoff-nya.
+ *  - D9: dedupe laga fisik memakai fixture_uid persisten — dua pick pasar
+ *    berbeda ber-UID sama tanpa tautan fixture-links adalah SATU laga
+ *    (4 baris / 3 laga fisik → ABSTAIN); kontrol D9b: 4 laga fisik →
+ *    PUBLISHED.
+ *  - D10: kandidat layak yang commit dari koneksi lain sesudah selektor
+ *    membaca tetapi sebelum transaksi tulis tidak boleh terlewat —
+ *    kandidat diambil di dalam transaksi keputusan (state sesudah lock).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -109,12 +121,13 @@ async function main(): Promise<void> {
     comp: string,
     legs: LegSpec[],
     nowOverride?: string,
+    fixtureUid?: string,
   ): number[] => {
     seq++;
     const input: import("../lib/picks/publication").PublishFixtureInput = {
       series: "live-run",
       source_match_id: matchId,
-      fixture_uid: `uid-fx4-${seq}`,
+      fixture_uid: fixtureUid ?? `uid-fx4-${seq}`,
       competition_canonical_id: comp,
       kickoff_utc: kickoff,
       scheduled_cutoff_utc: PUB_CUTOFF,
@@ -383,6 +396,127 @@ async function main(): Promise<void> {
     "SELECT COUNT(*) AS n FROM fix4_daily_decisions WHERE date_wib = '2026-12-08'",
   ).get() as { n: number }).n;
   suite.eq("D7: tepat satu keputusan tercatat per hari", nDecD7, 1);
+
+  // --- D8 = 2026-12-10: kickoff sudah lewat saat terbit (audit §1 cacat A) ---
+  // Selektor lama hanya memastikan kickoff > cutoff 14:00 WIB. Pada
+  // dispatch 14:10 WIB, leg berkickoff 14:05 WIB (07:05Z) LOLOS jendela
+  // dan masuk tiket padahal laganya sudah mulai 5 menit.
+  const d8early = publishFixture("fx_q0", "2026-12-10T07:05:00.000Z", "liga_berfeed", L1(0.9))[0];
+  publishFixture("fx_q1", "2026-12-10T13:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_q2", "2026-12-10T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_q3", "2026-12-10T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  const decD8 = fix4.generateFix4Ticket(db, "2026-12-10", "2026-12-10T07:10:00.000Z");
+  suite.eq("D8: dispatch 14:10, leg kickoff 14:05 tersaring → ABSTAIN", decD8.status, "ABSTAIN");
+  suite.eq("D8: kandidat layak = 3 (leg awal tidak terhitung)", decD8.eligible_count, 3);
+  suite.check("D8: leg awal tidak muncul di hasil", !decD8.legs.some((l) => l.pick_id === d8early));
+  const nTickD8 = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_tickets WHERE date_wib = '2026-12-10'",
+  ).get() as { n: number }).n;
+  suite.eq("D8: tidak ada tiket terbit", nTickD8, 0);
+
+  // Kontrol D8b = 2026-12-12: pola identik, generasi pukul 14:04 WIB
+  // (07:04Z) — leg 14:05 BELUM kickoff saat keputusan ditulis → layak.
+  const d8bEarly = publishFixture("fx_r0", "2026-12-12T07:05:00.000Z", "liga_berfeed", L1(0.9))[0];
+  publishFixture("fx_r1", "2026-12-12T13:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_r2", "2026-12-12T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_r3", "2026-12-12T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  const decD8b = fix4.generateFix4Ticket(db, "2026-12-12", "2026-12-12T07:04:00.000Z");
+  suite.eq("D8b: generasi 14:04 → PUBLISHED", decD8b.status, "PUBLISHED");
+  suite.eq("D8b: kandidat layak = 4", decD8b.eligible_count, 4);
+  suite.check("D8b: leg kickoff 14:05 ikut masuk (belum mulai saat ditulis)",
+    decD8b.legs.some((l) => l.pick_id === d8bEarly));
+
+  // --- D9 = 2026-12-14: dedupe via fixture_uid persisten (audit §1 cacat B) --
+  // Dua pick dari pasar berbeda, fixture_uid SAMA, match_id provider
+  // berbeda, dan TIDAK ada tautan fixture-links untuk keduanya saat
+  // generator berjalan → satu laga fisik, bukan dua.
+  const d9a = publishFixture(
+    "px_a1", "2026-12-14T13:00:00.000Z", "liga_berfeed",
+    [{ market: "1x2", selection: "1", prob: 0.9 }],
+    undefined, "uid-fx4-sama",
+  )[0];
+  publishFixture(
+    "px_a2", "2026-12-14T13:00:00.000Z", "liga_berfeed",
+    [{ market: "dc", selection: "1x", prob: 0.88 }],
+    undefined, "uid-fx4-sama",
+  );
+  publishFixture("fx_s1", "2026-12-14T14:00:00.000Z", "liga_berfeed", L1(0.85));
+  publishFixture("fx_s2", "2026-12-14T15:00:00.000Z", "liga_berfeed", L1(0.83));
+  const candD9 = fix4.selectFix4Candidates(db, "2026-12-14");
+  suite.eq("D9: 4 baris kandidat / 3 laga fisik → 3 kandidat", candD9.length, 3);
+  suite.eq("D9: wakil laga ber-UID sama = probabilitas tertinggi (1x2 0,90)",
+    candD9.map((c) => c.pick_id).includes(d9a) && candD9[0].pick_id === d9a, true);
+  const decD9 = fix4.generateFix4Ticket(db, "2026-12-14", "2026-12-14T07:00:00.000Z");
+  suite.eq("D9: 3 laga fisik → ABSTAIN", decD9.status, "ABSTAIN");
+  suite.eq("D9: eligible_count = 3", decD9.eligible_count, 3);
+
+  // Kontrol D9b = 2026-12-16: 4 laga fisik berbeda → PUBLISHED.
+  publishFixture("fx_vv1", "2026-12-16T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_vv2", "2026-12-16T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_vv3", "2026-12-16T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_vv4", "2026-12-16T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  const decD9b = fix4.generateFix4Ticket(db, "2026-12-16", "2026-12-16T07:00:00.000Z");
+  suite.eq("D9b: 4 laga fisik → PUBLISHED", decD9b.status, "PUBLISHED");
+  suite.eq("D9b: tiket memuat 4 pilihan", decD9b.legs.length, 4);
+
+  // --- D10 = 2026-12-18: race snapshot WAL (audit §1 cacat C) ----------------
+  // Kandidat layak ke-4 commit dari koneksi LAIN sesudah selektor membaca
+  // kandidat tetapi sebelum generator memperoleh transaksi tulis.
+  // Simulasi deterministik sederajat (bukan dua proses bertiming acak):
+  // pembungkus DB menyisipkan commit kandidat ke-4 dari koneksi kedua
+  // tepat saat generator pertama kali meminta BEGIN IMMEDIATE — persis
+  // batas jendela race pada audit. Pada kode lama kandidat sudah telanjur
+  // terbaca (3) → ABSTAIN keliru; pada kode baru kandidat diambil di
+  // dalam transaksi sesudah lock → state sesudah lock yang terhitung.
+  publishFixture("fx_uu1", "2026-12-18T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_uu2", "2026-12-18T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  const uu3 = publishFixture("fx_uu3", "2026-12-18T15:00:00.000Z", "liga_berfeed", L1(0.86))[0];
+
+  const { DatabaseSync } = await import("node:sqlite");
+  const dbRace = new DatabaseSync(path.join(env.dataDir, "picks.db"));
+  let raceInserted = false;
+  const insertRaceCandidate = (): void => {
+    const src = dbRace.prepare("SELECT * FROM picks WHERE id = ?").get(uu3) as unknown as Record<string, unknown>;
+    src.match_id = "fx_uu4";
+    src.market = "dc";
+    src.selection = "1x";
+    src.fixture_uid = "uid-fx4-race4";
+    src.pick_uid = "pick-uid-fx4-race4";
+    src.kickoff_utc = "2026-12-18T16:00:00.000Z";
+    src.kickoff_at_issue_utc = "2026-12-18T16:00:00.000Z";
+    src.model_prob = 0.84;
+    src.effective_prob = 0.84;
+    src.published_prob = 0.84;
+    const cols = Object.keys(src).filter((c) => c !== "id");
+    dbRace
+      .prepare(`INSERT INTO picks (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`)
+      .run(...cols.map((c) => src[c] as never));
+  };
+  const wrappedDb = {
+    prepare: (sql: string) => db.prepare(sql),
+    exec: (sql: string) => {
+      if (sql === "BEGIN IMMEDIATE" && !raceInserted) {
+        raceInserted = true;
+        insertRaceCandidate();
+      }
+      return db.exec(sql);
+    },
+  };
+  const decD10 = fix4.generateFix4Ticket(
+    wrappedDb as unknown as import("node:sqlite").DatabaseSync,
+    "2026-12-18",
+    "2026-12-18T07:00:00.000Z",
+  );
+  suite.check("D10: sisipan race benar-benar terjadi", raceInserted);
+  suite.eq("D10: kandidat commit sebelum kunci tulis ikut terhitung → PUBLISHED", decD10.status, "PUBLISHED");
+  suite.eq("D10: eligible_count = 4", decD10.eligible_count, 4);
+  suite.check("D10: tiket memuat kandidat hasil race (fx_uu4)",
+    decD10.legs.some((l) => l.match_id === "fx_uu4"));
+  dbRace.close();
+  // Retry sesudah keputusan tercatat: append-only, keputusan yang sama.
+  const decD10retry = fix4.generateFix4Ticket(db, "2026-12-18", "2026-12-18T07:05:00.000Z");
+  suite.check("D10: retry → already_existed", decD10retry.already_existed === true);
+  suite.eq("D10: retry ticket_uid sama", decD10retry.ticket_uid, decD10.ticket_uid);
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
