@@ -87,6 +87,13 @@
  *    SELAGI lock masih dipegang, tanpa mengubah baris legacy dan tanpa
  *    keputusan baru. Head 6bdd732 membuka getPicksDb() lebih dulu →
  *    menunggu lock lalu menjalankan backfill sebelum menjawab.
+ *  - D17: batas kickoff kanonik per GRUP laga fisik. Alias terpilih
+ *    (peluang tertinggi) tanpa UID menyimpan kickoff 16:00 WIB; alias
+ *    segrup (tautan fixture-links) ber-UID punya kickoff kanonik exact
+ *    14:10:01 WIB. Seleksi 14:10:00, cek akhir 14:10:02 → wajib
+ *    ABSTAIN (3 layak, nol tiket/leg); kontrol: cek akhir sebelum
+ *    14:10:01 tetap menerbitkan 4 laga. Head c246f4f menghitung batas
+ *    dari UID alias terpilih saja → bukti kanonik grup hilang.
  */
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -1086,6 +1093,115 @@ async function main(): Promise<void> {
   await Promise.race([holderDone, new Promise((r) => setTimeout(r, 15000))]);
   if (holderCode === null) holder.kill();
   suite.eq("D16: holder melepas lock lewat barrier berkas (exit 0)", holderCode, 0);
+
+  // --- D17: batas kickoff kanonik per GRUP laga fisik ------------------------
+  // Review pemilik atas head c246f4f: dua alias sudah digabung sebagai
+  // satu laga (kunci tautan fixture-links), tapi batas kickoff F1 masih
+  // dihitung dari UID alias TERPILIH saja. Alias terpilih (peluang
+  // tertinggi) TIDAK punya UID dan menyimpan kickoff 16:00 WIB (09:00Z);
+  // alias lain segrup punya UID dengan kickoff kanonik exact 14:10:01
+  // WIB (07:10:01Z). Seleksi berjalan 14:10:00, cek akhir 14:10:02 →
+  // head c246f4f menerbitkan laga itu (batas wakil = kickoff ledger
+  // 09:00Z). Sesudah patch: batas grup (paling awal antar-alias)
+  // berlaku di seleksi DAN cek pra-COMMIT → ABSTAIN.
+  fs.writeFileSync(
+    path.join(env.dataDir, "fixture-links.json"),
+    JSON.stringify({
+      links: [
+        { twin_id: "fd_9101", canonical_id: "sm_9101" },
+        { twin_id: "fd_9102", canonical_id: "sm_9102" },
+        { twin_id: "fd_9201", canonical_id: "sm_9201" },
+        { twin_id: "fd_9202", canonical_id: "sm_9202" },
+      ],
+    }),
+  );
+  const dsDb3 = new DatabaseSync(path.join(env.dataDir, "thestats_dataset.db"));
+  const putCanonical3 = (uid: string, kickoff: string | null): void => {
+    dsDb3.prepare(
+      `INSERT INTO canonical_fixtures
+         (fixture_uid, competition_id, kickoff_utc, kickoff_precision, state, created_at, updated_at)
+       VALUES (?, 'liga_berfeed', ?, 'exact', 'scheduled', ?, ?)`,
+    ).run(uid, kickoff, PUBLISH_NOW, PUBLISH_NOW);
+  };
+
+  // D17 = 2027-01-17: wakil grup tanpa UID, kickoff ledger 09:00Z.
+  const d17Top = publishFixture("sm_9201", "2027-01-17T09:00:00.000Z", "liga_berfeed", L1(0.9))[0];
+  db.prepare("UPDATE picks SET fixture_uid = NULL WHERE id = ?").run(d17Top);
+  const d17Twin = publishFixture("fd_9201", "2027-01-17T13:00:00.000Z", "liga_berfeed", DC1X(0.88), undefined, "uid-d17-grup")[0];
+  publishFixture("fx_g1", "2027-01-17T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_g2", "2027-01-17T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_g3", "2027-01-17T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  putCanonical3("uid-d17-grup", "2027-01-17T07:10:01.000Z");
+
+  // Seleksi pada 07:10:00: batas grup (07:10:01) belum tercapai → grup
+  // tetap layak, diwakili alias tanpa UID berpeluang tertinggi.
+  const candD17 = fix4.selectFix4Candidates(db, "2027-01-17", undefined, "2027-01-17T07:10:00.000Z", { datasetDb: dsDb3 });
+  suite.eq("D17: seleksi 07:10:00 → 4 kandidat (grup alias + 3 laga)", candD17.length, 4);
+  suite.check("D17: wakil grup = alias tanpa UID berpeluang tertinggi",
+    candD17.some((c) => c.pick_id === d17Top) && !candD17.some((c) => c.pick_id === d17Twin));
+  // Seleksi pada 07:10:02: batas GRUP sudah tercapai → seluruh grup
+  // tersaring walau kickoff ledger wakilnya 09:00Z.
+  const candD17Late = fix4.selectFix4Candidates(db, "2027-01-17", undefined, "2027-01-17T07:10:02.000Z", { datasetDb: dsDb3 });
+  suite.eq("D17: seleksi 07:10:02 → 3 kandidat (batas grup menyaring wakil tanpa UID)", candD17Late.length, 3);
+  suite.check("D17: kedua alias segrup tersaring pada 07:10:02",
+    !candD17Late.some((c) => c.pick_id === d17Top || c.pick_id === d17Twin));
+
+  // Generasi: jam bergeser ke 07:10:02 tepat saat INSERT tiket pertama
+  // (pola makeFlipDb D14) → cek pra-COMMIT wajib memakai batas grup:
+  // percobaan ter-rollback, evaluasi ulang menyisakan 3 laga aman.
+  let d17Now = "2027-01-17T07:10:00.000Z";
+  const decD17 = fix4.generateFix4Ticket(
+    makeFlipDb(() => {
+      d17Now = "2027-01-17T07:10:02.000Z";
+    }),
+    "2027-01-17",
+    "2027-01-17T07:10:00.000Z",
+    { now: () => d17Now, datasetDb: dsDb3 },
+  );
+  suite.eq("D17: batas grup terlewati saat menulis → ABSTAIN", decD17.status, "ABSTAIN");
+  suite.eq("D17: kandidat layak = 3", decD17.eligible_count, 3);
+  suite.eq("D17: tepat satu keputusan", countDate("fix4_daily_decisions", "2027-01-17"), 1);
+  suite.eq("D17: nol tiket", countDate("fix4_tickets", "2027-01-17"), 0);
+  const nLegD17 = (db.prepare(
+    `SELECT COUNT(*) AS n FROM fix4_ticket_legs l JOIN fix4_tickets t ON t.ticket_uid = l.ticket_uid
+     WHERE t.date_wib = '2027-01-17'`,
+  ).get() as { n: number }).n;
+  suite.eq("D17: nol leg", nLegD17, 0);
+  const d17Dec = db.prepare(
+    "SELECT created_utc FROM fix4_daily_decisions WHERE date_wib = '2027-01-17'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D17: created_utc keputusan = jam evaluasi ulang pasca-rollback", d17Dec?.created_utc, "2027-01-17T07:10:02.000Z");
+  // Histori pick TIDAK ditimpa batas internal grup.
+  const d17Row = db.prepare(
+    "SELECT kickoff_utc, fixture_uid FROM picks WHERE id = ?",
+  ).get(d17Top) as { kickoff_utc: string; fixture_uid: string | null };
+  suite.eq("D17: kickoff asli pick wakil tidak berubah (16:00 WIB)", d17Row.kickoff_utc, "2027-01-17T09:00:00.000Z");
+  suite.eq("D17: fixture_uid pick wakil tetap kosong", d17Row.fixture_uid, null);
+
+  // Kontrol D17b = 2027-01-19: pola sama, tetapi cek akhir berjalan
+  // SEBELUM kickoff kanonik grup (07:10:00.500 < 07:10:01) → empat laga
+  // tetap boleh terbit; wakil grup = alias tanpa UID.
+  const d17bTop = publishFixture("sm_9202", "2027-01-19T09:00:00.000Z", "liga_berfeed", L1(0.9))[0];
+  db.prepare("UPDATE picks SET fixture_uid = NULL WHERE id = ?").run(d17bTop);
+  const d17bTwin = publishFixture("fd_9202", "2027-01-19T13:00:00.000Z", "liga_berfeed", DC1X(0.88), undefined, "uid-d17-grup2")[0];
+  publishFixture("fx_h1", "2027-01-19T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_h2", "2027-01-19T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_h3", "2027-01-19T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  putCanonical3("uid-d17-grup2", "2027-01-19T07:10:01.000Z");
+  let d17bNow = "2027-01-19T07:10:00.000Z";
+  const decD17b = fix4.generateFix4Ticket(
+    makeFlipDb(() => {
+      d17bNow = "2027-01-19T07:10:00.500Z";
+    }),
+    "2027-01-19",
+    "2027-01-19T07:10:00.000Z",
+    { now: () => d17bNow, datasetDb: dsDb3 },
+  );
+  suite.eq("D17b: cek akhir sebelum kickoff kanonik grup → PUBLISHED", decD17b.status, "PUBLISHED");
+  suite.eq("D17b: tiket memuat 4 pilihan", decD17b.legs.length, 4);
+  suite.check("D17b: wakil grup = alias tanpa UID; alias ber-UID tidak ikut",
+    decD17b.legs.some((l) => l.pick_id === d17bTop) && !decD17b.legs.some((l) => l.pick_id === d17bTwin));
+  dsDb3.close();
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
