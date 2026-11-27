@@ -41,6 +41,28 @@
  *  - D10: kandidat layak yang commit dari koneksi lain sesudah selektor
  *    membaca tetapi sebelum transaksi tulis tidak boleh terlewat —
  *    kandidat diambil di dalam transaksi keputusan (state sesudah lock).
+ *
+ * Regresi revisi PR #12 (brief revisi pemilik 27 Nov 2026; tes ditulis
+ * GAGAL dulu di head 149e241):
+ *  - D11 (R1): jam penerbitan mengikuti lock yang benar-benar didapat.
+ *    Proses lain menahan BEGIN IMMEDIATE; jam masuk CLI 07:15:12.756Z,
+ *    leg kickoff 07:15:15.460Z, lock lepas dan jam pasca-lock
+ *    07:15:16.669Z. Head lama memakai jam pra-lock untuk seleksi DAN
+ *    created_utc → tiket tampak terbit sebelum kickoff. Sesudah patch:
+ *    jam dibaca ulang sesudah lock (clock terinjeksi), leg yang mencapai
+ *    kickoff sejak seleksi tersaring, created_utc = jam pasca-lock.
+ *  - D12 (R2): selektor membaca bukti jadwal/status dari
+ *    thestats_dataset.db (read-only): (a) UID cancelled di dataset tanpa
+ *    pick_voids; (b) kickoff kanonik terkoreksi maju melewati jam
+ *    penerbitan; (c) void provider_cancelled ber-UID menahan SELURUH
+ *    laga (dua market), bukan cuma pick-nya; (d) dua pick warisan
+ *    ber-UID kosong digabung alias dataset; (e) kontrol warisan tanpa
+ *    data kanonik tetap PUBLISHED (fallback lama).
+ *  - D13 (R3): retry keputusan yang sudah ada cukup MEMBACA — di bawah
+ *    lock writer lain + busy_timeout 0, head lama melempar SQLITE_BUSY
+ *    (DDL/BEGIN IMMEDIATE), basis lama mengembalikan UID yang sama.
+ *    Kontrol D13b: sebelum cutoff generator tidak menyentuh DB sama
+ *    sekali (penjaga WAITING_CUTOFF murni jam).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -517,6 +539,234 @@ async function main(): Promise<void> {
   const decD10retry = fix4.generateFix4Ticket(db, "2026-12-18", "2026-12-18T07:05:00.000Z");
   suite.check("D10: retry → already_existed", decD10retry.already_existed === true);
   suite.eq("D10: retry ticket_uid sama", decD10retry.ticket_uid, decD10.ticket_uid);
+
+  // --- D11 (R1) = 2026-12-20: jam penerbitan mengikuti lock ------------------
+  // Reproduksi brief revisi §1 (CLI dua proses, diskala ke fixture
+  // deterministik): proses lain menahan BEGIN IMMEDIATE; jam masuk
+  // 07:15:12.756Z; leg pertama kickoff 07:15:15.460Z; lock lepas pada
+  // 07:15:16.669Z. Head 149e241 memakai jam pra-lock untuk seleksi dan
+  // created_utc → leg itu TERBIT dengan created_utc sebelum kickoff-nya,
+  // padahal barisnya tertulis sesudah kickoff. Simulasi sederajat D10:
+  // pembungkus DB melepas lock koneksi lain tepat saat generator meminta
+  // BEGIN IMMEDIATE, dan clock terinjeksi bergeser pada momen yang sama.
+  const d11t0 = publishFixture("fx_j0", "2026-12-20T07:15:15.460Z", "liga_berfeed", L1(0.9))[0];
+  publishFixture("fx_j1", "2026-12-20T07:15:16.669Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_j2", "2026-12-20T13:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_j3", "2026-12-20T14:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_j4", "2026-12-20T15:00:00.000Z", "liga_berfeed", L1(0.82));
+  const ENTRY_R1 = "2026-12-20T07:15:12.756Z";
+  const AFTER_R1 = "2026-12-20T07:15:16.669Z";
+  const lockR1 = new DatabaseSync(path.join(env.dataDir, "picks.db"));
+  lockR1.exec("BEGIN IMMEDIATE");
+  let lockR1Released = false;
+  const clockR1 = (): string => (lockR1Released ? AFTER_R1 : ENTRY_R1);
+  const wrappedR1 = {
+    prepare: (sql: string) => db.prepare(sql),
+    exec: (sql: string) => {
+      if (sql === "BEGIN IMMEDIATE" && !lockR1Released) {
+        lockR1.exec("COMMIT");
+        lockR1Released = true;
+      }
+      return db.exec(sql);
+    },
+  };
+  const decD11 = fix4.generateFix4Ticket(
+    wrappedR1 as unknown as import("node:sqlite").DatabaseSync,
+    "2026-12-20",
+    ENTRY_R1,
+    { now: clockR1, datasetDb: null },
+  );
+  suite.check("D11: lock writer lain benar-benar terlepas di BEGIN generator", lockR1Released);
+  suite.eq("D11: leg mencapai kickoff selama menunggu lock tersaring → ABSTAIN", decD11.status, "ABSTAIN");
+  suite.eq("D11: kandidat aman tersisa = 3", decD11.eligible_count, 3);
+  suite.check("D11: tidak ada leg terbit", decD11.legs.length === 0 && !decD11.legs.some((l) => l.pick_id === d11t0));
+  const d11Row = db.prepare(
+    "SELECT created_utc FROM fix4_daily_decisions WHERE date_wib = '2026-12-20'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D11: created_utc keputusan = jam pasca-lock (bukan jam masuk)", d11Row?.created_utc, AFTER_R1);
+  const nTickD11 = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_tickets WHERE date_wib = '2026-12-20'",
+  ).get() as { n: number }).n;
+  suite.eq("D11: tidak ada baris tiket", nTickD11, 0);
+  lockR1.close();
+
+  // Kontrol D11b = 2026-12-22: 4 leg aman — peluang + urutan tidak berubah,
+  // hanya cap waktunya yang kini jam pasca-lock di KEDUA tabel.
+  publishFixture("fx_u20", "2026-12-22T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_u21", "2026-12-22T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_u22", "2026-12-22T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_u23", "2026-12-22T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  const ENTRY_R1B = "2026-12-22T07:15:12.756Z";
+  const AFTER_R1B = "2026-12-22T07:15:16.669Z";
+  const lockR1b = new DatabaseSync(path.join(env.dataDir, "picks.db"));
+  lockR1b.exec("BEGIN IMMEDIATE");
+  let lockR1bReleased = false;
+  const wrappedR1b = {
+    prepare: (sql: string) => db.prepare(sql),
+    exec: (sql: string) => {
+      if (sql === "BEGIN IMMEDIATE" && !lockR1bReleased) {
+        lockR1b.exec("COMMIT");
+        lockR1bReleased = true;
+      }
+      return db.exec(sql);
+    },
+  };
+  const decD11b = fix4.generateFix4Ticket(
+    wrappedR1b as unknown as import("node:sqlite").DatabaseSync,
+    "2026-12-22",
+    ENTRY_R1B,
+    { now: () => (lockR1bReleased ? AFTER_R1B : ENTRY_R1B), datasetDb: null },
+  );
+  suite.eq("D11b: 4 leg aman → PUBLISHED", decD11b.status, "PUBLISHED");
+  suite.eq("D11b: urutan leg tidak berubah", decD11b.legs.map((l) => l.match_id),
+    ["fx_u20", "fx_u21", "fx_u22", "fx_u23"]);
+  suite.eq("D11b: peluang leg tidak berubah", decD11b.legs.map((l) => l.published_prob),
+    [0.9, 0.88, 0.86, 0.84]);
+  const d11bTicket = db.prepare(
+    "SELECT created_utc FROM fix4_tickets WHERE date_wib = '2026-12-22'",
+  ).get() as { created_utc: string } | undefined;
+  const d11bDec = db.prepare(
+    "SELECT created_utc FROM fix4_daily_decisions WHERE date_wib = '2026-12-22'",
+  ).get() as { created_utc: string } | undefined;
+  suite.eq("D11b: created_utc tiket = jam pasca-lock", d11bTicket?.created_utc, AFTER_R1B);
+  suite.eq("D11b: created_utc keputusan = jam pasca-lock (sama dengan tiket)", d11bDec?.created_utc, AFTER_R1B);
+  lockR1b.close();
+
+  // --- D12 (R2): bukti jadwal/status dari thestats_dataset.db -----------------
+  // Dataset fixture: tabel identitas dibuat dengan skema repo asli, baris
+  // kanonik/alias ditanam per kasus. Selektor head 149e241 tidak membaca
+  // DB ini sama sekali → semua kasus a–d lolos masuk PUBLISHED secara
+  // keliru.
+  const identityMod = await import("../lib/identity/fixture-resolver");
+  const dsDb = new DatabaseSync(path.join(env.dataDir, "thestats_dataset.db"));
+  identityMod.ensureIdentitySchema(dsDb);
+  const putCanonical = (uid: string, state: string, kickoff: string | null): void => {
+    dsDb.prepare(
+      `INSERT INTO canonical_fixtures
+         (fixture_uid, competition_id, kickoff_utc, kickoff_precision, state, created_at, updated_at)
+       VALUES (?, 'liga_berfeed', ?, 'exact', ?, ?, ?)`,
+    ).run(uid, kickoff, state, PUBLISH_NOW, PUBLISH_NOW);
+  };
+  const putAlias = (matchId: string, uid: string): void => {
+    dsDb.prepare(
+      `INSERT INTO fixture_aliases
+         (source, source_match_id, fixture_uid, match_basis, first_seen_utc, last_seen_utc)
+       VALUES (?, ?, ?, 'test', ?, ?)`,
+    ).run(identityMod.sourceOfMatchId(matchId), matchId, uid, PUBLISH_NOW, PUBLISH_NOW);
+  };
+
+  // D12a = 2026-12-24: UID cancelled di dataset, resolver belum membuat
+  // pick_voids → leg tetap harus ditahan.
+  const d12aBad = publishFixture("fx_c1", "2026-12-24T13:00:00.000Z", "liga_berfeed", L1(0.9), undefined, "uid-d12-batal")[0];
+  publishFixture("fx_c2", "2026-12-24T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_c3", "2026-12-24T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_c4", "2026-12-24T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  putCanonical("uid-d12-batal", "cancelled", "2026-12-24T13:00:00.000Z");
+  const candD12a = fix4.selectFix4Candidates(db, "2026-12-24", undefined, "2026-12-24T07:10:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12a: selektor berbukti dataset → 3 kandidat (cancelled tertahan)", candD12a.length, 3);
+  suite.check("D12a: leg cancelled tidak termasuk kandidat", !candD12a.some((c) => c.pick_id === d12aBad));
+  const candD12aLegacy = fix4.selectFix4Candidates(db, "2026-12-24", undefined, "2026-12-24T07:10:00.000Z", { datasetDb: null });
+  suite.eq("D12a: kontrol tanpa bukti dataset → 4 kandidat (fallback lama)", candD12aLegacy.length, 4);
+  const decD12a = fix4.generateFix4Ticket(db, "2026-12-24", "2026-12-24T07:10:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12a: cancelled tanpa void → ABSTAIN", decD12a.status, "ABSTAIN");
+  suite.eq("D12a: kandidat layak = 3", decD12a.eligible_count, 3);
+
+  // D12b = 2026-12-26: kickoff pick beku 16:00 WIB (09:00Z) dikoreksi di
+  // fixture kanonik menjadi 14:05 WIB (07:05Z); penerbitan 14:10 WIB.
+  const d12bBad = publishFixture("fx_k1", "2026-12-26T09:00:00.000Z", "liga_berfeed", L1(0.9), undefined, "uid-d12-maju")[0];
+  publishFixture("fx_k2", "2026-12-26T13:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_k3", "2026-12-26T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_k4", "2026-12-26T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  putCanonical("uid-d12-maju", "scheduled", "2026-12-26T07:05:00.000Z");
+  const decD12b = fix4.generateFix4Ticket(db, "2026-12-26", "2026-12-26T07:10:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12b: kickoff kanonik sudah lewat jam penerbitan → ABSTAIN", decD12b.status, "ABSTAIN");
+  suite.eq("D12b: kandidat layak = 3", decD12b.eligible_count, 3);
+  suite.check("D12b: leg terkoreksi tidak masuk hasil", !decD12b.legs.some((l) => l.pick_id === d12bBad));
+
+  // D12c = 2026-12-28: void provider_cancelled ber-UID pada SATU market
+  // menahan SELURUH laga — market lain ber-UID sama tidak boleh masuk.
+  const d12c1 = publishFixture("px_c1", "2026-12-28T13:00:00.000Z", "liga_berfeed",
+    [{ market: "1x2", selection: "1", prob: 0.9 }], undefined, "uid-d12-pc")[0];
+  const d12c2 = publishFixture("px_c2", "2026-12-28T13:00:00.000Z", "liga_berfeed",
+    [{ market: "dc", selection: "1x", prob: 0.88 }], undefined, "uid-d12-pc")[0];
+  publishFixture("fx_pc1", "2026-12-28T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_pc2", "2026-12-28T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  publishFixture("fx_pc3", "2026-12-28T16:00:00.000Z", "liga_berfeed", L1(0.82));
+  db.prepare(
+    "INSERT INTO pick_voids (pick_id, fixture_uid, voided_utc, reason, policy_version) VALUES (?, ?, ?, ?, ?)",
+  ).run(d12c2, "uid-d12-pc", PUBLISH_NOW, "provider_cancelled", "test");
+  const decD12c = fix4.generateFix4Ticket(db, "2026-12-28", "2026-12-28T07:00:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12c: provider_cancelled satu market menahan seluruh laga → ABSTAIN", decD12c.status, "ABSTAIN");
+  suite.eq("D12c: kandidat layak = 3", decD12c.eligible_count, 3);
+  suite.check("D12c: kedua pick laga yang sama tertahan",
+    !decD12c.legs.some((l) => l.pick_id === d12c1 || l.pick_id === d12c2));
+
+  // D12d = 2026-12-30: dua pick warisan ber-UID kosong — alias dataset
+  // menunjuk ke SATU UID; tanpa JSON tautan keduanya satu laga fisik.
+  const d12d1 = publishFixture("mt_d1", "2026-12-30T13:00:00.000Z", "liga_berfeed", L1(0.9))[0];
+  const d12d2 = publishFixture("fd_d1", "2026-12-30T13:00:00.000Z", "liga_berfeed", DC1X(0.88))[0];
+  db.prepare("UPDATE picks SET fixture_uid = NULL WHERE id IN (?, ?)").run(d12d1, d12d2);
+  publishFixture("fx_dd1", "2026-12-30T14:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_dd2", "2026-12-30T15:00:00.000Z", "liga_berfeed", L1(0.84));
+  putAlias("mt_d1", "uid-d12-alias");
+  putAlias("fd_d1", "uid-d12-alias");
+  putCanonical("uid-d12-alias", "scheduled", "2026-12-30T13:00:00.000Z");
+  const decD12d = fix4.generateFix4Ticket(db, "2026-12-30", "2026-12-30T07:00:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12d: alias dataset menggabung dua pick ber-UID kosong → ABSTAIN", decD12d.status, "ABSTAIN");
+  suite.eq("D12d: kandidat layak = 3 (alias + 2 laga lain)", decD12d.eligible_count, 3);
+
+  // D12e = 2027-01-01: kontrol warisan — dataset terbuka tetapi TANPA
+  // baris kanonik untuk keempat laga → fallback lama utuh, PUBLISHED.
+  publishFixture("fx_e1", "2027-01-01T13:00:00.000Z", "liga_berfeed", L1(0.9));
+  publishFixture("fx_e2", "2027-01-01T14:00:00.000Z", "liga_berfeed", L1(0.88));
+  publishFixture("fx_e3", "2027-01-01T15:00:00.000Z", "liga_berfeed", L1(0.86));
+  publishFixture("fx_e4", "2027-01-01T16:00:00.000Z", "liga_berfeed", L1(0.84));
+  const decD12e = fix4.generateFix4Ticket(db, "2027-01-01", "2027-01-01T07:00:00.000Z", { datasetDb: dsDb });
+  suite.eq("D12e: tanpa data kanonik → PUBLISHED (fallback lama)", decD12e.status, "PUBLISHED");
+  suite.eq("D12e: tiket memuat 4 pilihan", decD12e.legs.length, 4);
+  dsDb.close();
+
+  // --- D13 (R3) = retry 2026-11-26 di bawah lock writer lain ------------------
+  // Keputusan 2026-11-26 sudah tercatat (kasus D). Koneksi lain memegang
+  // BEGIN IMMEDIATE; koneksi retry memakai busy_timeout 0. Head 149e241
+  // menjalankan DDL + BEGIN IMMEDIATE sebelum membaca keputusan →
+  // SQLITE_BUSY. Sesudah patch: pembacaan cepat lebih dulu → UID sama
+  // tanpa meminta lock.
+  const lockR3 = new DatabaseSync(path.join(env.dataDir, "picks.db"));
+  lockR3.exec("BEGIN IMMEDIATE");
+  const busyConn = new DatabaseSync(path.join(env.dataDir, "picks.db"));
+  busyConn.exec("PRAGMA busy_timeout = 0");
+  let decR3: import("../lib/picks/fix4-tickets").Fix4GenerationResult | null = null;
+  let r3Err: unknown = null;
+  try {
+    decR3 = fix4.generateFix4Ticket(busyConn, "2026-11-26", NOW_LATE);
+  } catch (e) {
+    r3Err = e;
+  }
+  lockR3.exec("COMMIT");
+  lockR3.close();
+  busyConn.close();
+  suite.check("D13: retry di bawah lock writer tidak melempar", r3Err === null, String(r3Err));
+  suite.check("D13: retry → already_existed", decR3?.already_existed === true);
+  suite.eq("D13: retry ticket_uid sama dengan keputusan awal", decR3?.ticket_uid, decD.ticket_uid);
+  const nDecR3 = (db.prepare(
+    "SELECT COUNT(*) AS n FROM fix4_daily_decisions WHERE date_wib = '2026-11-26'",
+  ).get() as { n: number }).n;
+  suite.eq("D13: tepat satu baris keputusan untuk tanggal itu", nDecR3, 1);
+
+  // Kontrol D13b: sebelum cutoff, generator TIDAK menyentuh DB sama
+  // sekali — handle yang melempar pada sentuhan apa pun tetap menerima
+  // WAITING_CUTOFF (penjaga murni jam, jalur CLI tanpa membuka DB).
+  const noTouchDb = {
+    prepare: (): never => { throw new Error("DB disentuh (prepare)"); },
+    exec: (): never => { throw new Error("DB disentuh (exec)"); },
+  };
+  const waitD13 = fix4.generateFix4Ticket(
+    noTouchDb as unknown as import("node:sqlite").DatabaseSync,
+    "2027-01-03",
+    "2027-01-03T06:59:00.000Z",
+  );
+  suite.eq("D13b: sebelum cutoff → WAITING_CUTOFF tanpa menyentuh DB", waitD13.status, "WAITING_CUTOFF");
 
   settleFixtureEnv(env, suite.failedCount > 0);
   suite.finish();
