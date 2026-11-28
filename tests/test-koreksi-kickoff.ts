@@ -257,8 +257,9 @@ function blokA(): void {
   suite.eq("A4 dry-run: katalog tidak berubah", katalog(env, FD6)?.utc_date, T18);
   suite.eq("A4 dry-run: kanonik tidak berubah", kanonik(env, FD6)?.kickoff_utc, T18);
 
-  const a5 = impor(env, ["--odds"]);
-  suite.check("A5 odds saja: exit 0", a5.res.code === 0, a5.res.stderr.slice(0, 200));
+  // --odds SAJA (tanpa --fixtures): jalur koreksi tidak boleh tersentuh.
+  const a5res = runScript(env, "scripts/import-free-feed.ts", ["--odds", "--divs=E0"]);
+  suite.check("A5 odds saja: exit 0", a5res.code === 0, a5res.stderr.slice(0, 200));
   suite.eq("A5 odds saja: katalog tidak berubah", katalog(env, FD6)?.utc_date, T18);
   suite.eq("A5 odds saja: kanonik tidak berubah", kanonik(env, FD6)?.kickoff_utc, T18);
 

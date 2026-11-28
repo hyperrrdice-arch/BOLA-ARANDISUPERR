@@ -47,6 +47,7 @@ import {
   preMatchBooks,
   closingBook,
   hasBothClosingBooks,
+  strictFixtureKickoffUtc,
   teamSlug,
   yyyymmdd,
   type FdRawRow,
@@ -61,7 +62,12 @@ import {
 import {
   applyResultObservation,
   ensureIdentitySchema,
+  getAliasesForUid,
+  getFixtureByUid,
+  getUidForAlias,
+  identityTablesExist,
   linkAlias,
+  normalizeMatchStatus,
   resolveFixtureIdentity,
   sourceOfMatchId,
   type ObservationOutcome,
@@ -604,7 +610,210 @@ async function main() {
   }
 
   // ================= FIXTURE + ODDS PRA-LAGA =================
-  const fixtureSummary = { parsed: 0, inserted: 0, bridged: 0, already: 0, outOfScope: 0, invalid: 0 };
+  interface ScheduleEvent {
+    source_match_id: string;
+    fixture_uid: string | null;
+    old_kickoff_utc: string | null;
+    new_kickoff_utc: string | null;
+    outcome: "updated" | "unchanged" | "conflict";
+    reason: string | null;
+  }
+  const fixtureSummary = {
+    parsed: 0,
+    inserted: 0,
+    bridged: 0,
+    already: 0,
+    outOfScope: 0,
+    invalid: 0,
+    schedule_updated: 0,
+    schedule_unchanged: 0,
+    schedule_conflict: 0,
+    schedule_events: [] as ScheduleEvent[],
+  };
+
+  // ================= KOREKSI KICKOFF (audit §3) =================
+  // Cabang fixture-yang-sudah-ada dulu hanya mendaftarkan identitas:
+  // resolver menggerakkan canonical_fixtures.kickoff_utc tetapi katalog
+  // upcoming_fixtures.utc_date tidak pernah ditulis, sehingga Jadwal
+  // tetap menampilkan jam lama. Jalur koreksi di bawah ini TERARAH (bukan
+  // UPSERT umum): satu-satunya kolom katalog yang ditulis adalah
+  // utc_date (+ fetched_utc sebagai cap konfirmasi baris itu), dan hanya
+  // bila seluruh guard otoritas lolos. Guard berjalan SEBELUM
+  // registerFixtureIdentity karena panggilan resolver itulah yang
+  // menggerakkan kickoff kanonik. Koreksi yang ditahan adalah KEPUTUSAN
+  // (tercatat + alasan), bukan kegagalan run: exit tetap 0 dan marker
+  // sukses refresh tetap boleh maju; kegagalan teknis tetap throw.
+  const TERMINAL_STATES = new Set(["live", "finished", "cancelled", "postponed"]);
+  const getCatalogFixtureRow = up.prepare(
+    "SELECT match_id, competition_id, utc_date, status FROM upcoming_fixtures WHERE match_id = ?",
+  );
+  const updCatalogKickoff = up.prepare(
+    "UPDATE upcoming_fixtures SET utc_date = ?, fetched_utc = ? WHERE match_id = ? AND utc_date = ?",
+  );
+  type CatalogRow = {
+    match_id: string;
+    competition_id: string | null;
+    utc_date: string;
+    status: string | null;
+  };
+  const catalogRowOf = (matchId: string): CatalogRow | null =>
+    (getCatalogFixtureRow.get(matchId) as unknown as CatalogRow | undefined) ?? null;
+
+  const canonicalOfFd = (
+    fdId: string,
+  ): { uid: string | null; fx: ReturnType<typeof getFixtureByUid> } => {
+    if (!identityTablesExist(ds)) return { uid: null, fx: null };
+    const uid = getUidForAlias(ds, "football-data", fdId);
+    if (!uid) return { uid: null, fx: null };
+    return { uid, fx: getFixtureByUid(ds, uid) };
+  };
+
+  interface ScheduleDecision {
+    outcome: "updated" | "unchanged" | "conflict";
+    reason: string | null;
+    uid: string | null;
+    oldKickoffUtc: string | null;
+    newKickoffUtc: string | null;
+  }
+
+  /**
+   * Keputusan koreksi untuk satu fixture fd_ yang sudah ada. Membaca
+   * KEDUA store segar pada percobaan ini (bukan peta awal run), supaya
+   * retry sesudah kegagalan parsial menilai keadaan terbaru.
+   */
+  const decideScheduleCorrection = (
+    fdId: string,
+    div: string,
+    raw: FdRawRow,
+    lenientKickoffUtc: string,
+    homeTeamId: string,
+    awayTeamId: string,
+  ): ScheduleDecision => {
+    const cat = catalogRowOf(fdId);
+    if (!cat) {
+      return { outcome: "conflict", reason: "catalog_row_missing", uid: null, oldKickoffUtc: null, newKickoffUtc: null };
+    }
+    const strict = strictFixtureKickoffUtc(raw);
+    if (!strict.ok) {
+      // Jam absen/di luar rentang BUKAN bukti koreksi (parser longgar
+      // mengimputasi 00:00 / menormalkan rollover).
+      return { outcome: "conflict", reason: strict.reason, uid: null, oldKickoffUtc: cat.utc_date, newKickoffUtc: null };
+    }
+    const newK = strict.kickoffUtc;
+    if (newK !== lenientKickoffUtc) {
+      return { outcome: "conflict", reason: "parser_mismatch", uid: null, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    if (TERMINAL_STATES.has(normalizeMatchStatus(cat.status))) {
+      return { outcome: "conflict", reason: "terminal_status", uid: null, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    const { uid, fx } = canonicalOfFd(fdId);
+    if (!uid || !fx) {
+      return { outcome: "conflict", reason: "uid_unproven", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    const hCid = cidOf(homeTeamId);
+    const aCid = cidOf(awayTeamId);
+    if (fx.home_cid && fx.away_cid && hCid && aCid && (fx.home_cid !== hCid || fx.away_cid !== aCid)) {
+      return { outcome: "conflict", reason: "team_conflict", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    const canonLeague = getCanonicalBySourceId(div);
+    if (
+      fx.competition_id &&
+      fx.competition_id !== div &&
+      fx.competition_id !== (canonLeague?.canonical_id ?? null)
+    ) {
+      return { outcome: "conflict", reason: "competition_conflict", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    if (TERMINAL_STATES.has(normalizeMatchStatus(fx.state))) {
+      return { outcome: "conflict", reason: "terminal_state", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    // Anchor sumber lain: alias lain dari UID yang sama yang punya baris
+    // katalog pada jam berbeda = otoritas jam belum diputuskan pemilik.
+    for (const a of getAliasesForUid(ds, uid)) {
+      if (a.source_match_id === fdId) continue;
+      const sib = catalogRowOf(a.source_match_id);
+      if (sib && sib.utc_date !== newK) {
+        return { outcome: "conflict", reason: "other_source_anchor", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+      }
+    }
+    const canonK = fx.kickoff_utc;
+    if (cat.utc_date === newK) {
+      if (canonK === newK || canonK === null) {
+        return { outcome: "unchanged", reason: null, uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+      }
+      // Katalog sudah di jam target; kanonik tertinggal = bekas kegagalan
+      // parsial antar dua koneksi — sembuhkan sisi kanonik saja.
+      return { outcome: "updated", reason: "canonical_lagging", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    if (canonK && canonK !== newK && canonK !== cat.utc_date) {
+      // Kanonik tidak sepakat dengan katalog lama maupun CSV baru:
+      // otoritas ketiga yang belum dijelaskan — tahan.
+      return { outcome: "conflict", reason: "canonical_anchor_conflict", uid, oldKickoffUtc: cat.utc_date, newKickoffUtc: newK };
+    }
+    return {
+      outcome: "updated",
+      reason: canonK === newK ? "catalog_lagging" : null,
+      uid,
+      oldKickoffUtc: cat.utc_date,
+      newKickoffUtc: newK,
+    };
+  };
+
+  /**
+   * Terapkan keputusan. Urutan tulis: katalog dulu (UPDATE terguard jam
+   * lama — state yang bergeser membatalkan seluruh koreksi), lalu
+   * resolver untuk sisi kanonik. Sesudahnya kedua store diverifikasi;
+   * koreksi hanya dihitung "updated" bila keduanya berakhir di jam
+   * target, selain itu terlapor sebagai konflik partial_write dan input
+   * yang sama pada run berikut menyembuhkannya.
+   */
+  const applyScheduleCorrection = (
+    fdId: string,
+    div: string,
+    row: NonNullable<ReturnType<typeof toFixtureRow>>,
+    homeTeamId: string,
+    awayTeamId: string,
+    dec: ScheduleDecision,
+  ): ScheduleEvent => {
+    const base = {
+      source_match_id: fdId,
+      fixture_uid: dec.uid,
+      old_kickoff_utc: dec.oldKickoffUtc,
+      new_kickoff_utc: dec.newKickoffUtc,
+    };
+    if (dec.outcome === "conflict") return { ...base, outcome: "conflict", reason: dec.reason };
+    if (DRY_RUN) return { ...base, outcome: dec.outcome, reason: dec.reason };
+    if (
+      dec.outcome === "updated" &&
+      dec.newKickoffUtc &&
+      dec.oldKickoffUtc &&
+      dec.oldKickoffUtc !== dec.newKickoffUtc
+    ) {
+      const r = updCatalogKickoff.run(dec.newKickoffUtc, nowIso, fdId, dec.oldKickoffUtc);
+      if (r.changes !== 1) return { ...base, outcome: "conflict", reason: "state_shifted" };
+    }
+    registerFixtureIdentity(fdId, null, div, row, homeTeamId, awayTeamId);
+    if (dec.outcome === "updated") {
+      const catAfter = catalogRowOf(fdId);
+      const { fx } = canonicalOfFd(fdId);
+      if (!catAfter || catAfter.utc_date !== dec.newKickoffUtc || !fx || fx.kickoff_utc !== dec.newKickoffUtc) {
+        return { ...base, outcome: "conflict", reason: "partial_write" };
+      }
+    }
+    return { ...base, outcome: dec.outcome, reason: dec.reason };
+  };
+
+  const recordScheduleEvent = (ev: ScheduleEvent): void => {
+    if (ev.outcome === "updated") fixtureSummary.schedule_updated++;
+    else if (ev.outcome === "unchanged") fixtureSummary.schedule_unchanged++;
+    else fixtureSummary.schedule_conflict++;
+    if (ev.outcome !== "unchanged") {
+      fixtureSummary.schedule_events.push(ev);
+      console.log(
+        `[fixtures][schedule] ${ev.outcome} ${ev.source_match_id} uid=${ev.fixture_uid ?? "-"} ` +
+          `${ev.old_kickoff_utc ?? "-"} -> ${ev.new_kickoff_utc ?? "-"}${ev.reason ? ` (${ev.reason})` : ""}`,
+      );
+    }
+  };
   if (DO_FIXTURES || DO_ODDS) {
     const rawRows = await fetchFixturesCsv();
     if (!DRY_RUN) up.prepare("BEGIN").run();
@@ -631,12 +840,45 @@ async function main() {
         if (DO_FIXTURES) {
           if (existingFixtureIds.has(fdId)) {
             fixtureSummary.already++;
-            registerFixtureIdentity(fdId, null, div, row, home.teamId, away.teamId);
+            // Koreksi kickoff (audit §3): guard otoritas menilai kedua
+            // store SEBELUM registerFixtureIdentity dipanggil; koreksi
+            // yang ditahan berarti resolver tidak dipanggil sama sekali
+            // untuk baris ini.
+            const dec = decideScheduleCorrection(fdId, div, raw, row.kickoffUtc, home.teamId, away.teamId);
+            recordScheduleEvent(applyScheduleCorrection(fdId, div, row, home.teamId, away.teamId, dec));
           } else if (existingFixtureByKey.has(bKey)) {
             anchorId = existingFixtureByKey.get(bKey) as string;
             fixtureSummary.bridged++;
-            // Kembar katalog: id fd + id katalog (mis. sm_901) satu UID.
-            registerFixtureIdentity(fdId, anchorId, div, row, home.teamId, away.teamId);
+            // Guard jembatan (audit §3): baris ini menjangkar ke laga
+            // katalog yang sudah ada (seringnya sumber lain). Observasi
+            // football-data hanya boleh menempel bila jamnya valid ketat
+            // DAN persis jam jangkar; selain itu ditahan + tercatat dan
+            // resolver dilewati, supaya kickoff kanonik jangkar tidak
+            // digerakkan oleh bukti yang belum terverifikasi.
+            const strictB = strictFixtureKickoffUtc(raw);
+            const anchorRow = catalogRowOf(anchorId);
+            if (!strictB.ok) {
+              recordScheduleEvent({
+                source_match_id: fdId,
+                fixture_uid: null,
+                old_kickoff_utc: anchorRow?.utc_date ?? null,
+                new_kickoff_utc: null,
+                outcome: "conflict",
+                reason: strictB.reason,
+              });
+            } else if (anchorRow && anchorRow.utc_date !== strictB.kickoffUtc) {
+              recordScheduleEvent({
+                source_match_id: fdId,
+                fixture_uid: null,
+                old_kickoff_utc: anchorRow.utc_date,
+                new_kickoff_utc: strictB.kickoffUtc,
+                outcome: "conflict",
+                reason: "bridged_anchor_mismatch",
+              });
+            } else {
+              // Kembar katalog: id fd + id katalog (mis. sm_901) satu UID.
+              registerFixtureIdentity(fdId, anchorId, div, row, home.teamId, away.teamId);
+            }
           } else {
             if (!DRY_RUN) {
               insFixture.run(
@@ -692,9 +934,14 @@ async function main() {
     totals.fixtures_inserted = fixtureSummary.inserted;
     totals.fixtures_bridged = fixtureSummary.bridged;
     totals.fixtures_already_present = fixtureSummary.already;
+    (totals as Record<string, number>).fixtures_schedule_updated = fixtureSummary.schedule_updated;
+    (totals as Record<string, number>).fixtures_schedule_unchanged = fixtureSummary.schedule_unchanged;
+    (totals as Record<string, number>).fixtures_schedule_conflict = fixtureSummary.schedule_conflict;
     console.log(
       `[fixtures] parsed=${fixtureSummary.parsed} inserted=${fixtureSummary.inserted} bridged=${fixtureSummary.bridged} ` +
         `already=${fixtureSummary.already} outOfScope=${fixtureSummary.outOfScope} invalid=${fixtureSummary.invalid} ` +
+        `scheduleUpdated=${fixtureSummary.schedule_updated} scheduleUnchanged=${fixtureSummary.schedule_unchanged} ` +
+        `scheduleConflict=${fixtureSummary.schedule_conflict} ` +
         `prematchOdds=+${totals.prematch_odds_written} (skipToday=${totals.prematch_odds_skipped_today})`,
     );
   }
