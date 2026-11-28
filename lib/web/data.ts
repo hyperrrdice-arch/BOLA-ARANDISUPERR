@@ -2163,6 +2163,44 @@ export function listSchedule(dariUtc: string, sampaiUtc: string): JadwalItem[] {
   muatDatasetBatch([...semuaSibling], ctx.datasetById);
   muatKatalogBatch([...semuaSibling], ctx.catalogById);
 
+  // Rekonsiliasi katalog (PR koreksi-kickoff, audit §3): katalog adalah
+  // sumber waktu + keanggotaan jendela tanggal. Entri fallback (paket /
+  // dataset, jam beku saat paket dibuat) untuk laga yang grup fisiknya
+  // TERBUKTI punya baris katalog tidak boleh tampil dengan jam paket:
+  //   - baris katalognya tampil di jendela ini → paket dipindah ke baris
+  //     katalog, entri fallback dibuang (satu UID sekali, jam katalog);
+  //   - baris katalognya di luar jendela ini → entri fallback gugur,
+  //     laga tampil di jendela katalog saja.
+  // Laga tanpa baris katalog sama sekali tidak disentuh (fallback paket
+  // tetap sah). Murni data batch yang sudah dimuat (ctx.catalogById) —
+  // tanpa kueri tambahan per laga.
+  for (const [mid, m] of [...byId.entries()]) {
+    if (m.dariKatalog) continue;
+    const ids = ctx.siblingsById.get(mid) ?? [mid];
+    let katalogId: string | null = null;
+    for (const id of ids) {
+      if (ctx.catalogById.has(id)) {
+        katalogId = id;
+        if (id === mid) break;
+      }
+    }
+    if (katalogId === null) continue;
+    const target = katalogId !== mid ? byId.get(katalogId) : undefined;
+    if (target) {
+      const pkg = pkgById.get(mid);
+      if (pkg && !pkgById.has(katalogId)) pkgById.set(katalogId, pkg);
+      if (!target.dariKatalog) {
+        const kat = ctx.catalogById.get(katalogId)!;
+        target.kickoff_utc = kat.utc_date;
+        target.statusRaw = kat.status;
+        target.dariKatalog = true;
+      }
+      byId.delete(mid);
+    } else {
+      byId.delete(mid);
+    }
+  }
+
   const nowMs = Date.now();
   const items: JadwalItem[] = [];
   for (const m of byId.values()) {

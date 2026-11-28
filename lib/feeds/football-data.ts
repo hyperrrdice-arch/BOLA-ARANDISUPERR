@@ -203,6 +203,76 @@ export function londonDateTimeToUtcIso(dateStr: string, timeStr?: string | null)
   return new Date(utc).toISOString();
 }
 
+export type FdStrictKickoff =
+  | { ok: true; kickoffUtc: string }
+  | {
+      ok: false;
+      reason:
+        | "date_invalid"
+        | "time_absent"
+        | "time_invalid"
+        | "time_out_of_range"
+        | "conversion_mismatch";
+    };
+
+/**
+ * Validasi kickoff KETAT untuk jalur KOREKSI jadwal (PR koreksi-kickoff,
+ * audit §3) — terpisah dari londonDateTimeToUtcIso yang sengaja longgar
+ * (kontraknya dipakai parser hasil/odds dan tidak diubah): parser longgar
+ * mengimputasi jam absen menjadi 00:00 dan menormalkan nilai di luar
+ * rentang lewat rollover Date.UTC, dan imputasi bukan bukti koreksi.
+ * Di sini: Date harus tanggal kalender nyata; Time harus hadir, berbentuk
+ * HH:MM persis, jam 0–23 / menit 0–59 (00:00 eksplisit SAH); dan hasil
+ * konversi Europe/London harus terbaca balik persis sama dengan input.
+ */
+export function strictFixtureKickoffUtc(row: FdRawRow): FdStrictKickoff {
+  const date = str(row, "Date");
+  const time = str(row, "Time");
+  if (!date) return { ok: false, reason: "date_invalid" };
+  const dm = date.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!dm) return { ok: false, reason: "date_invalid" };
+  const day = Number(dm[1]);
+  const month = Number(dm[2]);
+  let year = Number(dm[3]);
+  if (year < 100) year += 2000;
+  const cal = new Date(Date.UTC(year, month - 1, day));
+  if (
+    cal.getUTCFullYear() !== year ||
+    cal.getUTCMonth() !== month - 1 ||
+    cal.getUTCDate() !== day
+  ) {
+    return { ok: false, reason: "date_invalid" };
+  }
+  if (!time) return { ok: false, reason: "time_absent" };
+  const tm = time.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!tm) return { ok: false, reason: "time_invalid" };
+  const hour = Number(tm[1]);
+  const minute = Number(tm[2]);
+  if (hour > 23 || minute > 59) return { ok: false, reason: "time_out_of_range" };
+  const iso = londonDateTimeToUtcIso(date, time);
+  if (!iso) return { ok: false, reason: "date_invalid" };
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(iso));
+  const part = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? -1);
+  if (
+    part("year") !== year ||
+    part("month") !== month ||
+    part("day") !== day ||
+    part("hour") !== hour ||
+    part("minute") !== minute
+  ) {
+    return { ok: false, reason: "conversion_mismatch" };
+  }
+  return { ok: true, kickoffUtc: iso };
+}
+
 /** yyyymmdd dari ISO UTC (untuk kunci match fd_/fo_). */
 export function yyyymmdd(isoUtc: string): string {
   return isoUtc.slice(0, 10).replace(/-/g, "");
